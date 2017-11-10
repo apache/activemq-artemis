@@ -62,7 +62,7 @@ public class StompTestWithInterceptors extends StompTestBase {
       // So we clear them here
       MyCoreInterceptor.incomingInterceptedFrames.clear();
 
-      StompClientConnection conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");

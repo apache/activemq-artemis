@@ -24,12 +24,20 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.felix.resolver.util.ArrayMap;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class StompTestPropertiesInterceptor extends StompTestBase {
+
+   @Parameterized.Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
+   }
 
    @Override
    public List<String> getIncomingInterceptors() {
@@ -73,7 +81,7 @@ public class StompTestPropertiesInterceptor extends StompTestBase {
       expectedProperties.put(MESSAGE_TEXT, msgText);
       expectedProperties.put(MY_HEADER, myHeader);
 
-      StompClientConnection conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");
