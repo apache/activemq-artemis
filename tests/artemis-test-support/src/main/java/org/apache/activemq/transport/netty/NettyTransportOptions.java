@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.transport.amqp.client.transport;
+package org.apache.activemq.transport.netty;
 
 /**
  * Encapsulates all the TCP Transport options in one configuration object.
@@ -31,6 +31,7 @@ public class NettyTransportOptions implements Cloneable {
    public static final int DEFAULT_CONNECT_TIMEOUT = 60000;
    public static final int DEFAULT_TCP_PORT = 5672;
    public static final boolean DEFAULT_TRACE_BYTES = false;
+   public static final String DEFAULT_WS_SUBPROTOCOL = NettyWSTransport.AMQP_SUB_PROTOCOL;
 
    public static final NettyTransportOptions INSTANCE = new NettyTransportOptions();
 
@@ -44,6 +45,7 @@ public class NettyTransportOptions implements Cloneable {
    private boolean tcpNoDelay = DEFAULT_TCP_NO_DELAY;
    private int defaultTcpPort = DEFAULT_TCP_PORT;
    private boolean traceBytes = DEFAULT_TRACE_BYTES;
+   private String wsSubProtocol = DEFAULT_WS_SUBPROTOCOL;
 
    /**
     * @return the currently set send buffer size in bytes.
@@ -188,6 +190,14 @@ public class NettyTransportOptions implements Cloneable {
       return false;
    }
 
+   public String getWsSubProtocol() {
+      return wsSubProtocol;
+   }
+
+   public void setWsSubProtocol(String wsSubProtocol) {
+      this.wsSubProtocol = wsSubProtocol;
+   }
+
    @Override
    public NettyTransportOptions clone() {
       return copyOptions(new NettyTransportOptions());
@@ -202,6 +212,7 @@ public class NettyTransportOptions implements Cloneable {
       copy.setTcpKeepAlive(isTcpKeepAlive());
       copy.setTcpNoDelay(isTcpNoDelay());
       copy.setTrafficClass(getTrafficClass());
+      copy.setWsSubProtocol(getWsSubProtocol());
 
       return copy;
    }
