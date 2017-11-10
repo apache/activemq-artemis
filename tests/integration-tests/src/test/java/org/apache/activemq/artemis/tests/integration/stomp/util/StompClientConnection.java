@@ -53,5 +53,6 @@ public interface StompClientConnection {
 
    int getServerPingNumber();
 
+   void closeTransport() throws IOException;
 }
 

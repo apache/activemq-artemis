@@ -17,9 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +26,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.transport.netty.NettyTransport;
+import org.apache.activemq.transport.netty.NettyTransportFactory;
+import org.apache.activemq.transport.netty.NettyTransportListener;
 
 public abstract class AbstractStompClientConnection implements StompClientConnection {
 
@@ -39,41 +45,53 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    protected String username;
    protected String passcode;
    protected StompFrameFactory factory;
-   protected final SocketChannel socketChannel;
+   protected NettyTransport transport;
    protected ByteBuffer readBuffer;
    protected List<Byte> receiveList;
    protected BlockingQueue<ClientStompFrame> frameQueue = new LinkedBlockingQueue<>();
    protected boolean connected = false;
    protected int serverPingCounter;
-   protected ReaderThread readerThread;
+   //protected ReaderThread readerThread;
+   protected String scheme;
 
+   @Deprecated
    public AbstractStompClientConnection(String version, String host, int port) throws IOException {
       this.version = version;
       this.host = host;
       this.port = port;
+      this.scheme = "tcp";
+
       this.factory = StompFrameFactoryFactory.getFactory(version);
-      socketChannel = SocketChannel.open();
-      initSocket();
    }
 
-   private void initSocket() throws IOException {
-      socketChannel.configureBlocking(true);
-      InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-      socketChannel.connect(remoteAddr);
+   public AbstractStompClientConnection(URI uri) throws Exception {
+      parseURI(uri);
+      this.factory = StompFrameFactoryFactory.getFactory(version);
 
-      startReaderThread();
-   }
-
-   private void startReaderThread() {
       readBuffer = ByteBuffer.allocateDirect(10240);
       receiveList = new ArrayList<>(10240);
 
-      readerThread = new ReaderThread();
-      readerThread.start();
+      transport = NettyTransportFactory.createTransport(uri);
+      transport.setTransportListener(new StompTransportListener());
+      transport.connect();
+
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return transport.isConnected();
+         }
+      }, 10000);
+
+      if (!transport.isConnected()) {
+         throw new RuntimeException("Could not connect transport");
+      }
    }
 
-   public void killReaderThread() {
-      readerThread.stop();
+   private void parseURI(URI uri) {
+      scheme = uri.getScheme() == null ? "tcp" : uri.getScheme();
+      host = uri.getHost();
+      port = uri.getPort();
+      this.version = StompClientConnectionFactory.getStompVersionFromURI(uri);
    }
 
    private ClientStompFrame sendFrameInternal(ClientStompFrame frame, boolean wicked) throws IOException, InterruptedException {
@@ -85,8 +103,17 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       } else {
          buffer = frame.toByteBuffer();
       }
-      while (buffer.remaining() > 0) {
-         socketChannel.write(buffer);
+
+      ByteBuf buf = Unpooled.copiedBuffer(buffer);
+
+      try {
+         buf.retain();
+         ChannelFuture future = transport.send(buf);
+         if (future != null) {
+            future.awaitUninterruptibly();
+         }
+      } finally {
+         buf.release();
       }
 
       //now response
@@ -179,34 +206,77 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    }
 
    protected void close() throws IOException {
-      socketChannel.close();
+      transport.close();
    }
 
-   private class ReaderThread extends Thread {
+   private class StompTransportListener implements NettyTransportListener {
 
+      /**
+       * Called when new incoming data has become available.
+       *
+       * @param incoming the next incoming packet of data.
+       */
       @Override
-      public void run() {
-         try {
-            int n = socketChannel.read(readBuffer);
-
-            while (n >= 0) {
-               if (n > 0) {
-                  receiveBytes(n);
-               }
-               n = socketChannel.read(readBuffer);
-            }
-            //peer closed
-            close();
-
-         } catch (IOException e) {
-            try {
-               close();
-            } catch (IOException e1) {
-               //ignore
+      public void onData(ByteBuf incoming) {
+         while (incoming.readableBytes() > 0) {
+            int bytes = incoming.readableBytes();
+            if (incoming.readableBytes() < readBuffer.remaining()) {
+               ByteBuffer byteBuffer = ByteBuffer.allocate(incoming.readableBytes());
+               incoming.readBytes(byteBuffer);
+               byteBuffer.rewind();
+               readBuffer.put(byteBuffer);
+               receiveBytes(bytes);
+            } else {
+               incoming.readBytes(readBuffer);
+               receiveBytes(bytes - incoming.readableBytes());
             }
          }
       }
+
+      /**
+       * Called if the connection state becomes closed.
+       */
+      @Override
+      public void onTransportClosed() {
+      }
+
+      /**
+       * Called when an error occurs during normal Transport operations.
+       *
+       * @param cause the error that triggered this event.
+       */
+      @Override
+      public void onTransportError(Throwable cause) {
+         throw new RuntimeException(cause);
+      }
    }
+
+//   private class ReaderThread extends Thread {
+//
+//      @Override
+//      public void run() {
+//         try {
+//            transport.setTransportListener();
+//            int n = Z..read(readBuffer);
+//
+//            while (n >= 0) {
+//               if (n > 0) {
+//                  receiveBytes(n);
+//               }
+//               n = socketChannel.read(readBuffer);
+//            }
+//            //peer closed
+//            close();
+//
+//         } catch (IOException e) {
+//            try {
+//               close();
+//            } catch (IOException e1) {
+//               //ignore
+//            }
+//         }
+//      }
+//   }
 
    @Override
    public ClientStompFrame connect() throws Exception {
@@ -230,7 +300,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    @Override
    public boolean isConnected() {
-      return connected && socketChannel.isConnected();
+      return connected && transport.isConnected();
    }
 
    @Override
@@ -241,6 +311,11 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    @Override
    public int getFrameQueueSize() {
       return this.frameQueue.size();
+   }
+
+   @Override
+   public void closeTransport() throws IOException {
+      transport.close();
    }
 
    protected class Pinger extends Thread {
