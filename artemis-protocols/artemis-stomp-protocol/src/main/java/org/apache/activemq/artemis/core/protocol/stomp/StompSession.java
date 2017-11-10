@@ -242,7 +242,7 @@ public class StompSession implements SessionCallback {
          StompFrame frame = connection.getFrameHandler().createStompFrame(Stomp.Responses.ERROR);
          frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setBody("consumer with ID " + consumerId + " disconnected by server");
-         connection.sendFrame(frame);
+         connection.sendFrame(frame, null);
       }
    }
 
@@ -278,7 +278,7 @@ public class StompSession implements SessionCallback {
       session.commit();
    }
 
-   public void addSubscription(long consumerID,
+   public StompPostReceiptFunction addSubscription(long consumerID,
                                String subscriptionID,
                                String clientID,
                                String durableSubscriptionName,
@@ -287,13 +287,11 @@ public class StompSession implements SessionCallback {
                                String ack) throws Exception {
       SimpleString queueName = SimpleString.toSimpleString(destination);
       boolean pubSub = false;
-      int receiveCredits = consumerCredits;
-      if (ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
-         receiveCredits = -1;
-      }
+      final int receiveCredits = ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO) ? -1 : consumerCredits;
 
       Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(SimpleString.toSimpleString(destination))).getRoutingTypes();
-      if (routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST)) {
+      boolean topic = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
+      if (topic) {
          // subscribes to a topic
          pubSub = true;
          if (durableSubscriptionName != null) {
@@ -308,15 +306,12 @@ public class StompSession implements SessionCallback {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
             session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), true, false);
          }
-         session.createConsumer(consumerID, queueName, null, false, false, receiveCredits);
-      } else {
-         session.createConsumer(consumerID, queueName, SimpleString.toSimpleString(selector), false, false, receiveCredits);
       }
-
+      final ServerConsumer consumer = topic ? session.createConsumer(consumerID, queueName, null, false, false, 0) : session.createConsumer(consumerID, queueName, SimpleString.toSimpleString(selector), false, false, 0);
       StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, pubSub);
       subscriptions.put(consumerID, subscription);
-
       session.start();
+      return () -> consumer.receiveCredits(receiveCredits);
    }
 
    public boolean unsubscribe(String id, String durableSubscriptionName, String clientID) throws Exception {

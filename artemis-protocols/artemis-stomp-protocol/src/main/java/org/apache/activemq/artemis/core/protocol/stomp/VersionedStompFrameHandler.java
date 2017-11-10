@@ -96,7 +96,7 @@ public abstract class VersionedStompFrameHandler {
       } else if (Stomp.Commands.ABORT.equals(request.getCommand())) {
          response = onAbort(request);
       } else if (Stomp.Commands.SUBSCRIBE.equals(request.getCommand())) {
-         response = onSubscribe(request);
+         return handleSubscribe(request);
       } else if (Stomp.Commands.UNSUBSCRIBE.equals(request.getCommand())) {
          response = onUnsubscribe(request);
       } else if (Stomp.Commands.CONNECT.equals(request.getCommand())) {
@@ -120,6 +120,21 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
+   private StompFrame handleSubscribe(StompFrame request) {
+      StompFrame response = null;
+      try {
+         StompPostReceiptFunction postProcessFunction = onSubscribe(request);
+         response = postprocess(request);
+         if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED)) {
+            response.addHeader(Stomp.Headers.Response.RECEIPT_ID, request.getHeader(Stomp.Headers.RECEIPT_REQUESTED));
+         }
+         connection.sendFrame(response, postProcessFunction);
+         return null;
+      } catch (ActiveMQStompException e) {
+         return e.getFrame();
+      }
+
+   }
    public abstract StompFrame onConnect(StompFrame frame);
 
    public abstract StompFrame onDisconnect(StompFrame frame);
@@ -240,31 +255,22 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
-   public StompFrame onSubscribe(StompFrame frame) {
-      StompFrame response = null;
-      try {
-         String destination = getDestination(frame);
+   public StompPostReceiptFunction onSubscribe(StompFrame frame) throws ActiveMQStompException {
+      String destination = getDestination(frame);
 
-         String selector = frame.getHeader(Stomp.Headers.Subscribe.SELECTOR);
-         String ack = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
-         String id = frame.getHeader(Stomp.Headers.Subscribe.ID);
-         String durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
-         if (durableSubscriptionName == null) {
-            durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
-         }
-         RoutingType routingType = getRoutingType(frame.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), frame.getHeader(Headers.Subscribe.DESTINATION));
-         boolean noLocal = false;
-
-         if (frame.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
-            noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
-         }
-
-         connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
-      } catch (ActiveMQStompException e) {
-         response = e.getFrame();
+      String selector = frame.getHeader(Stomp.Headers.Subscribe.SELECTOR);
+      String ack = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String id = frame.getHeader(Stomp.Headers.Subscribe.ID);
+      String durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
       }
-
-      return response;
+      RoutingType routingType = getRoutingType(frame.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), frame.getHeader(Headers.Subscribe.DESTINATION));
+      boolean noLocal = false;
+      if (frame.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
+         noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
+      }
+      return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
    }
 
    public String getDestination(StompFrame request) {
@@ -334,7 +340,7 @@ public abstract class VersionedStompFrameHandler {
 
    //sends an ERROR frame back to client if possible then close the connection
    public void onError(ActiveMQStompException e) {
-      this.connection.sendFrame(e.getFrame());
+      this.connection.sendFrame(e.getFrame(), null);
       connection.destroy();
    }
 
