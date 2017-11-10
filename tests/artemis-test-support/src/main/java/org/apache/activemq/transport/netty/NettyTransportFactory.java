@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.transport.amqp.client.transport;
+package org.apache.activemq.transport.netty;
 
 import java.net.URI;
 import java.util.Map;
@@ -65,19 +65,18 @@ public final class NettyTransportFactory {
 
       NettyTransport result = null;
 
-      switch (remoteURI.getScheme().toLowerCase()) {
-         case "tcp":
-         case "ssl":
-            result = new NettyTcpTransport(remoteURI, transportOptions);
-            break;
-         case "ws":
-         case "wss":
-            result = new NettyWSTransport(remoteURI, transportOptions);
-            break;
-         default:
-            throw new IllegalArgumentException("Invalid URI Scheme: " + remoteURI.getScheme());
+      String scheme = remoteURI.getScheme().toLowerCase();
+      if (scheme.startsWith("tcp") || scheme.startsWith("ssl")) {
+         result = new NettyTcpTransport(remoteURI, transportOptions);
+      } else if (scheme.startsWith("ws") || scheme.startsWith("wss")) {
+         // Check for ws subprotocol
+         if (scheme.contains("+")) {
+            transportOptions.setWsSubProtocol(scheme.substring(scheme.indexOf("+") + 1));
+         }
+         result = new NettyWSTransport(remoteURI, transportOptions);
+      } else {
+         throw new IllegalArgumentException("Invalid URI Scheme: " + remoteURI.getScheme());
       }
-
       return result;
    }
 }

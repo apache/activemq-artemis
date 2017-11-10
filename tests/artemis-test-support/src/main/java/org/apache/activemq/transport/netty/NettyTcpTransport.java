@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.transport.amqp.client.transport;
+package org.apache.activemq.transport.netty;
 
 import java.io.IOException;
 import java.net.URI;
@@ -223,16 +223,16 @@ public class NettyTcpTransport implements NettyTransport {
    }
 
    @Override
-   public void send(ByteBuf output) throws IOException {
+   public ChannelFuture send(ByteBuf output) throws IOException {
       checkConnected();
       int length = output.readableBytes();
       if (length == 0) {
-         return;
+         return null;
       }
 
       LOG.trace("Attempted write of: {} bytes", length);
 
-      channel.writeAndFlush(output);
+      return channel.writeAndFlush(output);
    }
 
    @Override
