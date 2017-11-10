@@ -23,20 +23,22 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
-import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
@@ -46,10 +48,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /*
  *
  */
+@RunWith(Parameterized.class)
 public class StompV11Test extends StompTestBase {
 
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -57,11 +62,19 @@ public class StompV11Test extends StompTestBase {
 
    private StompClientConnection conn;
 
+   private URI v10Uri;
+
+   @Parameterized.Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v11.stomp"}, {"tcp+v11.stomp"}});
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      v10Uri = new URI(uri.toString().replace("v11", "v10"));
+      conn = StompClientConnectionFactory.createClientConnection(uri);
    }
 
    @Override
@@ -75,13 +88,14 @@ public class StompV11Test extends StompTestBase {
          }
       } finally {
          super.tearDown();
+         conn.closeTransport();
       }
    }
 
    @Test
    public void testConnection() throws Exception {
       server.getActiveMQServer().getConfiguration().setSecurityEnabled(true);
-      StompClientConnection connection = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection connection = StompClientConnectionFactory.createClientConnection(v10Uri);
 
       connection.connect(defUser, defPass);
 
@@ -91,7 +105,7 @@ public class StompV11Test extends StompTestBase {
 
       connection.disconnect();
 
-      connection = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
 
       connection.connect(defUser, defPass);
 
@@ -101,14 +115,14 @@ public class StompV11Test extends StompTestBase {
 
       connection.disconnect();
 
-      connection = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
 
       connection.connect();
 
       assertFalse(connection.isConnected());
 
       //new way of connection
-      StompClientConnectionV11 conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnectionV11 conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection(uri);
       conn.connect1(defUser, defPass);
 
       assertTrue(conn.isConnected());
@@ -116,7 +130,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       //invalid user
-      conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("invaliduser", defPass);
       assertFalse(conn.isConnected());
       assertTrue(Stomp.Responses.ERROR.equals(frame.getCommand()));
@@ -141,7 +155,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       // case 2 accept-version=1.0, result: 1.0
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.ACCEPT_VERSION, "1.0")
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
@@ -158,7 +172,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       // case 3 accept-version=1.1, result: 1.1
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.ACCEPT_VERSION, "1.1")
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
@@ -175,7 +189,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       // case 4 accept-version=1.0,1.1,1.2, result 1.1
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.ACCEPT_VERSION, "1.0,1.1,1.3")
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
@@ -192,7 +206,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       // case 5 accept-version=1.2, result error
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.ACCEPT_VERSION, "1.3")
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
@@ -220,7 +234,7 @@ public class StompV11Test extends StompTestBase {
       response = send(conn, getQueuePrefix() + getQueueName(), "text/plain", "Hello World 2!", true);
 
       //subscribe
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass);
 
       subscribe(newConn, "a-sub");
@@ -254,7 +268,7 @@ public class StompV11Test extends StompTestBase {
       send(conn, getQueuePrefix() + getQueueName(), "application/xml", "Hello World 1!");
 
       //subscribe
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass);
 
       subscribe(newConn, "a-sub");
@@ -289,7 +303,7 @@ public class StompV11Test extends StompTestBase {
       conn.sendFrame(frame);
 
       //subscribe
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass);
 
       subscribe(newConn, "a-sub");
@@ -330,7 +344,7 @@ public class StompV11Test extends StompTestBase {
       conn.sendFrame(frame);
 
       //subscribe
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass);
 
       subscribe(newConn, "a-sub");
@@ -365,6 +379,7 @@ public class StompV11Test extends StompTestBase {
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.addHeader("content-type", "text/plain");
       frame.addHeader("content-length", cLen);
+      //frame.addHeader(Stomp.Headers.Connect.HEART_BEAT, "0,0");
       String hKey = "undefined-escape";
       String hVal = "is\\ttab";
       frame.addHeader(hKey, hVal);
@@ -403,7 +418,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       //default heart beat for (0,0) which is default connection TTL (60000) / default heartBeatToTtlModifier (2.0) = 30000
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                   .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -424,7 +439,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       //heart-beat (1,0), should receive a min client ping accepted by server
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                   .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -450,7 +465,7 @@ public class StompV11Test extends StompTestBase {
       }
 
       //heart-beat (1,0), start a ping, then send a message, should be ok.
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                   .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -499,7 +514,7 @@ public class StompV11Test extends StompTestBase {
       conn.disconnect();
 
       //heart-beat (500,1000)
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       frame = conn.createFrame(Stomp.Commands.CONNECT)
                   .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                   .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -554,7 +569,7 @@ public class StompV11Test extends StompTestBase {
          }
 
          // subscribe
-         newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+         newConn = StompClientConnectionFactory.createClientConnection(uri);
          newConn.connect(defUser, defPass);
 
          subscribe(newConn, "a-sub");
@@ -590,7 +605,7 @@ public class StompV11Test extends StompTestBase {
       }
 
       //subscribe
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       try {
          ClientStompFrame frame = newConn.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
@@ -647,7 +662,7 @@ public class StompV11Test extends StompTestBase {
          }
 
          // subscribe
-         newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+         newConn = StompClientConnectionFactory.createClientConnection(uri);
          frame = newConn.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -689,8 +704,10 @@ public class StompV11Test extends StompTestBase {
       ClientStompFrame reply;
       int port = 61614;
 
+      uri = createStompClientUri(scheme, hostname, port);
+
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?connectionTtl=1000&connectionTtlMin=5000&connectionTtlMax=10000").start();
-      StompClientConnection connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      StompClientConnection connection = StompClientConnectionFactory.createClientConnection(uri);
 
       //no heart beat at all if heat-beat absent
       frame = connection.createFrame(Stomp.Commands.CONNECT)
@@ -709,14 +726,15 @@ public class StompV11Test extends StompTestBase {
       assertEquals(0, connection.getFrameQueueSize());
 
       try {
-         connection.disconnect();
-         fail("Channel should be closed here already due to TTL");
+         assertFalse(connection.isConnected());
       } catch (Exception e) {
          // ignore
+      } finally {
+         connection.closeTransport();
       }
 
       //no heart beat for (0,0)
-      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -739,14 +757,15 @@ public class StompV11Test extends StompTestBase {
       assertEquals(0, connection.getFrameQueueSize());
 
       try {
-         connection.disconnect();
-         fail("Channel should be closed here already due to TTL");
+         assertFalse(connection.isConnected());
       } catch (Exception e) {
          // ignore
+      } finally {
+         connection.closeTransport();
       }
 
       //heart-beat (1,0), should receive a min client ping accepted by server
-      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -765,14 +784,15 @@ public class StompV11Test extends StompTestBase {
       //now server side should be disconnected because we didn't send ping for 2 sec
       //send will fail
       try {
-         send(connection, getQueuePrefix() + getQueueName(), "text/plain", "Hello World");
-         fail("connection should have been destroyed by now");
-      } catch (IOException e) {
-         //ignore
+         assertFalse(connection.isConnected());
+      } catch (Exception e) {
+         // ignore
+      } finally {
+         connection.closeTransport();
       }
 
       //heart-beat (1,0), start a ping, then send a message, should be ok.
-      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -801,7 +821,7 @@ public class StompV11Test extends StompTestBase {
       connection.disconnect();
 
       //heart-beat (20000,0), should receive a max client ping accepted by server
-      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -820,10 +840,11 @@ public class StompV11Test extends StompTestBase {
       //now server side should be disconnected because we didn't send ping for 2 sec
       //send will fail
       try {
-         send(connection, getQueuePrefix() + getQueueName(), "text/plain", "Hello World");
-         fail("connection should have been destroyed by now");
-      } catch (IOException e) {
-         //ignore
+         assertFalse(connection.isConnected());
+      } catch (Exception e) {
+         // ignore
+      } finally {
+         connection.closeTransport();
       }
    }
 
@@ -836,7 +857,7 @@ public class StompV11Test extends StompTestBase {
 
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1").start();
 
-      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -853,16 +874,15 @@ public class StompV11Test extends StompTestBase {
       Thread.sleep(6000);
 
       try {
-         connection.disconnect();
-         fail("Connection should be closed here already due to TTL");
-      } catch (Exception e) {
-         // ignore
+         assertFalse(connection.isConnected());
+      } finally {
+         connection.closeTransport();
       }
 
       server.getActiveMQServer().getRemotingService().destroyAcceptor("test");
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1.5").start();
 
-      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
                         .addHeader(Stomp.Headers.Connect.HOST, "127.0.0.1")
                         .addHeader(Stomp.Headers.Connect.LOGIN, this.defUser)
@@ -1151,6 +1171,7 @@ public class StompV11Test extends StompTestBase {
 
       subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
+      Thread.sleep(1000);
       int num = 50;
       //send a bunch of messages
       for (int i = 0; i < num; i++) {
@@ -1175,7 +1196,7 @@ public class StompV11Test extends StompTestBase {
 
       //no messages can be received.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(10000);
       Assert.assertNotNull(message);
       message = consumer.receive(1000);
       Assert.assertNull(message);
@@ -1260,21 +1281,21 @@ public class StompV11Test extends StompTestBase {
 
       this.subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, null);
 
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass, "myclientid2");
 
       this.subscribeTopic(newConn, "sub2", Stomp.Headers.Subscribe.AckModeValues.AUTO, null);
 
-      send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
+      send(newConn, getTopicPrefix() + getTopicName(), null, "Hello World");
 
       // receive message from socket
-      ClientStompFrame frame = conn.receiveFrame(1000);
+      ClientStompFrame frame = conn.receiveFrame(5000);
 
       IntegrationTestLogger.LOGGER.info("received frame : " + frame);
       assertEquals("Hello World", frame.getBody());
       assertEquals("sub1", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
 
-      frame = newConn.receiveFrame(1000);
+      frame = newConn.receiveFrame(5000);
 
       IntegrationTestLogger.LOGGER.info("received 2 frame : " + frame);
       assertEquals("Hello World", frame.getBody());
@@ -1294,7 +1315,7 @@ public class StompV11Test extends StompTestBase {
 
       send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
 
-      StompClientConnection connV11_2 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      StompClientConnection connV11_2 = StompClientConnectionFactory.createClientConnection(uri);
       connV11_2.connect(defUser, defPass);
 
       this.subscribe(connV11_2, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -1434,9 +1455,9 @@ public class StompV11Test extends StompTestBase {
 
       this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName());
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName());
-
+      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName(), false);
       ClientStompFrame frame = conn.receiveFrame();
+
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
 
       conn.disconnect();
@@ -1463,7 +1484,7 @@ public class StompV11Test extends StompTestBase {
       sendJmsMessage(getName(), topic);
 
       conn.destroy();
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
@@ -1488,7 +1509,7 @@ public class StompV11Test extends StompTestBase {
 
       conn.disconnect();
       conn.destroy();
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass, CLIENT_ID);
 
       this.unsubscribe(conn, getName(), null, false, true);
@@ -1689,6 +1710,7 @@ public class StompV11Test extends StompTestBase {
    @Test
    public void testSendMessageWithLeadingNewLine() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
+      Thread.sleep(1000);
 
       conn.connect(defUser, defPass);
 
@@ -2151,7 +2173,7 @@ public class StompV11Test extends StompTestBase {
       int size = conn.getServerPingNumber();
 
       conn.stopPinger();
-      ((AbstractStompClientConnection)conn).killReaderThread();
+      //((AbstractStompClientConnection)conn).killReaderThread();
       Wait.waitFor(() -> {
          return server.getActiveMQServer().getRemotingService().getConnections().size() == 0;
       });
@@ -2175,10 +2197,10 @@ public class StompV11Test extends StompTestBase {
 
       if (sendDisconnect) {
          conn.disconnect();
-         conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+         conn = StompClientConnectionFactory.createClientConnection(uri);
       } else {
          conn.destroy();
-         conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+         conn = StompClientConnectionFactory.createClientConnection(uri);
       }
 
       // message should be received since message was not acknowledged
@@ -2193,7 +2215,7 @@ public class StompV11Test extends StompTestBase {
 
       // now let's make sure we don't see the message again
       conn.destroy();
-      conn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       this.subscribe(conn, "sub1", null, null, true);
