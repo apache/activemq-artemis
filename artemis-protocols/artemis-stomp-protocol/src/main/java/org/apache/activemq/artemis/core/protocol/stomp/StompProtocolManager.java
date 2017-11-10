@@ -33,9 +33,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -281,7 +281,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       });
    }
 
-   public void sendReply(final StompConnection connection, final StompFrame frame) {
+   public void sendReply(final StompConnection connection, final StompFrame frame, final StompPostReceiptFunction function) {
       server.getStorageManager().afterCompleteOperations(new IOCallback() {
          @Override
          public void onError(final int errorCode, final String errorMessage) {
@@ -295,7 +295,13 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
          @Override
          public void done() {
-            send(connection, frame);
+            if (frame != null) {
+               send(connection, frame);
+            }
+
+            if (function != null) {
+               function.afterReceipt();
+            }
          }
       });
    }
@@ -361,7 +367,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
    // Inner classes -------------------------------------------------
 
-   public void subscribe(StompConnection connection,
+   public StompPostReceiptFunction subscribe(StompConnection connection,
                          String subscriptionID,
                          String durableSubscriptionName,
                          String destination,
@@ -375,7 +381,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
-      stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack);
+      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack);
    }
 
    public void unsubscribe(StompConnection connection,
