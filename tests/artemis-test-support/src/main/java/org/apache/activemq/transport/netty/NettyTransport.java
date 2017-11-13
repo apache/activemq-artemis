@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.transport.amqp.client.transport;
+package org.apache.activemq.transport.netty;
 
 import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 
 /**
  * Base for all Netty based Transports in this client.
@@ -37,7 +38,7 @@ public interface NettyTransport {
 
    ByteBuf allocateSendBuffer(int size) throws IOException;
 
-   void send(ByteBuf output) throws IOException;
+   ChannelFuture send(ByteBuf output) throws IOException;
 
    NettyTransportListener getTransportListener();
 

@@ -17,8 +17,11 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class StompClientConnectionFactory {
+
+   public static final String LATEST_VERSION = "1.2";
 
    //create a raw connection to the host.
    public static StompClientConnection createClientConnection(String version,
@@ -34,6 +37,48 @@ public class StompClientConnectionFactory {
          return new StompClientConnectionV12(host, port);
       }
       return null;
+   }
+
+   public static StompClientConnection createClientConnection(URI uri) throws Exception {
+      String version = getStompVersionFromURI(uri);
+      if ("1.0".equals(version)) {
+         return new StompClientConnectionV10(uri);
+      }
+      if ("1.1".equals(version)) {
+         return new StompClientConnectionV11(uri);
+      }
+      if ("1.2".equals(version)) {
+         return new StompClientConnectionV12(uri);
+      }
+      return null;
+   }
+
+   public static StompClientConnection createClientConnection(URI uri, boolean autoConnect) throws Exception {
+      String version = getStompVersionFromURI(uri);
+      if ("1.0".equals(version)) {
+         return new StompClientConnectionV10(uri, autoConnect);
+      }
+      if ("1.1".equals(version)) {
+         return new StompClientConnectionV11(uri, autoConnect);
+      }
+      if ("1.2".equals(version)) {
+         return new StompClientConnectionV12(uri, autoConnect);
+      }
+      return null;
+   }
+
+   public static String getStompVersionFromURI(URI uri) {
+      String scheme = uri.getScheme();
+      if (scheme.contains("10")) {
+         return "1.0";
+      }
+      if (scheme.contains("11")) {
+         return "1.1";
+      }
+      if (scheme.contains("12")) {
+         return "1.2";
+      }
+      return LATEST_VERSION;
    }
 
    public static void main(String[] args) throws Exception {
