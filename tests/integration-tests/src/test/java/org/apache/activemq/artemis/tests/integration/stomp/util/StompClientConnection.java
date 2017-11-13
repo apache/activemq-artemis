@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
 
+import org.apache.activemq.transport.netty.NettyTransport;
+
 public interface StompClientConnection {
 
    ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException;
@@ -54,5 +56,7 @@ public interface StompClientConnection {
    int getServerPingNumber();
 
    void closeTransport() throws IOException;
+
+   NettyTransport getTransport();
 }
 

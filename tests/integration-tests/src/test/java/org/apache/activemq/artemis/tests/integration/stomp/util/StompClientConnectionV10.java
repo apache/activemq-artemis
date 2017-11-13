@@ -37,6 +37,10 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
       super(uri);
    }
 
+   public StompClientConnectionV10(URI uri, boolean autoConnect) throws Exception {
+      super(uri, autoConnect);
+   }
+
    @Override
    public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
       return connect(username, passcode, null);
@@ -44,6 +48,7 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
    @Override
    public ClientStompFrame connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
+
       ClientStompFrame frame = factory.newFrame(Stomp.Commands.CONNECT);
       frame.addHeader(Stomp.Headers.Connect.LOGIN, username);
       frame.addHeader(Stomp.Headers.Connect.PASSCODE, passcode);

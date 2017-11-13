@@ -53,6 +53,20 @@ public class StompClientConnectionFactory {
       return null;
    }
 
+   public static StompClientConnection createClientConnection(URI uri, boolean autoConnect) throws Exception {
+      String version = getStompVersionFromURI(uri);
+      if ("1.0".equals(version)) {
+         return new StompClientConnectionV10(uri, autoConnect);
+      }
+      if ("1.1".equals(version)) {
+         return new StompClientConnectionV11(uri, autoConnect);
+      }
+      if ("1.2".equals(version)) {
+         return new StompClientConnectionV12(uri, autoConnect);
+      }
+      return null;
+   }
+
    public static String getStompVersionFromURI(URI uri) {
       String scheme = uri.getScheme();
       if (scheme.contains("10")) {

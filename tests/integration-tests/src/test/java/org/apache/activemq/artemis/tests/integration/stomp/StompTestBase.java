@@ -559,6 +559,10 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       }
       frame = conn.sendFrame(frame);
 
+      if (frame != null && frame.getCommand().equals("ERROR")) {
+         return frame;
+      }
+
       if (receipt) {
          assertEquals(Stomp.Responses.RECEIPT, frame.getCommand());
          assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
