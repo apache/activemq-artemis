@@ -75,15 +75,31 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       transport.setTransportListener(new StompTransportListener());
       transport.connect();
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return transport.isConnected();
-         }
-      }, 10000);
+      Wait.waitFor(() -> transport.isConnected(), 1000);
 
       if (!transport.isConnected()) {
          throw new RuntimeException("Could not connect transport");
+      }
+   }
+
+   public AbstractStompClientConnection(URI uri, boolean autoConnect) throws Exception {
+      parseURI(uri);
+      this.factory = StompFrameFactoryFactory.getFactory(version);
+
+      readBuffer = ByteBuffer.allocateDirect(10240);
+      receiveList = new ArrayList<>(10240);
+
+      transport = NettyTransportFactory.createTransport(uri);
+      transport.setTransportListener(new StompTransportListener());
+
+      if (autoConnect) {
+         transport.connect();
+
+         Wait.waitFor(() -> transport.isConnected(), 1000);
+
+         if (!transport.isConnected()) {
+            throw new RuntimeException("Could not connect transport");
+         }
       }
    }
 
@@ -316,6 +332,11 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    @Override
    public void closeTransport() throws IOException {
       transport.close();
+   }
+
+   @Override
+   public NettyTransport getTransport() {
+      return transport;
    }
 
    protected class Pinger extends Thread {

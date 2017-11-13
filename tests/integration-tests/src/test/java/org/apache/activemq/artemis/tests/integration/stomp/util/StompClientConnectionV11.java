@@ -36,6 +36,10 @@ public class StompClientConnectionV11 extends StompClientConnectionV10 {
       super(uri);
    }
 
+   public StompClientConnectionV11(URI uri, boolean autoConnect) throws Exception {
+      super(uri, autoConnect);
+   }
+
    @Override
    public ClientStompFrame connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(Stomp.Commands.CONNECT);

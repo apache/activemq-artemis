@@ -29,6 +29,10 @@ public class StompClientConnectionV12 extends StompClientConnectionV11 {
       super(uri);
    }
 
+   public StompClientConnectionV12(URI uri, boolean autoConnect) throws Exception {
+      super(uri, autoConnect);
+   }
+
    public ClientStompFrame createAnyFrame(String command) {
       return factory.newAnyFrame(command);
    }
