@@ -38,10 +38,12 @@
          <scope>provided</scope>
          <optional>true</optional>
       </dependency>
-
-      <!--
-          JBoss Logging
-      -->
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
@@ -59,32 +61,33 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
-         <scope>provided</scope>
-         <exclusions>
-            <exclusion>
-               <!-- exclude JCA 1.5 spec here so geronimo dependency will be used -->
-               <groupId>org.jboss.spec.javax.resource</groupId>
-               <artifactId>jboss-connector-api_1.5_spec</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-ejb_3.0_spec</artifactId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_2.0_spec</artifactId>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-service-extensions</artifactId>
          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jgroups</groupId>
+         <artifactId>jgroups</artifactId>
       </dependency>
    </dependencies>
 

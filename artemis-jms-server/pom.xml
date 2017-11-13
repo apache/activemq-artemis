@@ -39,6 +39,16 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
@@ -55,6 +65,16 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-journal</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-service-extensions</artifactId>
          <version>${project.version}</version>
       </dependency>
@@ -64,20 +84,11 @@
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-ejb_3.0_spec</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jta_1.1_spec</artifactId>
-         <version>1.1.1</version>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-json_1.0_spec</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.johnzon</groupId>
-         <artifactId>johnzon-core</artifactId>
       </dependency>
    </dependencies>
 
