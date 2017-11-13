@@ -40,6 +40,7 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -99,31 +100,38 @@ public class StompPluginTest extends StompTestBase {
    public void testSendAndReceive() throws Exception {
 
       // subscribe
-      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
-      newConn.connect(defUser, defPass);
-      subscribe(newConn, "a-sub");
+      //StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
+      try {
+         URI uri = new URI("ws+v12.stomp://localhost:61613");
+         StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
+         newConn.connect(defUser, defPass);
+         subscribe(newConn, "a-sub");
 
-      send(newConn, getQueuePrefix() + getQueueName(), "text/plain", "Hello World 1!");
-      ClientStompFrame frame = newConn.receiveFrame();
+         send(newConn, getQueuePrefix() + getQueueName(), "text/plain", "Hello World 1!");
+         ClientStompFrame frame = newConn.receiveFrame();
 
-      System.out.println("received " + frame);
-      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+         System.out.println("received " + frame);
+         Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
-      verifier.validatePluginMethodsAtLeast(1, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-                                            AFTER_DELIVER);
+         verifier.validatePluginMethodsAtLeast(1, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
+                                               AFTER_DELIVER);
 
 
-      // unsub
-      unsubscribe(newConn, "a-sub");
+         // unsub
+         unsubscribe(newConn, "a-sub");
 
-      newConn.disconnect();
+         newConn.disconnect();
 
-      verifier.validatePluginMethodsEquals(0, MESSAGE_EXPIRED, BEFORE_DEPLOY_BRIDGE, AFTER_DEPLOY_BRIDGE);
-      verifier.validatePluginMethodsAtLeast(1, AFTER_CREATE_CONNECTION, AFTER_DESTROY_CONNECTION, BEFORE_CREATE_SESSION,
-            AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
-            AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
-            MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-            AFTER_DELIVER);
+         verifier.validatePluginMethodsEquals(0, MESSAGE_EXPIRED, BEFORE_DEPLOY_BRIDGE, AFTER_DEPLOY_BRIDGE);
+         verifier.validatePluginMethodsAtLeast(1, AFTER_CREATE_CONNECTION, AFTER_DESTROY_CONNECTION, BEFORE_CREATE_SESSION,
+                                               AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
+                                               AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
+                                               MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
+                                               AFTER_DELIVER);
+
+      } catch (Throwable e) {
+         e.printStackTrace();
+      }
 
    }
 

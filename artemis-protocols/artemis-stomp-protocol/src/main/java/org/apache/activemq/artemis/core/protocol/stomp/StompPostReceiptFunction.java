@@ -14,43 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.stomp.util;
+package org.apache.activemq.artemis.core.protocol.stomp;
 
-import java.nio.ByteBuffer;
-
-import io.netty.buffer.ByteBuf;
-
-/**
- * pls use factory to create frames.
- */
-public interface ClientStompFrame {
-
-   ByteBuffer toByteBuffer();
-
-   ByteBuf toNettyByteBuf();
-
-   boolean needsReply();
-
-   ClientStompFrame setCommand(String command);
-
-   ClientStompFrame addHeader(String string, String string2);
-
-   ClientStompFrame setBody(String string);
-
-   String getCommand();
-
-   String getHeader(String header);
-
-   String getBody();
-
-   ByteBuffer toByteBufferWithExtra(String str);
-
-   ByteBuf toNettyByteBufWithExtras(String str);
-
-   boolean isPing();
-
-   ClientStompFrame setForceOneway();
-
-   ClientStompFrame setPing(boolean b);
-
+public interface StompPostReceiptFunction {
+   void afterReceipt();
 }

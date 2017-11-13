@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -24,16 +27,24 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class FQQNStompTest extends StompTestBase {
 
    private StompClientConnection conn;
+
+   @Parameterized.Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
+   }
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      conn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       QueueQueryResult result = server.getActiveMQServer().queueQuery(new SimpleString(getQueueName()));
       assertTrue(result.isExists());
       System.out.println("address: " + result.getAddress() + " queue " + result.getName());
@@ -51,6 +62,7 @@ public class FQQNStompTest extends StompTestBase {
             }
          }
       } finally {
+         conn.closeTransport();
          super.tearDown();
       }
    }
@@ -83,21 +95,20 @@ public class FQQNStompTest extends StompTestBase {
       unsubscribe(conn, "sub-01");
 
       //queue::
-      subscribeQueue(conn, "sub-01", getQueueName() + "\\c\\c");
-      sendJmsMessage("Hello World!");
-      frame = conn.receiveFrame(2000);
+      frame = subscribeQueue(conn, "sub-01", getQueueName() + "\\c\\c");
       assertNotNull(frame);
       assertEquals("ERROR", frame.getCommand());
       assertTrue(frame.getBody().contains(getQueueName()));
       assertTrue(frame.getBody().contains("not exist"));
+      conn.closeTransport();
 
       //need reconnect because stomp disconnect on error
-      conn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
+      conn.connect(defUser, defPass);
+
       //:: will subscribe to no queue so no message received.
-      subscribeQueue(conn, "sub-01", "\\c\\c");
-      sendJmsMessage("Hello World!");
-      frame = conn.receiveFrame(2000);
-      assertNull(frame);
+      frame = subscribeQueue(conn, "sub-01", "\\c\\c");
+      assertTrue(frame.getBody().contains("Queue :: does not exist"));
    }
 
 }

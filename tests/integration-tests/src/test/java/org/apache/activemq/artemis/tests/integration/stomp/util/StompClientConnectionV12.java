@@ -17,11 +17,20 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class StompClientConnectionV12 extends StompClientConnectionV11 {
 
    public StompClientConnectionV12(String host, int port) throws IOException {
       super("1.2", host, port);
+   }
+
+   public StompClientConnectionV12(URI uri) throws Exception {
+      super(uri);
+   }
+
+   public StompClientConnectionV12(URI uri, boolean autoConnect) throws Exception {
+      super(uri, autoConnect);
    }
 
    public ClientStompFrame createAnyFrame(String command) {
