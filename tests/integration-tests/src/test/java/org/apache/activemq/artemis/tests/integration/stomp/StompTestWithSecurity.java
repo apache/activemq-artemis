@@ -38,7 +38,7 @@ public class StompTestWithSecurity extends StompTestBase {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
-      StompClientConnection conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       ClientStompFrame frame = conn.createFrame("SEND");

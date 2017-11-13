@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
@@ -26,14 +29,22 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /*
  * Some Stomp tests against server with persistence enabled are put here.
  */
+@RunWith(Parameterized.class)
 public class ExtraStompTest extends StompTestBase {
 
    private StompClientConnection connV10;
    private StompClientConnection connV11;
+
+   @Parameterized.Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v11.stomp"}, {"tcp+v11.stomp"}});
+   }
 
    @Override
    public boolean isPersistenceEnabled() {
@@ -44,9 +55,11 @@ public class ExtraStompTest extends StompTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      connV10 = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      URI v10Uri = new URI(uri.toString().replace("v11", "v10"));
+      connV10 = StompClientConnectionFactory.createClientConnection(v10Uri);
       connV10.connect(defUser, defPass);
-      connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+
+      connV11 = StompClientConnectionFactory.createClientConnection(uri);
       connV11.connect(defUser, defPass);
    }
 
@@ -181,17 +194,19 @@ public class ExtraStompTest extends StompTestBase {
 
       conn.sendFrame(frame);
 
-      subscribe(conn, "a-sub", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      frame = subscribe(conn, "a-sub", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       // receive but don't ack
       frame = conn.receiveFrame(10000);
+      System.out.println(frame);
+
       frame = conn.receiveFrame(10000);
+      System.out.println(frame);
 
       unsubscribe(conn, "a-sub");
 
-      subscribe(conn, "a-sub");
+      frame = subscribe(conn, "a-sub");
 
-      frame = conn.receiveFrame(10000);
       frame = conn.receiveFrame(10000);
 
       //second receive will get problem if trailing bytes

@@ -33,8 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.transport.InactivityIOException;
+import org.apache.activemq.transport.netty.NettyTransport;
 import org.apache.activemq.transport.amqp.client.sasl.SaslAuthenticator;
-import org.apache.activemq.transport.amqp.client.transport.NettyTransportListener;
+import org.apache.activemq.transport.netty.NettyTransportListener;
 import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 import org.apache.activemq.transport.amqp.client.util.ClientFuture;
 import org.apache.activemq.transport.amqp.client.util.IdGenerator;
@@ -80,7 +81,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private final AtomicLong sessionIdGenerator = new AtomicLong();
    private final AtomicLong txIdGenerator = new AtomicLong();
    private final Collector protonCollector = new CollectorImpl();
-   private final org.apache.activemq.transport.amqp.client.transport.NettyTransport transport;
+   private final NettyTransport transport;
    private final Transport protonTransport = Transport.Factory.create();
 
    private final String username;
@@ -109,7 +110,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private boolean trace;
    private boolean noContainerID = false;
 
-   public AmqpConnection(org.apache.activemq.transport.amqp.client.transport.NettyTransport transport, String username, String password) {
+   public AmqpConnection(NettyTransport transport, String username, String password) {
       setEndpoint(Connection.Factory.create());
       getEndpoint().collect(protonCollector);
 
