@@ -369,11 +369,15 @@ public class ServerJMSMessage implements Message {
     * Encode the body into the internal message
     */
    public void encode() throws Exception {
-      message.getBodyBuffer().resetReaderIndex();
+      if (!message.isLargeMessage()) {
+         message.getBodyBuffer().resetReaderIndex();
+      }
    }
 
    public void decode() throws Exception {
-      message.getBodyBuffer().resetReaderIndex();
+      if (!message.isLargeMessage()) {
+         message.getBodyBuffer().resetReaderIndex();
+      }
    }
 
    @Override

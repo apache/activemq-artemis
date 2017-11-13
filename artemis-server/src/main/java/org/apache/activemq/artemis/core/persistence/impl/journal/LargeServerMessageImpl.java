@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
@@ -195,6 +196,27 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       }
 
       return currentRefCount;
+   }
+
+   // Even though not recommended, in certain instances
+   // we may need to convert a large message back to a whole buffer
+   // in a way you can convert
+   @Override
+   public ActiveMQBuffer getReadOnlyBodyBuffer() {
+      try {
+         file.open();
+         ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer((int) file.size());
+         file.read(buffer.toByteBuffer());
+         return buffer;
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      } finally {
+         try {
+            file.close();
+         } catch (Exception ignored) {
+         }
+
+      }
    }
 
    @Override
