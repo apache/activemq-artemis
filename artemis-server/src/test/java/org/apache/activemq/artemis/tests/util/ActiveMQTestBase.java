@@ -2118,6 +2118,20 @@ public abstract class ActiveMQTestBase extends Assert {
       return message;
    }
 
+   protected ClientMessage createTextMessage(final ClientSession session, final boolean durable, final int numChars) {
+      ClientMessage message = session.createMessage(Message.TEXT_TYPE,
+                durable,
+                0,
+                System.currentTimeMillis(),
+                (byte)4);
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < numChars; i++) {
+         builder.append('a');
+      }
+      message.getBodyBuffer().writeString(builder.toString());
+      return message;
+   }
+
    protected XidImpl newXID() {
       return new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
