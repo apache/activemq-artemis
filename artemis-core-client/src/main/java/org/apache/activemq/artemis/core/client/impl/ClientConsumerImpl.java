@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.io.File;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -43,8 +42,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
-import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
-import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.collections.PriorityChunkedQueue;
 import org.jboss.logging.Logger;
 
 public final class ClientConsumerImpl implements ClientConsumerInternal {
@@ -90,7 +88,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private final int ackBatchSize;
 
-   private final PriorityLinkedList<ClientMessageInternal> buffer = new PriorityLinkedListImpl<>(ClientConsumerImpl.NUM_PRIORITIES);
+   private final PriorityChunkedQueue<ClientMessageInternal> buffer;
 
    private final Runner runner = new Runner();
 
@@ -177,6 +175,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       if (logger.isTraceEnabled()) {
          logger.trace(this + ":: being created at", new Exception("trace"));
       }
+
+      //TODO each priority message queue could be sized using the client window size when specified?
+      this.buffer = PriorityChunkedQueue.with(ClientConsumerImpl.NUM_PRIORITIES, 1024);
    }
 
    // ClientConsumer implementation
@@ -588,7 +589,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
 
       // Add it to the buffer
-      buffer.addTail(message, message.getPriority());
+      buffer.offer(message, message.getPriority());
 
       if (handler != null) {
          // Execute using executor
@@ -694,12 +695,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       synchronized (this) {
          // Need to send credits for the messages in the buffer
 
-         Iterator<ClientMessageInternal> iter = buffer.iterator();
-
-         while (iter.hasNext()) {
+         buffer.drain(message -> {
             try {
-               ClientMessageInternal message = iter.next();
-
                if (message.isLargeMessage()) {
                   ClientLargeMessageInternal largeMessage = (ClientLargeMessageInternal) message;
                   largeMessage.getLargeMessageController().cancel();
@@ -709,9 +706,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
             }
-         }
-
-         clearBuffer();
+         });
 
          try {
             resetLargeMessageController();
@@ -742,7 +737,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    @Override
    public int getBufferSize() {
-      return buffer.size();
+      return (int) Math.min(buffer.size(), Integer.MAX_VALUE);
    }
 
    @Override
