@@ -134,6 +134,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.CleanupSystemPropertiesRule;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
@@ -163,8 +164,13 @@ public abstract class ActiveMQTestBase extends Assert {
 
    private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
 
+   /** This will make sure threads are not leaking between tests */
    @Rule
    public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+
+   /** This will cleanup any system property changed inside tests */
+   @Rule
+   public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
 
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
