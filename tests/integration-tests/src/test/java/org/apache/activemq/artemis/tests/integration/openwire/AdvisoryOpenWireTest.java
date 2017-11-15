@@ -62,8 +62,9 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
                QueueControl queueControl = (QueueControl) queueResource;
                Wait.waitFor(() -> queueControl.getMessageCount() == 0);
                assertNotNull("addressControl for temp advisory", queueControl);
-               assertEquals(0, queueControl.getMessageCount());
-               assertEquals(2, queueControl.getMessagesAdded());
+
+               Wait.assertEquals(0, queueControl::getMessageCount);
+               Wait.assertEquals(2, queueControl::getMessagesAdded);
             }
          }
       } finally {
@@ -94,8 +95,9 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
                QueueControl queueControl = (QueueControl) queueResource;
                Wait.waitFor(() -> queueControl.getMessageCount() == 0);
                assertNotNull("addressControl for temp advisory", queueControl);
-               assertEquals(0, queueControl.getMessageCount());
-               assertEquals(2, queueControl.getMessagesAdded());
+               Wait.assertEquals(0, queueControl::getMessageCount);
+               Wait.assertEquals(2, queueControl::getMessagesAdded);
+
             }
          }
       } finally {
@@ -130,7 +132,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
                AddressControl addressControl = (AddressControl) addressResource;
                Wait.waitFor(() -> addressControl.getMessageCount() == 0);
                assertNotNull("addressControl for temp advisory", addressControl);
-               assertEquals(0, addressControl.getMessageCount());
+               Wait.assertEquals(0, addressControl::getMessageCount);
             }
          }
 
