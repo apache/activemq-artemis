@@ -200,8 +200,10 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
 
    @Override
    public void reset() throws JMSException {
-      bytesMessageReset(getReadBodyBuffer());
-      bytesMessageReset(getWriteBodyBuffer());
+      if (!message.isLargeMessage()) {
+         bytesMessageReset(getReadBodyBuffer());
+         bytesMessageReset(getWriteBodyBuffer());
+      }
    }
 
 }
