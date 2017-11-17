@@ -127,6 +127,12 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String[] libListWithDeps;
 
+   @Parameter
+   private String[] webList;
+
+   @Parameter
+   private String[] webListWithDeps;
+
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
 
@@ -261,7 +267,18 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
             commandLineStream.println("# This is a list of files that need to be installed under ./lib.");
             commandLineStream.println("# We are copying them from your maven lib home");
             for (File file : files) {
-               copyToLib(file, commandLineStream);
+               copyToDir("lib", file, commandLineStream);
+            }
+         }
+
+         files = resolveDependencies(webListWithDeps, webList);
+
+         if (!files.isEmpty()) {
+            commandLineStream.println();
+            commandLineStream.println("# This is a list of files that need to be installed under ./web.");
+            commandLineStream.println("# We are copying them from your maven lib home");
+            for (File file : files) {
+               copyToDir("web", file, commandLineStream);
             }
          }
 
@@ -313,8 +330,8 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       return buffer.toString();
    }
 
-   private void copyToLib(File projectLib, PrintStream commandLineStream) throws IOException {
-      Path target = instance.toPath().resolve("lib").resolve(projectLib.getName());
+   private void copyToDir(String destination, File projectLib, PrintStream commandLineStream) throws IOException {
+      Path target = instance.toPath().resolve(destination).resolve(projectLib.getName());
       File file = target.toFile();
       File parent = file.getParentFile();
       if (!parent.exists()) {
