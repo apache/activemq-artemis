@@ -98,6 +98,7 @@ public class XmlUtil {
       unmarshaller.setSchema(schema);
 
       Properties props = new Properties(System.getProperties());
+      props.putAll(System.getenv());
       if (artemisHome != null) {
          props.put("artemis.home", artemisHome);
       }

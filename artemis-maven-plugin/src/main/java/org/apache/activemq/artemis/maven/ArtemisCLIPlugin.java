@@ -53,6 +53,9 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
    private String[] args;
 
    @Parameter
+   private String[] properties;
+
+   @Parameter
    private boolean spawn = false;
 
    @Parameter(defaultValue = "300000")
@@ -94,7 +97,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
       try {
          if (spawn) {
-            final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args);
+            final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args, properties);
             Runtime.getRuntime().addShutdownHook(new Thread() {
                @Override
                public void run() {
