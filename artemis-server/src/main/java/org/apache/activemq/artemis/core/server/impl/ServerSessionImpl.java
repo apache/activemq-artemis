@@ -548,9 +548,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public Queue createQueue(final SimpleString address,
+   public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable) throws Exception {
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
+      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), false);
+   }
+
+   public Queue createQueue(final AddressInfo addressInfo,
                             final SimpleString name,
-                            final RoutingType routingType,
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable,
@@ -559,18 +563,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean autoCreated) throws Exception {
       final SimpleString unPrefixedName = removePrefix(name);
 
-      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(address, routingType);
+      AddressInfo art = getAddressAndRoutingType(addressInfo);
 
       if (durable) {
          // make sure the user has privileges to create this queue
-         securityCheck(address, name, CheckType.CREATE_DURABLE_QUEUE, this);
+         securityCheck(addressInfo.getName(), name, CheckType.CREATE_DURABLE_QUEUE, this);
       } else {
-         securityCheck(address, name, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+         securityCheck(addressInfo.getName(), name, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(art.getA(), art.getB(), unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, server.getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateAddresses());
+      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, server.getAddressSettingsRepository().getMatch(art.getName().toString()).isAutoCreateAddresses());
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -591,13 +595,25 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Queue " + unPrefixedName + " created on address " + address +
-                         " with filter=" + filterString + " temporary = " +
-                         temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
+         logger.debug("Queue " + unPrefixedName + " created on address " + addressInfo.getName() +
+                 " with filter=" + filterString + " temporary = " +
+                 temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
 
       return queue;
+   }
 
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString name,
+                            final RoutingType routingType,
+                            final SimpleString filterString,
+                            final boolean temporary,
+                            final boolean durable,
+                            final int maxConsumers,
+                            final boolean purgeOnNoConsumers,
+                            final boolean autoCreated) throws Exception {
+      return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, autoCreated);
    }
 
    @Override
@@ -610,6 +626,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
       return createQueue(address, name, routingType, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), autoCreated);
+   }
+
+   @Override
+   public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable, boolean autoCreated) throws Exception {
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
+      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), autoCreated);
    }
 
    @Override
@@ -626,10 +648,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public AddressInfo createAddress(final SimpleString address,
                                     RoutingType routingType,
                                     final boolean autoCreated) throws Exception {
-      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(address, routingType);
-      securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
-      server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
-      return server.getAddressInfo(art.getA());
+      return createAddress(new AddressInfo(address, routingType), autoCreated);
+   }
+
+   @Override
+   public AddressInfo createAddress(AddressInfo addressInfo, boolean autoCreated) throws Exception {
+      AddressInfo art = getAddressAndRoutingType(addressInfo);
+      securityCheck(art.getName(), CheckType.CREATE_ADDRESS, this);
+      server.addOrUpdateAddressInfo(art.setAutoCreated(autoCreated));
+      return server.getAddressInfo(art.getName());
    }
 
    @Override
@@ -1672,12 +1699,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } */
 
-      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddressSimpleString(), routingType);
+      AddressInfo art = getAddressAndRoutingType(new AddressInfo(msg.getAddressSimpleString(), routingType));
 
       // Consumer
       // check the user has write access to this address.
       try {
-         securityCheck(art.getA(), CheckType.SEND, this);
+         securityCheck(art.getName(), CheckType.SEND, this);
       } catch (ActiveMQException e) {
          if (!autoCommitSends && tx != null) {
             tx.markAsRollbackOnly(e);
@@ -1695,8 +1722,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       try {
-         routingContext.setAddress(art.getA());
-         routingContext.setRoutingType(art.getB());
+         routingContext.setAddress(art.getName());
+         routingContext.setRoutingType(art.getRoutingType());
 
          result = postOffice.route(msg, routingContext, direct);
 
@@ -1738,12 +1765,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address,
-                                                                   RoutingType defaultRoutingType) {
+   public AddressInfo getAddressAndRoutingType(AddressInfo addressInfo) {
       if (prefixEnabled) {
-         return PrefixUtil.getAddressAndRoutingType(address, defaultRoutingType, prefixes);
+         return addressInfo.getAddressAndRoutingType(prefixes);
       }
-      return new Pair<>(address, defaultRoutingType);
+      return addressInfo;
    }
 
    @Override

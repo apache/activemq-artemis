@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -159,6 +160,13 @@ public class AMQSession implements SessionCallback {
       List<AMQConsumer> consumersList = new java.util.LinkedList<>();
 
       for (ActiveMQDestination openWireDest : dests) {
+         boolean isInternalAddress = false;
+         if (AdvisorySupport.isAdvisoryTopic(dest)) {
+            if (!connection.isSuppportAdvisory()) {
+               continue;
+            }
+            isInternalAddress = connection.isSuppressInternalManagementObjects();
+         }
          if (openWireDest.isQueue()) {
             SimpleString queueName = new SimpleString(convertWildcard(openWireDest.getPhysicalName()));
 
@@ -166,7 +174,7 @@ public class AMQSession implements SessionCallback {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
             }
          }
-         AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool);
+         AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool, isInternalAddress);
 
          long nativeID = consumerIDGenerator.generateID();
          consumer.init(slowConsumerDetectionListener, nativeID);

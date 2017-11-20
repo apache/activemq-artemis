@@ -63,11 +63,15 @@ public class AMQConsumer {
    private AtomicInteger currentWindow;
    private long messagePullSequence = 0;
    private MessagePullHandler messagePullHandler;
+   //internal means we don't expose
+   //it's address/queue to management service
+   private boolean internalAddress = false;
 
    public AMQConsumer(AMQSession amqSession,
                       org.apache.activemq.command.ActiveMQDestination d,
                       ConsumerInfo info,
-                      ScheduledExecutorService scheduledPool) {
+                      ScheduledExecutorService scheduledPool,
+                      boolean internalAddress) {
       this.session = amqSession;
       this.openwireDestination = d;
       this.info = info;
@@ -77,6 +81,7 @@ public class AMQConsumer {
       if (prefetchSize == 0) {
          messagePullHandler = new MessagePullHandler();
       }
+      this.internalAddress = internalAddress;
    }
 
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
@@ -143,7 +148,10 @@ public class AMQConsumer {
       AddressInfo addressInfo = session.getCoreServer().getAddressInfo(address);
       if (addressInfo != null) {
          addressInfo.addRoutingType(RoutingType.MULTICAST);
+      } else {
+         addressInfo = new AddressInfo(address, RoutingType.MULTICAST);
       }
+      addressInfo.setInternal(internalAddress);
       if (isDurable) {
          queueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForSubscription(true, clientID, subscriptionName));
          QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
@@ -166,16 +174,15 @@ public class AMQConsumer {
                session.getCoreSession().deleteQueue(queueName);
 
                // Create the new one
-               session.getCoreSession().createQueue(address, queueName, RoutingType.MULTICAST, selector, false, true);
+               session.getCoreSession().createQueue(addressInfo, queueName, selector, false, true);
             }
          } else {
-            session.getCoreSession().createQueue(address, queueName, RoutingType.MULTICAST, selector, false, true);
+            session.getCoreSession().createQueue(addressInfo, queueName, selector, false, true);
          }
       } else {
          queueName = new SimpleString(UUID.randomUUID().toString());
 
-         session.getCoreSession().createQueue(address, queueName, RoutingType.MULTICAST, selector, true, false);
-
+         session.getCoreSession().createQueue(addressInfo, queueName, selector, true, false);
       }
 
       return queueName;

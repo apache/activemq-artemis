@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.PrefixUtil;
+
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.RoutingType;
-
 public class AddressInfo {
-
-   //from openwire
-   public static final SimpleString ADVISORY_TOPIC = new SimpleString("ActiveMQ.Advisory.");
 
    private long id;
 
@@ -34,6 +33,8 @@ public class AddressInfo {
    private boolean autoCreated = false;
 
    private Set<RoutingType> routingTypes;
+
+   private boolean internal = false;
 
    public AddressInfo(SimpleString name) {
       this(name, new HashSet<>());
@@ -130,6 +131,27 @@ public class AddressInfo {
    }
 
    public boolean isInternal() {
-      return this.name.startsWith(ADVISORY_TOPIC);
+      return this.internal;
    }
+
+   public void setInternal(boolean internal) {
+      this.internal = internal;
+   }
+
+   public AddressInfo create(SimpleString name, RoutingType routingType) {
+      AddressInfo info = new AddressInfo(name, routingType);
+      info.setInternal(this.internal);
+      return info;
+   }
+
+   public AddressInfo getAddressAndRoutingType(Map<SimpleString, RoutingType> prefixes) {
+      for (Map.Entry<SimpleString, RoutingType> entry : prefixes.entrySet()) {
+         if (this.getName().startsWith(entry.getKey())) {
+            AddressInfo newAddressInfo = this.create(PrefixUtil.removePrefix(this.getName(), entry.getKey()), entry.getValue());
+            return newAddressInfo;
+         }
+      }
+      return this;
+   }
+
 }
