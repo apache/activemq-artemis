@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.Topic;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -108,6 +110,43 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver.close();
 
       assertEquals(1, queueView.getMessageCount());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testCoreBridge() throws Exception {
+      server.getRemotingService().createAcceptor("acceptor", "vm://0").start();
+      server.getConfiguration().addConnectorConfiguration("connector", "vm://0");
+      server.deployBridge(new BridgeConfiguration()
+                             .setName(getTestName())
+                             .setQueueName(getQueueName())
+                             .setForwardingAddress(getQueueName(1))
+                             .setConfirmationWindowSize(10)
+                             .setStaticConnectors(Arrays.asList("connector")));
+      sendMessages(getQueueName(), 1);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName(1));
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertEquals(1, queueView.getConsumerCount());
+      assertEquals(0, queueView.getMessageCount());
+
+      queueView = getProxyToQueue(getQueueName(1));
+      assertEquals(1, queueView.getConsumerCount());
+      assertEquals(1, queueView.getMessageCount());
+
+      receiver.flow(1);
+      AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+      receiver.close();
+
+      assertEquals(0, queueView.getMessageCount());
 
       connection.close();
    }
