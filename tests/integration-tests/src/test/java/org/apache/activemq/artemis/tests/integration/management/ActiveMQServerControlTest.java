@@ -67,6 +67,9 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -1794,6 +1797,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Assert.assertEquals("number of addresses returned from query", 1, array.size());
       Assert.assertEquals("address name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("check if address is paging", "false", array.getJsonObject(0).getString("paging"));
+      Assert.assertEquals("check numberOfPages", "0", array.getJsonObject(0).getString("numberOfPages"));
 
       //test with empty filter - all addresses should be returned
       filterString = createJsonFilter("", "", "");
@@ -1827,6 +1832,149 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Assert.assertEquals("number of addresses returned from query", 0, array.size());
 
+   }
+
+   @Test
+   public void testListAddressesFilteredByPaging() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+      SimpleString queueName4 = new SimpleString("other_queue_four");
+
+      SimpleString addressName1 = new SimpleString("small.my_address_one");
+      SimpleString addressName2 = new SimpleString("small.my_address_two");
+      SimpleString addressName3 = new SimpleString("small.other_address_three");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      // add config for "small.*" to ensure paging kicks in.
+      AddressSettings addressSettings = new AddressSettings().setMaxSizeBytes(20480).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(10240);
+      HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
+      repos.addMatch("small.*", addressSettings);
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
+      server.createQueue(addressName2, RoutingType.ANYCAST, queueName2, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName3, RoutingType.ANYCAST));
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName3, null, false, false);
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName4, null, false, false);
+
+      //test addresses are NOT paging
+      String filterString = createJsonFilter("paging", "EQUALS", "false");
+      String addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertTrue("number of addresses NOT paging", 3 <= array.size());
+      //check the first value for consistency
+      Assert.assertEquals("address paging value", "false", array.getJsonObject(0).getString("paging"));
+      Assert.assertEquals("address number of pages", "0", array.getJsonObject(0).getString("numberOfPages"));
+
+      //send messages to address1
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+         ClientProducer producer1 = session.createProducer(addressName1);
+         //send 25KiB
+         sendMessagesWithPredefinedSize(25, session, producer1, 1024);
+      }
+
+      //test to ensure one address is paging
+      filterString = createJsonFilter("paging", "EQUALS", "true");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses paging", 1, array.size());
+      Assert.assertEquals("address paging name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address paging value", "true", array.getJsonObject(0).getString("paging"));
+      Assert.assertEquals("address number of pages", "2", array.getJsonObject(0).getString("numberOfPages"));
+      //10 KiB
+      Assert.assertEquals("address number of bytes per page", "10240", array.getJsonObject(0).getString("numberOfBytesPerPage"));
+
+      //ensure one address returned when filtered by "numberOfPages"
+      filterString = createJsonFilter("number_of_pages", "GREATER_THAN", "0");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses paging", 1, array.size());
+      Assert.assertEquals("address paging name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address paging value", "true", array.getJsonObject(0).getString("paging"));
+      Assert.assertEquals("address number of pages", "2", array.getJsonObject(0).getString("numberOfPages"));
+      //10 KiB
+      Assert.assertEquals("address number of bytes per page", "10240", array.getJsonObject(0).getString("numberOfBytesPerPage"));
+
+      //ensure correct addresss returned when filtered by "numberOfBytesPerPage"
+      filterString = createJsonFilter("number_of_bytes_per_page", "EQUALS", "10240");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses paging", 3, array.size());
+      Assert.assertTrue("address name check", array.getJsonObject(0).getString("name").startsWith("small."));
+      Assert.assertTrue("address name check", array.getJsonObject(1).getString("name").startsWith("small."));
+      Assert.assertTrue("address name check", array.getJsonObject(2).getString("name").startsWith("small."));
+   }
+
+   @Test
+   public void testListAddressesFilteredByMemorySize() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+
+      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString addressName2 = new SimpleString("my_address_two");
+      SimpleString addressName3 = new SimpleString("other_address_three");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
+      server.createQueue(addressName2, RoutingType.ANYCAST, queueName2, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName3, RoutingType.ANYCAST));
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName3, null, false, false);
+
+      //test addresses are not using any memory before messages sent
+      String filterString = createJsonFilter("address_Memory_Size", "GREATER_THAN", "0");
+      String addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("address before messages sent", 0, array.size());
+
+      //send messages to address1 & address2
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+         ClientProducer producer1 = session.createProducer(addressName1);
+         //send more than 10KiB
+         sendMessagesWithPredefinedSize(11, session, producer1, 1024);
+
+         ClientProducer producer2 = session.createProducer(addressName2);
+         //send more than 20KiB
+         sendMessagesWithPredefinedSize(21, session, producer2, 1024);
+      }
+
+      //test to ensure two address is using more than X bytes
+      filterString = createJsonFilter("address_Memory_Size", "GREATER_THAN", "10000");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses paging", 2, array.size());
+      Assert.assertTrue("address name check", array.getJsonObject(0).getString("name").startsWith("my_address"));
+      Assert.assertTrue("address name check", array.getJsonObject(1).getString("name").startsWith("my_address"));
+
+      //test to ensure one address is using more than X bytes
+      filterString = createJsonFilter("address_Memory_Size", "GREATER_THAN", "20000");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses paging", 1, array.size());
+      Assert.assertEquals("address with highest memory size", addressName2.toString(), array.getJsonObject(0).getString("name"));
+
+      // memory_size > 20 KiB
+      Assert.assertTrue("address memory Size", 20480 < Long.parseLong(array.getJsonObject(0).getString("addressMemorySize")));
    }
 
    @Test

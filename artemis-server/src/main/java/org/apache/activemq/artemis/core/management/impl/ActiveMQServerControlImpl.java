@@ -1736,7 +1736,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
+         List<AddressControl> addresses = new ArrayList<>();
+         Object[] addressControls = server.getManagementService().getResources(AddressControl.class);
+         for (int i = 0; i < addressControls.length; i++) {
+            addresses.add((AddressControl) addressControls[i]);
+         }
          AddressView view = new AddressView(server);
          view.setCollection(addresses);
          view.setOptions(options);
