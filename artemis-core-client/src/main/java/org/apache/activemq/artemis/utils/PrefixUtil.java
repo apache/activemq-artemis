@@ -26,17 +26,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 
 public class PrefixUtil {
 
-   public static Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address,
-                                                                   RoutingType defaultRoutingType,
-                                                                   Map<SimpleString, RoutingType> prefixes) {
-      for (Map.Entry<SimpleString, RoutingType> entry : prefixes.entrySet()) {
-         if (address.startsWith(entry.getKey())) {
-            return new Pair<>(removePrefix(address, entry.getKey()), entry.getValue());
-         }
-      }
-      return new Pair<>(address, defaultRoutingType);
-   }
-
    public static Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
                                                                           Set<RoutingType> defaultRoutingTypes,
                                                                           Map<SimpleString, RoutingType> prefixes) {
@@ -59,7 +48,7 @@ public class PrefixUtil {
       return address;
    }
 
-   private static SimpleString removePrefix(SimpleString string, SimpleString prefix) {
+   public static SimpleString removePrefix(SimpleString string, SimpleString prefix) {
       return string.subSeq(prefix.length(), string.length());
    }
 }
