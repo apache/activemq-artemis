@@ -205,6 +205,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    @Override
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
       try {
+         validateFile();
          file.open();
          int fileSize = (int) file.size();
          ByteBuffer buffer = this.storageManager.largeMessagesFactory.newBuffer(fileSize);

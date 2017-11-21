@@ -64,6 +64,11 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
    @Test
    public void testSendReceiveLargeMessage() throws Exception {
+      // Create 1MB Message
+      int size = 1024 * 1024;
+
+      byte[] bytes = new byte[size];
+
       try (Connection connection = factory.createConnection()) {
          connection.start();
 
@@ -72,14 +77,21 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         // Create 1MB Message
-         int size = 1024 * 1024;
-         byte[] bytes = new byte[size];
          bytes[0] = 1;
 
          BytesMessage message = session.createBytesMessage();
          message.writeBytes(bytes);
          producer.send(message);
+      }
+
+      server.stop();
+      server.start();
+
+      try (Connection connection = factory.createConnection()) {
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(lmAddress.toString());
+
 
          MessageConsumer consumer = session.createConsumer(queue);
          BytesMessage m = (BytesMessage) consumer.receive();
