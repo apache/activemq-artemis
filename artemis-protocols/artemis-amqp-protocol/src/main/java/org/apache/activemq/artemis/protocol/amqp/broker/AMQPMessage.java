@@ -1131,4 +1131,12 @@ public class AMQPMessage extends RefCountMessage {
       this.durable = true; // it's coming from the journal, so it's durable
       parseHeaders();
    }
+
+   @Override
+   public String toString() {
+      return "AMQPMessage [durable=" + isDurable() +
+         ", messageID=" + getMessageID() +
+         ", address=" + getAddress() +
+         "]";
+   }
 }
