@@ -150,7 +150,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected Message beforeForward(final Message message) {
+   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
       // We make a copy of the message, then we strip out the unwanted routing id headers and leave
       // only
       // the one pertinent for the address node - this is important since different queues on different
@@ -182,7 +182,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       messageCopy.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
 
-      messageCopy = super.beforeForward(messageCopy);
+      messageCopy = super.beforeForward(messageCopy, null);
 
       return messageCopy;
    }
