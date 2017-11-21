@@ -19,12 +19,13 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -205,9 +206,10 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
       try {
          file.open();
-         ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer((int) file.size());
-         file.read(buffer.toByteBuffer());
-         return buffer;
+         int fileSize = (int) file.size();
+         ByteBuffer buffer = this.storageManager.largeMessagesFactory.newBuffer(fileSize);
+         file.read(buffer);
+         return new ChannelBufferWrapper(Unpooled.wrappedBuffer(buffer));
       } catch (Exception e) {
          throw new RuntimeException(e);
       } finally {
@@ -215,7 +217,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
             file.close();
          } catch (Exception ignored) {
          }
-
       }
    }
 

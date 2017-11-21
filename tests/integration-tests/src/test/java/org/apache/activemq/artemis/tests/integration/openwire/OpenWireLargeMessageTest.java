@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -58,6 +59,36 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
          BytesMessage message = session.createBytesMessage();
          message.writeBytes(bytes);
          producer.send(message);
+      }
+   }
+
+   @Test
+   public void testSendReceiveLargeMessage() throws Exception {
+      try (Connection connection = factory.createConnection()) {
+         connection.start();
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(lmAddress.toString());
+         MessageProducer producer = session.createProducer(queue);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+         // Create 1MB Message
+         int size = 1024 * 1024;
+         byte[] bytes = new byte[size];
+         bytes[0] = 1;
+
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(bytes);
+         producer.send(message);
+
+         MessageConsumer consumer = session.createConsumer(queue);
+         BytesMessage m = (BytesMessage) consumer.receive();
+         assertNotNull(m);
+
+         byte[] body = new byte[size];
+         m.readBytes(body);
+
+         assertArrayEquals(body, bytes);
       }
    }
 }
