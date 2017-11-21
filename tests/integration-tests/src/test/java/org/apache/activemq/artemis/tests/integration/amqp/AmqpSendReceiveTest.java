@@ -133,12 +133,12 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName(1));
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertEquals(1, queueView.getConsumerCount());
-      assertEquals(0, queueView.getMessageCount());
+      Wait.assertEquals(1, queueView::getConsumerCount);
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       queueView = getProxyToQueue(getQueueName(1));
-      assertEquals(1, queueView.getConsumerCount());
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1, queueView::getConsumerCount);
+      Wait.assertEquals(1, queueView::getMessageCount);
 
       receiver.flow(1);
       AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
@@ -146,7 +146,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message.accept();
       receiver.close();
 
-      assertEquals(0, queueView.getMessageCount());
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       connection.close();
    }
