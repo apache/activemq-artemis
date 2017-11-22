@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.protocol.hornetq.client;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -82,7 +83,8 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
                                                 int ackBatchSize,
                                                 boolean browseOnly,
                                                 Executor executor,
-                                                Executor flowControlExecutor) throws ActiveMQException {
+                                                Executor flowControlExecutor,
+                                                ScheduledExecutorService scheduledExecutorService) throws ActiveMQException {
       long consumerID = idGenerator.generateID();
 
       ActiveMQConsumerContext consumerContext = new ActiveMQConsumerContext(consumerID);
@@ -95,7 +97,7 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
       // could be overridden on the queue settings
       // The value we send is just a hint
 
-      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, browseOnly, calcWindowSize(windowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
+      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, browseOnly, calcWindowSize(windowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL(), scheduledExecutorService);
    }
 
 }

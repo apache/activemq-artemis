@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -73,6 +74,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // to be sent to consumers as consumers will need a separate consumer for flow control
    private final Executor flowControlExecutor;
+
+   private final ScheduledExecutorService  scheduledExecutorService;
 
    /**
     * All access to producers are guarded (i.e. synchronized) on itself.
@@ -172,7 +175,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final SessionContext sessionContext,
                      final Executor executor,
                      final Executor flowControlExecutor,
-                     final Executor closeExecutor) throws ActiveMQException {
+                     final Executor closeExecutor,
+                     final ScheduledExecutorService scheduledExecutorService) throws ActiveMQException {
       this.sessionFactory = sessionFactory;
 
       this.name = name;
@@ -230,6 +234,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       confirmationWindowWarning = sessionFactory.getConfirmationWindowWarning();
 
       this.closeExecutor = closeExecutor;
+
+      this.scheduledExecutorService = scheduledExecutorService;
    }
 
    // ClientSession implementation
@@ -1508,7 +1514,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  final boolean browseOnly) throws ActiveMQException {
       checkClosed();
 
-      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
+      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor, scheduledExecutorService);
 
       addConsumer(consumer);
 

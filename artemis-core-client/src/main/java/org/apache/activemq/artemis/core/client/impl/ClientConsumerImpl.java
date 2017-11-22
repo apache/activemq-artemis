@@ -22,6 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -131,6 +132,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private final ClassLoader contextClassLoader;
 
+   private final ScheduledExecutorService scheduledExecutorService;
+
    // Constructors
    // ---------------------------------------------------------------------------------
 
@@ -146,7 +149,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                              final Executor flowControlExecutor,
                              final SessionContext sessionContext,
                              final ClientSession.QueueQuery queueInfo,
-                             final ClassLoader contextClassLoader) {
+                             final ClassLoader contextClassLoader,
+                             final ScheduledExecutorService scheduledExecutorService) {
       this.consumerContext = consumerContext;
 
       this.queueName = queueName;
@@ -172,6 +176,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       this.contextClassLoader = contextClassLoader;
 
       this.flowControlExecutor = flowControlExecutor;
+
+      this.scheduledExecutorService = scheduledExecutorService;
 
       if (logger.isTraceEnabled()) {
          logger.trace(this + ":: being created at", new Exception("trace"));
@@ -930,10 +936,29 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       sessionExecutor.execute(future);
 
-      boolean ok = future.await(ClientConsumerImpl.CLOSE_TIMEOUT_MILLISECONDS);
+      //wait for result using scheduled executor
+      scheduledExecutorService.schedule(new AwaitFutureTask(future), ClientConsumerImpl.CLOSE_TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+   }
 
-      if (!ok) {
-         ActiveMQClientLogger.LOGGER.timeOutWaitingForProcessing();
+   /**
+    * Waiting for future result has to be scheduled to allow other tasks to be executed during waiting.
+    * (original code - future.await(ClientConsumerImpl.CLOSE_TIMEOUT_MILLISECONDS))
+    */
+   private class AwaitFutureTask implements Runnable {
+      private FutureLatch futureLatch;
+
+      public AwaitFutureTask(FutureLatch futureLatch) {
+         this.futureLatch = futureLatch;
+      }
+
+      @Override
+      public void run() {
+         //dont wait for a long tome, wait period is frced by scheduling tasks into future
+         boolean ok = futureLatch.await(1);
+
+         if (!ok) {
+            ActiveMQClientLogger.LOGGER.timeOutWaitingForProcessing();
+         }
       }
    }
 
