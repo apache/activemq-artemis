@@ -397,6 +397,12 @@ public interface ActiveMQClientLogger extends BasicLogger {
            format = Message.Format.MESSAGE_FORMAT)
    void unableToCheckKQueueAvailability(@Cause Throwable e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212074, value = "SendAcknowledgementHandler will not be asynchronous without setting up confirmation window size",
+      format = Message.Format.MESSAGE_FORMAT)
+   void confirmationNotSet();
+
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);
