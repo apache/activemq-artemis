@@ -255,6 +255,15 @@ Netty for simple TCP:
     the connection is refused. In the case of a `core` client, it will
     result in a `org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException`.
 
+-   `handshake-timeout`. Prevents an unauthorised client opening a large 
+    number of connections and just keeping them open. As connections each
+    require a file handle this consumes resources that are then unavailable 
+    to other clients. Once the connection is authenticated, the usual rules 
+    can be enforced regarding resource consumption. Default value is set to
+    10 seconds. Each integer is valid value. When set value to zero or
+    negative integer this feature is turned off. Changing value needs
+    to restart server to take effect.
+
 ## Configuring Netty Native Transport
 
 Netty Native Transport support exists for selected OS platforms.
