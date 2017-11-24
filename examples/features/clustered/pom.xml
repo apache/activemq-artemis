@@ -52,6 +52,7 @@ under the License.
             <module>clustered-grouping</module>
             <module>clustered-jgroups</module>
             <module>clustered-queue</module>
+            <module>clustered-queue-mqtt</module>
             <module>clustered-static-oneway</module>
             <module>clustered-static-discovery</module>
             <module>clustered-static-discovery-uri</module>
@@ -69,6 +70,7 @@ under the License.
             <module>clustered-grouping</module>
             <module>clustered-jgroups</module>
             <module>clustered-queue</module>
+            <module>clustered-queue-mqtt</module>
             <module>clustered-static-oneway</module>
             <module>clustered-static-discovery</module>
             <module>clustered-static-discovery-uri</module>
