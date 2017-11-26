@@ -45,7 +45,23 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
    @Override
    public JsonObjectBuilder toJson(ServerConsumer consumer) {
       ServerSession session = server.getSessionByID(consumer.getSessionID());
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sequentialID", toString(consumer.getSequentialID())).add("sessionName", toString(consumer.getSessionName())).add("connectionClientID", toString(consumer.getConnectionClientID())).add("user", toString(session.getUsername())).add("connectionProtocolName", toString(consumer.getConnectionProtocolName())).add("queueName", toString(consumer.getQueueName())).add("queueType", toString(consumer.getQueueType()).toLowerCase()).add("queueAddress", toString(consumer.getQueueAddress().toString())).add("connectionLocalAddress", toString(consumer.getConnectionLocalAddress())).add("connectionRemoteAddress", toString(consumer.getConnectionRemoteAddress())).add("creationTime", new Date(consumer.getCreationTime()).toString());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sequentialID", toString(consumer.getSequentialID()))
+         .add("sessionName", toString(consumer.getSessionName()))
+         .add("connectionClientID", toString(consumer.getConnectionClientID()))
+         .add("user", toString(session.getUsername()))
+         .add("connectionProtocolName", toString(consumer.getConnectionProtocolName()))
+         .add("queueName", toString(consumer.getQueueName()))
+         .add("queueType", toString(consumer.getQueueType()).toLowerCase())
+         .add("queueAddress", toString(consumer.getQueueAddress().toString()))
+         .add("connectionLocalAddress", toString(consumer.getConnectionLocalAddress()))
+         .add("connectionRemoteAddress", toString(consumer.getConnectionRemoteAddress()))
+         .add("creationTime", new Date(consumer.getCreationTime()).toString());
       return obj;
    }
 
