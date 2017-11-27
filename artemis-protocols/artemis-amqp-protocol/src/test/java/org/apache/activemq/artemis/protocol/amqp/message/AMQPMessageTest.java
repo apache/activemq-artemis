@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -34,7 +35,6 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersisterV2;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
@@ -58,13 +58,46 @@ public class AMQPMessageTest {
       protonMessage.setProperties(properties);
       protonMessage.getHeader().setDeliveryCount(new UnsignedInteger(7));
       protonMessage.getHeader().setDurable(Boolean.TRUE);
-      protonMessage.setApplicationProperties(new ApplicationProperties(new HashedMap()));
+      protonMessage.setApplicationProperties(new ApplicationProperties(new HashMap()));
 
       AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
 
       assertEquals(7, decoded.getHeader().getDeliveryCount().intValue());
       assertEquals(true, decoded.getHeader().getDurable());
       assertEquals("someNiceLocal", decoded.getAddress());
+   }
+
+   @Test
+   public void testApplicationPropertiesReencode() {
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      protonMessage.setHeader( new Header());
+      Properties properties = new Properties();
+      properties.setTo("someNiceLocal");
+      protonMessage.setProperties(properties);
+      protonMessage.getHeader().setDeliveryCount(new UnsignedInteger(7));
+      protonMessage.getHeader().setDurable(Boolean.TRUE);
+      HashMap map = new HashMap();
+      map.put("key", "string1");
+      protonMessage.setApplicationProperties(new ApplicationProperties(map));
+
+      AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
+      assertEquals("someNiceLocal", decoded.getAddress());
+
+      decoded.setAddress("newAddress");
+
+      decoded.reencode();
+      assertEquals(7, decoded.getHeader().getDeliveryCount().intValue());
+      assertEquals(true, decoded.getHeader().getDurable());
+      assertEquals("newAddress", decoded.getAddress());
+      assertEquals("string1", decoded.getObjectProperty("key"));
+
+      // validate if the message will be the same after delivery
+      AMQPMessage newDecoded = encodeDelivery(decoded, 3);
+      assertEquals(2, decoded.getHeader().getDeliveryCount().intValue());
+      assertEquals(true, newDecoded.getHeader().getDurable());
+      assertEquals("newAddress", newDecoded.getAddress());
+      assertEquals("string1", newDecoded.getObjectProperty("key"));
+
    }
 
    @Test
@@ -255,6 +288,17 @@ public class AMQPMessageTest {
       ByteBuf nettyBuffer = Unpooled.buffer(1500);
 
       message.encode(new NettyWritable(nettyBuffer));
+      byte[] bytes = new byte[nettyBuffer.writerIndex()];
+      nettyBuffer.readBytes(bytes);
+
+      return new AMQPMessage(0, bytes);
+   }
+
+   private AMQPMessage encodeDelivery(AMQPMessage message, int deliveryCount) {
+      ByteBuf nettyBuffer = Unpooled.buffer(1500);
+
+      message.sendBuffer(nettyBuffer, deliveryCount);
+
       byte[] bytes = new byte[nettyBuffer.writerIndex()];
       nettyBuffer.readBytes(bytes);
 
