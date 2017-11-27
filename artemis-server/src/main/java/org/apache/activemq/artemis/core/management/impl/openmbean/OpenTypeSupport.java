@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.MessageReference;
 
 public final class OpenTypeSupport {
@@ -267,10 +268,14 @@ public final class OpenTypeSupport {
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = super.getFields(ref);
          ICoreMessage m = ref.getMessage().toCore();
-         ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
-         byte[] bytes = new byte[bodyCopy.readableBytes()];
-         bodyCopy.readBytes(bytes);
-         rc.put(CompositeDataConstants.BODY, bytes);
+         if (!(m instanceof LargeServerMessageImpl)) {
+            ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
+            byte[] bytes = new byte[bodyCopy.readableBytes()];
+            bodyCopy.readBytes(bytes);
+            rc.put(CompositeDataConstants.BODY, bytes);
+         } else {
+            rc.put(CompositeDataConstants.BODY, new byte[0]);
+         }
          return rc;
       }
    }
@@ -288,8 +293,12 @@ public final class OpenTypeSupport {
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = super.getFields(ref);
          ICoreMessage m = ref.getMessage().toCore();
-         SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
-         rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+         if (!(m instanceof LargeServerMessageImpl)) {
+            SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
+            rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+         } else {
+            rc.put(CompositeDataConstants.TEXT_BODY, "");
+         }
          return rc;
       }
    }
