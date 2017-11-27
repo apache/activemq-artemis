@@ -45,6 +45,11 @@ public class AddressView extends ActiveMQAbstractView<SimpleString> {
    public JsonObjectBuilder toJson(SimpleString addressName) {
 
       AddressInfo address = server.getAddressInfo(addressName);
+      // the address could have been removed since the list was created
+      // if it is not there, just ignore.
+      if (address == null) {
+         return null;
+      }
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(address.getId())).add("name", toString(address.getName())).add("routingTypes", toString(address.getRoutingTypes()));
 
       try {
