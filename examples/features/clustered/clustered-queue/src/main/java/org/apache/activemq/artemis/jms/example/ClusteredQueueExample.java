@@ -43,10 +43,10 @@ public class ClusteredQueueExample {
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Instantiate connection towards server 0
-         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61618");
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61619");
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
          // Step 6. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
