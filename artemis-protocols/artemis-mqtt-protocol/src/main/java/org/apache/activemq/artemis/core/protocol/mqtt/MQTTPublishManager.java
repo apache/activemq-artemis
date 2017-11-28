@@ -196,9 +196,9 @@ public class MQTTPublishManager {
       SimpleString queueNamed = new SimpleString(topic);
       Bindings bindingsForAddress = session.getServerSession().postOffice.getBindingsForAddress(queueNamed);
       List<ClusterConnectionConfiguration> clusterConfigurations = session.getServer().getConfiguration().getClusterConfigurations();
-      for(ClusterConnectionConfiguration clusterConnectionConfiguration : clusterConfigurations) {
-         for(Binding binding : bindingsForAddress.getBindings()) {
-            if(binding.getAddress().toString().equals(clusterConnectionConfiguration.getAddress()) && clusterConnectionConfiguration.getMessageLoadBalancingType() != null) {
+      for (ClusterConnectionConfiguration clusterConnectionConfiguration : clusterConfigurations) {
+         for (Binding binding : bindingsForAddress.getBindings()) {
+            if (binding.getAddress().toString().equals(clusterConnectionConfiguration.getAddress()) && clusterConnectionConfiguration.getMessageLoadBalancingType() != null) {
                bindingsForAddress.setMessageLoadBalancingType(clusterConnectionConfiguration.getMessageLoadBalancingType());
                break;
             }
