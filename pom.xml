@@ -97,7 +97,7 @@
       <javax.inject.version>1</javax.inject.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.0.3.Final</jb.logmanager.version>
-      <jb.slf4j-jboss-logmanager.version>1.0.3.GA</jb.slf4j-jboss-logmanager.version>
+      <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
       <airlift.version>0.7</airlift.version>
       <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
