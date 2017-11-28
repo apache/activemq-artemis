@@ -511,12 +511,17 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    /* Hook for processing message before forwarding */
-   protected Message beforeForward(final Message message) {
+   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
       if (useDuplicateDetection) {
          // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
 
          message.putExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
+      }
+
+      if (forwardingAddress != null) {
+         // for AMQP messages this modification will be transient
+         message.setAddress(forwardingAddress);
       }
 
       if (transformer != null) {
@@ -568,8 +573,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             refs.put(ref.getMessage().getMessageID(), ref);
          }
 
-         final Message message = beforeForward(ref.getMessage());
-
          final SimpleString dest;
 
          if (forwardingAddress != null) {
@@ -578,6 +581,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             // Preserve the original address
             dest = ref.getMessage().getAddressSimpleString();
          }
+
+         final Message message = beforeForward(ref.getMessage(), dest);
 
          pendingAcks.countUp();
 

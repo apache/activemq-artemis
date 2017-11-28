@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -726,15 +727,22 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void addDestination(DestinationInfo info) throws Exception {
       boolean created = false;
       ActiveMQDestination dest = info.getDestination();
+      if (!protocolManager.isSupportAdvisory() && AdvisorySupport.isAdvisoryTopic(dest)) {
+         return;
+      }
 
       SimpleString qName = SimpleString.toSimpleString(dest.getPhysicalName());
       if (server.locateQueue(qName) == null) {
          AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(dest.getPhysicalName());
+         AddressInfo addressInfo = new AddressInfo(qName, dest.isTopic() ? RoutingType.MULTICAST : RoutingType.ANYCAST);
+         if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
+            addressInfo.setInternal(true);
+         }
          if (dest.isQueue() && (addressSettings.isAutoCreateQueues() || dest.isTemporary())) {
-            internalSession.createQueue(qName, qName, RoutingType.ANYCAST, null, dest.isTemporary(), !dest.isTemporary(), !dest.isTemporary());
+            internalSession.createQueue(addressInfo, qName, null, dest.isTemporary(), !dest.isTemporary(), !dest.isTemporary());
             created = true;
          } else if (dest.isTopic() && (addressSettings.isAutoCreateAddresses() || dest.isTemporary())) {
-            internalSession.createAddress(qName, RoutingType.MULTICAST, !dest.isTemporary());
+            internalSession.createAddress(addressInfo, !dest.isTemporary());
             created = true;
          }
       }
@@ -783,6 +791,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
 
          List<AMQConsumer> consumersList = amqSession.createConsumer(info, new SlowConsumerDetection());
+         if (consumersList.size() == 0) {
+            return;
+         }
 
          this.addConsumerBrokerExchange(info.getConsumerId(), amqSession, consumersList);
          ss.addConsumer(info);
@@ -876,6 +887,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public List<DestinationInfo> getTemporaryDestinations() {
       return state.getTempDestinations();
+   }
+
+   public boolean isSuppressInternalManagementObjects() {
+      return protocolManager.isSuppressInternalManagementObjects();
+   }
+
+   public boolean isSuppportAdvisory() {
+      return protocolManager.isSupportAdvisory();
    }
 
    class SlowConsumerDetection implements SlowConsumerDetectionListener {

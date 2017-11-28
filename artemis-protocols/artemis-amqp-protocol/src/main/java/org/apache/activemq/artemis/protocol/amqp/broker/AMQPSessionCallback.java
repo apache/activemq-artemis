@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
@@ -45,12 +43,12 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
@@ -99,6 +97,11 @@ public class AMQPSessionCallback implements SessionCallback {
    private final Executor sessionExecutor;
 
    private final AtomicBoolean draining = new AtomicBoolean(false);
+
+
+   private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
+
+   private final AddressQueryCache<BindingQueryResult> bindingQueryCache = new AddressQueryCache<>();
 
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
@@ -211,7 +214,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       filter = SelectorTranslator.convertToActiveMQFilterString(filter);
 
-      ServerConsumer consumer = serverSession.createConsumer(consumerID, SimpleString.toSimpleString(queue), SimpleString.toSimpleString(filter), browserOnly);
+      ServerConsumer consumer = serverSession.createConsumer(consumerID, SimpleString.toSimpleString(queue), SimpleString.toSimpleString(filter), browserOnly, false, null);
 
       // AMQP handles its own flow control for when it's started
       consumer.setStarted(true);
@@ -271,15 +274,25 @@ public class AMQPSessionCallback implements SessionCallback {
          queueQueryResult = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
       }
 
-      if (queueQueryResult.getRoutingType() != routingType) {
+      // if auto-create we will return whatever type was used before
+      if (!queueQueryResult.isAutoCreated() && queueQueryResult.getRoutingType() != routingType) {
          throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
       }
+
       return queueQueryResult;
    }
 
+
+
    public boolean bindingQuery(String address, RoutingType routingType) throws Exception {
+      BindingQueryResult bindingQueryResult = bindingQueryCache.getResult(address);
+
+      if (bindingQueryResult != null) {
+         return bindingQueryResult.isExists();
+      }
+
       SimpleString simpleAddress = SimpleString.toSimpleString(address);
-      BindingQueryResult bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
+      bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
       if (routingType == RoutingType.MULTICAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateAddresses()) {
          try {
             serverSession.createAddress(simpleAddress, routingType, true);
@@ -287,21 +300,33 @@ public class AMQPSessionCallback implements SessionCallback {
             // The address may have been created by another thread in the mean time.  Catch and do nothing.
          }
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
-      } else if (routingType == RoutingType.ANYCAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
-         try {
-            serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
-         } catch (ActiveMQQueueExistsException e) {
-            // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+      } else if (routingType == RoutingType.ANYCAST && bindingQueryResult.isAutoCreateQueues()) {
+         QueueQueryResult queueBinding = serverSession.executeQueueQuery(simpleAddress);
+         if (!queueBinding.isExists()) {
+            try {
+               serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
+            } catch (ActiveMQQueueExistsException e) {
+               // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+            }
          }
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
       }
+
+      bindingQueryCache.setResult(address, bindingQueryResult);
       return bindingQueryResult.isExists();
    }
+
 
    public AddressQueryResult addressQuery(String addressName,
                                           RoutingType routingType,
                                           boolean autoCreate) throws Exception {
-      AddressQueryResult addressQueryResult = serverSession.executeAddressQuery(SimpleString.toSimpleString(addressName));
+
+      AddressQueryResult addressQueryResult = addressQueryCache.getResult(addressName);
+      if (addressQueryResult != null) {
+         return addressQueryResult;
+      }
+
+      addressQueryResult = serverSession.executeAddressQuery(SimpleString.toSimpleString(addressName));
 
       if (!addressQueryResult.isExists() && addressQueryResult.isAutoCreateAddresses() && autoCreate) {
          try {
@@ -311,41 +336,30 @@ public class AMQPSessionCallback implements SessionCallback {
          }
          addressQueryResult = serverSession.executeAddressQuery(SimpleString.toSimpleString(addressName));
       }
+
+      addressQueryCache.setResult(addressName, addressQueryResult);
       return addressQueryResult;
    }
 
    public void closeSender(final Object brokerConsumer) throws Exception {
 
       final ServerConsumer consumer = ((ServerConsumer) brokerConsumer);
-      final CountDownLatch latch = new CountDownLatch(1);
 
-      Runnable runnable = new Runnable() {
+      serverSession.getSessionContext().executeOnCompletion(new IOCallback() {
          @Override
-         public void run() {
+         public void done() {
             try {
                consumer.close(false);
-               latch.countDown();
             } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
             }
          }
-      };
 
-      // Due to the nature of proton this could be happening within flushes from the queue-delivery (depending on how it happened on the protocol)
-      // to avoid deadlocks the close has to be done outside of the main thread on an executor
-      // otherwise you could get a deadlock
-      Executor executor = protonSPI.getExeuctor();
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+         }
+      });
 
-      if (executor != null) {
-         executor.execute(runnable);
-      } else {
-         runnable.run();
-      }
-
-      try {
-         latch.await(10, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-         throw new ActiveMQAMQPInternalErrorException("Unable to close consumers for queue: " + consumer.getQueue());
-      }
    }
 
    public String tempQueueName() {
@@ -399,7 +413,8 @@ public class AMQPSessionCallback implements SessionCallback {
       ((ServerConsumer) consumer).receiveCredits(-1);
    }
 
-   public void serverSend(final Transaction transaction,
+   public void serverSend(final ProtonServerReceiverContext context,
+                          final Transaction transaction,
                           final Receiver receiver,
                           final Delivery delivery,
                           String address,
@@ -410,14 +425,17 @@ public class AMQPSessionCallback implements SessionCallback {
          message.setAddress(new SimpleString(address));
       } else {
          // Anonymous relay must set a To value
-         if (message.getAddress() == null) {
+         address = message.getAddress();
+         if (address == null) {
             rejectMessage(delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
             return;
          }
+      }
 
-         if (!bindingQuery(message.getAddress().toString(), RoutingType.ANYCAST)) {
-            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
-         }
+      //here check queue-autocreation
+      RoutingType routingType = context.getRoutingType(receiver, RoutingType.ANYCAST);
+      if (!bindingQuery(address, routingType)) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
       }
 
       OperationContext oldcontext = recoverContext();
@@ -691,4 +709,27 @@ public class AMQPSessionCallback implements SessionCallback {
    public void removeProducer(String name) {
       serverSession.removeProducer(name);
    }
+
+
+   class AddressQueryCache<T> {
+      String address;
+      T result;
+
+      public synchronized T getResult(String parameterAddress) {
+         if (address != null && address.equals(parameterAddress)) {
+            return result;
+         } else {
+            result = null;
+            address = null;
+            return null;
+         }
+      }
+
+      public synchronized void setResult(String parameterAddress, T result) {
+         this.address = parameterAddress;
+         this.result = result;
+      }
+
+   }
+
 }

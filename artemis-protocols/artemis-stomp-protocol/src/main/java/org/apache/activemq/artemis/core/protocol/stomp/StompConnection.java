@@ -343,7 +343,7 @@ public final class StompConnection implements RemotingConnection {
 
          StompFrame frame = frameHandler.createStompFrame(Stomp.Responses.ERROR);
          frame.addHeader(Stomp.Headers.Error.MESSAGE, me.getMessage());
-         sendFrame(frame);
+         sendFrame(frame, null);
 
          destroyed = true;
       }
@@ -552,7 +552,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       if (reply != null) {
-         sendFrame(reply);
+         sendFrame(reply, null);
       }
 
       if (Stomp.Commands.DISCONNECT.equals(cmd)) {
@@ -560,8 +560,8 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public void sendFrame(StompFrame frame) {
-      manager.sendReply(this, frame);
+   public void sendFrame(StompFrame frame, StompPostReceiptFunction function) {
+      manager.sendReply(this, frame, function);
    }
 
    public boolean validateUser(final String login, final String pass, final RemotingConnection connection) {
@@ -660,7 +660,7 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   void subscribe(String destination,
+   StompPostReceiptFunction subscribe(String destination,
                   String selector,
                   String ack,
                   String id,
@@ -694,7 +694,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       try {
-         manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
+         return manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -743,7 +743,7 @@ public final class StompConnection implements RemotingConnection {
 
    //send a ping stomp frame
    public void ping(StompFrame pingFrame) {
-      manager.sendReply(this, pingFrame);
+      manager.sendReply(this, pingFrame, null);
    }
 
    public void physicalSend(StompFrame frame) throws Exception {

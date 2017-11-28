@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.transport.amqp.client.transport;
+package org.apache.activemq.transport.netty;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class NettyWSTransport extends NettyTcpTransport {
 
    private static final Logger LOG = LoggerFactory.getLogger(NettyWSTransport.class);
 
-   private static final String AMQP_SUB_PROTOCOL = "amqp";
+   public static final String AMQP_SUB_PROTOCOL = "amqp";
 
    /**
     * Create a new transport instance
@@ -79,16 +80,16 @@ public class NettyWSTransport extends NettyTcpTransport {
    }
 
    @Override
-   public void send(ByteBuf output) throws IOException {
+   public ChannelFuture send(ByteBuf output) throws IOException {
       checkConnected();
       int length = output.readableBytes();
       if (length == 0) {
-         return;
+         return null;
       }
 
       LOG.trace("Attempted write of: {} bytes", length);
 
-      channel.writeAndFlush(new BinaryWebSocketFrame(output));
+      return channel.writeAndFlush(new BinaryWebSocketFrame(output));
    }
 
    @Override
@@ -115,7 +116,7 @@ public class NettyWSTransport extends NettyTcpTransport {
 
       NettyWebSocketTransportHandler() {
          handshaker = WebSocketClientHandshakerFactory.newHandshaker(
-            getRemoteLocation(), WebSocketVersion.V13, AMQP_SUB_PROTOCOL,
+            getRemoteLocation(), WebSocketVersion.V13, options.getWsSubProtocol(),
             true, new DefaultHttpHeaders(), getMaxFrameSize());
       }
 

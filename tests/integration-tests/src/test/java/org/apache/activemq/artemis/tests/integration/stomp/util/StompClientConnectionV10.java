@@ -17,11 +17,13 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 public class StompClientConnectionV10 extends AbstractStompClientConnection {
+
 
    public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);
@@ -31,6 +33,14 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
       super(version, host, port);
    }
 
+   public StompClientConnectionV10(URI uri) throws Exception {
+      super(uri);
+   }
+
+   public StompClientConnectionV10(URI uri, boolean autoConnect) throws Exception {
+      super(uri, autoConnect);
+   }
+
    @Override
    public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
       return connect(username, passcode, null);
@@ -38,6 +48,7 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
    @Override
    public ClientStompFrame connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
+
       ClientStompFrame frame = factory.newFrame(Stomp.Commands.CONNECT);
       frame.addHeader(Stomp.Headers.Connect.LOGIN, username);
       frame.addHeader(Stomp.Headers.Connect.PASSCODE, passcode);

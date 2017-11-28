@@ -403,14 +403,14 @@ messages.
 Embedded
 --------
 
-The `embedded` example shows how to embed JMS within your own code using
+The `embedded` example shows how to embed a broker within your own code using
 POJO instantiation and no config files.
 
 Embedded Simple
 ---------------
 
-The `embedded` example shows how to embed JMS within your own code using
-regular Apache ActiveMQ Artemis XML files.
+The `embedded-simple` example shows how to embed a broker within your own code
+using regular Apache ActiveMQ Artemis XML files.
 
 Message Expiration
 ------------------

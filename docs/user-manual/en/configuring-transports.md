@@ -116,7 +116,7 @@ Sockets are being used and also use the appropriate decoders
 It is possible to limit which protocols are supported by using the
 `protocols` parameter on the Acceptor like so:
 
-        <connector name="netty">tcp://localhost:61617?protocols=CORE,AMQP</connector>
+        <acceptor name="netty">tcp://localhost:61617?protocols=CORE,AMQP</acceptor>
 
 ## Configuring Netty TCP
 
@@ -254,6 +254,15 @@ Netty for simple TCP:
     is refused. The type of client in use will determine what happens when
     the connection is refused. In the case of a `core` client, it will
     result in a `org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException`.
+
+-   `handshake-timeout`. Prevents an unauthorised client opening a large 
+    number of connections and just keeping them open. As connections each
+    require a file handle this consumes resources that are then unavailable 
+    to other clients. Once the connection is authenticated, the usual rules 
+    can be enforced regarding resource consumption. Default value is set to
+    10 seconds. Each integer is valid value. When set value to zero or
+    negative integer this feature is turned off. Changing value needs
+    to restart server to take effect.
 
 ## Configuring Netty Native Transport
 

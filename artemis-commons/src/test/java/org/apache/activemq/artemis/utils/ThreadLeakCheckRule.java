@@ -182,6 +182,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
                for (StackTraceElement el : elements) {
                   System.out.println(el);
                }
+               aliveThread.interrupt();
             }
 
          }

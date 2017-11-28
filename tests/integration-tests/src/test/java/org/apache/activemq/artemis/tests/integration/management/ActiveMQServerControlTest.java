@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.transaction.xa.XAResource;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -46,6 +51,8 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -57,10 +64,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -1977,6 +1987,64 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(1, server.getConnectorsService().getConnectors().size());
       Assert.assertEquals("myconn2", managementControl.getConnectorServices()[0]);
    }
+
+   @Test
+   public void testCloseCOREclient() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+      boolean durable = true;
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, durable, -1, false, false);
+
+      ServerLocator receiveLocator = createInVMNonHALocator();
+      ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
+      ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
+      final ClientConsumer COREclient = receiveClientSession.createConsumer(name);
+
+      ServerSession ss = server.getSessions().iterator().next();
+      ServerConsumer sc = ss.getServerConsumers().iterator().next();
+
+      Assert.assertFalse(COREclient.isClosed());
+      serverControl.closeConsumerWithID(((ClientSessionImpl)receiveClientSession).getName(), Long.toString(sc.sequentialID()));
+      Wait.waitFor(() -> COREclient.isClosed());
+      Assert.assertTrue(COREclient.isClosed());
+   }
+
+   @Test
+   public void testCloseJMSclient() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Connection conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("ConsumerTestTopic");
+
+      MessageConsumer JMSclient = session.createConsumer(topic, "test1");
+
+
+      long clientID = -1;
+      String sessionID = ((ClientSessionImpl)(((ActiveMQSession)session).getCoreSession())).getName();
+
+      Set<ServerSession> sessions = server.getSessions();
+      for (ServerSession sess : sessions) {
+         if (sess.getName().equals(sessionID.toString())) {
+            Set<ServerConsumer> serverConsumers = sess.getServerConsumers();
+            for (ServerConsumer serverConsumer : serverConsumers) {
+               clientID = serverConsumer.sequentialID();
+            }
+         }
+      }
+
+      Assert.assertFalse(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+      serverControl.closeConsumerWithID(sessionID, Long.toString(clientID));
+      Wait.waitFor(() -> ((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+      Assert.assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+   }
+
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");

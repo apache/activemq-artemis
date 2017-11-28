@@ -119,6 +119,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    private long maxInactivityDurationInitalDelay = 10 * 1000L;
    private boolean useKeepAlive = true;
 
+   private boolean supportAdvisory = true;
+   //prevents advisory addresses/queues to be registered
+   //to management service
+   private boolean suppressInternalManagementObjects = true;
+
    private final OpenWireMessageConverter internalConverter;
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
@@ -348,6 +353,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
                             Command command,
                             ConsumerId targetConsumerId,
                             String originalConnectionId) throws Exception {
+      if (!this.isSupportAdvisory()) {
+         return;
+      }
       ActiveMQMessage advisoryMessage = new ActiveMQMessage();
 
       if (originalConnectionId == null) {
@@ -582,5 +590,21 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    public OpenWireMessageConverter getInternalConverter() {
       return internalConverter;
+   }
+
+   public boolean isSupportAdvisory() {
+      return supportAdvisory;
+   }
+
+   public void setSupportAdvisory(boolean supportAdvisory) {
+      this.supportAdvisory = supportAdvisory;
+   }
+
+   public boolean isSuppressInternalManagementObjects() {
+      return suppressInternalManagementObjects;
+   }
+
+   public void setSuppressInternalManagementObjects(boolean suppressInternalManagementObjects) {
+      this.suppressInternalManagementObjects = suppressInternalManagementObjects;
    }
 }

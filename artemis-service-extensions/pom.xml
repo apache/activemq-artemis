@@ -20,12 +20,16 @@
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.4.0-SNAPSHOT</version>
+      <version>2.5.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>artemis-service-extensions</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Service Extensions</name>
+
+   <properties>
+      <activemq.basedir>${project.basedir}/..</activemq.basedir>
+   </properties>
 
    <dependencies>
       <dependency>
@@ -39,6 +43,11 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
       </dependency>
@@ -49,6 +58,17 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logmanager</groupId>
+         <artifactId>jboss-logmanager</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jta_1.1_spec</artifactId>
       </dependency>
@@ -57,25 +77,9 @@
          <artifactId>junit</artifactId>
          <scope>test</scope>
       </dependency>
-
-
       <dependency>
-         <groupId>org.jboss.logmanager</groupId>
-         <artifactId>jboss-logmanager</artifactId>
-         <scope>test</scope>
+         <groupId>org.jgroups</groupId>
+         <artifactId>jgroups</artifactId>
       </dependency>
-
-      <!-- this is for the log assertion -->
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
-
    </dependencies>
-
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
 </project>

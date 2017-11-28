@@ -178,6 +178,33 @@ maxInactivityDurationInitalDelay. The shortest duration is taken for the connect
 
 More details please see [ActiveMQ InactivityMonitor](http://activemq.apache.org/activemq-inactivitymonitor.html).
 
+### Disable/Enable Advisories
+
+By default, advisory topics ([ActiveMQ Advisory](http://activemq.apache.org/advisory-message.html))
+are created in order to send certain type of advisory messages to listening clients. As a result,
+advisory addresses and queues will be displayed on the management console, along with user deployed
+addresses and queues. This sometimes cause confusion because the advisory objects are internally
+managed without user being aware of them. In addition, users may not want the advisory topics at all
+(they cause extra resources and performance penalty) and it is convenient to disable them at all
+from the broker side.
+
+The protocol provides two parameters to control advisory behaviors on the broker side.
+
+* supportAdvisory
+Whether or not the broker supports advisory messages. If the value is true, advisory addresses/
+queues will be created. If the value is false, no advisory addresses/queues are created. Default
+value is true. 
+
+* suppressInternalManagementObjects
+Whether or not the advisory addresses/queues, if any, will be registered to management service
+(e.g. JMX registry). If set to true, no advisory addresses/queues will be registered. If set to
+false, those are registered and will be displayed on the management console. Default value is
+true.
+
+The two parameters are configured on openwire acceptors, via URLs or API. For example:
+
+    <acceptor name="artemis">tcp://127.0.0.1:61616?protocols=CORE,AMQP,OPENWIRE;supportAdvisory=true;suppressInternalManagementObjects=false</acceptor>
+
 ## MQTT
 
 MQTT is a light weight, client to server, publish / subscribe messaging protocol.  MQTT has been specifically

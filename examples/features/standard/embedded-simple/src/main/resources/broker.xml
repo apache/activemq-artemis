@@ -26,10 +26,6 @@ under the License.
 
       <persistence-enabled>false</persistence-enabled>
 
-      <connectors>
-         <connector name="in-vm">vm://0</connector>
-      </connectors>
-
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>

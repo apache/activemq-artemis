@@ -169,6 +169,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
@@ -575,22 +576,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void initializeCriticalAnalyzer() throws Exception {
+
+      // Some tests will play crazy frequenceistop/start
+      CriticalAnalyzer analyzer = this.getCriticalAnalyzer();
       if (analyzer == null) {
          if (configuration.isCriticalAnalyzer()) {
             // this will have its own ScheduledPool
-            this.analyzer = new CriticalAnalyzerImpl();
+            analyzer = new CriticalAnalyzerImpl();
          } else {
-            this.analyzer = EmptyCriticalAnalyzer.getInstance();
+            analyzer = EmptyCriticalAnalyzer.getInstance();
          }
+
+         this.analyzer = analyzer;
       }
 
       /* Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
-      this.analyzer.clear();
+      analyzer.clear();
 
-      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
+      analyzer.setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
 
       if (configuration.isCriticalAnalyzer()) {
-         this.getCriticalAnalyzer().start();
+         analyzer.start();
       }
 
       CriticalAction criticalAction = null;
@@ -644,7 +650,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             break;
       }
 
-      this.getCriticalAnalyzer().addAction(criticalAction);
+      analyzer.addAction(criticalAction);
    }
 
    private void sendCriticalNotification(final CriticalComponent criticalComponent) {
@@ -846,7 +852,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       SimpleString bindAddress = new SimpleString(realAddress);
       if (managementService != null) {
          if (bindAddress.equals(managementService.getManagementAddress())) {
-            return new BindingQueryResult(true, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+            return new BindingQueryResult(true, null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
          }
       }
 
@@ -862,7 +868,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(getAddressInfo(bindAddress) != null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+      AddressInfo info = getAddressInfo(bindAddress);
+
+      return new BindingQueryResult(info != null, info, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
    }
 
    @Override
@@ -925,28 +933,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void threadDump() {
-      StringWriter str = new StringWriter();
-      PrintWriter out = new PrintWriter(str);
-
-      Map<Thread, StackTraceElement[]> stackTrace = Thread.getAllStackTraces();
-
-      out.println(ActiveMQMessageBundle.BUNDLE.generatingThreadDump());
-      out.println("*******************************************************************************");
-
-      for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet()) {
-         out.println("===============================================================================");
-         out.println(ActiveMQMessageBundle.BUNDLE.threadDump(el.getKey(), el.getKey().getName(), el.getKey().getId(), el.getKey().getThreadGroup()));
-         out.println();
-         for (StackTraceElement traceEl : el.getValue()) {
-            out.println(traceEl);
-         }
-      }
-
-      out.println("===============================================================================");
-      out.println(ActiveMQMessageBundle.BUNDLE.endThreadDump());
-      out.println("*******************************************************************************");
-
-      ActiveMQServerLogger.LOGGER.threadDump(str.toString());
+      ActiveMQServerLogger.LOGGER.threadDump(ThreadDumpUtil.threadDump(""));
    }
 
    @Override
@@ -1258,16 +1245,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             ActiveMQServerLogger.LOGGER.errorClosingSessionsWhileStoppingServer(e);
          }
       }
-      if (!criticalIOError) {
-         for (ServerSession session : sessions.values()) {
-            try {
-               session.waitContextCompletion();
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorClosingSessionsWhileStoppingServer(e);
-            }
-         }
-      }
-
    }
 
    static void stopComponent(ActiveMQComponent component) {
@@ -1697,6 +1674,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   @Deprecated
    public Queue createQueue(SimpleString address,
                             RoutingType routingType,
                             SimpleString queueName,
@@ -1709,6 +1687,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Boolean purgeOnNoConsumers,
                             boolean autoCreateAddress) throws Exception {
       return createQueue(address, routingType, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
+   }
+
+   @Override
+   public Queue createQueue(AddressInfo addressInfo, SimpleString queueName, SimpleString filter, SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers, Boolean purgeOnNoConsumers, boolean autoCreateAddress) throws Exception {
+      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
    }
 
    @Deprecated
@@ -2687,6 +2670,113 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public AddressInfo getAddressInfo(SimpleString address) {
       return postOffice.getAddressInfo(address);
+   }
+
+   public Queue createQueue(final AddressInfo addrInfo,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final SimpleString user,
+                            final boolean durable,
+                            final boolean temporary,
+                            final boolean ignoreIfExists,
+                            final boolean transientQueue,
+                            final boolean autoCreated,
+                            final int maxConsumers,
+                            final boolean purgeOnNoConsumers,
+                            final boolean autoCreateAddress) throws Exception {
+      final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
+      if (binding != null) {
+         if (ignoreIfExists) {
+            return binding.getQueue();
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueName, binding.getAddress());
+         }
+      }
+
+      final Filter filter = FilterImpl.createFilter(filterString);
+
+      final long txID = storageManager.generateID();
+      final long queueID = storageManager.generateID();
+
+      final QueueConfig.Builder queueConfigBuilder;
+
+      final SimpleString addressToUse = addrInfo == null ? queueName : addrInfo.getName();
+
+      queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressToUse);
+
+      AddressInfo info = postOffice.getAddressInfo(addressToUse);
+
+      RoutingType routingType = addrInfo == null ? null : addrInfo.getRoutingType();
+      RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
+      if (autoCreateAddress) {
+         if (info == null) {
+            final AddressInfo addressInfo = new AddressInfo(addressToUse, rt);
+            addressInfo.setAutoCreated(true);
+            addressInfo.setInternal(addrInfo == null ? false : addrInfo.isInternal());
+            addAddressInfo(addressInfo);
+         } else if (!info.getRoutingTypes().contains(rt)) {
+            Set<RoutingType> routingTypes = new HashSet<>();
+            routingTypes.addAll(info.getRoutingTypes());
+            routingTypes.add(rt);
+            updateAddressInfo(info.getName(), routingTypes);
+         }
+      } else if (info == null) {
+         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressToUse);
+      } else if (!info.getRoutingTypes().contains(rt)) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(rt, info.getName().toString(), info.getRoutingTypes());
+      }
+
+      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).routingType(addrInfo.getRoutingType()).maxConsumers(maxConsumers).purgeOnNoConsumers(purgeOnNoConsumers).build();
+
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateQueue(queueConfig) : null);
+
+      final Queue queue = queueFactory.createQueueWith(queueConfig);
+
+      if (transientQueue) {
+         queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
+      } else {
+         queue.setConsumersRefCount(new QueueManagerImpl(this, queue.getName()));
+      }
+
+      final QueueBinding localQueueBinding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
+
+      if (queue.isDurable()) {
+         storageManager.addQueueBinding(txID, localQueueBinding);
+      }
+
+      try {
+         postOffice.addBinding(localQueueBinding);
+         if (queue.isDurable()) {
+            storageManager.commitBindings(txID);
+         }
+      } catch (Exception e) {
+         try {
+            if (durable) {
+               storageManager.rollbackBindings(txID);
+            }
+            final PageSubscription pageSubscription = queue.getPageSubscription();
+            try {
+               queue.close();
+            } finally {
+               if (pageSubscription != null) {
+                  pageSubscription.destroy();
+               }
+            }
+         } catch (Throwable ignored) {
+            logger.debug(ignored.getMessage(), ignored);
+         }
+         throw e;
+      }
+
+      if (addrInfo == null || !addrInfo.isInternal()) {
+         managementService.registerQueue(queue, queue.getAddress(), storageManager);
+      }
+
+      callPostQueueCreationCallbacks(queue.getName());
+
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateQueue(queue) : null);
+
+      return queue;
    }
 
    @Override
