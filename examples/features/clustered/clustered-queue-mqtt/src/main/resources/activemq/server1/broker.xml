@@ -63,8 +63,9 @@ under the License.
 
         <cluster-connections>
             <cluster-connection name="my-cluster">
+                <address>test/+/some/#</address>
                 <connector-ref>netty-connector</connector-ref>
-                <retry-interval>500</retry-interval>
+                <retry-interval>5</retry-interval>
                 <use-duplicate-detection>true</use-duplicate-detection>
                 <message-load-balancing>STRICT</message-load-balancing>
                 <max-hops>1</max-hops>
@@ -100,9 +101,9 @@ under the License.
 
 
         <addresses>
-            <address name="smart/+/dr/#">
+            <address name="test/+/some/#">
                 <anycast>
-                    <queue name="smart/+/dr/#"/>
+                    <queue name="test/+/some/#"/>
                 </anycast>
             </address>
 

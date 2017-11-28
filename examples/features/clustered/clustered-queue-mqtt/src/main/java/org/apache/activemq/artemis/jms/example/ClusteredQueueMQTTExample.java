@@ -36,8 +36,9 @@ public class ClusteredQueueMQTTExample {
         System.out.println("Connected to Artemis 1 ");
 
         // Subscribe to topics
-        Topic[] topics = {new Topic("smart/+/dr/#", QoS.AT_LEAST_ONCE)};
+        Topic[] topics = {new Topic("test/+/some/#", QoS.AT_MOST_ONCE)};
         connection1.subscribe(topics);
+        connection2.subscribe(topics);
         System.out.println("Subscribed to topics.");
 
         // Publish Messages
@@ -45,19 +46,19 @@ public class ClusteredQueueMQTTExample {
         String payload2 = "This is message 2";
         String payload3 = "This is message 3";
 
-        connection2.publish("smart/1/dr/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-        connection2.publish("smart/1222/dr/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-        connection2.publish("smart/1/dr/la11", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+        connection1.publish("test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+        connection1.publish("test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+        connection1.publish("test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
         System.out.println("Sent messages.");
 
         Message message1 = connection1.receive(5, TimeUnit.SECONDS);
-        Message message2 = connection1.receive(5, TimeUnit.SECONDS);
+        Message message2 = connection2.receive(5, TimeUnit.SECONDS);
         Message message3 = connection1.receive(5, TimeUnit.SECONDS);
         System.out.println("Received messages.");
 
-        System.out.println(new String(message1.getPayload()));
-        System.out.println(new String(message2.getPayload()));
-        System.out.println(new String(message3.getPayload()));
+        System.out.println("Broker 1: " + new String(message1.getPayload()));
+        System.out.println("Broker 2: " + new String(message2.getPayload()));
+        System.out.println("Broker 1: " + new String(message3.getPayload()));
     }
 
     private static BlockingConnection retrieveMQTTConnection(String host) throws Exception {
