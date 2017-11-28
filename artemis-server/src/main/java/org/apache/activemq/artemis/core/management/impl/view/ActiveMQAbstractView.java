@@ -65,7 +65,11 @@ public abstract class ActiveMQAbstractView<T> {
       JsonArrayBuilder array = JsonLoader.createArrayBuilder();
       collection = Collections2.filter(collection, getPredicate());
       for (T element : getPagedResult(page, pageSize)) {
-         array.add(toJson(element));
+         JsonObjectBuilder jsonObjectBuilder = toJson(element);
+         //toJson() may return a null
+         if (jsonObjectBuilder != null) {
+            array.add(jsonObjectBuilder);
+         }
       }
       obj.add("data", array);
       obj.add("count", collection.size());

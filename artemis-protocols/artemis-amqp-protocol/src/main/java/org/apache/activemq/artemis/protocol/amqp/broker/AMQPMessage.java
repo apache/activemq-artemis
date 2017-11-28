@@ -966,10 +966,18 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public void reencode() {
+      parseHeaders();
+      getApplicationProperties();
+      if (_header != null) getProtonMessage().setHeader(_header);
       if (_deliveryAnnotations != null) getProtonMessage().setDeliveryAnnotations(_deliveryAnnotations);
       if (_messageAnnotations != null) getProtonMessage().setMessageAnnotations(_messageAnnotations);
       if (applicationProperties != null) getProtonMessage().setApplicationProperties(applicationProperties);
-      if (_properties != null) getProtonMessage().setProperties(this._properties);
+      if (_properties != null) {
+         if (address != null) {
+            _properties.setTo(address);
+         }
+         getProtonMessage().setProperties(this._properties);
+      }
       bufferValid = false;
       checkBuffer();
    }
