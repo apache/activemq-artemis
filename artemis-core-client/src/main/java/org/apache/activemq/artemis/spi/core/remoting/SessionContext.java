@@ -20,6 +20,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -233,7 +234,8 @@ public abstract class SessionContext {
                                                          int ackBatchSize,
                                                          boolean browseOnly,
                                                          Executor executor,
-                                                         Executor flowControlExecutor) throws ActiveMQException;
+                                                         Executor flowControlExecutor,
+                                                         ScheduledExecutorService scheduledThreadPool) throws ActiveMQException;
 
    /**
     * Performs a round trip to the server requesting what is the current tx timeout on the session
