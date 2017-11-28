@@ -131,6 +131,10 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       this.nodeID = nodeID;
 
       transportConnection.setProtocolConnection(this);
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("RemotingConnectionImpl created: " + this);
+      }
    }
 
    // RemotingConnection implementation
@@ -138,12 +142,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    @Override
    public String toString() {
-      return "RemotingConnectionImpl [clientID=" + clientID +
-         ", nodeID=" +
-         nodeID +
-         ", transportConnection=" +
-         getTransportConnection() +
-         "]";
+      return "RemotingConnectionImpl [ID=" + getID() + ", clientID=" + clientID + ", nodeID=" + nodeID + ", transportConnection=" + getTransportConnection() + "]";
    }
 
    /**
@@ -366,7 +365,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          final Packet packet = packetDecoder.decode(buffer);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("handling packet " + packet);
+            logger.trace("RemotingConnectionID=" + getID() + " handling packet " + packet);
          }
 
          dataReceived = true;

@@ -527,7 +527,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public final String toString() {
-      return super.toString() + "[local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
+      return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
    }
 
    private void closeSSLAndChannel(SslHandler sslHandler, final Channel channel, boolean inEventLoop) {
