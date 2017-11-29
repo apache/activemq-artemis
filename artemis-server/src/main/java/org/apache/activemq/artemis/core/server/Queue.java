@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -297,5 +298,8 @@ public interface Queue extends Bindable,CriticalComponent {
    SimpleString getUser();
 
    void decDelivering(int size);
+
+   /** This is to perform a check on the counter again */
+   void recheckRefCount(OperationContext context);
 
 }

@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -775,6 +776,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public void setMaxConsumer(int maxConsumers) {
 
+      }
+
+      @Override
+      public void recheckRefCount(OperationContext context) {
       }
 
       @Override
