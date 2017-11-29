@@ -1733,12 +1733,15 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    @Override
    public String listAddresses(String options, int page, int pageSize) throws Exception {
       checkStarted();
-
       clearIO();
       try {
          final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
+         List<AddressInfo> addressInfo = new ArrayList<>();
+         for (SimpleString address:addresses) {
+            addressInfo.add(server.getPostOffice().getAddressInfo(address));
+         }
          AddressView view = new AddressView(server);
-         view.setCollection(addresses);
+         view.setCollection(addressInfo);
          view.setOptions(options);
          return view.getResultsAsJson(page, pageSize);
       } finally {

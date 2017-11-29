@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
-public class AddressFilterPredicate extends ActiveMQFilterPredicate<SimpleString> {
+public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo> {
 
    enum Field {
       ID, NAME, ROUTING_TYPES, PRODUCER_ID, QUEUE_COUNT
@@ -36,8 +35,7 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<SimpleString
    }
 
    @Override
-   public boolean apply(SimpleString addressName) {
-      AddressInfo address = server.getAddressInfo(addressName);
+   public boolean apply(AddressInfo address) {
       if (f == null)
          return true;
       try {

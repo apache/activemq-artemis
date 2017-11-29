@@ -31,31 +31,31 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listConsumers(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'id',
+                field: 'sequentialID',
                 displayName: 'ID',
                 width: '*'
             },
             {
-                field: 'session',
+                field: 'sessionName',
                 displayName: 'Session',
                 width: '*',
-                cellTemplate: '<div class="ngCellText"><a ng-click="selectSession(row)">{{row.entity.session}}</a></div>'
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectSession(row)">{{row.entity.sessionName}}</a></div>'
             },
             {
-                field: 'clientID',
+                field: 'connectionClientID',
                 displayName: 'Client ID',
                 width: '*'
             },
             {
-                field: 'protocol',
+                field: 'connectionProtocolName',
                 displayName: 'Protocol',
                 width: '*'
             },
             {
-                field: 'queue',
+                field: 'queueName',
                 displayName: 'Queue',
                 width: '*',
-                cellTemplate: '<div class="ngCellText"><a ng-click="selectQueue(row)">{{row.entity.queue}}</a></div>'
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectQueue(row)">{{row.entity.queueName}}</a></div>'
             },
             {
                 field: 'queueType',
@@ -63,18 +63,18 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
-                field: 'address',
+                field: 'queueAddress',
                 displayName: 'Address',
                 width: '*',
-                cellTemplate: '<div class="ngCellText"><a ng-click="selectAddress(row)">{{row.entity.address}}</a></div>'
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectAddress(row)">{{row.entity.queueAddress}}</a></div>'
             },
             {
-                field: 'remoteAddress',
+                field: 'connectionRemoteAddress',
                 displayName: 'Remote Address',
                 width: '*'
             },
             {
-                field: 'localAddress',
+                field: 'connectionLocalAddress',
                 displayName: 'Local Address',
                 width: '*'
             },
@@ -105,7 +105,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "ID"
+                sortBy: "sequentialID"
             }
         };
 
@@ -165,8 +165,9 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
+        $scope.sortOptions = {
+            fields: ["sequentialID"],
+            columns: ["sequentialID"],
             directions: ["asc"]
         };
         var refreshed = false;
@@ -206,8 +207,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
             if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);

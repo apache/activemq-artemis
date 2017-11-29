@@ -179,4 +179,10 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    public void open() {
       amqpConnection.open();
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      return getTransportConnection().getLocalAddress();
+   }
+
 }
