@@ -312,4 +312,8 @@ public interface ServerSession extends SecurityAuth {
    Map<String, ServerProducer> getServerProducers();
 
    String getDefaultAddress();
+
+   int getConsumerCount();
+
+   int getProducerCount();
 }

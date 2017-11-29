@@ -798,4 +798,11 @@ public final class StompConnection implements RemotingConnection {
    public String getProtocolName() {
       return StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      // TODO Auto-generated method stub
+      return getTransportConnection().getLocalAddress();
+   }
+
 }

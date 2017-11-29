@@ -1802,4 +1802,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public String getDefaultAddress() {
       return defaultAddress != null ? defaultAddress.toString() : null;
    }
+
+   @Override
+   public int getConsumerCount() {
+      return getServerConsumers().size();
+   }
+
+   @Override
+   public int getProducerCount() {
+      return getServerProducers().size();
+   }
 }

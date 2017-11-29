@@ -37,7 +37,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 cellTemplate: '<div class="ngCellText"><a ng-click="navigateToQueueAtts(row)">attributes</a>&nbsp;<a ng-click="navigateToQueueOps(row)">operations</a></div>'
             },
             {
-                field: 'id',
+                field: 'iD',
                 displayName: 'ID',
                 width: '*'
             },
@@ -178,7 +178,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "ID"
+                sortBy: "iD"
             }
         };
 
@@ -209,10 +209,11 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
-            directions: ["asc"]
-        };
+        $scope.sortOptions = {
+                fields: ["iD"],
+                columns: ["iD"],
+                directions: ["asc"]
+            };
         var refreshed = false;
 
         $scope.gridOptions = {
@@ -250,8 +251,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
             if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);
