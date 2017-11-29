@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -29,7 +30,10 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
@@ -155,6 +159,8 @@ public class MQTTPublishManager {
       synchronized (lock) {
          Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, topic, retain, qos, payload);
 
+         handleClusteredTopics(topic);
+
          if (qos > 0) {
             serverMessage.setDurable(MQTTUtil.DURABLE_MESSAGES);
          }
@@ -182,6 +188,20 @@ public class MQTTPublishManager {
                throw t;
             }
             createMessageAck(messageId, qos, internal);
+         }
+      }
+   }
+
+   private void handleClusteredTopics(String topic) throws Exception {
+      SimpleString queueNamed = new SimpleString(topic);
+      Bindings bindingsForAddress = session.getServerSession().postOffice.getBindingsForAddress(queueNamed);
+      List<ClusterConnectionConfiguration> clusterConfigurations = session.getServer().getConfiguration().getClusterConfigurations();
+      for (ClusterConnectionConfiguration clusterConnectionConfiguration : clusterConfigurations) {
+         for (Binding binding : bindingsForAddress.getBindings()) {
+            if (binding.getAddress().toString().equals(clusterConnectionConfiguration.getAddress()) && clusterConnectionConfiguration.getMessageLoadBalancingType() != null) {
+               bindingsForAddress.setMessageLoadBalancingType(clusterConnectionConfiguration.getMessageLoadBalancingType());
+               break;
+            }
          }
       }
    }
