@@ -115,6 +115,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
+   public SequentialFileFactory getJournalSequentialFileFactory() {
+      return journalFF;
+   }
+
+   @Override
    protected void init(Configuration config, IOCriticalErrorListener criticalErrorListener) {
 
       if (!EnumSet.allOf(JournalType.class).contains(config.getJournalType())) {

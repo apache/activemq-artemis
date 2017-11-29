@@ -16,9 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman.critical.analyzer;
 
+import javax.jms.DeliveryMode;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,5 +51,27 @@ public class FileSystemSyncBlockedTest extends CriticalAnalyzerFaultInjectionTes
    @Test(timeout = 60000)
    public void testSlowDiskSync()  throws Exception {
       testSendDurableMessage();
+   }
+
+   @Test
+   public void testManyFiles() throws Exception
+   {
+      Session s = conn.createSession(true, Session.SESSION_TRANSACTED);
+
+      Queue jmsQueue = s.createQueue(address.toString());
+      MessageProducer p = s.createProducer(jmsQueue);
+      p.setDeliveryMode(DeliveryMode.PERSISTENT);
+      conn.start();
+      for (int i = 0; i < 1000; i++)
+      {
+         p.send(s.createTextMessage("payload"));
+         server.getStorageManager().getMessageJournal().forceMoveNextFile();
+      }
+      s.commit();
+
+      // if you have more than 100 components, then you have a leak!
+      Assert.assertTrue(server.getStorageManager().getJournalSequentialFileFactory().getCriticalAnalyzer().getNumberOfComponents() < 10);
+      System.out.println("Number of components:" + server.getStorageManager().getJournalSequentialFileFactory().getCriticalAnalyzer().getNumberOfComponents());
+
    }
 }

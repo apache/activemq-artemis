@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
@@ -68,6 +69,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    default long getMaxRecordSize() {
       /** Null journal is pretty much memory */
       return Long.MAX_VALUE;
+   }
+
+   default SequentialFileFactory getJournalSequentialFileFactory() {
+      return null;
    }
 
    void criticalError(Throwable error);

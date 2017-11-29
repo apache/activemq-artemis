@@ -63,6 +63,8 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
    protected final IOCriticalErrorListener critialErrorListener;
 
+   protected final CriticalAnalyzer criticalAnalyzer;
+
    /**
     * Asynchronous writes need to be done at another executor.
     * This needs to be done at NIO, or else we would have the callers thread blocking for the return.
@@ -84,6 +86,8 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
          criticalAnalyzer = EmptyCriticalAnalyzer.getInstance();
       }
 
+      this.criticalAnalyzer = criticalAnalyzer;
+
       if (buffered && bufferTimeout > 0) {
          timedBuffer = new TimedBuffer(criticalAnalyzer, bufferSize, bufferTimeout, logRates);
          criticalAnalyzer.add(timedBuffer);
@@ -94,6 +98,11 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       this.bufferTimeout = bufferTimeout;
       this.critialErrorListener = criticalErrorListener;
       this.maxIO = maxIO;
+   }
+
+   @Override
+   public CriticalAnalyzer getCriticalAnalyzer() {
+      return criticalAnalyzer;
    }
 
    @Override

@@ -38,8 +38,13 @@ import org.jboss.logging.Logger;
 
 public final class TimedBuffer extends CriticalComponentImpl {
 
-   protected static final int CRITICAL_PATHS = 1;
+   protected static final int CRITICAL_PATHS = 6;
    protected static final int CRITICAL_PATH_FLUSH = 0;
+   protected static final int CRITICAL_PATH_STOP = 1;
+   protected static final int CRITICAL_PATH_START = 2;
+   protected static final int CRITICAL_PATH_CHECK_SIZE = 3;
+   protected static final int CRITICAL_PATH_ADD_BYTES = 4;
+   protected static final int CRITICAL_PATH_SET_OBSERVER = 5;
 
    private static final Logger logger = Logger.getLogger(TimedBuffer.class);
 
@@ -120,7 +125,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
       //direct ByteBuffers with no Cleaner!
       buffer = new ChannelBufferWrapper(Unpooled.wrappedBuffer(ByteBuffer.allocateDirect(size)));
 
-
       buffer.clear();
 
       bufferLimit = 0;
@@ -130,67 +134,91 @@ public final class TimedBuffer extends CriticalComponentImpl {
       this.timeout = timeout;
    }
 
-   public synchronized void start() {
-      if (started) {
-         return;
-      }
-
-      // Need to start with the spin limiter acquired
+   public void start() {
+      enterCritical(CRITICAL_PATH_START);
       try {
-         spinLimiter.acquire();
-      } catch (InterruptedException e) {
-         throw new ActiveMQInterruptedException(e);
+         synchronized (this) {
+            if (started) {
+               return;
+            }
+
+            // Need to start with the spin limiter acquired
+            try {
+               spinLimiter.acquire();
+            } catch (InterruptedException e) {
+               throw new ActiveMQInterruptedException(e);
+            }
+
+            timerRunnable = new CheckTimer();
+
+            timerThread = new Thread(timerRunnable, "activemq-buffer-timeout");
+
+            timerThread.start();
+
+            if (logRates) {
+               logRatesTimerTask = new LogRatesTimerTask();
+
+               logRatesTimer.scheduleAtFixedRate(logRatesTimerTask, 2000, 2000);
+            }
+
+            started = true;
+         }
+      } finally {
+         leaveCritical(CRITICAL_PATH_START);
       }
-
-      timerRunnable = new CheckTimer();
-
-      timerThread = new Thread(timerRunnable, "activemq-buffer-timeout");
-
-      timerThread.start();
-
-      if (logRates) {
-         logRatesTimerTask = new LogRatesTimerTask();
-
-         logRatesTimer.scheduleAtFixedRate(logRatesTimerTask, 2000, 2000);
-      }
-
-      started = true;
    }
 
    public void stop() {
-      if (!started) {
-         return;
-      }
+      enterCritical(CRITICAL_PATH_STOP);
+      try {
+         // add critical analyzer here.... <<<<
+         synchronized (this) {
+            try {
+               if (!started) {
+                  return;
+               }
 
-      flush();
+               flush();
 
-      bufferObserver = null;
+               bufferObserver = null;
 
-      timerRunnable.close();
+               timerRunnable.close();
 
-      spinLimiter.release();
+               spinLimiter.release();
 
-      if (logRates) {
-         logRatesTimerTask.cancel();
-      }
+               if (logRates) {
+                  logRatesTimerTask.cancel();
+               }
 
-      while (timerThread.isAlive()) {
-         try {
-            timerThread.join();
-         } catch (InterruptedException e) {
-            throw new ActiveMQInterruptedException(e);
+               while (timerThread.isAlive()) {
+                  try {
+                     timerThread.join();
+                  } catch (InterruptedException e) {
+                     throw new ActiveMQInterruptedException(e);
+                  }
+               }
+            } finally {
+               started = false;
+            }
          }
+      } finally {
+         leaveCritical(CRITICAL_PATH_STOP);
       }
-
-      started = false;
    }
 
-   public synchronized void setObserver(final TimedBufferObserver observer) {
-      if (bufferObserver != null) {
-         flush();
-      }
+   public void setObserver(final TimedBufferObserver observer) {
+      enterCritical(CRITICAL_PATH_SET_OBSERVER);
+      try {
+         synchronized (this) {
+            if (bufferObserver != null) {
+               flush();
+            }
 
-      bufferObserver = observer;
+            bufferObserver = observer;
+         }
+      } finally {
+         leaveCritical(CRITICAL_PATH_SET_OBSERVER);
+      }
    }
 
    /**
@@ -198,81 +226,101 @@ public final class TimedBuffer extends CriticalComponentImpl {
     *
     * @param sizeChecked
     */
-   public synchronized boolean checkSize(final int sizeChecked) {
-      if (!started) {
-         throw new IllegalStateException("TimedBuffer is not started");
-      }
+   public boolean checkSize(final int sizeChecked) {
+      enterCritical(CRITICAL_PATH_CHECK_SIZE);
+      try {
+         synchronized (this) {
+            if (!started) {
+               throw new IllegalStateException("TimedBuffer is not started");
+            }
 
-      if (sizeChecked > bufferSize) {
-         throw new IllegalStateException("Can't write records bigger than the bufferSize(" + bufferSize +
-                                            ") on the journal");
-      }
+            if (sizeChecked > bufferSize) {
+               throw new IllegalStateException("Can't write records bigger than the bufferSize(" + bufferSize + ") on the journal");
+            }
 
-      if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit) {
-         // Either there is not enough space left in the buffer for the sized record
-         // Or a flush has just been performed and we need to re-calculate bufferLimit
+            if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit) {
+               // Either there is not enough space left in the buffer for the sized record
+               // Or a flush has just been performed and we need to re-calculate bufferLimit
 
-         flush();
+               flush();
 
-         delayFlush = true;
+               delayFlush = true;
 
-         final int remainingInFile = bufferObserver.getRemainingBytes();
+               final int remainingInFile = bufferObserver.getRemainingBytes();
 
-         if (sizeChecked > remainingInFile) {
-            return false;
-         } else {
-            // There is enough space in the file for this size
+               if (sizeChecked > remainingInFile) {
+                  return false;
+               } else {
+                  // There is enough space in the file for this size
 
-            // Need to re-calculate buffer limit
+                  // Need to re-calculate buffer limit
 
-            bufferLimit = Math.min(remainingInFile, bufferSize);
+                  bufferLimit = Math.min(remainingInFile, bufferSize);
 
-            return true;
+                  return true;
+               }
+            } else {
+               delayFlush = true;
+
+               return true;
+            }
          }
-      } else {
-         delayFlush = true;
-
-         return true;
+      } finally {
+         leaveCritical(CRITICAL_PATH_CHECK_SIZE);
       }
    }
 
-   public synchronized void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) {
-      if (!started) {
-         throw new IllegalStateException("TimedBuffer is not started");
-      }
+   public void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) {
+      enterCritical(CRITICAL_PATH_ADD_BYTES);
+      try {
+         synchronized (this) {
+            if (!started) {
+               throw new IllegalStateException("TimedBuffer is not started");
+            }
 
-      delayFlush = false;
+            delayFlush = false;
 
-      //it doesn't modify the reader index of bytes as in the original version
-      final int readableBytes = bytes.readableBytes();
-      final int writerIndex = buffer.writerIndex();
-      buffer.setBytes(writerIndex, bytes, bytes.readerIndex(), readableBytes);
-      buffer.writerIndex(writerIndex + readableBytes);
+            //it doesn't modify the reader index of bytes as in the original version
+            final int readableBytes = bytes.readableBytes();
+            final int writerIndex = buffer.writerIndex();
+            buffer.setBytes(writerIndex, bytes, bytes.readerIndex(), readableBytes);
+            buffer.writerIndex(writerIndex + readableBytes);
 
-      callbacks.add(callback);
+            callbacks.add(callback);
 
-      if (sync) {
-         pendingSync = true;
+            if (sync) {
+               pendingSync = true;
 
-         startSpin();
+               startSpin();
+            }
+         }
+      } finally {
+         leaveCritical(CRITICAL_PATH_ADD_BYTES);
       }
    }
 
-   public synchronized void addBytes(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
-      if (!started) {
-         throw new IllegalStateException("TimedBuffer is not started");
-      }
+   public void addBytes(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
+      enterCritical(CRITICAL_PATH_ADD_BYTES);
+      try {
+         synchronized (this) {
+            if (!started) {
+               throw new IllegalStateException("TimedBuffer is not started");
+            }
 
-      delayFlush = false;
+            delayFlush = false;
 
-      bytes.encode(buffer);
+            bytes.encode(buffer);
 
-      callbacks.add(callback);
+            callbacks.add(callback);
 
-      if (sync) {
-         pendingSync = true;
+            if (sync) {
+               pendingSync = true;
 
-         startSpin();
+               startSpin();
+            }
+         }
+      } finally {
+         leaveCritical(CRITICAL_PATH_ADD_BYTES);
       }
 
    }
@@ -287,13 +335,13 @@ public final class TimedBuffer extends CriticalComponentImpl {
     * @return {@code true} when are flushed any bytes, {@code false} otherwise
     */
    public boolean flushBatch() {
-      synchronized (this) {
-         if (!started) {
-            throw new IllegalStateException("TimedBuffer is not started");
-         }
+      enterCritical(CRITICAL_PATH_FLUSH);
+      try {
+         synchronized (this) {
+            if (!started) {
+               throw new IllegalStateException("TimedBuffer is not started");
+            }
 
-         enterCritical(CRITICAL_PATH_FLUSH);
-         try {
             if (!delayFlush && buffer.writerIndex() > 0) {
                int pos = buffer.writerIndex();
 
@@ -326,9 +374,9 @@ public final class TimedBuffer extends CriticalComponentImpl {
             } else {
                return false;
             }
-         } finally {
-            leaveCritical(CRITICAL_PATH_FLUSH);
          }
+      } finally {
+         leaveCritical(CRITICAL_PATH_FLUSH);
       }
    }
 
@@ -451,7 +499,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
                if (elapsedSleep > (nanosToSleep * MAX_TIMEOUT_ERROR_FACTOR)) {
                   failedChecks++;
                }
-
 
                if (++checks >= MAX_CHECKS_ON_SLEEP) {
                   if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
