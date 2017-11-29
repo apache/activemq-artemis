@@ -31,7 +31,7 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listConnections(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'connectionID',
+                field: 'iD',
                 displayName: 'ID',
                 width: '*'
             },
@@ -46,7 +46,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
-                field: 'protocol',
+                field: 'protocolName',
                 displayName: 'Protocol',
                 width: '*'
             },
@@ -55,6 +55,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 displayName: 'Session Count',
                 width: '*',
                 cellTemplate: '<div class="ngCellText"><a ng-click="selectSessions(row)">{{row.entity.sessionCount}}</a></div>',
+                sortable: false
             },
             {
                 field: 'remoteAddress',
@@ -62,7 +63,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
-                field: 'localAddress',
+                field: 'transportLocalAddress',
                 displayName: 'Local Address',
                 width: '*'
             },
@@ -94,7 +95,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "CONNECTION_ID"
+                sortBy: "iD"
             }
         };
 
@@ -140,8 +141,9 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
+        $scope.sortOptions = {
+            fields: ["iD"],
+            columns: ["iD"],
             directions: ["asc"]
         };
         var refreshed = false;
@@ -181,8 +183,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
             if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);

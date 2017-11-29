@@ -49,12 +49,14 @@ var ARTEMIS = (function(ARTEMIS) {
             {
                 field: 'routingTypes',
                 displayName: 'Routing Types',
-                width: '*'
+                width: '*',
+                sortable: false
             },
             {
                 field: 'queueCount',
                 displayName: 'Queue Count',
-                width: '*'
+                width: '*',
+                sortable: false
             }
         ];
         $scope.filter = {
@@ -107,8 +109,9 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
+        $scope.sortOptions = {
+            fields: ["id"],
+            columns: ["id"],
             directions: ["asc"]
         };
         var refreshed = false;
@@ -148,8 +151,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
             if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);
