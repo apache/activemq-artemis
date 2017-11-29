@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
@@ -43,6 +45,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
@@ -344,22 +347,40 @@ public class AMQPSessionCallback implements SessionCallback {
    public void closeSender(final Object brokerConsumer) throws Exception {
 
       final ServerConsumer consumer = ((ServerConsumer) brokerConsumer);
+      final CountDownLatch latch = new CountDownLatch(1);
 
-      serverSession.getSessionContext().executeOnCompletion(new IOCallback() {
+      Runnable runnable = new Runnable() {
          @Override
-         public void done() {
+         public void run() {
             try {
                consumer.close(false);
+               latch.countDown();
             } catch (Exception e) {
-               logger.warn(e.getMessage(), e);
             }
          }
+      };
 
-         @Override
-         public void onError(int errorCode, String errorMessage) {
+      // Due to the nature of proton this could be happening within flushes from the queue-delivery (depending on how it happened on the protocol)
+      // to avoid deadlocks the close has to be done outside of the main thread on an executor
+      // otherwise you could get a deadlock
+      Executor executor = protonSPI.getExeuctor();
+
+      if (executor != null) {
+         executor.execute(runnable);
+      } else {
+         runnable.run();
+      }
+
+      try {
+         // a short timeout will do.. 1 second is already long enough
+         if (!latch.await(1, TimeUnit.SECONDS)) {
+            logger.debug("Could not close consumer on time");
          }
-      });
+      } catch (InterruptedException e) {
+         throw new ActiveMQAMQPInternalErrorException("Unable to close consumers for queue: " + consumer.getQueue());
+      }
 
+      consumer.getQueue().recheckRefCount(serverSession.getSessionContext());
    }
 
    public String tempQueueName() {

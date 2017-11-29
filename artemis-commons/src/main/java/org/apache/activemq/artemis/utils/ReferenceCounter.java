@@ -21,4 +21,19 @@ public interface ReferenceCounter {
    int increment();
 
    int decrement();
+
+   int getCount();
+
+
+   void setTask(Runnable task);
+
+   Runnable getTask();
+
+   /**
+    * Some asynchronous operations (like ack) may delay certain conditions.
+    * After met, during afterCompletion we may need to recheck certain values
+    * to make sure we won't get into a situation where the condition was met asynchronously and queues not removed.
+    */
+   void check();
+
 }

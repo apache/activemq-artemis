@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -72,6 +73,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    @Override
    public void reloadPause(long recordID) {
+
+   }
+
+   @Override
+   public void recheckRefCount(OperationContext context) {
 
    }
 
