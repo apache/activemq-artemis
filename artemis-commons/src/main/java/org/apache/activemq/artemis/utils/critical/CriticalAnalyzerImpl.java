@@ -67,6 +67,11 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    private final ConcurrentHashSet<CriticalComponent> components = new ConcurrentHashSet<>();
 
    @Override
+   public int getNumberOfComponents() {
+      return components.size();
+   }
+
+   @Override
    public boolean isMeasuring() {
       return true;
    }

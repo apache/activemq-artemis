@@ -25,6 +25,10 @@ public interface CriticalAnalyzer extends ActiveMQComponent {
    default void clear() {
    }
 
+   default int getNumberOfComponents() {
+      return 0;
+   }
+
    boolean isMeasuring();
 
    void add(CriticalComponent component);
