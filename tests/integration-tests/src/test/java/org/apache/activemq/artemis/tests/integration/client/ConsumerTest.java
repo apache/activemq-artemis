@@ -266,7 +266,21 @@ public class ConsumerTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testAutoCreateCOnConsumer() throws Throwable {
+   public void testAutoCreateCOnConsumerAMQP() throws Throwable {
+      testAutoCreate(2);
+   }
+
+   @Test
+   public void testAutoCreateCOnConsumerCore() throws Throwable {
+      testAutoCreate(1);
+   }
+
+   @Test
+   public void testAutoCreateCOnConsumerOpenWire() throws Throwable {
+      testAutoCreate(3);
+   }
+
+   private void testAutoCreate(int protocol) throws Throwable {
 
       final SimpleString thisQueue = SimpleString.toSimpleString("ThisQueue");
       if (!isNetty()) {
@@ -275,7 +289,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < 10; i++) {
-         ConnectionFactory factorySend = createFactory(2);
+         ConnectionFactory factorySend = createFactory(protocol);
          Connection connection = factorySend.createConnection();
 
          try {

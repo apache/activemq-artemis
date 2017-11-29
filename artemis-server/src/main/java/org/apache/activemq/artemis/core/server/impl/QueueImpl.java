@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -2940,6 +2941,25 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return 0.0f;
       }
       return BigDecimal.valueOf((locaMessageAdded - messagesAddedSnapshot.getAndSet(locaMessageAdded)) / timeSlice).setScale(2, BigDecimal.ROUND_UP).floatValue();
+   }
+
+   @Override
+   public void recheckRefCount(OperationContext context) {
+      ReferenceCounter refCount = refCountForConsumers;
+      if (refCount != null) {
+         context.executeOnCompletion(new IOCallback() {
+            @Override
+            public void done() {
+               refCount.check();
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+
+            }
+         });
+      }
+
    }
 
    // Inner classes

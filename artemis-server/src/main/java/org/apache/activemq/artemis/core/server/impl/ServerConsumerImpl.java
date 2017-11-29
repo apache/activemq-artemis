@@ -508,6 +508,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       tx.rollback();
 
+      messageQueue.recheckRefCount(session.getSessionContext());
+
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
 
