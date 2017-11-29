@@ -2454,7 +2454,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       postOffice.route(copyMessage, tx, false, rejectDuplicate);
 
-      acknowledge(tx, ref);
+      if (expiry) {
+         acknowledge(tx, ref, AckReason.EXPIRED);
+      } else {
+         acknowledge(tx, ref);
+      }
+
    }
 
    @SuppressWarnings({"ArrayToString", "ArrayToStringConcatenation"})

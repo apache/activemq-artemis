@@ -163,6 +163,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          Assert.assertNotNull(cm);
          // assertEquals("m" + i, cm.getBody().getString());
       }
+      Assert.assertEquals(100, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessagesExpired());
       consumer.close();
    }
 
