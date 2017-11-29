@@ -37,7 +37,7 @@ public abstract class CriticalAnalyzerFaultInjectionTestBase extends JMSTestBase
    private static long CHECK_PERIOD = 100;
    private static long TIMEOUT = 3000;
 
-   private SimpleString address = SimpleString.toSimpleString("faultInjectionTestAddress");
+   protected SimpleString address = SimpleString.toSimpleString("faultInjectionTestAddress");
 
    private Thread t;
 
