@@ -216,11 +216,11 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    }
 
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
-      // Default DLQ
+      // Default Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
       server.createQueue(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST, SimpleString.toSimpleString(getQueueName()), null, true, false, -1, false, true);
 
-      // Default Queue
+      // Default DLQ
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST));
       server.createQueue(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST, SimpleString.toSimpleString(getDeadLetterAddress()), null, true, false, -1, false, true);
 
