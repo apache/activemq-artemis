@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.felix.resolver.util.ArrayMap;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@RunWith(value = Parameterized.class)
 public class StompTestPropertiesInterceptor extends StompTestBase {
 
    @Parameterized.Parameters(name = "{0}")

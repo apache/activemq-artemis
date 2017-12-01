@@ -48,11 +48,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 /**
  * Testing Stomp version 1.2 functionalities
  */
+@RunWith(Parameterized.class)
 public class StompV12Test extends StompTestBase {
 
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
