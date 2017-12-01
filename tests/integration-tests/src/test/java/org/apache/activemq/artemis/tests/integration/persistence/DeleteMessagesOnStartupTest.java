@@ -37,8 +37,10 @@ import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOff
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
    ArrayList<Long> deletedMessage = new ArrayList<>();
