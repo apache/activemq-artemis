@@ -11,10 +11,10 @@ when they have been processed.
 We use this in our high performance journal if configured to do so,
 please see [Persistence](persistence.md).
 
-This is the native libraries distributed by Apache ActiveMQ Artemis:
+These are the native libraries distributed by Apache ActiveMQ Artemis:
 
--   libActiveMQAIO64.so - x86 64 bits
--   We used to distributed libActiveMQAIO32.so until early 2017. While it's not available on the distribution it should still be possible to compile to a 32 bits environment if needed.
+-   libartemis-native-64.so - x86 64 bits
+-   We distributed a 32-bit version until early 2017. While it's not available on the distribution any longer it should still be possible to compile to a 32-bit environment if needed.
 
 When using libaio, Apache ActiveMQ Artemis will always try loading these files as long
 as they are on the [library path](using-server.md#library-path)
