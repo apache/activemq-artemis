@@ -38,6 +38,7 @@ import org.junit.Test;
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
+import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -192,14 +193,22 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
    }
 
    @Test
-   public void sessionTransactedTestNoActiveJTATx() throws Exception {
-      JMSContext context = qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
+   public void sessionNotTransactedTestNoActiveJTATx() throws Exception {
+      JMSContext context = qraConnectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }
 
+   @Test
+   public void sessionTransactedTestNoActiveJTATx() throws Exception {
+      try {
+         qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
+         fail("Exception expected");
+      } catch (JMSRuntimeException ignored) {
+      }
+   }
 
    @Test
-   public void testQueuSessionAckMode() throws Exception {
+   public void testQueueSessionAckMode() throws Exception {
 
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
 
@@ -216,7 +225,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
 
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
-           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
+           ClientConsumer consVerify = session.createConsumer(MDBQUEUE);
            JMSContext jmsctx = qraConnectionFactory.createContext();
       ) {
          session.start();
@@ -252,7 +261,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
-           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
+           ClientConsumer consVerify = session.createConsumer(MDBQUEUE);
            Connection conn = qraConnectionFactory.createConnection();
       ) {
          Session jmsSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
