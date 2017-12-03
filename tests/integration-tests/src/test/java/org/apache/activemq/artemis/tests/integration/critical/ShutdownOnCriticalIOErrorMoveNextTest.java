@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ShutdownOnCriticalIOErrorMoveNext extends ActiveMQTestBase {
+public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
 
    @Test
    public void testSimplyDownAfterError() throws Exception {
