@@ -1579,6 +1579,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
    }
 
+   @Test
    public void testGroupingMultipleSending() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());

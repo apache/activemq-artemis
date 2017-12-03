@@ -25,12 +25,14 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Test;
 
 /**
  * A CloseConnectionOnGCTest
  */
-public class CloseConnectionFactoryOnGCest extends JMSTestBase {
+public class CloseConnectionFactoryOnGCTest extends JMSTestBase {
 
+   @Test(timeout = 60000)
    public void testCloseCFOnGC() throws Exception {
 
       final AtomicInteger valueGC = new AtomicInteger(0);
