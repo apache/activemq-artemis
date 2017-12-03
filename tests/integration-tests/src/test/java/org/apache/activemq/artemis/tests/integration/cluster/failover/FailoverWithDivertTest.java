@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FailoverTestWithDivert extends FailoverTestBase {
+public class FailoverWithDivertTest extends FailoverTestBase {
 
    private static final String DIVERT_ADDRESS = "jms.queue.testQueue";
    private static final String DIVERT_FORWARD_ADDRESS = "jms.queue.divertedQueue";

@@ -33,13 +33,13 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class StompTestWithInterceptors extends StompTestBase {
+public class StompWithInterceptorsTest extends StompTestBase {
 
    @Override
    public List<String> getIncomingInterceptors() {
       List<String> stompIncomingInterceptor = new ArrayList<>();
-      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompTestWithInterceptors$MyIncomingStompFrameInterceptor");
-      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompTestWithInterceptors$MyCoreInterceptor");
+      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompWithInterceptorsTest$MyIncomingStompFrameInterceptor");
+      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompWithInterceptorsTest$MyCoreInterceptor");
 
       return stompIncomingInterceptor;
    }
@@ -47,7 +47,7 @@ public class StompTestWithInterceptors extends StompTestBase {
    @Override
    public List<String> getOutgoingInterceptors() {
       List<String> stompOutgoingInterceptor = new ArrayList<>();
-      stompOutgoingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompTestWithInterceptors$MyOutgoingStompFrameInterceptor");
+      stompOutgoingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompWithInterceptorsTest$MyOutgoingStompFrameInterceptor");
 
       return stompOutgoingInterceptor;
    }
