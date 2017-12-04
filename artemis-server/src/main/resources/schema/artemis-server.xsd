@@ -21,6 +21,10 @@
             attributeFormDefault="unqualified"
             elementFormDefault="qualified"
             version="1.0">
+
+   <xsd:import namespace="urn:activemq:core" schemaLocation="artemis-configuration.xsd"/>
+   <xsd:import namespace="urn:activemq:jms" schemaLocation="artemis-jms.xsd"/>
+
    <xsd:element name="configuration">
       <xsd:annotation>
          <xsd:documentation>
