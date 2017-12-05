@@ -261,6 +261,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          Command command = (Command) wireFormat.unmarshal(buffer);
 
+         // log the openwire command
+         if (logger.isTraceEnabled()) {
+            logger.trace("connectionID: " + connectionID + " RECEIVED: " + (command == null ? "NULL" : command));
+         }
+
          boolean responseRequired = command.isResponseRequired();
          int commandId = command.getCommandId();
 
@@ -434,6 +439,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void physicalSend(Command command) throws IOException {
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("connectionID: " + (getTransportConnection() == null ? "" : getTransportConnection().getID())
+                         + " SENDING: " + (command == null ? "NULL" : command));
+      }
+
       try {
          ByteSequence bytes = wireFormat.marshal(command);
          ActiveMQBuffer buffer = OpenWireUtil.toActiveMQBuffer(bytes);
