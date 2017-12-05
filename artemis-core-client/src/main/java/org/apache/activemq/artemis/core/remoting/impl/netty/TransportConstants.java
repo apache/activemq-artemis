@@ -95,6 +95,8 @@ public class TransportConstants {
 
    public static final String TRUSTSTORE_PASSWORD_PROP_NAME = "trustStorePassword";
 
+   public static final String CRL_PATH_PROP_NAME = "crlPath";
+
    public static final String ENABLED_CIPHER_SUITES_PROP_NAME = "enabledCipherSuites";
 
    public static final String ENABLED_PROTOCOLS_PROP_NAME = "enabledProtocols";
@@ -188,6 +190,8 @@ public class TransportConstants {
    public static final String DEFAULT_TRUSTSTORE_PATH = null;
 
    public static final String DEFAULT_TRUSTSTORE_PASSWORD = null;
+
+   public static final String DEFAULT_CRL_PATH = null;
 
    public static final String DEFAULT_ENABLED_CIPHER_SUITES = null;
 
@@ -310,6 +314,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableAcceptorKeys.add(TransportConstants.BACKLOG_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
@@ -356,6 +361,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
+      allowableConnectorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
 
