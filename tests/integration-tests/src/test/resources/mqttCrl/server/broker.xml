@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+
+
+    <core xmlns="urn:activemq:core">
+
+        <security-enabled>true</security-enabled>
+
+        <acceptors>
+            <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+        </acceptors>
+
+
+        <security-settings>
+            <security-setting match="#">
+                <permission type="createNonDurableQueue" roles="full"/>
+                <permission type="deleteNonDurableQueue" roles="full"/>
+                <permission type="createDurableQueue" roles="full"/>
+                <permission type="deleteDurableQueue" roles="full"/>
+                <permission type="createAddress" roles="full"/>
+                <permission type="deleteAddress" roles="full"/>
+                <permission type="consume" roles="full"/>
+                <permission type="browse" roles="full"/>
+                <permission type="send" roles="full"/>
+                <!-- we need this otherwise ./artemis data imp wouldn't work -->
+                <permission type="manage" roles="full"/>
+            </security-setting>
+        </security-settings>
+
+
+        <!-- Other config -->
+
+        <address-settings>
+            <!--default for catch all-->
+            <address-setting match="#">
+                <redistribution-delay>0</redistribution-delay>
+                <default-address-routing-type>ANYCAST</default-address-routing-type>
+            </address-setting>
+        </address-settings>
+
+
+        <addresses>
+            <address name="test/+/some/#">
+                <anycast>
+                    <queue name="test/+/some/#"/>
+                </anycast>
+            </address>
+        </addresses>
+
+        <wildcard-addresses>
+            <routing-enabled>true</routing-enabled>
+            <delimiter>/</delimiter>
+            <any-words>#</any-words>
+            <single-word>+</single-word>
+        </wildcard-addresses>
+
+    </core>
+</configuration>
