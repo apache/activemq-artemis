@@ -57,4 +57,20 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
 
       Assert.assertEquals(true, fc.isPersistDeliveryCountBeforeDelivery());
    }
+
+   @Test
+   public void testChangeConfiguration() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config-wrong-address.xml");
+      deploymentManager.addDeployable(fc);
+
+      try {
+         deploymentManager.readConfiguration();
+         fail("Exception expected");
+      } catch (Exception ignored) {
+      }
+   }
 }
