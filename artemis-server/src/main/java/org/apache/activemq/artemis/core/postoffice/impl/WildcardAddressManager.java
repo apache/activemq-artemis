@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -29,6 +24,11 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * extends the simple manager to allow wildcard addresses to be used.
@@ -67,10 +67,13 @@ public class WildcardAddressManager extends SimpleAddressManager {
                   for (Binding theBinding : theBindings) {
                      super.addMappingInternal(address, theBinding);
                   }
+                  if (bindings == null) {
+                     bindings = super.getBindingsForRoutingAddress(address);
+                  }
+                  bindings.setMessageLoadBalancingType(b.getMessageLoadBalancingType());
                }
             }
          }
-         bindings = super.getBindingsForRoutingAddress(address);
       }
       return bindings;
    }

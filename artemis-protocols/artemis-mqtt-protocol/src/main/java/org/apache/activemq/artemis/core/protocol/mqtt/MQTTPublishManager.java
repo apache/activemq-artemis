@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,11 +17,10 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.io.UnsupportedEncodingException;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.EmptyByteBuf;
+import java.io.UnsupportedEncodingException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -123,7 +122,7 @@ public class MQTTPublishManager {
       } else {
          int qos = decideQoS(message, consumer);
          if (qos == 0) {
-            sendServerMessage((int) message.getMessageID(),  message, deliveryCount, qos);
+            sendServerMessage((int) message.getMessageID(), message, deliveryCount, qos);
             session.getServerSession().individualAcknowledge(consumer.getID(), message.getMessageID());
          } else if (qos == 1 || qos == 2) {
             int mqttid = outboundStore.generateMqttId(message.getMessageID(), consumer.getID());
@@ -143,12 +142,13 @@ public class MQTTPublishManager {
 
    /**
     * Sends a message either on behalf of the client or on behalf of the broker (Will Messages)
+    *
     * @param messageId
     * @param topic
     * @param qos
     * @param payload
     * @param retain
-    * @param internal if true means on behalf of the broker (skips authorisation) and does not return ack.
+    * @param internal  if true means on behalf of the broker (skips authorisation) and does not return ack.
     * @throws Exception
     */
    void sendInternal(int messageId, String topic, int qos, ByteBuf payload, boolean retain, boolean internal) throws Exception {

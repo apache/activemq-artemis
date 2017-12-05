@@ -230,6 +230,11 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
+      public MessageLoadBalancingType getMessageLoadBalancingType() {
+         return null;
+      }
+
+      @Override
       public void unproposed(SimpleString groupID) {
       }
 
