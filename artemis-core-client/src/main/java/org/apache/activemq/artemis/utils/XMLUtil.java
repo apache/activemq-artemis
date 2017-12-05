@@ -352,7 +352,7 @@ public final class XMLUtil {
       return nodes;
    }
 
-   private static URL findResource(final String resourceName) {
+   public static URL findResource(final String resourceName) {
       return AccessController.doPrivileged(new PrivilegedAction<URL>() {
          @Override
          public URL run() {
