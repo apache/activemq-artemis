@@ -591,6 +591,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -811,6 +812,7 @@ public interface ActiveMQServerControl {
    @Operation(desc = "List all the connection IDs", impact = MBeanOperationInfo.INFO)
    String[] listConnectionIDs() throws Exception;
 
+   @Operation(desc = "List all producers", impact = MBeanOperationInfo.INFO)
    String listProducersInfoAsJSON() throws Exception;
 
    /**
@@ -1000,6 +1002,7 @@ public interface ActiveMQServerControl {
                            @Parameter(desc = "allow topics to be created automatically", name = "autoCreateAddresses") boolean autoCreateAddresses,
                            @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteAddresses") boolean autoDeleteAddresses) throws Exception;
 
+   @Operation(desc = "Remove address settings", impact = MBeanOperationInfo.ACTION)
    void removeAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
    /**
@@ -1010,6 +1013,15 @@ public interface ActiveMQServerControl {
 
    @Attribute(desc = "names of the diverts deployed on this server")
    String[] getDivertNames();
+
+   /**
+    * Jon plugin doesn't recognize an Operation whose name is in
+    * form getXXXX(), so add this one.
+    */
+   @Operation(desc = "names of the diverts deployed on this server", impact = MBeanOperationInfo.INFO)
+   default String[] listDivertNames() {
+      return getDivertNames();
+   }
 
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
