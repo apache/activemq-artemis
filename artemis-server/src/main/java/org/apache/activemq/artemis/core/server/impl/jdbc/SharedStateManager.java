@@ -46,6 +46,7 @@ interface SharedStateManager extends AutoCloseable {
     *
     * @param nodeIdFactory used to create the nodeId if needed
     * @return the newly created NodeId or the old one if already present
+    * @throws IllegalStateException if not able to setup the NodeId properly
     */
    UUID setup(Supplier<? extends UUID> nodeIdFactory);
 
