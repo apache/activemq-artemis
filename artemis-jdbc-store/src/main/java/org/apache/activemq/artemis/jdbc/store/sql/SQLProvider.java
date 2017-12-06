@@ -96,6 +96,8 @@ public interface SQLProvider {
 
    String writeNodeIdSQL();
 
+   String initializeNodeIdSQL();
+
    String readNodeIdSQL();
 
    interface Factory {

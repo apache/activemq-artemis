@@ -111,16 +111,24 @@ public final class JdbcNodeManager extends NodeManager {
    }
 
    @Override
-   public synchronized void start() throws Exception {
-      if (isStarted()) {
-         return;
+   public void start() throws Exception {
+      try {
+         synchronized (this) {
+            if (isStarted()) {
+               return;
+            }
+            if (!replicatedBackup) {
+               final UUID nodeId = sharedStateManager.setup(UUIDGenerator.getInstance()::generateUUID);
+               setUUID(nodeId);
+            }
+            super.start();
+         }
+      } catch (IllegalStateException e) {
+         if (this.ioCriticalErrorListener != null) {
+            this.ioCriticalErrorListener.onIOException(e, "Failed to setup the JdbcNodeManager", null);
+         }
+         throw e;
       }
-      if (!replicatedBackup) {
-         final UUID nodeId = sharedStateManager.setup(UUIDGenerator.getInstance()::generateUUID);
-         setUUID(nodeId);
-      }
-
-      super.start();
    }
 
    @Override
