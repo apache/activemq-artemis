@@ -247,8 +247,8 @@ public class AmqpCoreConverter {
 
       final ApplicationProperties ap = amqp.getApplicationProperties();
       if (ap != null) {
-         for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) ap.getValue().entrySet()) {
-            setProperty(jms, entry.getKey().toString(), entry.getValue());
+         for (Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>) ap.getValue().entrySet()) {
+            setProperty(jms, entry.getKey(), entry.getValue());
          }
       }
 
