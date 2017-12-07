@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
-   private static final String defaultSortColumn = "sequentialID";
+   private static final String defaultSortColumn = "id";
 
    private final ActiveMQServer server;
 
@@ -51,16 +51,16 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          return null;
       }
 
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sequentialID", toString(consumer.getSequentialID()))
-         .add("sessionName", toString(consumer.getSessionName()))
-         .add("connectionClientID", toString(consumer.getConnectionClientID()))
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.getSequentialID()))
+         .add("session", toString(consumer.getSessionName()))
+         .add("clientID", toString(consumer.getConnectionClientID()))
          .add("user", toString(session.getUsername()))
-         .add("connectionProtocolName", toString(consumer.getConnectionProtocolName()))
-         .add("queueName", toString(consumer.getQueueName()))
+         .add("protocol", toString(consumer.getConnectionProtocolName()))
+         .add("queue", toString(consumer.getQueueName()))
          .add("queueType", toString(consumer.getQueueType()).toLowerCase())
-         .add("queueAddress", toString(consumer.getQueueAddress().toString()))
-         .add("connectionLocalAddress", toString(consumer.getConnectionLocalAddress()))
-         .add("connectionRemoteAddress", toString(consumer.getConnectionRemoteAddress()))
+         .add("address", toString(consumer.getQueueAddress().toString()))
+         .add("localAddress", toString(consumer.getConnectionLocalAddress()))
+         .add("remoteAddress", toString(consumer.getConnectionRemoteAddress()))
          .add("creationTime", new Date(consumer.getCreationTime()).toString());
       return obj;
    }

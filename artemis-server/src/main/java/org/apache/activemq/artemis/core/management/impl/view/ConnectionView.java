@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.utils.StringUtil;
 
 public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
-   private static final String defaultSortColumn = "iD";
+   private static final String defaultSortColumn = "connectionID";
 
    private final ActiveMQServer server;
 
@@ -57,7 +57,15 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          users.add(username);
       }
 
-      return JsonLoader.createObjectBuilder().add("iD", toString(connection.getID())).add("remoteAddress", toString(connection.getRemoteAddress())).add("users", StringUtil.joinStringList(users, ",")).add("creationTime", new Date(connection.getCreationTime()).toString()).add("implementation", toString(toString(connection.getClass().getSimpleName()))).add("protocolName", toString(connection.getProtocolName())).add("clientID", toString(connection.getClientID())).add("transportLocalAddress", toString(connection.getTransportLocalAddress())).add("sessionCount", server.getSessions(connection.getID().toString()).size());
+      return JsonLoader.createObjectBuilder().add("connectionID", toString(connection.getID()))
+         .add("remoteAddress", toString(connection.getRemoteAddress()))
+         .add("users", StringUtil.joinStringList(users, ","))
+         .add("creationTime", new Date(connection.getCreationTime()).toString())
+         .add("implementation", toString(toString(connection.getClass().getSimpleName())))
+         .add("protocol", toString(connection.getProtocolName()))
+         .add("clientID", toString(connection.getClientID()))
+         .add("localAddress", toString(connection.getTransportLocalAddress()))
+         .add("sessionCount", server.getSessions(connection.getID().toString()).size());
    }
 
    @Override
