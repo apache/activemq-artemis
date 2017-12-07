@@ -31,7 +31,7 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listConnections(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'iD',
+                field: 'connectionID',
                 displayName: 'ID',
                 width: '*'
             },
@@ -46,7 +46,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
-                field: 'protocolName',
+                field: 'protocol',
                 displayName: 'Protocol',
                 width: '*'
             },
@@ -63,7 +63,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
-                field: 'transportLocalAddress',
+                field: 'localAddress',
                 displayName: 'Local Address',
                 width: '*'
             },
@@ -95,7 +95,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "iD"
+                sortBy: "connectionID"
             }
         };
 
@@ -142,8 +142,8 @@ var ARTEMIS = (function(ARTEMIS) {
             currentPage: 1
         };
         $scope.sortOptions = {
-            fields: ["iD"],
-            columns: ["iD"],
+            fields: ["connectionID"],
+            columns: ["connectionID"],
             directions: ["asc"]
         };
         var refreshed = false;

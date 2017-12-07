@@ -1737,8 +1737,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
          List<AddressInfo> addressInfo = new ArrayList<>();
-         for (SimpleString address:addresses) {
-            addressInfo.add(server.getPostOffice().getAddressInfo(address));
+         for (SimpleString address : addresses) {
+            AddressInfo info = server.getPostOffice().getAddressInfo(address);
+            //ignore if no longer available
+            if (info != null) {
+               addressInfo.add(info);
+            }
          }
          AddressView view = new AddressView(server);
          view.setCollection(addressInfo);
