@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.netty.handler.ssl.SslHandler;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -50,6 +50,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import io.netty.handler.ssl.SslHandler;
 
 @RunWith(value = Parameterized.class)
 public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
@@ -238,6 +240,31 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = createSessionFactory(locator);
+      sf.close();
+   }
+
+   @Test
+   public void testTwoWaySSLVerifyClientTrustAllTrueByURI() throws Exception {
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
+      acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      server.getRemotingService().stop(false);
+      server.getRemotingService().start();
+      server.getRemotingService().startAcceptors();
+
+      //Set trust all so this should work even with no trust store set
+      StringBuilder uri = new StringBuilder("tcp://" + tc.getParams().get(TransportConstants.HOST_PROP_NAME).toString()
+            + ":" + tc.getParams().get(TransportConstants.PORT_PROP_NAME).toString());
+
+      uri.append("?").append(TransportConstants.SSL_ENABLED_PROP_NAME).append("=true");
+      uri.append("&").append(TransportConstants.TRUST_ALL_PROP_NAME).append("=true");
+      uri.append("&").append(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME).append("=").append(storeType);
+      uri.append("&").append(TransportConstants.KEYSTORE_PATH_PROP_NAME).append("=").append(CLIENT_SIDE_KEYSTORE);
+      uri.append("&").append(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME).append("=").append(PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(uri.toString()));
       ClientSessionFactory sf = createSessionFactory(locator);
       sf.close();
    }
