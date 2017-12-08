@@ -230,7 +230,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
       } else if (threadName.contains("Abandoned connection cleanup thread")) {
          // MySQL Engine checks for abandoned connections
          return true;
-      } else if (threadName.contains("hawtdispatch")) {
+      } else if (threadName.contains("hawtdispatch") || (group != null && group.getName().contains("hawtdispatch"))) {
          // Static workers used by MQTT client.
          return true;
       } else {
