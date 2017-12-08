@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.Assert.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
 import javax.jms.IllegalStateException;
 import javax.jms.JMSSecurityException;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -167,6 +172,49 @@ public class SecurityTest extends JMSTestCase {
       } catch (JMSSecurityException e) {
          // Expected
       }
+   }
+
+   /**
+    * Login with valid user and password
+    * But try send to address not authorised - Persistent
+    * Should not allow and should throw exception
+    */
+   @Test
+   public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      Connection connection = connectionFactory.createConnection("guest", "guest");
+      Session session = connection.createSession();
+      Destination destination = session.createQueue("guest.cannot.send");
+      MessageProducer messageProducer = session.createProducer(destination);
+      try {
+         messageProducer.send(session.createTextMessage("hello"));
+         fail("JMSSecurityException expected as guest is not allowed to send");
+      } catch (JMSSecurityException activeMQSecurityException) {
+         //pass
+      }
+      connection.close();
+   }
+
+   /**
+    * Login with valid user and password
+    * But try send to address not authorised - Non Persistent.
+    * Should have same behaviour as Persistent with exception on send.
+    */
+   @Test
+   public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      Connection connection = connectionFactory.createConnection("guest", "guest");
+      Session session = connection.createSession();
+      Destination destination = session.createQueue("guest.cannot.send");
+      MessageProducer messageProducer = session.createProducer(destination);
+      messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      try {
+         messageProducer.send(session.createTextMessage("hello"));
+         fail("JMSSecurityException expected as guest is not allowed to send");
+      } catch (JMSSecurityException activeMQSecurityException) {
+         //pass
+      }
+      connection.close();
    }
 
    /* Now some client id tests */

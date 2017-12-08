@@ -83,7 +83,7 @@ public final class ActiveMQClient {
 
    public static final boolean DEFAULT_BLOCK_ON_DURABLE_SEND = true;
 
-   public static final boolean DEFAULT_BLOCK_ON_NON_DURABLE_SEND = false;
+   public static final boolean DEFAULT_BLOCK_ON_NON_DURABLE_SEND = true;
 
    public static final boolean DEFAULT_AUTO_GROUP = false;
 
