@@ -255,7 +255,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
                            QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
                            int size = replicatedPolicy.getQuorumSize() == -1 ? quorumManager.getMaxClusterSize() : replicatedPolicy.getQuorumSize();
 
-                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getNodeID().toString());
+                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getNodeID().toString(), true);
 
                            quorumManager.vote(quorumVote);
 
