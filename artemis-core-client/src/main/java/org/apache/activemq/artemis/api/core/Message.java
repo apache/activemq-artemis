@@ -631,7 +631,9 @@ public interface Message {
    default Map<String, Object> toPropertyMap() {
       Map map = new HashMap<>();
       for (SimpleString name : getPropertyNames()) {
-         map.put(name.toString(), getObjectProperty(name.toString()));
+         //some property is SimpleString, which is not available for management console
+         Object value = getObjectProperty(name.toString());
+         map.put(name.toString(), value == null ? null : value.toString());
       }
       return map;
    }
