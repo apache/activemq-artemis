@@ -493,6 +493,7 @@ public interface QueueControl {
     * any other measure.
     * It is useful if you need the exact number of counts on a message
     */
+   @Operation(desc = "Flush internal executors", impact = MBeanOperationInfo.ACTION)
    void flushExecutor();
 
 }
