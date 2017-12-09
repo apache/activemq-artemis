@@ -17,13 +17,13 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -124,23 +124,25 @@ public class JMSLVQTest extends JMSClientTestSupport {
          MessageProducer p = producerSession.createProducer(null);
 
          TextMessage message1 = producerSession.createTextMessage();
-         message1.setStringProperty(AMQPMessage.HDR_LAST_VALUE_NAME, "KEY");
+         message1.setStringProperty(Message.HDR_LAST_VALUE_NAME.toString(), "KEY");
          message1.setText("hello");
          p.send(queue1, message1);
 
          TextMessage message2 = producerSession.createTextMessage();
-         message2.setStringProperty(AMQPMessage.HDR_LAST_VALUE_NAME, "KEY");
+         message2.setStringProperty(Message.HDR_LAST_VALUE_NAME.toString(), "KEY");
          message2.setText("how are you");
          p.send(queue1, message2);
 
-         Session consumerSession = consumerConnection.createSession();
+         //Simulate a small pause, else both messages could be consumed if consumer is fast enough
+         Thread.sleep(10);
+         
+         Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue consumerQueue = consumerSession.createQueue(LVQ_QUEUE_NAME);
          MessageConsumer consumer = consumerSession.createConsumer(consumerQueue);
-         Message msg = consumer.receive(1000);
+         TextMessage msg = (TextMessage) consumer.receive(1000);
          assertNotNull(msg);
-         assertEquals("KEY", msg.getStringProperty(AMQPMessage.HDR_LAST_VALUE_NAME));
-         assertTrue(msg instanceof TextMessage);
-         assertEquals("how are you", ((TextMessage)msg).getText());
+         assertEquals("KEY", msg.getStringProperty(AMQPMessage.HDR_LAST_VALUE_NAME.toString()));
+         assertEquals("how are you", msg.getText());
          consumer.close();
       } finally {
          producerConnection.close();

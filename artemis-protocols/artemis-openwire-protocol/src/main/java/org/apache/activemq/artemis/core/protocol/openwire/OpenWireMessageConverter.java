@@ -771,6 +771,15 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
          }
       }
 
+      SimpleString lastValueProperty = coreMessage.getLastValueProperty();
+      if (lastValueProperty != null) {
+         try {
+            amqMsg.setStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_LAST_VALUE_NAME.toString(), lastValueProperty.toString());
+         } catch (JMSException e) {
+            throw new IOException("failure to set lvq property " + dlqCause, e);
+         }
+      }
+
       Set<SimpleString> props = coreMessage.getPropertyNames();
       if (props != null) {
          for (SimpleString s : props) {
