@@ -135,7 +135,7 @@ public class JMSLVQTest extends JMSClientTestSupport {
 
          //Simulate a small pause, else both messages could be consumed if consumer is fast enough
          Thread.sleep(10);
-         
+
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue consumerQueue = consumerSession.createQueue(LVQ_QUEUE_NAME);
          MessageConsumer consumer = consumerSession.createConsumer(consumerQueue);
