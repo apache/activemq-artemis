@@ -234,7 +234,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
    }
 
    protected Connection createOpenWireConnection() throws JMSException {
-      return createCoreConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true);
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true);
    }
 
    private Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {

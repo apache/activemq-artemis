@@ -183,6 +183,10 @@ public interface Message {
       return null;
    }
 
+   default Message setLastValueProperty(SimpleString lastValueName) {
+      return this;
+   }
+
    /**
     * @deprecated do not use this, use through ICoreMessage or ClientMessage
     */
