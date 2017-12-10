@@ -611,7 +611,7 @@ public class AMQPMessage extends RefCountMessage {
       if (address != null) {
         return setAddress(address.toString());
       } else {
-        return null;
+        return setAddress(null);
       }     
    }
 
