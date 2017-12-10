@@ -543,6 +543,8 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
 -   `authenticateUser` - boolean flag to disable authentication. Useful as an optimisation when this module is used just for
     role mapping of a Subject's existing authenticated principals; default is `false`.
 
+-   `referral` - specify how to handle referrals; valid values: `ignore`, `follow`, `throw`; default is `ignore`.
+
 -   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it
     should be set to `false`, or omitted; default is `false`
 
