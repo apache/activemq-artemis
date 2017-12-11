@@ -608,7 +608,11 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public AMQPMessage setAddress(SimpleString address) {
-      return setAddress(address.toString());
+      if (address != null) {
+         return setAddress(address.toString());
+      } else {
+         return setAddress((String) null);
+      }
    }
 
    @Override
