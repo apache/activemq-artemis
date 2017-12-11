@@ -44,6 +44,12 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
    @Override
    public JsonObjectBuilder toJson(ServerProducer producer) {
       ServerSession session = server.getSessionByID(producer.getSessionID());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID()))
          .add("session", toString(session.getName()))
          .add("clientID", toString(session.getRemotingConnection().getClientID()))
@@ -54,6 +60,38 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          .add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
          .add("creationTime", toString(producer.getCreationTime()));
       return obj;
+   }
+
+   public Object getField(ServerProducer producer, String fieldName) {
+      ServerSession session = server.getSessionByID(producer.getSessionID());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return producer.getID();
+         case "session":
+            return session.getName();
+         case "user":
+            return session.getUsername();
+         case "clientID":
+            return session.getRemotingConnection().getClientID();
+         case "protocol":
+            return session.getRemotingConnection().getProtocolName();
+         case "address":
+            return producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress();
+         case "localAddress":
+            return session.getRemotingConnection().getTransportConnection().getLocalAddress();
+         case "remoteAddress":
+            return session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+         case "creationTime":
+            return producer.getCreationTime();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -61,11 +62,43 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add("remoteAddress", toString(connection.getRemoteAddress()))
          .add("users", StringUtil.joinStringList(users, ","))
          .add("creationTime", new Date(connection.getCreationTime()).toString())
-         .add("implementation", toString(toString(connection.getClass().getSimpleName())))
+         .add("implementation", toString(connection.getClass().getSimpleName()))
          .add("protocol", toString(connection.getProtocolName()))
          .add("clientID", toString(connection.getClientID()))
          .add("localAddress", toString(connection.getTransportLocalAddress()))
          .add("sessionCount", server.getSessions(connection.getID().toString()).size());
+   }
+
+   public Object getField(RemotingConnection connection, String fieldName) {
+      List<ServerSession> sessions = server.getSessions(connection.getID().toString());
+
+      switch (fieldName) {
+         case "connectionID":
+            return connection.getID();
+         case "remoteAddress":
+            return connection.getRemoteAddress();
+         case "users":
+            Set<String> users = new HashSet<>();
+            for (ServerSession session : sessions) {
+               String username = session.getUsername() == null ? "" : session.getUsername();
+               users.add(username);
+            }
+            return users;
+         case "creationTime":
+            return new Date(connection.getCreationTime());
+         case "implementation":
+            return connection.getClass().getSimpleName();
+         case "protocol":
+            return connection.getProtocolName();
+         case "clientID":
+            return connection.getClientID();
+         case "localAddress":
+            return connection.getTransportLocalAddress();
+         case "sessionCount":
+            return sessions.size();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override
