@@ -53,8 +53,6 @@ public abstract class ActiveMQAbstractView<T> {
 
    protected String options;
 
-   private Method getter;
-
    public ActiveMQAbstractView() {
       this.sortColumn = getDefaultOrderColumn();
       this.sortOrder = "asc";
@@ -98,29 +96,18 @@ public abstract class ActiveMQAbstractView<T> {
       return predicate;
    }
 
-   private Method getGetter() {
-      if (getter == null) {
-         getter = findGetterMethod(getClassT(), sortColumn);
-      }
-      return getter;
-   }
-
    public Ordering<T> getOrdering() {
       return new Ordering<T>() {
-
          @Override
          public int compare(T left, T right) {
-            Method getter = getGetter();
             try {
-               if (getter != null) {
-                  Object leftValue = getter.invoke(left);
-                  Object rightValue = getter.invoke(right);
-                  if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
-                     if (sortOrder.equals("desc")) {
-                        return ((Comparable) rightValue).compareTo(leftValue);
-                     } else {
-                        return ((Comparable) leftValue).compareTo(rightValue);
-                     }
+               Object leftValue = getField(left, sortColumn);;
+               Object rightValue = getField(right, sortColumn);;
+               if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
+                  if (sortOrder.equals("desc")) {
+                     return ((Comparable) rightValue).compareTo(leftValue);
+                  } else {
+                     return ((Comparable) leftValue).compareTo(rightValue);
                   }
                }
                return 0;
@@ -132,17 +119,7 @@ public abstract class ActiveMQAbstractView<T> {
       };
    }
 
-   public static Method findGetterMethod(Class clazz, String sortColumn) {
-      String name = "get" + Character.toUpperCase(sortColumn.charAt(0)) + sortColumn.substring(1);
-      Method[] methods = clazz.getMethods();
-      for (Method method : methods) {
-         Class<?>[] params = method.getParameterTypes();
-         if (method.getName().equals(name) && params.length == 0) {
-            return method;
-         }
-      }
-      return null;
-   }
+   abstract Object getField(T t, String fieldName);
 
    public void setOptions(String options) {
       JsonObject json = JsonUtil.readJsonObject(options);
