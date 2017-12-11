@@ -62,6 +62,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
       return obj;
    }
 
+   @Override
    public Object getField(ServerProducer producer, String fieldName) {
       ServerSession session = server.getSessionByID(producer.getSessionID());
 
