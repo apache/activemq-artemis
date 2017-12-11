@@ -182,7 +182,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       messageCopy.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
 
-      messageCopy = super.beforeForward(messageCopy, forwardingAddress);
+      messageCopy = super.beforeForward(messageCopy, null);
 
       return messageCopy;
    }
