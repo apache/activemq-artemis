@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConsumerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
@@ -58,11 +59,45 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add("protocol", toString(consumer.getConnectionProtocolName()))
          .add("queue", toString(consumer.getQueueName()))
          .add("queueType", toString(consumer.getQueueType()).toLowerCase())
-         .add("address", toString(consumer.getQueueAddress().toString()))
+         .add("address", toString(consumer.getQueueAddress()))
          .add("localAddress", toString(consumer.getConnectionLocalAddress()))
          .add("remoteAddress", toString(consumer.getConnectionRemoteAddress()))
          .add("creationTime", new Date(consumer.getCreationTime()).toString());
       return obj;
+   }
+
+   public Object getField(ServerConsumer consumer, String fieldName) {
+      ServerSession session = server.getSessionByID(consumer.getSessionID());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return consumer.getSequentialID();
+         case "session":
+            return consumer.getSessionName();
+         case "user":
+            return session.getUsername();
+         case "clientID":
+            return consumer.getConnectionClientID();
+         case "protocol":
+            return consumer.getConnectionProtocolName();
+         case "queue":
+            return consumer.getQueueName();
+         case "queueType":
+            return consumer.getQueueType();
+         case "localAddress":
+            return consumer.getConnectionLocalAddress();
+         case "remoteAddress":
+            return consumer.getConnectionRemoteAddress();
+         case "creationTime":
+            return new Date(consumer.getCreationTime());
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

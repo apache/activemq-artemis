@@ -17,9 +17,16 @@
 package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.activemq.artemis.core.management.impl.view.predicate.AddressFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressView extends ActiveMQAbstractView<AddressInfo> {
@@ -54,6 +61,29 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
          obj.add("queueCount", 0);
       }
       return obj;
+   }
+
+   public Object getField(AddressInfo address, String fieldName) {
+      if (address == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return address.getId();
+         case "name":
+            return address.getName();
+         case "routingTypes":
+            return address.getRoutingTypes();
+         case "queueCount":
+            try {
+               return server.bindingQuery(address.getName()).getQueueNames().size();
+            } catch (Exception e) {
+               return 0;
+            }
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override
