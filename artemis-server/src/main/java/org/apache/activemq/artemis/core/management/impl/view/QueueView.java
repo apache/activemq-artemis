@@ -18,11 +18,14 @@ package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
 
+import java.util.Date;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.QueueFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class QueueView extends ActiveMQAbstractView<QueueControl> {
@@ -63,6 +66,54 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add("messagesKilled", toString(queue.getMessagesKilled()))
          .add("deliverDeliver", toString(q.isDirectDeliver()));
       return obj;
+   }
+
+   public Object getField(QueueControl queue, String fieldName) {
+      Queue q = server.locateQueue(new SimpleString(queue.getName()));
+      switch (fieldName) {
+         case "id":
+            return queue.getID();
+         case "name":
+            return queue.getName();
+         case "address":
+            return queue.getAddress();
+         case "filter":
+            return queue.getFilter();
+         case "rate":
+            return q.getRate();
+         case "durable":
+            return queue.isDurable();
+         case "paused":
+            return q.isPaused();
+         case "temporary":
+            return queue.isTemporary();
+         case "purgeOnNoConsumers":
+            return queue.isPurgeOnNoConsumers();
+         case "consumerCount":
+            return queue.getConsumerCount();
+         case "maxConsumers":
+            return queue.getMaxConsumers();
+         case "autoCreated":
+            return q.isAutoCreated();
+         case "user":
+            return q.getUser();
+         case "routingType":
+            return queue.getRoutingType();
+         case "messagesAdded":
+            return queue.getMessagesAdded();
+         case "messageCount":
+            return queue.getMessageCount();
+         case "messagesAcked":
+            return queue.getMessagesAcknowledged();
+         case "deliveringCount":
+            return queue.getDeliveringCount();
+         case "messagesKilled":
+            return queue.getMessagesKilled();
+         case "deliverDeliver":
+            return q.isDirectDeliver();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

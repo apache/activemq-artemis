@@ -21,6 +21,7 @@ import java.util.Date;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.SessionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class SessionView extends ActiveMQAbstractView<ServerSession> {
@@ -46,6 +47,25 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
          .add("producerCount", session.getProducerCount())
          .add("connectionID", session.getConnectionID().toString());
       return obj;
+   }
+
+   public Object getField(ServerSession session, String fieldName) {
+      switch (fieldName) {
+         case "id":
+            return session.getName();
+         case "user":
+            return session.getUsername();
+         case "creationTime":
+            return new Date(session.getCreationTime());
+         case "consumerCount":
+            return session.getConsumerCount();
+         case "producerCount":
+            return session.getProducerCount();
+         case "connectionID":
+            return session.getConnectionID();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override
