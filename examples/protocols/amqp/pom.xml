@@ -48,6 +48,7 @@ under the License.
          <id>release</id>
          <modules>
             <module>proton-cpp</module>
+            <module>proton-clustered-cpp</module>
             <module>queue</module>
             <module>proton-ruby</module>
          </modules>
