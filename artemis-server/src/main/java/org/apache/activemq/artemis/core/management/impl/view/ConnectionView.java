@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -69,6 +68,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add("sessionCount", server.getSessions(connection.getID().toString()).size());
    }
 
+   @Override
    public Object getField(RemotingConnection connection, String fieldName) {
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
 

@@ -22,7 +22,6 @@ import java.util.Date;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConsumerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
@@ -66,6 +65,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
       return obj;
    }
 
+   @Override
    public Object getField(ServerConsumer consumer, String fieldName) {
       ServerSession session = server.getSessionByID(consumer.getSessionID());
 
