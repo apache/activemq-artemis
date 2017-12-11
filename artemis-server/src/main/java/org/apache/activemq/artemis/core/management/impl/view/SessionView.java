@@ -21,7 +21,6 @@ import java.util.Date;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.SessionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class SessionView extends ActiveMQAbstractView<ServerSession> {
@@ -49,6 +48,7 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
       return obj;
    }
 
+   @Override
    public Object getField(ServerSession session, String fieldName) {
       switch (fieldName) {
          case "id":

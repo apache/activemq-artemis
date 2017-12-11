@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.management.impl.view;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
@@ -101,8 +100,8 @@ public abstract class ActiveMQAbstractView<T> {
          @Override
          public int compare(T left, T right) {
             try {
-               Object leftValue = getField(left, sortColumn);;
-               Object rightValue = getField(right, sortColumn);;
+               Object leftValue = getField(left, sortColumn);
+               Object rightValue = getField(right, sortColumn);
                if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
                   if (sortOrder.equals("desc")) {
                      return ((Comparable) rightValue).compareTo(leftValue);

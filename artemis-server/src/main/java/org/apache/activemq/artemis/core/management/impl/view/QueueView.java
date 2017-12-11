@@ -17,15 +17,11 @@
 package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
-
-import java.util.Date;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.QueueFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class QueueView extends ActiveMQAbstractView<QueueControl> {
@@ -68,6 +64,7 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
       return obj;
    }
 
+   @Override
    public Object getField(QueueControl queue, String fieldName) {
       Queue q = server.locateQueue(new SimpleString(queue.getName()));
       switch (fieldName) {
