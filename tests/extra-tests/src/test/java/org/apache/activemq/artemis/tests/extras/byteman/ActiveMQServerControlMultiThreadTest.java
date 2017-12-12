@@ -64,8 +64,8 @@ public class ActiveMQServerControlMultiThreadTest extends ManagementTestBase {
 
    @Test
    @BMRules(rules = {@BMRule(name = "Delay listAddress() by 2 secs ",
-      targetClass = "org.apache.activemq.artemis.core.management.impl.view.AddressView ",
-      targetMethod = "<init>(org.apache.activemq.artemis.core.server.ActiveMQServer)",
+      targetClass = "org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl",
+      targetMethod = "getAddressInfo(org.apache.activemq.artemis.api.core.SimpleString)",
       targetLocation = "ENTRY",
       action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQServerControlMultiThreadTest.delay(2)")})
 

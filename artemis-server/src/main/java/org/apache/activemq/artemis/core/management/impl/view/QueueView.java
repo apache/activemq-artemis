@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.QueueFilterPredicate;
@@ -45,8 +44,73 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
    @Override
    public JsonObjectBuilder toJson(QueueControl queue) {
       Queue q = server.locateQueue(new SimpleString(queue.getName()));
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("iD", toString(queue.getID())).add("name", toString(queue.getName())).add("address", toString(queue.getAddress())).add("filter", toString(queue.getFilter())).add("rate", toString(q.getRate())).add("durable", toString(queue.isDurable())).add("paused", toString(q.isPaused())).add("temporary", toString(queue.isTemporary())).add("purgeOnNoConsumers", toString(queue.isPurgeOnNoConsumers())).add("consumerCount", toString(queue.getConsumerCount())).add("maxConsumers", toString(queue.getMaxConsumers())).add("autoCreated", toString(q.isAutoCreated())).add("user", toString(q.getUser())).add("routingType", toString(queue.getRoutingType())).add("messagesAdded", toString(queue.getMessagesAdded())).add("messageCount", toString(queue.getMessageCount())).add("messagesAcked", toString(queue.getMessagesAcknowledged())).add("deliveringCount", toString(queue.getDeliveringCount())).add("messagesKilled", toString(queue.getMessagesKilled())).add("deliverDeliver", toString(q.isDirectDeliver()));
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(queue.getID()))
+         .add("name", toString(queue.getName())).add("address", toString(queue.getAddress()))
+         .add("filter", toString(queue.getFilter())).add("rate", toString(q.getRate()))
+         .add("durable", toString(queue.isDurable())).add("paused", toString(q.isPaused()))
+         .add("temporary", toString(queue.isTemporary()))
+         .add("purgeOnNoConsumers", toString(queue.isPurgeOnNoConsumers()))
+         .add("consumerCount", toString(queue.getConsumerCount()))
+         .add("maxConsumers", toString(queue.getMaxConsumers()))
+         .add("autoCreated", toString(q.isAutoCreated()))
+         .add("user", toString(q.getUser()))
+         .add("routingType", toString(queue.getRoutingType()))
+         .add("messagesAdded", toString(queue.getMessagesAdded()))
+         .add("messageCount", toString(queue.getMessageCount()))
+         .add("messagesAcked", toString(queue.getMessagesAcknowledged()))
+         .add("deliveringCount", toString(queue.getDeliveringCount()))
+         .add("messagesKilled", toString(queue.getMessagesKilled()))
+         .add("deliverDeliver", toString(q.isDirectDeliver()));
       return obj;
+   }
+
+   @Override
+   public Object getField(QueueControl queue, String fieldName) {
+      Queue q = server.locateQueue(new SimpleString(queue.getName()));
+      switch (fieldName) {
+         case "id":
+            return queue.getID();
+         case "name":
+            return queue.getName();
+         case "address":
+            return queue.getAddress();
+         case "filter":
+            return queue.getFilter();
+         case "rate":
+            return q.getRate();
+         case "durable":
+            return queue.isDurable();
+         case "paused":
+            return q.isPaused();
+         case "temporary":
+            return queue.isTemporary();
+         case "purgeOnNoConsumers":
+            return queue.isPurgeOnNoConsumers();
+         case "consumerCount":
+            return queue.getConsumerCount();
+         case "maxConsumers":
+            return queue.getMaxConsumers();
+         case "autoCreated":
+            return q.isAutoCreated();
+         case "user":
+            return q.getUser();
+         case "routingType":
+            return queue.getRoutingType();
+         case "messagesAdded":
+            return queue.getMessagesAdded();
+         case "messageCount":
+            return queue.getMessageCount();
+         case "messagesAcked":
+            return queue.getMessagesAcknowledged();
+         case "deliveringCount":
+            return queue.getDeliveringCount();
+         case "messagesKilled":
+            return queue.getMessagesKilled();
+         case "deliverDeliver":
+            return q.isDirectDeliver();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

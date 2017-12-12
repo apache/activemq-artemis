@@ -31,7 +31,7 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listProducers(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'iD',
+                field: 'id',
                 displayName: 'ID',
                 width: '*'
             },
@@ -99,7 +99,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "iD"
+                sortBy: "id"
             }
         };
 
@@ -136,8 +136,8 @@ var ARTEMIS = (function(ARTEMIS) {
             currentPage: 1
         };
         $scope.sortOptions = {
-            fields: ["iD"],
-            columns: ["iD"],
+            fields: ["id"],
+            columns: ["id"],
             directions: ["asc"]
         };
         var refreshed = false;
