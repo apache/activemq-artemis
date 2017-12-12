@@ -78,6 +78,11 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
+   public MessageLoadBalancingType getMessageLoadBalancingType() {
+      return this.messageLoadBalancingType;
+   }
+
+   @Override
    public Collection<Binding> getBindings() {
       return bindingsMap.values();
    }
