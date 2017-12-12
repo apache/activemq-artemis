@@ -34,6 +34,8 @@ public interface Bindings extends UnproposalListener {
 
    void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType);
 
+   MessageLoadBalancingType getMessageLoadBalancingType();
+
    boolean redistribute(Message message, Queue originatingQueue, RoutingContext context) throws Exception;
 
    void route(Message message, RoutingContext context) throws Exception;

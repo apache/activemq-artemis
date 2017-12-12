@@ -41,12 +41,14 @@ under the License.
          <id>release</id>
          <modules>
             <module>basic-pubsub</module>
+            <module>clustered-queue-mqtt</module>
          </modules>
       </profile>
       <profile>
          <id>examples</id>
          <modules>
             <module>basic-pubsub</module>
+            <module>clustered-queue-mqtt</module>
          </modules>
       </profile>
    </profiles>
