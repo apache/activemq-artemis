@@ -31,31 +31,31 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listConsumers(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'sequentialID',
+                field: 'id',
                 displayName: 'ID',
                 width: '*'
             },
             {
-                field: 'sessionName',
+                field: 'session',
                 displayName: 'Session',
                 width: '*',
-                cellTemplate: '<div class="ngCellText"><a ng-click="selectSession(row)">{{row.entity.sessionName}}</a></div>'
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectSession(row)">{{row.entity.session}}</a></div>'
             },
             {
-                field: 'connectionClientID',
+                field: 'clientID',
                 displayName: 'Client ID',
                 width: '*'
             },
             {
-                field: 'connectionProtocolName',
+                field: 'protocol',
                 displayName: 'Protocol',
                 width: '*'
             },
             {
-                field: 'queueName',
+                field: 'queue',
                 displayName: 'Queue',
                 width: '*',
-                cellTemplate: '<div class="ngCellText"><a ng-click="selectQueue(row)">{{row.entity.queueName}}</a></div>'
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectQueue(row)">{{row.entity.queue}}</a></div>'
             },
             {
                 field: 'queueType',
@@ -63,18 +63,18 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
-                field: 'queueAddress',
+                field: 'address',
                 displayName: 'Address',
                 width: '*',
-                cellTemplate: '<div class="ngCellText"><a ng-click="selectAddress(row)">{{row.entity.queueAddress}}</a></div>'
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectAddress(row)">{{row.entity.address}}</a></div>'
             },
             {
-                field: 'connectionRemoteAddress',
+                field: 'remoteAddress',
                 displayName: 'Remote Address',
                 width: '*'
             },
             {
-                field: 'connectionLocalAddress',
+                field: 'localAddress',
                 displayName: 'Local Address',
                 width: '*'
             },
@@ -105,7 +105,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "sequentialID"
+                sortBy: "id"
             }
         };
 
@@ -166,8 +166,8 @@ var ARTEMIS = (function(ARTEMIS) {
             currentPage: 1
         };
         $scope.sortOptions = {
-            fields: ["sequentialID"],
-            columns: ["sequentialID"],
+            fields: ["id"],
+            columns: ["id"],
             directions: ["asc"]
         };
         var refreshed = false;
