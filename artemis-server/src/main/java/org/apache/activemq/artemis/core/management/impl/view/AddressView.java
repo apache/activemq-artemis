@@ -57,6 +57,30 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
    }
 
    @Override
+   public Object getField(AddressInfo address, String fieldName) {
+      if (address == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return address.getId();
+         case "name":
+            return address.getName();
+         case "routingTypes":
+            return address.getRoutingTypes();
+         case "queueCount":
+            try {
+               return server.bindingQuery(address.getName()).getQueueNames().size();
+            } catch (Exception e) {
+               return 0;
+            }
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
+   }
+
+   @Override
    public String getDefaultOrderColumn() {
       return defaultSortColumn;
    }

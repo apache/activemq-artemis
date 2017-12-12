@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -1518,6 +1519,140 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       array = (JsonArray) queuesAsJsonObject.get("data");
 
       Assert.assertEquals("number of queues returned from query", 1, array.size());
+      //check all field names are available
+      Assert.assertNotEquals("name", "", array.getJsonObject(0).getString("name"));
+      Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
+      Assert.assertNotEquals("address", "", array.getJsonObject(0).getString("address"));
+      Assert.assertEquals("filter", "", array.getJsonObject(0).getString("filter"));
+      Assert.assertNotEquals("rate", "", array.getJsonObject(0).getString("rate"));
+      Assert.assertEquals("durable", "false", array.getJsonObject(0).getString("durable"));
+      Assert.assertEquals("paused", "false", array.getJsonObject(0).getString("paused"));
+      Assert.assertNotEquals("temporary", "", array.getJsonObject(0).getString("temporary"));
+      Assert.assertEquals("purgeOnNoConsumers", "false", array.getJsonObject(0).getString("purgeOnNoConsumers"));
+      Assert.assertNotEquals("consumerCount", "", array.getJsonObject(0).getString("consumerCount"));
+      Assert.assertEquals("maxConsumers", "-1", array.getJsonObject(0).getString("maxConsumers"));
+      Assert.assertEquals("autoCreated", "false", array.getJsonObject(0).getString("autoCreated"));
+      Assert.assertEquals("user", "", array.getJsonObject(0).getString("user"));
+      Assert.assertNotEquals("routingType", "", array.getJsonObject(0).getString("routingType"));
+      Assert.assertEquals("messagesAdded", "0", array.getJsonObject(0).getString("messagesAdded"));
+      Assert.assertEquals("messageCount", "0", array.getJsonObject(0).getString("messageCount"));
+      Assert.assertEquals("messagesAcked", "0", array.getJsonObject(0).getString("messagesAcked"));
+      Assert.assertEquals("deliveringCount", "0", array.getJsonObject(0).getString("deliveringCount"));
+      Assert.assertEquals("messagesKilled", "0", array.getJsonObject(0).getString("messagesKilled"));
+      Assert.assertEquals("deliverDeliver", "true", array.getJsonObject(0).getString("deliverDeliver"));
+
+   }
+
+   @Test
+   public void testListQueuesOrder() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_1");
+      SimpleString queueName2 = new SimpleString("my_queue_2");
+      SimpleString queueName3 = new SimpleString("my_queue_3");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
+      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, new SimpleString("filter1"),null,true,
+                         false, false,20,false,false);
+      Thread.sleep(500);
+      server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
+      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, new SimpleString("filter3"), null,true,
+                         false, true,40,false,false);
+      Thread.sleep(500);
+      server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
+      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3,  new SimpleString("filter0"),null,true,
+                         false, false,10,false,false);
+
+      //test default order
+      String filterString = createJsonFilter("name", "CONTAINS", "my_queue");
+      String queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue1 default Order", queueName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue2 default Order", queueName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue3 default Order", queueName3.toString(), array.getJsonObject(2).getString("name"));
+
+      //test ordered by id desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "id", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue3 ordered by id", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue2 ordered by id", queueName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue1 ordered by id", queueName1.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordered by address desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue3 ordered by address", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue2 ordered by address", queueName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue1 ordered by address", queueName1.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordered by auto create desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "autoCreated", "asc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("pos1 ordered by autocreate", "false", array.getJsonObject(0).getString("autoCreated"));
+      Assert.assertEquals("pos2 ordered by autocreate", "false", array.getJsonObject(1).getString("autoCreated"));
+      Assert.assertEquals("pos3 ordered by autocreate", "true", array.getJsonObject(2).getString("autoCreated"));
+
+      //ordered by filter desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "filter", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue2 ordered by filter", queueName2.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue1 ordered by filter", queueName1.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue3 ordered by filter", queueName3.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordered by max consumers asc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "maxConsumers", "asc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue3 ordered by filter", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue1 ordered by filter", queueName1.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue2 ordered by filter", queueName2.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordering between the pages
+      //page 1
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 1);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      Assert.assertEquals("queue3 ordered by page", queueName3.toString(), array.getJsonObject(0).getString("name"));
+
+      //page 2
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 2, 1);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      Assert.assertEquals("queue2 ordered by page", queueName2.toString(), array.getJsonObject(0).getString("name"));
+
+      //page 3
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 3, 1);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      Assert.assertEquals("queue1 ordered by page", queueName1.toString(), array.getJsonObject(0).getString("name"));
 
    }
 
@@ -1793,7 +1928,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       array = (JsonArray) addressesAsJsonObject.get("data");
 
       Assert.assertEquals("number of addresses returned from query", 1, array.size());
+      //check all field names
       Assert.assertEquals("address name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
+      Assert.assertTrue("routingTypes", array.getJsonObject(0).getString("routingTypes").contains(RoutingType.ANYCAST.name()));
+      Assert.assertEquals("queueCount", "1", array.getJsonObject(0).getString("queueCount"));
 
       //test with empty filter - all addresses should be returned
       filterString = createJsonFilter("", "", "");
@@ -1827,6 +1966,61 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Assert.assertEquals("number of addresses returned from query", 0, array.size());
 
+   }
+
+   @Test
+   public void testListAddressOrder() throws Exception {
+
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+      SimpleString queueName4 = new SimpleString("other_queue_four");
+
+      SimpleString addressName1 = new SimpleString("my_address_1");
+      SimpleString addressName2 = new SimpleString("my_address_2");
+      SimpleString addressName3 = new SimpleString("my_address_3");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(addressName3, RoutingType.ANYCAST));
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName3, null, false, false);
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName4, null, false, false);
+
+      //test default order
+      String filterString = createJsonFilter("name", "CONTAINS", "my");
+      String addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number addresses returned", 3, array.size());
+      Assert.assertEquals("address1 default order", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address2 default order", addressName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("address3 default order", addressName3.toString(), array.getJsonObject(2).getString("name"));
+
+      //test  ordered by name desc
+      filterString = createJsonFilter("name", "CONTAINS", "my", "name", "desc");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number addresses returned", 3, array.size());
+      Assert.assertEquals("address3 ordered by name", addressName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address2 ordered by name", addressName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("address1 ordered by name", addressName1.toString(), array.getJsonObject(2).getString("name"));
+
+      //test  ordered by queue count asc
+      filterString = createJsonFilter("name", "CONTAINS", "my", "queueCount", "asc");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number addresses returned", 3, array.size());
+      Assert.assertEquals("address2 ordered by queue count", addressName2.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address1 ordered by queue count", addressName1.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("address3 ordered by queue count", addressName3.toString(), array.getJsonObject(2).getString("name"));
    }
 
    @Test
@@ -1909,9 +2103,287 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Assert.assertEquals("address name in consumer", addressName2.toString(), jsonConsumer.getString("address"));
          Assert.assertEquals("consumer protocol ", "CORE", jsonConsumer.getString("protocol"));
          Assert.assertEquals("queue type", "anycast", jsonConsumer.getString("queueType"));
-
+         Assert.assertNotEquals("id", "", jsonConsumer.getString("id"));
+         Assert.assertNotEquals("session", "", jsonConsumer.getString("session"));
+         Assert.assertEquals("clientID", "", jsonConsumer.getString("clientID"));
+         Assert.assertEquals("user", "", jsonConsumer.getString("user"));
+         Assert.assertNotEquals("localAddress", "", jsonConsumer.getString("localAddress"));
+         Assert.assertNotEquals("remoteAddress", "", jsonConsumer.getString("remoteAddress"));
+         Assert.assertNotEquals("creationTime", "", jsonConsumer.getString("creationTime"));
       }
 
+   }
+
+   @Test
+   public void testListConsumersOrder() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+
+         ClientSessionImpl session1 = (ClientSessionImpl) csf.createSession();
+         ClientSessionImpl session2 = (ClientSessionImpl) csf.createSession();
+         ClientSessionImpl session3 = (ClientSessionImpl) csf.createSession();
+
+         //sleep - test compares creationTimes
+         ClientConsumer consumer_s1 = session1.createConsumer(queueName1);
+         Thread.sleep(500);
+         ClientConsumer consumer_s2 = session2.createConsumer(queueName1);
+         Thread.sleep(500);
+         ClientConsumer consumer_s3 = session3.createConsumer(queueName1);
+
+         //test default Order
+         String filterString = createJsonFilter("queue", "EQUALS", queueName1.toString());
+         String consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
+         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+
+         Assert.assertEquals("Consumer1 default order", session1.getName(), array.getJsonObject(0).getString("session"));
+         Assert.assertEquals("Consumer2 default order", session2.getName(), array.getJsonObject(1).getString("session"));
+         Assert.assertEquals("Consumer3 default order", session3.getName(), array.getJsonObject(2).getString("session"));
+
+         //test ordered by creationTime
+         filterString = createJsonFilter("queue", "EQUALS", queueName1.toString(), "creationTime", "desc");
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+
+         Assert.assertEquals("Consumer3 creation time", session3.getName(), array.getJsonObject(0).getString("session"));
+         Assert.assertEquals("Consumer2 creation time", session2.getName(), array.getJsonObject(1).getString("session"));
+         Assert.assertEquals("Consumer1 creation time", session1.getName(), array.getJsonObject(2).getString("session"));
+
+      }
+   }
+
+   @Test
+   public void testListSessions() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+
+         ClientSessionImpl session1 = (ClientSessionImpl) csf.createSession();
+         Thread.sleep(500);
+         ClientSessionImpl session2 = (ClientSessionImpl) csf.createSession();
+         Thread.sleep(500);
+         ClientSessionImpl session3 = (ClientSessionImpl) csf.createSession();
+         ClientConsumer consumer1_s1 = session1.createConsumer(queueName1);
+         ClientConsumer consumer2_s1 = session1.createConsumer(queueName1);
+
+         ClientConsumer consumer1_s2 = session2.createConsumer(queueName1);
+         ClientConsumer consumer2_s2 = session2.createConsumer(queueName1);
+         ClientConsumer consumer3_s2 = session2.createConsumer(queueName1);
+         ClientConsumer consumer4_s2 = session2.createConsumer(queueName1);
+
+         ClientConsumer consumer1_s3 = session3.createConsumer(queueName1);
+         ClientConsumer consumer2_s3 = session3.createConsumer(queueName1);
+         ClientConsumer consumer3_s3 = session3.createConsumer(queueName1);
+
+         String filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1");
+         String sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         JsonObject sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         JsonArray array = (JsonArray) sessionsAsJsonObject.get("data");
+
+
+         Assert.assertEquals("number of sessions returned from query", 3, array.size());
+         JsonObject jsonSession = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertNotEquals("id", "", jsonSession.getString("id"));
+         Assert.assertEquals("user", "", jsonSession.getString("user"));
+         Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
+         Assert.assertEquals("consumerCount", 2, jsonSession.getInt("consumerCount"));
+         Assert.assertTrue("producerCount", 0 <= jsonSession.getInt("producerCount"));
+         Assert.assertNotEquals("connectionID", "", jsonSession.getString("connectionID"));
+
+         //check default order
+         Assert.assertEquals("session1 location", session1.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session2 location", session2.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session3 location", session3.getName(), array.getJsonObject(2).getString("id"));
+
+         //bring back session ordered by consumer count
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "consumerCount", "asc");
+         sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         array = (JsonArray) sessionsAsJsonObject.get("data");
+
+         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
+         Assert.assertEquals("session1 ordered by consumer", session1.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session3 ordered by consumer", session3.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session2 ordered by consumer", session2.getName(), array.getJsonObject(2).getString("id"));
+
+         //bring back session ordered by consumer Count
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "consumerCount", "asc");
+         sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         array = (JsonArray) sessionsAsJsonObject.get("data");
+
+         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
+         Assert.assertEquals("session1 ordered by consumer", session1.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session3 ordered by consumer", session3.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session2 ordered by consumer", session2.getName(), array.getJsonObject(2).getString("id"));
+
+         //bring back session ordered by creation time (desc)
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "creationTime", "desc");
+         sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         array = (JsonArray) sessionsAsJsonObject.get("data");
+
+         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
+         Assert.assertEquals("session3 ordered by creationTime", session3.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session2 ordered by creationTime", session2.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session1 ordered by creationTime", session1.getName(), array.getJsonObject(2).getString("id"));
+
+      }
+   }
+
+   @Test
+   public void testListConnections() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      ClientSessionFactoryImpl csf = null;
+      ClientSessionFactoryImpl csf2 = null;
+      ClientSessionFactoryImpl csf3 = null;
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator()) {
+
+         //sleep as test compares creationTime
+         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         Thread.sleep(500);
+         csf2 = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         Thread.sleep(500);
+         csf3 = (ClientSessionFactoryImpl) createSessionFactory(locator);
+
+         ClientSession session1_c1 = csf.createSession();
+         ClientSession session2_c1 = csf.createSession();
+
+         ClientSession session1_c2 = csf2.createSession();
+         ClientSession session2_c2 = csf2.createSession();
+         ClientSession session3_c2 = csf2.createSession();
+         ClientSession session4_c2 = csf2.createSession();
+
+         ClientSession session1_c4 = csf3.createSession();
+         ClientSession session2_c4 = csf3.createSession();
+         ClientSession session3_c4 = csf3.createSession();
+
+         String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
+         String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         JsonObject jsonConnection = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertNotEquals("connectionID", "", jsonConnection.getString("connectionID"));
+         Assert.assertNotEquals("remoteAddress", "", jsonConnection.getString("remoteAddress"));
+         Assert.assertEquals("users", "", jsonConnection.getString("users"));
+         Assert.assertNotEquals("creationTime", "", jsonConnection.getString("creationTime"));
+         Assert.assertNotEquals("implementation", "", jsonConnection.getString("implementation"));
+         Assert.assertNotEquals("protocol", "", jsonConnection.getString("protocol"));
+         Assert.assertEquals("clientID", "", jsonConnection.getString("clientID"));
+         Assert.assertNotEquals("localAddress", "", jsonConnection.getString("localAddress"));
+         Assert.assertEquals("sessionCount", 2, jsonConnection.getInt("sessionCount"));
+
+         //check default order
+         Assert.assertEquals("connection1 default Order", csf.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
+         Assert.assertEquals("connection2 default Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
+         Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+
+         //check order by session count desc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "sessionCount", "desc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection2 session Order", csf2.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
+         Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
+         Assert.assertEquals("connection1 session Order", csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+
+         //check order by creationTime desc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "creationTime", "desc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection3 creationTime Order", csf3.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
+         Assert.assertEquals("connection2 creationTime Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
+         Assert.assertEquals("connection1 creationTime Order", csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+      } finally {
+         if (csf != null) {
+            csf.close();
+         }
+         if (csf2 != null) {
+            csf.close();
+         }
+         if (csf3 != null) {
+            csf.close();
+         }
+      }
+   }
+
+   @Test
+   public void testListProducers() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+
+         ClientSession session1 = csf.createSession();
+         ClientSession session2 = csf.createSession();
+
+         ClientProducer producer1 = session1.createProducer(addressName1);
+         ClientProducer producer2 = session1.createProducer(addressName1);
+
+         //bring back all producers
+         String filterString = createJsonFilter("", "", "");
+         String producersAsJsonString = serverControl.listProducers(filterString, 1, 50);
+         JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+         JsonArray array = (JsonArray) producersAsJsonObject.get("data");
+
+         Assert.assertTrue("number of producers returned from query", 2 <= array.size());
+         JsonObject jsonSession = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertNotEquals("id", "", jsonSession.getString("id"));
+         Assert.assertNotEquals("session", "", jsonSession.getString("session"));
+         Assert.assertEquals("clientID", "", jsonSession.getString("clientID"));
+         Assert.assertEquals("user", "", jsonSession.getString("user"));
+         Assert.assertNotEquals("protocol", "", jsonSession.getString("protocol"));
+         Assert.assertEquals("address", "", jsonSession.getString("address"));
+         Assert.assertNotEquals("localAddress", "", jsonSession.getString("localAddress"));
+         Assert.assertNotEquals("remoteAddress", "", jsonSession.getString("remoteAddress"));
+         Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
+
+      }
    }
 
    @Test
@@ -2126,6 +2598,17 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       filterMap.put("field", fieldName);
       filterMap.put("operation", operationName);
       filterMap.put("value", value);
+      JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
+      return jsonFilterObject.toString();
+   }
+
+   private String createJsonFilter(String fieldName, String operationName, String value,String sortColumn, String sortOrder) {
+      HashMap<String, Object> filterMap = new HashMap<>();
+      filterMap.put("field", fieldName);
+      filterMap.put("operation", operationName);
+      filterMap.put("value", value);
+      filterMap.put("sortColumn", sortColumn);
+      filterMap.put("sortOrder", sortOrder);
       JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
       return jsonFilterObject.toString();
    }

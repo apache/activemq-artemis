@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
-   private static final String defaultSortColumn = "sequentialID";
+   private static final String defaultSortColumn = "id";
 
    private final ActiveMQServer server;
 
@@ -51,18 +51,53 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          return null;
       }
 
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sequentialID", toString(consumer.getSequentialID()))
-         .add("sessionName", toString(consumer.getSessionName()))
-         .add("connectionClientID", toString(consumer.getConnectionClientID()))
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.getSequentialID()))
+         .add("session", toString(consumer.getSessionName()))
+         .add("clientID", toString(consumer.getConnectionClientID()))
          .add("user", toString(session.getUsername()))
-         .add("connectionProtocolName", toString(consumer.getConnectionProtocolName()))
-         .add("queueName", toString(consumer.getQueueName()))
+         .add("protocol", toString(consumer.getConnectionProtocolName()))
+         .add("queue", toString(consumer.getQueueName()))
          .add("queueType", toString(consumer.getQueueType()).toLowerCase())
-         .add("queueAddress", toString(consumer.getQueueAddress().toString()))
-         .add("connectionLocalAddress", toString(consumer.getConnectionLocalAddress()))
-         .add("connectionRemoteAddress", toString(consumer.getConnectionRemoteAddress()))
+         .add("address", toString(consumer.getQueueAddress()))
+         .add("localAddress", toString(consumer.getConnectionLocalAddress()))
+         .add("remoteAddress", toString(consumer.getConnectionRemoteAddress()))
          .add("creationTime", new Date(consumer.getCreationTime()).toString());
       return obj;
+   }
+
+   @Override
+   public Object getField(ServerConsumer consumer, String fieldName) {
+      ServerSession session = server.getSessionByID(consumer.getSessionID());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return consumer.getSequentialID();
+         case "session":
+            return consumer.getSessionName();
+         case "user":
+            return session.getUsername();
+         case "clientID":
+            return consumer.getConnectionClientID();
+         case "protocol":
+            return consumer.getConnectionProtocolName();
+         case "queue":
+            return consumer.getQueueName();
+         case "queueType":
+            return consumer.getQueueType();
+         case "localAddress":
+            return consumer.getConnectionLocalAddress();
+         case "remoteAddress":
+            return consumer.getConnectionRemoteAddress();
+         case "creationTime":
+            return new Date(consumer.getCreationTime());
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

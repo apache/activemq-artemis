@@ -31,7 +31,7 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listSessions(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'name',
+                field: 'id',
                 displayName: 'ID',
                 width: '*'
             },
@@ -42,7 +42,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 cellTemplate: '<div class="ngCellText"><a ng-click="selectConnection(row)">{{row.entity.connectionID}}</a></div>'
             },
             {
-                field: 'username',
+                field: 'user',
                 displayName: 'User',
                 width: '*'
             },
@@ -86,7 +86,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "name"
+                sortBy: "id"
             }
         };
         // Configure Parent/Child click through relationships
@@ -161,8 +161,8 @@ var ARTEMIS = (function(ARTEMIS) {
             currentPage: 1
         };
         $scope.sortOptions = {
-            fields: ["name"],
-            columns: ["name"],
+            fields: ["id"],
+            columns: ["id"],
             directions: ["asc"]
         };
         var refreshed = false;
