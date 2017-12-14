@@ -39,7 +39,9 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -259,6 +261,98 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
          } catch (InvalidDestinationException e) {
             //expected.
          }
+
+      } finally {
+         if (exConn != null) {
+            exConn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testVirtualTopicFQQN() throws Exception {
+      Connection exConn = null;
+
+      SimpleString topic = new SimpleString("VirtualTopic.Orders");
+      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+
+      this.server.addAddressInfo(new AddressInfo(topic, RoutingType.MULTICAST));
+      this.server.createQueue(topic, RoutingType.MULTICAST, subscriptionQ, null, true, false, -1, false, true);
+
+      try {
+         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
+         exFact.setWatchTopicAdvisories(false);
+         exConn = exFact.createConnection();
+         exConn.start();
+
+         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createTopic(topic.toString());
+         MessageProducer producer = session.createProducer(destination);
+
+         Destination destinationFQN = session.createQueue(CompositeAddress.toFullQN(topic, subscriptionQ).toString());
+         MessageConsumer messageConsumerA = session.createConsumer(destinationFQN);
+         MessageConsumer messageConsumerB = session.createConsumer(destinationFQN);
+
+         TextMessage message = session.createTextMessage("This is a text message");
+         producer.send(message);
+
+         // only one consumer should get the message
+         TextMessage messageReceivedA = (TextMessage) messageConsumerA.receive(2000);
+         TextMessage messageReceivedB = (TextMessage) messageConsumerB.receive(2000);
+
+         assertTrue((messageReceivedA == null || messageReceivedB == null));
+         String text = messageReceivedA != null ? messageReceivedA.getText() : messageReceivedB.getText();
+         assertEquals("This is a text message", text);
+
+         messageConsumerA.close();
+         messageConsumerB.close();
+
+      } finally {
+         if (exConn != null) {
+            exConn.close();
+         }
+      }
+   }
+
+   @Test
+   @Ignore("need to figure auto bindings creation")
+   public void testVirtualTopicFQQNAutoCreate() throws Exception {
+      Connection exConn = null;
+
+      SimpleString topic = new SimpleString("VirtualTopic.Orders");
+      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setDefaultAddressRoutingType(RoutingType.MULTICAST);
+
+      try {
+         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
+         exFact.setWatchTopicAdvisories(false);
+         exConn = exFact.createConnection();
+         exConn.start();
+
+         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createTopic(topic.toString());
+         MessageProducer producer = session.createProducer(destination);
+
+         Destination destinationFQN = session.createQueue(CompositeAddress.toFullQN(topic, subscriptionQ).toString());
+
+         MessageConsumer messageConsumerA = session.createConsumer(destinationFQN);
+         MessageConsumer messageConsumerB = session.createConsumer(destinationFQN);
+
+         TextMessage message = session.createTextMessage("This is a text message");
+         producer.send(message);
+
+         // only one consumer should get the message
+         TextMessage messageReceivedA = (TextMessage) messageConsumerA.receive(2000);
+         TextMessage messageReceivedB = (TextMessage) messageConsumerB.receive(2000);
+
+         assertTrue((messageReceivedA == null || messageReceivedB == null));
+         String text = messageReceivedA != null ? messageReceivedA.getText() : messageReceivedB.getText();
+         assertEquals("This is a text message", text);
+
+         messageConsumerA.close();
+         messageConsumerB.close();
 
       } finally {
          if (exConn != null) {
