@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.ResponseHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -96,6 +97,8 @@ public final class ChannelImpl implements Channel {
 
    private final java.util.Queue<Packet> resendCache;
 
+   private final ResponseCache responseAsyncCache;
+
    private int firstStoredCommandID;
 
    private final AtomicInteger lastConfirmedCommandID = new AtomicInteger(-1);
@@ -138,8 +141,10 @@ public final class ChannelImpl implements Channel {
 
       if (confWindowSize != -1) {
          resendCache = new ConcurrentLinkedQueue<>();
+         responseAsyncCache = new ResponseCache();
       } else {
          resendCache = null;
+         responseAsyncCache = null;
       }
 
       this.interceptors = interceptors;
@@ -211,7 +216,11 @@ public final class ChannelImpl implements Channel {
       lock.lock();
 
       try {
-         response = new ActiveMQExceptionMessage(ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause));
+         ActiveMQException activeMQException = ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause);
+         if (responseAsyncCache != null) {
+            responseAsyncCache.errorAll(activeMQException);
+         }
+         response = new ActiveMQExceptionMessage(activeMQException);
 
          sendCondition.signal();
       } finally {
@@ -270,6 +279,10 @@ public final class ChannelImpl implements Channel {
       synchronized (sendLock) {
          packet.setChannelID(id);
 
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            packet.setCorrelationID(responseAsyncCache.nextCorrelationID());
+         }
+
          if (logger.isTraceEnabled()) {
             logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Sending packet nonblocking " + packet + " on channelID=" + id);
          }
@@ -291,6 +304,7 @@ public final class ChannelImpl implements Channel {
             if (resendCache != null && packet.isRequiresConfirmations()) {
                addResendPacket(packet);
             }
+
          } finally {
             lock.unlock();
          }
@@ -301,9 +315,30 @@ public final class ChannelImpl implements Channel {
 
          checkReconnectID(reconnectID);
 
+         //We do this outside the lock as ResponseCache is threadsafe and allows responses to come in,
+         //As the send could block if the response cache is cannot add, preventing responses to be handled.
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            while (!responseAsyncCache.add(packet)) {
+               try {
+                  Thread.sleep(1);
+               } catch (Exception e) {
+                  // Ignore
+               }
+            }
+         }
+
          // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
          // buffer is full, preventing any incoming buffers being handled and blocking failover
-         connection.getTransportConnection().write(buffer, flush, batch);
+         try {
+            connection.getTransportConnection().write(buffer, flush, batch);
+         } catch (Throwable t) {
+            //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
+            //The client would get still know about this as the exception bubbles up the call stack instead.
+            if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+               responseAsyncCache.remove(packet.getCorrelationID());
+            }
+            throw t;
+         }
          return true;
       }
    }
@@ -478,6 +513,18 @@ public final class ChannelImpl implements Channel {
    }
 
    @Override
+   public void setResponseHandler(final ResponseHandler responseHandler) {
+      if (confWindowSize < 0) {
+         final String msg = "You can't set responseHandler on a connection with confirmation-window-size < 0." + " Look at the documentation for more information.";
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " " + msg);
+         }
+         throw new IllegalStateException(msg);
+      }
+      responseAsyncCache.setResponseHandler(responseHandler);
+   }
+
+   @Override
    public void setHandler(final ChannelHandler handler) {
       if (logger.isTraceEnabled()) {
          logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Setting handler on " + this + " as " + handler);
@@ -595,6 +642,12 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   public void handleResponse(Packet packet) {
+      if (responseAsyncCache != null && packet.isResponseAsync()) {
+         responseAsyncCache.handleResponse(packet);
+      }
+   }
+
    @Override
    public void confirm(final Packet packet) {
       if (resendCache != null && packet.isRequiresConfirmations()) {
@@ -647,6 +700,7 @@ public final class ChannelImpl implements Channel {
          if (packet.isResponse()) {
             confirm(packet);
 
+            handleResponse(packet);
             lock.lock();
 
             try {

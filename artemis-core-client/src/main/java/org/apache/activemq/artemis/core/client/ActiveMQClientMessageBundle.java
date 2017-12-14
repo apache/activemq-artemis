@@ -234,4 +234,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 119062, value = "Multi-packet transmission (e.g. Large Messages) interrupted because of a reconnection.")
    ActiveMQInterruptedException packetTransmissionInterrupted();
+
+   @Message(id = 119063, value = "Cannot send a packet while response cache is full.")
+   IllegalStateException cannotSendPacketWhilstResponseCacheFull();
 }
