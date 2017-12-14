@@ -111,6 +111,9 @@
       <version.org.jacoco>0.7.9</version.org.jacoco>
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
 
+      <!-- used on tests -->
+      <groovy.version>2.4.3</groovy.version>
+
       <owasp.version>1.4.3</owasp.version>
       <spring.version>5.0.1.RELEASE</spring.version>
 
@@ -126,6 +129,7 @@
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
       <skipIntegrationTests>true</skipIntegrationTests>
+      <skipCompatibilityTests>true</skipCompatibilityTests>
       <skipSmokeTests>true</skipSmokeTests>
       <skipJoramTests>true</skipJoramTests>
       <skipTimingTests>true</skipTimingTests>
@@ -959,6 +963,7 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipIntegrationTests>false</skipIntegrationTests>
+            <skipCompatibilityTests>false</skipCompatibilityTests>
             <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>
             <skipConcurrentTests>false</skipConcurrentTests>
@@ -1005,6 +1010,7 @@
             <skipExtraTests>true</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
+            <skipCompatibilityTests>false</skipCompatibilityTests>
          </properties>
       </profile>
       <profile>
