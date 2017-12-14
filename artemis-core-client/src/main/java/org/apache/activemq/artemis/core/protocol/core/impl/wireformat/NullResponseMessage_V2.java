@@ -17,63 +17,62 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
-public class ActiveMQExceptionMessage extends PacketImpl {
+public class NullResponseMessage_V2 extends NullResponseMessage {
 
-   protected ActiveMQException exception;
+   private long correlationID;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   public ActiveMQExceptionMessage(final ActiveMQException exception) {
-      super(EXCEPTION);
-
-      this.exception = exception;
+   public NullResponseMessage_V2(final long correlationID) {
+      super();
+      this.correlationID = correlationID;
    }
 
-   public ActiveMQExceptionMessage() {
-      super(EXCEPTION);
+   public NullResponseMessage_V2() {
+      super();
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public boolean isResponse() {
-      return true;
-   }
-
-   public ActiveMQException getException() {
-      return exception;
+   public long getCorrelationID() {
+      return correlationID;
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
-      buffer.writeInt(exception.getType().getCode());
-      buffer.writeNullableString(exception.getMessage());
+      super.encodeRest(buffer);
+      buffer.writeLong(correlationID);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
-      int code = buffer.readInt();
-      String msg = buffer.readNullableString();
+      super.decodeRest(buffer);
+      if (buffer.readableBytes() >= DataConstants.SIZE_LONG) {
+         correlationID = buffer.readLong();
+      }
+   }
 
-      exception = ActiveMQExceptionType.createException(code, msg);
+   @Override
+   public final boolean isResponse() {
+      return true;
+   }
+
+   @Override
+   public final boolean isResponseAsync() {
+      return true;
    }
 
    @Override
    public String toString() {
-      return getParentString() + ", exception= " + exception + "]";
+      return getParentString() + ", correlationID=" + correlationID + "]";
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + ((exception == null) ? 0 : exception.hashCode());
+      result = prime * result + (int) (correlationID ^ (correlationID >>> 32));
       return result;
    }
 
@@ -85,15 +84,11 @@ public class ActiveMQExceptionMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ActiveMQExceptionMessage)) {
+      if (!(obj instanceof NullResponseMessage_V2)) {
          return false;
       }
-      ActiveMQExceptionMessage other = (ActiveMQExceptionMessage) obj;
-      if (exception == null) {
-         if (other.exception != null) {
-            return false;
-         }
-      } else if (!exception.equals(other.exception)) {
+      NullResponseMessage_V2 other = (NullResponseMessage_V2) obj;
+      if (correlationID != other.correlationID) {
          return false;
       }
       return true;

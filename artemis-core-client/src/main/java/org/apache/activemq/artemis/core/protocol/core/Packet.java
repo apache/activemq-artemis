@@ -41,6 +41,14 @@ public interface Packet {
       return INITIAL_PACKET_SIZE;
    }
 
+   boolean isRequiresResponse();
+
+   boolean isResponseAsync();
+
+   long getCorrelationID();
+
+   void setCorrelationID(long correlationID);
+
    /**
     * Returns the channel id of the channel that should handle this packet.
     *
