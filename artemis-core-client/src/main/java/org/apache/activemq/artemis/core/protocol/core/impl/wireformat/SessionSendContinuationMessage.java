@@ -26,10 +26,10 @@ import org.apache.activemq.artemis.utils.DataConstants;
  */
 public class SessionSendContinuationMessage extends SessionContinuationMessage {
 
-   private boolean requiresResponse;
+   protected boolean requiresResponse;
 
    // Used on confirmation handling
-   private Message message;
+   protected Message message;
    /**
     * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
     * <br>
@@ -43,7 +43,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    /**
     * to be sent on the last package
     */
-   private long messageBodySize = -1;
+   protected long messageBodySize = -1;
 
    // Static --------------------------------------------------------
 
@@ -51,6 +51,11 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
 
    public SessionSendContinuationMessage() {
       super(SESS_SEND_CONTINUATION);
+      handler = null;
+   }
+
+   protected SessionSendContinuationMessage(byte type) {
+      super(type);
       handler = null;
    }
 
@@ -72,11 +77,31 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       this.messageBodySize = messageBodySize;
    }
 
+   /**
+    * @param body
+    * @param continues
+    * @param requiresResponse
+    */
+   protected SessionSendContinuationMessage(final byte type,
+                                         final Message message,
+                                         final byte[] body,
+                                         final boolean continues,
+                                         final boolean requiresResponse,
+                                         final long messageBodySize,
+                                         SendAcknowledgementHandler handler) {
+      super(type, body, continues);
+      this.requiresResponse = requiresResponse;
+      this.message = message;
+      this.handler = handler;
+      this.messageBodySize = messageBodySize;
+   }
+
    // Public --------------------------------------------------------
 
    /**
     * @return the requiresResponse
     */
+   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }
