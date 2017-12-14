@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Disconnect
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ExceptionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
@@ -71,6 +72,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQue
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage;
@@ -88,6 +90,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAS
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SuccessResponseMessage;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CHECK_FOR_FAILOVER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY;
@@ -105,6 +108,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DIS
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION_RESPONSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.NULL_RESPONSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.PACKETS_CONFIRMED;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.PING;
@@ -136,6 +140,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_CONTINUATION;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_ROLLBACK;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND_CONTINUATION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND_CONTINUATION_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_START;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_STOP;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_UNIQUE_ADD_METADATA;
@@ -158,6 +163,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_XA_SUSPEND;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SUBSCRIBE_TOPOLOGY;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SUBSCRIBE_TOPOLOGY_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SUCCESS_RESPONSE;
 
 public abstract class PacketDecoder implements Serializable {
 
@@ -187,8 +193,20 @@ public abstract class PacketDecoder implements Serializable {
             packet = new ActiveMQExceptionMessage();
             break;
          }
+         case EXCEPTION_RESPONSE: {
+            packet = new ExceptionResponseMessage();
+            break;
+         }
          case PACKETS_CONFIRMED: {
             packet = new PacketsConfirmedMessage();
+            break;
+         }
+         case NULL_RESPONSE: {
+            packet = new NullResponseMessage();
+            break;
+         }
+         case SUCCESS_RESPONSE: {
+            packet = new SuccessResponseMessage();
             break;
          }
          case CREATESESSION: {
@@ -383,16 +401,16 @@ public abstract class PacketDecoder implements Serializable {
             packet = new SessionIndividualAcknowledgeMessage();
             break;
          }
-         case NULL_RESPONSE: {
-            packet = new NullResponseMessage();
-            break;
-         }
          case SESS_RECEIVE_CONTINUATION: {
             packet = new SessionReceiveContinuationMessage();
             break;
          }
          case SESS_SEND_CONTINUATION: {
             packet = new SessionSendContinuationMessage();
+            break;
+         }
+         case SESS_SEND_CONTINUATION_V2: {
+            packet = new SessionSendContinuationMessage_V2();
             break;
          }
          case SESS_PRODUCER_REQUEST_CREDITS: {
