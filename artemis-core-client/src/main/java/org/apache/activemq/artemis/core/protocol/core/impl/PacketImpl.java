@@ -30,6 +30,8 @@ public class PacketImpl implements Packet {
 
 
    public static final int ADDRESSING_CHANGE_VERSION = 129;
+   public static final int ASYNC_RESPONSE_CHANGE_VERSION = 130;
+
 
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
    public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
@@ -62,6 +64,10 @@ public class PacketImpl implements Packet {
    public static final byte NULL_RESPONSE = 21;
 
    public static final byte PACKETS_CONFIRMED = 22;
+
+   public static final byte SUCCESS_RESPONSE = 23;
+
+   public static final byte EXCEPTION_RESPONSE = 24;
 
    // Server
    public static final byte CREATESESSION = 30;
@@ -267,6 +273,11 @@ public class PacketImpl implements Packet {
 
    public static final byte SESS_BINDINGQUERY_RESP_V4 = -15;
 
+   public static final byte SESS_SEND_V2 = -16;
+
+   public static final byte SESS_SEND_CONTINUATION_V2 = -17;
+
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {
@@ -432,6 +443,25 @@ public class PacketImpl implements Packet {
 
    protected int nullableStringEncodeSize(final String str) {
       return DataConstants.SIZE_BOOLEAN + (str != null ? stringEncodeSize(str) : 0);
+   }
+
+   @Override
+   public boolean isRequiresResponse() {
+      return false;
+   }
+
+   @Override
+   public boolean isResponseAsync() {
+      return false;
+   }
+
+   @Override
+   public long getCorrelationID() {
+      return -1;
+   }
+
+   @Override
+   public void setCorrelationID(long correlationID) {
    }
 
 

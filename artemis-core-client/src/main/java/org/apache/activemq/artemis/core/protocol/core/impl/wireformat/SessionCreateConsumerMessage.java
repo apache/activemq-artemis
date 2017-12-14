@@ -71,6 +71,7 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
       return browseOnly;
    }
 
+   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }
