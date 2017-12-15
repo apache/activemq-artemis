@@ -17,7 +17,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
     <core xmlns="urn:activemq:core">
         <security-enabled>false</security-enabled>
 
@@ -60,7 +60,6 @@ under the License.
 
         <cluster-connections>
             <cluster-connection name="my-cluster">
-              <!--  <address>test/+/some/#</address> -->
                 <connector-ref>netty-connector</connector-ref>
                 <retry-interval>5</retry-interval>
                 <use-duplicate-detection>true</use-duplicate-detection>
