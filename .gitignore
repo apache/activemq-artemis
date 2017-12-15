@@ -12,6 +12,7 @@ ratReport.txt
 .factorypath
 **/.editorconfig
 **/derby.log
+examples/**/readme.html
 
 # for native build
 CMakeCache.txt

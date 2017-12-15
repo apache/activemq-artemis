@@ -28,7 +28,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.handler.ssl.SslHandler;
@@ -45,8 +44,6 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.jboss.logging.Logger;
-
-import javax.net.ssl.SSLPeerUnverifiedException;
 
 public class NettyConnection implements Connection {
 
@@ -497,17 +494,6 @@ public class NettyConnection implements Connection {
    //never allow this
    @Override
    public final ActiveMQPrincipal getDefaultActiveMQPrincipal() {
-      ChannelHandler channelHandler = channel.pipeline().get("ssl");
-      if (channelHandler != null && channelHandler instanceof SslHandler) {
-         SslHandler sslHandler = (SslHandler) channelHandler;
-         try {
-            return new ActiveMQPrincipal(sslHandler.engine().getSession().getPeerPrincipal().getName(), "");
-         } catch (SSLPeerUnverifiedException ignored) {
-            if (logger.isTraceEnabled()) {
-               logger.trace(ignored.getMessage(), ignored);
-            }
-         }
-      }
       return null;
    }
 

@@ -192,10 +192,11 @@ public class MQTTSubscriptionManager {
       SimpleString internalQueueName = getQueueNameForTopic(internalAddress);
       session.getSessionState().removeSubscription(address);
 
+
       ServerConsumer consumer = consumers.get(address);
       consumers.remove(address);
       if (consumer != null) {
-         consumer.removeItself();
+         consumer.close(false);
          consumerQoSLevels.remove(consumer.getID());
       }
 
