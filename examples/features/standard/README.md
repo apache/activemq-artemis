@@ -7,7 +7,7 @@ To run an individual example firstly cd into the example directory and run
 mvn verify
 ```
 
-Most examples offer a way to start them without creating and starting the server (say if you want to do it manually)
+Most examples offer a way to start them without creating and starting the broker (say if you want to do it manually)
 
 ```sh
 mvn verify -PnoServer

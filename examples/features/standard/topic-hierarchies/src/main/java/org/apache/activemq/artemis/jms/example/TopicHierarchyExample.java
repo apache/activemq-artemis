@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * This example demonstrates how a JMS TopicSubscriber can be created to subscribe to a wild-card Topic.
  *
- * For more information please see the readme.html
+ * For more information please see the readme
  */
 public class TopicHierarchyExample {
 

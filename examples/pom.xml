@@ -49,6 +49,28 @@ under the License.
       </repository>
    </repositories>
 
+   <build>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-clean-plugin</artifactId>
+               <version>3.0.0</version>
+               <configuration>
+                  <filesets>
+                     <fileset>
+                        <directory>${basedir}</directory>
+                        <includes>
+                           <include>readme.html</include>
+                        </includes>
+                     </fileset>
+                  </filesets>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+   </build>
+
    <pluginRepositories>
       <pluginRepository>
          <id>apache.snapshots</id>
@@ -82,6 +104,31 @@ under the License.
             <noServer>true</noServer>
             <noClient>true</noClient>
          </properties>
+         <build>
+            <pluginManagement>
+               <plugins>
+                  <plugin>
+                     <groupId>com.vladsch.flexmark</groupId>
+                     <artifactId>markdown-page-generator-plugin</artifactId>
+                     <version>0.27.0</version>
+                     <executions>
+                        <execution>
+                           <phase>package</phase>
+                           <goals>
+                              <goal>generate</goal>
+                           </goals>
+                        </execution>
+                     </executions>
+                     <configuration>
+                        <headerHtmlFile>${activemq.basedir}/examples/common/header.html</headerHtmlFile>
+                        <footerHtmlFile>${activemq.basedir}/examples/common/footer.html</footerHtmlFile>
+                        <inputDirectory>${basedir}</inputDirectory>
+                        <outputDirectory>${basedir}</outputDirectory>
+                     </configuration>
+                  </plugin>
+               </plugins>
+            </pluginManagement>
+         </build>
       </profile>
       <profile>
          <!-- the profile release won't execute anything. just compile and whatever else is needed -->

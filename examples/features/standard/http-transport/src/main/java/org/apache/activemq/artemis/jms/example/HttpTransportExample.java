@@ -23,28 +23,28 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import javax.naming.InitialContext;
 
 /**
- * A simple JMS Queue example that uses HTTP protocol.
+ * A simple JMS Queue example that uses the HTTP protocol.
  */
 public class HttpTransportExample {
 
    public static void main(final String[] args) throws Exception {
       Connection connection = null;
+      InitialContext initialContext = null;
       try {
-         // Step 2. Perfom a lookup on the queue
-         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
+         // Step 1. Create an initial context to perform the JNDI lookup.
+         initialContext = new InitialContext();
+
+         // Step 2. Perform a lookup on the queue
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:8080?httpEnabled=true");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();
-
-         System.out.println("connection created: " + connection);
 
          // Step 5. Create a JMS Session
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -70,8 +70,11 @@ public class HttpTransportExample {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
       } finally {
+         // Step 12. Be sure to close our JMS resources!
+         if (initialContext != null) {
+            initialContext.close();
+         }
          if (connection != null) {
             connection.close();
          }
