@@ -497,17 +497,6 @@ public class NettyConnection implements Connection {
    //never allow this
    @Override
    public final ActiveMQPrincipal getDefaultActiveMQPrincipal() {
-      ChannelHandler channelHandler = channel.pipeline().get("ssl");
-      if (channelHandler != null && channelHandler instanceof SslHandler) {
-         SslHandler sslHandler = (SslHandler) channelHandler;
-         try {
-            return new ActiveMQPrincipal(sslHandler.engine().getSession().getPeerPrincipal().getName(), "");
-         } catch (SSLPeerUnverifiedException ignored) {
-            if (logger.isTraceEnabled()) {
-               logger.trace(ignored.getMessage(), ignored);
-            }
-         }
-      }
       return null;
    }
 
