@@ -29,7 +29,7 @@
          <access method="*" roles="amq"/>
       </default-access>
       <role-access>
-         <match domain="org.apache.activemq.apache">
+         <match domain="org.apache.activemq.artemis">
             <access method="list*" roles="view,update,amq"/>
             <access method="get*" roles="view,update,amq"/>
             <access method="is*" roles="view,update,amq"/>
@@ -37,7 +37,7 @@
             <access method="*" roles="amq"/>
          </match>
          <!--example of how to configure a specific object-->
-         <!--<match domain="org.apache.activemq.apache" key="subcomponent=queues">
+         <!--<match domain="org.apache.activemq.artemis" key="subcomponent=queues">
             <access method="list*" roles="view,update,amq"/>
             <access method="get*" roles="view,update,amq"/>
             <access method="is*" roles="view,update,amq"/>
