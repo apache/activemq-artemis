@@ -186,11 +186,11 @@ public class JMXAccessControlList {
 
       accessControlList.addToWhiteList("hawtio", "type=*");
 
-      accessControlList.addToRoleAccess("org.apache.activemq.apache", null, "list*", "view", "update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.apache", null,"get*", "view", "update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.apache", null,"is*", "view", "update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.apache", null,"set*","update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.apache", null,"*", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "list*", "view", "update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"get*", "view", "update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"is*", "view", "update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"set*","update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"*", "amq");
 
       accessControlList.addToDefaultAccess("list*", "view", "update", "amq");
       accessControlList.addToDefaultAccess("get*", "view", "update", "amq");
