@@ -80,7 +80,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
    private static final String AMQ_MSG_CLUSTER = AMQ_PREFIX + "CLUSTER";
    private static final String AMQ_MSG_COMMAND_ID = AMQ_PREFIX + "COMMAND_ID";
    private static final String AMQ_MSG_DATASTRUCTURE = AMQ_PREFIX + "DATASTRUCTURE";
-   private static final String AMQ_MSG_GROUP_ID = AMQ_PREFIX + "GROUP_ID";
+   private static final String AMQ_MSG_GROUP_ID = org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID.toString();
    private static final String AMQ_MSG_GROUP_SEQUENCE = AMQ_PREFIX + "GROUP_SEQUENCE";
    private static final String AMQ_MSG_MESSAGE_ID = AMQ_PREFIX + "MESSAGE_ID";
    private static final String AMQ_MSG_ORIG_DESTINATION = AMQ_PREFIX + "ORIG_DESTINATION";
@@ -698,7 +698,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
 
       amqMsg.setDestination(OpenWireUtil.toAMQAddress(coreMessage, actualDestination));
 
-      Object value = coreMessage.getObjectProperty(AMQ_MSG_GROUP_ID);
+      Object value = coreMessage.getGroupID();
       if (value != null) {
          String groupId = value.toString();
          amqMsg.setGroupID(groupId);
