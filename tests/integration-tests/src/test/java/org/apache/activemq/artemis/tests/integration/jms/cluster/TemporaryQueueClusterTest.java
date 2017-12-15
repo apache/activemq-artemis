@@ -83,7 +83,6 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
       }
    }
 
-   // TODO: this is broken because temporary queues are no longer created with the "jms.temp-queue" prefix which means the cluster-connection won't match it
    @Test
    public void testTemporaryQueue() throws Exception {
       jmsServer1.createQueue(false, QUEUE_NAME, null, false, "/queue/target");
