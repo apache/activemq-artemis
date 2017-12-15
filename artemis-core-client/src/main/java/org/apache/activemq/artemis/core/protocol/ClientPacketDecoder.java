@@ -19,10 +19,12 @@ package org.apache.activemq.artemis.core.protocol;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveClientLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage_1X;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
@@ -33,10 +35,10 @@ public class ClientPacketDecoder extends PacketDecoder {
    public static final ClientPacketDecoder INSTANCE = new ClientPacketDecoder();
 
    @Override
-   public Packet decode(final ActiveMQBuffer in) {
+   public Packet decode(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final byte packetType = in.readByte();
 
-      Packet packet = decode(packetType);
+      Packet packet = decode(packetType, connection);
 
       packet.decode(in);
 
@@ -44,12 +46,16 @@ public class ClientPacketDecoder extends PacketDecoder {
    }
 
    @Override
-   public Packet decode(byte packetType) {
+   public Packet decode(byte packetType, CoreRemotingConnection connection) {
       Packet packet;
 
       switch (packetType) {
          case SESS_RECEIVE_MSG: {
-            packet = new SessionReceiveMessage(new ClientMessageImpl());
+            if (connection.isVersionBeforeAddressChange()) {
+               packet = new SessionReceiveMessage_1X(new ClientMessageImpl());
+            } else {
+               packet = new SessionReceiveMessage(new ClientMessageImpl());
+            }
             break;
          }
          case SESS_RECEIVE_LARGE_MSG: {
@@ -57,7 +63,7 @@ public class ClientPacketDecoder extends PacketDecoder {
             break;
          }
          default: {
-            packet = super.decode(packetType);
+            packet = super.decode(packetType, connection);
          }
       }
       return packet;

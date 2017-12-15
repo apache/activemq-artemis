@@ -53,9 +53,8 @@ server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);
 server.start();
 
-// uncomment this line to validate https://issues.apache.org/jira/browse/ARTEMIS-1561
-// this api exists on both 1.4 and 2.x... so, this one was preferred for this
-if (producer.toString().startsWith("HORNETQ")) {
-    // hornetq servers won't auto-create
+// uncomment this next statements to validate https://issues.apache.org/jira/browse/ARTEMIS-1561
+if (producer.toString().equals("ARTEMIS-140") && type.equals("ARTEMIS-SNAPSHOT") ||
+    producer.toString().startsWith("HORNETQ")) {
     server.getJMSServerManager().createQueue(true, "queue", null, true);
 }

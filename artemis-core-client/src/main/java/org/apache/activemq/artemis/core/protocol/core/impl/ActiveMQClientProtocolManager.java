@@ -326,6 +326,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          }
       }
       while (retry);
+      sessionChannel.getConnection().setChannelVersion(response.getServerVersion());
       return newSessionContext(name, confirmationWindowSize, sessionChannel, response);
 
    }
