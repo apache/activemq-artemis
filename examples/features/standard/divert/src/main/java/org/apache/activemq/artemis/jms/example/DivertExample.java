@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  * This examples demonstrates the use of ActiveMQ Artemis "Diverts" to transparently divert or copy messages
  * from one address to another.
  *
- * Please see the readme.html for more information.
+ * Please see the readme for more information.
  */
 public class DivertExample {
 

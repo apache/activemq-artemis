@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>stomp1.1</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Stomp Example</name>
+   <name>ActiveMQ Artemis Stomp 1.1 Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -102,7 +102,23 @@ under the License.
                </dependency>
             </dependencies>
          </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+         </plugin>
       </plugins>
    </build>
-
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>com.vladsch.flexmark</groupId>
+                  <artifactId>markdown-page-generator-plugin</artifactId>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>

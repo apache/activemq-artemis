@@ -24,8 +24,7 @@ import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
 
 /**
- * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
- * nodes of the cluster.
+ * A simple example that demonstrates an MQTT subscription on different nodes of the cluster.
  */
 public class ClusteredQueueMQTTExample {
 
