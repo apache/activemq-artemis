@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenwireMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
@@ -104,7 +105,7 @@ public class AMQSession implements SessionCallback {
    }
 
    public OpenWireMessageConverter getConverter() {
-      return protocolManager.getInternalConverter();
+      return converter;
    }
 
    public void initialize() {
@@ -315,7 +316,7 @@ public class AMQSession implements SessionCallback {
          actualDestinations = new ActiveMQDestination[]{destination};
       }
 
-      org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend);
+      OpenwireMessage originalCoreMsg = getConverter().inbound(messageSend);
 
       if (connection.isNoLocal()) {
          //Note: advisory messages are dealt with in
@@ -343,7 +344,7 @@ public class AMQSession implements SessionCallback {
       for (int i = 0; i < actualDestinations.length; i++) {
          ActiveMQDestination dest = actualDestinations[i];
          SimpleString address = new SimpleString(dest.getPhysicalName());
-         org.apache.activemq.artemis.api.core.Message coreMsg = originalCoreMsg.copy();
+         OpenwireMessage coreMsg = originalCoreMsg.copy();
          coreMsg.setAddress(address);
 
          if (actualDestinations[i].isQueue()) {
