@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
@@ -51,6 +52,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCon
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
@@ -84,51 +86,58 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
    private static final long serialVersionUID = 3348673114388400766L;
    public static final ServerPacketDecoder INSTANCE = new ServerPacketDecoder();
 
-   private static SessionSendMessage decodeSessionSendMessage(final ActiveMQBuffer in) {
-      final SessionSendMessage sendMessage = new SessionSendMessage(new CoreMessage());
+   private static SessionSendMessage decodeSessionSendMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
+      final SessionSendMessage sendMessage;
+
+      if (connection.isVersionBeforeAddressChange()) {
+         sendMessage = new SessionSendMessage_1X(new CoreMessage());
+      } else {
+         sendMessage = new SessionSendMessage(new CoreMessage());
+      }
+
       sendMessage.decode(in);
       return sendMessage;
    }
 
-   private static SessionAcknowledgeMessage decodeSessionAcknowledgeMessage(final ActiveMQBuffer in) {
+   private static SessionAcknowledgeMessage decodeSessionAcknowledgeMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final SessionAcknowledgeMessage acknowledgeMessage = new SessionAcknowledgeMessage();
       acknowledgeMessage.decode(in);
       return acknowledgeMessage;
    }
 
-   private static SessionRequestProducerCreditsMessage decodeRequestProducerCreditsMessage(final ActiveMQBuffer in) {
+   private static SessionRequestProducerCreditsMessage decodeRequestProducerCreditsMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final SessionRequestProducerCreditsMessage requestProducerCreditsMessage = new SessionRequestProducerCreditsMessage();
       requestProducerCreditsMessage.decode(in);
       return requestProducerCreditsMessage;
    }
 
-   private static SessionConsumerFlowCreditMessage decodeSessionConsumerFlowCreditMessage(final ActiveMQBuffer in) {
+   private static SessionConsumerFlowCreditMessage decodeSessionConsumerFlowCreditMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final SessionConsumerFlowCreditMessage sessionConsumerFlowCreditMessage = new SessionConsumerFlowCreditMessage();
       sessionConsumerFlowCreditMessage.decode(in);
       return sessionConsumerFlowCreditMessage;
    }
 
    @Override
-   public Packet decode(final ActiveMQBuffer in) {
+   public Packet decode(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final byte packetType = in.readByte();
       //optimized for the most common cases: hottest and commons methods will be inlined and this::decode too due to the byte code size
       switch (packetType) {
          case SESS_SEND:
-            return decodeSessionSendMessage(in);
+            return decodeSessionSendMessage(in, connection);
          case SESS_ACKNOWLEDGE:
-            return decodeSessionAcknowledgeMessage(in);
+            return decodeSessionAcknowledgeMessage(in, connection);
          case SESS_PRODUCER_REQUEST_CREDITS:
-            return decodeRequestProducerCreditsMessage(in);
+            return decodeRequestProducerCreditsMessage(in, connection);
          case SESS_FLOWTOKEN:
-            return decodeSessionConsumerFlowCreditMessage(in);
+            return decodeSessionConsumerFlowCreditMessage(in, connection);
          default:
-            return slowPathDecode(in, packetType);
+            return slowPathDecode(in, packetType, connection);
       }
    }
 
 
    // separating for performance reasons
-   private Packet slowPathDecode(ActiveMQBuffer in, byte packetType) {
+   private Packet slowPathDecode(ActiveMQBuffer in, byte packetType, CoreRemotingConnection connection) {
       Packet packet;
 
       switch (packetType) {
@@ -242,7 +251,7 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
             break;
          }
          default: {
-            packet = super.decode(packetType);
+            packet = super.decode(packetType, connection);
          }
       }
 

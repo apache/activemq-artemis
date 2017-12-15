@@ -21,8 +21,8 @@ import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PacketImpl implements Packet {
@@ -305,28 +305,35 @@ public class PacketImpl implements Packet {
    }
 
    @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection) {
+   public ActiveMQBuffer encode(final CoreRemotingConnection connection) {
       ActiveMQBuffer buffer =  createPacket(connection);
 
-      // The standard header fields
-
-      buffer.writeInt(0); // The length gets filled in at the end
-      buffer.writeByte(type);
-      buffer.writeLong(channelID);
+      encodeHeader(buffer);
 
       encodeRest(buffer);
 
+      encodeSize(buffer);
+
+      return buffer;
+   }
+
+   protected void encodeHeader(ActiveMQBuffer buffer) {
+      // The standard header fields
+      buffer.writeInt(0); // The length gets filled in at the end
+      buffer.writeByte(type);
+      buffer.writeLong(channelID);
+   }
+
+   protected void encodeSize(ActiveMQBuffer buffer) {
       size = buffer.writerIndex();
 
       // The length doesn't include the actual length byte
       int len = size - DataConstants.SIZE_INT;
 
       buffer.setInt(0, len);
-
-      return buffer;
    }
 
-   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
+   protected ActiveMQBuffer createPacket(CoreRemotingConnection connection) {
 
       int size = expectedEncodeSize();
 

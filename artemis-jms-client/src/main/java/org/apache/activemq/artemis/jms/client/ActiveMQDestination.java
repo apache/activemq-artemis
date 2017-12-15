@@ -384,7 +384,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       public static boolean isQueue(TYPE type) {
          boolean result = false;
 
-         if (type.equals(QUEUE) || type.equals(TEMP_QUEUE)) {
+         if (type != null && (type.equals(QUEUE) || type.equals(TEMP_QUEUE))) {
             result = true;
          }
 
@@ -394,7 +394,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       public static boolean isTemporary(TYPE type) {
          boolean result = false;
 
-         if (type.equals(TEMP_TOPIC) || type.equals(TEMP_QUEUE)) {
+         if (type != null && (type.equals(TEMP_TOPIC) || type.equals(TEMP_QUEUE))) {
             result = true;
          }
 
