@@ -37,12 +37,13 @@ public class ServerConnectVoteHandler implements QuorumVoteHandler {
       ServerConnectVote serverConnectVote = (ServerConnectVote) vote;
       String nodeid = serverConnectVote.getNodeId();
       TopologyMemberImpl member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeid);
+
       if (member != null && member.getLive() != null) {
          ActiveMQServerLogger.LOGGER.nodeFoundInClusterTopology(nodeid);
-         return new ServerConnectVote(nodeid, false);
+         return new ServerConnectVote(nodeid, (Boolean) vote.getVote());
       }
       ActiveMQServerLogger.LOGGER.nodeNotFoundInClusterTopology(nodeid);
-      return new ServerConnectVote(nodeid, true);
+      return new ServerConnectVote(nodeid, !((Boolean) vote.getVote()));
    }
 
    @Override
