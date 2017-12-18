@@ -299,6 +299,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
             clusterControl.authorize();
             //if we are successful get the vote and check whether we need to send it to the target server,
             //just connecting may be enough
+
             vote = quorumVote.connected();
             if (vote.isRequestServerVote()) {
                vote = clusterControl.sendQuorumVote(quorumVote.getName(), vote);
