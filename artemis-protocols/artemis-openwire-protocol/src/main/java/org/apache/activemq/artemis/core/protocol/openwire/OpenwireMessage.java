@@ -176,6 +176,7 @@ public class OpenwireMessage extends CoreMessage {
 
    @Override
    public OpenwireMessage copy() {
+      //Need to check encode
       OpenwireMessage owMsg = new OpenwireMessage(this);
       owMsg.setArrival(this.arrival);
       owMsg.setBrokerInTime(this.brokerInTime);
