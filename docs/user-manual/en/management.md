@@ -329,7 +329,7 @@ the default configuration looks like:
 
 ```xml 
 <role-access>
-    <match domain="org.apache.activemq.apache">
+    <match domain="org.apache.activemq.artemis">
        <access method="list*" roles="view,update,amq"/>
        <access method="get*" roles="view,update,amq"/>
        <access method="is*" roles="view,update,amq"/>
@@ -338,11 +338,11 @@ the default configuration looks like:
     </match>
 </role-access>
 ```
-This contains 1 match and will be applied to any mBean that has the domain `org.apache.activemq.apache`.
+This contains 1 match and will be applied to any mBean that has the domain `org.apache.activemq.artemis`.
 Any access to any mBeans that have this domain are controlled by the `access` elements which contain a
 method and a set of roles. The method being invoked will be used to pick the closest matching method and
 the roles for this will be applied for access. For instance if you try the invoke a method called `listMessages` on an mBean 
-with the `org.apache.activemq.apache` domain then this would match the `access` with the method of `list*`.
+with the `org.apache.activemq.artemis` domain then this would match the `access` with the method of `list*`.
 You could also explicitly configure this by using the full method name, like so:
 
 ```xml
@@ -352,7 +352,7 @@ You can also match specific mBeans within a domain by adding a key attribute tha
 on the mBean, like:
 
 ```xml
-<match domain="org.apache.activemq.apache" key="subcomponent=queues">
+<match domain="org.apache.activemq.artemis" key="subcomponent=queues">
    <access method="list*" roles="view,update,amq"/>
    <access method="get*" roles="view,update,amq"/>
    <access method="is*" roles="view,update,amq"/>
@@ -367,7 +367,7 @@ You could also match a specific queue for instance :
 by configuring:
 
 ```xml
-<match domain="org.apache.activemq.apache" key="queue=exampleQueue">
+<match domain="org.apache.activemq.artemis" key="queue=exampleQueue">
    <access method="list*" roles="view,update,amq"/>
    <access method="get*" roles="view,update,amq"/>
    <access method="is*" roles="view,update,amq"/>
@@ -377,7 +377,7 @@ by configuring:
 ```
 
 Access to JMX mBean attributes are converted to method calls so these are controlled via the `set*`, `get*` and `is*`. 
-The `*` access is the catch all for everything other method that isnt specifically matched.
+The `*` access is the catch all for everything other method that isn't specifically matched.
 
 The `default-access` element is basically the catch all for every method call that isn't handled via the `role-access` configuration.
 This has teh same semantics as a `match` element.
@@ -393,7 +393,7 @@ either have to disable authentication, by removing the `authentication` element 
 By default remote JMX access to Artemis is disabled for security reasons.
 
 Artemis has a JMX agent which allows access to JMX mBeans remotely. This is configured via the `connector` element in the
-`management.xml` configuration file. To enable this you simpl ad the following xml:
+`management.xml` configuration file. To enable this you simply add the following xml:
 
 ```xml
 <connector connector-port="1099"/>
