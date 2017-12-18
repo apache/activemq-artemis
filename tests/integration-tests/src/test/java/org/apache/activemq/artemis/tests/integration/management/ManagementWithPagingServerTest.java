@@ -145,7 +145,9 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(num / 2, array.size());
-      Assert.assertEquals(matchingValue, array.getJsonObject(0).getJsonNumber("key").longValue());
+
+      long l = Long.parseLong(array.getJsonObject(0).get("key").toString().replaceAll("\"", ""));
+      Assert.assertEquals(matchingValue, l);
 
       long n = queueControl.countMessages(filter);
       assertEquals(num / 2, n);
