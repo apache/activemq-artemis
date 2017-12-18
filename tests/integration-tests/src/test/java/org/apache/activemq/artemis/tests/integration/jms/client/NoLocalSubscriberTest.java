@@ -26,6 +26,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -145,7 +146,9 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          connection.setClientID(clientID);
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer messageProducer = session.createProducer(topic);
-         messageProducer.send(session.createTextMessage("M3"));
+         TextMessage textMessage = session.createTextMessage("M3");
+         textMessage.setStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString(), clientID);
+         messageProducer.send(textMessage);
          connection.close();
       }
 
@@ -157,7 +160,9 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          connection.setClientID(clientID + "_different");
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer messageProducer = session.createProducer(topic);
-         messageProducer.send(session.createTextMessage("M4"));
+         TextMessage textMessage = session.createTextMessage("M4");
+         textMessage.setStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString(), clientID + "_different");
+         messageProducer.send(textMessage);
          connection.close();
       }
 
