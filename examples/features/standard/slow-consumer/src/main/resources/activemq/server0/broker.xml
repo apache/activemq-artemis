@@ -16,10 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
---><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
-   
-
+-->
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core">
 
       <bindings-directory>./data/messaging/bindings</bindings-directory>
@@ -40,26 +38,7 @@ under the License.
       <!-- Other config -->
 
       <security-settings>
-         <!--security for example queue-->
-         <security-setting match="slow.consumer.kill">
-            <permission roles="guest" type="createDurableQueue"/>
-            <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
-         </security-setting>
-
-         <security-setting match="slow.consumer.notify">
-            <permission roles="guest" type="createDurableQueue"/>
-            <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
-         </security-setting>
-
-         <security-setting match="notify.topic">
+         <security-setting match="#">
             <permission roles="guest" type="createDurableQueue"/>
             <permission roles="guest" type="deleteDurableQueue"/>
             <permission roles="guest" type="createNonDurableQueue"/>
