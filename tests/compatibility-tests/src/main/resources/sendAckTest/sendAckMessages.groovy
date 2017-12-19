@@ -1,6 +1,5 @@
 package meshTest
 
-import org.apache.activemq.artemis.api.core.SimpleString
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 
 import javax.jms.*
