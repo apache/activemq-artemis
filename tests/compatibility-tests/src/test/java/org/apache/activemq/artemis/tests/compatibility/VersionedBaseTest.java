@@ -18,13 +18,16 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RunnableEx;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -41,6 +44,8 @@ public abstract class VersionedBaseTest {
    protected ClassLoader serverClassloader;
    protected ClassLoader senderClassloader;
    protected ClassLoader receiverClassloader;
+
+   protected static Map<String, ClassLoader> loaderMap = new HashMap<>();
 
    public VersionedBaseTest(String server, String sender, String receiver) throws Exception {
       this.server = server;
@@ -95,6 +100,11 @@ public abstract class VersionedBaseTest {
       receiverClassloader = null;
    }
 
+   @AfterClass
+   public static void cleanup() {
+      loaderMap.clear();
+   }
+
    protected static void callMain(ClassLoader loader,
                                   String className,
                                   String script,
@@ -125,6 +135,7 @@ public abstract class VersionedBaseTest {
       }
    }
 
+
    protected static ClassLoader defineClassLoader(String classPath) throws MalformedURLException {
       String[] classPathArray = classPath.split(File.pathSeparator);
       URL[] elements = new URL[classPathArray.length];
@@ -140,6 +151,12 @@ public abstract class VersionedBaseTest {
       if (name.equals(SNAPSHOT)) {
          return VersionedBaseTest.class.getClassLoader();
       }
+
+      ClassLoader loader = loaderMap.get(name);
+      if (loader != null) {
+         return loader;
+      }
+
       String value = System.getProperty(name);
 
       if (!printed.contains(name)) {
@@ -159,7 +176,11 @@ public abstract class VersionedBaseTest {
          Assume.assumeTrue("Cannot run these tests, no classpath found", ok);
       }
 
-      return defineClassLoader(value);
+
+      loader = defineClassLoader(value);
+      loaderMap.put(name, loader);
+
+      return loader;
    }
 
    protected static List<Object[]> combinatory(Object[] rootSide, Object[] sideLeft, Object[] sideRight) {
