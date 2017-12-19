@@ -1445,8 +1445,8 @@
          </xsd:element>
       </xsd:sequence>
    </xsd:complexType>
-   
-   
+
+
     <xsd:complexType name="transformerProperty">
        <xsd:attribute name="key" type="xsd:string" use="required">
           <xsd:annotation>
@@ -2180,7 +2180,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-retries" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-retry-wait" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in milliseconds) between each vote
@@ -2282,7 +2282,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-retries" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-retry-wait" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in milliseconds) between each vote
