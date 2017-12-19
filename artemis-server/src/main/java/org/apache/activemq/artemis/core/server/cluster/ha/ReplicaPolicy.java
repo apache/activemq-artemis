@@ -53,6 +53,10 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private final NetworkHealthCheck networkHealthCheck;
 
+   private int voteRetries;
+
+   private long voteRetryWait;
+
    public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck) {
       this.networkHealthCheck = networkHealthCheck;
    }
@@ -72,7 +76,9 @@ public class ReplicaPolicy extends BackupPolicy {
                         ScaleDownPolicy scaleDownPolicy,
                         NetworkHealthCheck networkHealthCheck,
                         boolean voteOnReplicationFailure,
-                        int quorumSize) {
+                        int quorumSize,
+                        int voteRetries,
+                        long voteRetryWait) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
@@ -80,6 +86,8 @@ public class ReplicaPolicy extends BackupPolicy {
       this.allowFailback = allowFailback;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.quorumSize = quorumSize;
+      this.voteRetries = voteRetries;
+      this.voteRetryWait = voteRetryWait;
       this.scaleDownPolicy = scaleDownPolicy;
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
@@ -115,7 +123,7 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public ReplicatedPolicy getReplicatedPolicy() {
       if (replicatedPolicy == null) {
-         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize);
+         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize, voteRetries, voteRetryWait);
       }
       return replicatedPolicy;
    }
@@ -209,5 +217,21 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public boolean isVoteOnReplicationFailure() {
       return voteOnReplicationFailure;
+   }
+
+   public void setVoteRetries(int voteRetries) {
+      this.voteRetries = voteRetries;
+   }
+
+   public void setVoteRetryWait(long voteRetryWait) {
+      this.voteRetryWait = voteRetryWait;
+   }
+
+   public int getVoteRetries() {
+      return voteRetries;
+   }
+
+   public long getVoteRetryWait() {
+      return voteRetryWait;
    }
 }
