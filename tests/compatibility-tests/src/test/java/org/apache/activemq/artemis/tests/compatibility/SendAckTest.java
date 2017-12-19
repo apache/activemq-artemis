@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
@@ -61,6 +62,7 @@ public class SendAckTest extends VersionedBaseTest {
       // not every combination on two four would make sense.. as there's a compatibility issue between 2.4 and 1.4 when crossing consumers and producers
       combinations.add(new Object[]{TWO_FOUR, SNAPSHOT, SNAPSHOT});
       combinations.add(new Object[]{SNAPSHOT, TWO_FOUR, TWO_FOUR});
+      combinations.add(new Object[]{HORNETQ_247, SNAPSHOT, SNAPSHOT});
       return combinations;
    }
 
