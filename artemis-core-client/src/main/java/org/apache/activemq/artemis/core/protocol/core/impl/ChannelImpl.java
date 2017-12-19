@@ -413,6 +413,13 @@ public final class ChannelImpl implements Channel {
                   throw new ActiveMQInterruptedException(e);
                }
 
+               // This response needs to be ignored from a blocked call
+               // this response doesn't belong here
+               if (response.getType() == PacketImpl.SUCCESS_RESPONSE) {
+                  response = null;
+                  continue;
+               }
+
                if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != PacketImpl.EXCEPTION_RESPONSE && response.getType() != expectedPacket) {
                   ActiveMQClientLogger.LOGGER.packetOutOfOrder(response, new Exception("trace"));
                }
