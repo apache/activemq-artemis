@@ -22,19 +22,19 @@
          <entry domain="hawtio"/>
       </whitelist>
       <default-access>
-         <access method="list*" roles="view,update,amq"/>
-         <access method="get*" roles="view,update,amq"/>
-         <access method="is*" roles="view,update,amq"/>
-         <access method="set*" roles="update,amq"/>
-         <access method="*" roles="amq"/>
+         <access method="list*" roles="${role}"/>
+         <access method="get*" roles="${role}"/>
+         <access method="is*" roles="${role}"/>
+         <access method="set*" roles="${role}"/>
+         <access method="*" roles="${role}"/>
       </default-access>
       <role-access>
          <match domain="org.apache.activemq.artemis">
-            <access method="list*" roles="view,update,amq"/>
-            <access method="get*" roles="view,update,amq"/>
-            <access method="is*" roles="view,update,amq"/>
-            <access method="set*" roles="update,amq"/>
-            <access method="*" roles="amq"/>
+            <access method="list*" roles="${role}"/>
+            <access method="get*" roles="${role}"/>
+            <access method="is*" roles="${role}"/>
+            <access method="set*" roles="${role}"/>
+            <access method="*" roles="${role}"/>
          </match>
          <!--example of how to configure a specific object-->
          <!--<match domain="org.apache.activemq.artemis" key="subcomponent=queues">
