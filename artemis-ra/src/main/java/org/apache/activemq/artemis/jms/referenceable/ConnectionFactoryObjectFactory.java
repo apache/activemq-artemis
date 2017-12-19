@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,29 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.referenceable;
 
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.Reference;
-import javax.naming.spi.ObjectFactory;
-import java.util.Hashtable;
-
 /**
- * A DestinationObjectFactory.
+ * Done for back compatibility with the package/class move.
  *
- * Given a Reference - reconstructs an ActiveMQDestination
+ * Should be removed on next major version change.
  */
-public class DestinationObjectFactory implements ObjectFactory {
-
-   @Override
-   public Object getObjectInstance(final Object ref,
-                                   final Name name,
-                                   final Context ctx,
-                                   final Hashtable<?, ?> props) throws Exception {
-      Reference r = (Reference) ref;
-
-      byte[] bytes = (byte[]) r.get("ActiveMQ-DEST").getContent();
-
-      // Deserialize
-      return SerializableObjectRefAddr.deserialize(bytes);
-   }
+public class ConnectionFactoryObjectFactory extends org.apache.activemq.artemis.ra.referenceable.ActiveMQRAConnectionFactoryObjectFactory {
 }

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.unit.jms.referenceable;
+package org.apache.activemq.artemis.tests.unit.ra.referenceable;
 
 import javax.naming.Reference;
+import javax.naming.spi.ObjectFactory;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -41,8 +41,9 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase {
    public void testReference() throws Exception {
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
       Reference reference = queue.getReference();
-
-      DestinationObjectFactory factory = new DestinationObjectFactory();
+      String factoryName = reference.getFactoryClassName();
+      Class<?> factoryClass = Class.forName(factoryName);
+      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
       Object object = factory.getObjectInstance(reference, null, null, null);
       Assert.assertNotNull(object);
       Assert.assertTrue(object instanceof ActiveMQDestination);

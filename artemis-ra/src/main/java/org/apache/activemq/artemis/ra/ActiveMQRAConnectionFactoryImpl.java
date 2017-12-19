@@ -35,8 +35,8 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.ra.referenceable.ActiveMQRAConnectionFactoryObjectFactory;
+import org.apache.activemq.artemis.ra.referenceable.SerializableObjectRefAddr;
 
 /**
  * The connection factory
@@ -118,7 +118,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       }
       if (reference == null) {
          try {
-            reference = new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-CF", this), ConnectionFactoryObjectFactory.class.getCanonicalName(), null);
+            reference = new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-CF", this), ActiveMQRAConnectionFactoryObjectFactory.class.getCanonicalName(), null);
          } catch (NamingException e) {
             ActiveMQRALogger.LOGGER.errorCreatingReference(e);
          }
