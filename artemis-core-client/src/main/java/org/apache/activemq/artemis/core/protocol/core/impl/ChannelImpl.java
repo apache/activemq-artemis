@@ -152,7 +152,7 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean supports(final byte packetType) {
-      return supports(packetType, connection.getClientVersion());
+      return supports(packetType, connection.getChannelVersion());
    }
 
    @Override

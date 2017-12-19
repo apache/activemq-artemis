@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionPro
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage_1X;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -112,7 +113,12 @@ public final class CoreSessionCallback implements SessionCallback {
    @Override
    public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount)  {
 
-      Packet packet = new SessionReceiveMessage(consumer.getID(), message.toCore(), deliveryCount);
+      Packet packet;
+      if (channel.getConnection().isVersionBeforeAddressChange()) {
+         packet = new SessionReceiveMessage_1X(consumer.getID(), message.toCore(), deliveryCount);
+      } else {
+         packet = new SessionReceiveMessage(consumer.getID(), message.toCore(), deliveryCount);
+      }
 
       int size = 0;
 

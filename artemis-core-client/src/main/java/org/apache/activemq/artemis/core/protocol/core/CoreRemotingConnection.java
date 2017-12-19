@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core;
 
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
@@ -28,13 +29,18 @@ public interface CoreRemotingConnection extends RemotingConnection {
     * The client protocol used  on the communication.
     * This will determine if the client has support for certain packet types
     */
-   int getClientVersion();
+   int getChannelVersion();
+
+   default boolean isVersionBeforeAddressChange() {
+      int version = getChannelVersion();
+      return  (version > 0 && version < PacketImpl.ADDRESSING_CHANGE_VERSION);
+   }
 
    /**
     * Sets the client protocol used on the communication. This will determine if the client has
     * support for certain packet types
     */
-   void setClientVersion(int clientVersion);
+   void setChannelVersion(int clientVersion);
 
    /**
     * Returns the channel with the channel id specified.

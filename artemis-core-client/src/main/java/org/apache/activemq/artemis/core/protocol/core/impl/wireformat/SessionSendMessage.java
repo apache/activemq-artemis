@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 public class SessionSendMessage extends MessagePacket {
 
-   private boolean requiresResponse;
+   protected boolean requiresResponse;
 
    /**
     * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
@@ -76,12 +76,16 @@ public class SessionSendMessage extends MessagePacket {
       // Buffer comes in after having read standard headers and positioned at Beginning of body part
 
       ByteBuf messageBuffer = copyMessageBuffer(buffer.byteBuf(), 1);
-      message.receiveBuffer(messageBuffer);
+      receiveMessage(messageBuffer);
 
       buffer.readerIndex(buffer.capacity() - 1);
 
       requiresResponse = buffer.readBoolean();
 
+   }
+
+   protected void receiveMessage(ByteBuf messageBuffer) {
+      message.receiveBuffer(messageBuffer);
    }
 
    @Override

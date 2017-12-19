@@ -90,10 +90,68 @@ public final class SpawnedVMSupport {
                                  final boolean logErrorOutput,
                                  final boolean useLogging,
                                  final String... args) throws Exception {
-      ProcessBuilder builder = new ProcessBuilder();
+      return spawnVM(System.getProperty("java.class.path"), wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
+
+   }
+
+
+   public static Process spawnVM(String classPath,
+                                 String wordMatch,
+                                 Runnable wordRunning,
+                                 String className,
+                                 String memoryArg1,
+                                 String memoryArg2,
+                                 String[] vmargs,
+                                 boolean logOutput,
+                                 boolean logErrorOutput,
+                                 boolean useLogging,
+                                 String... args) throws IOException, ClassNotFoundException {
+      return spawnVM(classPath, wordMatch, wordRunning, className, memoryArg1,memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, -1, args);
+   }
+
+   /**
+    *
+    * @param classPath
+    * @param wordMatch
+    * @param wordRunning
+    * @param className
+    * @param memoryArg1
+    * @param memoryArg2
+    * @param vmargs
+    * @param logOutput
+    * @param logErrorOutput
+    * @param useLogging
+    * @param debugPort if <=0 it means no debug
+    * @param args
+    * @return
+    * @throws IOException
+    * @throws ClassNotFoundException
+    */
+   public static Process spawnVM(String classPath,
+                                 String wordMatch,
+                                 Runnable wordRunning,
+                                 String className,
+                                 String memoryArg1,
+                                 String memoryArg2,
+                                 String[] vmargs,
+                                 boolean logOutput,
+                                 boolean logErrorOutput,
+                                 boolean useLogging,
+                                 long debugPort,
+                                 String... args) throws IOException, ClassNotFoundException {
       final String javaPath = Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString();
+      ProcessBuilder builder = new ProcessBuilder();
+      if (memoryArg1 == null) {
+         memoryArg1 = "-Xms128m";
+      }
+      if (memoryArg2 == null) {
+         memoryArg2 = "-Xmx128m";
+      }
       builder.command(javaPath, memoryArg1, memoryArg2);
-      builder.environment().put("CLASSPATH", System.getProperty("java.class.path"));
+      if (debugPort > 0) {
+         builder.command().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=" + debugPort);
+      }
+      builder.environment().put("CLASSPATH", classPath);
 
       List<String> commandList = builder.command();
 
@@ -143,7 +201,6 @@ public final class SpawnedVMSupport {
       errorLogger.start();
 
       return process;
-
    }
 
    /**

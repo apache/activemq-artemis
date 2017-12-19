@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.maven;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +31,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.repository.RemoteRepository;
 
 @Mojo(name = "dependency-scan", defaultPhase = LifecyclePhase.VERIFY)
 public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
@@ -48,6 +51,9 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    private String[] libList;
 
    @Parameter
+   private String[] extraRepositories;
+
+   @Parameter
    private String variableName;
 
    @Parameter
@@ -64,6 +70,16 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
 
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
+
+      int repositories = 0;
+      List<RemoteRepository> listRepo = new ArrayList<>();
+      if (extraRepositories != null) {
+         for (String  strRepo: extraRepositories) {
+            RemoteRepository repo = new RemoteRepository.Builder("repo" + (repositories++), "default", strRepo).build();
+            listRepo.add(repo);
+            remoteRepos.add(repo);
+         }
+      }
       getLog().info("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
@@ -102,7 +118,13 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
       } catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
+      } finally {
+         for (RemoteRepository repository : listRepo) {
+            remoteRepos.remove(repository);
+         }
       }
+
+
    }
 
 }
