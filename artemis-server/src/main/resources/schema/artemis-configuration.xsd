@@ -2171,6 +2171,22 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+
+         <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  If we start as a replica and lose connection to the master, how many times should we attempt to vote
+                  for quorum before restarting
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="vote-retries" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How long to wait (in milliseconds) between each vote
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
    </xsd:complexType>
    <xsd:complexType name="replicaPolicyType">
@@ -2256,6 +2272,20 @@
                <xsd:documentation>
                   If we have to start as a replicated server or we are a backup and lose connection to live, the quorum size
                   used for voting after replication loss, -1 means use the current cluster size
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  If we lose connection to the master, how many times should we attempt to vote for quorum before restarting
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="vote-retries" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How long to wait (in milliseconds) between each vote
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

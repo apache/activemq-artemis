@@ -50,6 +50,10 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    * */
    private int quorumSize;
 
+   private int voteRetries;
+
+   private long voteRetryWait;
+
    /*
    * this are only used as the policy when the server is started as a live after a failover
    * */
@@ -68,7 +72,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            long initialReplicationSyncTimeout,
                            NetworkHealthCheck networkHealthCheck,
                            boolean voteOnReplicationFailure,
-                           int quorumSize) {
+                           int quorumSize,
+                           int voteRetries,
+                           long voteRetryWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
@@ -76,6 +82,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
       this.quorumSize = quorumSize;
+      this.voteRetries = voteRetries;
+      this.voteRetryWait = voteRetryWait;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -86,7 +94,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            ReplicaPolicy replicaPolicy,
                            NetworkHealthCheck networkHealthCheck,
                            boolean voteOnReplicationFailure,
-                           int quorumSize) {
+                           int quorumSize,
+                           int voteRetries,
+                           long voteRetryWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
@@ -140,6 +150,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
          replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
          replicaPolicy.setQuorumSize(quorumSize);
          replicaPolicy.setVoteOnReplicationFailure(voteOnReplicationFailure);
+         replicaPolicy.setVoteRetries(voteRetries);
+         replicaPolicy.setVoteRetryWait(voteRetryWait);
          if (clusterName != null && clusterName.length() > 0) {
             replicaPolicy.setClusterName(clusterName);
          }
