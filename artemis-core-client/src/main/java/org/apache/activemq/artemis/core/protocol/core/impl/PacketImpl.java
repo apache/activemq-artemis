@@ -29,7 +29,10 @@ public class PacketImpl implements Packet {
    // Constants -------------------------------------------------------------------------
 
 
+   // 2.0.0
    public static final int ADDRESSING_CHANGE_VERSION = 129;
+
+   // 2.5.0
    public static final int ASYNC_RESPONSE_CHANGE_VERSION = 130;
 
 
