@@ -16,22 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import static org.junit.Assert.fail;
-
-import javax.jms.CompletionListener;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
 import javax.jms.IllegalStateException;
 import javax.jms.JMSSecurityException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
 import javax.jms.Session;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
@@ -78,9 +67,9 @@ public class SecurityTest extends JMSTestCase {
    }
 
 
-   /**
-    * Login with no user, no password Should allow login (equivalent to guest)
-    */
+      /**
+       * Login with no user, no password Should allow login (equivalent to guest)
+       */
    @Test
    public void testLoginNoUserNoPassword() throws Exception {
       createConnection();
@@ -178,71 +167,6 @@ public class SecurityTest extends JMSTestCase {
       } catch (JMSSecurityException e) {
          // Expected
       }
-   }
-
-   /**
-    * Login with valid user and password
-    * But try send to address not authorised - Persistent
-    * Should not allow and should throw exception
-    */
-   @Test
-   public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
-      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-      Connection connection = connectionFactory.createConnection("guest", "guest");
-      Session session = connection.createSession();
-      Destination destination = session.createQueue("guest.cannot.send");
-      MessageProducer messageProducer = session.createProducer(destination);
-      try {
-         messageProducer.send(session.createTextMessage("hello"));
-         fail("JMSSecurityException expected as guest is not allowed to send");
-      } catch (JMSSecurityException activeMQSecurityException) {
-         //pass
-      }
-      connection.close();
-   }
-
-   /**
-    * Login with valid user and password
-    * But try send to address not authorised - Non Persistent.
-    * Should have same behaviour as Persistent with exception on send.
-    */
-   @Test
-   public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
-      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-      connectionFactory.setConfirmationWindowSize(100);
-      connectionFactory.setBlockOnDurableSend(false);
-      connectionFactory.setBlockOnNonDurableSend(false);
-      Connection connection = connectionFactory.createConnection("guest", "guest");
-      Session session = connection.createSession();
-      Destination destination = session.createQueue("guest.cannot.send");
-      MessageProducer messageProducer = session.createProducer(destination);
-      messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-      try {
-         AtomicReference<Exception> e = new AtomicReference<>();
-         //        messageProducer.send(session.createTextMessage("hello"));
-
-         CountDownLatch countDownLatch = new CountDownLatch(1);
-         messageProducer.send(session.createTextMessage("hello"), new CompletionListener() {
-            @Override
-            public void onCompletion(Message message) {
-               countDownLatch.countDown();
-            }
-
-            @Override
-            public void onException(Message message, Exception exception) {
-               e.set(exception);
-               countDownLatch.countDown();
-            }
-         });
-         countDownLatch.await(10, TimeUnit.SECONDS);
-         if (e.get() != null) {
-            throw e.get();
-         }
-         fail("JMSSecurityException expected as guest is not allowed to send");
-      } catch (JMSSecurityException activeMQSecurityException) {
-         activeMQSecurityException.printStackTrace();
-      }
-      connection.close();
    }
 
    /* Now some client id tests */

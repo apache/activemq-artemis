@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
-import org.apache.activemq.artemis.core.protocol.core.ResponseHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessageV2;
@@ -313,11 +312,6 @@ public class BackupSyncDelay implements Interceptor {
       public void setCommandConfirmationHandler(CommandConfirmationHandler handler) {
          throw new UnsupportedOperationException();
 
-      }
-
-      @Override
-      public void setResponseHandler(ResponseHandler handler) {
-         throw new UnsupportedOperationException();
       }
 
       @Override
