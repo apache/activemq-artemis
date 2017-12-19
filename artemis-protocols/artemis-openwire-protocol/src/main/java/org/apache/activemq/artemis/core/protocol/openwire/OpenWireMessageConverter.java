@@ -489,9 +489,9 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       amqMsg.setCompressed(isCompressed);
 
+      byte[] bytes = null;
       if (buffer != null) {
          buffer.resetReaderIndex();
-         byte[] bytes = null;
          synchronized (buffer) {
             if (coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
                SimpleString text = buffer.readNullableSimpleString();
@@ -641,11 +641,6 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
 
             buffer.resetReaderIndex();// this is important for topics as the buffer
             // may be read multiple times
-         }
-
-         if (bytes != null) {
-            ByteSequence content = new ByteSequence(bytes);
-            amqMsg.setContent(content);
          }
       }
 
@@ -805,11 +800,11 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
             }
          }
       }
-      try {
-         amqMsg.onSend();
-         amqMsg.setCompressed(isCompressed);
-      } catch (JMSException e) {
-         throw new IOException("Failed to covert to Openwire message", e);
+
+      amqMsg.setCompressed(isCompressed);
+      if (bytes != null) {
+         ByteSequence content = new ByteSequence(bytes);
+         amqMsg.setContent(content);
       }
       return amqMsg;
    }
