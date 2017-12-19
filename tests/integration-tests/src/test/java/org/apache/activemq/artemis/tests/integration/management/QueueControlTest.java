@@ -533,7 +533,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       Map<String, Object>[] messages = queueControl.listScheduledMessages();
       Assert.assertEquals(1, messages.length);
-      Assert.assertEquals(intValue, ((Number) messages[0].get("key")).intValue());
+      Assert.assertEquals(intValue, Integer.parseInt((messages[0].get("key")).toString()));
 
       Thread.sleep(delay + 500);
 
@@ -567,7 +567,8 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1, array.size());
-      Assert.assertEquals(intValue, array.getJsonObject(0).getJsonNumber("key").intValue());
+      int i = Integer.parseInt(array.getJsonObject(0).get("key").toString().replaceAll("\"", ""));
+      Assert.assertEquals(intValue, i);
 
       Thread.sleep(delay + 500);
 
@@ -700,7 +701,9 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1, array.size());
-      Assert.assertEquals(intValue, array.getJsonObject(0).getInt("key"));
+
+      long l = Long.parseLong(array.getJsonObject(0).get("key").toString().replaceAll("\"", ""));
+      Assert.assertEquals(intValue, l);
 
       consumeMessages(1, session, queue);
 
@@ -735,7 +738,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       Map<String, Object>[] messages = queueControl.listMessages(filter);
       Assert.assertEquals(1, messages.length);
-      Assert.assertEquals(matchingValue, messages[0].get("key"));
+      Assert.assertEquals(matchingValue, Long.parseLong(messages[0].get("key").toString()));
 
       consumeMessages(2, session, queue);
 
@@ -816,7 +819,9 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1, array.size());
-      Assert.assertEquals(matchingValue, array.getJsonObject(0).getJsonNumber("key").longValue());
+
+      long l = Long.parseLong(array.getJsonObject(0).get("key").toString().replaceAll("\"", ""));
+      Assert.assertEquals(matchingValue, l);
 
       consumeMessages(2, session, queue);
 
@@ -1418,7 +1423,8 @@ public class QueueControlTest extends ManagementTestBase {
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
       Assert.assertEquals(50, messages.length);
-      assertEquals(50, ((Number) messages[0].get("count")).intValue());
+      int i = Integer.parseInt((messages[0].get("count")).toString());
+      assertEquals(50, i);
       long messageID = (Long) messages[0].get("messageID");
 
       // delete 1st message
