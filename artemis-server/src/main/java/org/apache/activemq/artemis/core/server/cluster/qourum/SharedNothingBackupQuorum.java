@@ -21,6 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
@@ -32,6 +33,8 @@ import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 
 public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener {
+
+   private TransportConfiguration liveTransportConfiguration;
 
    public enum BACKUP_ACTIVATION {
       FAIL_OVER, FAILURE_REPLICATING, ALREADY_REPLICATING, STOP;
@@ -46,6 +49,12 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    private final StorageManager storageManager;
    private final ScheduledExecutorService scheduledPool;
    private final int quorumSize;
+
+   private final int voteRetries;
+
+   private final long voteRetryWait;
+
+   private final Object voteGuard = new Object();
 
    private CountDownLatch latch;
 
@@ -68,13 +77,17 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                                     NodeManager nodeManager,
                                     ScheduledExecutorService scheduledPool,
                                     NetworkHealthCheck networkHealthCheck,
-                                    int quorumSize) {
+                                    int quorumSize,
+                                    int voteRetries,
+                                    long voteRetryWait) {
       this.storageManager = storageManager;
       this.scheduledPool = scheduledPool;
       this.quorumSize = quorumSize;
       this.latch = new CountDownLatch(1);
       this.nodeManager = nodeManager;
       this.networkHealthCheck = networkHealthCheck;
+      this.voteRetries = voteRetries;
+      this.voteRetryWait = voteRetryWait;
    }
 
    private volatile BACKUP_ACTIVATION signal;
@@ -129,6 +142,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    public void liveIDSet(String liveID) {
       targetServerID = liveID;
       nodeManager.setNodeID(liveID);
+      liveTransportConfiguration = quorumManager.getLiveTransportConfiguration(targetServerID);
       //now we are replicating we can start waiting for disconnect notifications so we can fail over
       // sessionFactory.addFailureListener(this);
    }
@@ -267,20 +281,44 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     * @return the voting decision
     */
    private boolean isLiveDown() {
+      //lets assume live is not down
+      Boolean decision = false;
+      int voteAttempts = 0;
       int size = quorumSize == -1 ? quorumManager.getMaxClusterSize() : quorumSize;
 
-      QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, targetServerID);
+      synchronized (voteGuard) {
+         while (!decision && voteAttempts++ < voteRetries) {
+            // a quick check to see if the live actually is dead
+            if (quorumManager.checkLive(liveTransportConfiguration)) {
+               //the live is still alive so we best not failover
+               return false;
+            }
+            //the live is dead so lets vote for quorum
+            QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, targetServerID);
 
-      quorumManager.vote(quorumVote);
+            quorumManager.vote(quorumVote);
 
-      try {
-         quorumVote.await(LATCH_TIMEOUT, TimeUnit.SECONDS);
-      } catch (InterruptedException interruption) {
-         // No-op. The best the quorum can do now is to return the latest number it has
+            try {
+               quorumVote.await(LATCH_TIMEOUT, TimeUnit.SECONDS);
+            } catch (InterruptedException interruption) {
+               // No-op. The best the quorum can do now is to return the latest number it has
+            }
+
+            quorumManager.voteComplete(quorumVote);
+
+            decision = quorumVote.getDecision();
+
+            if (decision) {
+               return decision;
+            }
+            try {
+               voteGuard.wait(voteRetryWait);
+            } catch (InterruptedException e) {
+               //nothing to do here
+            }
+         }
       }
 
-      quorumManager.voteComplete(quorumVote);
-
-      return quorumVote.getDecision();
+      return decision;
    }
 }

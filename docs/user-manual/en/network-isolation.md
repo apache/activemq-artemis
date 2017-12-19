@@ -17,9 +17,22 @@ react which the following details:
 By default if a replica loses its replication connection to the live broker it makes a decision as to whether to start or not
 with a quorum vote. This of course requires that there be at least 3 pairs of live/backup nodes in the cluster. For a 3 node 
 cluster it will start if it gets 2 votes back saying that its live server is no longer available, for 4 nodes this would be 
-3 votes and so on.
+3 votes and so on. When a backup loses connection to the master it will keep voting for a quorum until it either receives a vote 
+allowing it to start or it detects that the master is still live. for the latter it will then restart as a backup. How many votes 
+and how long between each vote the backup should wait is configured like so:
 
-It's also possible to statically set the quorum size that should be used fotr the case where the cluster size is known up front,
+```xml
+<ha-policy>
+  <replication>
+    <slave>
+       <vote-retries>12</vote-retries>
+       <vote-retry-wait>5000</vote-retry-wait>
+    </slave>
+  </replication>
+</ha-policy>
+```
+
+It's also possible to statically set the quorum size that should be used for the case where the cluster size is known up front,
 this is done on the Replica Policy like so:
 
 ```xml
