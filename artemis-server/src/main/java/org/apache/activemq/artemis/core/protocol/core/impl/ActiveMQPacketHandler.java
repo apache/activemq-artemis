@@ -145,10 +145,10 @@ public class ActiveMQPacketHandler implements ChannelHandler {
                                        "Server will not accept create session requests");
          }*/
 
-         if (connection.getClientVersion() == 0) {
-            connection.setClientVersion(request.getVersion());
-         } else if (connection.getClientVersion() != request.getVersion()) {
-            ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getClientVersion());
+         if (connection.getChannelVersion() == 0) {
+            connection.setChannelVersion(request.getVersion());
+         } else if (connection.getChannelVersion() != request.getVersion()) {
+            ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getChannelVersion());
          }
 
          Channel channel = connection.getChannel(request.getSessionChannelID(), request.getWindowSize());
@@ -163,7 +163,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          Map<SimpleString, RoutingType> routingTypeMap = protocolManager.getPrefixes();
 
-         if (connection.getClientVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+         if (connection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
             routingTypeMap = new HashMap<>();
             routingTypeMap.put(PacketImpl.OLD_QUEUE_PREFIX, RoutingType.ANYCAST);
             routingTypeMap.put(PacketImpl.OLD_TOPIC_PREFIX, RoutingType.MULTICAST);

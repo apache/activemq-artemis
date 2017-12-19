@@ -83,7 +83,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionInd
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
@@ -91,6 +91,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReq
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage;
@@ -266,8 +267,14 @@ public class ActiveMQSessionContext extends SessionContext {
 
    @Override
    public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
-      SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
-      SessionQueueQueryResponseMessage_V3 response = (SessionQueueQueryResponseMessage_V3) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V3);
+      SessionQueueQueryResponseMessage response;
+      if (sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+         SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
+         response = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V2);
+      } else {
+         SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
+         response = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V3);
+      }
 
       return response.toQueueQuery();
    }
@@ -292,7 +299,13 @@ public class ActiveMQSessionContext extends SessionContext {
 
       SessionCreateConsumerMessage request = new SessionCreateConsumerMessage(consumerID, queueName, filterString, browseOnly, true);
 
-      SessionQueueQueryResponseMessage_V3 queueInfo = (SessionQueueQueryResponseMessage_V3) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V3);
+      SessionQueueQueryResponseMessage queueInfo;
+
+      if (sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+         queueInfo = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V2);
+      } else {
+         queueInfo = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V3);
+      }
 
       // The actual windows size that gets used is determined by the user since
       // could be overridden on the queue settings
@@ -441,7 +454,12 @@ public class ActiveMQSessionContext extends SessionContext {
                                boolean sendBlocking,
                                SendAcknowledgementHandler handler,
                                SimpleString defaultAddress) throws ActiveMQException {
-      SessionSendMessage packet = new SessionSendMessage(msgI, sendBlocking, handler);
+      SessionSendMessage packet;
+      if (sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+         packet = new SessionSendMessage_1X(msgI, sendBlocking, handler);
+      } else {
+         packet = new SessionSendMessage(msgI, sendBlocking, handler);
+      }
 
       if (sendBlocking) {
          sessionChannel.sendBlocking(packet, PacketImpl.NULL_RESPONSE);
@@ -596,7 +614,9 @@ public class ActiveMQSessionContext extends SessionContext {
                              Set<RoutingType> routingTypes,
                              final boolean autoCreated) throws ActiveMQException {
       CreateAddressMessage request = new CreateAddressMessage(address, routingTypes, autoCreated, true);
-      sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
+      if (!sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+         sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
+      }
    }
 
    @Deprecated
@@ -621,7 +641,9 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean purgeOnNoConsumers,
                            boolean autoCreated) throws ActiveMQException {
       CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, routingType, filterString, durable, temp, maxConsumers, purgeOnNoConsumers, autoCreated, true);
-      sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
+      if (!sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+         sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
+      }
    }
 
    @Override
@@ -695,11 +717,13 @@ public class ActiveMQSessionContext extends SessionContext {
                                                    boolean autoCommitSends,
                                                    boolean autoCommitAcks,
                                                    boolean preAcknowledge) {
-      return new CreateSessionMessage(name, sessionChannel.getID(), serverVersion, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
+      return new CreateSessionMessage(name, sessionChannel.getID(), getServerVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
    }
 
    @Override
-   public void recreateConsumerOnServer(ClientConsumerInternal consumerInternal, long consumerId, boolean isSessionStarted) throws ActiveMQException {
+   public void recreateConsumerOnServer(ClientConsumerInternal consumerInternal,
+                                        long consumerId,
+                                        boolean isSessionStarted) throws ActiveMQException {
       ClientSession.QueueQuery queueInfo = consumerInternal.getQueueInfo();
 
       // We try and recreate any non durable queues, since they probably won't be there unless
@@ -850,7 +874,6 @@ public class ActiveMQSessionContext extends SessionContext {
          throw new ActiveMQException(e.getMessage());
       }
    }
-
 
    class ClientSessionPacketHandler implements ChannelHandler {
 

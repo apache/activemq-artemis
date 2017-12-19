@@ -64,6 +64,8 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
  */
 public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
 
+   private static final long serialVersionUID = -7554006056207377105L;
+
    private ServerLocator serverLocator;
 
    private String clientID;

@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverMessage;
@@ -160,9 +161,9 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SUB
 
 public abstract class PacketDecoder implements Serializable {
 
-   public abstract Packet decode(ActiveMQBuffer in);
+   public abstract Packet decode(ActiveMQBuffer in, CoreRemotingConnection connection);
 
-   public Packet decode(byte packetType) {
+   public Packet decode(byte packetType, CoreRemotingConnection connection) {
       Packet packet;
 
       switch (packetType) {
