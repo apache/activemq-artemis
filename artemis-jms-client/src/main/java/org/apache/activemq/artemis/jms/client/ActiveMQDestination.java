@@ -19,21 +19,18 @@ package org.apache.activemq.artemis.jms.client;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
 import java.io.Serializable;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
-import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.jndi.JNDIStorable;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Destination.
  */
-public class ActiveMQDestination implements Destination, Serializable, Referenceable {
+public class ActiveMQDestination extends JNDIStorable implements Destination, Serializable {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -78,27 +75,27 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          case TEMP_TOPIC:
             return new ActiveMQTopic(name, true);
          case DESTINATION:
-            return new ActiveMQDestination(name, name, TYPE.DESTINATION, null);
+            return new ActiveMQDestination(name, TYPE.DESTINATION, null);
          default:
             throw new IllegalArgumentException("Invalid default destination type: " + defaultType);
       }
    }
 
-   public static Destination fromPrefixedName(final String address) {
-      if (address.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
-         String name = address.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
-         return createQueue(name);
-      } else if (address.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
-         String name = address.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
-         return createTopic(name);
-      } else if (address.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
-         String name = address.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
-         return new ActiveMQTemporaryQueue(name, name, null);
-      } else if (address.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
-         String name = address.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
-         return new ActiveMQTemporaryTopic(name, name, null);
+   public static Destination fromPrefixedName(final String name) {
+      if (name.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
+         String address = name.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
+         return createQueue(address);
+      } else if (name.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
+         String address = name.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
+         return createTopic(address);
+      } else if (name.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
+         String address = name.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
+         return new ActiveMQTemporaryQueue(address, null);
+      } else if (name.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
+         String address = name.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
+         return new ActiveMQTemporaryTopic(address, null);
       } else {
-         return new ActiveMQDestination(address, address, TYPE.DESTINATION, null);
+         return new ActiveMQDestination(name, TYPE.DESTINATION, null);
       }
    }
 
@@ -191,58 +188,48 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       return new SimpleString(TOPIC_QUALIFIED_PREFIX + name);
    }
 
-   public static ActiveMQQueue createQueue(final String name) {
-      return new ActiveMQQueue(name);
+   public static ActiveMQQueue createQueue(final String address) {
+      return new ActiveMQQueue(address);
    }
 
-   public static ActiveMQTopic createTopic(final String name) {
-      return new ActiveMQTopic(name);
+   public static ActiveMQTopic createTopic(final String address) {
+      return new ActiveMQTopic(address);
    }
 
-   public static ActiveMQTemporaryQueue createTemporaryQueue(final String name, final ActiveMQSession session) {
-      return new ActiveMQTemporaryQueue(name, name, session);
+   public static ActiveMQTemporaryQueue createTemporaryQueue(final String address, final ActiveMQSession session) {
+      return new ActiveMQTemporaryQueue(address, session);
    }
 
-   public static ActiveMQTemporaryQueue createTemporaryQueue(final String name) {
-      return createTemporaryQueue(name, null);
+   public static ActiveMQTemporaryQueue createTemporaryQueue(final String address) {
+      return createTemporaryQueue(address, null);
    }
 
    public static ActiveMQTemporaryQueue createTemporaryQueue(final ActiveMQSession session) {
-      String name = UUID.randomUUID().toString();
+      String address = UUID.randomUUID().toString();
 
-      return createTemporaryQueue(name, session);
+      return createTemporaryQueue(address, session);
    }
 
    public static ActiveMQTemporaryTopic createTemporaryTopic(final ActiveMQSession session) {
-      String name = UUID.randomUUID().toString();
+      String address = UUID.randomUUID().toString();
 
-      return createTemporaryTopic(name, session);
+      return createTemporaryTopic(address, session);
    }
 
-   public static ActiveMQTemporaryTopic createTemporaryTopic(String name, final ActiveMQSession session) {
-      return new ActiveMQTemporaryTopic(name, name, session);
+   public static ActiveMQTemporaryTopic createTemporaryTopic(String address, final ActiveMQSession session) {
+      return new ActiveMQTemporaryTopic(address, session);
    }
 
-   public static ActiveMQTemporaryTopic createTemporaryTopic(String name) {
-      return createTemporaryTopic(name, null);
+   public static ActiveMQTemporaryTopic createTemporaryTopic(String address) {
+      return createTemporaryTopic(address, null);
    }
 
    // Attributes ----------------------------------------------------
 
    /**
-    * The JMS name
-    */
-   protected final String name;
-
-   /**
     * The core address
     */
-   private final String address;
-
-   /**
-    * SimpleString version of address
-    */
-   private final SimpleString simpleAddress;
+   private SimpleString simpleAddress;
 
    private final TYPE type;
 
@@ -251,25 +238,34 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
    // Constructors --------------------------------------------------
 
    protected ActiveMQDestination(final String address,
-                                 final String name,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this.address = address;
-
-      this.name = name;
-
-      simpleAddress = new SimpleString(address);
+      this.simpleAddress = SimpleString.toSimpleString(address);
 
       this.type = type;
 
       this.session = session;
    }
 
-   // Referenceable implementation ---------------------------------------
+   protected ActiveMQDestination(final SimpleString address,
+                                 final TYPE type,
+                                 final ActiveMQSession session) {
+      this.simpleAddress = address;
 
-   @Override
-   public Reference getReference() throws NamingException {
-      return new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-DEST", this), DestinationObjectFactory.class.getCanonicalName(), null);
+      this.type = type;
+
+      this.session = session;
+   }
+
+   public void setAddress(String address) {
+      setSimpleAddress(SimpleString.toSimpleString(address));
+   }
+
+   public void setSimpleAddress(SimpleString address) {
+      if (address == null) {
+         throw new IllegalArgumentException("address cannot be null");
+      }
+      this.simpleAddress = address;
    }
 
    public void delete() throws JMSException {
@@ -293,7 +289,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
    // Public --------------------------------------------------------
 
    public String getAddress() {
-      return address;
+      return simpleAddress.toString();
    }
 
    public SimpleString getSimpleAddress() {
@@ -301,7 +297,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
    }
 
    public String getName() {
-      return name;
+      return simpleAddress.toString();
    }
 
    public boolean isTemporary() {
@@ -324,12 +320,22 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
 
       ActiveMQDestination that = (ActiveMQDestination) o;
 
-      return address.equals(that.address);
+      return simpleAddress.equals(that.simpleAddress);
    }
 
    @Override
    public int hashCode() {
-      return address.hashCode();
+      return simpleAddress.hashCode();
+   }
+
+   @Override
+   protected void buildFromProperties(Properties props) {
+      setAddress(props.getProperty("address"));
+   }
+
+   @Override
+   protected void populateProperties(Properties props) {
+      props.put("address", getAddress());
    }
 
    // Package protected ---------------------------------------------

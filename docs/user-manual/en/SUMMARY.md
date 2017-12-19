@@ -56,6 +56,7 @@
 * [REST Interface](rest.md)
 * [Embedding Apache ActiveMQ Artemis](embedding-activemq.md)
 * [Apache Karaf](karaf.md)
+* [Apache Tomcat](tomcat.md)
 * [Spring Integration](spring-integration.md)
 * [CDI Integration](cdi-integration.md)
 * [Intercepting Operations](intercepting-operations.md)
