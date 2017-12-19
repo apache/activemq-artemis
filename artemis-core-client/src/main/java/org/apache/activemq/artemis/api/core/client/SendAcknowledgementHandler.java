@@ -41,11 +41,4 @@ public interface SendAcknowledgementHandler {
     * @param message message sent asynchronously
     */
    void sendAcknowledged(Message message);
-
-   default void sendFailed(Message message, Exception e) {
-      //This is to keep old behaviour that would ack even if error,
-      // if anyone custom implemented this interface but doesnt update.
-      sendAcknowledged(message);
-   }
-
 }

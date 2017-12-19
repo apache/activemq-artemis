@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SessionSendMessage extends MessagePacket {
 
@@ -36,22 +35,6 @@ public class SessionSendMessage extends MessagePacket {
     * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
-
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
-   protected SessionSendMessage(final byte id,
-                             final ICoreMessage message,
-                             final boolean requiresResponse,
-                             final SendAcknowledgementHandler handler) {
-      super(id, message);
-      this.handler = handler;
-      this.requiresResponse = requiresResponse;
-   }
-
-   protected SessionSendMessage(final byte id,
-                                final CoreMessage message) {
-      super(id, message);
-      this.handler = null;
-   }
 
    /** This will be using the CoreMessage because it is meant for the core-protocol */
    public SessionSendMessage(final ICoreMessage message,
@@ -69,7 +52,6 @@ public class SessionSendMessage extends MessagePacket {
 
    // Public --------------------------------------------------------
 
-   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }
@@ -80,7 +62,7 @@ public class SessionSendMessage extends MessagePacket {
 
    @Override
    public int expectedEncodeSize() {
-      return message.getEncodeSize() + PACKET_HEADERS_SIZE + DataConstants.SIZE_BOOLEAN;
+      return message.getEncodeSize() + PACKET_HEADERS_SIZE + 1;
    }
 
    @Override

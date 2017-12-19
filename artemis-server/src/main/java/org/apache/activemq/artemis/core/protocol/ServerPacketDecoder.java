@@ -53,7 +53,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReq
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V2;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
@@ -81,7 +80,6 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_PRODUCER_REQUEST_CREDITS;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND_LARGE;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND_V2;
 
 public class ServerPacketDecoder extends ClientPacketDecoder {
 
@@ -97,12 +95,6 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
          sendMessage = new SessionSendMessage(new CoreMessage());
       }
 
-      sendMessage.decode(in);
-      return sendMessage;
-   }
-
-   private static SessionSendMessage decodeSessionSendMessageV2(final ActiveMQBuffer in, CoreRemotingConnection connection) {
-      final SessionSendMessage_V2 sendMessage = new SessionSendMessage_V2(new CoreMessage());
       sendMessage.decode(in);
       return sendMessage;
    }
@@ -132,8 +124,6 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
       switch (packetType) {
          case SESS_SEND:
             return decodeSessionSendMessage(in, connection);
-         case SESS_SEND_V2:
-            return decodeSessionSendMessageV2(in, connection);
          case SESS_ACKNOWLEDGE:
             return decodeSessionAcknowledgeMessage(in, connection);
          case SESS_PRODUCER_REQUEST_CREDITS:
