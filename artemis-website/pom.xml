@@ -80,6 +80,7 @@
       <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
       <webapp-outdir-user-manual>${basedir}/target/classes/user-manual</webapp-outdir-user-manual>
       <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
+      <webapp-outdir-migration-guide>${basedir}/target/classes/migration-guide</webapp-outdir-migration-guide>
 
       <frontend-maven-plugin-version>0.0.29</frontend-maven-plugin-version>
       <nodeVersion>v6.11.0</nodeVersion>
@@ -190,6 +191,14 @@
                                  <arg value="build" />
                                  <arg value="${basedir}/../docs/hacking-guide/en" />
                                  <arg value="${webapp-outdir-hacking-guide}" />
+                              </exec>
+                              <mkdir dir="${webapp-outdir-migration-guide}" />
+                              <echo>executing ${gitbook.cmd}</echo>
+                              <exec executable="${gitbook.cmd}" failonerror="true">
+                                 <env key="PATH" path="${basedir}/node" />
+                                 <arg value="build" />
+                                 <arg value="${basedir}/../docs/migration-guide/en" />
+                                 <arg value="${webapp-outdir-migration-guide}" />
                               </exec>
                            </target>
                         </configuration>
