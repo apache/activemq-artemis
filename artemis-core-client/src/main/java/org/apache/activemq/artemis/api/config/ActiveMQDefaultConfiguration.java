@@ -485,6 +485,12 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean DEFAULT_VOTE_ON_REPLICATION_FAILURE = false;
 
+   //how many times we retry a vote before restarting as a backup
+   private static int DEFAULT_VOTE_RETRIES = 12;
+
+   //how long we wait between votes, 5 secs
+   private static long DEFAULT_VOTE_RETRY_WAIT = 5000;
+
    public static int DEFAULT_QUORUM_SIZE = -1;
 
    public static final boolean DEFAULT_ANALYZE_CRITICAL = true;
@@ -1334,4 +1340,11 @@ public final class ActiveMQDefaultConfiguration {
    }
 
 
+   public static int getDefaultVoteRetries() {
+      return DEFAULT_VOTE_RETRIES;
+   }
+
+   public static long getDefaultVoteRetryWait() {
+      return DEFAULT_VOTE_RETRY_WAIT;
+   }
 }

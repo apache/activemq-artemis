@@ -252,6 +252,22 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       return handlers.get(handler);
    }
 
+   public TransportConfiguration getLiveTransportConfiguration(String targetServerID) {
+      TopologyMemberImpl member = clusterController.getDefaultClusterTopology().getMember(targetServerID);
+      return member != null ? member.getLive() : null;
+   }
+
+   public boolean checkLive(TransportConfiguration liveTransportConfiguration) {
+      try {
+         ClusterControl control = clusterController.connectToNode(liveTransportConfiguration);
+         control.close();
+         return true;
+      } catch (Throwable t) {
+         return false;
+      }
+   }
+
+
    private final class VoteRunnableHolder {
 
       private final QuorumVote quorumVote;
