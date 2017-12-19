@@ -742,6 +742,8 @@ public class ActiveMQMessage implements javax.jms.Message {
    public <T> T getBody(Class<T> c) throws JMSException {
       if (isBodyAssignableTo(c)) {
          return getBodyInternal(c);
+      } else if (hasNoBody()) {
+         return null;
       }
       // XXX HORNETQ-1209 Do we need translations here?
       throw new MessageFormatException("Body not assignable to " + c);
