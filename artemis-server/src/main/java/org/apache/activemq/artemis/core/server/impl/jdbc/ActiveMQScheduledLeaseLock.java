@@ -87,8 +87,13 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
    public void run() {
       final long lastRenewStart = this.lastLockRenewStart;
       final long renewStart = System.nanoTime();
-      if (!this.lock.renew()) {
-         ioCriticalErrorListener.onIOException(new IllegalStateException(lockName + " lock can't be renewed"), "Critical error while on " + lockName + " renew", null);
+      try {
+         if (!this.lock.renew()) {
+            ioCriticalErrorListener.onIOException(new IllegalStateException(lockName + " lock can't be renewed"), "Critical error while on " + lockName + " renew", null);
+         }
+      } catch (Throwable t) {
+         ioCriticalErrorListener.onIOException(t, "Critical error while on " + lockName + " renew", null);
+         throw t;
       }
       //logic to detect slowness of DB and/or the scheduled executor service
       detectAndReportRenewSlowness(lockName, lastRenewStart, renewStart, renewPeriodMillis, lock.expirationMillis());
