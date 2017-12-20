@@ -33,6 +33,8 @@ public class CoreQueueConfiguration implements Serializable {
 
    private boolean durable = true;
 
+   private String user = null;
+
    private Integer maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
    private Boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
@@ -56,6 +58,10 @@ public class CoreQueueConfiguration implements Serializable {
 
    public boolean isDurable() {
       return durable;
+   }
+
+   public String getUser() {
+      return user;
    }
 
    /**
@@ -103,6 +109,14 @@ public class CoreQueueConfiguration implements Serializable {
     */
    public CoreQueueConfiguration setPurgeOnNoConsumers(Boolean purgeOnNoConsumers) {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
+      return this;
+   }
+
+   /**
+    * @param user the use you want to associate with creating the queue
+    */
+   public CoreQueueConfiguration setUser(String user) {
+      this.user = user;
       return this;
    }
 
