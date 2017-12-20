@@ -95,7 +95,8 @@ public class AMQConsumer {
          } else {
             preAck = true;
          }
-         String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + info.getClientId() + "'";
+         String id = info.getClientId() != null ? info.getClientId() : this.getId().getConnectionId();
+         String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + id + "'";
          if (selector == null) {
             selector = new SimpleString(noLocalSelector);
          } else {
