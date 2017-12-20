@@ -29,6 +29,7 @@ public class PacketImpl implements Packet {
    // Constants -------------------------------------------------------------------------
 
 
+   // 2.0.0
    public static final int ADDRESSING_CHANGE_VERSION = 129;
 
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");

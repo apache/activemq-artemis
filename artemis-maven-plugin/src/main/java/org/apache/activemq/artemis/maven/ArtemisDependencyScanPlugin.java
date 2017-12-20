@@ -63,6 +63,11 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private File targetFolder;
 
+   private MavenProject project;
+
+   @Parameter
+   private boolean optional = false;
+
    @Override
    protected boolean isIgnore() {
       return false;
@@ -81,7 +86,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
          }
       }
       getLog().info("Local " + localRepository);
-      MavenProject project = (MavenProject) getPluginContext().get("project");
+      project = (MavenProject) getPluginContext().get("project");
 
       Map properties = getPluginContext();
 
@@ -105,8 +110,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
             }
 
             String classPathGenerated = buffer.toString();
-            project.getProperties().setProperty(variableName, classPathGenerated);
-            getLog().info("dependency-scan setting: " + variableName + "=" + classPathGenerated);
+            setVariable(classPathGenerated);
          }
 
          if (targetFolder != null) {
@@ -117,7 +121,11 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
          }
       } catch (Throwable e) {
          getLog().error(e);
-         throw new MojoFailureException(e.getMessage());
+         if (optional) {
+            setVariable("");
+         } else {
+            throw new MojoFailureException(e.getMessage());
+         }
       } finally {
          for (RemoteRepository repository : listRepo) {
             remoteRepos.remove(repository);
@@ -125,6 +133,13 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
       }
 
 
+   }
+
+   private void setVariable(String classPathGenerated) {
+      if (variableName != null) {
+         project.getProperties().setProperty(variableName, classPathGenerated);
+         getLog().info("dependency-scan setting: " + variableName + "=" + classPathGenerated);
+      }
    }
 
 }

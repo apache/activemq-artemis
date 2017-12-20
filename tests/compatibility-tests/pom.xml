@@ -366,19 +366,41 @@
                   </configuration>
                </execution>
                <execution>
+                  <id>155-check</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <configuration>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:1.5.5</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:1.5.5</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:1.5.5</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:1.5.5</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:1.5.5</arg>
+                        <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <variableName>ARTEMIS-155</variableName>
+                  </configuration>
+               </execution>
+               <execution>
                   <id>hornetq-235</id>
                   <phase>compile</phase>
                   <goals>
                      <goal>dependency-scan</goal>
                   </goals>
                   <configuration>
+                     <optional>true</optional>
                      <extraRepositories>
                         <!-- some of the dependencies are not on maven central,
                              and the artemis maven plugin has the capability of using this extra repo -->
                         <arg>https://repository.jboss.org/nexus/content/groups/public</arg>
                      </extraRepositories>
                      <libListWithDeps>
-                        <arg>org.hornetq:hornetq-jms-server:2.4.7.Final</arg>
+                        <arg>org.hornetq:hornetq-jms-server:2.3.5.Final</arg>
                         <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
@@ -394,6 +416,7 @@
                      <goal>dependency-scan</goal>
                   </goals>
                   <configuration>
+                     <optional>true</optional>
                      <extraRepositories>
                         <!-- some of the dependencies are not on maven central,
                              and the artemis maven plugin has the capability of using this extra repo -->
@@ -424,6 +447,10 @@
                   <property>
                      <name>ARTEMIS-240</name>
                      <value>${ARTEMIS-240}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-155</name>
+                     <value>${ARTEMIS-155}</value>
                   </property>
                   <property>
                      <name>ARTEMIS-140</name>
