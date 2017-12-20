@@ -64,7 +64,7 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
  */
 public class ActiveMQConnectionFactory extends JNDIStorable implements ConnectionFactoryOptions, Externalizable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
 
-   private static final long serialVersionUID = -7554006056207377105L;
+   private static final long serialVersionUID = 6730844785641767519L;
 
    private ServerLocator serverLocator;
 
