@@ -99,6 +99,8 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String writeNodeIdSQL;
 
+   private final String initializeNodeIdSQL;
+
    private final String readNodeIdSQL;
 
    protected final DatabaseStoreType databaseStoreType;
@@ -175,6 +177,8 @@ public class GenericSQLProvider implements SQLProvider {
       readStateSQL = "SELECT STATE FROM " + tableName + " WHERE ID = " + STATE_ROW_ID;
 
       writeNodeIdSQL = "UPDATE " + tableName + " SET NODE_ID = ? WHERE ID = " + NODE_ID_ROW_ID;
+
+      initializeNodeIdSQL = "UPDATE " + tableName + " SET NODE_ID = ? WHERE NODE_ID IS NULL AND ID = " + NODE_ID_ROW_ID;
 
       readNodeIdSQL = "SELECT NODE_ID FROM " + tableName + " WHERE ID = " + NODE_ID_ROW_ID;
 
@@ -365,6 +369,11 @@ public class GenericSQLProvider implements SQLProvider {
    @Override
    public String readNodeIdSQL() {
       return readNodeIdSQL;
+   }
+
+   @Override
+   public String initializeNodeIdSQL() {
+      return initializeNodeIdSQL;
    }
 
    @Override
