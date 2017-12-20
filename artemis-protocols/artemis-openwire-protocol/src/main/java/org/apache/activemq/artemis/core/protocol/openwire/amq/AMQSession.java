@@ -317,11 +317,7 @@ public class AMQSession implements SessionCallback {
 
       org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend);
 
-      if (connection.isNoLocal()) {
-         //Note: advisory messages are dealt with in
-         //OpenWireProtocolManager#fireAdvisory
-         originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString(), this.connection.getState().getInfo().getConnectionId().getValue());
-      }
+      originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString(), this.connection.getState().getInfo().getClientId());
 
       /* ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
       * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
