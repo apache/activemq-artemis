@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PreACKJMSTest extends JMSTestBase {
@@ -95,7 +96,9 @@ public class PreACKJMSTest extends JMSTestBase {
       assertNull("ConnectionFactory is on PreACK mode, the message shouldn't be received", msg2);
    }
 
-   public void disabled_testPreACKTransactional() throws Exception {
+   @Test
+   @Ignore
+   public void testPreACKTransactional() throws Exception {
       conn = cf.createConnection();
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 
