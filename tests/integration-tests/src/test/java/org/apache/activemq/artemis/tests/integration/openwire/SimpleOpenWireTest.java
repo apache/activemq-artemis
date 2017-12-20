@@ -76,6 +76,10 @@ import org.junit.Test;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest {
 
+   private final String testString = "simple test string";
+   private final String testProp = "BASE_DATE";
+   private final String propValue = "2017-11-01";
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -328,6 +332,95 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       producer.send(session.createTextMessage("test"));
 
       connection.close();
+   }
+
+   @Test
+   public void testCompression() throws Exception {
+
+      Connection cconnection = null;
+      Connection connection = null;
+      try {
+         ActiveMQConnectionFactory cfactory = new ActiveMQConnectionFactory("tcp://" + OWHOST + ":" + OWPORT + "");
+         cconnection = cfactory.createConnection();
+         cconnection.start();
+         Session csession = cconnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue cQueue = csession.createQueue(queueName);
+         MessageConsumer consumer = csession.createConsumer(cQueue);
+
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://" + OWHOST + ":" + OWPORT + "?jms.useCompression=true");
+         connection = factory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+
+         MessageProducer producer = session.createProducer(queue);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+         //text
+         TextMessage textMessage = session.createTextMessage();
+         textMessage.setText(testString);
+         TextMessage receivedMessage = sendAndReceive(textMessage, producer, consumer);
+
+         String receivedText = receivedMessage.getText();
+         assertEquals(testString, receivedText);
+
+         //MapMessage
+         MapMessage mapMessage = session.createMapMessage();
+         mapMessage.setString(testProp, propValue);
+         MapMessage receivedMapMessage = sendAndReceive(mapMessage, producer, consumer);
+         String value = receivedMapMessage.getString(testProp);
+         assertEquals(propValue, value);
+
+         //Object
+         ObjectMessage objMessage = session.createObjectMessage();
+         objMessage.setObject(testString);
+         ObjectMessage receivedObjMessage = sendAndReceive(objMessage, producer, consumer);
+         String receivedObj = (String) receivedObjMessage.getObject();
+         assertEquals(testString, receivedObj);
+
+         //Stream
+         StreamMessage streamMessage = session.createStreamMessage();
+         streamMessage.writeString(testString);
+         StreamMessage receivedStreamMessage = sendAndReceive(streamMessage, producer, consumer);
+         String streamValue = receivedStreamMessage.readString();
+         assertEquals(testString, streamValue);
+
+         //byte
+         BytesMessage byteMessage = session.createBytesMessage();
+         byte[] bytes = testString.getBytes();
+         byteMessage.writeBytes(bytes);
+
+         BytesMessage receivedByteMessage = sendAndReceive(byteMessage, producer, consumer);
+         long receivedBodylength = receivedByteMessage.getBodyLength();
+
+         assertEquals("bodylength Correct", bytes.length, receivedBodylength);
+
+         byte[] receivedBytes = new byte[(int) receivedBodylength];
+         receivedByteMessage.readBytes(receivedBytes);
+
+         String receivedString = new String(receivedBytes);
+         assertEquals(testString, receivedString);
+
+         //Message
+         Message m = session.createMessage();
+         sendAndReceive(m, producer, consumer);
+      } finally {
+         if (cconnection != null) {
+            connection.close();
+         }
+         if (connection != null) {
+            cconnection.close();
+         }
+      }
+
+   }
+
+   private <T extends Message> T sendAndReceive(T m, MessageProducer producer, MessageConsumer consumer) throws JMSException {
+      m.setStringProperty(testProp, propValue);
+      producer.send(m);
+      T receivedMessage = (T) consumer.receive(1000);
+      String receivedProp = receivedMessage.getStringProperty(testProp);
+      assertEquals(propValue, receivedProp);
+      return receivedMessage;
    }
 
    @Test
@@ -1523,6 +1616,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          //close first connection, let temp queue die
          connection1.close();
 
+         waitForBindings(this.server, tempQueue.getQueueName(), true, 0, 0, 5000);
          //send again
          try {
             producer.send(m);
