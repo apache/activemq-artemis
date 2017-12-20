@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.junit.Before;
 import org.junit.Test;
 
-public class HAAutomaticBackupSharedStore extends ClusterTestBase {
+public class HAAutomaticBackupSharedStoreTest extends ClusterTestBase {
 
    @Before
    public void setup() throws Exception {
