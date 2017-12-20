@@ -57,6 +57,12 @@ public interface QueueControl {
    boolean isDurable();
 
    /**
+    * Returns the user that is associated with creating the queue.
+    */
+   @Attribute(desc = "the user that created the queue")
+   String getUser();
+
+   /**
     * The routing type of this queue.
     */
    @Attribute(desc = "routing type of this queue")

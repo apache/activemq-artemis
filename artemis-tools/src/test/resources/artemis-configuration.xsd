@@ -459,6 +459,13 @@
                                  </xsd:documentation>
                               </xsd:annotation>
                            </xsd:element>
+                           <xsd:element name="user" type="xsd:string" maxOccurs="1" minOccurs="0">
+                              <xsd:annotation>
+                                 <xsd:documentation>
+                                    user to associate for creating the queue
+                                 </xsd:documentation>
+                              </xsd:annotation>
+                           </xsd:element>
                            <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
                            <xsd:element name="durable" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                               <xsd:annotation>
@@ -2678,6 +2685,7 @@
       <xsd:all>
          <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
          <xsd:element name="durable" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0" />
+         <xsd:element name="user" type="xsd:string" maxOccurs="1" minOccurs="0" />
       </xsd:all>
       <xsd:attribute name="name" type="xsd:string" use="required"/>
       <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>

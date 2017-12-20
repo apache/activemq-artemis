@@ -176,6 +176,20 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public String getUser() {
+      checkStarted();
+
+      clearIO();
+      try {
+         SimpleString user = queue.getUser();
+         return user == null ? null : user.toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
    public String getRoutingType() {
       checkStarted();
 
