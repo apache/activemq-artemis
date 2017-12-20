@@ -23,6 +23,7 @@ import org.junit.runners.Parameterized;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
@@ -55,13 +56,14 @@ public class MeshTest extends VersionedBaseTest {
       // during development sometimes is useful to comment out the combinations
       // and add the ones you are interested.. example:
        */
-      //      combinations.add(new Object[]{SNAPSHOT, ONE_FOUR, ONE_FOUR});
-      //      combinations.add(new Object[]{ONE_FOUR, ONE_FOUR, ONE_FOUR});
+      //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
+      //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FOUR, TWO_FOUR, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FOUR, TWO_FOUR, SNAPSHOT, HORNETQ_235}));
-      combinations.addAll(combinatory(new Object[]{ONE_FOUR}, new Object[]{ONE_FOUR, SNAPSHOT}, new Object[]{ONE_FOUR, SNAPSHOT}));
-      combinations.addAll(combinatory(new Object[]{HORNETQ_235}, new Object[]{ONE_FOUR, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FOUR, SNAPSHOT, HORNETQ_235}));
+      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FIVE, TWO_FOUR, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FIVE, TWO_FOUR, SNAPSHOT, HORNETQ_235}));
+      combinations.addAll(combinatory(new Object[]{ONE_FIVE}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
+      combinations.addAll(combinatory(new Object[]{HORNETQ_235}, new Object[]{ONE_FIVE, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FIVE, SNAPSHOT, HORNETQ_235}));
       combinations.addAll(combinatory(new Object[]{HORNETQ_247}, new Object[]{SNAPSHOT, HORNETQ_247}, new Object[]{SNAPSHOT, HORNETQ_247}));
+      combinations.add(new Object[]{SNAPSHOT, ONE_FOUR, ONE_FOUR});
       return combinations;
    }
 

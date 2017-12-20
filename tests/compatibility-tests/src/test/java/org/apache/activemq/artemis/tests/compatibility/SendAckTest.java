@@ -21,9 +21,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 
 /**
  * To run this test on the IDE and debug it, run the compatibility-tests through a command line once:
@@ -53,14 +54,15 @@ public class SendAckTest extends VersionedBaseTest {
       // during development sometimes is useful to comment out the combinations
       // and add the ones you are interested.. example:
        */
-      //      combinations.add(new Object[]{SNAPSHOT, ONE_FOUR, ONE_FOUR});
-      //      combinations.add(new Object[]{ONE_FOUR, ONE_FOUR, ONE_FOUR});
+      //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
+      //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT, ONE_FOUR}, new Object[]{ONE_FOUR, SNAPSHOT}, new Object[]{ONE_FOUR, SNAPSHOT}));
+      combinations.addAll(combinatory(new Object[]{SNAPSHOT, ONE_FIVE}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
 
       // not every combination on two four would make sense.. as there's a compatibility issue between 2.4 and 1.4 when crossing consumers and producers
       combinations.add(new Object[]{TWO_FOUR, SNAPSHOT, SNAPSHOT});
       combinations.add(new Object[]{SNAPSHOT, TWO_FOUR, TWO_FOUR});
+      combinations.add(new Object[]{HORNETQ_247, SNAPSHOT, SNAPSHOT});
       return combinations;
    }
 

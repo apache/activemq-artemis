@@ -38,7 +38,7 @@ configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616");
 configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(false);
 try {
-    if (!type.equals("ARTEMIS-140")) {
+    if (!type.startsWith("ARTEMIS-1")) {
         configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
     }
 } catch (Throwable e) {
@@ -54,7 +54,7 @@ server.setJmsConfiguration(jmsConfiguration);
 server.start();
 
 // uncomment this next statements to validate https://issues.apache.org/jira/browse/ARTEMIS-1561
-if (producer.toString().equals("ARTEMIS-140") && type.equals("ARTEMIS-SNAPSHOT") ||
+if (producer.toString().startsWith("ARTEMIS-1") && type.equals("ARTEMIS-SNAPSHOT") ||
     producer.toString().startsWith("HORNETQ")) {
     server.getJMSServerManager().createQueue(true, "queue", null, true);
 }
