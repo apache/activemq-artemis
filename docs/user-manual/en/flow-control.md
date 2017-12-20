@@ -170,7 +170,7 @@ but instead pages messages to storage.
 
 To configure an address with a maximum size and tell the server that you
 want to block producers for this address if it becomes full, you need to
-define an AddressSettings ([Configuring Queues Via Address Settings](queue-attributes.md)) block for the address and specify
+define an AddressSettings ([Configuring Queues Via Address Settings](address-model.md#configuring-addresses-and-queues-via-address-setting)) block for the address and specify
 `max-size-bytes` and `address-full-policy`
 
 The address block applies to all queues registered to that address. I.e.

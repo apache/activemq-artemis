@@ -802,8 +802,8 @@ after the last consumer on a queue is closed before redistributing. By
 default message redistribution is disabled.
 
 Message redistribution can be configured on a per address basis, by
-specifying the redistribution delay in the address settings, for more
-information on configuring address settings, please see [Queue Attributes](queue-attributes.md).
+specifying the redistribution delay in the address settings. For more
+information on configuring address settings, please see [Configuring Addresses and Queues via Address Settings](address-model.md#configuring-addresses-and-queues-via-address-settings).
 
 Here's an address settings snippet from `broker.xml`
 showing how message redistribution is enabled for a set of queues:

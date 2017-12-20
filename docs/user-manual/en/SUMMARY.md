@@ -31,7 +31,6 @@
 * [Message Expiry](message-expiry.md)
 * [Large Messages](large-messages.md)
 * [Paging](paging.md)
-* [Queue Attributes](queue-attributes.md)
 * [Scheduled Messages](scheduled-messages.md)
 * [Last-Value Queues](last-value-queues.md)
 * [Message Grouping](message-grouping.md)
