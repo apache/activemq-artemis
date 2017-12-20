@@ -36,7 +36,7 @@ import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 @Ignore
-public class StompTestWithLargeMessages extends StompTestBase {
+public class StompWithLargeMessagesTest extends StompTestBase {
 
    // Web Socket has max frame size of 64kb.  Large message tests only available over TCP.
    @Parameterized.Parameters(name = "{0}")

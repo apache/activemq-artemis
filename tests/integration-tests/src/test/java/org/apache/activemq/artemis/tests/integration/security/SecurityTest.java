@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class SecurityTest extends ActiveMQTestBase {
@@ -1605,7 +1606,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
    }
 
-   public void _testComplexRoles2() throws Exception {
+   @Test
+   @Ignore
+   public void testComplexRoles2() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
@@ -1645,8 +1648,8 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSession andrewConnection = null;
       ClientSession frankConnection = null;
       ClientSession samConnection = null;
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       ClientSessionFactory factory = createSessionFactory(locator);
-      factory.getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
       String genericQueueName = "genericQueue";

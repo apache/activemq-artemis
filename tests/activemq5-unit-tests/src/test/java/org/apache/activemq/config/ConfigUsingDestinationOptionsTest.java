@@ -26,9 +26,11 @@ import junit.framework.TestCase;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.junit.Test;
 
-public class ConfigUsingDestinationOptions extends TestCase {
+public class ConfigUsingDestinationOptionsTest extends TestCase {
 
+   @Test(timeout = 60000)
    public void testValidSelectorConfig() throws JMSException {
       ActiveMQQueue queue = new ActiveMQQueue("TEST.FOO?consumer.selector=test=1");
 
@@ -46,6 +48,7 @@ public class ConfigUsingDestinationOptions extends TestCase {
       assertEquals("test=1", cons.getMessageSelector());
    }
 
+   @Test(timeout = 60000)
    public void testInvalidSelectorConfig() throws JMSException {
       ActiveMQQueue queue = new ActiveMQQueue("TEST.FOO?consumer.selector=test||1");
 

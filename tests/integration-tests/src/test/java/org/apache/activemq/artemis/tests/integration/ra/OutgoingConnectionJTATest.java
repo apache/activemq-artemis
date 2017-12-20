@@ -49,7 +49,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
+public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
 
    protected ActiveMQResourceAdapter resourceAdapter;
    protected ActiveMQRAConnectionFactory qraConnectionFactory;

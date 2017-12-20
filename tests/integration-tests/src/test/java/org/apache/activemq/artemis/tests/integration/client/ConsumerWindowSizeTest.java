@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ConsumerWindowSizeTest extends ActiveMQTestBase {
@@ -542,8 +543,9 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       internalTestSlowConsumerNoBuffer(false);
    }
 
-   // I believe this test became invalid after we started using another thread to deliver the large message
-   public void disabled_testSlowConsumerNoBufferLargeMessages() throws Exception {
+   @Test
+   @Ignore("I believe this test became invalid after we started using another thread to deliver the large message")
+   public void testSlowConsumerNoBufferLargeMessages() throws Exception {
       internalTestSlowConsumerNoBuffer(true);
    }
 
@@ -559,12 +561,11 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          server.start();
 
          locator.setConsumerWindowSize(0);
+         if (largeMessages) {
+            locator.setMinLargeMessageSize(100);
+         }
 
          ClientSessionFactory sf = createSessionFactory(locator);
-
-         if (largeMessages) {
-            sf.getServerLocator().setMinLargeMessageSize(100);
-         }
 
          session = sf.createSession(false, true, true);
 

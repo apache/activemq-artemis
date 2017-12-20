@@ -44,7 +44,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AMQPToJMSCore extends ActiveMQTestBase {
+public class AMQPToJMSCoreTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
    protected String queueName = "amqTestQueue1";

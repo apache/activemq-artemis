@@ -72,6 +72,7 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest {
@@ -526,7 +527,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       }
    }
 
-   //   @Test -- ignored for now
+   @Test
+   @Ignore("ignored for now")
    public void testKeepAlive() throws Exception {
       connection.start();
 

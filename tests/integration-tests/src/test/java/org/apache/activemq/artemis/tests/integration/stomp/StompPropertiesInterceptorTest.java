@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(value = Parameterized.class)
-public class StompTestPropertiesInterceptor extends StompTestBase {
+public class StompPropertiesInterceptorTest extends StompTestBase {
 
    @Parameterized.Parameters(name = "{0}")
    public static Collection<Object[]> data() {
@@ -44,14 +44,14 @@ public class StompTestPropertiesInterceptor extends StompTestBase {
    @Override
    public List<String> getIncomingInterceptors() {
       List<String> stompIncomingInterceptor = new ArrayList<>();
-      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompTestPropertiesInterceptor$StompFramePropertiesInterceptor");
+      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompPropertiesInterceptorTest$StompFramePropertiesInterceptor");
       return stompIncomingInterceptor;
    }
 
    @Override
    public List<String> getOutgoingInterceptors() {
       List<String> stompOutgoingInterceptor = new ArrayList<>();
-      stompOutgoingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompTestPropertiesInterceptor$StompFramePropertiesInterceptor");
+      stompOutgoingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompPropertiesInterceptorTest$StompFramePropertiesInterceptor");
 
       return stompOutgoingInterceptor;
    }
