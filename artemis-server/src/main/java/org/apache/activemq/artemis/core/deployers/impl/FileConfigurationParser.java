@@ -1076,6 +1076,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       boolean durable = true;
       int maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
       boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
+      String user = null;
 
       NamedNodeMap attributes = node.getAttributes();
       for (int i = 0; i < attributes.getLength(); i++) {
@@ -1098,10 +1099,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             filterString = getAttributeValue(child, "string");
          } else if (child.getNodeName().equals("durable")) {
             durable = XMLUtil.parseBoolean(child);
+         } else if (child.getNodeName().equals("user")) {
+            user = getTrimmedTextContent(child);
          }
       }
 
-      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers);
+      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setUser(user);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {

@@ -2508,7 +2508,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             // if the address::queue doesn't exist then create it
             try {
                createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(),
-                           queueName, SimpleString.toSimpleString(config.getFilterString()),null,
+                           queueName, SimpleString.toSimpleString(config.getFilterString()), SimpleString.toSimpleString(config.getUser()),
                            config.isDurable(),false,false,false,false,config.getMaxConsumers(),config.getPurgeOnNoConsumers(),true);
             } catch (ActiveMQQueueExistsException e) {
                // the queue may exist on a *different* address
