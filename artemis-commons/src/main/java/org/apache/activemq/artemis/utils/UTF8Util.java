@@ -103,7 +103,7 @@ public final class UTF8Util {
 
          for (int i = 0; i < stringLength; i++) {
             char charAtPos = buffer.charBuffer[i];
-            if (charAtPos >= 1 && charAtPos < 0x7f) {
+            if (charAtPos <= 0x7f) {
                buffer.byteBuffer[charCount++] = (byte) charAtPos;
             } else if (charAtPos >= 0x800) {
                buffer.byteBuffer[charCount++] = (byte) (0xE0 | charAtPos >> 12 & 0x0F);
@@ -145,7 +145,7 @@ public final class UTF8Util {
       while (count < size) {
          byte1 = buffer.byteBuffer[count++];
 
-         if (byte1 > 0 && byte1 <= 0x7F) {
+         if (byte1 >= 0 && byte1 <= 0x7F) {
             buffer.charBuffer[charCount++] = (char) byte1;
          } else {
             int c = byte1 & 0xff;
@@ -211,7 +211,7 @@ public final class UTF8Util {
       for (int i = 0; i < stringLength; i++) {
          char c = stringBuffer.charBuffer[i];
 
-         if (c >= 1 && c < 0x7f) {
+         if (c <= 0x7f) {
             calculatedLen++;
          } else if (c >= 0x800) {
             calculatedLen += 3;
