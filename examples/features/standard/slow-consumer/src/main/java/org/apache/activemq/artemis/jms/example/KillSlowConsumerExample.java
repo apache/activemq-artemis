@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
  * - starts a consumer BUT does not consume any messages.
  * - waits for 8 seconds and tries to consume a message.
  * - receive an exception as the connection should already be closed.
- *
  */
 public class KillSlowConsumerExample {
 
@@ -88,16 +87,14 @@ public class KillSlowConsumerExample {
             messageConsumer.receive(TimeUnit.SECONDS.toMillis(1));
 
             //messageConsumer.receive() should throw exception - we should not get to here.
-            throw new RuntimeException("SlowConsumerExample.slowConsumerKill() FAILED - expected " +
-                                          "connection to be shutdown by Slow Consumer policy");
+            throw new RuntimeException("SlowConsumerExample.slowConsumerKill() FAILED - expected " + "connection to be shutdown by Slow Consumer policy");
 
          } catch (JMSException ex) {
             if (ex.getCause() instanceof ActiveMQObjectClosedException) {
                //received exception - as expected
-               System.out.println("SUCCESS! Received EXPECTED exception: " + ex );
+               System.out.println("SUCCESS! Received EXPECTED exception: " + ex);
             } else {
-               throw new RuntimeException("SlowConsumerExample.slowConsumerKill() FAILED - expected " +
-                                             "ActiveMQObjectClosedException BUT got " + ex.getCause());
+               throw new RuntimeException("SlowConsumerExample.slowConsumerKill() FAILED - expected " + "ActiveMQObjectClosedException BUT got " + ex.getCause());
             }
          }
       }

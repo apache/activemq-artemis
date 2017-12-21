@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -73,9 +72,7 @@ public class NotifySlowConsumerExample {
          // Step 8. create a consumer on the broker's management-notification-address
          Session notifSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer notificationConsumer = notifSession.createConsumer(notificationTopic,
-                                                                            ManagementHelper.HDR_NOTIFICATION_TYPE + " = '" +
-                                                                               CoreNotificationType.CONSUMER_SLOW + "'");
+         MessageConsumer notificationConsumer = notifSession.createConsumer(notificationTopic, ManagementHelper.HDR_NOTIFICATION_TYPE + " = '" + CoreNotificationType.CONSUMER_SLOW + "'");
 
          // Step 9. add a message listener to consumer listening to broker's management-notification-address,
          // when it receives notification it signals main thread.
@@ -104,8 +101,7 @@ public class NotifySlowConsumerExample {
 
          // Step 14. ensure CONSUMER_SLOW notification was received and "waitForSlowConsumerNotif" did not timeout
          if (!isNotified) {
-            throw new RuntimeException("SlowConsumerExample.demoSlowConsumerNotify() FAILED; timeout occurred before" +
-                                          " - slow consumer notification was received. ");
+            throw new RuntimeException("SlowConsumerExample.demoSlowConsumerNotify() FAILED; timeout occurred before" + " - slow consumer notification was received. ");
          }
 
       }
