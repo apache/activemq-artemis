@@ -60,6 +60,28 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
    }
+
+   @Test
+   public void testQueueConfigUserAndRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, SimpleString.toSimpleString("bob"), true, false, false, 10, true, true);
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertEquals(SimpleString.toSimpleString("bob"), queueBinding1.getQueue().getUser());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
+   }
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
