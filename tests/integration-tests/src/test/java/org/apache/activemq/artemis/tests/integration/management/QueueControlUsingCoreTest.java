@@ -72,6 +72,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public String getUser() {
+            return (String) proxy.retrieveAttributeValue("user");
+         }
+
+         @Override
          public int getConsumerCount() {
             return (Integer) proxy.retrieveAttributeValue("consumerCount", Integer.class);
          }
