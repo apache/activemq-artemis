@@ -45,6 +45,13 @@ public final class GroupingHandlerConfiguration implements Serializable {
    private long reaperPeriod = ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod();
 
    public GroupingHandlerConfiguration() {
+      if (System.getProperty(GROUP_TIMEOUT_PROP_NAME) != null) {
+         this.groupTimeout = Long.parseLong(System.getProperty(GROUP_TIMEOUT_PROP_NAME));
+      }
+
+      if (System.getProperty(REAPER_PERIOD_PROP_NAME) != null) {
+         this.reaperPeriod = Long.parseLong(System.getProperty(REAPER_PERIOD_PROP_NAME));
+      }
    }
 
    public SimpleString getName() {
