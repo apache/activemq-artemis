@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.unit.core.server.group.impl;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SystemPropertyOverrideTest extends ActiveMQTestBase {
@@ -34,7 +33,6 @@ public class SystemPropertyOverrideTest extends ActiveMQTestBase {
    // Public --------------------------------------------------------
 
    @Test
-   @Ignore
    public void testSystemPropertyOverride() throws Exception {
       final String groupTimeoutPropertyValue = "1234";
       final String reaperPeriodPropertyValue = "5678";
