@@ -141,8 +141,7 @@ OpenWire support you must configure a Netty Acceptor, like so:
 The Apache ActiveMQ Artemis server will then listens on port 61616 for incoming
 openwire commands. Please note the "protocols" is not mandatory here.
 The openwire configuration conforms to Apache ActiveMQ Artemis's "Single Port" feature.
-Please refer to [Configuring Single
-Port](#configuring-transports.single-port) for details.
+Please refer to [Configuring Single Port](configuring-transports.md#single-port-support) for details.
 
 Please refer to the openwire example for more coding details.
 
@@ -566,7 +565,7 @@ message to a normal message, before sending it to the client.
 If a large message is compressed, the server will uncompressed it before
 sending it to stomp clients. The default value of
 `stompMinLargeMessageSize` is the same as the default value of
-[min-large-message-size](large-messages.md#Configuring-Parameters).
+[min-large-message-size](large-messages.md#configuring-parameters).
 
 ### Stomp Over Web Sockets
 

@@ -85,10 +85,10 @@ implementations. Apache ActiveMQ Artemis ships with two implementations:
     on any platform where there's a Java 4+ runtime.
     
     Under power failure durability requirements it will perform at least on par with the NIO journal with the only 
-    exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/6/docs/api/java/nio/MappedByteBuffer.html#force()) implementation necessary to ensure 
-    durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.html#force(boolean)) used is case of NIO journal.
+    exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/6/docs/api/java/nio/MappedByteBuffer.html#force%28%29)) implementation necessary to ensure 
+    durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.html#force%28boolean%29) used is case of NIO journal.
     
-    It benefits by the configuration of OS [huge pages](https://en.wikipedia.org/wiki/Page_(computer_memory)#Huge_pages),
+    It benefits by the configuration of OS [huge pages](https://en.wikipedia.org/wiki/Page_%28computer_memory%29),
     in particular when is used a big number of journal files and sizing them as multiple of the OS page size in bytes.    
 
 The standard Apache ActiveMQ Artemis core server uses two instances of the journal:
