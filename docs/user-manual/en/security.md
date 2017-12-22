@@ -289,7 +289,7 @@ In short, the file defines:
 -   the implementation class for the login module (e.g. `org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule`)
 
 -   a flag which indicates whether the success of the login module is `required`, `requisite`, `sufficient`, or `optional`
-(see more details on these flags in the [JavaDoc](http://docs.oracle.com/javase/8/docs/api/javax/security/auth/login/Configuration.html)
+(see more details on these flags in the [JavaDoc](https://docs.oracle.com/javase/8/docs/api/javax/security/auth/login/Configuration.html)
 
 -   a list of configuration options specific to the login module implementation
 
@@ -486,7 +486,7 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
 
     After substitution, the string is interpreted as an LDAP search filter, where the LDAP search filter syntax is
     defined by the IETF standard, RFC 2254. A short introduction to the search filter syntax is available from Oracle's
-    JNDI tutorial, [Search Filters](http://download.oracle.com/javase/jndi/tutorial/basics/directory/filter.html).
+    JNDI tutorial, [Search Filters](https://docs.oracle.com/javase/jndi/tutorial/basics/directory/filter.html).
 
     For example, if this option is set to `(uid={0})` and the received username is `jdoe`, the search filter becomes
     `(uid=jdoe)` after string substitution. If the resulting search filter is applied to the subtree selected by the
@@ -728,7 +728,7 @@ that the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis us
 
 #### TLS Kerberos Cipher Suites
 
-The legacy [rfc2712](http://www.ietf.org/rfc/rfc2712.txt) defines TLS Kerberos cipher suites that can be used by TLS to negotiate
+The legacy [rfc2712](https://www.ietf.org/rfc/rfc2712.txt) defines TLS Kerberos cipher suites that can be used by TLS to negotiate
 Kerberos authentication. The cypher suites offered by rfc2712 are dated and insecure and rfc2712 has been superseded by
 SASL GSSAPI. However, for clients that don't support SASL (core client), using TLS can provide Kerberos authentication
 over an *unsecure* channel.

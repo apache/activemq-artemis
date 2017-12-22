@@ -53,7 +53,7 @@ After you installed brew you can install npm by:
 
     brew install npm
 
-[brew]: <http://brew.sh>
+[brew]: <https://brew.sh>
 
 To build the full release with documentation, Javadocs, and the full web site:
 

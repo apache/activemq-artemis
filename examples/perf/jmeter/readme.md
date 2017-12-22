@@ -9,7 +9,7 @@ my-broker/bin/artemis run
 ```
 ##Download and Install JMeter's latest release:
  
-http://jmeter.apache.org/download_jmeter.cgi
+https://jmeter.apache.org/download_jmeter.cgi
  
 ##Copy artemis-jms-client dependencies under $JMETER_HOME/lib folder:
 

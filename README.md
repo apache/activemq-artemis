@@ -17,7 +17,7 @@ To build the ActiveMQ Artemis ASYNCIO native libraries, please follow the instru
 
 ## Documentation
 
-Our documentation is always in sync with our releases at the [Apache ActiveMQ Artemis](http://activemq.apache.org/artemis/docs.html) website.
+Our documentation is always in sync with our releases at the [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis/docs.html) website.
 
 Or you can also look at the current master version on [github](https://github.com/apache/activemq-artemis/blob/master/docs/user-manual/en/SUMMARY.md).
 

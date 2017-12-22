@@ -90,7 +90,7 @@ Otherwise snapshots will be created at 1.4.1 and forgotten. (Unless we ever rele
 
 For more information look at the prepare plugin:
 
-- http://maven.apache.org/maven-release/maven-release-plugin/prepare-mojo.html#pushChanges
+- https://maven.apache.org/maven-release/maven-release-plugin/prepare-mojo.html#pushChanges
 
 If you set `pushChanges=false` then you will have to push the changes manually.  The first command is to push the commits
 which are for changing the `&lt;version>` in the pom.xml files, and the second push is for the tag, e.g.:

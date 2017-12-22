@@ -2,7 +2,7 @@
 
 Apache ActiveMQ Artemis is an asynchronous messaging system, an example of [Message
 Oriented
-Middleware](http://en.wikipedia.org/wiki/Message_oriented_middleware) ,
+Middleware](https://en.wikipedia.org/wiki/Message-oriented_middleware) ,
 we'll just call them messaging systems in the remainder of this book.
 
 We'll first present a brief overview of what kind of things messaging
@@ -19,7 +19,7 @@ together, whilst typically providing reliability, transactions and many
 other features.
 
 Unlike systems based on a [Remote Procedure
-Call](http://en.wikipedia.org/wiki/Remote_procedure_call) (RPC) pattern,
+Call](https://en.wikipedia.org/wiki/Remote_procedure_call) (RPC) pattern,
 messaging systems primarily use an asynchronous message passing pattern
 with no tight relationship between requests and responses. Most
 messaging systems also support a request-response mode but this is not a
@@ -43,7 +43,7 @@ flexible, loosely coupled systems.
 Often, large enterprises use a messaging system to implement a message
 bus which loosely couples heterogeneous systems together. Message buses
 often form the core of an [Enterprise Service
-Bus](http://en.wikipedia.org/wiki/Enterprise_service_bus). (ESB). Using
+Bus](https://en.wikipedia.org/wiki/Enterprise_service_bus). (ESB). Using
 a message bus to de-couple disparate systems can allow the system to
 grow and adapt more easily. It also allows more flexibility to add new
 systems or retire old ones since they don't have brittle dependencies on
@@ -52,9 +52,9 @@ each other.
 ## Messaging styles
 
 Messaging systems normally support two main styles of asynchronous
-messaging: [message queue](http://en.wikipedia.org/wiki/Message_queue)
+messaging: [message queue](https://en.wikipedia.org/wiki/Message_queue)
 messaging (also known as *point-to-point messaging*) and [publish
-subscribe](http://en.wikipedia.org/wiki/Publish_subscribe) messaging.
+subscribe](https://en.wikipedia.org/wiki/Publish_subscribe) messaging.
 We'll summarise them briefly here:
 
 ### The Message Queue Pattern
@@ -95,7 +95,7 @@ database with the order details. Once it's done that it acknowledges the
 message to tell the server that the order has been processed and can be
 forgotten about. Often the send to the warehouse system, update in
 database and acknowledgement will be completed in a single transaction
-to ensure [ACID](http://en.wikipedia.org/wiki/ACID) properties.
+to ensure [ACID](https://en.wikipedia.org/wiki/ACID) properties.
 
 ### The Publish-Subscribe Pattern
 
@@ -169,7 +169,7 @@ Let's take a brief look at these:
 
 ### Java Message Service (JMS)
 
-[JMS](http://en.wikipedia.org/wiki/Java_Message_Service) is part of
+[JMS](https://en.wikipedia.org/wiki/Java_Message_Service) is part of
 Oracle's Java EE specification. It's a Java API that encapsulates both message
 queue and publish-subscribe messaging patterns. JMS is a lowest common
 denominator specification - i.e. it was created to encapsulate common
@@ -200,7 +200,7 @@ the JMS API.
 
 ### RESTful API
 
-[REST](http://en.wikipedia.org/wiki/Representational_State_Transfer)
+[REST](https://en.wikipedia.org/wiki/Representational_State_Transfer)
 approaches to messaging are showing a lot interest recently.
 
 It seems plausible that API standards for cloud computing may converge
@@ -220,7 +220,7 @@ Please see [Rest Interface](rest.md) for using Apache ActiveMQ Artemis's RESTful
 
 ### AMQP
 
-[AMQP](http://en.wikipedia.org/wiki/AMQP) is a specification for
+[AMQP](https://en.wikipedia.org/wiki/AMQP) is a specification for
 interoperable messaging. It also defines a wire format, so any AMQP
 client can work with any messaging system that supports AMQP. AMQP
 clients are available in many different programming languages.
@@ -231,14 +231,14 @@ specification. Any client that supports the 1.0 specification will be
 able to interact with Apache ActiveMQ Artemis.
 
 ### MQTT
-[MQTT](http://mqtt.org/) is a lightweight connectivity protocol.  It is designed
+[MQTT](https://mqtt.org/) is a lightweight connectivity protocol.  It is designed
 to run in environments where device and networks are constrained.  Out of the box
 Apache ActiveMQ Artemis supports version MQTT 3.1.1.  Any client supporting this
 version of the protocol will work against Apache ActiveMQ Artemis.
 
 ### STOMP
 
-[Stomp](http://stomp.github.io/) is a very simple text protocol for
+[Stomp](https://stomp.github.io/) is a very simple text protocol for
 interoperating with messaging systems. It defines a wire format, so
 theoretically any Stomp client can work with any messaging system that
 supports Stomp. Stomp clients are available in many different

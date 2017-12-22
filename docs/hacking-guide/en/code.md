@@ -5,14 +5,14 @@ contributors are encouraged (but not required) to use a mirror on GitHub for col
 functionality. Follow the steps below to get set up with GitHub, etc.
 
 If you do not wish to use GitHub for whatever reason you can follow the overall process outlined in the "Typical
-development cycle" section below but instead attach [a patch file](http://git-scm.com/docs/git-format-patch) to the
+development cycle" section below but instead attach [a patch file](https://git-scm.com/docs/git-format-patch) to the
 related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-lists.html).
 
 ## Initial Steps
 
 1. Create a GitHub account if you don't have one already
 
-   http://github.com
+   https://github.com
    
 1. Fork the apache-artemis repository into your account
 
@@ -159,7 +159,7 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
 
 Due to incompatibilities between some open source licenses and the Apache v2.0 license (that this project is licensed under)
 care must be taken when adding new dependencies to the project.  The Apache Software Foundation 3rd party licensing 
-policy has more information here: http://www.apache.org/legal/3party.html
+policy has more information here: https://www.apache.org/legal/3party.html
 
 To keep track of all licenses in ActiveMQ Artemis, new dependencies must be added in either the top level pom.xml or in test/pom.xml
 (depending on whether this is a test only dependency or if it is used in the main code base).  The dependency should be

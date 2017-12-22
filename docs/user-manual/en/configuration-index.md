@@ -102,7 +102,7 @@ Name | Description
 [persist-id-cache](duplicate-detection.md "Configuring the Duplicate ID Cache")                 |  true means that ID's are persisted to the journal. Default=true
 [queues](address-model.md "Predefined Queues")       |  [a list of queue to be created](#queue-type)
 [remoting-incoming-interceptors](intercepting-operations.md "Intercepting Operations")                                                   |  A list of interceptor
-[resolveProtocols]()  |  Use [ServiceLoader](http://docs.oracle.com/javase/tutorial/ext/basics/spi.html) to load protocol modules. Default=true
+[resolveProtocols]()  |  Use [ServiceLoader](https://docs.oracle.com/javase/tutorial/ext/basics/spi.html) to load protocol modules. Default=true
 [scheduled-thread-pool-max-size](thread-pooling.md#server-scheduled-thread-pool "Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
 [security-enabled](security.md "Security")  |  true means that security is enabled. Default=true
 [security-invalidation-interval](security.md "Security")                                   |  how long (in ms) to wait before invalidating the security cache. Default=10000
@@ -157,8 +157,8 @@ Name | Description
 [filter](core-bridges.md "Core Bridges")         |  optional core filter expression
 [transformer-class-name](core-bridges.md "Core Bridges")             |  optional name of transformer class
 [min-large-message-size](core-bridges.md "Core Bridges")             |  Limit before message is considered large. default 100KB
-[check-period](connection-ttl.md "Detecting Dead Connections")       |  [TTL](http://en.wikipedia.org/wiki/Time_to_live "Time to Live") check period for the bridge. -1 means disabled. default 30000 (ms)
-[connection-ttl](connection-ttl.md "Detecting Dead Connections")     |  [TTL](http://en.wikipedia.org/wiki/Time_to_live "Time to Live") for the Bridge. This should be greater than the ping period. default 60000 (ms)
+[check-period](connection-ttl.md "Detecting Dead Connections")       |  [TTL](https://en.wikipedia.org/wiki/Time_to_live "Time to Live") check period for the bridge. -1 means disabled. default 30000 (ms)
+[connection-ttl](connection-ttl.md "Detecting Dead Connections")     |  [TTL](https://en.wikipedia.org/wiki/Time_to_live "Time to Live") for the Bridge. This should be greater than the ping period. default 60000 (ms)
 [retry-interval](core-bridges.md "Core Bridges")                     |  period (in ms) between successive retries. default 2000
 [retry-interval-multiplier](core-bridges.md "Core Bridges")          |  multiplier to apply to successive retry intervals. default 1
 [max-retry-interval](core-bridges.md "Core Bridges")                 |  Limit to the retry-interval growth. default 2000
