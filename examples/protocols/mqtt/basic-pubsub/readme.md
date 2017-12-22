@@ -12,7 +12,7 @@ For more information on configuring protocol transports see the "Configuring Tra
 
 ## MQTT Clients
 
-There are a number of MQTT client implementations for various languages. The Paho project: http://www.eclipse.org/paho/ offers a number of clients for languages such as C, Python, JavaScript and .Net and is also a great resource for all things MQTT. This example is actually based on the Fuse MQTT java client and was chosen as it is Apache 2.0 licensed and available to download from maven central. The specific client used in the example is not of importance and is used simply to demonstrate the features of MQTT as provided by Apache Artemis.
+There are a number of MQTT client implementations for various languages. The Paho project: https://www.eclipse.org/paho/ offers a number of clients for languages such as C, Python, JavaScript and .Net and is also a great resource for all things MQTT. This example is actually based on the Fuse MQTT java client and was chosen as it is Apache 2.0 licensed and available to download from maven central. The specific client used in the example is not of importance and is used simply to demonstrate the features of MQTT as provided by Apache Artemis.
 
 If you'd like to use the client demonstrated in this example, simple add the following dependency to your pom.xml
 

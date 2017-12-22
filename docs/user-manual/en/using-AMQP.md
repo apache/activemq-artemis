@@ -6,7 +6,7 @@ You can use *any* AMQP 1.0 compatible clients.
 
 A short list includes:
 
-- qpid clients at the [qpid project](http://qpid.apache.org/download.html)
+- qpid clients at the [qpid project](https://qpid.apache.org/download.html)
 - [.NET Clients](https://blogs.apache.org/activemq/entry/using-net-libraries-with-activemq)
 - [Javascript NodeJS](https://github.com/noodlefrenzy/node-amqp10)
 - [Java Script RHEA](https://github.com/grs/rhea)

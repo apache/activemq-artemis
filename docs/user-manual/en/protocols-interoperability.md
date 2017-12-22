@@ -221,7 +221,7 @@ also active by default on the generic acceptor defined on port 61616 (where all 
 of the box configuration.
 
 The best source of information on the MQTT protocol is in the specification.  The MQTT v3.1.1 specification can
-be downloaded from the OASIS website here: http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
+be downloaded from the OASIS website here: https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 
 Some note worthy features of MQTT are explained below:
 
@@ -305,7 +305,7 @@ There are 2 types of wild card in MQTT:
 
 ## Stomp
 
-[Stomp](http://stomp.github.com/) is a text-orientated wire protocol
+[Stomp](https://stomp.github.io/) is a text-orientated wire protocol
 that allows Stomp clients to communicate with Stomp Brokers. Apache ActiveMQ Artemis
 now supports Stomp 1.0, 1.1 and 1.2.
 
@@ -570,7 +570,7 @@ sending it to stomp clients. The default value of
 ### Stomp Over Web Sockets
 
 Apache ActiveMQ Artemis also support Stomp over [Web
-Sockets](http://dev.w3.org/html5/websockets/). Modern web browser which
+Sockets](https://html.spec.whatwg.org/multipage/web-sockets.html). Modern web browser which
 support Web Sockets can send and receive Stomp messages from Apache ActiveMQ Artemis.
 
 Stomp over Web Sockets is supported via the normal Stomp acceptor:
@@ -583,7 +583,7 @@ then connect to `ws://<server>:61614` using a Web Socket to send
 and receive Stomp messages.
 
 A companion JavaScript library to ease client-side development is
-available from [GitHub](http://github.com/jmesnil/stomp-websocket)
+available from [GitHub](https://github.com/jmesnil/stomp-websocket)
 (please see its [documentation](http://jmesnil.net/stomp-websocket/doc/)
 for a complete description).
 

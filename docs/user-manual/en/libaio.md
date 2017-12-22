@@ -85,5 +85,5 @@ Or on Debian systems:
 In the source distribution or git clone, in the `artemis-native` directory, execute the shell
 script `compile-native.sh`. This script will invoke the proper commands to perform the native build.
 
-If you want more information refer to the [cmake web pages](http://cmake.org).
+If you want more information refer to the [cmake web pages](https://cmake.org).
 

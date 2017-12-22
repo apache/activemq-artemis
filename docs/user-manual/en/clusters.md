@@ -59,14 +59,14 @@ around normal Apache ActiveMQ Artemis connections to clients and to other server
 cluster connections. This being the case we need a way of establishing
 the initial first connection. This can be done using dynamic discovery
 techniques like
-[UDP](http://en.wikipedia.org/wiki/User_Datagram_Protocol) and
+[UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) and
 [JGroups](http://www.jgroups.org/), or by providing a list of initial
 connectors.
 
 ### Dynamic Discovery
 
 Server discovery uses
-[UDP](http://en.wikipedia.org/wiki/User_Datagram_Protocol) multicast or
+[UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) multicast or
 [JGroups](http://www.jgroups.org/) to broadcast server connection
 settings.
 

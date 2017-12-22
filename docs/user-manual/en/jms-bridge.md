@@ -111,7 +111,7 @@ by the parameters passed to its constructor.
     destination
 
     The selector expression must follow the [JMS selector
-    syntax](http://docs.oracle.com/javaee/6/api/javax/jms/Message.html)
+    syntax](https://docs.oracle.com/javaee/7/api/javax/jms/Message.html)
 
 -   Failure Retry Interval
 
@@ -295,7 +295,7 @@ connection and the second the read timeout for the socket.
 > using RMI. If you want to control the timeouts for the RMI connections
 > then this can be done via system properties. JBoss uses Sun's RMI and
 > the properties can be found
-> [here](http://docs.oracle.com/javase/6/docs/technotes/guides/rmi/sunrmiproperties.html).
+> [here](https://docs.oracle.com/javase/8/docs/technotes/guides/rmi/sunrmiproperties.html).
 > The default connection timeout is 10 seconds and the default read
 > timeout is 18 seconds.
 
