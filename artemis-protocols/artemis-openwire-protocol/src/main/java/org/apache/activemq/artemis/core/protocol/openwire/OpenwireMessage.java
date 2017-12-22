@@ -17,472 +17,182 @@
 
 package org.apache.activemq.artemis.core.protocol.openwire;
 
-import java.util.Set;
-
-import io.netty.buffer.ByteBuf;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
-import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.RefCountMessageListener;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.persistence.Persister;
-
-// TODO: Implement this
-public class OpenwireMessage implements Message {
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
-   @Override
-   public boolean containsProperty(SimpleString key) {
-      return false;
-   }
-
-   @Override
-   public void messageChanged() {
-
-   }
-
-   @Override
-   public SimpleString getReplyTo() {
-      return null;
-   }
-
-   @Override
-   public Message setReplyTo(SimpleString address) {
-      return null;
-   }
-
-   @Override
-   public Object removeAnnotation(SimpleString key) {
-      return null;
-   }
-
-   @Override
-   public Object getAnnotation(SimpleString key) {
-      return null;
-   }
-
-   @Override
-   public Long getScheduledDeliveryTime() {
-      return null;
-   }
-
-   @Override
-   public RefCountMessageListener getContext() {
-      return null;
-   }
-
-   @Override
-   public Message setContext(RefCountMessageListener context) {
-      return null;
-   }
-
-   @Override
-   public Message setBuffer(ByteBuf buffer) {
-      return null;
-   }
-
-   @Override
-   public ByteBuf getBuffer() {
-      return null;
-   }
-
-   @Override
-   public Message copy() {
-      return null;
-   }
-
-   @Override
-   public Message copy(long newID) {
-      return null;
-   }
-
-   @Override
-   public long getMessageID() {
-      return 0;
-   }
-
-   @Override
-   public Message setMessageID(long id) {
-      return null;
-   }
-
-   @Override
-   public long getExpiration() {
-      return 0;
-   }
-
-   @Override
-   public Message setExpiration(long expiration) {
-      return null;
-   }
-
-   @Override
-   public Object getUserID() {
-      return null;
-   }
-
-   @Override
-   public Message setUserID(Object userID) {
-      return null;
-   }
-
-   @Override
-   public boolean isDurable() {
-      return false;
-   }
-
-   @Override
-   public Message setDurable(boolean durable) {
-      return null;
-   }
-
-   @Override
-   public Persister<Message> getPersister() {
-      return null;
-   }
-
-   @Override
-   public String getAddress() {
-      return null;
-   }
-
-   @Override
-   public Message setAddress(String address) {
-      return null;
-   }
-
-   @Override
-   public SimpleString getAddressSimpleString() {
-      return null;
-   }
-
-   @Override
-   public Message setAddress(SimpleString address) {
-      return null;
-   }
-
-   @Override
-   public long getTimestamp() {
-      return 0;
-   }
-
-   @Override
-   public Message setTimestamp(long timestamp) {
-      return null;
-   }
-
-   @Override
-   public byte getPriority() {
-      return 0;
-   }
-
-   @Override
-   public Message setPriority(byte priority) {
-      return null;
-   }
-
-   @Override
-   public void receiveBuffer(ByteBuf buffer) {
-
-   }
-
-   @Override
-   public void sendBuffer(ByteBuf buffer, int deliveryCount) {
-
-   }
-
-   @Override
-   public int getPersistSize() {
-      return 0;
-   }
-
-   @Override
-   public void persist(ActiveMQBuffer targetRecord) {
-
-   }
-
-   @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
-
-   }
-
-   @Override
-   public Message putBooleanProperty(String key, boolean value) {
-      return null;
-   }
-
-   @Override
-   public Message putByteProperty(String key, byte value) {
-      return null;
-   }
-
-   @Override
-   public Message putBytesProperty(String key, byte[] value) {
-      return null;
-   }
-
-   @Override
-   public Message putShortProperty(String key, short value) {
-      return null;
-   }
-
-   @Override
-   public Message putCharProperty(String key, char value) {
-      return null;
-   }
-
-   @Override
-   public Message putIntProperty(String key, int value) {
-      return null;
-   }
-
-   @Override
-   public Message putLongProperty(String key, long value) {
-      return null;
-   }
-
-   @Override
-   public Message putFloatProperty(String key, float value) {
-      return null;
-   }
-
-   @Override
-   public Message putDoubleProperty(String key, double value) {
-      return null;
-   }
-
-   @Override
-   public Message putBooleanProperty(SimpleString key, boolean value) {
-      return null;
-   }
-
-   @Override
-   public Message putByteProperty(SimpleString key, byte value) {
-      return null;
-   }
-
-   @Override
-   public Message putBytesProperty(SimpleString key, byte[] value) {
-      return null;
-   }
-
-   @Override
-   public Message putShortProperty(SimpleString key, short value) {
-      return null;
-   }
-
-   @Override
-   public Message putCharProperty(SimpleString key, char value) {
-      return null;
-   }
-
-   @Override
-   public Message putIntProperty(SimpleString key, int value) {
-      return null;
-   }
-
-   @Override
-   public Message putLongProperty(SimpleString key, long value) {
-      return null;
-   }
-
-   @Override
-   public Message putFloatProperty(SimpleString key, float value) {
-      return null;
-   }
-
-   @Override
-   public Message putDoubleProperty(SimpleString key, double value) {
-      return null;
-   }
-
-   @Override
-   public Message putStringProperty(String key, String value) {
-      return null;
-   }
+public class OpenwireMessage extends CoreMessage {
 
-   @Override
-   public Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException {
-      return null;
-   }
-
-   @Override
-   public Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException {
-      return null;
-   }
+   public boolean compressed;
+   public long arrival;
+   long brokerInTime;
+   String broketPath;
+   String cluster;
+   int commandId;
+   byte[] dataStructure;
+   byte[] messageId;
+   byte[] producerId;
+   byte[] marshallProperty;
+   byte[] origDestBytes;
+   byte[] replyToDestBytes;
+   byte[] origTxId;
+   int groupSequence;
+   boolean droppable;
 
-   @Override
-   public Object removeProperty(String key) {
-      return null;
+   public OpenwireMessage() {
+      super();
    }
 
-   @Override
-   public boolean containsProperty(String key) {
-      return false;
+   public OpenwireMessage(CoreMessage other, TypedProperties copyProperties) {
+      super(other, copyProperties);
    }
 
-   @Override
-   public Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public OpenwireMessage(CoreMessage other) {
+      super(other);
    }
 
-   @Override
-   public Byte getByteProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public OpenwireMessage(long id, int bufferSize) {
+      super(id, bufferSize);
    }
 
-   @Override
-   public Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public boolean isCompressed() {
+      return compressed;
    }
 
-   @Override
-   public Integer getIntProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setCompressed(boolean compressed) {
+      this.compressed = compressed;
    }
 
-   @Override
-   public Long getLongProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public long getArrival() {
+      return arrival;
    }
 
-   @Override
-   public Object getObjectProperty(String key) {
-      return null;
+   public void setArrival(long arrival) {
+      this.arrival = arrival;
    }
 
-   @Override
-   public Short getShortProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public long getBrokerInTime() {
+      return brokerInTime;
    }
 
-   @Override
-   public Float getFloatProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setBrokerInTime(long brokerInTime) {
+      this.brokerInTime = brokerInTime;
    }
 
-   @Override
-   public String getStringProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public String getBroketPath() {
+      return broketPath;
    }
 
-   @Override
-   public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setBroketPath(String broketPath) {
+      this.broketPath = broketPath;
    }
 
-   @Override
-   public byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException {
-      return new byte[0];
+   public String getCluster() {
+      return cluster;
    }
 
-   @Override
-   public Object removeProperty(SimpleString key) {
-      return null;
+   public void setCluster(String cluster) {
+      this.cluster = cluster;
    }
 
-   @Override
-   public Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public int getCommandId() {
+      return commandId;
    }
 
-   @Override
-   public Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setCommandId(int commandId) {
+      this.commandId = commandId;
    }
 
-   @Override
-   public Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public byte[] getDataStructure() {
+      return dataStructure;
    }
 
-   @Override
-   public Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setDataStructure(byte[] dataStructure) {
+      this.dataStructure = dataStructure;
    }
 
-   @Override
-   public Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public byte[] getMessageId() {
+      return messageId;
    }
 
-   @Override
-   public Object getObjectProperty(SimpleString key) {
-      return null;
+   public void setMessageId(byte[] messageId) {
+      this.messageId = messageId;
    }
 
-   @Override
-   public Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public byte[] getProducerId() {
+      return producerId;
    }
 
-   @Override
-   public Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setProducerId(byte[] producerId) {
+      this.producerId = producerId;
    }
 
-   @Override
-   public String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public byte[] getMarshallProperty() {
+      return marshallProperty;
    }
 
-   @Override
-   public SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return null;
+   public void setMarshallProperty(byte[] marshallProperty) {
+      this.marshallProperty = marshallProperty;
    }
 
-   @Override
-   public byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return new byte[0];
+   public byte[] getOrigDestBytes() {
+      return origDestBytes;
    }
 
-   @Override
-   public Message putStringProperty(SimpleString key, SimpleString value) {
-      return null;
+   public void setOrigDestBytes(byte[] origDestBytes) {
+      this.origDestBytes = origDestBytes;
    }
 
-   @Override
-   public int getEncodeSize() {
-      return 0;
+   public byte[] getReplyToDestBytes() {
+      return replyToDestBytes;
    }
 
-   @Override
-   public Set<SimpleString> getPropertyNames() {
-      return null;
+   public void setReplyToDestBytes(byte[] replyToDestBytes) {
+      this.replyToDestBytes = replyToDestBytes;
    }
 
-   @Override
-   public int getRefCount() {
-      return 0;
+   public int getGroupSequence() {
+      return groupSequence;
    }
 
-   @Override
-   public int incrementRefCount() throws Exception {
-      return 0;
+   public void setGroupSequence(int groupSequence) {
+      this.groupSequence = groupSequence;
    }
 
-   @Override
-   public int decrementRefCount() throws Exception {
-      return 0;
+   public boolean isDroppable() {
+      return droppable;
    }
 
-   @Override
-   public int incrementDurableRefCount() {
-      return 0;
+   public void setDroppable(boolean droppable) {
+      this.droppable = droppable;
    }
 
-   @Override
-   public int decrementDurableRefCount() {
-      return 0;
+   public byte[] getOrigTxId() {
+      return origTxId;
    }
 
-   @Override
-   public ICoreMessage toCore() {
-      return null;
+   public void setOrigTxId(byte[] origTxId) {
+      this.origTxId = origTxId;
    }
 
    @Override
-   public int getMemoryEstimate() {
-      return 0;
+   public OpenwireMessage copy() {
+      //Need to check encode
+      OpenwireMessage owMsg = new OpenwireMessage(this);
+      owMsg.setArrival(this.arrival);
+      owMsg.setBrokerInTime(this.brokerInTime);
+      owMsg.setBroketPath(this.broketPath);
+      owMsg.setCluster(this.cluster);
+      owMsg.setCommandId(this.commandId);
+      owMsg.setCompressed(this.compressed);
+      owMsg.setDataStructure(this.dataStructure);
+      owMsg.setDroppable(this.droppable);
+      owMsg.setGroupSequence(this.groupSequence);
+      owMsg.setMarshallProperty(this.marshallProperty);
+      owMsg.setMessageId(this.messageId);
+      owMsg.setOrigDestBytes(this.origDestBytes);
+      owMsg.setOrigTxId(this.origTxId);
+      owMsg.setProducerId(this.producerId);
+      owMsg.setReplyToDestBytes(this.replyToDestBytes);
+      return owMsg;
    }
 }
