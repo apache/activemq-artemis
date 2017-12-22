@@ -43,7 +43,7 @@ of the REST interface?
     HTTP uniform interface provides all the interoperability you need to
     communicate between different languages, platforms, and even
     messaging implementations that choose to implement the same RESTful
-    interface as Apache ActiveMQ Artemis (i.e. the [REST-\*](http://rest-star.org)
+    interface as Apache ActiveMQ Artemis (i.e. the [REST-\*](http://www.jboss.org/reststar)
     effort.)
 
 -   No envelope (e.g. SOAP) or feed (e.g. Atom) format requirements. You
@@ -57,7 +57,7 @@ of the REST interface?
 
 ## Installation and Configuration
 
-Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the Apache ActiveMQ Artemis REST interface is a little bit different depending whether Apache ActiveMQ Artemis is already embedded (e.g. you're deploying within Wildfly) or configured on the network somewhere, or you want the ActiveMQ Artemis REST WAR itself to startup and manage the Apache ActiveMQ Artemis server.
+Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://resteasy.jboss.org) project and can currently only run within a servlet container. Installing the Apache ActiveMQ Artemis REST interface is a little bit different depending whether Apache ActiveMQ Artemis is already embedded (e.g. you're deploying within Wildfly) or configured on the network somewhere, or you want the ActiveMQ Artemis REST WAR itself to startup and manage the Apache ActiveMQ Artemis server.
 
 ### Installing Within Pre-configured Environment
 
@@ -293,7 +293,7 @@ following relative URI pattern:
 
 The base of the URI is the base URL of the WAR you deployed the Apache ActiveMQ Artemis
 REST server within as defined in the [Installation and
-Configuration](#install) section of this document. Replace the `{name}`
+Configuration](#installation-and-configuration) section of this document. Replace the `{name}`
 string within the above URI pattern with the name of the queue or topic
 you are interested in interacting with. Next, perform your HEAD or GET
 request on this URI. Here's what a request/response would look like.
@@ -338,11 +338,11 @@ with a Queue resource.
 
 -   `msg-pull-consumers`. This is a URL for creating consumers that will
     pull from a queue. The semantics of this link are described in
-    [Consuming Messages via Pull](#message-pull).
+    [Consuming Messages via Pull](#consuming-messages-via-pull).
 
 -   `msg-push-consumers`. This is a URL for registering other URLs you
     want the Apache ActiveMQ Artemis REST server to push messages to. The semantics of
-    this link are described in [Pushing Messages](#message-push).
+    this link are described in [Pushing Messages](#pushing-messages).
 
 ### Topic Resource Response Headers
 
@@ -358,16 +358,16 @@ with a Topic resource.
 
 -   `msg-pull-subscriptions`. This is a URL for creating subscribers
     that will pull from a topic. The semantics of this link are
-    described in [Consuming Messages via Pull](#message-pull).
+    described in [Consuming Messages via Pull](#consuming-messages-via-pull).
 
 -   `msg-push-subscriptions`. This is a URL for registering other URLs
     you want the Apache ActiveMQ Artemis REST server to push messages to. The semantics
-    of this link are described in [Pushing Messages](#message-push).
+    of this link are described in [Pushing Messages](#pushing-messages).
 
 ## Posting Messages
 
 This chapter discusses the protocol for posting messages to a queue or a
-topic. In [Apache ActiveMQ Artemis REST Interface Basics](#basics), you saw that a
+topic. In [Apache ActiveMQ Artemis REST Interface Basics](#apache-activemq-artemis-rest-interface-basics), you saw that a
 queue or topic resource publishes variable custom headers that are links
 to other RESTful resources. The `msg-create` header is a URL you can
 post a message to. Messages are published to a queue or topic by sending
