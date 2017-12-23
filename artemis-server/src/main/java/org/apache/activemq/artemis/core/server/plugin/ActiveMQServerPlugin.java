@@ -460,4 +460,11 @@ public interface ActiveMQServerPlugin {
    default void criticalFailure(CriticalComponent components) throws ActiveMQException {
    }
 
+   /**
+    * used to pass configured properties to Plugin
+    *
+    * @param properties
+    */
+   default void init(Map<String, String> properties) {
+   }
 }

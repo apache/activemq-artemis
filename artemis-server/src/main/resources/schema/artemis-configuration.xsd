@@ -934,6 +934,15 @@
                               a broker plugin
                            </xsd:documentation>
                         </xsd:annotation>
+                        <xsd:sequence>
+                           <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+                              <xsd:annotation>
+                                 <xsd:documentation>
+                                    properties to configure a plugin
+                                 </xsd:documentation>
+                              </xsd:annotation>
+                           </xsd:element>
+                        </xsd:sequence>
                         <xsd:attribute name="class-name" type="xsd:string" use="required">
                            <xsd:annotation>
                               <xsd:documentation>
@@ -1443,7 +1452,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="property" type="transformerProperty" maxOccurs="unbounded" minOccurs="0">
+         <xsd:element ref="property"  maxOccurs="unbounded" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   properties to configure the transformer class
@@ -1453,23 +1462,24 @@
       </xsd:sequence>
    </xsd:complexType>
 
-
-    <xsd:complexType name="transformerProperty">
-       <xsd:attribute name="key" type="xsd:string" use="required">
-          <xsd:annotation>
-             <xsd:documentation>
-                key for the property
-             </xsd:documentation>
-          </xsd:annotation>
-       </xsd:attribute>
-       <xsd:attribute name="value" type="xsd:string" use="required">
-          <xsd:annotation>
-             <xsd:documentation>
-                value for the property
-             </xsd:documentation>
-          </xsd:annotation>
-       </xsd:attribute>
-    </xsd:complexType>
+   <xsd:element name="property">
+      <xsd:complexType>
+         <xsd:attribute name="key" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation>
+                  key for the property
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attribute name="value" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation>
+                  value for the property
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+      </xsd:complexType>
+   </xsd:element>
 
 
    <!-- CLUSTER CONNECTION CONFIGURATION -->
