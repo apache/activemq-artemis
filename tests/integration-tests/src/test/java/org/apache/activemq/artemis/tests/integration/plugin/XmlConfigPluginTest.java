@@ -38,8 +38,13 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(fc));
       try {
          server.start();
-         assertEquals(1, server.getBrokerPlugins().size());
+         assertEquals(2, server.getBrokerPlugins().size());
          assertTrue(server.getBrokerPlugins().get(0) instanceof MethodCalledVerifier);
+         assertTrue(server.getBrokerPlugins().get(1) instanceof ConfigurationVerifier);
+         ConfigurationVerifier configurationVerifier = (ConfigurationVerifier) server.getBrokerPlugins().get(1);
+         assertEquals("value1", "val_1", configurationVerifier.value1);
+         assertEquals("value2", "val_2", configurationVerifier.value2);
+         assertNull("value3 should not have been set", configurationVerifier.value3);
       } finally {
          if (server != null) {
             server.stop();

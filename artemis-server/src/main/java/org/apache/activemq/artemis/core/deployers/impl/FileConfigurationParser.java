@@ -703,6 +703,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private ActiveMQServerPlugin parseActiveMQServerPlugin(Node item) {
       final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
 
+      Map<String, String> properties = getMapOfChildPropertyElements(item);
+
       ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQServerPlugin>() {
          @Override
          public ActiveMQServerPlugin run() {
@@ -710,7 +712,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       });
 
+      serverPlugin.init(properties);
+
       return serverPlugin;
+   }
+
+   private Map<String, String> getMapOfChildPropertyElements(Node item) {
+      Map<String, String> properties = new HashMap<>();
+      NodeList children = item.getChildNodes();
+      for (int i = 0; i < children.getLength(); i++) {
+         Node child = children.item(i);
+         if (child.getNodeName().equals("property")) {
+            String key = getAttributeValue(child, "key");
+            String value = getAttributeValue(child, "value");
+            properties.put(key, value);
+         }
+      }
+      return properties;
    }
 
    /**
@@ -1656,16 +1674,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       Element element = (Element) node;
       String className = getString(element, "class-name", null, Validators.NO_CHECK);
 
-      Map<String, String> properties = new HashMap<>();
-      NodeList children = element.getChildNodes();
-      for (int j = 0; j < children.getLength(); j++) {
-         Node child = children.item(j);
-         if (child.getNodeName().equals("property")) {
-            String key = getAttributeValue(child, "key");
-            String value = getAttributeValue(child, "value");
-            properties.put(key, value);
-         }
-      }
+      Map<String, String> properties = getMapOfChildPropertyElements(element);
       return new TransformerConfiguration(className).setProperties(properties);
    }
 
