@@ -104,6 +104,10 @@ public class DivertTest extends ActiveMQTestBase {
 
          Assert.assertEquals(i, message.getObjectProperty(propKey));
 
+         Assert.assertEquals("forwardAddress", message.getAddress());
+
+         Assert.assertEquals("testAddress", message.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+
          message.acknowledge();
       }
 
@@ -115,6 +119,8 @@ public class DivertTest extends ActiveMQTestBase {
          Assert.assertNotNull(message);
 
          Assert.assertEquals(i, message.getObjectProperty(propKey));
+
+         Assert.assertEquals("testAddress", message.getAddress());
 
          message.acknowledge();
       }
@@ -589,6 +595,10 @@ public class DivertTest extends ActiveMQTestBase {
          Assert.assertNotNull(message);
 
          Assert.assertEquals(i, message.getObjectProperty(propKey));
+
+         Assert.assertEquals("forwardAddress", message.getAddress());
+
+         Assert.assertEquals("testAddress", message.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
 
          message.acknowledge();
       }
