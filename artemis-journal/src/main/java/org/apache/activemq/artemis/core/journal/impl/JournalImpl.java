@@ -2237,6 +2237,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    }
 
+   public boolean flushAppendExecutor(long timeout, TimeUnit unit) throws InterruptedException {
+      return OrderedExecutorFactory.flushExecutor(appendExecutor, timeout, unit);
+   }
+
    @Override
    public int getDataFilesCount() {
       return filesRepository.getDataFilesCount();

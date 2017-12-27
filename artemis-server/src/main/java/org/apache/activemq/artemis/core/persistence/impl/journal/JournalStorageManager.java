@@ -568,6 +568,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                throw new ActiveMQIllegalStateException("already replicating");
             replicator = replicationManager;
 
+            if (!((JournalImpl) originalMessageJournal).flushAppendExecutor(10, TimeUnit.SECONDS)) {
+               throw new Exception("Live message journal is busy");
+            }
+
+            if (!((JournalImpl) originalBindingsJournal).flushAppendExecutor(10, TimeUnit.SECONDS)) {
+               throw new Exception("Live bindings journal is busy");
+            }
+
             // Establishes lock
             originalMessageJournal.synchronizationLock();
             originalBindingsJournal.synchronizationLock();
