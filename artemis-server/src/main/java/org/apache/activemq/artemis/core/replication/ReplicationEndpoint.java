@@ -33,18 +33,22 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.Journal.JournalState;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.impl.FileWrapperJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager.JournalContent;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync;
@@ -125,6 +129,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private SharedNothingBackupQuorum backupQuorum;
 
    private Executor executor;
+
+   private OperationContext replicationContext;
 
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
@@ -212,12 +218,25 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
       }
 
+      final PacketImpl resp = response;
       if (response != null) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Returning " + response);
-         }
+         replicationContext.executeOnCompletion(new IOCallback() {
+            @Override
+            public void done() {
 
-         channel.send(response);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Returning " + resp);
+               }
+
+               channel.send(resp);
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+               // This must be an IO error, so the server can catch
+               // by IOCriticalErrorListener, nothing else to do.
+            }
+         }, true);
       } else {
          logger.trace("Response is null, ignoring response");
       }
@@ -252,6 +271,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          storageManager.start();
 
          server.getManagementService().setStorageManager(storageManager);
+
+         replicationContext = storageManager.newContext(server.getExecutorFactory().getExecutor());
 
          journalsHolder.put(JournalContent.BINDINGS, storageManager.getBindingsJournal());
          journalsHolder.put(JournalContent.MESSAGES, storageManager.getMessageJournal());
@@ -601,9 +622,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private void handleCommitRollback(final ReplicationCommitMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       if (packet.isRollback()) {
-         journalToUse.appendRollbackRecord(packet.getTxId(), noSync);
+         journalToUse.appendRollbackRecord(packet.getTxId(), noSync, replicationContext);
       } else {
-         journalToUse.appendCommitRecord(packet.getTxId(), noSync);
+         journalToUse.appendCommitRecord(packet.getTxId(), noSync, replicationContext);
       }
    }
 
@@ -612,7 +633,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private void handlePrepare(final ReplicationPrepareMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
-      journalToUse.appendPrepareRecord(packet.getTxId(), packet.getRecordData(), noSync);
+      journalToUse.appendPrepareRecord(packet.getTxId(), new ByteArrayEncoding(packet.getRecordData()), noSync, replicationContext);
    }
 
    /**
@@ -629,7 +650,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private void handleAppendDelete(final ReplicationDeleteMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
-      journalToUse.appendDeleteRecord(packet.getId(), noSync);
+      journalToUse.appendDeleteRecord(packet.getId(), noSync, replicationContext);
    }
 
    /**
@@ -655,12 +676,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          if (logger.isTraceEnabled()) {
             logger.trace("Endpoint appendUpdate id = " + packet.getId());
          }
-         journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+         journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(packet.getRecordData()), noSync, replicationContext);
       } else {
          if (logger.isTraceEnabled()) {
             logger.trace("Endpoint append id = " + packet.getId());
          }
-         journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+         journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(packet.getRecordData()), noSync, replicationContext);
       }
    }
 
