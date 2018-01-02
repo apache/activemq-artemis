@@ -83,6 +83,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAG
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAJoinMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResumeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
@@ -331,7 +332,11 @@ public abstract class PacketDecoder implements Serializable {
             break;
          }
          case SESS_XA_RESP: {
-            packet = new SessionXAResponseMessage();
+            if (connection.isVersionBeforeAsyncResponseChange()) {
+               packet = new SessionXAResponseMessage();
+            } else {
+               packet = new SessionXAResponseMessage_V2();
+            }
             break;
          }
          case SESS_XA_ROLLBACK: {

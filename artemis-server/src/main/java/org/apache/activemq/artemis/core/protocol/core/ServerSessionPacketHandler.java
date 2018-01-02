@@ -76,6 +76,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAG
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAJoinMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResumeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
@@ -309,11 +310,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = message.isRequiresResponse();
                   sendContinuations(message.getPacketSize(), message.getMessageBodySize(), message.getBody(), message.isContinues());
                   if (requiresResponse) {
-                     if (channel.getConnection().isVersionBeforeAsyncResponseChange()) {
-                        response = new NullResponseMessage();
-                     } else {
-                        response = new NullResponseMessage_V2(packet.getCorrelationID());
-                     }
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -342,7 +339,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   session.createAddress(request.getAddress(), request.getRoutingTypes(), request.isAutoCreated());
                   if (requiresResponse) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -351,7 +348,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   session.createQueue(request.getAddress(), request.getQueueName(), RoutingType.MULTICAST, request.getFilterString(), request.isTemporary(), request.isDurable());
                   if (requiresResponse) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -361,7 +358,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   session.createQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isTemporary(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(),
                                       request.isAutoCreated());
                   if (requiresResponse) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -370,7 +367,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   session.createSharedQueue(request.getAddress(), request.getQueueName(), request.isDurable(), request.getFilterString());
                   if (requiresResponse) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -379,7 +376,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.isDurable(), request.getFilterString());
                   if (requiresResponse) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -387,7 +384,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionDeleteQueueMessage request = (SessionDeleteQueueMessage) packet;
                   session.deleteQueue(request.getQueueName());
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   break;
                }
                case SESS_QUEUEQUERY: {
@@ -447,62 +444,62 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_COMMIT: {
                   requiresResponse = true;
                   session.commit();
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   break;
                }
                case SESS_ROLLBACK: {
                   requiresResponse = true;
                   session.rollback(((RollbackMessage) packet).isConsiderLastMessageAsDelivered());
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   break;
                }
                case SESS_XA_COMMIT: {
                   requiresResponse = true;
                   SessionXACommitMessage message = (SessionXACommitMessage) packet;
                   session.xaCommit(message.getXid(), message.isOnePhase());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_END: {
                   requiresResponse = true;
                   SessionXAEndMessage message = (SessionXAEndMessage) packet;
                   session.xaEnd(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_FORGET: {
                   requiresResponse = true;
                   SessionXAForgetMessage message = (SessionXAForgetMessage) packet;
                   session.xaForget(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_JOIN: {
                   requiresResponse = true;
                   SessionXAJoinMessage message = (SessionXAJoinMessage) packet;
                   session.xaJoin(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_RESUME: {
                   requiresResponse = true;
                   SessionXAResumeMessage message = (SessionXAResumeMessage) packet;
                   session.xaResume(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_ROLLBACK: {
                   requiresResponse = true;
                   SessionXARollbackMessage message = (SessionXARollbackMessage) packet;
                   session.xaRollback(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_START: {
                   requiresResponse = true;
                   SessionXAStartMessage message = (SessionXAStartMessage) packet;
                   session.xaStart(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_FAILED: {
@@ -515,14 +512,14 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_XA_SUSPEND: {
                   requiresResponse = true;
                   session.xaSuspend();
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_PREPARE: {
                   requiresResponse = true;
                   SessionXAPrepareMessage message = (SessionXAPrepareMessage) packet;
                   session.xaPrepare(message.getXid());
-                  response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+                  response = createSessionXAResponseMessage(packet);
                   break;
                }
                case SESS_XA_INDOUBT_XIDS: {
@@ -551,14 +548,14 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_STOP: {
                   requiresResponse = true;
                   session.stop();
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   break;
                }
                case SESS_CLOSE: {
                   requiresResponse = true;
                   session.close(false);
                   // removeConnectionListeners();
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   flush = true;
                   closeChannel = true;
                   break;
@@ -568,7 +565,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = message.isRequiresResponse();
                   session.individualAcknowledge(message.getConsumerID(), message.getMessageID());
                   if (requiresResponse) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   break;
                }
@@ -576,7 +573,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionConsumerCloseMessage message = (SessionConsumerCloseMessage) packet;
                   session.closeConsumer(message.getConsumerID());
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   break;
                }
                case SESS_FORCE_CONSUMER_DELIVERY: {
@@ -585,7 +582,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   break;
                }
                case PacketImpl.SESS_ADD_METADATA: {
-                  response = new NullResponseMessage();
+                  response = createNullResponseMessage(packet);
                   SessionAddMetaDataMessage message = (SessionAddMetaDataMessage) packet;
                   session.addMetaData(message.getKey(), message.getData());
                   break;
@@ -594,7 +591,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionAddMetaDataMessageV2 message = (SessionAddMetaDataMessageV2) packet;
                   if (message.isRequiresConfirmations()) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   }
                   session.addMetaData(message.getKey(), message.getData());
                   break;
@@ -603,7 +600,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionUniqueAddMetaDataMessage message = (SessionUniqueAddMetaDataMessage) packet;
                   if (session.addUniqueMetaData(message.getKey(), message.getData())) {
-                     response = new NullResponseMessage();
+                     response = createNullResponseMessage(packet);
                   } else {
                      response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.duplicateMetadata(message.getKey(), message.getData()));
                   }
@@ -613,7 +610,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          } catch (ActiveMQIOErrorException e) {
             response = onActiveMQIOErrorExceptionWhileHandlePacket(packet, e, requiresResponse, response, this.session);
          } catch (ActiveMQXAException e) {
-            response = onActiveMQXAExceptionWhileHandlePacket(e, requiresResponse, response);
+            response = onActiveMQXAExceptionWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQQueueMaxConsumerLimitReached e) {
             response = onActiveMQQueueMaxConsumerLimitReachedWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQException e) {
@@ -627,6 +624,26 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       }
    }
 
+   private Packet createNullResponseMessage(Packet packet) {
+      final Packet response;
+      if (!packet.isResponseAsync() || channel.getConnection().isVersionBeforeAsyncResponseChange()) {
+         response = new NullResponseMessage();
+      } else {
+         response = new NullResponseMessage_V2(packet.getCorrelationID());
+      }
+      return response;
+   }
+
+   private Packet createSessionXAResponseMessage(Packet packet) {
+      Packet response;
+      if (packet.isResponseAsync()) {
+         response = new SessionXAResponseMessage_V2(packet.getCorrelationID(), false, XAResource.XA_OK, null);
+      } else {
+         response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
+      }
+      return response;
+   }
+
    private void onSessionAcknowledge(Packet packet) {
       this.storageManager.setContext(session.getSessionContext());
       try {
@@ -637,12 +654,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             requiresResponse = message.isRequiresResponse();
             this.session.acknowledge(message.getConsumerID(), message.getMessageID());
             if (requiresResponse) {
-               response = new NullResponseMessage();
+               response = createNullResponseMessage(packet);
             }
          } catch (ActiveMQIOErrorException e) {
             response = onActiveMQIOErrorExceptionWhileHandlePacket(packet, e, requiresResponse, response, this.session);
          } catch (ActiveMQXAException e) {
-            response = onActiveMQXAExceptionWhileHandlePacket(e, requiresResponse, response);
+            response = onActiveMQXAExceptionWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQQueueMaxConsumerLimitReached e) {
             response = onActiveMQQueueMaxConsumerLimitReachedWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQException e) {
@@ -666,16 +683,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             requiresResponse = message.isRequiresResponse();
             this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage()), this.direct);
             if (requiresResponse) {
-               if (channel.getConnection().isVersionBeforeAsyncResponseChange()) {
-                  response = new NullResponseMessage();
-               } else {
-                  response = new NullResponseMessage_V2(packet.getCorrelationID());
-               }
+               response = createNullResponseMessage(packet);
             }
          } catch (ActiveMQIOErrorException e) {
             response = onActiveMQIOErrorExceptionWhileHandlePacket(packet, e, requiresResponse, response, this.session);
          } catch (ActiveMQXAException e) {
-            response = onActiveMQXAExceptionWhileHandlePacket(e, requiresResponse, response);
+            response = onActiveMQXAExceptionWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQQueueMaxConsumerLimitReached e) {
             response = onActiveMQQueueMaxConsumerLimitReachedWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQException e) {
@@ -700,7 +713,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          } catch (ActiveMQIOErrorException e) {
             response = onActiveMQIOErrorExceptionWhileHandlePacket(packet, e, requiresResponse, response, this.session);
          } catch (ActiveMQXAException e) {
-            response = onActiveMQXAExceptionWhileHandlePacket(e, requiresResponse, response);
+            response = onActiveMQXAExceptionWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQQueueMaxConsumerLimitReached e) {
             response = onActiveMQQueueMaxConsumerLimitReachedWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQException e) {
@@ -725,7 +738,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          } catch (ActiveMQIOErrorException e) {
             response = onActiveMQIOErrorExceptionWhileHandlePacket(packet, e, requiresResponse, response, this.session);
          } catch (ActiveMQXAException e) {
-            response = onActiveMQXAExceptionWhileHandlePacket(e, requiresResponse, response);
+            response = onActiveMQXAExceptionWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQQueueMaxConsumerLimitReached e) {
             response = onActiveMQQueueMaxConsumerLimitReachedWhileHandlePacket(packet, e, requiresResponse, response);
          } catch (ActiveMQException e) {
@@ -755,12 +768,17 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       return response;
    }
 
-   private static Packet onActiveMQXAExceptionWhileHandlePacket(ActiveMQXAException e,
+   private static Packet onActiveMQXAExceptionWhileHandlePacket(Packet packet,
+                                                                ActiveMQXAException e,
                                                                 boolean requiresResponse,
                                                                 Packet response) {
       if (requiresResponse) {
          logger.debug("Sending exception to client", e);
-         response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
+         if (packet.isResponseAsync()) {
+            response = new SessionXAResponseMessage_V2(packet.getCorrelationID(), true, e.errorCode, e.getMessage());
+         } else {
+            response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
+         }
       } else {
          ActiveMQServerLogger.LOGGER.caughtXaException(e);
       }
