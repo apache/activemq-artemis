@@ -1115,16 +1115,16 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    public SimpleString convertName(SimpleString name) {
-	      if (name == null) {
-	         return null;
-	      }
+      if (name == null) {
+         return null;
+      }
 
-	      if (name.startsWith(OLD_QUEUE_PREFIX)) {
-	         return name.subSeq(OLD_QUEUE_PREFIX.length(), name.length());
-	      } else if (name.startsWith(OLD_TOPIC_PREFIX)) {
-	         return name.subSeq(OLD_TOPIC_PREFIX.length(), name.length());
-	      } else {
-	         return name;
-	      }
-	   }
+      if (name.startsWith(OLD_QUEUE_PREFIX)) {
+         return name.subSeq(OLD_QUEUE_PREFIX.length(), name.length());
+      } else if (name.startsWith(OLD_TOPIC_PREFIX)) {
+         return name.subSeq(OLD_TOPIC_PREFIX.length(), name.length());
+      } else {
+         return name;
+      }
+   }
 }
