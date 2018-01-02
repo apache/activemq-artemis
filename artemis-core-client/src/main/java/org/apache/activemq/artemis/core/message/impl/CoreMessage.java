@@ -49,6 +49,8 @@ import io.netty.buffer.ByteBuf;
 public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
+   public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
+   public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
 
    private volatile int memoryEstimate = -1;
 
@@ -434,7 +436,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public SimpleString getAddressSimpleString() {
-      return address;
+      return convertName(address);
    }
 
    @Override
@@ -1111,4 +1113,18 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          return new java.util.Date(timestamp).toString();
       }
    }
+
+   public SimpleString convertName(SimpleString name) {
+	      if (name == null) {
+	         return null;
+	      }
+
+	      if (name.startsWith(OLD_QUEUE_PREFIX)) {
+	         return name.subSeq(OLD_QUEUE_PREFIX.length(), name.length());
+	      } else if (name.startsWith(OLD_TOPIC_PREFIX)) {
+	         return name.subSeq(OLD_TOPIC_PREFIX.length(), name.length());
+	      } else {
+	         return name;
+	      }
+	   }
 }
