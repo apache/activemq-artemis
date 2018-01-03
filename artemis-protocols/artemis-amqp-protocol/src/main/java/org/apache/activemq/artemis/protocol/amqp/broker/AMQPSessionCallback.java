@@ -454,7 +454,7 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
       //here check queue-autocreation
-      RoutingType routingType = context.getRoutingType(receiver, RoutingType.ANYCAST);
+      RoutingType routingType = context.getRoutingType(receiver, address);
       if (!bindingQuery(address, routingType)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
       }
