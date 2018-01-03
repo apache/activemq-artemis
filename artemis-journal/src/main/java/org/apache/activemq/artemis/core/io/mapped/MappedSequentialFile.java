@@ -366,14 +366,7 @@ final class MappedSequentialFile implements SequentialFile {
 
    @Override
    public void renameTo(String newFileName) throws Exception {
-      try {
-         close();
-      } catch (Exception e) {
-         if (e instanceof IOException) {
-            factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
-         }
-         throw e;
-      }
+      close();
       if (this.fileName == null) {
          this.fileName = this.file.getName();
       }
