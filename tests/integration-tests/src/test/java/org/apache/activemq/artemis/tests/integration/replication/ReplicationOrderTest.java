@@ -24,7 +24,10 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -99,6 +102,15 @@ public class ReplicationOrderTest extends FailoverTestBase {
    @Override
    protected void createConfigs() throws Exception {
       createReplicatedConfigs();
+   }
+
+   @Override
+   protected TestableServer createTestableServer(Configuration config) {
+      if (config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration) {
+         config.setJournalBufferTimeout_NIO(-1);
+         config.setJournalBufferTimeout_AIO(-1);
+      }
+      return super.createTestableServer(config);
    }
 
    @Override
