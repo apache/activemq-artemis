@@ -76,12 +76,17 @@ public class CorePluginTest extends JMSTestBase {
 
    private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
+   private final ConfigurationVerifier configurationVerifier = new ConfigurationVerifier();
    public static final String INVM_CONNECTOR_FACTORY = InVMConnectorFactory.class.getCanonicalName();
 
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
       Configuration config = super.createDefaultConfig(netty);
       config.registerBrokerPlugin(verifier);
+      Map<String, String> props = new HashMap<>(1);
+      props.put(ConfigurationVerifier.PROPERTY1, "val_1");
+      configurationVerifier.init(props);
+      config.registerBrokerPlugin(configurationVerifier);
       config.setMessageExpiryScanPeriod(0); // disable expiry scan so it's alwyas through delivery
       return config;
    }
@@ -118,6 +123,9 @@ public class CorePluginTest extends JMSTestBase {
             AFTER_MESSAGE_ROUTE);
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
+
+      assertEquals("configurationVerifier is invoked", 1, configurationVerifier.afterSendCounter.get());
+      assertEquals("configurationVerifier config set", "val_1", configurationVerifier.value1);
    }
 
    @Test
