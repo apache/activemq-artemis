@@ -63,7 +63,7 @@ Name | Description
 [diverts](diverts.md "Diverting and Splitting Message Flows")        |  [a list of diverts to use](#divert-type)
 [global-max-size](paging.md#global-max-size) | The amount in bytes before all addresses are considered full. Default is half of the memory used by the JVM (-Xmx argument).
 [graceful-shutdown-enabled](graceful-shutdown.md "Graceful Server Shutdown")      |  true means that graceful shutdown is enabled. Default=true
-[graceful-shutdown-timeout](graceful-shutdown.md "Graceful Server Shutdown")      |  Timeout on waitin for clients to disconnect before server shutdown. Default=-1
+[graceful-shutdown-timeout](graceful-shutdown.md "Graceful Server Shutdown")      |  Timeout on waiting for clients to disconnect before server shutdown. Default=-1
 [grouping-handler](message-grouping.md "Message Grouping")             |  Message Group configuration
 [id-cache-size](duplicate-detection.md "Configuring the Duplicate ID Cache")  |  The duplicate detection circular cache size. Default=20000
 [jmx-domain](management.md "Configuring JMX")                               |  the JMX domain used to registered MBeans in the MBeanServer. Default=org.apache.activemq
@@ -74,9 +74,9 @@ Name | Description
 [journal-compact-percentage](persistence.md)                                        |  The percentage of live data on which we consider compacting the journal. Default=30
 [journal-directory](persistence.md)                                                 |  the directory to store the journal files in. Default=data/journal
 [journal-file-size](persistence.md)                                                 |  the size (in bytes) of each journal file. Default=10485760 (10 MB)
-[journal-max-io](persistence.md#configuring.message.journal.journal-max-io)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 4096 for AIO and 1 for NIO, ignored for MAPPED.
-[journal-min-files](persistence.md#configuring.message.journal.journal-min-files)     |  how many journal files to pre-create. Default=2
-[journal-pool-files](persistence.md#configuring.message.journal.journal-pool-files)     |  The upper theshold of the journal file pool,-1 (default) means no Limit. The system will create as many files as needed however when reclaiming files it will shrink back to the `journal-pool-files`
+[journal-max-io](persistence.md#configuring-the-message-journal)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 4096 for AIO and 1 for NIO, ignored for MAPPED.
+[journal-min-files](persistence.md#configuring-the-message-journal)     |  how many journal files to pre-create. Default=2
+[journal-pool-files](persistence.md#configuring-the-message-journal)     |  The upper threshold of the journal file pool,-1 (default) means no Limit. The system will create as many files as needed however when reclaiming files it will shrink back to the `journal-pool-files`
 [journal-sync-non-transactional](persistence.md)                                      |  if true wait for non transaction data to be synced to the journal before returning response to client. Default=true
 [journal-sync-transactional](persistence.md)                                          |  if true wait for transaction data to be synchronized to the journal before returning response to client. Default=true
 [journal-type](persistence.md)                                                        |  the type of journal to use. Default=ASYNCIO
@@ -103,7 +103,7 @@ Name | Description
 [queues](address-model.md "Predefined Queues")       |  [a list of queue to be created](#queue-type)
 [remoting-incoming-interceptors](intercepting-operations.md "Intercepting Operations")                                                   |  A list of interceptor
 [resolveProtocols]()  |  Use [ServiceLoader](http://docs.oracle.com/javase/tutorial/ext/basics/spi.html) to load protocol modules. Default=true
-[scheduled-thread-pool-max-size](thread-pooling.md#server.scheduled.thread.pool "Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
+[scheduled-thread-pool-max-size](thread-pooling.md#server-scheduled-thread-pool "Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
 [security-enabled](security.md "Security")  |  true means that security is enabled. Default=true
 [security-invalidation-interval](security.md "Security")                                   |  how long (in ms) to wait before invalidating the security cache. Default=10000
 system-property-prefix | Prefix for replacing configuration settings using Bean Utils.
@@ -113,9 +113,9 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 [transaction-timeout](transaction-config.md "Resource Manager Configuration")              |  how long (in ms) before a transaction can be removed from the resource manager after create time. Default=300000
 [transaction-timeout-scan-period](transaction-config.md "Resource Manager Configuration")  |  how often (in ms) to scan for timeout transactions. Default=1000
 [wild-card-routing-enabled](wildcard-routing.md "Routing Messages With Wild Cards")        |  true means that the server supports wild card routing. Default=true
-[network-check-NIC](network-isolation.md) | The NIC (Network Interface Controller) to be used on InetAddress.isReacheable
+[network-check-NIC](network-isolation.md) | The NIC (Network Interface Controller) to be used on InetAddress.isReachable
 [network-check-URL](network-isolation.md) | The list of http URIs to be used to validate the network
-[network-check-list](network-isolation.md) | The list of pings to be used on ping or InetAddress.isReacheable
+[network-check-list](network-isolation.md) | The list of pings to be used on ping or InetAddress.isReachable
 [network-check-ping-command](network-isolation.md) | The command used to oping IPV4 addresses
 [network-check-ping6-command](network-isolation.md) | The command used to oping IPV6 addresses
 [critical-analyzer](critical-analysis.md) | Enable or disable the critical analysis (default true)
