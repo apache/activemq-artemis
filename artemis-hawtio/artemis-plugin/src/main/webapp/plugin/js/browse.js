@@ -20,6 +20,12 @@
 var ARTEMIS = (function(ARTEMIS) {
 
     ARTEMIS.BrowseQueueController = function ($scope, workspace, ARTEMISService, jolokia, localStorage, artemisMessage, $location, $timeout) {
+    $scope.pagingOptions = {
+          pageSizes: [50, 100, 200],
+          pageSize: 100,
+          currentPage: 1
+       };
+       $scope.totalServerItems = 0;
        $scope.searchText = '';
        $scope.allMessages = [];
        $scope.messages = [];
@@ -28,6 +34,10 @@ var ARTEMIS = (function(ARTEMIS) {
        $scope.deleteDialog = false;
        $scope.moveDialog = false;
        $scope.gridOptions = {
+          pagingOptions: $scope.pagingOptions,
+          enablePaging: true,
+          totalServerItems: 'totalServerItems',
+          showFooter: true,
           selectedItems: [],
           data: 'messages',
           displayFooter: false,
@@ -102,6 +112,14 @@ var ARTEMIS = (function(ARTEMIS) {
        $scope.$watch('gridOptions.filterOptions.filterText', function (filterText) {
           filterMessages(filterText);
        });
+       $scope.$watch('pagingOptions', function (newVal, oldVal) {
+          if (parseInt(newVal.currentPage) && newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+             loadTable();
+          }
+          if (parseInt(newVal.pageSize) && newVal !== oldVal && newVal.pageSize !== oldVal.pageSize) {
+            $scope.pagingOptions.currentPage = 1;
+          }
+       }, true);
        $scope.openMessageDialog = function (message) {
           ARTEMIS.selectCurrentMessage(message, "messageID", $scope);
           if ($scope.row) {
@@ -362,7 +380,8 @@ var ARTEMIS = (function(ARTEMIS) {
              else {
                 onDlq(false);
              }
-             ARTEMISService.artemisConsole.browse(objName, jolokia, onSuccess(populateTable));
+             jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages()'}, onSuccess(function(response) {$scope.totalServerItems = response.value;}));
+             jolokia.request({ type: 'exec', mbean: objName, operation: 'browse(int, int)', arguments: [$scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable));
           }
        }
 
