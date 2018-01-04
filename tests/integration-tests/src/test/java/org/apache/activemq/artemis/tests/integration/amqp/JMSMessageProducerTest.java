@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.Random;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -27,6 +25,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.util.Random;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,6 +58,33 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
          }
          {
             MessageConsumer consumer = session.createConsumer(queue2);
+            Message msg = consumer.receive(2000);
+            assertNotNull(msg);
+            assertTrue(msg instanceof TextMessage);
+            consumer.close();
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testAnonymousProducerWithAutoCreation() throws Exception {
+      Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(UUID.randomUUID().toString());
+         MessageProducer p = session.createProducer(null);
+
+         TextMessage message = session.createTextMessage();
+         message.setText("hello");
+         // this will auto-create the address
+         p.send(topic, message);
+
+         {
+            MessageConsumer consumer = session.createConsumer(topic);
+            p.send(topic, message);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
             assertTrue(msg instanceof TextMessage);
