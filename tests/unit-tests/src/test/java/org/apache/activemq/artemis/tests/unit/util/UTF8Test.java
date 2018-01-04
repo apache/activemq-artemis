@@ -21,6 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -33,6 +35,29 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class UTF8Test extends ActiveMQTestBase {
+
+   @Test
+   public void testValidateUTFWithENDChars() {
+      testValidateUTFWithChars(1024, (char) 0);
+   }
+
+   @Test
+   public void testValidateUTFWithLastAsciiChars() {
+      testValidateUTFWithChars(1024, (char) Byte.MAX_VALUE);
+   }
+
+   private void testValidateUTFWithChars(final int size, final char c) {
+      final char[] chars = new char[size];
+      Arrays.fill(chars, c);
+      final String expectedUtf8String = new String(chars);
+      final ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(4 * chars.length);
+      UTF8Util.saveUTF(buffer.byteBuf(), expectedUtf8String);
+      final byte[] expectedBytes = expectedUtf8String.getBytes(StandardCharsets.UTF_8);
+      final int encodedSize = buffer.readUnsignedShort();
+      final byte[] realEncodedBytes = new byte[encodedSize];
+      buffer.getBytes(buffer.readerIndex(), realEncodedBytes);
+      Assert.assertArrayEquals(expectedBytes, realEncodedBytes);
+   }
 
    @Test
    public void testValidateUTF() throws Exception {
