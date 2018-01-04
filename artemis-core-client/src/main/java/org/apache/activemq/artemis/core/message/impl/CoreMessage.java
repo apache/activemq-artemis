@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Set;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -41,8 +42,6 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
 
 /** Note: you shouldn't change properties using multi-threads. Change your properties before you can send it to multiple
  *  consumers */
@@ -94,7 +93,18 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    protected volatile TypedProperties properties;
 
+   private final SimpleString.Interner keysInterner;
+   private final TypedProperties.StringValue.Interner valuesInterner;
+
+   public CoreMessage(final SimpleString.Interner keysInterner,
+                      final TypedProperties.StringValue.Interner valuesInterner) {
+      this.keysInterner = keysInterner;
+      this.valuesInterner = valuesInterner;
+   }
+
    public CoreMessage() {
+      this.keysInterner = null;
+      this.valuesInterner = null;
    }
 
    /** On core there's no delivery annotation */
@@ -318,6 +328,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage(long id, int bufferSize) {
       this.initBuffer(bufferSize);
       this.setMessageID(id);
+      this.keysInterner = null;
+      this.valuesInterner = null;
    }
 
    protected CoreMessage(CoreMessage other, TypedProperties copyProperties) {
@@ -331,6 +343,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       this.timestamp = other.timestamp;
       this.priority = other.priority;
       this.userID = other.userID;
+      this.keysInterner = other.keysInterner;
+      this.valuesInterner = other.valuesInterner;
       if (copyProperties != null) {
          this.properties = new TypedProperties(copyProperties);
       }
@@ -464,7 +478,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       if (properties == null) {
          TypedProperties properties = new TypedProperties();
          if (buffer != null && propertiesLocation >= 0) {
-            properties.decode(buffer.duplicate().readerIndex(propertiesLocation));
+            final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
+            properties.decode(byteBuf, keysInterner, valuesInterner);
          }
          this.properties = properties;
       }
@@ -528,8 +543,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    private void decodeHeadersAndProperties(final ByteBuf buffer, boolean lazyProperties) {
       messageIDPosition = buffer.readerIndex();
       messageID = buffer.readLong();
-
-      address = SimpleString.readNullableSimpleString(buffer);
+      int b = buffer.readByte();
+      if (b != DataConstants.NULL) {
+         final int length = buffer.readInt();
+         if (keysInterner != null) {
+            address = keysInterner.intern(buffer, length);
+         } else {
+            address = SimpleString.readSimpleString(buffer, length);
+         }
+      } else {
+         address = null;
+      }
       if (buffer.readByte() == DataConstants.NOT_NULL) {
          byte[] bytes = new byte[16];
          buffer.readBytes(bytes);
@@ -547,7 +571,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          propertiesLocation = buffer.readerIndex();
       } else {
          properties = new TypedProperties();
-         properties.decode(buffer);
+         properties.decode(buffer, keysInterner, valuesInterner);
       }
    }
 

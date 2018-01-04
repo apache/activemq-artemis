@@ -34,6 +34,10 @@ public class ClientPacketDecoder extends PacketDecoder {
    private static final long serialVersionUID = 6952614096979334582L;
    public static final ClientPacketDecoder INSTANCE = new ClientPacketDecoder();
 
+   protected ClientPacketDecoder() {
+
+   }
+
    @Override
    public Packet decode(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final byte packetType = in.readByte();
