@@ -16,14 +16,20 @@ If you are using an embed system than you will need the jar under the regular cl
 
 ## Registering a Plugin
 
-To register a plugin with by XML you need to add the `broker-plugins` element at the `broker.xml`.
+To register a plugin with by XML you need to add the `broker-plugins` element at the `broker.xml`. It is also possible
+to pass configuration to a plugin using the `property` child element(s). These properties (zero to many)
+will be read and passed into the Plugin's `init(Map<String, String>)` operation after the plugin
+has been instantiated.
 
 ```xml
 <configuration ...>
 
 ...
     <broker-plugins>
-        <broker-plugin class-name="some.plugin.UserPlugin" />
+        <broker-plugin class-name="some.plugin.UserPlugin">
+            <property key="property1" value="val_1" />
+            <property key="property2" value="val_2" />
+        </broker-plugin>
     </broker-plugins>
 ...
 

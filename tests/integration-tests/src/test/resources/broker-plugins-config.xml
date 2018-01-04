@@ -42,6 +42,10 @@
             
       <broker-plugins>
          <broker-plugin class-name="org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier" />
+         <broker-plugin class-name="org.apache.activemq.artemis.tests.integration.plugin.ConfigurationVerifier">
+             <property key="property1" value="val_1"/>
+             <property key="property2" value="val_2"/>
+         </broker-plugin>
       </broker-plugins>
    </core>
 
