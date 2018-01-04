@@ -337,7 +337,7 @@ public class CoreMessageTest {
 
    public String generate(String body) throws Exception {
 
-      ClientMessageImpl message = new ClientMessageImpl(MESSAGE_TYPE, DURABLE, EXPIRATION, TIMESTAMP, PRIORITY, 10 * 1024);
+      ClientMessageImpl message = new ClientMessageImpl(MESSAGE_TYPE, DURABLE, EXPIRATION, TIMESTAMP, PRIORITY, 10 * 1024, null);
       TextMessageUtil.writeBodyText(message.getBodyBuffer(), SimpleString.toSimpleString(body));
 
       message.setAddress(ADDRESS);
