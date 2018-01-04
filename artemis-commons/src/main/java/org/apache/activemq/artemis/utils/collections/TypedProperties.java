@@ -28,6 +28,7 @@ import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
+import org.apache.activemq.artemis.utils.AbstractInterner;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -93,6 +94,7 @@ public class TypedProperties {
    }
 
    public void putByteProperty(final SimpleString key, final byte value) {
+      checkCreateProperties();
       checkCreateProperties();
       doPutValue(key, ByteValue.valueOf(value));
    }
@@ -329,7 +331,9 @@ public class TypedProperties {
       }
    }
 
-   public synchronized void decode(final ByteBuf buffer) {
+   public synchronized void decode(final ByteBuf buffer,
+                                   final SimpleString.Interner keyInterner,
+                                   final StringValue.Interner valueInterner) {
       byte b = buffer.readByte();
 
       if (b == DataConstants.NULL) {
@@ -342,10 +346,15 @@ public class TypedProperties {
          size = 0;
 
          for (int i = 0; i < numHeaders; i++) {
+            final SimpleString key;
             int len = buffer.readInt();
-            byte[] data = new byte[len];
-            buffer.readBytes(data);
-            SimpleString key = new SimpleString(data);
+            if (keyInterner != null) {
+               key = keyInterner.intern(buffer, len);
+            } else {
+               byte[] data = new byte[len];
+               buffer.readBytes(data);
+               key = new SimpleString(data);
+            }
 
             byte type = buffer.readByte();
 
@@ -403,7 +412,12 @@ public class TypedProperties {
                   break;
                }
                case STRING: {
-                  val = new StringValue(buffer);
+                  if (valueInterner != null) {
+                     final int length = buffer.readInt();
+                     val = valueInterner.intern(buffer, length);
+                  } else {
+                     val = new StringValue(buffer);
+                  }
                   doPutValue(key, val);
                   break;
                }
@@ -413,6 +427,10 @@ public class TypedProperties {
             }
          }
       }
+   }
+
+   public synchronized void decode(final ByteBuf buffer) {
+      decode(buffer, null, null);
    }
 
    public synchronized void encode(final ByteBuf buffer) {
@@ -881,7 +899,37 @@ public class TypedProperties {
       }
    }
 
-   private static final class StringValue extends PropertyValue {
+   public static final class StringValue extends PropertyValue {
+
+      public static final class Interner extends AbstractInterner<StringValue> {
+
+         private final int maxLength;
+
+         public Interner(final int capacity, final int maxCharsLength) {
+            super(capacity);
+            this.maxLength = maxCharsLength;
+         }
+
+         @Override
+         protected boolean isEqual(final StringValue entry, final ByteBuf byteBuf, final int offset, final int length) {
+            if (entry == null) {
+               return false;
+            }
+            return SimpleString.isEqual(entry.val, byteBuf, offset, length);
+         }
+
+         @Override
+         protected boolean canIntern(final ByteBuf byteBuf, final int length) {
+            assert length % 2 == 0 : "length must be a multiple of 2";
+            final int expectedStringLength = length >> 1;
+            return expectedStringLength <= maxLength;
+         }
+
+         @Override
+         protected StringValue create(final ByteBuf byteBuf, final int length) {
+            return new StringValue(SimpleString.readSimpleString(byteBuf, length));
+         }
+      }
 
       final SimpleString val;
 
