@@ -545,6 +545,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long countMessages() throws Exception {
+      return countMessages(null);
+   }
+
+   @Override
    public long countMessages(final String filterStr) throws Exception {
       checkStarted();
 
@@ -955,6 +960,47 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          return queue.isPaused();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public CompositeData[] browse(int page, int pageSize) throws Exception {
+      String filter = null;
+      checkStarted();
+
+      clearIO();
+      try {
+         long index = 0;
+         long start = (page - 1) * pageSize;
+         long end = Math.min((long)(page * pageSize), queue.getMessageCount());
+
+         ArrayList<CompositeData> c = new ArrayList<>();
+         Filter thefilter = FilterImpl.createFilter(filter);
+         queue.flushExecutor();
+
+         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
+            try {
+               while (iterator.hasNext() && index < end) {
+                  MessageReference ref = iterator.next();
+                  if (thefilter == null || thefilter.match(ref.getMessage())) {
+                     if (index >= start) {
+                        c.add(OpenTypeSupport.convert(ref));
+                     }
+                  }
+                  index++;
+               }
+            } catch (NoSuchElementException ignored) {
+               // this could happen through paging browsing
+            }
+
+            CompositeData[] rc = new CompositeData[c.size()];
+            c.toArray(rc);
+            return rc;
+         }
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();
       }

@@ -57,6 +57,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long countMessages() throws Exception {
+            return (Long) proxy.invokeOperation(Long.class, "countMessages");
+         }
+
+         @Override
          public boolean expireMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("expireMessage", messageID);
          }
@@ -378,6 +383,16 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public CompositeData[] browse() throws Exception {
             Map map = (Map) proxy.invokeOperation("browse");
+            CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
+            if (compositeDatas == null) {
+               compositeDatas = new CompositeData[0];
+            }
+            return compositeDatas;
+         }
+
+         @Override
+         public CompositeData[] browse(int page, int pageSize) throws Exception {
+            Map map = (Map) proxy.invokeOperation("browse", page, pageSize);
             CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
             if (compositeDatas == null) {
                compositeDatas = new CompositeData[0];
