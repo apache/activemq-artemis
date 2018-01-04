@@ -102,6 +102,7 @@ under the License.
             <module>xa-heuristic</module>
             <module>xa-receive</module>
             <module>xa-send</module>
+            <module>ssl-enabled-crl-mqtt</module>
          </modules>
       </profile>
       <profile>
@@ -173,6 +174,7 @@ under the License.
             <module>xa-heuristic</module>
             <module>xa-receive</module>
             <module>xa-send</module>
+            <module>ssl-enabled-crl-mqtt</module>
          </modules>
       </profile>
 
