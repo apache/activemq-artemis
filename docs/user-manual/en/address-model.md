@@ -442,7 +442,7 @@ The special name allows the protocol manager to quickly identify the required cl
 
 When a client requests to subscribe to a point to point address.  The protocol manager will look up the queue associated with the point to point address.  This queue should have the same name as the addresss.
 
-**Note:** If the queue is auto created, it will be auto deleted once there are no consumers and no messages in it.  For more information on auto create see the next section [Configuring Addresses and Queues via Address Settings](#Configuring-Addresses-and-Queues-via-Address-Settings)
+**Note:** If the queue is auto created, it will be auto deleted once there are no consumers and no messages in it.  For more information on auto create see the next section [Configuring Addresses and Queues via Address Settings](#configuring-addresses-and-queues-via-address-settings)
 
 ## Configuring Addresses and Queues via Address Settings
 
@@ -483,13 +483,13 @@ appropriate chapter if available.
 
 `max-delivery-attempts` defines how many time a cancelled message can be
 redelivered before sending to the `dead-letter-address`. A full
-explanation can be found [here](undelivered-messages.md#Configuring-Dead-Letter-Addresses).
+explanation can be found [here](undelivered-messages.md#configuring-dead-letter-addresses).
 
 `redelivery-delay` defines how long to wait before attempting redelivery
-of a cancelled message. see [here](undelivered-messages.md#Configuring-Delayed-Redelivery).
+of a cancelled message. see [here](undelivered-messages.md#configuring-delayed-redelivery).
 
 `expiry-address` defines where to send a message that has expired. see
-[here](message-expiry.md#Configuring-Expiry-Addresses).
+[here](message-expiry.md#configuring-expiry-addresses).
 
 `expiry-delay` defines the expiration time that will be used for
 messages which are using the default expiration time (i.e. 0). For
@@ -504,11 +504,11 @@ default is "-1".
 see [here](last-value-queues.md).
 
 `max-size-bytes` and `page-size-bytes` are used to set paging on an
-address. This is explained [here](paging.md#Configuration).
+address. This is explained [here](paging.md#configuration).
 
 `redistribution-delay` defines how long to wait when the last consumer
 is closed on a queue before redistributing any messages. see
-[here](clusters.md#Message-Redistribution).
+[here](clusters.md#message-redistribution).
 
 `send-to-dla-on-no-route`. If a message is sent to an address, but the
 server does not route it to any queues, for example, there might be no

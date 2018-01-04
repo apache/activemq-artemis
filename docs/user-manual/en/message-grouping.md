@@ -120,7 +120,7 @@ file.
     </grouping-handler>
 
 The *address* attribute refers to a [cluster connection and the address
-it uses](#clusters.address), refer to the clustering section on how to
+it uses](clusters.md#configuring-cluster-connections), refer to the clustering section on how to
 configure clusters. The *timeout* attribute referees to how long to wait
 for a decision to be made, an exception will be thrown during the send
 if this timeout is reached, this ensures that strict ordering is kept.
