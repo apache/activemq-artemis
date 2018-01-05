@@ -100,10 +100,10 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
       if (target != null) {
          if (target.getDynamic()) {
-            defRoutingType = getRoutingType(target.getCapabilities());
             // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
             address = sessionSPI.tempQueueName();
+            defRoutingType = getRoutingType(target.getCapabilities(), address);
 
             try {
                sessionSPI.createTemporaryQueue(address, defRoutingType);
@@ -121,7 +121,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             address = target.getAddress();
 
             if (address != null && !address.isEmpty()) {
-               defRoutingType = getRoutingType(target.getCapabilities());
+               defRoutingType = getRoutingType(target.getCapabilities(), address);
                try {
                   if (!sessionSPI.bindingQuery(address, defRoutingType)) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
@@ -181,16 +181,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       flow(amqpCredits, minCreditRefresh);
    }
 
-   public RoutingType getRoutingType(Receiver receiver, RoutingType defaultType) {
+   public RoutingType getRoutingType(Receiver receiver, String address) {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
-      return target != null ? getRoutingType(target.getCapabilities(), defaultType) : getRoutingType((Symbol[])null, defaultType);
+      return target != null ? getRoutingType(target.getCapabilities(), address) : getRoutingType((Symbol[]) null, address);
    }
 
-   private RoutingType getRoutingType(Symbol[] symbols) {
-      return getRoutingType(symbols, null);
-   }
-
-   private RoutingType getRoutingType(Symbol[] symbols, RoutingType defaultType) {
+   private RoutingType getRoutingType(Symbol[] symbols, String address) {
       if (symbols != null) {
          for (Symbol symbol : symbols) {
             if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
@@ -201,11 +197,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          }
       }
 
-      if (defaultType != null) {
-         return defaultType;
-      } else {
-         return sessionSPI.getDefaultRoutingType(address);
-      }
+      return sessionSPI.getDefaultRoutingType(address);
    }
 
    /*
