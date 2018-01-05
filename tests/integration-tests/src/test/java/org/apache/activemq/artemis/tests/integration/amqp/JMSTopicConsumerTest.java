@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
+import javax.jms.JMSProducer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -30,9 +35,11 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,6 +68,85 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          assertEquals("test-message", message.getText());
       } finally {
          connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAndReceiveOnAutoCreatedTopic() throws Exception {
+      Connection connection = createConnection("myClientId");
+      String topicName = UUID.randomUUID().toString();
+      SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+
+      try {
+         TopicSession session = (TopicSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(topicName);
+         TopicPublisher producer = session.createPublisher(topic);
+
+         TextMessage message = session.createTextMessage("test-message");
+         // this will auto-create the address, but not the subscription queue
+         producer.send(message);
+
+         assertNotNull(server.getAddressInfo(simpleTopicName));
+         assertEquals(RoutingType.MULTICAST, server.getAddressInfo(simpleTopicName).getRoutingType());
+         assertTrue(server.getAddressInfo(simpleTopicName).isAutoCreated());
+         assertTrue(server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().isEmpty());
+
+         // this will auto-create the subscription queue
+         TopicSubscriber consumer = session.createSubscriber(topic);
+         assertFalse(server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().isEmpty());
+         producer.send(message);
+
+         producer.close();
+         connection.start();
+
+         message = (TextMessage) consumer.receive(1000);
+
+         assertNotNull(message);
+         assertNotNull(message.getText());
+         assertEquals("test-message", message.getText());
+         consumer.close();
+         assertTrue(server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().isEmpty());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAndReceiveOnAutoCreatedTopicJMS2() throws Exception {
+      ConnectionFactory cf = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
+      JMSContext context = cf.createContext();
+      String topicName = UUID.randomUUID().toString();
+      SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+
+      try {
+         Topic topic = context.createTopic(topicName);
+         JMSProducer producer = context.createProducer();
+
+         TextMessage message = context.createTextMessage("test-message");
+         // this will auto-create the address, but not the subscription queue
+         producer.send(topic, message);
+
+         assertNotNull(server.getAddressInfo(simpleTopicName));
+         assertEquals(RoutingType.MULTICAST, server.getAddressInfo(simpleTopicName).getRoutingType());
+         assertTrue(server.getAddressInfo(simpleTopicName).isAutoCreated());
+         assertTrue(server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().isEmpty());
+
+         // this will auto-create the subscription queue
+         JMSConsumer consumer = context.createConsumer(topic);
+         assertFalse(server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().isEmpty());
+         producer.send(topic, message);
+
+         context.start();
+
+         message = (TextMessage) consumer.receive(1000);
+
+         assertNotNull(message);
+         assertNotNull(message.getText());
+         assertEquals("test-message", message.getText());
+         consumer.close();
+         assertTrue(server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().isEmpty());
+      } finally {
+         context.close();
       }
    }
 
