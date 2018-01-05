@@ -315,6 +315,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableAcceptorKeys.add(TransportConstants.BACKLOG_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
