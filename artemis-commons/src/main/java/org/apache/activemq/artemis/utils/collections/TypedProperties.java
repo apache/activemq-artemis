@@ -345,7 +345,7 @@ public class TypedProperties {
             int len = buffer.readInt();
             byte[] data = new byte[len];
             buffer.readBytes(data);
-            SimpleString key = new SimpleString(data);
+            SimpleString key = SimpleString.toSimpleString(data);
 
             byte type = buffer.readByte();
 
