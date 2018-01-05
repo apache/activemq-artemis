@@ -93,7 +93,7 @@ public interface Message {
    SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
 
    /**
-    * The original address of a message when a message is transferred through DLQ or expiry
+    * The original address of a message when a message is diverted or transferred through DLQ or expiry
     */
    SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
 
@@ -103,7 +103,7 @@ public interface Message {
    SimpleString HDR_ORIGINAL_QUEUE = new SimpleString("_AMQ_ORIG_QUEUE");
 
    /**
-    * The original message ID before th emessage was transferred.
+    * The original message ID before the message was transferred.
     */
    SimpleString HDR_ORIG_MESSAGE_ID = new SimpleString("_AMQ_ORIG_MESSAGE_ID");
 

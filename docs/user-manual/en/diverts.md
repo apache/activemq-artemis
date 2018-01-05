@@ -44,6 +44,13 @@ geographically distributed servers, creating your global messaging mesh.
 Diverts are defined as xml in the `broker.xml` file at the `core` attribute level.
 There can be zero or more diverts in the file.
 
+Diverted message gets a new message ID, and its address is set to a forward
+address. To access original values, use message properties: original destination
+is stored in a String property `_AMQ_ORIG_ADDRESS` (`Message.HDR_ORIGINAL_ADDRESS`
+constant from the Core API), and the original message ID in a Long property
+`_AMQ_ORIG_MESSAGE_ID` (`Message.HDR_ORIG_MESSAGE_ID` constant from the
+Core API).
+
 Please see the examples for a full working example showing you how to
 configure and use diverts.
 
