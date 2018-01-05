@@ -131,7 +131,7 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    /**
     * The {@link SQLProvider.Factory} used to communicate with the JDBC data store.
-    * It can be {@code null}. If the value is {@code null} and {@code dataSource} is set, the {@code {@link org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider.Factory}} will be used,
+    * It can be {@code null}. If the value is {@code null} and {@code dataSource} is set, the {@code {@link org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory}} will be used,
     * else the type of the factory will be determined based on the {@code jdbcDriverClassName}.
     *
     * @return the factory used to communicate with the JDBC data store.

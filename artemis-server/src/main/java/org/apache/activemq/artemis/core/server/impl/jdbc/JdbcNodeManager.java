@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
-import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.UUID;
@@ -58,7 +58,12 @@ public final class JdbcNodeManager extends NodeManager {
                                       ExecutorFactory executorFactory,
                                       IOCriticalErrorListener ioCriticalErrorListener) {
       if (configuration.getDataSource() != null) {
-         final SQLProvider.Factory sqlProviderFactory = configuration.getSqlProviderFactory() == null ? new GenericSQLProvider.Factory() : configuration.getSqlProviderFactory();
+         final SQLProvider.Factory sqlProviderFactory;
+         if (configuration.getSqlProviderFactory() != null) {
+            sqlProviderFactory = configuration.getSqlProviderFactory();
+         } else {
+            sqlProviderFactory = new PropertySQLProvider.Factory(configuration.getDataSource());
+         }
          final String brokerId = java.util.UUID.randomUUID().toString();
          return usingDataSource(brokerId, configuration.getJdbcLockExpirationMillis(), configuration.getJdbcLockRenewPeriodMillis(), configuration.getJdbcLockAcquisitionTimeoutMillis(), configuration.getDataSource(), sqlProviderFactory.create(configuration.getNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER), scheduledExecutorService, executorFactory, ioCriticalErrorListener);
       } else {
