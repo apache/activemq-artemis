@@ -306,7 +306,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.toSimpleString("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -1339,7 +1339,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
+      SimpleString[] queue = new SimpleString[]{SimpleString.toSimpleString("queue1"), SimpleString.toSimpleString("queue2")};
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -1406,7 +1406,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
+      SimpleString[] queue = new SimpleString[]{SimpleString.toSimpleString("queue1"), SimpleString.toSimpleString("queue2")};
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2254,7 +2254,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.toSimpleString("key"), i);
          producer.send(msg);
 
          log.debug("Sent msg " + i);
@@ -2274,7 +2274,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          ClientMessage msg = consumer.receive(50000);
          Assert.assertNotNull(msg);
 
-         Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+         Assert.assertEquals(i, msg.getObjectProperty(SimpleString.toSimpleString("key")));
 
          msg.acknowledge();
       }

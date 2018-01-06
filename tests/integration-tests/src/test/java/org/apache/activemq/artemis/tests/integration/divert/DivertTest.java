@@ -69,17 +69,17 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -87,7 +87,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -148,17 +148,17 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -166,7 +166,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -223,23 +223,23 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
       final int numMessages = 1;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -272,7 +272,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final String expiryAddress = "expiryAddress";
 
-      AddressSettings expirySettings = new AddressSettings().setExpiryAddress(new SimpleString(expiryAddress));
+      AddressSettings expirySettings = new AddressSettings().setExpiryAddress(SimpleString.toSimpleString(expiryAddress));
 
       DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
 
@@ -288,19 +288,19 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, true);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, true);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, true);
 
-      session.createQueue(new SimpleString(expiryAddress), RoutingType.MULTICAST, new SimpleString(expiryAddress), null, true);
+      session.createQueue(SimpleString.toSimpleString(expiryAddress), RoutingType.MULTICAST, SimpleString.toSimpleString(expiryAddress), null, true);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -308,7 +308,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -389,25 +389,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -419,7 +419,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -497,19 +497,19 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -551,23 +551,23 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -579,7 +579,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -637,25 +637,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -667,7 +667,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -752,25 +752,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -782,7 +782,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -856,25 +856,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -886,7 +886,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -954,25 +954,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -984,12 +984,12 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
-         message.putStringProperty(new SimpleString("animal"), new SimpleString("giraffe"));
+         message.putStringProperty(SimpleString.toSimpleString("animal"), SimpleString.toSimpleString("giraffe"));
 
          message.putIntProperty(propKey, i);
 
@@ -1048,7 +1048,7 @@ public class DivertTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
-         message.putStringProperty(new SimpleString("animal"), new SimpleString("antelope"));
+         message.putStringProperty(SimpleString.toSimpleString("animal"), SimpleString.toSimpleString("antelope"));
 
          message.putIntProperty(propKey, i);
 
@@ -1100,25 +1100,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -1130,7 +1130,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -1225,25 +1225,25 @@ public class DivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      session.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -1255,7 +1255,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -1306,7 +1306,7 @@ public class DivertTest extends ActiveMQTestBase {
 
    @Test
    public void testInjectedTransformer() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("myAddress");
+      final SimpleString ADDRESS = SimpleString.toSimpleString("myAddress");
       final String DIVERT = "myDivert";
 
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();

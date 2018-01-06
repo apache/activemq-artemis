@@ -46,9 +46,9 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
 
    // Attributes ----------------------------------------------------
 
-   final SimpleString ADDRESS = new SimpleString("SomeAddress");
+   final SimpleString ADDRESS = SimpleString.toSimpleString("SomeAddress");
 
-   final SimpleString QUEUE = new SimpleString("SomeQueue");
+   final SimpleString QUEUE = SimpleString.toSimpleString("SomeQueue");
 
    private ActiveMQServer server;
 

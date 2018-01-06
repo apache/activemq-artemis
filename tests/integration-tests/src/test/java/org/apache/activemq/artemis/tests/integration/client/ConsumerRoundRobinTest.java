@@ -33,9 +33,9 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.toSimpleString("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.toSimpleString("queueA");
 
    @Test
    public void testConsumersRoundRobinCorrectly() throws Exception {

@@ -48,7 +48,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
    private static final int TIME_TO_RUN = 60 * 1000;
 
-   private static final SimpleString ADDRESS = new SimpleString("page-adr");
+   private static final SimpleString ADDRESS = SimpleString.toSimpleString("page-adr");
 
    private int numberOfProducers;
 

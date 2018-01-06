@@ -42,7 +42,7 @@ import org.junit.Test;
 public class HeuristicXATest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
-   final SimpleString ADDRESS = new SimpleString("ADDRESS");
+   final SimpleString ADDRESS = SimpleString.toSimpleString("ADDRESS");
 
    final String body = "this is the body";
 

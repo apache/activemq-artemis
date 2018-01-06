@@ -86,7 +86,7 @@ public class AMQConsumer {
 
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
 
-      SimpleString selector = info.getSelector() == null ? null : new SimpleString(info.getSelector());
+      SimpleString selector = info.getSelector() == null ? null : SimpleString.toSimpleString(info.getSelector());
       boolean preAck = false;
       if (info.isNoLocal()) {
          if (!AdvisorySupport.isAdvisoryTopic(openwireDestination)) {
@@ -98,13 +98,13 @@ public class AMQConsumer {
          String id = info.getClientId() != null ? info.getClientId() : this.getId().getConnectionId();
          String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + id + "'";
          if (selector == null) {
-            selector = new SimpleString(noLocalSelector);
+            selector = SimpleString.toSimpleString(noLocalSelector);
          } else {
-            selector = new SimpleString(info.getSelector() + " AND " + noLocalSelector);
+            selector = SimpleString.toSimpleString(info.getSelector() + " AND " + noLocalSelector);
          }
       }
 
-      SimpleString destinationName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
+      SimpleString destinationName = SimpleString.toSimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
 
       if (openwireDestination.isTopic()) {
          SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), destinationName.toString(), info.getSubscriptionName(), selector, destinationName);
@@ -154,7 +154,7 @@ public class AMQConsumer {
       }
       addressInfo.setInternal(internalAddress);
       if (isDurable) {
-         queueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForSubscription(true, clientID, subscriptionName));
+         queueName = SimpleString.toSimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForSubscription(true, clientID, subscriptionName));
          QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
          if (result.isExists()) {
             // Already exists
@@ -181,7 +181,7 @@ public class AMQConsumer {
             session.getCoreSession().createQueue(addressInfo, queueName, selector, false, true);
          }
       } else {
-         queueName = new SimpleString(UUID.randomUUID().toString());
+         queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
 
          session.getCoreSession().createQueue(addressInfo, queueName, selector, true, false);
       }

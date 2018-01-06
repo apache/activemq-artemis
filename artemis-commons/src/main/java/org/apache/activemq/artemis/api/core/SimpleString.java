@@ -18,8 +18,12 @@ package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -32,6 +36,29 @@ import org.apache.activemq.artemis.utils.DataConstants;
 public final class SimpleString implements CharSequence, Serializable, Comparable<SimpleString> {
 
    private static final long serialVersionUID = 4204223851422244307L;
+
+   private static Interner<SimpleString> interner = Interners.newWeakInterner();
+
+   private static Function<String, SimpleString> stringToSimpleString = (string) -> new SimpleString(string).intern();
+
+   private static Function<byte[], SimpleString> bytesToSimpleString = (bytes) -> new SimpleString(bytes).intern();
+
+   private static Function<ByteBuf, SimpleString> byteBufToSimpleString = (buffer) -> {
+      byte[] data = new byte[buffer.readInt()];
+      buffer.readBytes(data);
+      return new SimpleString(data).intern();
+   };
+
+   private static Function<Character, SimpleString> charToSimpleString = (character) -> new SimpleString(character).intern();
+
+   public static SimpleString intern(SimpleString simpleString) {
+      return interner.intern(simpleString);
+   }
+
+   public SimpleString intern() {
+      return intern(this);
+   }
+
 
    // Attributes
    // ------------------------------------------------------------------------
@@ -57,8 +84,27 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       if (string == null) {
          return null;
       }
-      return new SimpleString(string);
+      return stringToSimpleString.apply(string);
    }
+
+   public static SimpleString toSimpleString(final byte[] bytes) {
+      if (bytes == null) {
+         return null;
+      }
+      return bytesToSimpleString.apply(bytes);
+   }
+
+   public static SimpleString toSimpleString(ByteBuf buffer) {
+      if (buffer == null) {
+         return null;
+      }
+      return byteBufToSimpleString.apply(buffer);
+   }
+
+   public static SimpleString toSimpleString(char character) {
+      return charToSimpleString.apply(character);
+   }
+
 
    // Constructors
    // ----------------------------------------------------------------------
@@ -145,13 +191,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
 
    public static SimpleString readSimpleString(ByteBuf buffer) {
-      int len = buffer.readInt();
-      if (len > buffer.readableBytes()) {
-         throw new IndexOutOfBoundsException();
-      }
-      byte[] data = new byte[len];
-      buffer.readBytes(data);
-      return new SimpleString(data);
+      return toSimpleString(buffer);
    }
 
    public static void writeNullableSimpleString(ByteBuf buffer, SimpleString val) {
@@ -182,7 +222,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
          System.arraycopy(data, start << 1, bytes, 0, newlen);
 
-         return new SimpleString(bytes);
+         return SimpleString.toSimpleString(bytes);
       }
    }
 
@@ -258,18 +298,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
       if (other instanceof SimpleString) {
          SimpleString s = (SimpleString) other;
-
-         if (data.length != s.data.length) {
-            return false;
-         }
-
-         for (int i = 0; i < data.length; i++) {
-            if (data[i] != s.data[i]) {
-               return false;
-            }
-         }
-
-         return true;
+         return Arrays.equals(data, s.data);
       } else {
          return false;
       }
@@ -278,13 +307,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    @Override
    public int hashCode() {
       if (hash == 0) {
-         int tmphash = 0;
-         for (byte element : data) {
-            tmphash = (tmphash << 5) - tmphash + element; // (hash << 5) - hash is same as hash * 31
-         }
-         hash = tmphash;
+         hash = Arrays.hashCode(data);
       }
-
       return hash;
    }
 
@@ -316,7 +340,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
                // Note by Clebert
                all = new ArrayList<>(2);
             }
-            all.add(new SimpleString(bytes));
+            all.add(SimpleString.toSimpleString(bytes));
          }
       }
 
@@ -326,7 +350,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          // Adding the last one
          byte[] bytes = new byte[data.length - lasPos];
          System.arraycopy(data, lasPos, bytes, 0, bytes.length);
-         all.add(new SimpleString(bytes));
+         all.add(SimpleString.toSimpleString(bytes));
 
          // Converting it to arrays
          SimpleString[] parts = new SimpleString[all.size()];
@@ -359,7 +383,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * @return the concatenated SimpleString
     */
    public SimpleString concat(final String toAdd) {
-      return concat(new SimpleString(toAdd));
+      return concat(SimpleString.toSimpleString(toAdd));
    }
 
    /**
@@ -372,7 +396,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       byte[] bytes = new byte[data.length + toAdd.getData().length];
       System.arraycopy(data, 0, bytes, 0, data.length);
       System.arraycopy(toAdd.getData(), 0, bytes, data.length, toAdd.getData().length);
-      return new SimpleString(bytes);
+      return SimpleString.toSimpleString(bytes);
    }
 
    /**
@@ -386,7 +410,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       System.arraycopy(data, 0, bytes, 0, data.length);
       bytes[data.length] = (byte) (c & 0xFF);
       bytes[data.length + 1] = (byte) (c >> 8 & 0xFF);
-      return new SimpleString(bytes);
+      return SimpleString.toSimpleString(bytes);
    }
 
    /**

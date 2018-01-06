@@ -110,7 +110,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    private ReplicationManager manager;
-   private static final SimpleString ADDRESS = new SimpleString("foobar123");
+   private static final SimpleString ADDRESS = SimpleString.toSimpleString("foobar123");
 
    private void setupServer(boolean backup, String... interceptors) throws Exception {
       this.setupServer(false, backup, null, interceptors);
@@ -232,7 +232,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       CoreMessage msg = new CoreMessage().initBuffer(1024).setMessageID(1);
 
-      SimpleString dummy = new SimpleString("dummy");
+      SimpleString dummy = SimpleString.toSimpleString("dummy");
       msg.setAddress(dummy);
 
       replicatedJournal.appendAddRecordTransactional(23, 24, (byte) 1, new FakeData());
@@ -263,7 +263,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       CoreMessage serverMsg = new CoreMessage();
       serverMsg.setMessageID(500);
-      serverMsg.setAddress(new SimpleString("tttt"));
+      serverMsg.setAddress(SimpleString.toSimpleString("tttt"));
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(100);
       serverMsg.encodeHeadersAndProperties(buffer.byteBuf());

@@ -137,7 +137,7 @@ public class FailBackManualTest extends FailoverTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.toSimpleString("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -151,7 +151,7 @@ public class FailBackManualTest extends FailoverTestBase {
 
          assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message2.getObjectProperty(SimpleString.toSimpleString("count")));
 
          message2.acknowledge();
       }

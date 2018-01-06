@@ -963,7 +963,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
          try {
-            server.destroyQueue(new SimpleString(dest.getPhysicalName()));
+            server.destroyQueue(SimpleString.toSimpleString(dest.getPhysicalName()));
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             ActiveMQServerLogger.LOGGER.debug("queue never existed");
@@ -971,7 +971,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
 
       } else {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(dest.getPhysicalName()));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(dest.getPhysicalName()));
 
          for (Binding binding : bindings.getBindings()) {
             Queue b = (Queue) binding.getBindable();
@@ -1001,7 +1001,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     */
    private void validateDestination(ActiveMQDestination destination) throws Exception {
       if (destination.isQueue()) {
-         SimpleString physicalName = new SimpleString(destination.getPhysicalName());
+         SimpleString physicalName = SimpleString.toSimpleString(destination.getPhysicalName());
          BindingQueryResult result = server.bindingQuery(physicalName);
          if (!result.isExists() && !result.isAutoCreateQueues()) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
@@ -1121,7 +1121,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRemoveSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
-         SimpleString subQueueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForSubscription(true, subInfo.getClientId(), subInfo.getSubscriptionName()));
+         SimpleString subQueueName = SimpleString.toSimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForSubscription(true, subInfo.getClientId(), subInfo.getSubscriptionName()));
          server.destroyQueue(subQueueName);
 
          return null;

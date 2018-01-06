@@ -151,7 +151,7 @@ public class FilterImpl implements Filter {
             // Proton stores JMSMessageID as NATIVE_MESSAGE_ID that is an arbitrary string
             String amqpNativeID = msg.getStringProperty(NATIVE_MESSAGE_ID);
             if (amqpNativeID != null) {
-               return new SimpleString(amqpNativeID);
+               return SimpleString.toSimpleString(amqpNativeID);
             }
          }
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
@@ -159,7 +159,7 @@ public class FilterImpl implements Filter {
          if (userID.startsWith("ID:")) {
             return SimpleString.toSimpleString(userID);
          } else {
-            return new SimpleString("ID:" + msg.getUserID());
+            return SimpleString.toSimpleString("ID:" + msg.getUserID());
          }
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
          return Integer.valueOf(msg.getPriority());
@@ -190,7 +190,7 @@ public class FilterImpl implements Filter {
       public Object getProperty(String id) {
          Object result = null;
          if (id.startsWith(FilterConstants.ACTIVEMQ_PREFIX.toString())) {
-            result = getHeaderFieldValue(message, new SimpleString(id));
+            result = getHeaderFieldValue(message, SimpleString.toSimpleString(id));
          }
          if (result == null) {
             result = message.getObjectProperty(id);

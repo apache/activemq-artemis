@@ -168,7 +168,7 @@ public class AMQSession implements SessionCallback {
             isInternalAddress = connection.isSuppressInternalManagementObjects();
          }
          if (openWireDest.isQueue()) {
-            SimpleString queueName = new SimpleString(convertWildcard(openWireDest.getPhysicalName()));
+            SimpleString queueName = SimpleString.toSimpleString(convertWildcard(openWireDest.getPhysicalName()));
 
             if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary())) {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
@@ -338,12 +338,12 @@ public class AMQSession implements SessionCallback {
 
       for (int i = 0; i < actualDestinations.length; i++) {
          ActiveMQDestination dest = actualDestinations[i];
-         SimpleString address = new SimpleString(dest.getPhysicalName());
+         SimpleString address = SimpleString.toSimpleString(dest.getPhysicalName());
          org.apache.activemq.artemis.api.core.Message coreMsg = originalCoreMsg.copy();
          coreMsg.setAddress(address);
 
          if (actualDestinations[i].isQueue()) {
-            checkAutoCreateQueue(new SimpleString(actualDestinations[i].getPhysicalName()), actualDestinations[i].isTemporary());
+            checkAutoCreateQueue(SimpleString.toSimpleString(actualDestinations[i].getPhysicalName()), actualDestinations[i].isTemporary());
             coreMsg.setRoutingType(RoutingType.ANYCAST);
          } else {
             coreMsg.setRoutingType(RoutingType.MULTICAST);

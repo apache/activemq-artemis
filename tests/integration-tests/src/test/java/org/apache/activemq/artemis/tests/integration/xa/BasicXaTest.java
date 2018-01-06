@@ -66,7 +66,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
    private Configuration configuration;
 
-   private final SimpleString atestq = new SimpleString("BasicXaTestq");
+   private final SimpleString atestq = SimpleString.toSimpleString("BasicXaTestq");
 
    private ServerLocator locator;
 
@@ -578,8 +578,8 @@ public class BasicXaTest extends ActiveMQTestBase {
 
    @Test
    public void testSimpleJoin() throws Exception {
-      SimpleString ADDRESS1 = new SimpleString("Address-1");
-      SimpleString ADDRESS2 = new SimpleString("Address-2");
+      SimpleString ADDRESS1 = SimpleString.toSimpleString("Address-1");
+      SimpleString ADDRESS2 = SimpleString.toSimpleString("Address-2");
 
       clientSession.createQueue(ADDRESS1, ADDRESS1, true);
       clientSession.createQueue(ADDRESS2, ADDRESS2, true);
@@ -652,7 +652,7 @@ public class BasicXaTest extends ActiveMQTestBase {
       int NUMBER_OF_QUEUES = 10;
       ClientSession session = null;
 
-      SimpleString ADDRESS = new SimpleString("Address");
+      SimpleString ADDRESS = SimpleString.toSimpleString("Address");
 
       ClientSession newJoinSession = null;
 

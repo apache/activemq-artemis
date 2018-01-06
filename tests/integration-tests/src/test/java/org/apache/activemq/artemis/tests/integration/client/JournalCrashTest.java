@@ -53,7 +53,7 @@ public class JournalCrashTest extends ActiveMQTestBase {
 
    private ClientSessionFactory factory;
 
-   private final SimpleString QUEUE = new SimpleString("queue");
+   private final SimpleString QUEUE = SimpleString.toSimpleString("queue");
 
    private ServerLocator locator;
 
@@ -118,7 +118,7 @@ public class JournalCrashTest extends ActiveMQTestBase {
 
          for (int i = start; i < end; i++) {
             ClientMessage msg = session.createMessage(true);
-            msg.putIntProperty(new SimpleString("key"), i);
+            msg.putIntProperty(SimpleString.toSimpleString("key"), i);
             msg.getBodyBuffer().writeUTF("message " + i);
             prod.send(msg);
          }
@@ -152,7 +152,7 @@ public class JournalCrashTest extends ActiveMQTestBase {
 
             msg.acknowledge();
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+            Assert.assertEquals(i, msg.getObjectProperty(SimpleString.toSimpleString("key")));
          }
          session.close();
       }

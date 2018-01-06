@@ -70,7 +70,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    private Configuration configuration;
 
-   private final SimpleString atestq = new SimpleString("atestq");
+   private final SimpleString atestq = SimpleString.toSimpleString("atestq");
 
    private ServerLocator locator;
 
@@ -257,7 +257,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          return;
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
-      SimpleString pageQueue = new SimpleString("pagequeue");
+      SimpleString pageQueue = SimpleString.toSimpleString("pagequeue");
 
       AddressSettings pageAddressSettings = new AddressSettings().setMaxSizeBytes(100 * 1024).setPageSizeBytes(10 * 1024);
 
@@ -334,7 +334,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
    public void testRollbackPaging(final boolean restartServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
-      SimpleString pageQueue = new SimpleString("pagequeue");
+      SimpleString pageQueue = SimpleString.toSimpleString("pagequeue");
 
       AddressSettings pageAddressSettings = new AddressSettings().setMaxSizeBytes(100 * 1024).setPageSizeBytes(10 * 1024);
 
@@ -990,7 +990,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientMessage m8 = createTextMessage("m8");
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
-      SimpleString anewtestq = new SimpleString("anewtestq");
+      SimpleString anewtestq = SimpleString.toSimpleString("anewtestq");
       clientSession.createQueue(anewtestq, anewtestq, null, true);
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
@@ -1076,7 +1076,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientMessage m8 = createTextMessage("m8");
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
-      SimpleString anewtestq = new SimpleString("anewtestq");
+      SimpleString anewtestq = SimpleString.toSimpleString("anewtestq");
       clientSession.createQueue(anewtestq, anewtestq, null, true);
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);

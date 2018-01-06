@@ -92,7 +92,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page impl = new Page(SimpleString.toSimpleString("something"), new NullStorageManager(), factory, file, 10);
 
       Assert.assertEquals(10, impl.getPageId());
 
@@ -100,7 +100,7 @@ public class PageTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.toSimpleString("Test");
 
       addPageElements(simpleDestination, impl, numberOfElements);
 
@@ -109,7 +109,7 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      impl = new Page(SimpleString.toSimpleString("something"), new NullStorageManager(), factory, file, 10);
 
       List<PagedMessage> msgs = impl.read(new NullStorageManager());
 
@@ -131,7 +131,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page impl = new Page(SimpleString.toSimpleString("something"), new NullStorageManager(), factory, file, 10);
 
       Assert.assertEquals(10, impl.getPageId());
 
@@ -139,7 +139,7 @@ public class PageTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.toSimpleString("Test");
 
       addPageElements(simpleDestination, impl, numberOfElements);
 
@@ -172,7 +172,7 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      impl = new Page(SimpleString.toSimpleString("something"), new NullStorageManager(), factory, file, 10);
 
       List<PagedMessage> msgs = impl.read(new NullStorageManager());
 

@@ -141,7 +141,7 @@ public class OpenWireGroupingTest extends BasicOpenWireTest {
 
    protected void setProperty(Message message) {
       if (coreSend) {
-         ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+         ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.toSimpleString("foo"));
       } else {
          org.apache.activemq.command.ActiveMQMessage m = (org.apache.activemq.command.ActiveMQMessage) message;
          m.setGroupID("foo");

@@ -44,7 +44,7 @@ import org.junit.Test;
 public class OrderReattachTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
-   final SimpleString ADDRESS = new SimpleString("address");
+   final SimpleString ADDRESS = SimpleString.toSimpleString("address");
 
    // Attributes ----------------------------------------------------
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -154,7 +154,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.toSimpleString("sub" + i);
 
          // failureQueue.push(true);
 
@@ -179,7 +179,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
          if (i % 10 == 0) {
             // failureQueue.push(true);
          }
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.toSimpleString("count"), i);
          producer.send(message);
       }
 
@@ -254,7 +254,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
          failureQueue.push(true);
 
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.toSimpleString("sub" + i);
 
          s.deleteQueue(subName);
       }

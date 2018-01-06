@@ -132,7 +132,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString("myqueue");
+      SimpleString jmsQueueName = SimpleString.toSimpleString("myqueue");
 
       coreSession.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
 
@@ -205,7 +205,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       ClientSession coreSessionLive = ((ActiveMQSession) sessLive).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString("myqueue");
+      SimpleString jmsQueueName = SimpleString.toSimpleString("myqueue");
 
       coreSessionLive.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
 

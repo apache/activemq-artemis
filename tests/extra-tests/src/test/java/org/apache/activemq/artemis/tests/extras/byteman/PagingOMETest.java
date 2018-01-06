@@ -56,7 +56,7 @@ public class PagingOMETest extends ActiveMQTestBase {
 
    private static final int PAGE_SIZE = 10 * 1024;
 
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = SimpleString.toSimpleString("SimpleAddress");
 
    static boolean failureActive = false;
 

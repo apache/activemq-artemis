@@ -47,7 +47,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator();
       try {
          final ClientSessionFactory factory = createSessionFactory(locator);
-         final SimpleString adr = new SimpleString("test-adr");
+         final SimpleString adr = SimpleString.toSimpleString("test-adr");
 
          createDestination(factory, adr);
 

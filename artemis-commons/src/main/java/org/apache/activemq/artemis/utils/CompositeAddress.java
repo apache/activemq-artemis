@@ -87,7 +87,7 @@ public class CompositeAddress {
    }
 
    public static SimpleString extractQueueName(SimpleString name) {
-      return new SimpleString(extractQueueName(name.toString()));
+      return SimpleString.toSimpleString(extractQueueName(name.toString()));
    }
 
    public static String extractAddressName(String address) {

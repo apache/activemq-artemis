@@ -47,7 +47,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    public void testDuplicate() throws Exception {
       createStorage();
 
-      DuplicateIDCache cache = new DuplicateIDCacheImpl(new SimpleString("test"), 2000, journal, true);
+      DuplicateIDCache cache = new DuplicateIDCacheImpl(SimpleString.toSimpleString("test"), 2000, journal, true);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
@@ -101,7 +101,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    public void testDuplicateNonPersistent() throws Exception {
       createStorage();
 
-      DuplicateIDCache cache = new DuplicateIDCacheImpl(new SimpleString("test"), 2000, journal, false);
+      DuplicateIDCache cache = new DuplicateIDCacheImpl(SimpleString.toSimpleString("test"), 2000, journal, false);
 
       TransactionImpl tx = new TransactionImpl(journal);
 

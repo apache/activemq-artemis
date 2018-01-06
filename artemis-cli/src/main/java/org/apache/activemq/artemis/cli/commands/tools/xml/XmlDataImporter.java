@@ -455,7 +455,7 @@ public final class XmlDataImporter extends ActionAbstract {
             message.putLongProperty(key, Long.parseLong(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING:
-            message.putStringProperty(new SimpleString(key), value == null ? null : SimpleString.toSimpleString(value));
+            message.putStringProperty(SimpleString.toSimpleString(key), value == null ? null : SimpleString.toSimpleString(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_STRING:
             message.putStringProperty(key, value);
@@ -554,7 +554,7 @@ public final class XmlDataImporter extends ActionAbstract {
          }
       }
 
-      ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
+      ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.toSimpleString(queueName));
 
       if (!queueQuery.isExists()) {
          session.createQueue(address, RoutingType.valueOf(routingType), queueName, filter, true);
@@ -586,7 +586,7 @@ public final class XmlDataImporter extends ActionAbstract {
          }
       }
 
-      ClientSession.AddressQuery addressQuery = session.addressQuery(new SimpleString(addressName));
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.toSimpleString(addressName));
 
       if (!addressQuery.isExists()) {
          Set<RoutingType> set = new HashSet<>();

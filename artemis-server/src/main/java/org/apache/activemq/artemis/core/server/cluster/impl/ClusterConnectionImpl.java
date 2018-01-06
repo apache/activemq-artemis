@@ -440,7 +440,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), name);
+         props.putSimpleStringProperty(SimpleString.toSimpleString("name"), name);
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
          managementService.sendNotification(notification);
       }
@@ -635,7 +635,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), name);
+         props.putSimpleStringProperty(SimpleString.toSimpleString("name"), name);
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.CLUSTER_CONNECTION_STARTED, props);
          logger.debug("sending notification: " + notification);
          managementService.sendNotification(notification);
@@ -710,7 +710,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // New node - create a new flow record
 
-               final SimpleString queueName = new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+               final SimpleString queueName = SimpleString.toSimpleString(storeAndForwardPrefix + name + "." + nodeID);
 
                Binding queueBinding = postOffice.getBinding(queueName);
 

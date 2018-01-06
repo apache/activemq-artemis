@@ -126,7 +126,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
 
       String type = messageSend.getType();
       if (type != null) {
-         coreMessage.putStringProperty(new SimpleString("JMSType"), new SimpleString(type));
+         coreMessage.putStringProperty(SimpleString.toSimpleString("JMSType"), SimpleString.toSimpleString(type));
       }
       coreMessage.setDurable(messageSend.isPersistent());
       coreMessage.setExpiration(messageSend.getExpiration());
@@ -156,7 +156,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
                DataInputStream tdataIn = new DataInputStream(tis);
                String text = MarshallingSupport.readUTF8(tdataIn);
                tdataIn.close();
-               body.writeNullableSimpleString(new SimpleString(text));
+               body.writeNullableSimpleString(SimpleString.toSimpleString(text));
                break;
             case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
                InputStream mis = new ByteArrayInputStream(contents);
@@ -393,7 +393,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
       for (Entry<String, Object> entry : map.entrySet()) {
-         SimpleString key = new SimpleString(entry.getKey());
+         SimpleString key = SimpleString.toSimpleString(entry.getKey());
          Object value = entry.getValue();
          if (value instanceof UTF8Buffer) {
             value = ((UTF8Buffer) value).toString();
@@ -469,7 +469,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
             throw new IllegalStateException("Unknown message type: " + coreMessage.getType());
       }
 
-      String type = coreMessage.getStringProperty(new SimpleString("JMSType"));
+      String type = coreMessage.getStringProperty(SimpleString.toSimpleString("JMSType"));
       if (type != null) {
          amqMsg.setJMSType(type);
       }

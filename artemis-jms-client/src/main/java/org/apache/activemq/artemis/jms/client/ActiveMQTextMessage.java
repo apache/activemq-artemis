@@ -79,7 +79,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
       checkWrite();
 
       if (text != null) {
-         this.text = new SimpleString(text);
+         this.text = SimpleString.toSimpleString(text);
       } else {
          this.text = null;
       }

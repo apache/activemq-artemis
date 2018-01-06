@@ -159,8 +159,8 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
 
    @Test
    public void testPluginAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("queue2");
-      final SimpleString QUEUE = new SimpleString("queue2");
+      final SimpleString ADDRESS = SimpleString.toSimpleString("queue2");
+      final SimpleString QUEUE = SimpleString.toSimpleString("queue2");
 
       server.start();
       server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE, null, true, false);
@@ -223,8 +223,8 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
 
    @Test
    public void testPluginAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("queue1");
-      final SimpleString QUEUE = new SimpleString("queue1");
+      final SimpleString ADDRESS = SimpleString.toSimpleString("queue1");
+      final SimpleString QUEUE = SimpleString.toSimpleString("queue1");
 
       server.start();
 

@@ -307,11 +307,11 @@ public class StompTest extends StompTestBase {
       // closing the consumer here should trigger auto-deletion
       assertNotNull(server.getActiveMQServer()
                           .getPostOffice()
-                          .getBinding(new SimpleString(nonExistentQueue)));
+                          .getBinding(SimpleString.toSimpleString(nonExistentQueue)));
       consumer.close();
       assertNull(server.getActiveMQServer()
                        .getPostOffice()
-                       .getBinding(new SimpleString(nonExistentQueue)));
+                       .getBinding(SimpleString.toSimpleString(nonExistentQueue)));
    }
 
    @Test
@@ -338,13 +338,13 @@ public class StompTest extends StompTestBase {
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
       assertNotNull(server.getActiveMQServer()
-                          .getAddressInfo(new SimpleString(nonExistentTopic)));
+                          .getAddressInfo(SimpleString.toSimpleString(nonExistentTopic)));
 
       // closing the consumer here should trigger auto-deletion of the subscription queue and address
       consumer.close();
       Thread.sleep(200);
       assertNull(server.getActiveMQServer()
-                       .getAddressInfo(new SimpleString(nonExistentTopic)));
+                       .getAddressInfo(SimpleString.toSimpleString(nonExistentTopic)));
    }
 
    /*
@@ -1159,9 +1159,9 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals(getQueuePrefix() + nonExistentQueue, frame.getHeader(Stomp.Headers.Send.DESTINATION));
       Assert.assertEquals(getName(), frame.getBody());
 
-      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(nonExistentQueue)));
 
-      final Queue subscription = ((LocalQueueBinding) server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue))).getQueue();
+      final Queue subscription = ((LocalQueueBinding) server.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(nonExistentQueue))).getQueue();
 
       assertTrue(Wait.waitFor(new Wait.Condition() {
          @Override
@@ -1175,7 +1175,7 @@ public class StompTest extends StompTestBase {
 
       unsubscribe(conn, null, getQueuePrefix() + nonExistentQueue, true, false);
 
-      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(nonExistentQueue)));
 
       sendJmsMessage(getName(), ActiveMQJMSClient.createQueue(nonExistentQueue));
 

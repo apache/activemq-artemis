@@ -52,7 +52,7 @@ import static org.apache.activemq.artemis.utils.DataConstants.STRING;
  */
 public class TypedProperties {
 
-   private static final SimpleString AMQ_PROPNAME = new SimpleString("_AMQ_");
+   private static final SimpleString AMQ_PROPNAME = SimpleString.toSimpleString("_AMQ_");
 
    private Map<SimpleString, PropertyValue> properties;
 
@@ -289,21 +289,21 @@ public class TypedProperties {
       if (value instanceof SimpleString) {
          return (SimpleString) value;
       } else if (value instanceof Boolean) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Character) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Byte) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Short) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Integer) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Long) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Float) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       } else if (value instanceof Double) {
-         return new SimpleString(value.toString());
+         return SimpleString.toSimpleString(value.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -345,7 +345,7 @@ public class TypedProperties {
             int len = buffer.readInt();
             byte[] data = new byte[len];
             buffer.readBytes(data);
-            SimpleString key = new SimpleString(data);
+            SimpleString key = SimpleString.toSimpleString(data);
 
             byte type = buffer.readByte();
 
@@ -954,7 +954,7 @@ public class TypedProperties {
       } else if (value instanceof Double) {
          properties.putDoubleProperty(key, (Double) value);
       } else if (value instanceof String) {
-         properties.putSimpleStringProperty(key, new SimpleString((String) value));
+         properties.putSimpleStringProperty(key, SimpleString.toSimpleString((String) value));
       } else if (value instanceof SimpleString) {
          properties.putSimpleStringProperty(key, (SimpleString) value);
       } else if (value instanceof byte[]) {

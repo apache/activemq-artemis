@@ -181,11 +181,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public static SimpleString createQueueAddressFromName(final String name) {
-      return new SimpleString(QUEUE_QUALIFIED_PREFIX + name);
+      return SimpleString.toSimpleString(QUEUE_QUALIFIED_PREFIX + name);
    }
 
    public static SimpleString createTopicAddressFromName(final String name) {
-      return new SimpleString(TOPIC_QUALIFIED_PREFIX + name);
+      return SimpleString.toSimpleString(TOPIC_QUALIFIED_PREFIX + name);
    }
 
    public static ActiveMQQueue createQueue(final String address) {

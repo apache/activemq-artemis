@@ -182,7 +182,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                addressString = reader.readLine();
             }
 
-            SimpleString address = new SimpleString(addressString);
+            SimpleString address = SimpleString.toSimpleString(addressString);
 
             SequentialFileFactory factory = newFileFactory(guid);
 

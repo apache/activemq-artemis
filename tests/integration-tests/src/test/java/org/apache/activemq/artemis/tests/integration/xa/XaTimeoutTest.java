@@ -76,7 +76,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
 
    private Configuration configuration;
 
-   private final SimpleString atestq = new SimpleString("atestq");
+   private final SimpleString atestq = SimpleString.toSimpleString("atestq");
 
    private ServerLocator locator;
 

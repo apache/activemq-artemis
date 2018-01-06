@@ -86,7 +86,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
       try {
          clearDataRecreateServerDirs();
 
-         SimpleString ADDRESS = new SimpleString("address");
+         SimpleString ADDRESS = SimpleString.toSimpleString("address");
 
          Configuration configuration = createDefaultInVMConfig();
 

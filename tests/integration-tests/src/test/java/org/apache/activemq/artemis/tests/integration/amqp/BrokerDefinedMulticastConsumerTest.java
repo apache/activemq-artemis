@@ -35,9 +35,9 @@ import org.junit.Test;
 
 public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
-   SimpleString queue1 = new SimpleString("queue1");
-   SimpleString queue2 = new SimpleString("queue2");
+   SimpleString address = SimpleString.toSimpleString("testAddress");
+   SimpleString queue1 = SimpleString.toSimpleString("queue1");
+   SimpleString queue2 = SimpleString.toSimpleString("queue2");
 
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {

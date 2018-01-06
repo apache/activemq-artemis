@@ -59,7 +59,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   protected final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   protected final SimpleString ADDRESS = SimpleString.toSimpleString("SimpleAddress");
 
    // Attributes ----------------------------------------------------
 
@@ -264,7 +264,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                   public void onMessage(final ClientMessage message) {
                      try {
                         if (delayDelivery > 0) {
-                           long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));
+                           long originalTime = (Long) message.getObjectProperty(SimpleString.toSimpleString("original-time"));
                            Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery, System.currentTimeMillis() - originalTime >= delayDelivery);
                         }
 
@@ -278,7 +278,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                            // right now there is no guarantee of ordered delivered on multiple scheduledMessages with
                            // the same
                            // scheduled delivery time
-                           Assert.assertEquals(msgCounter, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
+                           Assert.assertEquals(msgCounter, ((Integer) message.getObjectProperty(SimpleString.toSimpleString("counter-message"))).intValue());
                         }
 
                         if (useStreamOnConsume) {
@@ -355,7 +355,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                   System.currentTimeMillis();
 
                   if (delayDelivery > 0) {
-                     long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));
+                     long originalTime = (Long) message.getObjectProperty(SimpleString.toSimpleString("original-time"));
                      Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery, System.currentTimeMillis() - originalTime >= delayDelivery);
                   }
 
@@ -368,7 +368,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                   if (delayDelivery <= 0) {
                      // right now there is no guarantee of ordered delivered on multiple scheduledMessages with the same
                      // scheduled delivery time
-                     Assert.assertEquals(i, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
+                     Assert.assertEquals(i, ((Integer) message.getObjectProperty(SimpleString.toSimpleString("counter-message"))).intValue());
                   }
 
                   if (useStreamOnConsume) {
@@ -490,10 +490,10 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
             }
             message.getBodyBuffer().writeBytes(bytes);
          }
-         message.putIntProperty(new SimpleString("counter-message"), i);
+         message.putIntProperty(SimpleString.toSimpleString("counter-message"), i);
          if (delayDelivery > 0) {
             long time = System.currentTimeMillis();
-            message.putLongProperty(new SimpleString("original-time"), time);
+            message.putLongProperty(SimpleString.toSimpleString("original-time"), time);
             message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time + delayDelivery);
 
             producer.send(message);

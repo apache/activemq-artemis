@@ -24,14 +24,14 @@ public class HatColourChangeTransformer implements Transformer {
 
    @Override
    public Message transform(final Message message) {
-      SimpleString propName = new SimpleString("hat");
+      SimpleString propName = SimpleString.toSimpleString("hat");
 
       SimpleString oldProp = message.getSimpleStringProperty(propName);
 
       // System.out.println("Old hat colour is " + oldProp);
 
       // Change the colour
-      message.putStringProperty(propName, new SimpleString("blue"));
+      message.putStringProperty(propName, SimpleString.toSimpleString("blue"));
 
       return message;
    }

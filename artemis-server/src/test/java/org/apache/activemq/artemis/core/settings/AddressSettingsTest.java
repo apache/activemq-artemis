@@ -56,8 +56,8 @@ public class AddressSettingsTest extends ActiveMQTestBase {
    public void testSingleMerge() {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.toSimpleString("testDLQ");
+      SimpleString exp = SimpleString.toSimpleString("testExpiryQueue");
       addressSettingsToMerge.setDeadLetterAddress(DLQ);
       addressSettingsToMerge.setExpiryAddress(exp);
       addressSettingsToMerge.setMaxDeliveryAttempts(1000);
@@ -84,8 +84,8 @@ public class AddressSettingsTest extends ActiveMQTestBase {
    public void testMultipleMerge() {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.toSimpleString("testDLQ");
+      SimpleString exp = SimpleString.toSimpleString("testExpiryQueue");
       addressSettingsToMerge.setDeadLetterAddress(DLQ);
       addressSettingsToMerge.setExpiryAddress(exp);
       addressSettingsToMerge.setMaxDeliveryAttempts(1000);
@@ -96,7 +96,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettings.merge(addressSettingsToMerge);
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
-      SimpleString exp2 = new SimpleString("testExpiryQueue2");
+      SimpleString exp2 = SimpleString.toSimpleString("testExpiryQueue2");
       addressSettingsToMerge2.setExpiryAddress(exp2);
       addressSettingsToMerge2.setMaxSizeBytes(2001);
       addressSettingsToMerge2.setRedeliveryDelay(2003);
@@ -118,8 +118,8 @@ public class AddressSettingsTest extends ActiveMQTestBase {
    public void testMultipleMergeAll() {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.toSimpleString("testDLQ");
+      SimpleString exp = SimpleString.toSimpleString("testExpiryQueue");
       addressSettingsToMerge.setDeadLetterAddress(DLQ);
       addressSettingsToMerge.setExpiryAddress(exp);
       addressSettingsToMerge.setMaxSizeBytes(1001);
@@ -129,8 +129,8 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettings.merge(addressSettingsToMerge);
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
-      SimpleString exp2 = new SimpleString("testExpiryQueue2");
-      SimpleString DLQ2 = new SimpleString("testDlq2");
+      SimpleString exp2 = SimpleString.toSimpleString("testExpiryQueue2");
+      SimpleString DLQ2 = SimpleString.toSimpleString("testDlq2");
       addressSettingsToMerge2.setExpiryAddress(exp2);
       addressSettingsToMerge2.setDeadLetterAddress(DLQ2);
       addressSettingsToMerge2.setMaxDeliveryAttempts(2000);

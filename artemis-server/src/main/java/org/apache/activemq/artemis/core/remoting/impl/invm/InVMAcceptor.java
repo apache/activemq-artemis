@@ -136,8 +136,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(InVMAcceptorFactory.class.getName()));
-         props.putIntProperty(new SimpleString("id"), id);
+         props.putSimpleStringProperty(SimpleString.toSimpleString("factory"), SimpleString.toSimpleString(InVMAcceptorFactory.class.getName()));
+         props.putIntProperty(SimpleString.toSimpleString("id"), id);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STARTED, props);
          notificationService.sendNotification(notification);
       }
@@ -165,8 +165,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(InVMAcceptorFactory.class.getName()));
-         props.putIntProperty(new SimpleString("id"), id);
+         props.putSimpleStringProperty(SimpleString.toSimpleString("factory"), SimpleString.toSimpleString(InVMAcceptorFactory.class.getName()));
+         props.putIntProperty(SimpleString.toSimpleString("id"), id);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
          try {
             notificationService.sendNotification(notification);

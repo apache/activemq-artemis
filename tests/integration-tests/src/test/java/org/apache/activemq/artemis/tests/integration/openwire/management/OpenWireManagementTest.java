@@ -49,9 +49,9 @@ import java.util.Set;
 public class OpenWireManagementTest extends OpenWireTestBase {
 
    private ActiveMQServerControl serverControl;
-   private SimpleString queueName1 = new SimpleString("queue1");
-   private SimpleString queueName2 = new SimpleString("queue2");;
-   private SimpleString queueName3 = new SimpleString("queue3");;
+   private SimpleString queueName1 = SimpleString.toSimpleString("queue1");
+   private SimpleString queueName2 = SimpleString.toSimpleString("queue2");;
+   private SimpleString queueName3 = SimpleString.toSimpleString("queue3");;
 
    private ConnectionFactory factory;
 
@@ -184,7 +184,7 @@ public class OpenWireManagementTest extends OpenWireTestBase {
       try (Connection coreConn = coreCf.createConnection()) {
          ActiveMQSession session = (ActiveMQSession) coreConn.createSession();
          ClientSession coreSession = session.getCoreSession();
-         ClientSession.QueueQuery query = coreSession.queueQuery(new SimpleString(queue));
+         ClientSession.QueueQuery query = coreSession.queueQuery(SimpleString.toSimpleString(queue));
          assertTrue("Queue doesn't exist: " + queue, query.isExists());
          SimpleString qAddr = query.getAddress();
          return qAddr.toString().startsWith(AdvisorySupport.ADVISORY_TOPIC_PREFIX);

@@ -46,12 +46,12 @@ import org.junit.Test;
 
 public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
+   private SimpleString anycastAddress = SimpleString.toSimpleString("address.anycast");
+   private SimpleString multicastAddress = SimpleString.toSimpleString("address.multicast");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.toSimpleString("q1");
+   private SimpleString anycastQ2 = SimpleString.toSimpleString("q2");
+   private SimpleString anycastQ3 = SimpleString.toSimpleString("q3");
 
    private ServerLocator locator;
 
@@ -158,7 +158,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    //however we can test query functionality
    public void testTopic() throws Exception {
 
-      SimpleString queueName = new SimpleString("someAddress");
+      SimpleString queueName = SimpleString.toSimpleString("someAddress");
       server.createQueue(multicastAddress, RoutingType.MULTICAST, queueName, null, false, false);
       Connection connection = createConnection(false);
 
@@ -274,7 +274,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          //::queue ok!
-         String specialName = CompositeAddress.toFullQN(new SimpleString(""), anycastQ1).toString();
+         String specialName = CompositeAddress.toFullQN(SimpleString.toSimpleString(""), anycastQ1).toString();
          javax.jms.Queue q1 = session.createQueue(specialName);
          session.createConsumer(q1);
       } catch (InvalidDestinationException e) {

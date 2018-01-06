@@ -55,7 +55,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    private final int NUM_THREADS = getNumThreads();
 
    // Attributes ----------------------------------------------------
-   protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
+   protected static final SimpleString ADDRESS = SimpleString.toSimpleString("FailoverTestAddress");
 
    protected ActiveMQServer server;
 
@@ -247,7 +247,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    protected void doTestA(final ClientSessionFactory sf,
                           final int threadNum,
                           final ClientSession session2) throws Exception {
-      SimpleString subName = new SimpleString("sub" + threadNum);
+      SimpleString subName = SimpleString.toSimpleString("sub" + threadNum);
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
@@ -301,7 +301,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = createAutoCommitSession(sf);
 
@@ -354,7 +354,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -379,7 +379,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = createAutoCommitSession(sf);
 
@@ -434,7 +434,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -461,7 +461,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = createTransactionalSession(sf);
 
@@ -535,7 +535,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -561,7 +561,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + " sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + " sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
          sessConsume.addMetaData("data", RandomUtil.randomString());
@@ -660,7 +660,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + " sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + " sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -688,7 +688,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
          sessConsume.addMetaData("some-data", RandomUtil.randomString());
@@ -719,7 +719,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -745,7 +745,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
          sessConsume.addMetaData("data", RandomUtil.randomString());
@@ -778,7 +778,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -804,7 +804,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
          sessConsume.addMetaData("data", RandomUtil.randomString());
@@ -851,7 +851,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -877,7 +877,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
          sessConsume.addMetaData("data", RandomUtil.randomString());
@@ -926,7 +926,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString(threadNum + "sub" + i);
+         SimpleString subName = SimpleString.toSimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -942,14 +942,14 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientSession sessCreate = sf.createSession(false, true, true);
       sessCreate.addMetaData("data", RandomUtil.randomString());
 
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
       sess.addMetaData("data", RandomUtil.randomString());
 
       sess.start();
 
-      ClientConsumer consumer = sess.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      ClientConsumer consumer = sess.createConsumer(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
@@ -964,7 +964,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sess.close();
 
-      sessCreate.deleteQueue(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      sessCreate.deleteQueue(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       sessCreate.close();
    }
@@ -973,14 +973,14 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientSession sessCreate = sf.createSession(false, true, true);
       sessCreate.addMetaData("data", RandomUtil.randomString());
 
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
       sess.addMetaData("data", RandomUtil.randomString());
 
       sess.start();
 
-      ClientConsumer consumer = sess.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      ClientConsumer consumer = sess.createConsumer(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
@@ -995,7 +995,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sess.close();
 
-      sessCreate.deleteQueue(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      sessCreate.deleteQueue(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       sessCreate.close();
    }
@@ -1004,17 +1004,17 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("data", RandomUtil.randomString());
 
-      s.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
+      s.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
 
       final int numConsumers = 100;
 
       for (int i = 0; i < numConsumers; i++) {
-         ClientConsumer consumer = s.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+         ClientConsumer consumer = s.createConsumer(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
          consumer.close();
       }
 
-      s.deleteQueue(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      s.deleteQueue(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       s.close();
    }
@@ -1037,7 +1037,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    protected void doTestN(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
       sess.addMetaData("data", RandomUtil.randomString());
@@ -1048,7 +1048,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sess.stop();
 
-      ClientConsumer consumer = sess.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      ClientConsumer consumer = sess.createConsumer(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
@@ -1069,7 +1069,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sess.close();
 
-      sessCreate.deleteQueue(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      sessCreate.deleteQueue(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       sessCreate.close();
    }
@@ -1077,13 +1077,13 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    protected void doTestO(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), (SimpleString) null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
 
       sess.start();
 
-      ClientConsumer consumer = sess.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      ClientConsumer consumer = sess.createConsumer(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       for (int i = 0; i < 100; i++) {
          Assert.assertNull(consumer.receiveImmediate());
@@ -1091,7 +1091,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sess.close();
 
-      sessCreate.deleteQueue(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
+      sessCreate.deleteQueue(SimpleString.toSimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
       sessCreate.close();
    }
@@ -1148,8 +1148,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
                              final int threadNum) throws Exception {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQBytesMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("threadnum"), threadNum);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.toSimpleString("threadnum"), threadNum);
+         message.putIntProperty(SimpleString.toSimpleString("count"), i);
          setBody(message);
          producer.send(message);
       }
@@ -1174,8 +1174,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
             Assert.assertNotNull(msg);
 
-            int tn = (Integer) msg.getObjectProperty(new SimpleString("threadnum"));
-            int cnt = (Integer) msg.getObjectProperty(new SimpleString("count"));
+            int tn = (Integer) msg.getObjectProperty(SimpleString.toSimpleString("threadnum"));
+            int cnt = (Integer) msg.getObjectProperty(SimpleString.toSimpleString("count"));
 
             Integer c = consumerCounts.get(tn);
             if (c == null) {
@@ -1244,8 +1244,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
             return;
          }
 
-         int threadNum = (Integer) message.getObjectProperty(new SimpleString("threadnum"));
-         int cnt = (Integer) message.getObjectProperty(new SimpleString("count"));
+         int threadNum = (Integer) message.getObjectProperty(SimpleString.toSimpleString("threadnum"));
+         int cnt = (Integer) message.getObjectProperty(SimpleString.toSimpleString("count"));
 
          Integer c = counts.get(threadNum);
          if (c == null) {

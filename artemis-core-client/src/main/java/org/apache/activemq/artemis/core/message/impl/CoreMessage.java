@@ -679,7 +679,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putBooleanProperty(final String key, final boolean value) {
       messageChanged();
       checkProperties();
-      properties.putBooleanProperty(new SimpleString(key), value);
+      properties.putBooleanProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -700,7 +700,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public Boolean getBooleanProperty(final String key) throws ActiveMQPropertyConversionException {
       checkProperties();
-      return properties.getBooleanProperty(new SimpleString(key));
+      return properties.getBooleanProperty(SimpleString.toSimpleString(key));
    }
 
    @Override
@@ -715,7 +715,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putByteProperty(final String key, final byte value) {
       messageChanged();
       checkProperties();
-      properties.putByteProperty(new SimpleString(key), value);
+      properties.putByteProperty(SimpleString.toSimpleString(key), value);
 
       return this;
    }
@@ -744,7 +744,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putBytesProperty(final String key, final byte[] value) {
       messageChanged();
       checkProperties();
-      properties.putBytesProperty(new SimpleString(key), value);
+      properties.putBytesProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -756,7 +756,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public byte[] getBytesProperty(final String key) throws ActiveMQPropertyConversionException {
-      return getBytesProperty(new SimpleString(key));
+      return getBytesProperty(SimpleString.toSimpleString(key));
    }
 
    @Override
@@ -771,7 +771,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putCharProperty(String key, char value) {
       messageChanged();
       checkProperties();
-      properties.putCharProperty(new SimpleString(key), value);
+      properties.putCharProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -787,7 +787,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putShortProperty(final String key, final short value) {
       messageChanged();
       checkProperties();
-      properties.putShortProperty(new SimpleString(key), value);
+      properties.putShortProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -803,7 +803,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putIntProperty(final String key, final int value) {
       messageChanged();
       checkProperties();
-      properties.putIntProperty(new SimpleString(key), value);
+      properties.putIntProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -830,7 +830,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putLongProperty(final String key, final long value) {
       messageChanged();
       checkProperties();
-      properties.putLongProperty(new SimpleString(key), value);
+      properties.putLongProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -858,7 +858,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putFloatProperty(final String key, final float value) {
       messageChanged();
       checkProperties();
-      properties.putFloatProperty(new SimpleString(key), value);
+      properties.putFloatProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -874,7 +874,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putDoubleProperty(final String key, final double value) {
       messageChanged();
       checkProperties();
-      properties.putDoubleProperty(new SimpleString(key), value);
+      properties.putDoubleProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -903,7 +903,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage putStringProperty(final String key, final String value) {
       messageChanged();
       checkProperties();
-      properties.putSimpleStringProperty(new SimpleString(key), SimpleString.toSimpleString(value));
+      properties.putSimpleStringProperty(SimpleString.toSimpleString(key), SimpleString.toSimpleString(value));
       return this;
    }
 
@@ -931,7 +931,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public CoreMessage putObjectProperty(final String key, final Object value) throws ActiveMQPropertyConversionException {
       messageChanged();
-      putObjectProperty(new SimpleString(key), value);
+      putObjectProperty(SimpleString.toSimpleString(key), value);
       return this;
    }
 
@@ -944,7 +944,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public Short getShortProperty(final String key) throws ActiveMQPropertyConversionException {
       checkProperties();
-      return properties.getShortProperty(new SimpleString(key));
+      return properties.getShortProperty(SimpleString.toSimpleString(key));
    }
 
    @Override
@@ -956,7 +956,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public Float getFloatProperty(final String key) throws ActiveMQPropertyConversionException {
       checkProperties();
-      return properties.getFloatProperty(new SimpleString(key));
+      return properties.getFloatProperty(SimpleString.toSimpleString(key));
    }
 
    @Override
@@ -972,7 +972,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public String getStringProperty(final String key) throws ActiveMQPropertyConversionException {
-      return getStringProperty(new SimpleString(key));
+      return getStringProperty(SimpleString.toSimpleString(key));
    }
 
    @Override
@@ -984,7 +984,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public SimpleString getSimpleStringProperty(final String key) throws ActiveMQPropertyConversionException {
       checkProperties();
-      return properties.getSimpleStringProperty(new SimpleString(key));
+      return properties.getSimpleStringProperty(SimpleString.toSimpleString(key));
    }
 
    @Override
@@ -1001,7 +1001,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public Object removeProperty(final String key) {
       messageChanged();
       checkProperties();
-      Object oldValue = properties.removeProperty(new SimpleString(key));
+      Object oldValue = properties.removeProperty(SimpleString.toSimpleString(key));
       if (oldValue != null) {
          messageChanged();
       }
@@ -1017,7 +1017,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public boolean containsProperty(final String key) {
       checkProperties();
-      return properties.containsProperty(new SimpleString(key));
+      return properties.containsProperty(SimpleString.toSimpleString(key));
    }
 
    @Override

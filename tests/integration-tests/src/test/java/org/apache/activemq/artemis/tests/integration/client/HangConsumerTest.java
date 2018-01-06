@@ -86,7 +86,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.toSimpleString("ConsumerTestQueue");
 
    private Queue queue;
 
@@ -613,7 +613,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                                                         OperationContext context,
                                                         boolean autoCreateQueue,
                                                         Map<SimpleString, RoutingType> prefixes) throws Exception {
-         return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), new MyCallback(callback), context, getPagingManager(), prefixes);
+         return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : SimpleString.toSimpleString(defaultAddress), new MyCallback(callback), context, getPagingManager(), prefixes);
       }
    }
 

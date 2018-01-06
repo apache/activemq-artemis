@@ -28,8 +28,8 @@ import org.junit.Test;
 
 public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString addressA = SimpleString.toSimpleString("addressA");
+   public final SimpleString queueA = SimpleString.toSimpleString("queueA");
 
    private ServerLocator locator;
    private ActiveMQServer server;

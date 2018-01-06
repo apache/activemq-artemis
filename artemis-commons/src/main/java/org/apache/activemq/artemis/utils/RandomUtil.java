@@ -41,7 +41,7 @@ public class RandomUtil {
    }
 
    public static SimpleString randomSimpleString() {
-      return new SimpleString(RandomUtil.randomString());
+      return SimpleString.toSimpleString(RandomUtil.randomString());
    }
 
    public static char randomChar() {

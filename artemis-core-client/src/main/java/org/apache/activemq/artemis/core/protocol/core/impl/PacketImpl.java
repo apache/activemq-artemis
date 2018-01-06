@@ -32,8 +32,8 @@ public class PacketImpl implements Packet {
    // 2.0.0
    public static final int ADDRESSING_CHANGE_VERSION = 129;
 
-   public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
-   public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
+   public static final SimpleString OLD_QUEUE_PREFIX = SimpleString.toSimpleString("jms.queue.");
+   public static final SimpleString OLD_TOPIC_PREFIX = SimpleString.toSimpleString("jms.topic.");
 
    // The minimal size for all the packets, Common data for all the packets (look at
    // PacketImpl.encode)

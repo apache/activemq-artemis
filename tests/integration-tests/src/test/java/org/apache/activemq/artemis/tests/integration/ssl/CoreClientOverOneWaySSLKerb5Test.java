@@ -53,7 +53,7 @@ import java.util.Set;
 
 public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverKrb5SSL");
+   public static final SimpleString QUEUE = SimpleString.toSimpleString("QueueOverKrb5SSL");
    public static final String CLIENT_PRINCIPAL = "client";
    public static final String SNI_HOST = "sni.host";
    public static final String SERVICE_PRINCIPAL = "host/" + SNI_HOST;

@@ -51,9 +51,9 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
    // Attributes ----------------------------------------------------
 
-   final SimpleString ADDRESS = new SimpleString("SomeAddress");
+   final SimpleString ADDRESS = SimpleString.toSimpleString("SomeAddress");
 
-   final SimpleString QUEUE = new SimpleString("SomeQueue");
+   final SimpleString QUEUE = SimpleString.toSimpleString("SomeQueue");
 
    private ActiveMQServer server;
 
@@ -213,13 +213,13 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       setupServer(getJournalType());
 
       drainQueue(numberOfMessagesExpected, QUEUE);
-      drainQueue(100, new SimpleString("LAZY-QUEUE"));
+      drainQueue(100, SimpleString.toSimpleString("LAZY-QUEUE"));
 
       server.stop();
 
       setupServer(getJournalType());
       drainQueue(0, QUEUE);
-      drainQueue(0, new SimpleString("LAZY-QUEUE"));
+      drainQueue(0, SimpleString.toSimpleString("LAZY-QUEUE"));
 
       checkEmptyXID(xid);
 

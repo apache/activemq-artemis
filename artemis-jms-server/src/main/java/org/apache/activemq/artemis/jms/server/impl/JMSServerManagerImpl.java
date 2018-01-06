@@ -805,7 +805,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + name);
       if (addressControl != null) {
          for (String queueName : addressControl.getQueueNames()) {
-            Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));
+            Binding binding = server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
             if (binding == null) {
                ActiveMQJMSServerLogger.LOGGER.noQueueOnTopic(queueName, name);
                continue;

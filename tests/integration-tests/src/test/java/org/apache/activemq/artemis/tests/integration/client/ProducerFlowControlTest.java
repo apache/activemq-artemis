@@ -187,7 +187,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
                                 final boolean anon,
                                 final int minLargeMessageSize,
                                 final boolean realFiles) throws Exception {
-      final SimpleString address = new SimpleString("testaddress");
+      final SimpleString address = SimpleString.toSimpleString("testaddress");
 
       server = createServer(realFiles, isNetty());
 
@@ -213,7 +213,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
       final String queueName = "testqueue";
 
       for (int i = 0; i < numConsumers; i++) {
-         session.createQueue(address, new SimpleString(queueName + i), null, false);
+         session.createQueue(address, SimpleString.toSimpleString(queueName + i), null, false);
       }
 
       final byte[] bytes = RandomUtil.randomBytes(messageSize);
@@ -260,7 +260,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
       for (int i = 0; i < numConsumers; i++) {
          handlers[i] = new MyHandler();
 
-         ClientConsumer consumer = session.createConsumer(new SimpleString(queueName + i));
+         ClientConsumer consumer = session.createConsumer(SimpleString.toSimpleString(queueName + i));
 
          consumer.setMessageHandler(handlers[i]);
       }
@@ -307,7 +307,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
    @Test
    public void testClosingSessionUnblocksBlockedProducer() throws Exception {
-      final SimpleString address = new SimpleString("testaddress");
+      final SimpleString address = SimpleString.toSimpleString("testaddress");
 
       server = createServer(false, isNetty());
 
@@ -324,7 +324,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true, true);
 
-      final SimpleString queueName = new SimpleString("testqueue");
+      final SimpleString queueName = SimpleString.toSimpleString("testqueue");
 
       session.createQueue(address, queueName, null, false);
 
@@ -369,7 +369,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
    @Test
    public void testFlowControlMessageNotRouted() throws Exception {
-      final SimpleString address = new SimpleString("testaddress");
+      final SimpleString address = SimpleString.toSimpleString("testaddress");
 
       server = createServer(false, isNetty());
 

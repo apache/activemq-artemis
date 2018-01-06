@@ -40,7 +40,7 @@ import org.junit.Test;
 
 public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
-   private static final SimpleString QUEUE = new SimpleString("CoreClientOverHttpTestQueue");
+   private static final SimpleString QUEUE = SimpleString.toSimpleString("CoreClientOverHttpTestQueue");
    private Configuration conf;
    private ActiveMQServer server;
    private ServerLocator locator;

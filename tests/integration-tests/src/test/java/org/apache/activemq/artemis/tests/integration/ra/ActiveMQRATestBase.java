@@ -52,7 +52,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
    protected static final String MDBQUEUE = "mdbQueue";
    protected static final String DLQ = "dlqQueue";
    protected static final String MDBQUEUEPREFIXED = "mdbQueue";
-   protected static final SimpleString MDBQUEUEPREFIXEDSIMPLE = new SimpleString("mdbQueue");
+   protected static final SimpleString MDBQUEUEPREFIXEDSIMPLE = SimpleString.toSimpleString("mdbQueue");
 
    @Override
    @Before

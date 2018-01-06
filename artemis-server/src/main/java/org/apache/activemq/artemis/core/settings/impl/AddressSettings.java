@@ -793,7 +793,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      buffer.writeNullableSimpleString(addressFullMessagePolicy != null ? new SimpleString(addressFullMessagePolicy.toString()) : null);
+      buffer.writeNullableSimpleString(addressFullMessagePolicy != null ? SimpleString.toSimpleString(addressFullMessagePolicy.toString()) : null);
 
       BufferHelper.writeNullableLong(buffer, maxSizeBytes);
 
@@ -829,7 +829,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, slowConsumerCheckPeriod);
 
-      buffer.writeNullableSimpleString(slowConsumerPolicy != null ? new SimpleString(slowConsumerPolicy.toString()) : null);
+      buffer.writeNullableSimpleString(slowConsumerPolicy != null ? SimpleString.toSimpleString(slowConsumerPolicy.toString()) : null);
 
       BufferHelper.writeNullableBoolean(buffer, autoCreateJmsQueues);
 
@@ -843,13 +843,13 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteQueues);
 
-      buffer.writeNullableSimpleString(configDeleteQueues != null ? new SimpleString(configDeleteQueues.toString()) : null);
+      buffer.writeNullableSimpleString(configDeleteQueues != null ? SimpleString.toSimpleString(configDeleteQueues.toString()) : null);
 
       BufferHelper.writeNullableBoolean(buffer, autoCreateAddresses);
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteAddresses);
 
-      buffer.writeNullableSimpleString(configDeleteAddresses != null ? new SimpleString(configDeleteAddresses.toString()) : null);
+      buffer.writeNullableSimpleString(configDeleteAddresses != null ? SimpleString.toSimpleString(configDeleteAddresses.toString()) : null);
 
       BufferHelper.writeNullableInteger(buffer, managementBrowsePageSize);
 

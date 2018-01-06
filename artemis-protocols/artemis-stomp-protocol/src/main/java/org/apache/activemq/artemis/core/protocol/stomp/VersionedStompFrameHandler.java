@@ -351,7 +351,7 @@ public abstract class VersionedStompFrameHandler {
       if (typeHeader != null) {
          routingType = RoutingType.valueOf(typeHeader);
       } else {
-         routingType = connection.getSession().getCoreSession().getAddressAndRoutingType(new AddressInfo(new SimpleString(destination))).getRoutingType();
+         routingType = connection.getSession().getCoreSession().getAddressAndRoutingType(new AddressInfo(SimpleString.toSimpleString(destination))).getRoutingType();
       }
       return routingType;
    }

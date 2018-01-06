@@ -45,8 +45,8 @@ public class ClientCrashTest extends ClientTestBase {
 
    // Constants -----------------------------------------------------
 
-   public static final SimpleString QUEUE = new SimpleString("ClientCrashTestQueue");
-   public static final SimpleString QUEUE2 = new SimpleString("ClientCrashTestQueue2");
+   public static final SimpleString QUEUE = SimpleString.toSimpleString("ClientCrashTestQueue");
+   public static final SimpleString QUEUE2 = SimpleString.toSimpleString("ClientCrashTestQueue2");
 
    public static final String MESSAGE_TEXT_FROM_SERVER = "ClientCrashTest from server";
 

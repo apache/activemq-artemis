@@ -170,9 +170,9 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
    @Test
    public void testJAASSecurityManagerAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.toSimpleString("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.toSimpleString("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.toSimpleString("nonDurableQueue");
 
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
@@ -256,9 +256,9 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
    @Test
    public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.toSimpleString("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.toSimpleString("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.toSimpleString("nonDurableQueue");
 
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("admins", true, true, true, true, true, true, true, true, true, true));

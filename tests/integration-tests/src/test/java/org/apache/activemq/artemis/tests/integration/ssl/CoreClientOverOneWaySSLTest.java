@@ -65,7 +65,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       CLIENT_SIDE_TRUSTSTORE = "client-side-truststore." + storeType.toLowerCase();
    }
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+   public static final SimpleString QUEUE = SimpleString.toSimpleString("QueueOverSSL");
 
    /**
     * These artifacts are required for testing 1-way SSL

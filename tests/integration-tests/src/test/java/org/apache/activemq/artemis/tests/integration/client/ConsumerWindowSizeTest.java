@@ -49,9 +49,9 @@ import org.junit.Test;
 
 public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
-   private final SimpleString addressA = new SimpleString("addressA");
+   private final SimpleString addressA = SimpleString.toSimpleString("addressA");
 
-   private final SimpleString queueA = new SimpleString("queueA");
+   private final SimpleString queueA = SimpleString.toSimpleString("queueA");
 
    private final int TIMEOUT = 5;
 
@@ -687,7 +687,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          session2.start();
 
-         SimpleString ADDRESS = new SimpleString("some-queue");
+         SimpleString ADDRESS = SimpleString.toSimpleString("some-queue");
 
          session1.createQueue(ADDRESS, ADDRESS, true);
 
@@ -834,7 +834,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          session1.start();
 
-         SimpleString ADDRESS = new SimpleString("some-queue");
+         SimpleString ADDRESS = SimpleString.toSimpleString("some-queue");
 
          session1.createQueue(ADDRESS, ADDRESS, true);
 
@@ -935,7 +935,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          session = sf.createSession(false, false, false);
 
-         SimpleString ADDRESS = new SimpleString("some-queue");
+         SimpleString ADDRESS = SimpleString.toSimpleString("some-queue");
 
          session.createQueue(ADDRESS, ADDRESS, true);
 
@@ -1008,7 +1008,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          session = sf.createSession(false, true, true);
 
-         SimpleString ADDRESS = new SimpleString("some-queue");
+         SimpleString ADDRESS = SimpleString.toSimpleString("some-queue");
 
          session.createQueue(ADDRESS, ADDRESS, true);
 
@@ -1150,7 +1150,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          session = sf.createSession(false, true, true);
 
-         SimpleString ADDRESS = new SimpleString("some-queue");
+         SimpleString ADDRESS = SimpleString.toSimpleString("some-queue");
 
          session.createQueue(ADDRESS, ADDRESS, true);
 
@@ -1297,7 +1297,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          sessionA = sf.createSession(false, true, true);
 
-         SimpleString ADDRESS = new SimpleString("some-queue");
+         SimpleString ADDRESS = SimpleString.toSimpleString("some-queue");
 
          sessionA.createQueue(ADDRESS, ADDRESS, true);
 

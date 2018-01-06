@@ -45,7 +45,7 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
    @Test
    public void testSequentialCreateQueueIdempotency() throws Exception {
-      final SimpleString QUEUE = new SimpleString("SequentialCreateQueueIdempotency");
+      final SimpleString QUEUE = SimpleString.toSimpleString("SequentialCreateQueueIdempotency");
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -126,7 +126,7 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
             locator = createInVMNonHALocator();
             ClientSessionFactory sf = createSessionFactory(locator);
             session = sf.createSession(false, true, true);
-            final SimpleString QUEUE = new SimpleString(queueName);
+            final SimpleString QUEUE = SimpleString.toSimpleString(queueName);
             session.createQueue(QUEUE, QUEUE, null, true);
             queuesCreated.incrementAndGet();
          } catch (ActiveMQQueueExistsException qne) {

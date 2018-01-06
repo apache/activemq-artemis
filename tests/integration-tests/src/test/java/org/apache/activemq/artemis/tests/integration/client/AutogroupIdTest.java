@@ -38,15 +38,15 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.toSimpleString("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.toSimpleString("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.toSimpleString("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.toSimpleString("queueC");
 
-   private final SimpleString groupTestQ = new SimpleString("testGroupQueue");
+   private final SimpleString groupTestQ = SimpleString.toSimpleString("testGroupQueue");
 
    private ActiveMQServer server;
 

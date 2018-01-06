@@ -347,7 +347,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                      message.putIntProperty("counter", i);
 
-                     message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("id:" + i +
+                     message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.toSimpleString("id:" + i +
                                                                                                        ",exec:" +
                                                                                                        executionId));
 

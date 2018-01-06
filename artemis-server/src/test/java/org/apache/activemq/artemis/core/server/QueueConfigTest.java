@@ -25,13 +25,13 @@ public class QueueConfigTest {
 
    @Test
    public void addressMustBeDefaultedToName() {
-      final QueueConfig queueConfig = QueueConfig.builderWith(1L, new SimpleString("queue_name")).build();
+      final QueueConfig queueConfig = QueueConfig.builderWith(1L, SimpleString.toSimpleString("queue_name")).build();
       Assert.assertEquals(queueConfig.name(), queueConfig.address());
    }
 
    @Test(expected = IllegalStateException.class)
    public void cannotAllowNullAddress() {
-      QueueConfig.builderWith(1L, new SimpleString("queue_name"), null);
+      QueueConfig.builderWith(1L, SimpleString.toSimpleString("queue_name"), null);
    }
 
    @Test(expected = IllegalStateException.class)
@@ -41,6 +41,6 @@ public class QueueConfigTest {
 
    @Test(expected = IllegalStateException.class)
    public void cannotAllowNullNameWithAddress() {
-      QueueConfig.builderWith(1L, null, new SimpleString("queue_address"));
+      QueueConfig.builderWith(1L, null, SimpleString.toSimpleString("queue_address"));
    }
 }

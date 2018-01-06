@@ -40,7 +40,7 @@ import org.junit.Test;
 
 public class QueueImplTest extends ActiveMQTestBase {
 
-   private static final SimpleString queue1 = new SimpleString("queue1");
+   private static final SimpleString queue1 = SimpleString.toSimpleString("queue1");
 
    private static final long TIMEOUT = 10000;
 
@@ -69,7 +69,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    @Test
    public void testScheduledNoConsumer() throws Exception {
       QueueImpl queue =
-               new QueueImpl(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, false, true,
+               new QueueImpl(1, SimpleString.toSimpleString("address1"), SimpleString.toSimpleString("queue1"), null, null, false, true,
                              false, scheduledExecutor, null, null, null,
                              ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory())), null, null);
 
@@ -136,7 +136,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    @Test
    public void testScheduled() throws Exception {
-      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null,
+      QueueImpl queue = new QueueImpl(1, SimpleString.toSimpleString("address1"), SimpleString.toSimpleString("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null,
                                       ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory())), null, null);
 
       FakeConsumer consumer = null;
@@ -235,7 +235,7 @@ public class QueueImplTest extends ActiveMQTestBase {
          public void disconnect() {
          }
       };
-      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1, null, null, false, true, false, scheduledExecutor, null, null, null,
+      QueueImpl queue = new QueueImpl(1, SimpleString.toSimpleString("address1"), QueueImplTest.queue1, null, null, false, true, false, scheduledExecutor, null, null, null,
                                       ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory())), null, null);
       MessageReference messageReference = generateReference(queue, 1);
       queue.addConsumer(consumer);

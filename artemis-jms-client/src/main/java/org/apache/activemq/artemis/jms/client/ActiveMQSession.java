@@ -77,7 +77,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    public static final int TYPE_TOPIC_SESSION = 2;
 
-   private static SimpleString REJECTING_FILTER = new SimpleString("_AMQX=-1");
+   private static SimpleString REJECTING_FILTER = SimpleString.toSimpleString("_AMQX=-1");
 
    private final ConnectionFactoryOptions options;
 
@@ -608,7 +608,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString coreFilterString = null;
 
          if (selectorString != null) {
-            coreFilterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
+            coreFilterString = SimpleString.toSimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
          }
 
          ClientConsumer consumer;
@@ -627,7 +627,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             throw new InvalidDestinationException("Cannot create a durable subscription on a temporary topic");
          }
 
-         queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(durability == ConsumerDurability.DURABLE, connection.getClientID(), subscriptionName));
+         queueName = SimpleString.toSimpleString(ActiveMQDestination.createQueueNameForSubscription(durability == ConsumerDurability.DURABLE, connection.getClientID(), subscriptionName));
 
          if (durability == ConsumerDurability.DURABLE) {
             try {
@@ -682,7 +682,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString coreFilterString = null;
 
          if (selectorString != null) {
-            coreFilterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
+            coreFilterString = SimpleString.toSimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
          }
 
          ClientConsumer consumer;
@@ -731,7 +731,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   throw new RuntimeException("Subscription name cannot be null for durable topic consumer");
                // Non durable sub
 
-               queueName = new SimpleString(UUID.randomUUID().toString());
+               queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
 
                session.createTemporaryQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString);
 
@@ -750,7 +750,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   throw new InvalidDestinationException("Cannot create a durable subscription on a temporary topic");
                }
 
-               queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), subscriptionName));
+               queueName = SimpleString.toSimpleString(ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), subscriptionName));
 
                QueueQuery subResponse = session.queueQuery(queueName);
 
@@ -836,7 +836,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             SelectorParser.parse(filterString.trim());
          }
       } catch (FilterException e) {
-         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(e, new SimpleString(filterString)));
+         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(e, SimpleString.toSimpleString(filterString)));
       }
 
       ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
@@ -846,7 +846,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         AddressQuery response = session.addressQuery(new SimpleString(activeMQDestination.getAddress()));
+         AddressQuery response = session.addressQuery(SimpleString.toSimpleString(activeMQDestination.getAddress()));
          if (!response.isExists()) {
             if (response.isAutoCreateQueues()) {
                session.createQueue(activeMQDestination.getSimpleAddress(), RoutingType.ANYCAST, activeMQDestination.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers());
@@ -918,7 +918,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw new IllegalStateException("Cannot unsubscribe using a QueueSession");
       }
 
-      SimpleString queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), name));
+      SimpleString queueName = SimpleString.toSimpleString(ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), name));
 
       try {
          QueueQuery response = session.queueQuery(queueName);

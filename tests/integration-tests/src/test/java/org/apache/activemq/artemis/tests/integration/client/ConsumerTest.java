@@ -89,7 +89,7 @@ public class ConsumerTest extends ActiveMQTestBase {
    private final boolean netty;
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.toSimpleString("ConsumerTestQueue");
 
    private ServerLocator locator;
 

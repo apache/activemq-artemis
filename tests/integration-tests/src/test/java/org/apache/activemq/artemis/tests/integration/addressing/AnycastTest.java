@@ -38,7 +38,7 @@ import org.junit.Test;
 
 public class AnycastTest extends ActiveMQTestBase {
 
-   private SimpleString baseAddress = new SimpleString("anycast.address");
+   private SimpleString baseAddress = SimpleString.toSimpleString("anycast.address");
 
    private AddressInfo addressInfo;
 

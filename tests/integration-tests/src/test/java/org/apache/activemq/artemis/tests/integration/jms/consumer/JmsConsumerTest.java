@@ -133,7 +133,7 @@ public class JmsConsumerTest extends JMSTestBase {
          Assert.assertNotNull(m);
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.toSimpleString(JmsConsumerTest.Q_NAME);
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
@@ -179,7 +179,7 @@ public class JmsConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.toSimpleString(JmsConsumerTest.Q_NAME);
       conn.close();
 
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
@@ -226,7 +226,7 @@ public class JmsConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.toSimpleString(JmsConsumerTest.Q_NAME);
       context.close();
 
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
@@ -301,7 +301,7 @@ public class JmsConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.toSimpleString(JmsConsumerTest.Q_NAME);
       conn.close();
 
       Queue queue = server.locateQueue(queueName);
@@ -330,7 +330,7 @@ public class JmsConsumerTest extends JMSTestBase {
       }
 
       // Messages should all have been acked since we set pre ack on the cf
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.toSimpleString(JmsConsumerTest.Q_NAME);
       Queue queue = server.locateQueue(queueName);
       Wait.assertEquals(0, queue::getDeliveringCount);
       Wait.assertEquals(0, queue::getMessageCount);

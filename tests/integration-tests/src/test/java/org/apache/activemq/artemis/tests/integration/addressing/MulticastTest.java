@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MulticastTest extends ActiveMQTestBase {
 
-   private SimpleString baseAddress = new SimpleString("multicast.address");
+   private SimpleString baseAddress = SimpleString.toSimpleString("multicast.address");
 
    private AddressInfo addressInfo;
 

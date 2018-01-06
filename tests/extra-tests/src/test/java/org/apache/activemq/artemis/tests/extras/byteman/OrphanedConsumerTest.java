@@ -173,9 +173,9 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer("queue1");
       ClientConsumer consumer2 = session.createConsumer("queue2");
 
-      Queue queue1 = server.locateQueue(new SimpleString("queue1"));
+      Queue queue1 = server.locateQueue(SimpleString.toSimpleString("queue1"));
 
-      Queue queue2 = server.locateQueue(new SimpleString("queue2"));
+      Queue queue2 = server.locateQueue(SimpleString.toSimpleString("queue2"));
 
       session.start();
 

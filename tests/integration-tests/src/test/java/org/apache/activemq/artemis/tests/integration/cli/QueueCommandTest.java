@@ -59,7 +59,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(command, "AMQ119203");
-      assertFalse(server.queueQuery(new SimpleString(queueName)).isExists());
+      assertFalse(server.queueQuery(SimpleString.toSimpleString(queueName)).isExists());
    }
 
    @Test
@@ -72,12 +72,12 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      assertNotNull(server.getAddressInfo(new SimpleString(queueName)));
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(queueName)));
 
-      Queue queue = server.locateQueue(new SimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
       assertEquals(false, queue.isPurgeOnNoConsumers());
-      assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
+      assertTrue(server.queueQuery(SimpleString.toSimpleString(queueName)).isExists());
    }
 
    @Test
@@ -92,16 +92,16 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.setAddress(address);
 
-      server.addOrUpdateAddressInfo(new AddressInfo(new SimpleString(address), RoutingType.MULTICAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.MULTICAST));
 
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      assertNotNull(server.getAddressInfo(new SimpleString(address)));
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
 
-      Queue queue = server.locateQueue(new SimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
       assertEquals(false, queue.isPurgeOnNoConsumers());
-      assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
+      assertTrue(server.queueQuery(SimpleString.toSimpleString(queueName)).isExists());
    }
 
    @Test
@@ -118,9 +118,9 @@ public class QueueCommandTest extends JMSTestBase {
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
       checkExecutionPassed(command);
-      Queue queue = server.locateQueue(new SimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
       assertNotNull(queue);
-      assertEquals(new SimpleString(filerString), queue.getFilter().getFilterString());
+      assertEquals(SimpleString.toSimpleString(filerString), queue.getFilter().getFilterString());
    }
 
    @Test
@@ -141,7 +141,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteCoreQueue() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.toSimpleString("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -161,7 +161,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteQueueDoesNotExist() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.toSimpleString("deleteQueue");
 
       DeleteQueue delete = new DeleteQueue();
       delete.setName(queueName.toString());
@@ -173,7 +173,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteQueueWithConsumersFails() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.toSimpleString("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -193,7 +193,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteQueueWithConsumersFailsAndRemoveConsumersTrue() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.toSimpleString("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -214,7 +214,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testAutoDeleteAddress() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.toSimpleString("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -240,9 +240,9 @@ public class QueueCommandTest extends JMSTestBase {
    @Test
    public void testUpdateCoreQueue() throws Exception {
       final String queueName = "updateQueue";
-      final SimpleString queueNameString = new SimpleString(queueName);
+      final SimpleString queueNameString = SimpleString.toSimpleString(queueName);
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.toSimpleString(addressName);
       final int oldMaxConsumers = -1;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldPurgeOnNoConsumers = false;
@@ -272,9 +272,9 @@ public class QueueCommandTest extends JMSTestBase {
    @Test
    public void testUpdateCoreQueueCannotChangeRoutingType() throws Exception {
       final String queueName = "updateQueue";
-      final SimpleString queueNameString = new SimpleString(queueName);
+      final SimpleString queueNameString = SimpleString.toSimpleString(queueName);
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.toSimpleString(addressName);
       final int oldMaxConsumers = 10;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldPurgeOnNoConsumers = false;
@@ -302,9 +302,9 @@ public class QueueCommandTest extends JMSTestBase {
    @Test
    public void testUpdateCoreQueueCannotLowerMaxConsumers() throws Exception {
       final String queueName = "updateQueue";
-      final SimpleString queueNameString = new SimpleString(queueName);
+      final SimpleString queueNameString = SimpleString.toSimpleString(queueName);
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.toSimpleString(addressName);
       final int oldMaxConsumers = 2;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldPurgeOnNoConsumers = false;
@@ -329,7 +329,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testUpdateCoreQueueDoesNotExist() throws Exception {
-      SimpleString queueName = new SimpleString("updateQueue");
+      SimpleString queueName = SimpleString.toSimpleString("updateQueue");
 
       UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName.toString());

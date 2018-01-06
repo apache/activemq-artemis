@@ -35,7 +35,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       super();
    }
 
-   public SimpleString lmAddress = new SimpleString("LargeMessageAddress");
+   public SimpleString lmAddress = SimpleString.toSimpleString("LargeMessageAddress");
 
    @Override
    @Before

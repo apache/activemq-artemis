@@ -119,7 +119,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().addMatch("#", settings);
 
-      final SimpleString address = new SimpleString("pgdAddress");
+      final SimpleString address = SimpleString.toSimpleString("pgdAddress");
 
       class Consumer extends Thread {
 

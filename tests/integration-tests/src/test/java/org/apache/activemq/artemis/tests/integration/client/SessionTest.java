@@ -168,20 +168,20 @@ public class SessionTest extends ActiveMQTestBase {
       clientSession.createQueue("a2", "q3", false);
       clientSession.createQueue("a2", "q4", false);
       clientSession.createQueue("a2", "q5", false);
-      ClientSession.AddressQuery resp = clientSession.addressQuery(new SimpleString("a"));
+      ClientSession.AddressQuery resp = clientSession.addressQuery(SimpleString.toSimpleString("a"));
       List<SimpleString> queues = resp.getQueueNames();
       Assert.assertTrue(queues.isEmpty());
-      resp = clientSession.addressQuery(new SimpleString("a1"));
+      resp = clientSession.addressQuery(SimpleString.toSimpleString("a1"));
       queues = resp.getQueueNames();
       Assert.assertEquals(queues.size(), 2);
-      Assert.assertTrue(queues.contains(new SimpleString("q1")));
-      Assert.assertTrue(queues.contains(new SimpleString("q2")));
-      resp = clientSession.addressQuery(new SimpleString("a2"));
+      Assert.assertTrue(queues.contains(SimpleString.toSimpleString("q1")));
+      Assert.assertTrue(queues.contains(SimpleString.toSimpleString("q2")));
+      resp = clientSession.addressQuery(SimpleString.toSimpleString("a2"));
       queues = resp.getQueueNames();
       Assert.assertEquals(queues.size(), 3);
-      Assert.assertTrue(queues.contains(new SimpleString("q3")));
-      Assert.assertTrue(queues.contains(new SimpleString("q4")));
-      Assert.assertTrue(queues.contains(new SimpleString("q5")));
+      Assert.assertTrue(queues.contains(SimpleString.toSimpleString("q3")));
+      Assert.assertTrue(queues.contains(SimpleString.toSimpleString("q4")));
+      Assert.assertTrue(queues.contains(SimpleString.toSimpleString("q5")));
       clientSession.close();
    }
 
@@ -198,8 +198,8 @@ public class SessionTest extends ActiveMQTestBase {
 
       flushQueue();
 
-      QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
-      Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
+      QueueQuery resp = clientSession.queueQuery(SimpleString.toSimpleString(queueName));
+      Assert.assertEquals(SimpleString.toSimpleString("a1"), resp.getAddress());
       Assert.assertEquals(2, resp.getConsumerCount());
       Assert.assertEquals(2, resp.getMessageCount());
       Assert.assertEquals(null, resp.getFilterString());
@@ -220,11 +220,11 @@ public class SessionTest extends ActiveMQTestBase {
       clientSession.createConsumer(queueName);
       clientSession.createConsumer(queueName);
 
-      QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
-      Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
+      QueueQuery resp = clientSession.queueQuery(SimpleString.toSimpleString(queueName));
+      Assert.assertEquals(SimpleString.toSimpleString("a1"), resp.getAddress());
       Assert.assertEquals(2, resp.getConsumerCount());
       Assert.assertEquals(0, resp.getMessageCount());
-      Assert.assertEquals(new SimpleString("foo=bar"), resp.getFilterString());
+      Assert.assertEquals(SimpleString.toSimpleString("foo=bar"), resp.getFilterString());
       clientSession.close();
    }
 
@@ -233,7 +233,7 @@ public class SessionTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false));
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
-      QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
+      QueueQuery resp = clientSession.queueQuery(SimpleString.toSimpleString(queueName));
       Assert.assertFalse(resp.isExists());
       Assert.assertFalse(resp.isAutoCreateQueues());
       Assert.assertEquals(null, resp.getAddress());
@@ -339,7 +339,7 @@ public class SessionTest extends ActiveMQTestBase {
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName)).getBindable();
       Assert.assertEquals(0, getMessageCount(q));
       clientSession.commit();
       Assert.assertEquals(10, getMessageCount(q));
@@ -362,7 +362,7 @@ public class SessionTest extends ActiveMQTestBase {
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName)).getBindable();
       Assert.assertEquals(0, getMessageCount(q));
       clientSession.rollback();
       cp.send(clientSession.createMessage(false));
@@ -390,7 +390,7 @@ public class SessionTest extends ActiveMQTestBase {
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName)).getBindable();
       Assert.assertEquals(10, getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
@@ -448,7 +448,7 @@ public class SessionTest extends ActiveMQTestBase {
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName)).getBindable();
       Assert.assertEquals(10, getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();

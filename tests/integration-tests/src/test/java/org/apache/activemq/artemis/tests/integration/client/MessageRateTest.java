@@ -38,7 +38,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
-   private final SimpleString ADDRESS = new SimpleString("ADDRESS");
+   private final SimpleString ADDRESS = SimpleString.toSimpleString("ADDRESS");
 
    private ServerLocator locator;
 

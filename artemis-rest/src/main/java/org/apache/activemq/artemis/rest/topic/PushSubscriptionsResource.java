@@ -92,7 +92,7 @@ public class PushSubscriptionsResource {
          return;
       String destination = reg.getDestination();
       ClientSession session = sessionFactory.createSession(false, false, false);
-      ClientSession.QueueQuery query = session.queueQuery(new SimpleString(destination));
+      ClientSession.QueueQuery query = session.queueQuery(SimpleString.toSimpleString(destination));
       ClientSession createSession = null;
       if (!query.isExists()) {
          createSession = createSubscription(destination, reg.isDurable());

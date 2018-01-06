@@ -40,7 +40,7 @@ public class SystemPropertyOverrideTest extends ActiveMQTestBase {
       System.setProperty(GroupingHandlerConfiguration.GROUP_TIMEOUT_PROP_NAME, groupTimeoutPropertyValue);
       System.setProperty(GroupingHandlerConfiguration.REAPER_PERIOD_PROP_NAME, reaperPeriodPropertyValue);
 
-      GroupingHandlerConfiguration groupingHandlerConfiguration = new GroupingHandlerConfiguration().setName(new SimpleString("test")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(new SimpleString("address"));
+      GroupingHandlerConfiguration groupingHandlerConfiguration = new GroupingHandlerConfiguration().setName(SimpleString.toSimpleString("test")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(SimpleString.toSimpleString("address"));
 
       assertEquals(groupingHandlerConfiguration.getGroupTimeout(), Long.parseLong(groupTimeoutPropertyValue));
       assertEquals(groupingHandlerConfiguration.getReaperPeriod(), Long.parseLong(reaperPeriodPropertyValue));

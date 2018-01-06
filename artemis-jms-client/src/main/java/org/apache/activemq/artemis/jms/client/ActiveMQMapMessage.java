@@ -103,70 +103,70 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public void setBoolean(final String name, final boolean value) throws JMSException {
       checkName(name);
-      map.putBooleanProperty(new SimpleString(name), value);
+      map.putBooleanProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setByte(final String name, final byte value) throws JMSException {
       checkName(name);
-      map.putByteProperty(new SimpleString(name), value);
+      map.putByteProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setShort(final String name, final short value) throws JMSException {
       checkName(name);
-      map.putShortProperty(new SimpleString(name), value);
+      map.putShortProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setChar(final String name, final char value) throws JMSException {
       checkName(name);
-      map.putCharProperty(new SimpleString(name), value);
+      map.putCharProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setInt(final String name, final int value) throws JMSException {
       checkName(name);
-      map.putIntProperty(new SimpleString(name), value);
+      map.putIntProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setLong(final String name, final long value) throws JMSException {
       checkName(name);
-      map.putLongProperty(new SimpleString(name), value);
+      map.putLongProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setFloat(final String name, final float value) throws JMSException {
       checkName(name);
-      map.putFloatProperty(new SimpleString(name), value);
+      map.putFloatProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setDouble(final String name, final double value) throws JMSException {
       checkName(name);
-      map.putDoubleProperty(new SimpleString(name), value);
+      map.putDoubleProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
    @Override
    public void setString(final String name, final String value) throws JMSException {
       checkName(name);
-      map.putSimpleStringProperty(new SimpleString(name), value == null ? null : new SimpleString(value));
+      map.putSimpleStringProperty(SimpleString.toSimpleString(name), value == null ? null : SimpleString.toSimpleString(value));
       invalid = true;
    }
 
    @Override
    public void setBytes(final String name, final byte[] value) throws JMSException {
       checkName(name);
-      map.putBytesProperty(new SimpleString(name), value);
+      map.putBytesProperty(SimpleString.toSimpleString(name), value);
       invalid = true;
    }
 
@@ -178,7 +178,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
       }
       byte[] newBytes = new byte[length];
       System.arraycopy(value, offset, newBytes, 0, length);
-      map.putBytesProperty(new SimpleString(name), newBytes);
+      map.putBytesProperty(SimpleString.toSimpleString(name), newBytes);
       invalid = true;
    }
 
@@ -186,7 +186,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    public void setObject(final String name, final Object value) throws JMSException {
       checkName(name);
       try {
-         TypedProperties.setObjectProperty(new SimpleString(name), value, map);
+         TypedProperties.setObjectProperty(SimpleString.toSimpleString(name), value, map);
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -196,7 +196,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public boolean getBoolean(final String name) throws JMSException {
       try {
-         return map.getBooleanProperty(new SimpleString(name));
+         return map.getBooleanProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -205,7 +205,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public byte getByte(final String name) throws JMSException {
       try {
-         return map.getByteProperty(new SimpleString(name));
+         return map.getByteProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -214,7 +214,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public short getShort(final String name) throws JMSException {
       try {
-         return map.getShortProperty(new SimpleString(name));
+         return map.getShortProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -223,7 +223,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public char getChar(final String name) throws JMSException {
       try {
-         return map.getCharProperty(new SimpleString(name));
+         return map.getCharProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -232,7 +232,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public int getInt(final String name) throws JMSException {
       try {
-         return map.getIntProperty(new SimpleString(name));
+         return map.getIntProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -241,7 +241,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public long getLong(final String name) throws JMSException {
       try {
-         return map.getLongProperty(new SimpleString(name));
+         return map.getLongProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -250,7 +250,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public float getFloat(final String name) throws JMSException {
       try {
-         return map.getFloatProperty(new SimpleString(name));
+         return map.getFloatProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -259,7 +259,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public double getDouble(final String name) throws JMSException {
       try {
-         return map.getDoubleProperty(new SimpleString(name));
+         return map.getDoubleProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -268,7 +268,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public String getString(final String name) throws JMSException {
       try {
-         SimpleString str = map.getSimpleStringProperty(new SimpleString(name));
+         SimpleString str = map.getSimpleStringProperty(SimpleString.toSimpleString(name));
          if (str == null) {
             return null;
          } else {
@@ -282,7 +282,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public byte[] getBytes(final String name) throws JMSException {
       try {
-         return map.getBytesProperty(new SimpleString(name));
+         return map.getBytesProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -290,7 +290,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
 
    @Override
    public Object getObject(final String name) throws JMSException {
-      Object val = map.getProperty(new SimpleString(name));
+      Object val = map.getProperty(SimpleString.toSimpleString(name));
 
       if (val instanceof SimpleString) {
          val = ((SimpleString) val).toString();
@@ -313,7 +313,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
 
    @Override
    public boolean itemExists(final String name) throws JMSException {
-      return map.containsProperty(new SimpleString(name));
+      return map.containsProperty(SimpleString.toSimpleString(name));
    }
 
    // ActiveMQRAMessage overrides ----------------------------------------

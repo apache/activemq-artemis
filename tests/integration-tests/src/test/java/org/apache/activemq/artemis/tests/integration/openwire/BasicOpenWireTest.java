@@ -65,15 +65,15 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       super.setUp();
       System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "5");
       createFactories();
-      SimpleString coreQueue = new SimpleString(queueName);
+      SimpleString coreQueue = SimpleString.toSimpleString(queueName);
       this.server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false, -1, false, true);
       testQueues.put(queueName, coreQueue);
 
-      SimpleString coreQueue2 = new SimpleString(queueName2);
+      SimpleString coreQueue2 = SimpleString.toSimpleString(queueName2);
       this.server.createQueue(coreQueue2, RoutingType.ANYCAST, coreQueue2, null, false, false, -1, false, true);
       testQueues.put(queueName2, coreQueue2);
 
-      SimpleString durableQueue = new SimpleString(durableQueueName);
+      SimpleString durableQueue = SimpleString.toSimpleString(durableQueueName);
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
       testQueues.put(durableQueueName, durableQueue);
 
@@ -150,7 +150,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    public void makeSureCoreQueueExist(String qname) throws Exception {
       SimpleString coreQ = testQueues.get(qname);
       if (coreQ == null) {
-         coreQ = new SimpleString(qname);
+         coreQ = SimpleString.toSimpleString(qname);
          this.server.createQueue(coreQ, RoutingType.ANYCAST, coreQ, null, false, false, -1, false, true);
          testQueues.put(qname, coreQ);
       }

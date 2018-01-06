@@ -1064,7 +1064,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       String queueName = "TestQueueName";
       String address = "TestAddress";
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.ANYCAST));
-      server.createQueue(new SimpleString(address), RoutingType.ANYCAST, new SimpleString(queueName), null, true, false);
+      server.createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

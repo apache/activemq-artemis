@@ -86,7 +86,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
    @Test
    public void testEmptySimpleString() throws Exception {
-      SimpleString emptySimpleString = new SimpleString("");
+      SimpleString emptySimpleString = SimpleString.toSimpleString("");
       SimpleString result = putAndGetNullableSimpleString(emptySimpleString);
 
       Assert.assertNotNull(result);

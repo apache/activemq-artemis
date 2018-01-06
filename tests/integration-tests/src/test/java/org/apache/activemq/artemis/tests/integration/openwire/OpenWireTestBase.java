@@ -67,7 +67,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
       Configuration serverConfig = server.getConfiguration();
 
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
+      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.toSimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
 
       serverConfig.setSecurityEnabled(enableSecurity);
 

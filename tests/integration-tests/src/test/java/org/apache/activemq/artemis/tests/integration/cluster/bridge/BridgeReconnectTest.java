@@ -228,7 +228,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.toSimpleString("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -302,7 +302,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.toSimpleString("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -379,7 +379,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.toSimpleString("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -465,7 +465,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.toSimpleString("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -563,7 +563,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.toSimpleString("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -663,9 +663,9 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.toSimpleString("propkey");
 
-      final Queue queue = (Queue) server0.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      final Queue queue = (Queue) server0.getPostOffice().getBinding(SimpleString.toSimpleString(queueName)).getBindable();
 
       System.out.println("DeliveringCount: " + queue.getDeliveringCount());
 

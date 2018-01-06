@@ -73,7 +73,7 @@ public class DirectDeliverTest extends ActiveMQTestBase {
 
       session.createQueue(foo, RoutingType.ANYCAST, foo);
 
-      Binding binding = server.getPostOffice().getBinding(new SimpleString(foo));
+      Binding binding = server.getPostOffice().getBinding(SimpleString.toSimpleString(foo));
 
       Queue queue = (Queue) binding.getBindable();
 

@@ -47,7 +47,7 @@ import org.junit.Test;
 
 public class PagingSendTest extends ActiveMQTestBase {
 
-   public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   public static final SimpleString ADDRESS = SimpleString.toSimpleString("SimpleAddress");
 
    private ServerLocator locator;
 
@@ -218,7 +218,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false);
 
       // Create a queue
-      SimpleString queueAddr = new SimpleString("testQueue");
+      SimpleString queueAddr = SimpleString.toSimpleString("testQueue");
       session.createQueue(queueAddr, queueAddr, null, true);
 
       // Set up paging on the queue address
@@ -252,7 +252,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false);
 
       // Create a queue
-      SimpleString queueAddr = new SimpleString("testQueue");
+      SimpleString queueAddr = SimpleString.toSimpleString("testQueue");
       session.createQueue(queueAddr, queueAddr, null, true);
 
       // Set up paging on the queue address

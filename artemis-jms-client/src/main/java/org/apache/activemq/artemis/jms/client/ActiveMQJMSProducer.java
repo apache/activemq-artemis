@@ -329,57 +329,57 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public JMSProducer setProperty(String name, boolean value) {
       checkName(name);
-      properties.putBooleanProperty(new SimpleString(name), value);
+      properties.putBooleanProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, byte value) {
       checkName(name);
-      properties.putByteProperty(new SimpleString(name), value);
+      properties.putByteProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, short value) {
       checkName(name);
-      properties.putShortProperty(new SimpleString(name), value);
+      properties.putShortProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, int value) {
       checkName(name);
-      properties.putIntProperty(new SimpleString(name), value);
+      properties.putIntProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, long value) {
       checkName(name);
-      properties.putLongProperty(new SimpleString(name), value);
+      properties.putLongProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, float value) {
       checkName(name);
-      properties.putFloatProperty(new SimpleString(name), value);
+      properties.putFloatProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, double value) {
       checkName(name);
-      properties.putDoubleProperty(new SimpleString(name), value);
+      properties.putDoubleProperty(SimpleString.toSimpleString(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, String value) {
       checkName(name);
-      SimpleString key = new SimpleString(name);
-      properties.putSimpleStringProperty(key, new SimpleString(value));
+      SimpleString key = SimpleString.toSimpleString(name);
+      properties.putSimpleStringProperty(key, SimpleString.toSimpleString(value));
       stringPropertyNames.add(key);
       return this;
    }
@@ -388,7 +388,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public JMSProducer setProperty(String name, Object value) {
       checkName(name);
       try {
-         TypedProperties.setObjectProperty(new SimpleString(name), value, properties);
+         TypedProperties.setObjectProperty(SimpleString.toSimpleString(name), value, properties);
       } catch (ActiveMQPropertyConversionException amqe) {
          throw new MessageFormatRuntimeException(amqe.getMessage());
       } catch (RuntimeException e) {
@@ -410,13 +410,13 @@ public final class ActiveMQJMSProducer implements JMSProducer {
 
    @Override
    public boolean propertyExists(String name) {
-      return properties.containsProperty(new SimpleString(name));
+      return properties.containsProperty(SimpleString.toSimpleString(name));
    }
 
    @Override
    public boolean getBooleanProperty(String name) {
       try {
-         return properties.getBooleanProperty(new SimpleString(name));
+         return properties.getBooleanProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       } catch (RuntimeException e) {
@@ -427,7 +427,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public byte getByteProperty(String name) {
       try {
-         return properties.getByteProperty(new SimpleString(name));
+         return properties.getByteProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -436,7 +436,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public short getShortProperty(String name) {
       try {
-         return properties.getShortProperty(new SimpleString(name));
+         return properties.getShortProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -445,7 +445,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public int getIntProperty(String name) {
       try {
-         return properties.getIntProperty(new SimpleString(name));
+         return properties.getIntProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -454,7 +454,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public long getLongProperty(String name) {
       try {
-         return properties.getLongProperty(new SimpleString(name));
+         return properties.getLongProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -463,7 +463,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public float getFloatProperty(String name) {
       try {
-         return properties.getFloatProperty(new SimpleString(name));
+         return properties.getFloatProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -472,7 +472,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public double getDoubleProperty(String name) {
       try {
-         return properties.getDoubleProperty(new SimpleString(name));
+         return properties.getDoubleProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -481,7 +481,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public String getStringProperty(String name) {
       try {
-         SimpleString prop = properties.getSimpleStringProperty(new SimpleString(name));
+         SimpleString prop = properties.getSimpleStringProperty(SimpleString.toSimpleString(name));
          if (prop == null)
             return null;
          return prop.toString();
@@ -495,7 +495,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public Object getObjectProperty(String name) {
       try {
-         SimpleString key = new SimpleString(name);
+         SimpleString key = SimpleString.toSimpleString(name);
          Object property = properties.getProperty(key);
          if (stringPropertyNames.contains(key)) {
             property = property.toString();

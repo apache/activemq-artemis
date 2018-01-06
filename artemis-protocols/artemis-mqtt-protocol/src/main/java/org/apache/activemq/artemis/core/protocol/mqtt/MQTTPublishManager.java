@@ -95,7 +95,7 @@ public class MQTTPublishManager {
    }
 
    private SimpleString createManagementAddress() {
-      return new SimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
+      return SimpleString.toSimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
    }
 
    private void createManagementQueue() throws Exception {

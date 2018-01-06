@@ -38,9 +38,9 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ReceiveImmediateTest.queue");
+   private final SimpleString QUEUE = SimpleString.toSimpleString("ReceiveImmediateTest.queue");
 
-   private final SimpleString ADDRESS = new SimpleString("ReceiveImmediateTest.address");
+   private final SimpleString ADDRESS = SimpleString.toSimpleString("ReceiveImmediateTest.address");
 
    private ServerLocator locator;
 

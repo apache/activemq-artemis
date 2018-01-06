@@ -112,7 +112,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    private RemoteQueueBinding getRemoteQueueBinding(ActiveMQServer server) throws Exception {
       ActiveMQServer remoteServer = server;
-      Bindings bindings = remoteServer.getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress"));
+      Bindings bindings = remoteServer.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("queues.testaddress"));
       Collection<Binding> bindingSet = bindings.getBindings();
 
       return getRemoteQueueBinding(bindingSet);

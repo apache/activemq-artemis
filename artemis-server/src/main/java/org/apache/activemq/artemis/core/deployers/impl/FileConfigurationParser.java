@@ -335,9 +335,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPersistIDCache(getBoolean(e, "persist-id-cache", config.isPersistIDCache()));
 
-      config.setManagementAddress(new SimpleString(getString(e, "management-address", config.getManagementAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
+      config.setManagementAddress(SimpleString.toSimpleString(getString(e, "management-address", config.getManagementAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
 
-      config.setManagementNotificationAddress(new SimpleString(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
+      config.setManagementNotificationAddress(SimpleString.toSimpleString(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
 
       config.setMaskPassword(getBoolean(e, "mask-password", false));
 
@@ -968,10 +968,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          final Node child = children.item(i);
          final String name = child.getNodeName();
          if (DEAD_LETTER_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
-            SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
+            SimpleString queueName = SimpleString.toSimpleString(getTrimmedTextContent(child));
             addressSettings.setDeadLetterAddress(queueName);
          } else if (EXPIRY_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
-            SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
+            SimpleString queueName = SimpleString.toSimpleString(getTrimmedTextContent(child));
             addressSettings.setExpiryAddress(queueName);
          } else if (EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setExpiryDelay(XMLUtil.parseLong(child));
@@ -1667,7 +1667,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
       Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
       Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);
-      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString(name)).setType(type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType()) ? GroupingHandlerConfiguration.TYPE.LOCAL : GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString(address)).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
+      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.toSimpleString(name)).setType(type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType()) ? GroupingHandlerConfiguration.TYPE.LOCAL : GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(SimpleString.toSimpleString(address)).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
    }
 
    private TransformerConfiguration getTransformerConfiguration(final Node node) {

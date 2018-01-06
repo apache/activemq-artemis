@@ -64,7 +64,7 @@ public class QueueDestinationsResource {
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try {
 
-            ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
+            ClientSession.QueueQuery query = session.queueQuery(SimpleString.toSimpleString(queueName));
             if (!query.isExists()) {
                if (queue.getSelector() != null) {
                   session.createQueue(queueName, queueName, queue.getSelector(), queue.isDurable());
@@ -101,7 +101,7 @@ public class QueueDestinationsResource {
          String queueName = name;
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try {
-            ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
+            ClientSession.QueueQuery query = session.queueQuery(SimpleString.toSimpleString(queueName));
             if (!query.isExists()) {
                throw new WebApplicationException(Response.status(404).type("text/plain").entity("Queue '" + name + "' does not exist").build());
             }

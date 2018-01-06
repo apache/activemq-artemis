@@ -37,7 +37,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class ExtremeCancelsTest extends JMSClientTestSupport {
 
-   private SimpleString anycastAddress = new SimpleString("theQueue");
+   private SimpleString anycastAddress = SimpleString.toSimpleString("theQueue");
 
 
    @Override

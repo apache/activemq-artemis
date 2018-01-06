@@ -65,7 +65,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
    @Test
    public void testConcurrentAddsDeliver() throws Exception {
 
-      QueueImpl queue = (QueueImpl) queueFactory.createQueueWith(QueueConfig.builderWith(1, new SimpleString("address1"), new SimpleString("queue1")).durable(false).temporary(false).autoCreated(false).build());
+      QueueImpl queue = (QueueImpl) queueFactory.createQueueWith(QueueConfig.builderWith(1, SimpleString.toSimpleString("address1"), SimpleString.toSimpleString("queue1")).durable(false).temporary(false).autoCreated(false).build());
 
       FakeConsumer consumer = new FakeConsumer();
 

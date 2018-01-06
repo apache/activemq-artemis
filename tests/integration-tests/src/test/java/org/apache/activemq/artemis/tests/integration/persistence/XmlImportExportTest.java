@@ -127,8 +127,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          msg.putStringProperty("myNullStringProperty", null);
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
          msg.putStringProperty("mySpecialCharacters", special);
-         msg.putStringProperty(new SimpleString("mySimpleStringProperty"), new SimpleString("mySimpleStringPropertyValue_" + i));
-         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), null);
+         msg.putStringProperty(SimpleString.toSimpleString("mySimpleStringProperty"), SimpleString.toSimpleString("mySimpleStringPropertyValue_" + i));
+         msg.putStringProperty(SimpleString.toSimpleString("myNullSimpleStringProperty"), null);
          producer.send(msg);
       }
 
@@ -180,7 +180,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          assertEquals(null, msg.getStringProperty("myNullStringProperty"));
          assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
          assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
-         assertEquals(new SimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(new SimpleString("mySimpleStringProperty")));
+         assertEquals(SimpleString.toSimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(SimpleString.toSimpleString("mySimpleStringProperty")));
          assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullSimpleStringProperty")));
          assertEquals(null, msg.getSimpleStringProperty("myNullSimpleStringProperty"));
       }
@@ -437,12 +437,12 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
 
-      ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString("queueName1"));
+      ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.toSimpleString("queueName1"));
 
       assertEquals("addressName1", queueQuery.getAddress().toString());
       assertNull(queueQuery.getFilterString());
 
-      queueQuery = session.queueQuery(new SimpleString("queueName2"));
+      queueQuery = session.queueQuery(SimpleString.toSimpleString("queueName2"));
 
       assertEquals("addressName1", queueQuery.getAddress().toString());
       assertEquals("bob", queueQuery.getFilterString().toString());
