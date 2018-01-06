@@ -60,7 +60,7 @@ public class PageStressTest extends ActiveMQTestBase {
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession(null, null, false, false, true, false, 1024 * NUMBER_OF_MESSAGES));
 
-      SimpleString address = new SimpleString("page-adr");
+      SimpleString address = SimpleString.toSimpleString("page-adr");
 
       session.createQueue(address, address, null, true);
 
@@ -146,8 +146,8 @@ public class PageStressTest extends ActiveMQTestBase {
 
       session = factory.createSession(false, false, false);
 
-      SimpleString address = new SimpleString("page-adr");
-      SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
+      SimpleString address = SimpleString.toSimpleString("page-adr");
+      SimpleString[] queue = new SimpleString[]{SimpleString.toSimpleString("queue1"), SimpleString.toSimpleString("queue2")};
 
       session.createQueue(address, queue[0], null, true);
       session.createQueue(address, queue[1], null, true);

@@ -849,7 +849,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       // make an exception for the management address (see HORNETQ-29)
       ManagementService managementService = getManagementService();
-      SimpleString bindAddress = new SimpleString(realAddress);
+      SimpleString bindAddress = SimpleString.toSimpleString(realAddress);
       if (managementService != null) {
          if (bindAddress.equals(managementService.getManagementAddress())) {
             return new BindingQueryResult(true, null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
@@ -861,7 +861,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (Binding binding : bindings.getBindings()) {
          if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
             if (addressKey.isFqqn()) {
-               names.add(new SimpleString(addressKey.getAddress()).concat(CompositeAddress.SEPARATOR).concat(binding.getUniqueName()));
+               names.add(SimpleString.toSimpleString(addressKey.getAddress()).concat(CompositeAddress.SEPARATOR).concat(binding.getUniqueName()));
             } else {
                names.add(binding.getUniqueName());
             }
@@ -1499,7 +1499,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      OperationContext context,
                                                      boolean autoCreateJMSQueues,
                                                      Map<SimpleString, RoutingType> prefixes) throws Exception {
-      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes);
+      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : SimpleString.toSimpleString(defaultAddress), callback, context, pagingManager, prefixes);
    }
 
    @Override
@@ -2036,7 +2036,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
-      SimpleString sName = new SimpleString(config.getName());
+      SimpleString sName = SimpleString.toSimpleString(config.getName());
 
       if (postOffice.getBinding(sName) != null) {
          ActiveMQServerLogger.LOGGER.divertBindingAlreadyExists(sName);
@@ -2044,13 +2044,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
-      SimpleString sAddress = new SimpleString(config.getAddress());
+      SimpleString sAddress = SimpleString.toSimpleString(config.getAddress());
 
       Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName(), config.getTransformerConfiguration());
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 
-      Divert divert = new DivertImpl(new SimpleString(config.getForwardingAddress()), sName, new SimpleString(config.getRoutingName()), config.isExclusive(), filter, transformer, postOffice, storageManager, config.getRoutingType());
+      Divert divert = new DivertImpl(SimpleString.toSimpleString(config.getForwardingAddress()), sName, SimpleString.toSimpleString(config.getRoutingName()), config.isExclusive(), filter, transformer, postOffice, storageManager, config.getRoutingType());
 
       Binding binding = new DivertBinding(storageManager.generateID(), sAddress, divert);
 
@@ -2891,7 +2891,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Integer maxConsumers,
                             Boolean purgeOnNoConsumers) throws Exception {
 
-      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers);
+      final QueueBinding queueBinding = this.postOffice.updateQueue(SimpleString.toSimpleString(name), routingType, maxConsumers, purgeOnNoConsumers);
       if (queueBinding != null) {
          final Queue queue = queueBinding.getQueue();
          return queue;
@@ -3077,7 +3077,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
          for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
-            if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
+            if (postOffice.getBinding(SimpleString.toSimpleString(divertConfig.getName())) == null) {
                deployDivert(divertConfig);
             }
          }

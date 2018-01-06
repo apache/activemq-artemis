@@ -56,7 +56,7 @@ import org.junit.Before;
 public abstract class FailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
-   protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
+   protected static final SimpleString ADDRESS = SimpleString.toSimpleString("FailoverTestAddress");
 
    /*
     * Used only by tests of large messages.

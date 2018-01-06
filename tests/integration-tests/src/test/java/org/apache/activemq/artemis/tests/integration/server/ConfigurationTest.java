@@ -35,9 +35,9 @@ public class ConfigurationTest extends ActiveMQTestBase {
       ActiveMQServer server = getActiveMQServer("duplicate-queues.xml");
       try {
          server.start();
-         Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_1"));
+         Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("mytopic_1"));
          assertEquals(mytopic_1.getBindings().size(), 0);
-         Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_2"));
+         Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("mytopic_2"));
          assertEquals(mytopic_2.getBindings().size(), 3);
       } finally {
          try {

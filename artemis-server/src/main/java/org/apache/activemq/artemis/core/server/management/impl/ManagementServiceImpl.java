@@ -665,12 +665,12 @@ public class ManagementServiceImpl implements ManagementService {
                   }
                }
 
-               notificationMessage.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(notification.getType().toString()));
+               notificationMessage.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, SimpleString.toSimpleString(notification.getType().toString()));
 
                notificationMessage.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
 
                if (notification.getUID() != null) {
-                  notificationMessage.putStringProperty(new SimpleString("foobar"), new SimpleString(notification.getUID()));
+                  notificationMessage.putStringProperty(SimpleString.toSimpleString("foobar"), SimpleString.toSimpleString(notification.getUID()));
                }
 
                postOffice.route(notificationMessage, false);

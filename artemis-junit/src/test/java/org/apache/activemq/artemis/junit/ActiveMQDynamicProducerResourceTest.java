@@ -31,8 +31,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class ActiveMQDynamicProducerResourceTest {
 
-   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
+   static final SimpleString TEST_QUEUE_ONE = SimpleString.toSimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = SimpleString.toSimpleString("test.queue.two");
    static final String TEST_BODY = "Test Message";
    static final Map<String, Object> TEST_PROPERTIES;
 

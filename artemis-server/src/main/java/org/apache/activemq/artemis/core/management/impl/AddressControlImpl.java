@@ -294,7 +294,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
          if (headers != null) {
             for (String header : headers.keySet()) {
-               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+               message.putStringProperty(SimpleString.toSimpleString(header), SimpleString.toSimpleString(headers.get(header)));
             }
          }
          message.setType((byte) type);
@@ -302,7 +302,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          message.setTimestamp(System.currentTimeMillis());
          if (body != null) {
             if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+               message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(body));
             } else {
                message.getBodyBuffer().writeBytes(Base64.decode(body));
             }

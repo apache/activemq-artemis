@@ -163,7 +163,7 @@ public class QueueResource extends DestinationResource {
 
       ClientSession session = serviceManager.getSessionFactory().createSession(false, false, false);
       try {
-         SimpleString queueName = new SimpleString(destination);
+         SimpleString queueName = SimpleString.toSimpleString(destination);
          session.deleteQueue(queueName);
       } finally {
          try {

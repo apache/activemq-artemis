@@ -49,7 +49,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          Queue trash = session.createQueue("trash");
          final MessageProducer producer = session.createProducer(trash);
          producer.send(session.createTextMessage("foo"));
-         Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("trash")));
+         Assert.assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("trash")));
       } finally {
          if (connection != null) {
             connection.close();
@@ -72,7 +72,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("trash")));
       assertEquals(0, server.getTotalMessageCount());
    }
 
@@ -91,8 +91,8 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
-      assertNotNull(server.locateQueue(new SimpleString("trash")));
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("trash")));
+      assertNotNull(server.locateQueue(SimpleString.toSimpleString("trash")));
       assertEquals(1, server.getTotalMessageCount());
    }
 
@@ -105,7 +105,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          Queue trash = session.createQueue("trash");
          final MessageProducer producer = session.createProducer(trash);
          producer.send(session.createTextMessage("foo"));
-         Assert.assertNotNull(server.locateQueue(new SimpleString("trash")));
+         Assert.assertNotNull(server.locateQueue(SimpleString.toSimpleString("trash")));
          MessageConsumer consumer = session.createConsumer(trash);
          connection.start();
          assertNotNull(consumer.receive(1000));
@@ -115,7 +115,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNull(server.locateQueue(new SimpleString("trash")));
+      assertNull(server.locateQueue(SimpleString.toSimpleString("trash")));
    }
 
    @Test
@@ -128,7 +128,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          Queue trash = session.createQueue("trash");
          final MessageProducer producer = session.createProducer(trash);
          producer.send(session.createTextMessage("foo"));
-         Assert.assertNotNull(server.locateQueue(new SimpleString("trash")));
+         Assert.assertNotNull(server.locateQueue(SimpleString.toSimpleString("trash")));
          MessageConsumer consumer = session.createConsumer(trash);
          connection.start();
          assertNotNull(consumer.receive(1000));
@@ -138,7 +138,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNotNull(server.locateQueue(new SimpleString("trash")));
-      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
+      assertNotNull(server.locateQueue(SimpleString.toSimpleString("trash")));
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("trash")));
    }
 }

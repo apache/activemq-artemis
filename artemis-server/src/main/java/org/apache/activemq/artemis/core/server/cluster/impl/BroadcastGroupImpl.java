@@ -108,7 +108,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
+         props.putSimpleStringProperty(SimpleString.toSimpleString("name"), SimpleString.toSimpleString(name));
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.BROADCAST_GROUP_STARTED, props);
          notificationService.sendNotification(notification);
       }
@@ -136,7 +136,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
+         props.putSimpleStringProperty(SimpleString.toSimpleString("name"), SimpleString.toSimpleString(name));
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.BROADCAST_GROUP_STOPPED, props);
          try {
             notificationService.sendNotification(notification);

@@ -36,12 +36,12 @@ public class SimpleStringTest extends Assert {
     */
    @Test
    public void testGetChar() {
-      SimpleString p1 = new SimpleString("foo");
-      SimpleString p2 = new SimpleString("bar");
+      SimpleString p1 = SimpleString.toSimpleString("foo");
+      SimpleString p2 = SimpleString.toSimpleString("bar");
       for (int i = 0; i < 1 << 16; i++) {
          String msg = "expecting " + i;
          char c = (char) i;
-         SimpleString s = new SimpleString(String.valueOf(c));
+         SimpleString s = SimpleString.toSimpleString(String.valueOf(c));
 
          // test getChars(...)
          char[] c1 = new char[1];
@@ -56,7 +56,7 @@ public class SimpleStringTest extends Assert {
          assertEquals(msg, c, s2.charAt(1));
 
          // test splitting with chars
-         SimpleString sSplit = new SimpleString("foo" + String.valueOf(c) + "bar");
+         SimpleString sSplit = SimpleString.toSimpleString("foo" + String.valueOf(c) + "bar");
          SimpleString[] chunks = sSplit.split(c);
          SimpleString[] split1 = p1.split(c);
          SimpleString[] split2 = p2.split(c);
@@ -76,7 +76,7 @@ public class SimpleStringTest extends Assert {
    public void testString() throws Exception {
       final String str = "hello123ABC__524`16254`6125!%^$!%$!%$!%$!%!$%!$$!\uA324";
 
-      SimpleString s = new SimpleString(str);
+      SimpleString s = SimpleString.toSimpleString(str);
 
       Assert.assertEquals(str, s.toString());
 
@@ -84,32 +84,32 @@ public class SimpleStringTest extends Assert {
 
       byte[] data = s.getData();
 
-      SimpleString s2 = new SimpleString(data);
+      SimpleString s2 = SimpleString.toSimpleString(data);
 
       Assert.assertEquals(str, s2.toString());
    }
 
    @Test
    public void testStartsWith() throws Exception {
-      SimpleString s1 = new SimpleString("abcdefghi");
+      SimpleString s1 = SimpleString.toSimpleString("abcdefghi");
 
-      Assert.assertTrue(s1.startsWith(new SimpleString("abc")));
+      Assert.assertTrue(s1.startsWith(SimpleString.toSimpleString("abc")));
 
-      Assert.assertTrue(s1.startsWith(new SimpleString("abcdef")));
+      Assert.assertTrue(s1.startsWith(SimpleString.toSimpleString("abcdef")));
 
-      Assert.assertTrue(s1.startsWith(new SimpleString("abcdefghi")));
+      Assert.assertTrue(s1.startsWith(SimpleString.toSimpleString("abcdefghi")));
 
-      Assert.assertFalse(s1.startsWith(new SimpleString("abcdefghijklmn")));
+      Assert.assertFalse(s1.startsWith(SimpleString.toSimpleString("abcdefghijklmn")));
 
-      Assert.assertFalse(s1.startsWith(new SimpleString("aardvark")));
+      Assert.assertFalse(s1.startsWith(SimpleString.toSimpleString("aardvark")));
 
-      Assert.assertFalse(s1.startsWith(new SimpleString("z")));
+      Assert.assertFalse(s1.startsWith(SimpleString.toSimpleString("z")));
    }
 
    @Test
    public void testCharSequence() throws Exception {
       String s = "abcdefghijkl";
-      SimpleString s1 = new SimpleString(s);
+      SimpleString s1 = SimpleString.toSimpleString(s);
 
       Assert.assertEquals('a', s1.charAt(0));
       Assert.assertEquals('b', s1.charAt(1));
@@ -152,13 +152,13 @@ public class SimpleStringTest extends Assert {
       Assert.assertEquals(ss, s1);
 
       ss = s1.subSequence(1, 4);
-      Assert.assertEquals(ss, new SimpleString("bcd"));
+      Assert.assertEquals(ss, SimpleString.toSimpleString("bcd"));
 
       ss = s1.subSequence(5, 10);
-      Assert.assertEquals(ss, new SimpleString("fghij"));
+      Assert.assertEquals(ss, SimpleString.toSimpleString("fghij"));
 
       ss = s1.subSequence(5, 12);
-      Assert.assertEquals(ss, new SimpleString("fghijkl"));
+      Assert.assertEquals(ss, SimpleString.toSimpleString("fghijkl"));
 
       try {
          s1.subSequence(-1, 2);
@@ -198,21 +198,21 @@ public class SimpleStringTest extends Assert {
 
    @Test
    public void testEquals() throws Exception {
-      Assert.assertFalse(new SimpleString("abcdef").equals(new Object()));
+      Assert.assertFalse(SimpleString.toSimpleString("abcdef").equals(new Object()));
 
-      Assert.assertFalse(new SimpleString("abcef").equals(null));
+      Assert.assertFalse(SimpleString.toSimpleString("abcef").equals(null));
 
-      Assert.assertEquals(new SimpleString("abcdef"), new SimpleString("abcdef"));
+      Assert.assertEquals(SimpleString.toSimpleString("abcdef"), SimpleString.toSimpleString("abcdef"));
 
-      Assert.assertFalse(new SimpleString("abcdef").equals(new SimpleString("abggcdef")));
-      Assert.assertFalse(new SimpleString("abcdef").equals(new SimpleString("ghijkl")));
+      Assert.assertFalse(SimpleString.toSimpleString("abcdef").equals(SimpleString.toSimpleString("abggcdef")));
+      Assert.assertFalse(SimpleString.toSimpleString("abcdef").equals(SimpleString.toSimpleString("ghijkl")));
    }
 
    @Test
    public void testHashcode() throws Exception {
-      SimpleString str = new SimpleString("abcdef");
-      SimpleString sameStr = new SimpleString("abcdef");
-      SimpleString differentStr = new SimpleString("ghijk");
+      SimpleString str = SimpleString.toSimpleString("abcdef");
+      SimpleString sameStr = SimpleString.toSimpleString("abcdef");
+      SimpleString differentStr = SimpleString.toSimpleString("ghijk");
 
       Assert.assertTrue(str.hashCode() == sameStr.hashCode());
       Assert.assertFalse(str.hashCode() == differentStr.hashCode());
@@ -222,9 +222,9 @@ public class SimpleStringTest extends Assert {
    public void testUnicode() throws Exception {
       String myString = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
 
-      SimpleString s = new SimpleString(myString);
+      SimpleString s = SimpleString.toSimpleString(myString);
       byte[] data = s.getData();
-      s = new SimpleString(data);
+      s = SimpleString.toSimpleString(data);
 
       Assert.assertEquals(myString, s.toString());
    }
@@ -233,18 +233,18 @@ public class SimpleStringTest extends Assert {
    public void testUnicodeWithSurrogates() throws Exception {
       String myString = "abcdef&^*&!^ghijkl\uD900\uDD00";
 
-      SimpleString s = new SimpleString(myString);
+      SimpleString s = SimpleString.toSimpleString(myString);
       byte[] data = s.getData();
-      s = new SimpleString(data);
+      s = SimpleString.toSimpleString(data);
 
       Assert.assertEquals(myString, s.toString());
    }
 
    @Test
    public void testSizeofString() throws Exception {
-      Assert.assertEquals(DataConstants.SIZE_INT, SimpleString.sizeofString(new SimpleString("")));
+      Assert.assertEquals(DataConstants.SIZE_INT, SimpleString.sizeofString(SimpleString.toSimpleString("")));
 
-      SimpleString str = new SimpleString(RandomUtil.randomString());
+      SimpleString str = SimpleString.toSimpleString(RandomUtil.randomString());
       Assert.assertEquals(DataConstants.SIZE_INT + str.getData().length, SimpleString.sizeofString(str));
    }
 
@@ -252,15 +252,15 @@ public class SimpleStringTest extends Assert {
    public void testSizeofNullableString() throws Exception {
       Assert.assertEquals(1, SimpleString.sizeofNullableString(null));
 
-      Assert.assertEquals(1 + DataConstants.SIZE_INT, SimpleString.sizeofNullableString(new SimpleString("")));
+      Assert.assertEquals(1 + DataConstants.SIZE_INT, SimpleString.sizeofNullableString(SimpleString.toSimpleString("")));
 
-      SimpleString str = new SimpleString(RandomUtil.randomString());
+      SimpleString str = SimpleString.toSimpleString(RandomUtil.randomString());
       Assert.assertEquals(1 + DataConstants.SIZE_INT + str.getData().length, SimpleString.sizeofNullableString(str));
    }
 
    @Test
    public void testSplitNoDelimeter() throws Exception {
-      SimpleString s = new SimpleString("abcdefghi");
+      SimpleString s = SimpleString.toSimpleString("abcdefghi");
       SimpleString[] strings = s.split('.');
       Assert.assertNotNull(strings);
       Assert.assertEquals(strings.length, 1);
@@ -269,31 +269,31 @@ public class SimpleStringTest extends Assert {
 
    @Test
    public void testSplit1Delimeter() throws Exception {
-      SimpleString s = new SimpleString("abcd.efghi");
+      SimpleString s = SimpleString.toSimpleString("abcd.efghi");
       SimpleString[] strings = s.split('.');
       Assert.assertNotNull(strings);
       Assert.assertEquals(strings.length, 2);
-      Assert.assertEquals(strings[0], new SimpleString("abcd"));
-      Assert.assertEquals(strings[1], new SimpleString("efghi"));
+      Assert.assertEquals(strings[0], SimpleString.toSimpleString("abcd"));
+      Assert.assertEquals(strings[1], SimpleString.toSimpleString("efghi"));
    }
 
    @Test
    public void testSplitmanyDelimeters() throws Exception {
-      SimpleString s = new SimpleString("abcd.efghi.jklmn.opqrs.tuvw.xyz");
+      SimpleString s = SimpleString.toSimpleString("abcd.efghi.jklmn.opqrs.tuvw.xyz");
       SimpleString[] strings = s.split('.');
       Assert.assertNotNull(strings);
       Assert.assertEquals(strings.length, 6);
-      Assert.assertEquals(strings[0], new SimpleString("abcd"));
-      Assert.assertEquals(strings[1], new SimpleString("efghi"));
-      Assert.assertEquals(strings[2], new SimpleString("jklmn"));
-      Assert.assertEquals(strings[3], new SimpleString("opqrs"));
-      Assert.assertEquals(strings[4], new SimpleString("tuvw"));
-      Assert.assertEquals(strings[5], new SimpleString("xyz"));
+      Assert.assertEquals(strings[0], SimpleString.toSimpleString("abcd"));
+      Assert.assertEquals(strings[1], SimpleString.toSimpleString("efghi"));
+      Assert.assertEquals(strings[2], SimpleString.toSimpleString("jklmn"));
+      Assert.assertEquals(strings[3], SimpleString.toSimpleString("opqrs"));
+      Assert.assertEquals(strings[4], SimpleString.toSimpleString("tuvw"));
+      Assert.assertEquals(strings[5], SimpleString.toSimpleString("xyz"));
    }
 
    @Test
    public void testContains() {
-      SimpleString simpleString = new SimpleString("abcdefghijklmnopqrst");
+      SimpleString simpleString = SimpleString.toSimpleString("abcdefghijklmnopqrst");
       Assert.assertFalse(simpleString.contains('.'));
       Assert.assertFalse(simpleString.contains('%'));
       Assert.assertFalse(simpleString.contains('8'));
@@ -322,14 +322,14 @@ public class SimpleStringTest extends Assert {
 
    @Test
    public void testConcat() {
-      SimpleString start = new SimpleString("abcdefg");
-      SimpleString middle = new SimpleString("hijklmnop");
-      SimpleString end = new SimpleString("qrstuvwxyz");
-      Assert.assertEquals(start.concat(middle).concat(end), new SimpleString("abcdefghijklmnopqrstuvwxyz"));
-      Assert.assertEquals(start.concat('.').concat(end), new SimpleString("abcdefg.qrstuvwxyz"));
+      SimpleString start = SimpleString.toSimpleString("abcdefg");
+      SimpleString middle = SimpleString.toSimpleString("hijklmnop");
+      SimpleString end = SimpleString.toSimpleString("qrstuvwxyz");
+      Assert.assertEquals(start.concat(middle).concat(end), SimpleString.toSimpleString("abcdefghijklmnopqrstuvwxyz"));
+      Assert.assertEquals(start.concat('.').concat(end), SimpleString.toSimpleString("abcdefg.qrstuvwxyz"));
       // Testing concat of SimpleString with String
       for (int i = 0; i < 10; i++) {
-         Assert.assertEquals(new SimpleString("abcdefg-" + i), start.concat("-" + Integer.toString(i)));
+         Assert.assertEquals(SimpleString.toSimpleString("abcdefg-" + i), start.concat("-" + Integer.toString(i)));
 
       }
    }
@@ -345,9 +345,9 @@ public class SimpleStringTest extends Assert {
          }
          String strvalue = buffer.toString();
 
-         final int initialhash = new SimpleString(strvalue).hashCode();
+         final int initialhash = SimpleString.toSimpleString(strvalue).hashCode();
 
-         final SimpleString value = new SimpleString(strvalue);
+         final SimpleString value = SimpleString.toSimpleString(strvalue);
 
          int nThreads = 100;
          final CountDownLatch latch = new CountDownLatch(nThreads);

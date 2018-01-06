@@ -684,7 +684,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          for (String routingType : ListUtil.toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
-         final AddressInfo addressInfo = new AddressInfo(new SimpleString(name), set);
+         final AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString(name), set);
          if (server.addAddressInfo(addressInfo)) {
             return AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
          } else {
@@ -726,7 +726,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.removeAddressInfo(new SimpleString(name), null);
+         server.removeAddressInfo(SimpleString.toSimpleString(name), null);
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       } finally {
@@ -748,10 +748,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                            final boolean durable) throws Exception {
       checkStarted();
 
-      SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
+      SimpleString filter = filterStr == null ? null : SimpleString.toSimpleString(filterStr);
       clearIO();
       try {
-         server.createQueue(SimpleString.toSimpleString(address), server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType(), new SimpleString(name), filter, durable, false);
+         server.createQueue(SimpleString.toSimpleString(address), server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType(), SimpleString.toSimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();
       }
@@ -802,13 +802,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
+      SimpleString filter = filterStr == null ? null : SimpleString.toSimpleString(filterStr);
       try {
          if (filterStr != null && !filterStr.trim().equals("")) {
-            filter = new SimpleString(filterStr);
+            filter = SimpleString.toSimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
+         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
@@ -829,7 +829,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, purgeOnNoConsumers);
          if (queue == null) {
-            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(SimpleString.toSimpleString(name));
          }
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } finally {
@@ -927,7 +927,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         SimpleString queueName = new SimpleString(name);
+         SimpleString queueName = SimpleString.toSimpleString(name);
          server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, autoDeleteAddress);
       } finally {
          blockOnIO();
@@ -967,7 +967,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         final Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(address));
+         final Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address));
          return bindings.getBindings().stream().map(Binding::toManagementString).collect(Collectors.joining(","));
       } finally {
          blockOnIO();
@@ -2007,7 +2007,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.getSecurityRepository().removeMatch(addressMatch);
-         storageManager.deleteSecurityRoles(new SimpleString(addressMatch));
+         storageManager.deleteSecurityRoles(SimpleString.toSimpleString(addressMatch));
       } finally {
          blockOnIO();
       }
@@ -2159,8 +2159,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(DLA == null ? null : new SimpleString(DLA));
-      addressSettings.setExpiryAddress(expiryAddress == null ? null : new SimpleString(expiryAddress));
+      addressSettings.setDeadLetterAddress(DLA == null ? null : SimpleString.toSimpleString(DLA));
+      addressSettings.setExpiryAddress(expiryAddress == null ? null : SimpleString.toSimpleString(expiryAddress));
       addressSettings.setExpiryDelay(expiryDelay);
       addressSettings.setLastValueQueue(lastValueQueue);
       addressSettings.setMaxDeliveryAttempts(deliveryAttempts);
@@ -2202,7 +2202,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoDeleteAddresses(autoDeleteAddresses);
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
-      storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
+      storageManager.storeAddressSetting(new PersistedAddressSetting(SimpleString.toSimpleString(address), addressSettings));
    }
 
    @Override
@@ -2210,7 +2210,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       checkStarted();
 
       server.getAddressSettingsRepository().removeMatch(addressMatch);
-      storageManager.deleteAddressSetting(new SimpleString(addressMatch));
+      storageManager.deleteAddressSetting(SimpleString.toSimpleString(addressMatch));
    }
 
    @Override
@@ -2219,7 +2219,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         postOffice.sendQueueInfoToQueue(new SimpleString(queueName), new SimpleString(address == null ? "" : address));
+         postOffice.sendQueueInfoToQueue(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(address == null ? "" : address));
 
          GroupingHandler handler = server.getGroupingHandler();
          if (handler != null) {
@@ -2575,7 +2575,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public void updateDuplicateIdCache(String address, Object[] ids) throws Exception {
       clearIO();
       try {
-         DuplicateIDCache duplicateIDCache = server.getPostOffice().getDuplicateIDCache(new SimpleString(address));
+         DuplicateIDCache duplicateIDCache = server.getPostOffice().getDuplicateIDCache(SimpleString.toSimpleString(address));
          for (Object id : ids) {
             duplicateIDCache.addToCache(((String) id).getBytes(), null);
          }

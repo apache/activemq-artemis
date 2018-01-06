@@ -61,9 +61,9 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
       Configuration serverConfig = server.getConfiguration();
       serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false)
                                                                         .setAutoCreateAddresses(false)
-                                                                        .setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+                                                                        .setDeadLetterAddress(SimpleString.toSimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
-      coreQueue = new SimpleString(queueName);
+      coreQueue = SimpleString.toSimpleString(queueName);
       server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false);
    }
 

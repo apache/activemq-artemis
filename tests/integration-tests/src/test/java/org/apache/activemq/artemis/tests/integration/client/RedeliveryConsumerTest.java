@@ -50,7 +50,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-   final SimpleString ADDRESS = new SimpleString("address");
+   final SimpleString ADDRESS = SimpleString.toSimpleString("address");
 
    ClientSessionFactory factory;
 

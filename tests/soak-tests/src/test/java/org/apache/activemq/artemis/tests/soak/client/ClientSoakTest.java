@@ -40,7 +40,7 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
    // Attributes ----------------------------------------------------
 
-   private static final SimpleString ADDRESS = new SimpleString("ADD");
+   private static final SimpleString ADDRESS = SimpleString.toSimpleString("ADD");
 
    private static final SimpleString DIVERTED_AD1 = ClientSoakTest.ADDRESS.concat("-1");
 

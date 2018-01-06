@@ -25,52 +25,52 @@ public final class FilterConstants {
    /**
     * Name of the ActiveMQ Artemis UserID header.
     */
-   public static final SimpleString ACTIVEMQ_USERID = new SimpleString("AMQUserID");
+   public static final SimpleString ACTIVEMQ_USERID = SimpleString.toSimpleString("AMQUserID");
 
    /**
     * Name of the ActiveMQ Artemis Message expiration header.
     */
-   public static final SimpleString ACTIVEMQ_EXPIRATION = new SimpleString("AMQExpiration");
+   public static final SimpleString ACTIVEMQ_EXPIRATION = SimpleString.toSimpleString("AMQExpiration");
 
    /**
     * Name of the ActiveMQ Artemis Message durable header.
     */
-   public static final SimpleString ACTIVEMQ_DURABLE = new SimpleString("AMQDurable");
+   public static final SimpleString ACTIVEMQ_DURABLE = SimpleString.toSimpleString("AMQDurable");
 
    /**
     * Value for the Durable header when the message is non-durable.
     */
-   public static final SimpleString NON_DURABLE = new SimpleString("NON_DURABLE");
+   public static final SimpleString NON_DURABLE = SimpleString.toSimpleString("NON_DURABLE");
 
    /**
     * Value for the Durable header when the message is durable.
     */
-   public static final SimpleString DURABLE = new SimpleString("DURABLE");
+   public static final SimpleString DURABLE = SimpleString.toSimpleString("DURABLE");
 
    /**
     * Name of the ActiveMQ Artemis Message timestamp header.
     */
-   public static final SimpleString ACTIVEMQ_TIMESTAMP = new SimpleString("AMQTimestamp");
+   public static final SimpleString ACTIVEMQ_TIMESTAMP = SimpleString.toSimpleString("AMQTimestamp");
 
    /**
     * Name of the ActiveMQ Artemis Message priority header.
     */
-   public static final SimpleString ACTIVEMQ_PRIORITY = new SimpleString("AMQPriority");
+   public static final SimpleString ACTIVEMQ_PRIORITY = SimpleString.toSimpleString("AMQPriority");
 
    /**
     * Name of the ActiveMQ Artemis Message size header.
     */
-   public static final SimpleString ACTIVEMQ_SIZE = new SimpleString("AMQSize");
+   public static final SimpleString ACTIVEMQ_SIZE = SimpleString.toSimpleString("AMQSize");
 
    /**
     * Name of the ActiveMQ Artemis Address header
     */
-   public static final SimpleString ACTIVEMQ_ADDRESS = new SimpleString("AMQAddress");
+   public static final SimpleString ACTIVEMQ_ADDRESS = SimpleString.toSimpleString("AMQAddress");
 
    /**
     * All ActiveMQ Artemis headers are prepended by this prefix.
     */
-   public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
+   public static final SimpleString ACTIVEMQ_PREFIX = SimpleString.toSimpleString("AMQ");
 
    /**
     * Proton protocol stores JMSMessageID as NATIVE_MESSAGE_ID

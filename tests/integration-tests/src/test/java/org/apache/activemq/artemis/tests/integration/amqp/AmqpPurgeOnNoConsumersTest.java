@@ -36,7 +36,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testQueueReceiverReadMessage() throws Exception {
       String queue = "purgeQueue";
-      SimpleString ssQueue = new SimpleString(queue);
+      SimpleString ssQueue = SimpleString.toSimpleString(queue);
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
       server.createQueue(ssQueue, RoutingType.ANYCAST, ssQueue, null, true, false, 1, true, false);
 

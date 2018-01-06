@@ -61,9 +61,9 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       managerImpl.start();
 
-      PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
+      PagingStore store = managerImpl.getPageStore(SimpleString.toSimpleString("simple-test"));
 
-      ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
+      ICoreMessage msg = createMessage(1L, SimpleString.toSimpleString("simple-test"), createRandomBuffer(10));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
       Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));

@@ -39,7 +39,7 @@ public class ShutdownServerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.toSimpleString("ConsumerTestQueue");
 
    private ServerLocator locator;
 

@@ -30,11 +30,11 @@ public class QueueComparatorTest {
 
    @Test
    public void testQueueSorting() {
-      FakeQueue queue1 = new FakeQueue(new SimpleString("1"));
+      FakeQueue queue1 = new FakeQueue(SimpleString.toSimpleString("1"));
       queue1.setMessageCount(1);
-      FakeQueue queue2 = new FakeQueue(new SimpleString("2"));
+      FakeQueue queue2 = new FakeQueue(SimpleString.toSimpleString("2"));
       queue2.setMessageCount(2);
-      FakeQueue queue3 = new FakeQueue(new SimpleString("3"));
+      FakeQueue queue3 = new FakeQueue(SimpleString.toSimpleString("3"));
       queue3.setMessageCount(3);
 
       List<Queue> queues = new ArrayList<>();

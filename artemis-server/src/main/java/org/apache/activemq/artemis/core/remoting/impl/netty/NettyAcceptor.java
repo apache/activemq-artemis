@@ -404,9 +404,9 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          if (notificationService != null) {
             TypedProperties props = new TypedProperties();
-            props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(NettyAcceptorFactory.class.getName()));
-            props.putSimpleStringProperty(new SimpleString("host"), new SimpleString(host));
-            props.putIntProperty(new SimpleString("port"), port);
+            props.putSimpleStringProperty(SimpleString.toSimpleString("factory"), SimpleString.toSimpleString(NettyAcceptorFactory.class.getName()));
+            props.putSimpleStringProperty(SimpleString.toSimpleString("host"), SimpleString.toSimpleString(host));
+            props.putIntProperty(SimpleString.toSimpleString("port"), port);
             Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STARTED, props);
             notificationService.sendNotification(notification);
          }
@@ -611,9 +611,9 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(NettyAcceptorFactory.class.getName()));
-         props.putSimpleStringProperty(new SimpleString("host"), new SimpleString(host));
-         props.putIntProperty(new SimpleString("port"), port);
+         props.putSimpleStringProperty(SimpleString.toSimpleString("factory"), SimpleString.toSimpleString(NettyAcceptorFactory.class.getName()));
+         props.putSimpleStringProperty(SimpleString.toSimpleString("host"), SimpleString.toSimpleString(host));
+         props.putIntProperty(SimpleString.toSimpleString("port"), port);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
          try {
             notificationService.sendNotification(notification);

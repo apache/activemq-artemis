@@ -213,7 +213,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString jmsAddress = new SimpleString("Test");
+      SimpleString jmsAddress = SimpleString.toSimpleString("Test");
 
       server.createQueue(jmsAddress, RoutingType.ANYCAST, jmsAddress, null, true, false);
 

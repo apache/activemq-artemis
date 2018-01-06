@@ -92,10 +92,10 @@ public class SharedConsumerTest extends JMSTestBase {
          JMSConsumer con1 = context.createSharedConsumer(topic1, "mySharedCon");
          JMSConsumer con2 = context.createSharedConsumer(topic1, "mySharedCon");
          con1.close();
-         Binding binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
+         Binding binding = server.getPostOffice().getBinding(SimpleString.toSimpleString("nonDurable.mySharedCon"));
          assertNotNull(binding);
          con2.close();
-         binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
+         binding = server.getPostOffice().getBinding(SimpleString.toSimpleString("nonDurable.mySharedCon"));
          assertNull(binding);
          con1 = context.createSharedConsumer(topic2, "mySharedCon");
       } finally {

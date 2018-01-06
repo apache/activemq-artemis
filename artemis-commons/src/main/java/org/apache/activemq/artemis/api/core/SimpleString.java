@@ -39,29 +39,17 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
    private static Interner<SimpleString> interner = Interners.newWeakInterner();
 
-   private static Function<String, SimpleString> stringToSimpleString = (string) -> {
-      if (string == null) {
-         return null;
-      }
-      return new SimpleString(string).intern();
-   };
+   private static Function<String, SimpleString> stringToSimpleString = (string) -> new SimpleString(string).intern();
 
-   private static Function<byte[], SimpleString> bytesToSimpleString = (bytes) -> {
-      if (bytes == null) {
-         return null;
-      }
-      return new SimpleString(bytes).intern();
-   };
+   private static Function<byte[], SimpleString> bytesToSimpleString = (bytes) -> new SimpleString(bytes).intern();
 
    private static Function<ByteBuf, SimpleString> byteBufToSimpleString = (buffer) -> {
-      int len = buffer.readInt();
-      if (len > buffer.readableBytes()) {
-         throw new IndexOutOfBoundsException();
-      }
-      byte[] data = new byte[len];
+      byte[] data = new byte[buffer.readInt()];
       buffer.readBytes(data);
       return new SimpleString(data).intern();
    };
+
+   private static Function<Character, SimpleString> charToSimpleString = (character) -> new SimpleString(character).intern();
 
    public static SimpleString intern(SimpleString simpleString) {
       return interner.intern(simpleString);
@@ -93,16 +81,30 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * @return A new SimpleString
     */
    public static SimpleString toSimpleString(final String string) {
+      if (string == null) {
+         return null;
+      }
       return stringToSimpleString.apply(string);
    }
 
    public static SimpleString toSimpleString(final byte[] bytes) {
+      if (bytes == null) {
+         return null;
+      }
       return bytesToSimpleString.apply(bytes);
    }
 
    public static SimpleString toSimpleString(ByteBuf buffer) {
+      if (buffer == null) {
+         return null;
+      }
       return byteBufToSimpleString.apply(buffer);
    }
+
+   public static SimpleString toSimpleString(char character) {
+      return charToSimpleString.apply(character);
+   }
+
 
    // Constructors
    // ----------------------------------------------------------------------

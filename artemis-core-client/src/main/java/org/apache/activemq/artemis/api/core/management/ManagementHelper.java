@@ -30,51 +30,51 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 public final class ManagementHelper {
    // Constants -----------------------------------------------------
 
-   public static final SimpleString HDR_RESOURCE_NAME = new SimpleString("_AMQ_ResourceName");
+   public static final SimpleString HDR_RESOURCE_NAME = SimpleString.toSimpleString("_AMQ_ResourceName");
 
-   public static final SimpleString HDR_ATTRIBUTE = new SimpleString("_AMQ_Attribute");
+   public static final SimpleString HDR_ATTRIBUTE = SimpleString.toSimpleString("_AMQ_Attribute");
 
-   public static final SimpleString HDR_OPERATION_NAME = new SimpleString("_AMQ_OperationName");
+   public static final SimpleString HDR_OPERATION_NAME = SimpleString.toSimpleString("_AMQ_OperationName");
 
-   public static final SimpleString HDR_OPERATION_SUCCEEDED = new SimpleString("_AMQ_OperationSucceeded");
+   public static final SimpleString HDR_OPERATION_SUCCEEDED = SimpleString.toSimpleString("_AMQ_OperationSucceeded");
 
-   public static final SimpleString HDR_NOTIFICATION_TYPE = new SimpleString("_AMQ_NotifType");
+   public static final SimpleString HDR_NOTIFICATION_TYPE = SimpleString.toSimpleString("_AMQ_NotifType");
 
-   public static final SimpleString HDR_NOTIFICATION_TIMESTAMP = new SimpleString("_AMQ_NotifTimestamp");
+   public static final SimpleString HDR_NOTIFICATION_TIMESTAMP = SimpleString.toSimpleString("_AMQ_NotifTimestamp");
 
-   public static final SimpleString HDR_ROUTING_NAME = new SimpleString("_AMQ_RoutingName");
+   public static final SimpleString HDR_ROUTING_NAME = SimpleString.toSimpleString("_AMQ_RoutingName");
 
-   public static final SimpleString HDR_CLUSTER_NAME = new SimpleString("_AMQ_ClusterName");
+   public static final SimpleString HDR_CLUSTER_NAME = SimpleString.toSimpleString("_AMQ_ClusterName");
 
-   public static final SimpleString HDR_ADDRESS = new SimpleString("_AMQ_Address");
+   public static final SimpleString HDR_ADDRESS = SimpleString.toSimpleString("_AMQ_Address");
 
-   public static final SimpleString HDR_BINDING_ID = new SimpleString("_AMQ_Binding_ID");
+   public static final SimpleString HDR_BINDING_ID = SimpleString.toSimpleString("_AMQ_Binding_ID");
 
-   public static final SimpleString HDR_BINDING_TYPE = new SimpleString("_AMQ_Binding_Type");
+   public static final SimpleString HDR_BINDING_TYPE = SimpleString.toSimpleString("_AMQ_Binding_Type");
 
-   public static final SimpleString HDR_FILTERSTRING = new SimpleString("_AMQ_FilterString");
+   public static final SimpleString HDR_FILTERSTRING = SimpleString.toSimpleString("_AMQ_FilterString");
 
-   public static final SimpleString HDR_DISTANCE = new SimpleString("_AMQ_Distance");
+   public static final SimpleString HDR_DISTANCE = SimpleString.toSimpleString("_AMQ_Distance");
 
-   public static final SimpleString HDR_CONSUMER_COUNT = new SimpleString("_AMQ_ConsumerCount");
+   public static final SimpleString HDR_CONSUMER_COUNT = SimpleString.toSimpleString("_AMQ_ConsumerCount");
 
-   public static final SimpleString HDR_USER = new SimpleString("_AMQ_User");
+   public static final SimpleString HDR_USER = SimpleString.toSimpleString("_AMQ_User");
 
-   public static final SimpleString HDR_CHECK_TYPE = new SimpleString("_AMQ_CheckType");
+   public static final SimpleString HDR_CHECK_TYPE = SimpleString.toSimpleString("_AMQ_CheckType");
 
-   public static final SimpleString HDR_SESSION_NAME = new SimpleString("_AMQ_SessionName");
+   public static final SimpleString HDR_SESSION_NAME = SimpleString.toSimpleString("_AMQ_SessionName");
 
-   public static final SimpleString HDR_REMOTE_ADDRESS = new SimpleString("_AMQ_RemoteAddress");
+   public static final SimpleString HDR_REMOTE_ADDRESS = SimpleString.toSimpleString("_AMQ_RemoteAddress");
 
-   public static final SimpleString HDR_PROPOSAL_GROUP_ID = new SimpleString("_JBM_ProposalGroupId");
+   public static final SimpleString HDR_PROPOSAL_GROUP_ID = SimpleString.toSimpleString("_JBM_ProposalGroupId");
 
-   public static final SimpleString HDR_PROPOSAL_VALUE = new SimpleString("_JBM_ProposalValue");
+   public static final SimpleString HDR_PROPOSAL_VALUE = SimpleString.toSimpleString("_JBM_ProposalValue");
 
-   public static final SimpleString HDR_PROPOSAL_ALT_VALUE = new SimpleString("_JBM_ProposalAltValue");
+   public static final SimpleString HDR_PROPOSAL_ALT_VALUE = SimpleString.toSimpleString("_JBM_ProposalAltValue");
 
-   public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_AMQ_ConsumerName");
+   public static final SimpleString HDR_CONSUMER_NAME = SimpleString.toSimpleString("_AMQ_ConsumerName");
 
-   public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_AMQ_ConnectionName");
+   public static final SimpleString HDR_CONNECTION_NAME = SimpleString.toSimpleString("_AMQ_ConnectionName");
 
    // Attributes ----------------------------------------------------
 
@@ -89,8 +89,8 @@ public final class ManagementHelper {
     * @see ResourceNames
     */
    public static void putAttribute(final ICoreMessage message, final String resourceName, final String attribute) {
-      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, new SimpleString(resourceName));
-      message.putStringProperty(ManagementHelper.HDR_ATTRIBUTE, new SimpleString(attribute));
+      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, SimpleString.toSimpleString(resourceName));
+      message.putStringProperty(ManagementHelper.HDR_ATTRIBUTE, SimpleString.toSimpleString(attribute));
    }
 
    /**
@@ -121,8 +121,8 @@ public final class ManagementHelper {
                                              final String operationName,
                                              final Object... parameters) throws Exception {
       // store the name of the operation in the headers
-      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, new SimpleString(resourceName));
-      message.putStringProperty(ManagementHelper.HDR_OPERATION_NAME, new SimpleString(operationName));
+      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, SimpleString.toSimpleString(resourceName));
+      message.putStringProperty(ManagementHelper.HDR_OPERATION_NAME, SimpleString.toSimpleString(operationName));
 
       // and the params go in the body, since might be too large for header
 

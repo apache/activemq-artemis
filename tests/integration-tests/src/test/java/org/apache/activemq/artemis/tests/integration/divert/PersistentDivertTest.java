@@ -73,25 +73,25 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), queueName1, null, true);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), queueName2, null, true);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), queueName3, null, true);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, true);
+      session.createQueue(SimpleString.toSimpleString(testAddress), queueName4, null, true);
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -103,7 +103,7 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -228,27 +228,27 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress1), queueName1, null, true);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress2), queueName2, null, true);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, true);
+      session.createQueue(SimpleString.toSimpleString(forwardAddress3), queueName3, null, true);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, true);
+      session.createQueue(SimpleString.toSimpleString(testAddress), queueName4, null, true);
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);

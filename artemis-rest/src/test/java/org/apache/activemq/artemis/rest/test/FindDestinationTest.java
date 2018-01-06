@@ -32,7 +32,7 @@ public class FindDestinationTest extends MessageTestBase {
    public void testFindQueue() throws Exception {
       String testName = "testFindQueue";
       server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(testName), RoutingType.MULTICAST));
-      server.getActiveMQServer().createQueue(new SimpleString(testName), RoutingType.MULTICAST, new SimpleString(testName), null, false, false);
+      server.getActiveMQServer().createQueue(SimpleString.toSimpleString(testName), RoutingType.MULTICAST, SimpleString.toSimpleString(testName), null, false, false);
 
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/queues/" + testName));
 
@@ -63,7 +63,7 @@ public class FindDestinationTest extends MessageTestBase {
    @Test
    public void testFindTopic() throws Exception {
       server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("testTopic"), RoutingType.MULTICAST));
-      server.getActiveMQServer().createQueue(new SimpleString("testTopic"), RoutingType.MULTICAST, new SimpleString("testTopic"), null, false, false);
+      server.getActiveMQServer().createQueue(SimpleString.toSimpleString("testTopic"), RoutingType.MULTICAST, SimpleString.toSimpleString("testTopic"), null, false, false);
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/topics/testTopic"));
 
       ClientResponse<?> response = request.head();

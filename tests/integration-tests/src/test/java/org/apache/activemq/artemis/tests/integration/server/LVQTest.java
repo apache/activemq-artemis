@@ -44,16 +44,16 @@ public class LVQTest extends ActiveMQTestBase {
 
    private ClientSession clientSessionTxSends;
 
-   private final SimpleString address = new SimpleString("LVQTestAddress");
+   private final SimpleString address = SimpleString.toSimpleString("LVQTestAddress");
 
-   private final SimpleString qName1 = new SimpleString("LVQTestQ1");
+   private final SimpleString qName1 = SimpleString.toSimpleString("LVQTestQ1");
 
    @Test
    public void testSimple() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -70,8 +70,8 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessages() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.toSimpleString("SMID1");
+      SimpleString messageId2 = SimpleString.toSimpleString("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -100,7 +100,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -122,7 +122,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -147,7 +147,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
 
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -201,7 +201,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -218,8 +218,8 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessagesInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.toSimpleString("SMID1");
+      SimpleString messageId2 = SimpleString.toSimpleString("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -250,8 +250,8 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessagesInTxRollback() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.toSimpleString("SMID1");
+      SimpleString messageId2 = SimpleString.toSimpleString("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -296,7 +296,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testSingleTXRollback() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
+      SimpleString messageId1 = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       producer.send(m1);
@@ -316,7 +316,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessagesInTxSend() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -347,7 +347,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessagesPersistedCorrectly() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -385,7 +385,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessagesPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -426,7 +426,7 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -486,7 +486,7 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -512,7 +512,7 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       long timeSent = 0;
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
@@ -539,7 +539,7 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -565,7 +565,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleAcksPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -622,7 +622,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testLargeMessage() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.toSimpleString("SMID1");
 
       for (int i = 0; i < 50; i++) {
          ClientMessage message = clientSession.createMessage(true);

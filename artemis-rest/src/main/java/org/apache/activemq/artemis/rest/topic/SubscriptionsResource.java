@@ -344,7 +344,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
       try {
          session = sessionFactory.createSession();
 
-         ClientSession.QueueQuery query = session.queueQuery(new SimpleString(subscriptionId));
+         ClientSession.QueueQuery query = session.queueQuery(SimpleString.toSimpleString(subscriptionId));
          return query.isExists();
       } catch (ActiveMQException e) {
          throw new RuntimeException(e);

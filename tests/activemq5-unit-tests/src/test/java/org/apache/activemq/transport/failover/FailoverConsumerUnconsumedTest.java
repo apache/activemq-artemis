@@ -241,7 +241,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
          testConsumers.add(new TestConsumer(consumerSession, destination, connection));
       }
 
-      assureQueueMessages(0, new SimpleString(QUEUE_NAME));
+      assureQueueMessages(0, SimpleString.toSimpleString(QUEUE_NAME));
 
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 

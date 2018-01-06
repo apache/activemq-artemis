@@ -57,7 +57,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          Assert.assertEquals(timestamp, message.getTimestamp());
          Assert.assertEquals(priority, message.getPriority());
 
-         final SimpleString destination = new SimpleString(RandomUtil.randomString());
+         final SimpleString destination = SimpleString.toSimpleString(RandomUtil.randomString());
          final boolean durable2 = RandomUtil.randomBoolean();
          final long expiration2 = RandomUtil.randomLong();
          final long timestamp2 = RandomUtil.randomLong();
@@ -106,40 +106,40 @@ public class MessageImplTest extends ActiveMQTestBase {
       for (int j = 0; j < 10; j++) {
          Message msg = new ClientMessageImpl();
 
-         SimpleString prop1 = new SimpleString("prop1");
+         SimpleString prop1 = SimpleString.toSimpleString("prop1");
          boolean val1 = RandomUtil.randomBoolean();
          msg.putBooleanProperty(prop1, val1);
 
-         SimpleString prop2 = new SimpleString("prop2");
+         SimpleString prop2 = SimpleString.toSimpleString("prop2");
          byte val2 = RandomUtil.randomByte();
          msg.putByteProperty(prop2, val2);
 
-         SimpleString prop3 = new SimpleString("prop3");
+         SimpleString prop3 = SimpleString.toSimpleString("prop3");
          byte[] val3 = RandomUtil.randomBytes();
          msg.putBytesProperty(prop3, val3);
 
-         SimpleString prop4 = new SimpleString("prop4");
+         SimpleString prop4 = SimpleString.toSimpleString("prop4");
          double val4 = RandomUtil.randomDouble();
          msg.putDoubleProperty(prop4, val4);
 
-         SimpleString prop5 = new SimpleString("prop5");
+         SimpleString prop5 = SimpleString.toSimpleString("prop5");
          float val5 = RandomUtil.randomFloat();
          msg.putFloatProperty(prop5, val5);
 
-         SimpleString prop6 = new SimpleString("prop6");
+         SimpleString prop6 = SimpleString.toSimpleString("prop6");
          int val6 = RandomUtil.randomInt();
          msg.putIntProperty(prop6, val6);
 
-         SimpleString prop7 = new SimpleString("prop7");
+         SimpleString prop7 = SimpleString.toSimpleString("prop7");
          long val7 = RandomUtil.randomLong();
          msg.putLongProperty(prop7, val7);
 
-         SimpleString prop8 = new SimpleString("prop8");
+         SimpleString prop8 = SimpleString.toSimpleString("prop8");
          short val8 = RandomUtil.randomShort();
          msg.putShortProperty(prop8, val8);
 
-         SimpleString prop9 = new SimpleString("prop9");
-         SimpleString val9 = new SimpleString(RandomUtil.randomString());
+         SimpleString prop9 = SimpleString.toSimpleString("prop9");
+         SimpleString val9 = SimpleString.toSimpleString(RandomUtil.randomString());
          msg.putStringProperty(prop9, val9);
 
          Assert.assertEquals(9, msg.getPropertyNames().size());
@@ -173,7 +173,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          Assert.assertEquals(val8, msg.getObjectProperty(prop8));
          Assert.assertEquals(val9, msg.getObjectProperty(prop9));
 
-         SimpleString val10 = new SimpleString(RandomUtil.randomString());
+         SimpleString val10 = SimpleString.toSimpleString(RandomUtil.randomString());
          // test overwrite
          msg.putStringProperty(prop9, val10);
          Assert.assertEquals(val10, msg.getObjectProperty(prop9));
@@ -236,7 +236,7 @@ public class MessageImplTest extends ActiveMQTestBase {
       final CoreMessage msg = new CoreMessage(123, 18);
 
       msg.setMessageID(RandomUtil.randomLong());
-      msg.setAddress(new SimpleString("Batatantkashf aksjfh aksfjh askfdjh askjfh "));
+      msg.setAddress(SimpleString.toSimpleString("Batatantkashf aksjfh aksfjh askfdjh askjfh "));
 
       final AtomicInteger errors = new AtomicInteger(0);
 

@@ -123,7 +123,7 @@ public class ByteUtil {
    }
 
    public static String toSimpleString(byte[] bytes) {
-      SimpleString simpleString = new SimpleString(bytes);
+      SimpleString simpleString = SimpleString.toSimpleString(bytes);
       String value = simpleString.toString();
 
       for (char c : value.toCharArray()) {

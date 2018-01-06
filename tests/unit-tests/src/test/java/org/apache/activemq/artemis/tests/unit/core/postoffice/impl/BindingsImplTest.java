@@ -68,12 +68,12 @@ public class BindingsImplTest extends ActiveMQTestBase {
    }
 
    private void internalTest(final boolean route) throws Exception {
-      final FakeBinding fake = new FakeBinding(new SimpleString("a"));
+      final FakeBinding fake = new FakeBinding(SimpleString.toSimpleString("a"));
 
       final Bindings bind = new BindingsImpl(null, null, null);
       bind.addBinding(fake);
-      bind.addBinding(new FakeBinding(new SimpleString("a")));
-      bind.addBinding(new FakeBinding(new SimpleString("a")));
+      bind.addBinding(new FakeBinding(SimpleString.toSimpleString("a")));
+      bind.addBinding(new FakeBinding(SimpleString.toSimpleString("a")));
 
       Thread t = new Thread() {
          @Override
@@ -86,7 +86,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
          }
       };
 
-      Queue queue = new FakeQueue(new SimpleString("a"));
+      Queue queue = new FakeQueue(SimpleString.toSimpleString("a"));
       t.start();
 
       for (int i = 0; i < 100; i++) {

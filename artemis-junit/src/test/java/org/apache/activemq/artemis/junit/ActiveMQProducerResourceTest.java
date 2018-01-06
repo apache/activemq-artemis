@@ -30,8 +30,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class ActiveMQProducerResourceTest {
 
-   static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
-   static final SimpleString TEST_ADDRESS = new SimpleString("test.queue");
+   static final SimpleString TEST_QUEUE = SimpleString.toSimpleString("test.queue");
+   static final SimpleString TEST_ADDRESS = SimpleString.toSimpleString("test.queue");
    static final String TEST_BODY = "Test Message";
    static final Map<String, Object> TEST_PROPERTIES;
 

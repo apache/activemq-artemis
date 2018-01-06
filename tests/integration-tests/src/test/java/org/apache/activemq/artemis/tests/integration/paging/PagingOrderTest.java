@@ -71,7 +71,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
    // Static --------------------------------------------------------
 
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = SimpleString.toSimpleString("SimpleAddress");
 
    private Connection conn;
 
@@ -115,7 +115,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.toSimpleString("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -188,7 +188,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       Queue q1 = server.createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, null, true, false);
 
-      Queue q2 = server.createQueue(ADDRESS, RoutingType.MULTICAST, new SimpleString("inactive"), null, true, false);
+      Queue q2 = server.createQueue(ADDRESS, RoutingType.MULTICAST, SimpleString.toSimpleString("inactive"), null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -238,7 +238,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.toSimpleString("id"), i);
 
          producer.send(message);
          if (i % 20 == 0) {
@@ -277,7 +277,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
                q1 = qb.getQueue();
             }
 
-            if (qb.getQueue().getName().equals(new SimpleString("inactive"))) {
+            if (qb.getQueue().getName().equals(SimpleString.toSimpleString("inactive"))) {
                q2 = qb.getQueue();
             }
          }
@@ -318,7 +318,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       Queue q1 = server.createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, null, true, false);
 
-      Queue q2 = server.createQueue(ADDRESS, RoutingType.MULTICAST, new SimpleString("inactive"), null, true, false);
+      Queue q2 = server.createQueue(ADDRESS, RoutingType.MULTICAST, SimpleString.toSimpleString("inactive"), null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -364,7 +364,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.toSimpleString("id"), i);
 
          producer.send(message);
          if (i % 20 == 0) {
@@ -429,7 +429,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.toSimpleString("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -514,7 +514,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.toSimpleString("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -627,7 +627,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       TextMessage txt = sess.createTextMessage("TST");
       prod.send(txt);
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("TT"));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.toSimpleString("TT"));
 
       assertEquals(1024 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -647,7 +647,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("TT"));
+      store = server.getPagingManager().getPageStore(SimpleString.toSimpleString("TT"));
 
       conn.close();
 
@@ -689,7 +689,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
          prod.send(bmt);
       }
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.toSimpleString("Q1"));
 
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -711,7 +711,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+      store = server.getPagingManager().getPageStore(SimpleString.toSimpleString("Q1"));
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, store.getAddressFullMessagePolicy());

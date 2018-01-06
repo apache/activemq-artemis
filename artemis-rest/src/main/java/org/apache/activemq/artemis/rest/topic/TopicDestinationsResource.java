@@ -66,7 +66,7 @@ public class TopicDestinationsResource {
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try {
 
-            ClientSession.AddressQuery query = session.addressQuery(new SimpleString(topicName));
+            ClientSession.AddressQuery query = session.addressQuery(SimpleString.toSimpleString(topicName));
             if (!query.isExists()) {
                session.createAddress(SimpleString.toSimpleString(topicName), RoutingType.MULTICAST, true);
 
@@ -94,7 +94,7 @@ public class TopicDestinationsResource {
       if (topic == null) {
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try {
-            ClientSession.AddressQuery query = session.addressQuery(new SimpleString(name));
+            ClientSession.AddressQuery query = session.addressQuery(SimpleString.toSimpleString(name));
             if (!query.isExists()) {
                System.err.println("Topic '" + name + "' does not exist");
                throw new WebApplicationException(Response.status(404).type("text/plain").entity("Topic '" + name + "' does not exist").build());

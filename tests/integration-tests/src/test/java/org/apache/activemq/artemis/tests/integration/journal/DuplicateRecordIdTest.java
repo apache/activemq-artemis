@@ -35,7 +35,7 @@ public class DuplicateRecordIdTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      server = createServer(false, createDefaultInVMConfig().addAddressesSetting("#", new AddressSettings().setDeadLetterAddress(new SimpleString("dlq")).setExpiryAddress(new SimpleString("dlq"))));
+      server = createServer(false, createDefaultInVMConfig().addAddressesSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("dlq")).setExpiryAddress(SimpleString.toSimpleString("dlq"))));
       server.getConfiguration().setPersistenceEnabled(true);
    }
 

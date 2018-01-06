@@ -58,7 +58,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    @Override
    public void setText(final String text) throws JMSException {
       if (text != null) {
-         this.text = new SimpleString(text);
+         this.text = SimpleString.toSimpleString(text);
       } else {
          this.text = null;
       }

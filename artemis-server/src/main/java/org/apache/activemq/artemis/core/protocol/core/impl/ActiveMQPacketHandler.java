@@ -121,7 +121,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCheckForFailover(CheckFailoverMessage failoverMessage) {
       String nodeID = failoverMessage.getNodeID();
-      boolean okToFailover = nodeID == null || !(server.getHAPolicy().canScaleDown() && !server.hasScaledDown(new SimpleString(nodeID)));
+      boolean okToFailover = nodeID == null || !(server.getHAPolicy().canScaleDown() && !server.hasScaledDown(SimpleString.toSimpleString(nodeID)));
       channel1.send(new CheckFailoverReplyMessage(okToFailover));
    }
 

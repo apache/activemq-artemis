@@ -197,7 +197,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString("myqueue");
+      SimpleString jmsQueueName = SimpleString.toSimpleString("myqueue");
 
       coreSession.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
 
@@ -270,7 +270,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       RemotingConnection coreConnLive = ((ClientSessionInternal) coreSessionLive).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString("myqueue");
+      SimpleString jmsQueueName = SimpleString.toSimpleString("myqueue");
 
       coreSessionLive.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
 
@@ -319,7 +319,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
    @Test
    public void testSendReceiveLargeMessages() throws Exception {
-      SimpleString QUEUE = new SimpleString("somequeue");
+      SimpleString QUEUE = SimpleString.toSimpleString("somequeue");
 
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc, backuptc);
       jbcf.setReconnectAttempts(-1);

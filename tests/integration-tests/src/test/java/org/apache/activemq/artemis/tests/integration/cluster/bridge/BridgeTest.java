@@ -201,7 +201,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -209,7 +209,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final byte[] bytes = new byte[messageSize];
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -306,7 +306,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -314,7 +314,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final byte[] bytes = new byte[messageSize];
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -458,7 +458,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -466,7 +466,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final byte[] bytes = new byte[messageSize];
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -611,22 +611,22 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
       session1.start();
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
-      final SimpleString selectorKey = new SimpleString("animal");
+      final SimpleString selectorKey = SimpleString.toSimpleString("animal");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
 
          message.putIntProperty(propKey, i);
 
-         message.putStringProperty(selectorKey, new SimpleString("monkey"));
+         message.putStringProperty(selectorKey, SimpleString.toSimpleString("monkey"));
 
          if (largeMessage) {
             message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(10 * 1024));
@@ -642,7 +642,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          message.putIntProperty(propKey, i);
 
-         message.putStringProperty(selectorKey, new SimpleString("goat"));
+         message.putStringProperty(selectorKey, SimpleString.toSimpleString("goat"));
 
          if (largeMessage) {
             message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(10 * 1024));
@@ -735,13 +735,13 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session0 = sf0.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       final int numMessages = 100;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
-      final SimpleString selectorKey = new SimpleString("animal");
+      final SimpleString selectorKey = SimpleString.toSimpleString("animal");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -750,7 +750,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          message.putIntProperty(propKey, i);
 
-         message.putStringProperty(selectorKey, new SimpleString("monkey" + i));
+         message.putStringProperty(selectorKey, SimpleString.toSimpleString("monkey" + i));
 
          producer0.send(message);
       }
@@ -842,13 +842,13 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session0 = sf0.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       final int numMessages = 1000;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
-      final SimpleString selectorKey = new SimpleString("animal");
+      final SimpleString selectorKey = SimpleString.toSimpleString("animal");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -857,7 +857,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          message.putIntProperty(propKey, i);
 
-         message.putStringProperty(selectorKey, new SimpleString("monkey" + i));
+         message.putStringProperty(selectorKey, SimpleString.toSimpleString("monkey" + i));
 
          producer0.send(message);
       }
@@ -868,7 +868,7 @@ public class BridgeTest extends ActiveMQTestBase {
       {
          long[] ids = new long[100];
 
-         Queue queue = server0.locateQueue(new SimpleString(queueName0));
+         Queue queue = server0.locateQueue(SimpleString.toSimpleString(queueName0));
          LinkedListIterator<MessageReference> iterator = queue.iterator();
 
          for (int i = 0; i < 100; i++) {
@@ -1001,7 +1001,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -1009,12 +1009,12 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("wibble");
+      final SimpleString propKey = SimpleString.toSimpleString("wibble");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
 
-         message.putStringProperty(propKey, new SimpleString("bing"));
+         message.putStringProperty(propKey, SimpleString.toSimpleString("bing"));
 
          message.getBodyBuffer().writeString("doo be doo be doo be doo");
 
@@ -1028,7 +1028,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          SimpleString val = (SimpleString) message.getObjectProperty(propKey);
 
-         Assert.assertEquals(new SimpleString("bong"), val);
+         Assert.assertEquals(SimpleString.toSimpleString("bong"), val);
 
          String sval = message.getBodyBuffer().readString();
 
@@ -1112,7 +1112,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -1281,7 +1281,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
                   session = sf.createSession(false, true, true);
 
-                  producer = session.createProducer(new SimpleString(testAddress));
+                  producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
                   for (int i = 0; i < nmsg; i++) {
                      assertEquals(0, errors.get());
@@ -1424,7 +1424,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          ClientSession session1 = sf1.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
          ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -1432,7 +1432,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          final int numMessages = 200;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(true);
@@ -1646,7 +1646,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          ClientSession session1 = sf1.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
          ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -1654,7 +1654,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          final int numMessages = 50;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
          final int LARGE_MESSAGE_SIZE = 1024;
          for (int i = 0; i < numMessages; i++) {
@@ -1779,7 +1779,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          ClientSession session1 = sf1.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
          ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -1795,14 +1795,14 @@ public class BridgeTest extends ActiveMQTestBase {
          session0.commit();
 
          //check target queue for large message arriving
-         ClientSession.QueueQuery query = session1.queueQuery(new SimpleString(queueName1));
+         ClientSession.QueueQuery query = session1.queueQuery(SimpleString.toSimpleString(queueName1));
          long messageCount = query.getMessageCount();
          int count = 0;
          //wait for 300 sec max
          while (messageCount == 0 && count < 300) {
             count++;
             Thread.sleep(1000);
-            query = session1.queueQuery(new SimpleString(queueName1));
+            query = session1.queueQuery(SimpleString.toSimpleString(queueName1));
             messageCount = query.getMessageCount();
          }
 
@@ -1945,7 +1945,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       ClientSession session1 = sf1.createSession(false, true, true);
 
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -1953,7 +1953,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final byte[] bytes = new byte[messageSize];
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -1989,8 +1989,8 @@ public class BridgeTest extends ActiveMQTestBase {
 
    @Test
    public void testInjectedTransformer() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("myAddress");
-      final SimpleString QUEUE = new SimpleString("myQueue");
+      final SimpleString ADDRESS = SimpleString.toSimpleString("myAddress");
+      final SimpleString QUEUE = SimpleString.toSimpleString("myQueue");
       final String BRIDGE = "myBridge";
 
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();

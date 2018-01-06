@@ -138,14 +138,14 @@ public class AcceptorControlTest extends ManagementTestBase {
       Assert.assertEquals(usingCore() ? 5 : 1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(usingCore() ? 2 : 0);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
-      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("factory")).toString());
 
       acceptorControl.start();
 
       Assert.assertEquals(usingCore() ? 10 : 2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(usingCore() ? 7 : 1);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
-      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("factory")).toString());
    }
 
    // Package protected ---------------------------------------------

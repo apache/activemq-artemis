@@ -37,9 +37,9 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString address = new SimpleString("address");
+   private final SimpleString address = SimpleString.toSimpleString("address");
 
-   private final SimpleString queueName = new SimpleString("queue");
+   private final SimpleString queueName = SimpleString.toSimpleString("queue");
 
    @Override
    @Before

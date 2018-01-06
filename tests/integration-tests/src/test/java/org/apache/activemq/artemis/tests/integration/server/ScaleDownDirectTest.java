@@ -168,7 +168,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+      while (!servers[0].getPagingManager().getPageStore(SimpleString.toSimpleString(addressName)).isPaging()) {
          for (int i = 0; i < CHUNK_SIZE; i++) {
             Message message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
@@ -220,8 +220,8 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
-      Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      Assert.assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.toSimpleString(queueName1))).getQueue()));
+      Assert.assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.toSimpleString(queueName2))).getQueue()));
 
       assertEquals(TEST_SIZE, performScaledown());
       // trigger scaleDown from node 0 to node 1

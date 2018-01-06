@@ -163,7 +163,7 @@ public class TopicResource extends DestinationResource {
 
       ClientSession session = serviceManager.getSessionFactory().createSession(false, false, false);
       try {
-         SimpleString topicName = new SimpleString(destination);
+         SimpleString topicName = SimpleString.toSimpleString(destination);
          session.deleteQueue(topicName);
       } finally {
          try {

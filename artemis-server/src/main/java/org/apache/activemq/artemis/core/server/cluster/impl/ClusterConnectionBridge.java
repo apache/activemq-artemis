@@ -218,9 +218,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
             "." +
             clusterConnection.getServer().toString().replaceAll(CompositeAddress.SEPARATOR, "_");
 
-         SimpleString notifQueueName = new SimpleString(qName);
+         SimpleString notifQueueName = SimpleString.toSimpleString(qName);
 
-         SimpleString filter = new SimpleString(ManagementHelper.HDR_BINDING_TYPE + "<>" +
+         SimpleString filter = SimpleString.toSimpleString(ManagementHelper.HDR_BINDING_TYPE + "<>" +
                                                    BindingType.DIVERT.toInt() +
                                                    " AND " +
                                                    ManagementHelper.HDR_NOTIFICATION_TYPE +

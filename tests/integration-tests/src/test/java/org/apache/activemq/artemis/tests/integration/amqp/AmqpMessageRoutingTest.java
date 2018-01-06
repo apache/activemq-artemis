@@ -129,7 +129,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       // Create Address with both ANYCAST and MULTICAST enabled
       String testAddress = "testRoutingExclusivity-mixed-mode";
-      SimpleString ssTestAddress = new SimpleString(testAddress);
+      SimpleString ssTestAddress = SimpleString.toSimpleString(testAddress);
 
       AddressInfo addressInfo = new AddressInfo(ssTestAddress);
       addressInfo.addRoutingType(RoutingType.MULTICAST);

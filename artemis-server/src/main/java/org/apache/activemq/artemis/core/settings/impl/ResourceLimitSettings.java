@@ -36,7 +36,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    //   public static final Long DEFAULT_MAX_QUEUE_SIZE_BYTES = -1L;
 
-   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = new SimpleString(".+");
+   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = SimpleString.toSimpleString(".+");
 
    SimpleString match = null;
 

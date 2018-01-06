@@ -44,20 +44,20 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase {
       final SimpleString uniqueName = RandomUtil.randomSimpleString();
       final SimpleString routingName = RandomUtil.randomSimpleString();
       final Long remoteQueueID = RandomUtil.randomLong();
-      final SimpleString filterString = new SimpleString("A>B");
+      final SimpleString filterString = SimpleString.toSimpleString("A>B");
       final Queue storeAndForwardQueue = new FakeQueue(null);
       final SimpleString bridgeName = RandomUtil.randomSimpleString();
       final int distance = 0;
       RemoteQueueBindingImpl binding = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance);
 
       for (int i = 0; i < 100; i++) {
-         binding.addConsumer(new SimpleString("B" + i + "<A"));
+         binding.addConsumer(SimpleString.toSimpleString("B" + i + "<A"));
       }
 
       assertEquals(100, binding.getFilters().size());
 
       for (int i = 0; i < 100; i++) {
-         binding.removeConsumer(new SimpleString("B" + i + "<A"));
+         binding.removeConsumer(SimpleString.toSimpleString("B" + i + "<A"));
       }
 
       assertEquals(0, binding.getFilters().size());

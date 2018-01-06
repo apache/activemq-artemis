@@ -113,9 +113,9 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          myDurSub = session.createDurableSubscriber(topic, "myDurSub");
          myDurSub.close();
 
-         Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
+         Assert.assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.myDurSub")));
          session.unsubscribe("myDurSub");
-         Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
+         Assert.assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.myDurSub")));
          session.close();
          connection.close();
       } finally {
@@ -133,7 +133,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          TopicSubscriber myNonDurSub = session.createSubscriber(topic);
          assertNotNull(myNonDurSub);
 
-         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(getTopicName()));
+         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(getTopicName()));
          Assert.assertEquals(2, bindingsForAddress.getBindings().size());
          session.close();
 
@@ -147,7 +147,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
          connection.close();
          latch.await(5, TimeUnit.SECONDS);
-         bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(getTopicName()));
+         bindingsForAddress = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(getTopicName()));
          Assert.assertEquals(1, bindingsForAddress.getBindings().size());
       } finally {
          connection.close();

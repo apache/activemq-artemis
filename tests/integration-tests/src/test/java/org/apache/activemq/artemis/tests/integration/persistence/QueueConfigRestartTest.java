@@ -45,8 +45,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.toSimpleString("test.address");
+      SimpleString queue = SimpleString.toSimpleString("test.queue");
 
       server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, 10, true, true);
 
@@ -67,8 +67,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.toSimpleString("test.address");
+      SimpleString queue = SimpleString.toSimpleString("test.queue");
 
       server.createQueue(address, RoutingType.MULTICAST, queue, null, SimpleString.toSimpleString("bob"), true, false, false, 10, true, true);
 

@@ -43,11 +43,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
-   final SimpleString EXPIRY = new SimpleString("my-expiry");
+   final SimpleString EXPIRY = SimpleString.toSimpleString("my-expiry");
 
-   final SimpleString DLQ = new SimpleString("my-DLQ");
+   final SimpleString DLQ = SimpleString.toSimpleString("my-DLQ");
 
-   final SimpleString MY_QUEUE = new SimpleString("MY-QUEUE");
+   final SimpleString MY_QUEUE = SimpleString.toSimpleString("MY-QUEUE");
 
    final int messageSize = 10 * 1024;
 

@@ -64,7 +64,7 @@ public class MQTTSubscriptionManager {
       builder.append(" = '");
       builder.append(session.getServer().getConfiguration().getManagementNotificationAddress());
       builder.append("'))");
-      managementFilter = new SimpleString(builder.toString());
+      managementFilter = SimpleString.toSimpleString(builder.toString());
    }
 
    synchronized void start() throws Exception {
@@ -206,7 +206,7 @@ public class MQTTSubscriptionManager {
    }
 
    private SimpleString getQueueNameForTopic(String topic) {
-      return new SimpleString(session.getSessionState().getClientId() + "." + topic);
+      return SimpleString.toSimpleString(session.getSessionState().getClientId() + "." + topic);
    }
 
    /**

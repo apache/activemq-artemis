@@ -308,7 +308,7 @@ public class FileMoveManagerTest {
 
             managerImpl.start();
 
-            PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
+            PagingStore store = managerImpl.getPageStore(SimpleString.toSimpleString("simple-test"));
 
             store.startPaging();
 

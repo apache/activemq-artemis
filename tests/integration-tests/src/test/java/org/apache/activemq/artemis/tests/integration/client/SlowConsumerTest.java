@@ -77,7 +77,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.toSimpleString("ConsumerTestQueue");
 
    private ServerLocator locator;
 
@@ -314,12 +314,12 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testSlowWildcardConsumer() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.toSimpleString("a.b");
+      SimpleString addressAC = SimpleString.toSimpleString("a.c");
+      SimpleString address = SimpleString.toSimpleString("a.*");
+      SimpleString queueName1 = SimpleString.toSimpleString("Q1");
+      SimpleString queueName2 = SimpleString.toSimpleString("Q2");
+      SimpleString queueName = SimpleString.toSimpleString("Q");
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setSlowConsumerCheckPeriod(2);

@@ -36,9 +36,9 @@ import org.junit.Test;
 
 public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
-   SimpleString queue1 = new SimpleString("queue1");
-   SimpleString queue2 = new SimpleString("queue2");
+   SimpleString address = SimpleString.toSimpleString("testAddress");
+   SimpleString queue1 = SimpleString.toSimpleString("queue1");
+   SimpleString queue2 = SimpleString.toSimpleString("queue2");
 
    @Override
    protected boolean isAutoCreateQueues() {

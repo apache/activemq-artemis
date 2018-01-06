@@ -87,7 +87,7 @@ public class TopicServiceManager extends DestinationServiceManager {
 
       try (ClientSession session = sessionFactory.createSession(false, false, false)) {
          defaultDurable = topicDeployment.isDurableSend();
-         ClientSession.AddressQuery query = session.addressQuery(new SimpleString(queueName));
+         ClientSession.AddressQuery query = session.addressQuery(SimpleString.toSimpleString(queueName));
          if (!query.isExists())
             session.createAddress(SimpleString.toSimpleString(queueName), RoutingType.MULTICAST, true);
       }

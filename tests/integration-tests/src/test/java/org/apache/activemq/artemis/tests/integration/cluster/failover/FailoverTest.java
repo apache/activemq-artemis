@@ -1543,7 +1543,7 @@ public class FailoverTest extends FailoverTestBase {
          List<ClientConsumer> consumers = new ArrayList<>();
 
          for (int j = 0; j < numConsumersPerSession; j++) {
-            SimpleString queueName = new SimpleString("queue" + i + "-" + j);
+            SimpleString queueName = SimpleString.toSimpleString("queue" + i + "-" + j);
 
             session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, queueName, null, true);
 
@@ -1836,7 +1836,7 @@ public class FailoverTest extends FailoverTestBase {
 
          if (i == 0) {
             // Only need to add it on one message per tx
-            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString(txID));
+            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.toSimpleString(txID));
          }
 
          setBody(i, message);
@@ -1918,7 +1918,7 @@ public class FailoverTest extends FailoverTestBase {
 
          if (i == 0) {
             // Only need to add it on one message per tx
-            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString(txID));
+            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.toSimpleString(txID));
          }
 
          setBody(i, message);
@@ -2233,7 +2233,7 @@ public class FailoverTest extends FailoverTestBase {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.toSimpleString("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -2247,7 +2247,7 @@ public class FailoverTest extends FailoverTestBase {
 
          Assert.assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         Assert.assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         Assert.assertEquals(i, message2.getObjectProperty(SimpleString.toSimpleString("count")));
 
          message2.acknowledge();
       }

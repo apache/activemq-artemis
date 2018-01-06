@@ -28,10 +28,10 @@ import static org.junit.Assert.assertNotNull;
 
 public class MultipleEmbeddedActiveMQResourcesTest {
 
-   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
-   static final SimpleString TEST_ADDRESS_ONE = new SimpleString("test.address.one");
-   static final SimpleString TEST_ADDRESS_TWO = new SimpleString("test.address.two");
+   static final SimpleString TEST_QUEUE_ONE = SimpleString.toSimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = SimpleString.toSimpleString("test.queue.two");
+   static final SimpleString TEST_ADDRESS_ONE = SimpleString.toSimpleString("test.address.one");
+   static final SimpleString TEST_ADDRESS_TWO = SimpleString.toSimpleString("test.address.two");
 
    static final String TEST_BODY = "Test Message";
 

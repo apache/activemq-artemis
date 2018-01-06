@@ -27,14 +27,14 @@ public class SimpleTransformer implements Transformer {
    @Override
    public Message transform(final Message messageParameter) {
       ICoreMessage message = messageParameter.toCore();
-      SimpleString oldProp = (SimpleString) message.getObjectProperty(new SimpleString("wibble"));
+      SimpleString oldProp = (SimpleString) message.getObjectProperty(SimpleString.toSimpleString("wibble"));
 
-      if (!oldProp.equals(new SimpleString("bing"))) {
+      if (!oldProp.equals(SimpleString.toSimpleString("bing"))) {
          throw new IllegalStateException("Wrong property value!!");
       }
 
       // Change a property
-      message.putStringProperty(new SimpleString("wibble"), new SimpleString("bong"));
+      message.putStringProperty(SimpleString.toSimpleString("wibble"), SimpleString.toSimpleString("bong"));
 
       // Change the body
       ActiveMQBuffer buffer = message.getBodyBuffer();

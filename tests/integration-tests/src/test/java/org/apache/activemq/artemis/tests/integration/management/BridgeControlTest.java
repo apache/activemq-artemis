@@ -100,14 +100,14 @@ public class BridgeControlTest extends ManagementTestBase {
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       Assert.assertEquals(CoreNotificationType.BRIDGE_STOPPED, notif.getType());
-      Assert.assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Assert.assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("name")).toString());
 
       bridgeControl.start();
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       Assert.assertEquals(CoreNotificationType.BRIDGE_STARTED, notif.getType());
-      Assert.assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Assert.assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("name")).toString());
    }
 
    @Override

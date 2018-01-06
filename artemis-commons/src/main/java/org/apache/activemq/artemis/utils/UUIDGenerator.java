@@ -161,7 +161,7 @@ public final class UUIDGenerator {
    }
 
    public SimpleString generateSimpleStringUUID() {
-      return new SimpleString(generateStringUUID());
+      return SimpleString.toSimpleString(generateStringUUID());
    }
 
    public UUID generateUUID() {

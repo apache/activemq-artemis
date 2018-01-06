@@ -513,7 +513,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public boolean getBooleanProperty(final String name) throws JMSException {
       try {
-         return message.getBooleanProperty(new SimpleString(name));
+         return message.getBooleanProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -522,7 +522,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public byte getByteProperty(final String name) throws JMSException {
       try {
-         return message.getByteProperty(new SimpleString(name));
+         return message.getByteProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -531,7 +531,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public short getShortProperty(final String name) throws JMSException {
       try {
-         return message.getShortProperty(new SimpleString(name));
+         return message.getShortProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -544,7 +544,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
 
       try {
-         return message.getIntProperty(new SimpleString(name));
+         return message.getIntProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -557,7 +557,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
 
       try {
-         return message.getLongProperty(new SimpleString(name));
+         return message.getLongProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -566,7 +566,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public float getFloatProperty(final String name) throws JMSException {
       try {
-         return message.getFloatProperty(new SimpleString(name));
+         return message.getFloatProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -575,7 +575,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public double getDoubleProperty(final String name) throws JMSException {
       try {
-         return message.getDoubleProperty(new SimpleString(name));
+         return message.getDoubleProperty(SimpleString.toSimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -593,7 +593,7 @@ public class ActiveMQMessage implements javax.jms.Message {
          } else if (MessageUtil.JMSXUSERID.equals(name)) {
             return message.getValidatedUserID();
          } else {
-            return message.getStringProperty(new SimpleString(name));
+            return message.getStringProperty(SimpleString.toSimpleString(name));
          }
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
@@ -622,43 +622,43 @@ public class ActiveMQMessage implements javax.jms.Message {
    public void setBooleanProperty(final String name, final boolean value) throws JMSException {
       checkProperty(name);
 
-      message.putBooleanProperty(new SimpleString(name), value);
+      message.putBooleanProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
    public void setByteProperty(final String name, final byte value) throws JMSException {
       checkProperty(name);
-      message.putByteProperty(new SimpleString(name), value);
+      message.putByteProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
    public void setShortProperty(final String name, final short value) throws JMSException {
       checkProperty(name);
-      message.putShortProperty(new SimpleString(name), value);
+      message.putShortProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
       checkProperty(name);
-      message.putIntProperty(new SimpleString(name), value);
+      message.putIntProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
       checkProperty(name);
-      message.putLongProperty(new SimpleString(name), value);
+      message.putLongProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
    public void setFloatProperty(final String name, final float value) throws JMSException {
       checkProperty(name);
-      message.putFloatProperty(new SimpleString(name), value);
+      message.putFloatProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
    public void setDoubleProperty(final String name, final double value) throws JMSException {
       checkProperty(name);
-      message.putDoubleProperty(new SimpleString(name), value);
+      message.putDoubleProperty(SimpleString.toSimpleString(name), value);
    }
 
    @Override
@@ -670,7 +670,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       } else if (handleCoreProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
          return;
       } else {
-         message.putStringProperty(new SimpleString(name), SimpleString.toSimpleString(value));
+         message.putStringProperty(SimpleString.toSimpleString(name), SimpleString.toSimpleString(value));
       }
    }
 
@@ -703,7 +703,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
 
       try {
-         message.putObjectProperty(new SimpleString(name), value);
+         message.putObjectProperty(SimpleString.toSimpleString(name), value);
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }

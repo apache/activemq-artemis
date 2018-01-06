@@ -299,7 +299,7 @@ public class ClusterController implements ActiveMQComponent {
    }
 
    public void setReplicatedClusterName(String replicatedClusterName) {
-      this.replicatedClusterName = new SimpleString(replicatedClusterName);
+      this.replicatedClusterName = SimpleString.toSimpleString(replicatedClusterName);
    }
 
    /**

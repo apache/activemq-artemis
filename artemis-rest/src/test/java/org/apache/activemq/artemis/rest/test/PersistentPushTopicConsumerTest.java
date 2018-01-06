@@ -134,7 +134,7 @@ public class PersistentPushTopicConsumerTest {
 
          String destination = reg2.getDestination();
          ClientSession session = manager.getQueueManager().getSessionFactory().createSession(false, false, false);
-         ClientSession.QueueQuery query = session.queueQuery(new SimpleString(destination));
+         ClientSession.QueueQuery query = session.queueQuery(SimpleString.toSimpleString(destination));
          Assert.assertFalse(query.isExists());
 
          manager.getQueueManager().getPushStore().removeAll();

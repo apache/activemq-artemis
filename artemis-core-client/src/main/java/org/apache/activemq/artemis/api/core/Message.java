@@ -77,80 +77,80 @@ public interface Message {
    int memoryOffset = 352;
 
 
-   SimpleString HDR_ROUTE_TO_IDS = new SimpleString("_AMQ_ROUTE_TO");
+   SimpleString HDR_ROUTE_TO_IDS = SimpleString.toSimpleString("_AMQ_ROUTE_TO");
 
-   SimpleString HDR_SCALEDOWN_TO_IDS = new SimpleString("_AMQ_SCALEDOWN_TO");
+   SimpleString HDR_SCALEDOWN_TO_IDS = SimpleString.toSimpleString("_AMQ_SCALEDOWN_TO");
 
-   SimpleString HDR_ROUTE_TO_ACK_IDS = new SimpleString("_AMQ_ACK_ROUTE_TO");
+   SimpleString HDR_ROUTE_TO_ACK_IDS = SimpleString.toSimpleString("_AMQ_ACK_ROUTE_TO");
 
    // used by the bridges to set duplicates
-   SimpleString HDR_BRIDGE_DUPLICATE_ID = new SimpleString("_AMQ_BRIDGE_DUP");
+   SimpleString HDR_BRIDGE_DUPLICATE_ID = SimpleString.toSimpleString("_AMQ_BRIDGE_DUP");
 
    /**
     * the actual time the message was expired.
     * * *
     */
-   SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
+   SimpleString HDR_ACTUAL_EXPIRY_TIME = SimpleString.toSimpleString("_AMQ_ACTUAL_EXPIRY");
 
    /**
     * The original address of a message when a message is diverted or transferred through DLQ or expiry
     */
-   SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
+   SimpleString HDR_ORIGINAL_ADDRESS = SimpleString.toSimpleString("_AMQ_ORIG_ADDRESS");
 
    /**
     * The original address of a message when a message is transferred through DLQ or expiry
     */
-   SimpleString HDR_ORIGINAL_QUEUE = new SimpleString("_AMQ_ORIG_QUEUE");
+   SimpleString HDR_ORIGINAL_QUEUE = SimpleString.toSimpleString("_AMQ_ORIG_QUEUE");
 
    /**
     * The original message ID before the message was transferred.
     */
-   SimpleString HDR_ORIG_MESSAGE_ID = new SimpleString("_AMQ_ORIG_MESSAGE_ID");
+   SimpleString HDR_ORIG_MESSAGE_ID = SimpleString.toSimpleString("_AMQ_ORIG_MESSAGE_ID");
 
    /**
     * For the Message Grouping feature.
     */
-   SimpleString HDR_GROUP_ID = new SimpleString("_AMQ_GROUP_ID");
+   SimpleString HDR_GROUP_ID = SimpleString.toSimpleString("_AMQ_GROUP_ID");
 
    /**
     * to determine if the Large Message was compressed.
     */
-   SimpleString HDR_LARGE_COMPRESSED = new SimpleString("_AMQ_LARGE_COMPRESSED");
+   SimpleString HDR_LARGE_COMPRESSED = SimpleString.toSimpleString("_AMQ_LARGE_COMPRESSED");
 
    /**
     * The body size of a large message before it was compressed.
     */
-   SimpleString HDR_LARGE_BODY_SIZE = new SimpleString("_AMQ_LARGE_SIZE");
+   SimpleString HDR_LARGE_BODY_SIZE = SimpleString.toSimpleString("_AMQ_LARGE_SIZE");
 
    /**
     * To be used with Scheduled Delivery.
     */
-   SimpleString HDR_SCHEDULED_DELIVERY_TIME = new SimpleString("_AMQ_SCHED_DELIVERY");
+   SimpleString HDR_SCHEDULED_DELIVERY_TIME = SimpleString.toSimpleString("_AMQ_SCHED_DELIVERY");
 
    /**
     * To be used with duplicate detection.
     */
-   SimpleString HDR_DUPLICATE_DETECTION_ID = new SimpleString("_AMQ_DUPL_ID");
+   SimpleString HDR_DUPLICATE_DETECTION_ID = SimpleString.toSimpleString("_AMQ_DUPL_ID");
 
    /**
     * To be used with Last value queues.
     */
-   SimpleString HDR_LAST_VALUE_NAME = new SimpleString("_AMQ_LVQ_NAME");
+   SimpleString HDR_LAST_VALUE_NAME = SimpleString.toSimpleString("_AMQ_LVQ_NAME");
 
    /**
     * To define the mime-type of body messages. Mainly for stomp but it could be informed on any message for user purposes.
     */
-   SimpleString HDR_CONTENT_TYPE = new SimpleString("_AMQ_CONTENT_TYPE");
+   SimpleString HDR_CONTENT_TYPE = SimpleString.toSimpleString("_AMQ_CONTENT_TYPE");
 
    /**
     * The name of the validated user who sent the message. Useful for auditing.
     */
-   SimpleString HDR_VALIDATED_USER = new SimpleString("_AMQ_VALIDATED_USER");
+   SimpleString HDR_VALIDATED_USER = SimpleString.toSimpleString("_AMQ_VALIDATED_USER");
 
    /**
     * The Routing Type for this message.  Ensures that this message is only routed to queues with matching routing type.
     */
-   SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
+   SimpleString HDR_ROUTING_TYPE = SimpleString.toSimpleString("_AMQ_ROUTING_TYPE");
 
    byte DEFAULT_TYPE = 0;
 
@@ -438,7 +438,7 @@ public interface Message {
          if (duplicateID instanceof SimpleString) {
             return ((SimpleString) duplicateID).getData();
          } else if (duplicateID instanceof String) {
-            return new SimpleString(duplicateID.toString()).getData();
+            return SimpleString.toSimpleString(duplicateID.toString()).getData();
          } else {
             return (byte[]) duplicateID;
          }

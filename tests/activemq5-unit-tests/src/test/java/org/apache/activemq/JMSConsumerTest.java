@@ -909,7 +909,7 @@ public class JMSConsumerTest extends JmsTestSupport {
    private QueueControl createQueueControl(String destName) throws Exception {
       ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
       MBeanServer beanServer = wrapper.getMbeanServer();
-      SimpleString address = new SimpleString(destName);
+      SimpleString address = SimpleString.toSimpleString(destName);
       ObjectName objName = ObjectNameBuilder.DEFAULT.getQueueObjectName(address, address, RoutingType.ANYCAST);
       return MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, QueueControl.class, false);
    }

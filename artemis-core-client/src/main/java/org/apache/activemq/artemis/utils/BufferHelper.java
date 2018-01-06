@@ -52,7 +52,7 @@ public class BufferHelper {
    }
 
    public static void writeAsSimpleString(ActiveMQBuffer buffer, String str) {
-      buffer.writeSimpleString(new SimpleString(str));
+      buffer.writeSimpleString(SimpleString.toSimpleString(str));
    }
 
    /**

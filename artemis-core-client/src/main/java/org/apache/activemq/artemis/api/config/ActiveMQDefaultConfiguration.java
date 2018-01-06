@@ -164,10 +164,10 @@ public final class ActiveMQDefaultConfiguration {
 
    private static String DEFAULT_ADDRESS_PATH_SEPARATOR = ".";
 
-   private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = new SimpleString("activemq.management");
+   private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = SimpleString.toSimpleString("activemq.management");
 
    // the name of the address that consumers bind to receive management notifications
-   private static SimpleString DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS = new SimpleString("activemq.notifications");
+   private static SimpleString DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS = SimpleString.toSimpleString("activemq.notifications");
 
    // The default address used for clustering, empty string means all addresses
    private static String DEFAULT_CLUSTER_ADDRESS = "";

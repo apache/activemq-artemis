@@ -56,12 +56,12 @@ public class WildcardConfigurationTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicWildcardRouting() throws Exception {
-      SimpleString addressAB = new SimpleString("a/b");
-      SimpleString addressAC = new SimpleString("a/c");
-      SimpleString address = new SimpleString("a/*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.toSimpleString("a/b");
+      SimpleString addressAC = SimpleString.toSimpleString("a/c");
+      SimpleString address = SimpleString.toSimpleString("a/*");
+      SimpleString queueName1 = SimpleString.toSimpleString("Q1");
+      SimpleString queueName2 = SimpleString.toSimpleString("Q2");
+      SimpleString queueName = SimpleString.toSimpleString("Q");
       clientSession.createQueue(addressAB, queueName1, null, false);
       clientSession.createQueue(addressAC, queueName2, null, false);
       clientSession.createQueue(address, queueName, null, false);

@@ -94,11 +94,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private static final Logger logger = Logger.getLogger(PostOfficeImpl.class);
 
-   public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_AMQ_RESET_QUEUE_DATA");
+   public static final SimpleString HDR_RESET_QUEUE_DATA = SimpleString.toSimpleString("_AMQ_RESET_QUEUE_DATA");
 
-   public static final SimpleString HDR_RESET_QUEUE_DATA_COMPLETE = new SimpleString("_AMQ_RESET_QUEUE_DATA_COMPLETE");
+   public static final SimpleString HDR_RESET_QUEUE_DATA_COMPLETE = SimpleString.toSimpleString("_AMQ_RESET_QUEUE_DATA_COMPLETE");
 
-   public static final SimpleString BRIDGE_CACHE_STR = new SimpleString("BRIDGE.");
+   public static final SimpleString BRIDGE_CACHE_STR = SimpleString.toSimpleString("BRIDGE.");
 
    private final AddressManager addressManager;
 
@@ -1348,10 +1348,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       String uid = UUIDGenerator.getInstance().generateStringUUID();
 
-      message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(type.toString()));
+      message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, SimpleString.toSimpleString(type.toString()));
       message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
 
-      message.putStringProperty(new SimpleString("foobar"), new SimpleString(uid));
+      message.putStringProperty(SimpleString.toSimpleString("foobar"), SimpleString.toSimpleString(uid));
 
       return message;
    }

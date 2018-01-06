@@ -162,7 +162,7 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
          locator = createNettyNonHALocator();
 
          try {
-            Queue queue = server.locateQueue(new SimpleString(QUEUE_NAME));
+            Queue queue = server.locateQueue(SimpleString.toSimpleString(QUEUE_NAME));
 
             assertNotNull(queue);
 

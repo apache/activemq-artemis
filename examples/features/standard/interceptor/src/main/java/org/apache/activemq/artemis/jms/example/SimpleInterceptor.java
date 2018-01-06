@@ -38,7 +38,7 @@ public class SimpleInterceptor implements Interceptor {
       if (packet instanceof SessionSendMessage) {
          SessionSendMessage realPacket = (SessionSendMessage) packet;
          Message msg = realPacket.getMessage();
-         msg.putStringProperty(new SimpleString("newproperty"), new SimpleString("Hello from interceptor!"));
+         msg.putStringProperty(SimpleString.toSimpleString("newproperty"), SimpleString.toSimpleString("Hello from interceptor!"));
       }
       // We return true which means "call next interceptor" (if there is one) or target.
       // If we returned false, it means "abort call" - no more interceptors would be called and neither would

@@ -42,9 +42,9 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString ADDRESS = new SimpleString("MessageConcurrencyTestAddress");
+   private final SimpleString ADDRESS = SimpleString.toSimpleString("MessageConcurrencyTestAddress");
 
-   private final SimpleString QUEUE_NAME = new SimpleString("MessageConcurrencyTestQueue");
+   private final SimpleString QUEUE_NAME = SimpleString.toSimpleString("MessageConcurrencyTestQueue");
 
    private ServerLocator locator;
 

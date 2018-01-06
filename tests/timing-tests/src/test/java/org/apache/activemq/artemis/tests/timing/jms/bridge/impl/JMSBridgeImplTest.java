@@ -470,7 +470,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       }
 
       sourceConn.close();
-      SimpleString add = new SimpleString(JMSBridgeImplTest.SOURCE);
+      SimpleString add = SimpleString.toSimpleString(JMSBridgeImplTest.SOURCE);
       QueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), ObjectNameBuilder.DEFAULT.getQueueObjectName(add, add, RoutingType.ANYCAST), QueueControl.class, false);
       assertNotEquals(jmsQueueControl.getDeliveringCount(), numMessages);
 

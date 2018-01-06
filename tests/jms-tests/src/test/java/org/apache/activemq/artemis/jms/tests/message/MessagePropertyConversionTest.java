@@ -147,7 +147,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          //pass
       }
       try {
-         producer.setProperty(null, new SimpleString("foo"));
+         producer.setProperty(null, SimpleString.toSimpleString("foo"));
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       } catch (IllegalArgumentException e) {
          //pass

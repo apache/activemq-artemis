@@ -655,7 +655,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
             @Override
             public SimpleString getFilterString() {
-               return new SimpleString("custom filter for MESSAGEID= messageID");
+               return SimpleString.toSimpleString("custom filter for MESSAGEID= messageID");
             }
          };
 
@@ -690,7 +690,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
+         Binding binding = postOffice.getBinding(SimpleString.toSimpleString(otherQueueName));
 
          if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
@@ -719,7 +719,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
-         Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
+         Binding binding = postOffice.getBinding(SimpleString.toSimpleString(otherQueueName));
 
          if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
@@ -782,7 +782,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
          if (headers != null) {
             for (String header : headers.keySet()) {
-               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+               message.putStringProperty(SimpleString.toSimpleString(header), SimpleString.toSimpleString(headers.get(header)));
             }
          }
          message.setType((byte) type);
@@ -790,7 +790,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          message.setTimestamp(System.currentTimeMillis());
          if (body != null) {
             if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+               message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(body));
             } else {
                message.getBodyBuffer().writeBytes(Base64.decode(body));
             }

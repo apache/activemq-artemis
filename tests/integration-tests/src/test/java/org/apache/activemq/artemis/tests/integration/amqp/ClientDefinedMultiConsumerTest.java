@@ -36,7 +36,7 @@ import org.junit.Test;
 
 public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
+   SimpleString address = SimpleString.toSimpleString("testAddress");
 
    @Test(timeout = 60000)
    public void test2ConsumersOnSharedVolatileAddress() throws Exception {

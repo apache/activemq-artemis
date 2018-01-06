@@ -60,12 +60,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       return Arrays.asList(new Object[][]{{"OpenWire"}, {"Artemis"}});
    }
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
+   private SimpleString anycastAddress = SimpleString.toSimpleString("address.anycast");
+   private SimpleString multicastAddress = SimpleString.toSimpleString("address.multicast");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.toSimpleString("q1");
+   private SimpleString anycastQ2 = SimpleString.toSimpleString("q2");
+   private SimpleString anycastQ3 = SimpleString.toSimpleString("q3");
 
    private ConnectionFactory factory;
 
@@ -187,7 +187,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
    public void testFQNConsumer() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("myqueue");
+      SimpleString durableQueue = SimpleString.toSimpleString("myqueue");
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
@@ -225,7 +225,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
    public void testSpecialFQQNCase() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("myqueue");
+      SimpleString durableQueue = SimpleString.toSimpleString("myqueue");
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
@@ -273,8 +273,8 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
    public void testVirtualTopicFQQN() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.toSimpleString("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.toSimpleString("Consumer.A");
 
       this.server.addAddressInfo(new AddressInfo(topic, RoutingType.MULTICAST));
       this.server.createQueue(topic, RoutingType.MULTICAST, subscriptionQ, null, true, false, -1, false, true);
@@ -319,8 +319,8 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
    public void testVirtualTopicFQQNAutoCreate() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.toSimpleString("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.toSimpleString("Consumer.A");
 
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setDefaultAddressRoutingType(RoutingType.MULTICAST);

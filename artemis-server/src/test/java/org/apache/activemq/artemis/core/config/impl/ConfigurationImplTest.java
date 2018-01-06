@@ -148,7 +148,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          Assert.assertEquals(i, conf.getJournalMaxIO_NIO());
 
          s = RandomUtil.randomString();
-         conf.setManagementAddress(new SimpleString(s));
+         conf.setManagementAddress(SimpleString.toSimpleString(s));
          Assert.assertEquals(s, conf.getManagementAddress().toString());
 
          i = RandomUtil.randomInt();
@@ -346,7 +346,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(i, conf.getJournalMaxIO_NIO());
 
       s = RandomUtil.randomString();
-      conf.setManagementAddress(new SimpleString(s));
+      conf.setManagementAddress(SimpleString.toSimpleString(s));
       Assert.assertEquals(s, conf.getManagementAddress().toString());
 
       i = RandomUtil.randomInt();

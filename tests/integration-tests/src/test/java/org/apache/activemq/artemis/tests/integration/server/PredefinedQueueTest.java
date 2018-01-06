@@ -133,7 +133,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       server.start();
 
-      Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(testAddress));
+      Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(testAddress));
 
       Assert.assertEquals(2, bindings.getBindings().size());
 
@@ -145,7 +145,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       session.start();
 
-      ClientProducer producer = addClientProducer(session.createProducer(new SimpleString(testAddress)));
+      ClientProducer producer = addClientProducer(session.createProducer(SimpleString.toSimpleString(testAddress)));
 
       ClientConsumer consumer1 = addClientConsumer(session.createConsumer(queueName1));
 
@@ -153,7 +153,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -227,7 +227,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -237,7 +237,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -298,9 +298,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       final int numMessages = 1;
 
@@ -371,9 +371,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(testAddress));
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       final int numMessages = 1;
 
@@ -382,7 +382,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
-         message.putStringProperty(new SimpleString("cheese"), new SimpleString("camembert"));
+         message.putStringProperty(SimpleString.toSimpleString("cheese"), SimpleString.toSimpleString("camembert"));
 
          message.putIntProperty(propKey, i);
 
@@ -405,7 +405,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
-         message.putStringProperty(new SimpleString("cheese"), new SimpleString("roquefort"));
+         message.putStringProperty(SimpleString.toSimpleString("cheese"), SimpleString.toSimpleString("roquefort"));
 
          message.putIntProperty(propKey, i);
 

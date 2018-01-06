@@ -167,8 +167,8 @@ public class BMFailoverTest extends FailoverTestBase {
    public void testFailoverOnCommit2() throws Exception {
       serverToStop = liveServer;
       locator = getServerLocator().setFailoverOnInitialConnection(true);
-      SimpleString inQueue = new SimpleString("inQueue");
-      SimpleString outQueue = new SimpleString("outQueue");
+      SimpleString inQueue = SimpleString.toSimpleString("inQueue");
+      SimpleString outQueue = SimpleString.toSimpleString("outQueue");
       createSessionFactory();
       createSessionFactory2();
 

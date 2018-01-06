@@ -232,7 +232,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertEquals(payload, new String(message));
       }
 
-      final Queue queue = server.locateQueue(new SimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + clientId));
+      final Queue queue = server.locateQueue(SimpleString.toSimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + clientId));
 
       Wait.waitFor(() -> queue.getMessageCount() == 0, 1000, 100);
 
@@ -1716,10 +1716,10 @@ public class MQTTTest extends MQTTTestSupport {
       Exception peerDisconnectedException = null;
       try {
          String clientId = "test.client";
-         SimpleString coreAddress = new SimpleString("foo.bar");
+         SimpleString coreAddress = SimpleString.toSimpleString("foo.bar");
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
-         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, true);
+         getServer().createQueue(coreAddress, RoutingType.MULTICAST, SimpleString.toSimpleString(clientId + "." + coreAddress), null, false, true, 0, false, true);
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);

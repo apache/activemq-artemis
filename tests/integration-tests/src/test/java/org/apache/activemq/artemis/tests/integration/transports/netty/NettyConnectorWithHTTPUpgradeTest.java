@@ -89,7 +89,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       this.useSSL = useSSL;
    }
 
-   private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");
+   private static final SimpleString QUEUE = SimpleString.toSimpleString("NettyConnectorWithHTTPUpgradeTest");
 
    private static final int HTTP_PORT = 8080;
 

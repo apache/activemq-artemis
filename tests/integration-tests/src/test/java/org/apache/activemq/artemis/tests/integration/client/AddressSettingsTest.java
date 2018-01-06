@@ -32,33 +32,33 @@ import org.junit.Test;
 
 public class AddressSettingsTest extends ActiveMQTestBase {
 
-   private final SimpleString addressA = new SimpleString("addressA");
+   private final SimpleString addressA = SimpleString.toSimpleString("addressA");
 
-   private final SimpleString addressA2 = new SimpleString("add.addressA");
+   private final SimpleString addressA2 = SimpleString.toSimpleString("add.addressA");
 
-   private final SimpleString addressB = new SimpleString("addressB");
+   private final SimpleString addressB = SimpleString.toSimpleString("addressB");
 
-   private final SimpleString addressB2 = new SimpleString("add.addressB");
+   private final SimpleString addressB2 = SimpleString.toSimpleString("add.addressB");
 
-   private final SimpleString addressC = new SimpleString("addressC");
+   private final SimpleString addressC = SimpleString.toSimpleString("addressC");
 
-   private final SimpleString queueA = new SimpleString("queueA");
+   private final SimpleString queueA = SimpleString.toSimpleString("queueA");
 
-   private final SimpleString queueB = new SimpleString("queueB");
+   private final SimpleString queueB = SimpleString.toSimpleString("queueB");
 
-   private final SimpleString queueC = new SimpleString("queueC");
+   private final SimpleString queueC = SimpleString.toSimpleString("queueC");
 
-   private final SimpleString dlaA = new SimpleString("dlaA");
+   private final SimpleString dlaA = SimpleString.toSimpleString("dlaA");
 
-   private final SimpleString dlqA = new SimpleString("dlqA");
+   private final SimpleString dlqA = SimpleString.toSimpleString("dlqA");
 
-   private final SimpleString dlaB = new SimpleString("dlaB");
+   private final SimpleString dlaB = SimpleString.toSimpleString("dlaB");
 
-   private final SimpleString dlqB = new SimpleString("dlqB");
+   private final SimpleString dlqB = SimpleString.toSimpleString("dlqB");
 
-   private final SimpleString dlaC = new SimpleString("dlaC");
+   private final SimpleString dlaC = SimpleString.toSimpleString("dlaC");
 
-   private final SimpleString dlqC = new SimpleString("dlqC");
+   private final SimpleString dlqC = SimpleString.toSimpleString("dlqC");
 
    @Test
    public void testSimpleHierarchyWithDLA() throws Exception {

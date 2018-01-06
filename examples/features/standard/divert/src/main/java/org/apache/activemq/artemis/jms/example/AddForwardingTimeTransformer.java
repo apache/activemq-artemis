@@ -24,7 +24,7 @@ public class AddForwardingTimeTransformer implements Transformer {
 
    @Override
    public Message transform(final Message message) {
-      message.putLongProperty(new SimpleString("time_of_forward"), System.currentTimeMillis());
+      message.putLongProperty(SimpleString.toSimpleString("time_of_forward"), System.currentTimeMillis());
 
       return message;
    }

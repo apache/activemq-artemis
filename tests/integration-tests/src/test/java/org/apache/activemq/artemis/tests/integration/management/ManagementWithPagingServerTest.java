@@ -119,7 +119,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
       int num = 1000;
 
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.toSimpleString("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
       String filter = key + " =" + matchingValue;

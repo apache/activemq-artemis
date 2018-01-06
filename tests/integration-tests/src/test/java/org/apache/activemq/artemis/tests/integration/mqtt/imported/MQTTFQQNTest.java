@@ -67,13 +67,13 @@ public class MQTTFQQNTest extends MQTTTestSupport {
          //check that query using bare queue name works as before
          QueueQueryResult result = server.queueQuery(b.getUniqueName());
          assertTrue(result.isExists());
-         assertEquals(result.getAddress(), new SimpleString("foo.bah"));
+         assertEquals(result.getAddress(), SimpleString.toSimpleString("foo.bah"));
          assertEquals(b.getUniqueName(), result.getName());
          //check that queue query using FQQN returns FQQN
-         result = server.queueQuery(new SimpleString("foo.bah::" + b.getUniqueName()));
+         result = server.queueQuery(SimpleString.toSimpleString("foo.bah::" + b.getUniqueName()));
          assertTrue(result.isExists());
-         assertEquals(new SimpleString("foo.bah"), result.getAddress());
-         assertEquals(new SimpleString("foo.bah::" + b.getUniqueName()), result.getName());
+         assertEquals(SimpleString.toSimpleString("foo.bah"), result.getAddress());
+         assertEquals(SimpleString.toSimpleString("foo.bah::" + b.getUniqueName()), result.getName());
       } finally {
          subscriptionProvider.disconnect();
       }
@@ -159,17 +159,17 @@ public class MQTTFQQNTest extends MQTTTestSupport {
          Binding b = allBindings.values().iterator().next();
 
          //check ::queue
-         QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));
+         QueueQueryResult result = server.queueQuery(SimpleString.toSimpleString("::" + b.getUniqueName()));
          assertTrue(result.isExists());
-         assertEquals(new SimpleString("foo.bah"), result.getAddress());
-         assertEquals(new SimpleString("::" + b.getUniqueName()), result.getName());
+         assertEquals(SimpleString.toSimpleString("foo.bah"), result.getAddress());
+         assertEquals(SimpleString.toSimpleString("::" + b.getUniqueName()), result.getName());
 
          //check queue::
-         result = server.queueQuery(new SimpleString(b.getUniqueName() + "::"));
+         result = server.queueQuery(SimpleString.toSimpleString(b.getUniqueName() + "::"));
          assertFalse(result.isExists());
 
          //check ::
-         result = server.queueQuery(new SimpleString("::"));
+         result = server.queueQuery(SimpleString.toSimpleString("::"));
          assertFalse(result.isExists());
       } finally {
          subscriptionProvider.disconnect();

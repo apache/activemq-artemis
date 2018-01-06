@@ -270,7 +270,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateQueues() && autoCreate) {
          try {
-            serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), routingType, null, false, true, true);
+            serverSession.createQueue(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(queueName), routingType, null, false, true, true);
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
@@ -443,7 +443,7 @@ public class AMQPSessionCallback implements SessionCallback {
                           byte[] data) throws Exception {
       AMQPMessage message = new AMQPMessage(messageFormat, data);
       if (address != null) {
-         message.setAddress(new SimpleString(address));
+         message.setAddress(SimpleString.toSimpleString(address));
       } else {
          // Anonymous relay must set a To value
          address = message.getAddress();
@@ -567,7 +567,7 @@ public class AMQPSessionCallback implements SessionCallback {
             connection.flush();
             return;
          }
-         final PagingStore store = manager.getServer().getPagingManager().getPageStore(new SimpleString(address));
+         final PagingStore store = manager.getServer().getPagingManager().getPageStore(SimpleString.toSimpleString(address));
          store.checkMemory(new Runnable() {
             @Override
             public void run() {
@@ -588,7 +588,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public void deleteQueue(String queueName) throws Exception {
-      manager.getServer().destroyQueue(new SimpleString(queueName));
+      manager.getServer().destroyQueue(SimpleString.toSimpleString(queueName));
    }
 
    public void resetContext(OperationContext oldContext) {

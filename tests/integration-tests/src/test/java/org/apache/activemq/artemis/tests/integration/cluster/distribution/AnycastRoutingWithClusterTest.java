@@ -70,7 +70,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       send(0, address, noMessages, true, null, null);
 
       for (int s = 0; s < 3; s++) {
-         final Queue queue = servers[s].locateQueue(new SimpleString(queueName));
+         final Queue queue = servers[s].locateQueue(SimpleString.toSimpleString(queueName));
          Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisfied() throws Exception {
@@ -131,7 +131,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       send(0, address, noMessages, true, null, null);
 
       for (int s = 0; s < 3; s++) {
-         final Queue queue = servers[s].locateQueue(new SimpleString(queueNamePrefix + s));
+         final Queue queue = servers[s].locateQueue(SimpleString.toSimpleString(queueNamePrefix + s));
          Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisfied() throws Exception {
@@ -253,7 +253,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       send(0, address, noMessages, true, null, null);
 
       for (int s = 0; s < 3; s++) {
-         final Queue queue = servers[s].locateQueue(new SimpleString(queueNamePrefix + s));
+         final Queue queue = servers[s].locateQueue(SimpleString.toSimpleString(queueNamePrefix + s));
          Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisfied() throws Exception {

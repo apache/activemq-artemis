@@ -162,7 +162,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Message m = messageConsumer.receive(500);
       Assert.assertNull(m);
 
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(QUEUE_NAME)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.toSimpleString(QUEUE_NAME)).getBindable();
       Assert.assertEquals(0, q.getMessageCount());
       Assert.assertEquals(0, q.getMessagesAdded());
       connection.close();

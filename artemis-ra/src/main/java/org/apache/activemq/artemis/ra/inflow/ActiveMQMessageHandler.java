@@ -109,9 +109,9 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       String selector = spec.getMessageSelector();
 
       // Create the message consumer
-      SimpleString selectorString = selector == null || selector.trim().equals("") ? null : new SimpleString(selector);
+      SimpleString selectorString = selector == null || selector.trim().equals("") ? null : SimpleString.toSimpleString(selector);
       if (activation.isTopic() && spec.isSubscriptionDurable()) {
-         SimpleString queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(true, spec.getClientID(), spec.getSubscriptionName()));
+         SimpleString queueName = SimpleString.toSimpleString(ActiveMQDestination.createQueueNameForSubscription(true, spec.getClientID(), spec.getSubscriptionName()));
 
          QueueQuery subResponse = session.queueQuery(queueName);
 
@@ -153,7 +153,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          SimpleString tempQueueName;
          if (activation.isTopic()) {
             if (activation.getTopicTemporaryQueue() == null) {
-               tempQueueName = new SimpleString(UUID.randomUUID().toString());
+               tempQueueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
                session.createTemporaryQueue(activation.getAddress(), tempQueueName, selectorString);
                activation.setTopicTemporaryQueue(tempQueueName);
             } else {

@@ -57,7 +57,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private static final int NUM_PRIORITIES = 10;
 
-   public static final SimpleString FORCED_DELIVERY_MESSAGE = new SimpleString("_hornetq.forced.delivery.seq");
+   public static final SimpleString FORCED_DELIVERY_MESSAGE = SimpleString.toSimpleString("_hornetq.forced.delivery.seq");
 
    // Attributes
    // -----------------------------------------------------------------------------------

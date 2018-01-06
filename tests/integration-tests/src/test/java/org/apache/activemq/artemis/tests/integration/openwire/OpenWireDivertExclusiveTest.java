@@ -48,24 +48,24 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
 
       ClientSession coreSession = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.toSimpleString("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.toSimpleString("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.toSimpleString("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.toSimpleString("queue4");
 
-      coreSession.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      coreSession.createQueue(SimpleString.toSimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
+      coreSession.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      coreSession.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
+      coreSession.createQueue(SimpleString.toSimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
-      ClientProducer producer = coreSession.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = coreSession.createProducer(SimpleString.toSimpleString(testAddress));
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.toSimpleString("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = coreSession.createMessage(false);

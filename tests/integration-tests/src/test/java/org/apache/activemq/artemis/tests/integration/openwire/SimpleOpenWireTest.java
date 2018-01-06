@@ -1008,7 +1008,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.toSimpleString("exampleQueue");
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
@@ -1050,7 +1050,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMultipleConsumers() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.toSimpleString("exampleQueue");
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
@@ -1087,7 +1087,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.toSimpleString("exampleQueue");
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
@@ -1127,7 +1127,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample2() throws Exception {
       Connection conn1 = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.toSimpleString("exampleQueue");
       this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");

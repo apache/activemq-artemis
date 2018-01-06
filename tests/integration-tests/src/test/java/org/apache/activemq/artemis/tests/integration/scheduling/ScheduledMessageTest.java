@@ -45,9 +45,9 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private final SimpleString atestq = new SimpleString("ascheduledtestq");
+   private final SimpleString atestq = SimpleString.toSimpleString("ascheduledtestq");
 
-   private final SimpleString atestq2 = new SimpleString("ascheduledtestq2");
+   private final SimpleString atestq2 = SimpleString.toSimpleString("ascheduledtestq2");
 
    private Configuration configuration;
 

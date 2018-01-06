@@ -133,8 +133,8 @@ public class ActiveMQServerControlMultiThreadTest extends ManagementTestBase {
    public void listConsumersDuringSessionClose() throws Exception {
 
       ExecutorService executorService = Executors.newFixedThreadPool(1);
-      SimpleString addressName1 = new SimpleString("MyAddress_one");
-      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = SimpleString.toSimpleString("MyAddress_one");
+      SimpleString queueName1 = SimpleString.toSimpleString("my_queue_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 

@@ -47,7 +47,7 @@ public class RequestorTest extends ActiveMQTestBase {
    public void testRequest() throws Exception {
       final SimpleString key = RandomUtil.randomSimpleString();
       long value = RandomUtil.randomLong();
-      SimpleString requestAddress = new SimpleString("AdTest");
+      SimpleString requestAddress = SimpleString.toSimpleString("AdTest");
       SimpleString requestQueue = RandomUtil.randomSimpleString();
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -79,9 +79,9 @@ public class RequestorTest extends ActiveMQTestBase {
       AddressSettings settings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(1024);
       server.getAddressSettingsRepository().addMatch("#", settings);
 
-      SimpleString requestAddress = new SimpleString("RequestAddress");
+      SimpleString requestAddress = SimpleString.toSimpleString("RequestAddress");
 
-      SimpleString requestQueue = new SimpleString("RequestAddress Queue");
+      SimpleString requestQueue = SimpleString.toSimpleString("RequestAddress Queue");
 
       final ClientSession sessionRequest = sf.createSession(false, true, true);
 

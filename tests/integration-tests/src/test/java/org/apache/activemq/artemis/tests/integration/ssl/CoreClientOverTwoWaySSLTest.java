@@ -69,7 +69,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       CLIENT_SIDE_KEYSTORE = "client-side-keystore." + storeType.toLowerCase();
    }
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+   public static final SimpleString QUEUE = SimpleString.toSimpleString("QueueOverSSL");
 
    /**
     * These artifacts are required for testing 2-way SSL in addition to the artifacts for 1-way SSL from {@link CoreClientOverOneWaySSLTest}

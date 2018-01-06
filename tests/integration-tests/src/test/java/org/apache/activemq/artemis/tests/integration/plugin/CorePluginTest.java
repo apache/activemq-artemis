@@ -136,7 +136,7 @@ public class CorePluginTest extends JMSTestBase {
       sess.createProducer(queue);
       conn.close();
 
-      server.destroyQueue(new SimpleString(queue.getQueueName()));
+      server.destroyQueue(SimpleString.toSimpleString(queue.getQueueName()));
 
       verifier.validatePluginMethodsEquals(1, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_DESTROY_QUEUE,
             AFTER_DESTROY_QUEUE);

@@ -70,7 +70,7 @@ public class MQTTUtil {
 
    public static final String MQTT_MESSAGE_TYPE_KEY = "mqtt.message.type";
 
-   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = new SimpleString("mqtt.message.retain");
+   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = SimpleString.toSimpleString("mqtt.message.retain");
 
    public static final String MANAGEMENT_QUEUE_PREFIX = "$sys.mqtt.queue.qos2.";
 
@@ -116,7 +116,7 @@ public class MQTTUtil {
       CoreMessage message = new CoreMessage(id, DEFAULT_SERVER_MESSAGE_BUFFER_SIZE);
       message.setAddress(address);
       message.putBooleanProperty(MQTT_MESSAGE_RETAIN_KEY, retain);
-      message.putIntProperty(new SimpleString(MQTT_QOS_LEVEL_KEY), qos);
+      message.putIntProperty(SimpleString.toSimpleString(MQTT_QOS_LEVEL_KEY), qos);
       message.setType(Message.BYTES_TYPE);
       return message;
    }
@@ -127,7 +127,7 @@ public class MQTTUtil {
                                                               int qos,
                                                               ByteBuf payload) {
       String coreAddress = convertMQTTAddressFilterToCore(topic, session.getWildcardConfiguration());
-      ICoreMessage message = createServerMessage(session, new SimpleString(coreAddress), retain, qos);
+      ICoreMessage message = createServerMessage(session, SimpleString.toSimpleString(coreAddress), retain, qos);
 
       message.getBodyBuffer().writeBytes(payload, 0, payload.readableBytes());
       return message;
@@ -135,8 +135,8 @@ public class MQTTUtil {
 
    public static Message createPubRelMessage(MQTTSession session, SimpleString address, int messageId) {
       Message message = createServerMessage(session, address, false, 1);
-      message.putIntProperty(new SimpleString(MQTTUtil.MQTT_MESSAGE_ID_KEY), messageId);
-      message.putIntProperty(new SimpleString(MQTTUtil.MQTT_MESSAGE_TYPE_KEY), MqttMessageType.PUBREL.value());
+      message.putIntProperty(SimpleString.toSimpleString(MQTTUtil.MQTT_MESSAGE_ID_KEY), messageId);
+      message.putIntProperty(SimpleString.toSimpleString(MQTTUtil.MQTT_MESSAGE_TYPE_KEY), MqttMessageType.PUBREL.value());
       return message;
    }
 

@@ -906,14 +906,14 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
-      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("name")).toString());
 
       dg.stop();
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
-      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("name")).toString());
    }
 
    @Test
@@ -936,13 +936,13 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
-      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("name")).toString());
 
       bg.stop();
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
-      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.toSimpleString("name")).toString());
    }
 }

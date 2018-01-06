@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
+   SimpleString address = SimpleString.toSimpleString("testAddress");
 
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {

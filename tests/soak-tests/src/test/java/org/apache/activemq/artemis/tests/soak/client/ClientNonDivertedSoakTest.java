@@ -38,7 +38,7 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
 
    // Attributes ----------------------------------------------------
 
-   private static final SimpleString ADDRESS = new SimpleString("ADD");
+   private static final SimpleString ADDRESS = SimpleString.toSimpleString("ADD");
 
    private static final boolean IS_JOURNAL = false;
 

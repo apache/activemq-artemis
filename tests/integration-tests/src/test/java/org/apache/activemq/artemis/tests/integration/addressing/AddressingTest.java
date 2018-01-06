@@ -63,7 +63,7 @@ public class AddressingTest extends ActiveMQTestBase {
    @Test
    public void testMulticastRouting() throws Exception {
 
-      SimpleString sendAddress = new SimpleString("test.address");
+      SimpleString sendAddress = SimpleString.toSimpleString("test.address");
 
       List<String> testAddresses = Arrays.asList("test.address", "test.#", "test.*");
 
@@ -71,12 +71,12 @@ public class AddressingTest extends ActiveMQTestBase {
 
          // For each address, create 2 Queues with the same address, assert both queues receive message
 
-         AddressInfo addressInfo = new AddressInfo(new SimpleString(consumeAddress));
+         AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString(consumeAddress));
          addressInfo.addRoutingType(RoutingType.MULTICAST);
 
          server.addOrUpdateAddressInfo(addressInfo);
-         Queue q1 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".1"), null, true, false);
-         Queue q2 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".2"), null, true, false);
+         Queue q1 = server.createQueue(SimpleString.toSimpleString(consumeAddress), RoutingType.MULTICAST, SimpleString.toSimpleString(consumeAddress + ".1"), null, true, false);
+         Queue q2 = server.createQueue(SimpleString.toSimpleString(consumeAddress), RoutingType.MULTICAST, SimpleString.toSimpleString(consumeAddress + ".2"), null, true, false);
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -101,7 +101,7 @@ public class AddressingTest extends ActiveMQTestBase {
    @Test
    public void testAnycastRouting() throws Exception {
 
-      SimpleString sendAddress = new SimpleString("test.address");
+      SimpleString sendAddress = SimpleString.toSimpleString("test.address");
 
       List<String> testAddresses = Arrays.asList("test.address", "test.#", "test.*");
 
@@ -109,12 +109,12 @@ public class AddressingTest extends ActiveMQTestBase {
 
          // For each address, create 2 Queues with the same address, assert one queue receive message
 
-         AddressInfo addressInfo = new AddressInfo(new SimpleString(consumeAddress));
+         AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString(consumeAddress));
          addressInfo.addRoutingType(RoutingType.ANYCAST);
 
          server.addOrUpdateAddressInfo(addressInfo);
-         Queue q1 = server.createQueue(new SimpleString(consumeAddress), RoutingType.ANYCAST, new SimpleString(consumeAddress + ".1"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
-         Queue q2 = server.createQueue(new SimpleString(consumeAddress), RoutingType.ANYCAST, new SimpleString(consumeAddress + ".2"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
+         Queue q1 = server.createQueue(SimpleString.toSimpleString(consumeAddress), RoutingType.ANYCAST, SimpleString.toSimpleString(consumeAddress + ".1"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
+         Queue q2 = server.createQueue(SimpleString.toSimpleString(consumeAddress), RoutingType.ANYCAST, SimpleString.toSimpleString(consumeAddress + ".2"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -142,7 +142,7 @@ public class AddressingTest extends ActiveMQTestBase {
    @Test
    public void testAnycastRoutingRoundRobin() throws Exception {
 
-      SimpleString address = new SimpleString("test.address");
+      SimpleString address = SimpleString.toSimpleString("test.address");
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.addRoutingType(RoutingType.ANYCAST);
 
@@ -193,15 +193,15 @@ public class AddressingTest extends ActiveMQTestBase {
    @Test
    public void testMulticastRoutingBackwardsCompat() throws Exception {
 
-      SimpleString sendAddress = new SimpleString("test.address");
+      SimpleString sendAddress = SimpleString.toSimpleString("test.address");
 
       List<String> testAddresses = Arrays.asList("test.address", "test.#", "test.*");
 
       for (String consumeAddress : testAddresses) {
 
          // For each address, create 2 Queues with the same address, assert both queues receive message
-         Queue q1 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".1"), null, true, false);
-         Queue q2 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".2"), null, true, false);
+         Queue q1 = server.createQueue(SimpleString.toSimpleString(consumeAddress), RoutingType.MULTICAST, SimpleString.toSimpleString(consumeAddress + ".1"), null, true, false);
+         Queue q2 = server.createQueue(SimpleString.toSimpleString(consumeAddress), RoutingType.MULTICAST, SimpleString.toSimpleString(consumeAddress + ".2"), null, true, false);
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -225,7 +225,7 @@ public class AddressingTest extends ActiveMQTestBase {
 
    @Test
    public void testPurgeOnNoConsumersTrue() throws Exception {
-      SimpleString address = new SimpleString("test.address");
+      SimpleString address = SimpleString.toSimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       server.createQueue(address, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, 1, true, true);
       Queue queue = server.locateQueue(queueName);
@@ -255,7 +255,7 @@ public class AddressingTest extends ActiveMQTestBase {
 
    @Test
    public void testPurgeOnNoConsumersFalse() throws Exception {
-      SimpleString address = new SimpleString("test.address");
+      SimpleString address = SimpleString.toSimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       server.createQueue(address, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, 1, false, true);
       assertNotNull(server.locateQueue(queueName));
@@ -269,7 +269,7 @@ public class AddressingTest extends ActiveMQTestBase {
 
    @Test
    public void testLimitOnMaxConsumers() throws Exception {
-      SimpleString address = new SimpleString("test.address");
+      SimpleString address = SimpleString.toSimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean purgeOnNoConsumers = false;
@@ -295,7 +295,7 @@ public class AddressingTest extends ActiveMQTestBase {
    @Test
    public void testUnlimitedMaxConsumers() throws Exception {
       int noConsumers = 50;
-      SimpleString address = new SimpleString("test.address");
+      SimpleString address = SimpleString.toSimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean purgeOnNoConsumers = false;
