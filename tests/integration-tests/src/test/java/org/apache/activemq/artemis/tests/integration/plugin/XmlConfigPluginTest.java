@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
@@ -28,14 +29,7 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
 
    @Test
    public void testStopStart1() throws Exception {
-      FileConfiguration fc = new FileConfiguration();
-      FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager("broker-plugins-config.xml");
-      deploymentManager.addDeployable(fc);
-      deploymentManager.addDeployable(fileConfiguration);
-      deploymentManager.readConfiguration();
-
-      ActiveMQServer server = addServer(new ActiveMQServerImpl(fc));
+      ActiveMQServer server = createServerFromConfig("broker-plugins-config.xml");
       try {
          server.start();
          assertEquals(2, server.getBrokerPlugins().size());
@@ -51,4 +45,70 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
          }
       }
    }
+
+   /**
+    * Ensure the configuration is bring picked up correctly by LoggingActiveMQServerPlugin
+    * @throws Exception
+    */
+   @Test
+   public void testLoggingActiveMQServerPlugin() throws Exception {
+      ActiveMQServer server = createServerFromConfig("broker-logging-plugin.xml");
+      try {
+         server.start();
+         assertEquals("only one plugin should be registered",1, server.getBrokerPlugins().size());
+         assertTrue("ensure LoggingActiveMQServerPlugin is registered",server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin);
+         LoggingActiveMQServerPlugin loggingActiveMQServerPlugin = (LoggingActiveMQServerPlugin) server.getBrokerPlugins().get(0);
+         assertEquals("check logAll", true, loggingActiveMQServerPlugin.isLogAll());
+         assertEquals("check logConnectionEvents", true, loggingActiveMQServerPlugin.isLogConnectionEvents());
+         assertEquals("check logSessionEvents", true, loggingActiveMQServerPlugin.isLogSessionEvents());
+         assertEquals("check logConsumerEvents", true, loggingActiveMQServerPlugin.isLogConsumerEvents());
+         assertEquals("check logDeliveringEvents", true, loggingActiveMQServerPlugin.isLogDeliveringEvents());
+         assertEquals("check logSendingEvents", true, loggingActiveMQServerPlugin.isLogSendingEvents());
+         assertEquals("check logInternalEvents", true, loggingActiveMQServerPlugin.isLogInternalEvents());
+
+      } finally {
+         if (server != null) {
+            server.stop();
+         }
+      }
+   }
+
+   /**
+    *  ensure the LoggingActiveMQServerPlugin uses default values when configured with incorrect values
+    * @throws Exception
+    */
+   @Test
+   public void testLoggingActiveMQServerPluginWrongValue() throws Exception {
+      ActiveMQServer server = createServerFromConfig("broker-logging-plugin-wrong.xml");
+      try {
+         server.start();
+         assertEquals("only one plugin should be registered",1, server.getBrokerPlugins().size());
+         assertTrue("ensure LoggingActiveMQServerPlugin is registered",server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin);
+         LoggingActiveMQServerPlugin loggingActiveMQServerPlugin = (LoggingActiveMQServerPlugin) server.getBrokerPlugins().get(0);
+         assertEquals("check logAll", false, loggingActiveMQServerPlugin.isLogAll());
+         assertEquals("check logConnectionEvents", false, loggingActiveMQServerPlugin.isLogConnectionEvents());
+         assertEquals("check logSessionEvents", false, loggingActiveMQServerPlugin.isLogSessionEvents());
+         assertEquals("check logConsumerEvents", false, loggingActiveMQServerPlugin.isLogConsumerEvents());
+         assertEquals("check logDeliveringEvents", false, loggingActiveMQServerPlugin.isLogDeliveringEvents());
+         assertEquals("check logSendingEvents", false, loggingActiveMQServerPlugin.isLogSendingEvents());
+         assertEquals("check logInternalEvents", false, loggingActiveMQServerPlugin.isLogInternalEvents());
+
+      } finally {
+         if (server != null) {
+            server.stop();
+         }
+      }
+   }
+
+   private ActiveMQServer createServerFromConfig(String configFileName) throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(configFileName);
+      deploymentManager.addDeployable(fc);
+      deploymentManager.addDeployable(fileConfiguration);
+      deploymentManager.readConfiguration();
+
+      return addServer(new ActiveMQServerImpl(fc));
+   }
+
 }
