@@ -1,4 +1,3 @@
-package clients
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -16,20 +15,27 @@ package clients
  * limitations under the License.
  */
 
-// Create a client connection factory
+package org.apache.activemq.artemis.tests.compatibility;
 
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
-import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
+import org.apache.activemq.artemis.utils.FileUtil;
+import org.junit.After;
+import org.junit.Before;
 
-println("serverType " + serverArg[0]);
+public class ServerBaseTest extends VersionedBaseTest {
 
-if (serverArg[0].startsWith("HORNETQ")) {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?protocolManagerFactoryStr=org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory&confirmationWindowSize=1048576&blockOnDurableSend=false");
-} else {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false");
+   public ServerBaseTest(String server, String sender, String receiver) throws Exception {
+      super(server, sender, receiver);
+   }
+
+   @Before
+   public void setUp() throws Throwable {
+      FileUtil.deleteDirectory(serverFolder.getRoot());
+      setVariable(serverClassloader, "persistent", Boolean.FALSE);
+      startServer(serverFolder.getRoot(), serverClassloader, "live");
+   }
+
+   @After
+   public void tearDown() throws Throwable {
+      stopServer(serverClassloader);
+   }
 }
-
-
-GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
-GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
-
