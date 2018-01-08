@@ -640,8 +640,11 @@ public class ActiveMQSessionContext extends SessionContext {
                            int maxConsumers,
                            boolean purgeOnNoConsumers,
                            boolean autoCreated) throws ActiveMQException {
-      CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, routingType, filterString, durable, temp, maxConsumers, purgeOnNoConsumers, autoCreated, true);
-      if (!sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+      if (sessionChannel.getConnection().isVersionBeforeAddressChange()) {
+         CreateQueueMessage request = new CreateQueueMessage(address, queueName, filterString, durable, temp, true);
+         sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
+      } else {
+         CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, routingType, filterString, durable, temp, maxConsumers, purgeOnNoConsumers, autoCreated, true);
          sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
       }
    }
