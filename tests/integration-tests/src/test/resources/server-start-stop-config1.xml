@@ -29,7 +29,7 @@
       <journal-directory>./target/tmp/activemq-unit-test/start-stop-data</journal-directory>
 
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616?handshake-timeout=5</acceptor>
       </acceptors>
 
       <security-enabled>false</security-enabled>
