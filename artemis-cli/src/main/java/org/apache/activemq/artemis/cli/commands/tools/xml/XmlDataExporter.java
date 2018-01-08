@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -100,7 +101,7 @@ public final class XmlDataExporter extends OptionalLocking {
    private final Map<Long, HashMap<Long, ReferenceDescribe>> messageRefs = new HashMap<>();
 
    // map of all message records hashed by their record ID (which will match the record ID of the message refs)
-   private final HashMap<Long, Message> messages = new HashMap<>();
+   private final Map<Long, Message> messages = new TreeMap<>();
 
    private final Map<Long, Set<PagePosition>> cursorRecords = new HashMap<>();
 
