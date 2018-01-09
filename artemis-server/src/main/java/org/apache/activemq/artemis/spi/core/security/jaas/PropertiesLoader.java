@@ -56,7 +56,7 @@ public class PropertiesLoader {
       return Boolean.parseBoolean((String) options.get(name));
    }
 
-   public class FileNameKey {
+   public static final class FileNameKey {
 
       final File file;
       final String absPath;
