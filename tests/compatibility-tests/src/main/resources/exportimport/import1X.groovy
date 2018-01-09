@@ -1,4 +1,3 @@
-package clients
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -16,20 +15,14 @@ package clients
  * limitations under the License.
  */
 
-// Create a client connection factory
-
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
-import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
-
-println("serverType " + serverArg[0]);
-
-if (serverArg[0].startsWith("HORNETQ")) {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?protocolManagerFactoryStr=org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory&confirmationWindowSize=1048576&blockOnDurableSend=false");
-} else {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false");
-}
+import org.apache.activemq.artemis.cli.commands.ActionContext
+import  org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter
 
 
-GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
-GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
+System.out.println("Arg::" + arg[0]);
+File pagingfile = new File(arg[0] + "/sender/data/paging")
+pagingfile.mkdirs()
+XmlDataImporter importer = new XmlDataImporter();
 
+importer.input = arg[0] + "/journal.export"
+importer.execute(new ActionContext(System.in, System.out, System.err))

@@ -1,15 +1,19 @@
 package servers
 /*
- * Copyright 2005-2014 Red Hat, Inc.
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // starts an artemis server
@@ -36,7 +40,7 @@ System.out.println("folder:: " + folder);
 configuration.setBrokerInstance(new File(folder + "/" + id));
 configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616");
 configuration.setSecurityEnabled(false);
-configuration.setPersistenceEnabled(false);
+configuration.setPersistenceEnabled(persistent);
 try {
     if (!type.startsWith("ARTEMIS-1")) {
         configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
@@ -53,8 +57,5 @@ server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);
 server.start();
 
-// uncomment this next statements to validate https://issues.apache.org/jira/browse/ARTEMIS-1561
-if (producer.toString().startsWith("ARTEMIS-1") && type.equals("ARTEMIS-SNAPSHOT") ||
-    producer.toString().startsWith("HORNETQ")) {
-    server.getJMSServerManager().createQueue(true, "queue", null, true);
-}
+server.getJMSServerManager().createTopic(true, "topic");
+server.getJMSServerManager().createQueue(true, "queue", null, true);

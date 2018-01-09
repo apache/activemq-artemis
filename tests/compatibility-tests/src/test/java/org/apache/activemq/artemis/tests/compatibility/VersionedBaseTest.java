@@ -1,14 +1,18 @@
 /*
- * Copyright 2005-2014 Red Hat, Inc.
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.activemq.artemis.tests.compatibility;
@@ -24,12 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RunnableEx;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
@@ -48,6 +49,9 @@ public abstract class VersionedBaseTest {
    protected static Map<String, ClassLoader> loaderMap = new HashMap<>();
 
    public VersionedBaseTest(String server, String sender, String receiver) throws Exception {
+      if (server == null) {
+         server = sender;
+      }
       this.server = server;
       this.sender = sender;
       this.receiver = receiver;
@@ -72,53 +76,30 @@ public abstract class VersionedBaseTest {
       serverFolder = new TemporaryFolder(parent);
    }
 
-   @Before
-   public void startServer() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-
-      serverFolder.getRoot().mkdirs();
-
-      System.out.println("Folder::" + serverFolder.getRoot());
-
-      String scriptToUse;
-      if (server.startsWith("ARTEMIS")) {
-         scriptToUse = "servers/artemisServer.groovy";
-      } else {
-         scriptToUse = "servers/hornetqServer.groovy";
-      }
-
-      callMain(serverClassloader, GroovyRun.class.getName(), scriptToUse, serverFolder.getRoot().getAbsolutePath(), "1", server, sender, receiver);
-   }
-
-   @After
-   public void stopServer() throws Throwable {
-      callExecute(serverClassloader, GroovyRun.class.getName(), "server.stop()");
-
-      // GC help!!!
-      serverClassloader = null;
-      senderClassloader = null;
-      receiverClassloader = null;
-   }
-
    @AfterClass
    public static void cleanup() {
       loaderMap.clear();
    }
 
-   protected static void callMain(ClassLoader loader,
-                                  String className,
-                                  String script,
-                                  String... arguments) throws Exception {
+   protected static void callScript(ClassLoader loader, String script, String... arguments) throws Exception {
       tclCall(loader, () -> {
-         Class clazz = loader.loadClass(className);
-         Method method = clazz.getMethod("doMain", String.class, String[].class);
+         Class clazz = loader.loadClass(GroovyRun.class.getName());
+         Method method = clazz.getMethod("doTest", String.class, String[].class);
          method.invoke(null, script, arguments);
       });
    }
 
-   protected static void callExecute(ClassLoader loader, String className, String script) throws Exception {
+   protected static void setVariable(ClassLoader loader, String name, Object object) throws Exception {
       tclCall(loader, () -> {
-         Class clazz = loader.loadClass(className);
+         Class clazz = loader.loadClass(GroovyRun.class.getName());
+         Method method = clazz.getMethod("setVariable", String.class, Object.class);
+         method.invoke(null, name, object);
+      });
+   }
+
+   protected static void callExecute(ClassLoader loader, String script) throws Exception {
+      tclCall(loader, () -> {
+         Class clazz = loader.loadClass(GroovyRun.class.getName());
          Method method = clazz.getMethod("execute", String.class);
          method.invoke(null, script);
       });
@@ -134,7 +115,6 @@ public abstract class VersionedBaseTest {
          Thread.currentThread().setContextClassLoader(original);
       }
    }
-
 
    protected static ClassLoader defineClassLoader(String classPath) throws MalformedURLException {
       String[] classPathArray = classPath.split(File.pathSeparator);
@@ -176,7 +156,6 @@ public abstract class VersionedBaseTest {
          Assume.assumeTrue("Cannot run these tests, no classpath found", ok);
       }
 
-
       loader = defineClassLoader(value);
       loaderMap.put(name, loader);
 
@@ -197,4 +176,22 @@ public abstract class VersionedBaseTest {
       return combinations;
    }
 
+   public void startServer(File folder, ClassLoader loader, String serverName) throws Throwable {
+      folder.mkdirs();
+
+      System.out.println("Folder::" + folder);
+
+      String scriptToUse;
+      if (server.startsWith("ARTEMIS")) {
+         scriptToUse = "servers/artemisServer.groovy";
+      } else {
+         scriptToUse = "servers/hornetqServer.groovy";
+      }
+
+      callScript(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver);
+   }
+
+   public void stopServer(ClassLoader loader) throws Throwable {
+      callExecute(loader, "server.stop()");
+   }
 }
