@@ -286,6 +286,9 @@ var ARTEMIS = (function(ARTEMIS) {
             if (parseInt(newVal.currentPage) && newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
                 $scope.loadTable();
             }
+            if (parseInt(newVal.pageSize) && newVal !== oldVal && newVal.pageSize !== oldVal.pageSize) {
+                $scope.pagingOptions.currentPage = 1;
+            }
         }, true);
 
         function getBrokerMBean(jolokia) {
