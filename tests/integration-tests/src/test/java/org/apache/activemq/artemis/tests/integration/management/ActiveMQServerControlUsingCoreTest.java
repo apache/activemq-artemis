@@ -721,7 +721,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
                                         @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
                                         @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics) throws Exception {
-            addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
+            addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES_DURABLE, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
          }
 
          @Override
@@ -748,6 +748,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "allow jms topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
                                         @Parameter(desc = "allow auto-created jms topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics,
                                         @Parameter(desc = "allow queues to be created automatically", name = "autoCreateQueues") boolean autoCreateQueues,
+                                        @Parameter(desc = "allow queues created automatically to be durable or not", name = "autoCreateQueuesDurable") boolean autoCreateQueuesDurable,
                                         @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteQueues") boolean autoDeleteQueues,
                                         @Parameter(desc = "allow topics to be created automatically", name = "autoCreateAddresses") boolean autoCreateAddresses,
                                         @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteAddresses") boolean autoDeleteAddresses) throws Exception {

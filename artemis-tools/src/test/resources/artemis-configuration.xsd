@@ -2519,6 +2519,15 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="auto-create-queues-durable" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically created queue should be durable
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+
             <xsd:element name="auto-delete-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>

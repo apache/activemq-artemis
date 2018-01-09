@@ -257,6 +257,26 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       assertEquals("helloworld", bconfig.getPassword());
    }
 
+   @Test
+   public void testParseAutoCreatedQueuesDurable() throws Exception {
+      boolean autoCreateQueues = true;
+      boolean autoCreateQueuesDurable = false;
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart.replace("</address-settings>", "") +
+              "<address-setting match=\"activemq.test#\">" + "\n" + "<dead-letter-address>DLQ\n</dead-letter-address>" + "\n" + "<expiry-address>ExpiryQueue\n</expiry-address>" + "\n" + "<redelivery-delay>0\n</redelivery-delay>" + "\n" + "<max-size-bytes>10485760\n</max-size-bytes>" + "\n" + "<message-counter-history-day-limit>10</message-counter-history-day-limit>" + "\n" + "<address-full-policy>BLOCK</address-full-policy>" + "\n" + "<auto-create-queues>" + Boolean.toString(autoCreateQueues) + "</auto-create-queues>" + "\n" + "<auto-create-queues-durable>" + Boolean.toString(autoCreateQueuesDurable) + "</auto-create-queues-durable>" +
+              "</address-setting>" + "\n" +
+              "</address-settings>" + "\n" + lastPart;
+
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      Assert.assertEquals(autoCreateQueues, config.getAddressesSettings().get("activemq.test#").isAutoCreateQueues());
+      Assert.assertEquals(autoCreateQueuesDurable, config.getAddressesSettings().get("activemq.test#").isAutoCreateQueuesDurable());
+   }
+
    private static String bridgePart = "<bridges>\n" +
            "            <bridge name=\"my-bridge\">\n" +
            "               <queue-name>sausage-factory</queue-name>\n" +

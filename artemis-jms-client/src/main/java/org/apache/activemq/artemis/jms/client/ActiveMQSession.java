@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.AutoCreatedQueuesDurability;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
@@ -699,7 +700,11 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateQueues()) {
                   try {
-                     session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers());
+                     if (response.isAutoCreateQueuesDurable() == AutoCreatedQueuesDurability.OFF) {
+                        session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers());
+                     } else {
+                        session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, response.isAutoCreateQueuesDurable().getDurability(), true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers());
+                     }
                   } catch (ActiveMQQueueExistsException e) {
                      // The queue was created by another client/admin between the query check and send create queue packet
                   }

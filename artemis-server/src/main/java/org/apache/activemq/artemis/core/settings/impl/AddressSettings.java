@@ -69,6 +69,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_AUTO_CREATE_QUEUES = true;
 
+   public static final boolean DEFAULT_AUTO_CREATE_QUEUES_DURABLE = true;
+
    public static final boolean DEFAULT_AUTO_DELETE_QUEUES = true;
 
    public static final DeletionPolicy DEFAULT_CONFIG_DELETE_QUEUES = DeletionPolicy.OFF;
@@ -150,6 +152,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean autoCreateQueues = null;
 
+   private Boolean autoCreateQueuesDurable = null;
+
    private Boolean autoDeleteQueues = null;
 
    private DeletionPolicy configDeleteQueues = null;
@@ -201,6 +205,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.autoCreateJmsTopics = other.autoCreateJmsTopics;
       this.autoDeleteJmsTopics = other.autoDeleteJmsTopics;
       this.autoCreateQueues = other.autoCreateQueues;
+      this.autoCreateQueuesDurable = other.autoCreateQueuesDurable;
       this.autoDeleteQueues = other.autoDeleteQueues;
       this.configDeleteQueues = other.configDeleteQueues;
       this.autoCreateAddresses = other.autoCreateAddresses;
@@ -266,8 +271,17 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return autoCreateQueues != null ? autoCreateQueues : AddressSettings.DEFAULT_AUTO_CREATE_QUEUES;
    }
 
+   public boolean isAutoCreateQueuesDurable() {
+      return autoCreateQueuesDurable != null ? autoCreateQueuesDurable : AddressSettings.DEFAULT_AUTO_CREATE_QUEUES_DURABLE;
+   }
+
    public AddressSettings setAutoCreateQueues(Boolean autoCreateQueues) {
       this.autoCreateQueues = autoCreateQueues;
+      return this;
+   }
+
+   public AddressSettings setAutoCreateQueuesDurable(Boolean autoCreateQueuesDurable) {
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable;
       return this;
    }
 
@@ -619,6 +633,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (autoCreateQueues == null) {
          autoCreateQueues = merged.autoCreateQueues;
       }
+      if (autoCreateQueuesDurable == null) {
+         autoCreateQueuesDurable = merged.autoCreateQueuesDurable;
+      }
       if (autoDeleteQueues == null) {
          autoDeleteQueues = merged.autoDeleteQueues;
       }
@@ -719,6 +736,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       autoCreateQueues = BufferHelper.readNullableBoolean(buffer);
 
+      autoCreateQueuesDurable = BufferHelper.readNullableBoolean(buffer);
+
       autoDeleteQueues = BufferHelper.readNullableBoolean(buffer);
 
       policyStr = buffer.readNullableSimpleString();
@@ -780,6 +799,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(autoCreateJmsTopics) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteJmsTopics) +
          BufferHelper.sizeOfNullableBoolean(autoCreateQueues) +
+         BufferHelper.sizeOfNullableBoolean(autoCreateQueuesDurable) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteQueues) + BufferHelper.sizeOfNullableSimpleString(configDeleteQueues != null ? configDeleteQueues.toString() : null) +
          BufferHelper.sizeOfNullableBoolean(autoCreateAddresses) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteAddresses) + BufferHelper.sizeOfNullableSimpleString(configDeleteAddresses != null ? configDeleteAddresses.toString() : null) +
@@ -841,6 +861,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, autoCreateQueues);
 
+      BufferHelper.writeNullableBoolean(buffer, autoCreateQueuesDurable);
+
       BufferHelper.writeNullableBoolean(buffer, autoDeleteQueues);
 
       buffer.writeNullableSimpleString(configDeleteQueues != null ? new SimpleString(configDeleteQueues.toString()) : null);
@@ -895,6 +917,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoCreateJmsTopics == null) ? 0 : autoCreateJmsTopics.hashCode());
       result = prime * result + ((autoDeleteJmsTopics == null) ? 0 : autoDeleteJmsTopics.hashCode());
       result = prime * result + ((autoCreateQueues == null) ? 0 : autoCreateQueues.hashCode());
+      result = prime * result + ((autoCreateQueuesDurable == null) ? 0 : autoCreateQueuesDurable.hashCode());
       result = prime * result + ((autoDeleteQueues == null) ? 0 : autoDeleteQueues.hashCode());
       result = prime * result + ((configDeleteQueues == null) ? 0 : configDeleteQueues.hashCode());
       result = prime * result + ((autoCreateAddresses == null) ? 0 : autoCreateAddresses.hashCode());
@@ -1042,6 +1065,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!autoCreateQueues.equals(other.autoCreateQueues))
          return false;
+      if (autoCreateQueuesDurable == null) {
+         if (other.autoCreateQueuesDurable != null)
+            return false;
+      } else if (!autoCreateQueuesDurable.equals(other.autoCreateQueuesDurable))
+         return false;
       if (autoDeleteQueues == null) {
          if (other.autoDeleteQueues != null)
             return false;
@@ -1164,6 +1192,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          autoDeleteJmsTopics +
          ", autoCreateQueues=" +
          autoCreateQueues +
+         ", autoCreateQueuesDurable=" +
+         autoCreateQueuesDurable +
          ", autoDeleteQueues=" +
          autoDeleteQueues +
          ", configDeleteQueues=" +

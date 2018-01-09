@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.AutoCreatedQueuesDurability;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class BindingQueryResult {
@@ -28,6 +29,8 @@ public class BindingQueryResult {
    private List<SimpleString> queueNames;
 
    private boolean autoCreateQueues;
+
+   private boolean autoCreateQueuesDurable;
 
    private boolean autoCreateAddresses;
 
@@ -41,6 +44,7 @@ public class BindingQueryResult {
                              final AddressInfo addressInfo,
                              final List<SimpleString> queueNames,
                              final boolean autoCreateQueues,
+                             final boolean autoCreateQueuesDurable,
                              final boolean autoCreateAddresses,
                              final boolean defaultPurgeOnNoConsumers,
                              final int defaultMaxConsumers) {
@@ -51,6 +55,8 @@ public class BindingQueryResult {
       this.queueNames = queueNames;
 
       this.autoCreateQueues = autoCreateQueues;
+
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable;
 
       this.autoCreateAddresses = autoCreateAddresses;
 
@@ -69,6 +75,14 @@ public class BindingQueryResult {
 
    public boolean isAutoCreateQueues() {
       return autoCreateQueues;
+   }
+
+   public AutoCreatedQueuesDurability isAutoCreateQueuesDurable() {
+      if (autoCreateQueuesDurable) {
+         return AutoCreatedQueuesDurability.DURABLE;
+      } else {
+         return AutoCreatedQueuesDurability.NON_DURABLE;
+      }
    }
 
    public boolean isAutoCreateAddresses() {

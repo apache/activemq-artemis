@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBin
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V4;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V5;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
@@ -349,6 +350,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   }
                   break;
                }
+               //
                case CREATE_QUEUE_V2: {
                   CreateQueueMessage_V2 request = (CreateQueueMessage_V2) packet;
                   requiresResponse = request.isRequiresResponse();
@@ -417,12 +419,14 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      if (!queueNames.isEmpty()) {
                         final List<SimpleString> convertedQueueNames = request.convertQueueNames(clientVersion, queueNames);
                         if (convertedQueueNames != queueNames) {
-                           result = new BindingQueryResult(result.isExists(), result.getAddressInfo(), convertedQueueNames, result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
+                           result = new BindingQueryResult(result.isExists(), result.getAddressInfo(), convertedQueueNames, result.isAutoCreateQueues(), result.isAutoCreateQueuesDurable().getDurability(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
                         }
                      }
                   }
 
-                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4)) {
+                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V5)) {
+                     response = new SessionBindingQueryResponseMessage_V5(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateQueuesDurable(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
+                  } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4)) {
                      response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
                      response = new SessionBindingQueryResponseMessage_V3(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses());

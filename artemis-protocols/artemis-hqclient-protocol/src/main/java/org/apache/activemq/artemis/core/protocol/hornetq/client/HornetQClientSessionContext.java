@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.AutoCreatedQueuesDurability;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
@@ -72,7 +73,7 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
       SessionBindingQueryResponseMessage response = (SessionBindingQueryResponseMessage) getSessionChannel().sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP);
 
-      return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false, false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
+      return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false, AutoCreatedQueuesDurability.NON_DURABLE, false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
    }
 
    @Override

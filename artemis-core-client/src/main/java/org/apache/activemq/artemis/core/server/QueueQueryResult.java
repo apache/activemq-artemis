@@ -39,6 +39,8 @@ public class QueueQueryResult {
 
    private boolean autoCreateQueues;
 
+   private boolean autoCreateQueuesDurable;
+
    private boolean autoCreated;
 
    private boolean purgeOnNoConsumers;
@@ -55,12 +57,18 @@ public class QueueQueryResult {
                            final int consumerCount,
                            final long messageCount,
                            final boolean autoCreateQueues,
+                           final boolean autoCreateQueuesDurable,
                            final boolean exists,
                            final boolean autoCreated,
                            final boolean purgeOnNoConsumers,
                            final RoutingType routingType,
                            final int maxConsumers) {
+
       this.durable = durable;
+
+      if (autoCreateQueues) {
+         this.durable = autoCreateQueuesDurable;
+      }
 
       this.temporary = temporary;
 
@@ -75,6 +83,8 @@ public class QueueQueryResult {
       this.name = name;
 
       this.autoCreateQueues = autoCreateQueues;
+
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable;
 
       this.exists = exists;
 
@@ -121,6 +131,10 @@ public class QueueQueryResult {
 
    public boolean isAutoCreateQueues() {
       return autoCreateQueues;
+   }
+
+   public boolean isAutoCreateQueuesDurable() {
+      return autoCreateQueuesDurable;
    }
 
    public boolean isAutoCreated() {

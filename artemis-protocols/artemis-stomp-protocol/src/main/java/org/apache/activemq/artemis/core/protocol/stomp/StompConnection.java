@@ -275,7 +275,7 @@ public final class StompConnection implements RemotingConnection {
 
             // only auto create the queue if the address is ANYCAST
             if (effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues()) {
-               session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, true, true);
+               session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, addressSettings.isAutoCreateQueuesDurable(), true);
             }
          }
       } catch (ActiveMQQueueExistsException e) {
