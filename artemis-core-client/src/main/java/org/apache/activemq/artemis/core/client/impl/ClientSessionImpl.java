@@ -24,7 +24,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -73,6 +75,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // to be sent to consumers as consumers will need a separate consumer for flow control
    private final Executor flowControlExecutor;
+
+   private final ScheduledExecutorService  scheduledExecutorService;
 
    /**
     * All access to producers are guarded (i.e. synchronized) on itself.
@@ -172,7 +176,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final SessionContext sessionContext,
                      final Executor executor,
                      final Executor flowControlExecutor,
-                     final Executor closeExecutor) throws ActiveMQException {
+                     final Executor closeExecutor,
+                     final ScheduledExecutorService scheduledExecutorService) throws ActiveMQException {
       this.sessionFactory = sessionFactory;
 
       this.name = name;
@@ -230,6 +235,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       confirmationWindowWarning = sessionFactory.getConfirmationWindowWarning();
 
       this.closeExecutor = closeExecutor;
+
+      this.scheduledExecutorService = scheduledExecutorService;
    }
 
    // ClientSession implementation
@@ -1446,17 +1453,18 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    // FailureListener implementation --------------------------------------------
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
       try {
          cleanUp(false);
       } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.failedToCleanupSession(e);
       }
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-      connectionFailed(me, failedOver);
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+      return connectionFailed(me, failedOver);
    }
 
    // Public
@@ -1508,7 +1516,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  final boolean browseOnly) throws ActiveMQException {
       checkClosed();
 
-      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
+      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor, scheduledExecutorService);
 
       addConsumer(consumer);
 

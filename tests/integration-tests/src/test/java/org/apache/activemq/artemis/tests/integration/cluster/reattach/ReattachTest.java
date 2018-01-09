@@ -284,13 +284,14 @@ public class ReattachTest extends ActiveMQTestBase {
          volatile boolean failed;
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
             failed = true;
+            return new CountDownLatch(0);
          }
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-            connectionFailed(me, failedOver);
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+            return connectionFailed(me, failedOver);
          }
 
          @Override

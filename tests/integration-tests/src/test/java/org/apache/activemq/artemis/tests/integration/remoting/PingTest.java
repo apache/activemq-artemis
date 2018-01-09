@@ -73,13 +73,14 @@ public class PingTest extends ActiveMQTestBase {
       volatile ActiveMQException me;
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
          this.me = me;
+         return new CountDownLatch(0);
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-         connectionFailed(me, failedOver);
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+         return connectionFailed(me, failedOver);
       }
 
       public ActiveMQException getException() {
@@ -345,13 +346,14 @@ public class PingTest extends ActiveMQTestBase {
       final CountDownLatch clientLatch = new CountDownLatch(1);
       SessionFailureListener clientListener = new SessionFailureListener() {
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
             clientLatch.countDown();
+            return new CountDownLatch(0);
          }
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-            connectionFailed(me, failedOver);
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+            return connectionFailed(me, failedOver);
          }
 
          @Override

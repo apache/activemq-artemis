@@ -156,13 +156,14 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     * if the connection to our replicated live goes down then decide on an action
     */
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
       decideOnAction(sessionFactory.getServerLocator().getTopology());
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-      connectionFailed(me, failedOver);
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+      return connectionFailed(me, failedOver);
    }
 
    @Override

@@ -237,13 +237,15 @@ public class JMSUtil {
       class MyListener implements SessionFailureListener {
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
             latch.countDown();
+            return new CountDownLatch(0);
          }
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-            connectionFailed(me, failedOver);
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+            return connectionFailed(me, failedOver);
+
          }
 
          @Override

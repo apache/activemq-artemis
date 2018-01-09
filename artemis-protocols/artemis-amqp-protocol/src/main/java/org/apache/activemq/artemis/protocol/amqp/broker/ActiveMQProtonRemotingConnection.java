@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -42,8 +44,9 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    public ActiveMQProtonRemotingConnection(ProtonProtocolManager manager,
                                            AMQPConnectionContext amqpConnection,
                                            Connection transportConnection,
-                                           Executor executor) {
-      super(transportConnection, executor);
+                                           Executor executor,
+                                           ScheduledExecutorService scheduledExecutorService) {
+      super(transportConnection, executor, scheduledExecutorService);
       this.manager = manager;
       this.amqpConnection = amqpConnection;
    }
@@ -60,9 +63,9 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
     * This can be called concurrently by more than one thread so needs to be locked
     */
    @Override
-   public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
+   public CountDownLatch fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       if (destroyed) {
-         return;
+         return new CountDownLatch(0);
       }
 
       destroyed = true;
@@ -75,6 +78,8 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       callClosingListeners();
 
       internalClose();
+
+      return new CountDownLatch(0);
    }
 
    @Override

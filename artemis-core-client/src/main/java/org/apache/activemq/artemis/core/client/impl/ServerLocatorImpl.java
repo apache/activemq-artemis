@@ -1648,7 +1648,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                         // Case the node where the cluster connection was connected is gone, we need to restart the
                         // connection
                         @Override
-                        public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+                        public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
                            if (clusterConnection && exception.getType() == ActiveMQExceptionType.DISCONNECTED) {
                               try {
                                  ServerLocatorImpl.this.start(startExecutor);
@@ -1657,13 +1657,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                                  ActiveMQClientLogger.LOGGER.errorStartingLocator(e);
                               }
                            }
+                           return new CountDownLatch(0);
                         }
 
                         @Override
-                        public void connectionFailed(final ActiveMQException me,
+                        public CountDownLatch connectionFailed(final ActiveMQException me,
                                                      boolean failedOver,
                                                      String scaleDownTargetNodeID) {
-                           connectionFailed(me, failedOver);
+                           return connectionFailed(me, failedOver);
                         }
 
                         @Override

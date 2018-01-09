@@ -42,14 +42,15 @@ public final class CountDownSessionFailureListener implements SessionFailureList
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
-      connectionFailed(exception, failedOver);
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+      return connectionFailed(exception, failedOver);
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
       latch.countDown();
       session.removeFailureListener(this);
+      return new CountDownLatch(0);
 
    }
 

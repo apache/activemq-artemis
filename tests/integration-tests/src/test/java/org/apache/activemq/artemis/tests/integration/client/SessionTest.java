@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -85,13 +86,14 @@ public class SessionTest extends ActiveMQTestBase {
             boolean called = false;
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
                called = true;
+               return new CountDownLatch(0);
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-               connectionFailed(me, failedOver);
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+               return connectionFailed(me, failedOver);
             }
 
             @Override

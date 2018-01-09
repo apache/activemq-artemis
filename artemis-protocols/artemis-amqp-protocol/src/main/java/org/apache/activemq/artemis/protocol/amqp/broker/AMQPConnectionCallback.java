@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -209,13 +210,15 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
       close();
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
       close();
+      return new CountDownLatch(0);
    }
 
    public Binary newTransaction() {

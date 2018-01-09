@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -300,10 +301,10 @@ public final class StompConnection implements RemotingConnection {
    }
 
    @Override
-   public void fail(final ActiveMQException me) {
+   public CountDownLatch fail(final ActiveMQException me) {
       synchronized (failLock) {
          if (destroyed) {
-            return;
+            return new CountDownLatch(0);
          }
 
          StompFrame frame = frameHandler.createStompFrame(Stomp.Responses.ERROR);
@@ -325,11 +326,15 @@ public final class StompConnection implements RemotingConnection {
       callClosingListeners();
 
       internalClose();
+
+      return new CountDownLatch(0);
+
    }
 
    @Override
-   public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
+   public CountDownLatch fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       fail(me);
+      return new CountDownLatch(0);
    }
 
    @Override

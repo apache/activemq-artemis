@@ -70,14 +70,15 @@ public class ReconnectTest extends ActiveMQTestBase {
 
          session.addFailureListener(new SessionFailureListener() {
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
                count.incrementAndGet();
                latch.countDown();
+               return new CountDownLatch(0);
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-               connectionFailed(me, failedOver);
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+               return connectionFailed(me, failedOver);
             }
 
             @Override
@@ -240,12 +241,13 @@ public class ReconnectTest extends ActiveMQTestBase {
          factory.addFailureListener(new SessionFailureListener() {
 
             @Override
-            public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+            public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
+               return new CountDownLatch(0);
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-               connectionFailed(me, failedOver);
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+               return connectionFailed(me, failedOver);
             }
 
             @Override
@@ -265,14 +267,15 @@ public class ReconnectTest extends ActiveMQTestBase {
          session.addFailureListener(new SessionFailureListener() {
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
                count.incrementAndGet();
                latch.countDown();
+               return new CountDownLatch(0);
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-               connectionFailed(me, failedOver);
+            public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+               return connectionFailed(me, failedOver);
             }
 
             @Override

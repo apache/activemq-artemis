@@ -20,6 +20,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -206,7 +207,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
       if (me.getType() == ActiveMQExceptionType.DISCONNECTED) {
          if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
             ActiveMQXARecoveryLogger.LOGGER.debug("being disconnected for server shutdown", me);
@@ -215,11 +216,12 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
          ActiveMQXARecoveryLogger.LOGGER.xaRecoverConnectionError(me, csf);
       }
       close();
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-      connectionFailed(me, failedOver);
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+      return connectionFailed(me, failedOver);
    }
 
    @Override

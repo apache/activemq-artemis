@@ -55,7 +55,7 @@ public class AMQPClientConnectionFactory {
       AMQPConnectionContext amqpConnection = new AMQPConnectionContext(connectionCallback, containerId, ttl, protocolManager.getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, executor, server.getScheduledPool());
       eventHandler.ifPresent(amqpConnection::addEventHandler);
 
-      ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(protocolManager, amqpConnection, connection, executor);
+      ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(protocolManager, amqpConnection, connection, executor, server.getScheduledPool());
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 

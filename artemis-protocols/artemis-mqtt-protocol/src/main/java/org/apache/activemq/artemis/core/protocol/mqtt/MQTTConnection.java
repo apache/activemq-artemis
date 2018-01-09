@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -136,22 +137,24 @@ public class MQTTConnection implements RemotingConnection {
    }
 
    @Override
-   public void fail(ActiveMQException me) {
+   public CountDownLatch fail(ActiveMQException me) {
       synchronized (failureListeners) {
          for (FailureListener listener : failureListeners) {
             listener.connectionFailed(me, false);
          }
       }
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void fail(ActiveMQException me, String scaleDownTargetNodeID) {
+   public CountDownLatch fail(ActiveMQException me, String scaleDownTargetNodeID) {
       synchronized (failureListeners) {
          for (FailureListener listener : failureListeners) {
             //FIXME(mtaylor) How do we check if the node has failed over?
             listener.connectionFailed(me, false);
          }
       }
+      return new CountDownLatch(0);
    }
 
    @Override

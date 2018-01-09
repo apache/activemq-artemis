@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -298,6 +299,16 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
    }
 
    @Test
+   public void testServerShutdownAndReconnectWithLimitedThreadPool() throws Exception {
+      //this test verifies that shutdown is able to finish with limited thread pool size - ARTEMIS-1527
+      //without deadlock
+      ActiveMQClient.clearThreadPools();
+      ActiveMQClient.setGlobalThreadPoolProperties(2, 1);
+
+      testServerShutdownAndReconnect();
+   }
+
+   @Test
    public void testServerShutdownAndReconnect() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       qResourceAdapter.setReconnectAttempts(-1);
@@ -311,12 +322,13 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       factoryListener.addFailureListener(new SessionFailureListener() {
 
          @Override
-         public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+         public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
+            return new CountDownLatch(0);
          }
 
          @Override
-         public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
-            connectionFailed(exception, failedOver);
+         public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+            return connectionFailed(exception, failedOver);
          }
 
          @Override

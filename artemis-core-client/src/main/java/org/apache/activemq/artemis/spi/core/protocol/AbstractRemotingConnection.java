@@ -17,9 +17,12 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -40,12 +43,14 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    protected final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
    protected final Connection transportConnection;
    protected final Executor executor;
+   protected final ScheduledExecutorService scheduledExecutorService;
    protected final long creationTime;
    protected volatile boolean dataReceived;
 
-   public AbstractRemotingConnection(final Connection transportConnection, final Executor executor) {
+   public AbstractRemotingConnection(final Connection transportConnection, final Executor executor, final ScheduledExecutorService scheduledExecutorService) {
       this.transportConnection = transportConnection;
       this.executor = executor;
+      this.scheduledExecutorService = scheduledExecutorService;
       this.creationTime = System.currentTimeMillis();
    }
 
@@ -59,12 +64,13 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return transportConnection.isWritable(callback);
    }
 
-   protected void callFailureListeners(final ActiveMQException me, String scaleDownTargetNodeID) {
+   protected List<CountDownLatch> callFailureListeners(final ActiveMQException me, String scaleDownTargetNodeID) {
       final List<FailureListener> listenersClone = new ArrayList<>(failureListeners);
-
+      List<CountDownLatch> retVal = new LinkedList<>();
       for (final FailureListener listener : listenersClone) {
          try {
-            listener.connectionFailed(me, false, scaleDownTargetNodeID);
+            CountDownLatch latch = listener.connectionFailed(me, false, scaleDownTargetNodeID);
+            retVal.add(latch);
          } catch (ActiveMQInterruptedException interrupted) {
             // this is an expected behaviour.. no warn or error here
             logger.debug("thread interrupted", interrupted);
@@ -75,6 +81,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
             ActiveMQClientLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
+      return retVal;
    }
 
    protected void callClosingListeners() {
@@ -206,8 +213,8 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
     * This can be called concurrently by more than one thread so needs to be locked
     */
    @Override
-   public void fail(final ActiveMQException me) {
-      fail(me, null);
+   public CountDownLatch fail(final ActiveMQException me) {
+      return fail(me, null);
    }
 
    @Override

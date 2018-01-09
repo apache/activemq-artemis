@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -125,7 +126,7 @@ public interface RemotingConnection extends BufferHandler {
     *
     * @param me the exception that caused the failure
     */
-   void fail(ActiveMQException me);
+   CountDownLatch fail(ActiveMQException me);
 
    /**
     * called when the underlying connection fails.
@@ -133,7 +134,7 @@ public interface RemotingConnection extends BufferHandler {
     * @param me                    the exception that caused the failure
     * @param scaleDownTargetNodeID the ID of the node where scale down is targeted
     */
-   void fail(ActiveMQException me, String scaleDownTargetNodeID);
+   CountDownLatch fail(ActiveMQException me, String scaleDownTargetNodeID);
 
    /**
     * destroys this connection.

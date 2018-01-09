@@ -112,7 +112,7 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
-      ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(this, amqpConnection, remotingConnection, executor);
+      ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(this, amqpConnection, remotingConnection, executor, server.getScheduledPool());
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 

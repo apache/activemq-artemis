@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.remoting;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * A FailureListener notifies the user when a connection failure occurred.
  */
@@ -29,7 +31,7 @@ public interface FailureListener {
     * @param exception  exception which has caused the connection to fail
     * @param failedOver
     */
-   void connectionFailed(ActiveMQException exception, boolean failedOver);
+   CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver);
 
    /**
     * Notifies that a connection has failed due to the specified exception.
@@ -38,5 +40,5 @@ public interface FailureListener {
     * @param failedOver
     * @param scaleDownTargetNodeID the ID of the node to which messages are scaling down
     */
-   void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID);
+   CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID);
 }

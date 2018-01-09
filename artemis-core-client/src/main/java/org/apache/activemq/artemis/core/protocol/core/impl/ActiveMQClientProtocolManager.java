@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -406,8 +407,9 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                      long callFailoverTimeout,
                                      List<Interceptor> incomingInterceptors,
                                      List<Interceptor> outgoingInterceptors,
-                                     TopologyResponseHandler topologyResponseHandler) {
-      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors);
+                                     TopologyResponseHandler topologyResponseHandler,
+                                     final ScheduledExecutorService scheduledExecutorService) {
+      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors, scheduledExecutorService);
 
       this.topologyResponseHandler = topologyResponseHandler;
 

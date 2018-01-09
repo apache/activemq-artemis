@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -49,7 +50,7 @@ public class ProtonClientProtocolManager extends ProtonProtocolManager implement
    }
 
    @Override
-   public RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors, TopologyResponseHandler topologyResponseHandler) {
+   public RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors, TopologyResponseHandler topologyResponseHandler, final ScheduledExecutorService scheduledExecutorService) {
       throw new UnsupportedOperationException();
    }
 

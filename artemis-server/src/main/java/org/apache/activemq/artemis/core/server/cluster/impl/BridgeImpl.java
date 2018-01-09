@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -601,12 +602,12 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver) {
-      connectionFailed(me, failedOver, null);
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
+      return connectionFailed(me, failedOver, null);
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
       if (server.isStarted()) {
          ActiveMQServerLogger.LOGGER.bridgeConnectionFailed(failedOver);
       }
@@ -652,6 +653,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
 
       tryScheduleRetryReconnect(me.getType());
+      return new CountDownLatch(0);
    }
 
    protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type) {

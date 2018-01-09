@@ -214,13 +214,14 @@ public class SharedNothingLiveActivation extends LiveActivation {
    private final class ReplicationFailureListener implements FailureListener, CloseListener {
 
       @Override
-      public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+      public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
          connectionClosed();
+         return new CountDownLatch(0);
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-         connectionFailed(me, failedOver);
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+         return  connectionFailed(me, failedOver);
       }
 
       @Override

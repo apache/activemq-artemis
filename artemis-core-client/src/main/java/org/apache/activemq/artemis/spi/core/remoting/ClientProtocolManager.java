@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.remoting;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 
 import io.netty.channel.ChannelPipeline;
@@ -34,7 +35,8 @@ public interface ClientProtocolManager {
                               long callFailoverTimeout,
                               List<Interceptor> incomingInterceptors,
                               List<Interceptor> outgoingInterceptors,
-                              TopologyResponseHandler topologyResponseHandler);
+                              TopologyResponseHandler topologyResponseHandler,
+                              final ScheduledExecutorService scheduledExecutorService);
 
    RemotingConnection getCurrentConnection();
 

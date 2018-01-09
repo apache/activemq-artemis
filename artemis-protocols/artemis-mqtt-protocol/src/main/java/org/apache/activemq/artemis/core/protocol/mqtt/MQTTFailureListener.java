@@ -20,6 +20,8 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * Registered with the server and called during connection failure.  This class informs the ConnectionManager when a
  * connection failure has occurred, which subsequently cleans up any connection data.
@@ -33,12 +35,14 @@ public class MQTTFailureListener implements FailureListener {
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
       connectionManager.disconnect(true);
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+   public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
       connectionManager.disconnect(true);
+      return new CountDownLatch(0);
    }
 }

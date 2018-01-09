@@ -411,13 +411,14 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
       RemotingConnection forwardingConnection = getForwardingConnection(bridge);
       forwardingConnection.addFailureListener(new FailureListener() {
          @Override
-         public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+         public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
             latch.countDown();
+            return new CountDownLatch(0);
          }
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-            connectionFailed(me, failedOver);
+         public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+            return connectionFailed(me, failedOver);
          }
       });
       forwardingConnection.fail(new ActiveMQNotConnectedException());

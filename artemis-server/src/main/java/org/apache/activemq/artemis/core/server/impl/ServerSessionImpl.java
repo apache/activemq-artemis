@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -603,13 +604,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       @Override
-      public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+      public CountDownLatch connectionFailed(ActiveMQException exception, boolean failedOver) {
          run();
+         return new CountDownLatch(0);
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-         connectionFailed(me, failedOver);
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+         return connectionFailed(me, failedOver);
       }
 
       @Override
@@ -1450,7 +1452,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    // --------------------------------------------------------------------
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
       try {
          ActiveMQServerLogger.LOGGER.clientConnectionFailed(name);
 
@@ -1460,11 +1462,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.errorClosingConnection(this);
       }
+      return new CountDownLatch(0);
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-      connectionFailed(me, failedOver);
+   public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+      return connectionFailed(me, failedOver);
    }
 
    public void clearLargeMessage() {

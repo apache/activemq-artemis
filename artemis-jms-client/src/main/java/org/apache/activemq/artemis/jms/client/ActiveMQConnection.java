@@ -37,6 +37,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -713,9 +714,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       }
 
       @Override
-      public synchronized void connectionFailed(final ActiveMQException me, boolean failedOver) {
+      public synchronized CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
          if (me == null) {
-            return;
+            return new CountDownLatch(0);
          }
 
          ActiveMQConnection conn = connectionRef.get();
@@ -742,11 +743,12 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                }
             }
          }
+         return new CountDownLatch(0);
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-         connectionFailed(me, failedOver);
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+         return connectionFailed(me, failedOver);
       }
 
       @Override

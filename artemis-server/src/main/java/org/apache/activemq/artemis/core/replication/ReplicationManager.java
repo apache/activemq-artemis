@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -410,7 +411,7 @@ public final class ReplicationManager implements ActiveMQComponent {
    private final class ReplicatedSessionFailureListener implements SessionFailureListener {
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver) {
          if (me.getType() == ActiveMQExceptionType.DISCONNECTED) {
             // Backup has shut down - no need to log a stack trace
             ActiveMQServerLogger.LOGGER.replicationStopOnBackupShutdown();
@@ -423,11 +424,12 @@ public final class ReplicationManager implements ActiveMQComponent {
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingReplication(e);
          }
+         return new CountDownLatch(0);
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-         connectionFailed(me, failedOver);
+      public CountDownLatch connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+         return connectionFailed(me, failedOver);
       }
 
       @Override
