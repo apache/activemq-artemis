@@ -119,6 +119,10 @@ import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
 public class NettyConnector extends AbstractConnector {
 
+   public static String NIO_CONNECTOR_TYPE = "NIO";
+   public static String EPOLL_CONNECTOR_TYPE = "EPOLL";
+   public static String KQUEUE_CONNECTOR_TYPE = "KQUEUE";
+
    private static final Logger logger = Logger.getLogger(NettyConnector.class);
 
    // Constants -----------------------------------------------------
@@ -423,13 +427,15 @@ public class NettyConnector extends AbstractConnector {
          remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
       }
 
+      String connectorType;
+
       if (useEpoll && Epoll.isAvailable()) {
          if (useGlobalWorkerPool) {
             group = SharedEventLoopGroup.getInstance((threadFactory -> new EpollEventLoopGroup(remotingThreads, threadFactory)));
          } else {
             group = new EpollEventLoopGroup(remotingThreads);
          }
-
+         connectorType = EPOLL_CONNECTOR_TYPE;
          channelClazz = EpollSocketChannel.class;
          logger.debug("Connector " + this + " using native epoll");
       } else if (useKQueue && KQueue.isAvailable()) {
@@ -438,7 +444,7 @@ public class NettyConnector extends AbstractConnector {
          } else {
             group = new KQueueEventLoopGroup(remotingThreads);
          }
-
+         connectorType = KQUEUE_CONNECTOR_TYPE;
          channelClazz = KQueueSocketChannel.class;
          logger.debug("Connector " + this + " using native kqueue");
       } else {
@@ -449,7 +455,7 @@ public class NettyConnector extends AbstractConnector {
             channelClazz = NioSocketChannel.class;
             group = new NioEventLoopGroup(remotingThreads);
          }
-
+         connectorType = NIO_CONNECTOR_TYPE;
          channelClazz = NioSocketChannel.class;
          logger.debug("Connector + " + this + " using nio");
       }
@@ -634,8 +640,7 @@ public class NettyConnector extends AbstractConnector {
 
          batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
-
-      logger.debug("Started Netty Connector version " + TransportConstants.NETTY_VERSION);
+      ActiveMQClientLogger.LOGGER.startedNettyConnector(connectorType,  TransportConstants.NETTY_VERSION, host, port);
    }
 
    @Override
