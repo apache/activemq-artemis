@@ -20,19 +20,16 @@ package org.apache.activemq.artemis.tests.compatibility;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
+import org.apache.activemq.artemis.utils.FileUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
@@ -50,7 +47,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR
  * Run->Edit Configuration->Add ArtemisMeshTest and add your properties.
  */
 @RunWith(Parameterized.class)
-public class MeshTest extends ServerBaseTest {
+public class ExportImportTest extends VersionedBaseTest {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -67,50 +64,57 @@ public class MeshTest extends ServerBaseTest {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FIVE, TWO_FOUR, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FIVE, TWO_FOUR, SNAPSHOT, HORNETQ_235}));
-      combinations.addAll(combinatory(new Object[]{ONE_FIVE}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
-      combinations.addAll(combinatory(new Object[]{HORNETQ_235}, new Object[]{ONE_FIVE, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FIVE, SNAPSHOT, HORNETQ_235}));
-      combinations.addAll(combinatory(new Object[]{HORNETQ_247}, new Object[]{SNAPSHOT, HORNETQ_247}, new Object[]{SNAPSHOT, HORNETQ_247}));
-      combinations.add(new Object[]{SNAPSHOT, ONE_FOUR, ONE_FOUR});
+      combinations.addAll(combinatory(new Object[]{null}, new Object[]{ONE_FIVE, TWO_FOUR, SNAPSHOT}, new Object[]{ONE_FIVE, TWO_FOUR, SNAPSHOT}));
       return combinations;
    }
 
-   public MeshTest(String server, String sender, String receiver) throws Exception {
+   public ExportImportTest(String server, String sender, String receiver) throws Exception {
       super(server, sender, receiver);
    }
 
-   @Test
-   public void testSendReceive() throws Throwable {
-      setVariable(receiverClassloader, "latch", null);
-      callScript(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
-      callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
+   @Before
+   public void removeFolder() throws Throwable {
+      FileUtil.deleteDirectory(serverFolder.getRoot());
+      serverFolder.getRoot().mkdirs();
+   }
+
+   @After
+   public void tearDown() {
+      try {
+         stopServer(serverClassloader);
+      } catch (Throwable ignored) {
+      }
+      try {
+         stopServer(receiverClassloader);
+      } catch (Throwable ignored) {
+      }
    }
 
    @Test
-   public void testSendReceiveTopicNonDurable() throws Throwable {
-      CountDownLatch latch = new CountDownLatch(1);
+   @Ignore // There's some work to be done on exporter / importer, but I wanted to send it in already
+   public void testSendReceive() throws Throwable {
+      setVariable(senderClassloader, "persistent", Boolean.TRUE);
+      startServer(serverFolder.getRoot(), senderClassloader, "sender");
+      callScript(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      stopServer(senderClassloader);
 
-      setVariable(receiverClassloader, "latch", latch);
-      AtomicInteger errors = new AtomicInteger(0);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveNonDurableSubscription");
-            } catch (Exception e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
-         }
-      };
+      if (sender.startsWith("ARTEMIS-1")) {
+         callScript(senderClassloader, "exportimport/export1X.groovy", serverFolder.getRoot().getAbsolutePath());
+      } else {
+         callScript(senderClassloader, "exportimport/export.groovy", serverFolder.getRoot().getAbsolutePath());
+      }
 
-      t.start();
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      callScript(senderClassloader,"meshTest/sendMessages.groovy", server, sender, "sendTopic");
+      setVariable(receiverClassloader, "persistent", Boolean.TRUE);
+      startServer(serverFolder.getRoot(), receiverClassloader, "receiver");
 
-      t.join();
+      if (receiver.startsWith("ARTEMIS-1")) {
+         callScript(receiverClassloader, "exportimport/import1X.groovy", serverFolder.getRoot().getAbsolutePath());
+      } else {
+         callScript(receiverClassloader, "exportimport/import.groovy", serverFolder.getRoot().getAbsolutePath());
+      }
 
-      Assert.assertEquals(0, errors.get());
+      setVariable(receiverClassloader, "latch", null);
+      callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
    }
 
 }

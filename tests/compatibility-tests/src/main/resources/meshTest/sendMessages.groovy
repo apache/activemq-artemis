@@ -5,16 +5,20 @@ import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 import javax.jms.*
 
 /*
- * Copyright 2005-2014 Red Hat, Inc.
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // starts an artemis server
@@ -24,6 +28,7 @@ String operation = arg[2];
 
 
 String queueName = "queue";
+String topicName = "topic";
 
 int LARGE_MESSAGE_SIZE = 10 * 1024;
 
@@ -57,9 +62,18 @@ if (clientType.startsWith("ARTEMIS")) {
 Connection connection = cf.createConnection();
 Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 Queue queue = session.createQueue(queueName);
+Topic topic = session.createTopic(topicName);
 
-if (operation.equals("sendAckMessages")) {
-    MessageProducer producer = session.createProducer(queue);
+Destination destination = queue;
+
+if (operation.equals("sendTopic") || operation.equals("receiveNonDurableSubscription")) {
+    destination = topic;
+}
+
+
+if (operation.equals("sendAckMessages") || operation.equals("sendTopic")) {
+    println("sending...")
+    MessageProducer producer = session.createProducer(destination);
     producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
     System.out.println("Sending messages");
@@ -67,29 +81,36 @@ if (operation.equals("sendAckMessages")) {
     TextMessage message = session.createTextMessage(textBody);
     message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, "some-duplicate");
     message.setStringProperty("prop", "test");
+    message.setIntProperty("order", 0)
     producer.send(message);
 
     BytesMessage bytesMessage = session.createBytesMessage();
     bytesMessage.writeBytes(BYTES_BODY);
+    bytesMessage.setIntProperty("order", 1)
     producer.send(bytesMessage);
 
 
     for (int i = 0; i < 10; i++) {
         BytesMessage m = session.createBytesMessage();
         m.setIntProperty("count", i);
+        m.setIntProperty("order", 2 + i)
 
         m.setObjectProperty(propertyLargeMessage, createFakeLargeStream(LARGE_MESSAGE_SIZE));
 
         producer.send(m);
     }
 
-    producer.send(session.createObjectMessage("rapadura"));
+    ObjectMessage objMessage = session.createObjectMessage("rapadura");
+    objMessage.setIntProperty("count", 13)
+    producer.send(objMessage);
 
     MapMessage mapMessage = session.createMapMessage();
     mapMessage.setString("prop", "rapadura")
+    mapMessage.setIntProperty("order", 14)
     producer.send(mapMessage);
 
     StreamMessage streamMessage = session.createStreamMessage();
+    streamMessage.setIntProperty("order", 15);
     streamMessage.writeString("rapadura");
     streamMessage.writeString("doce");
     streamMessage.writeInt(33);
@@ -97,15 +118,24 @@ if (operation.equals("sendAckMessages")) {
 
     Message plain = session.createMessage();
     plain.setStringProperty("plain", "doce");
+    plain.setIntProperty("order", 15)
     producer.send(plain);
 
     session.commit();
 
     connection.close();
     System.out.println("Message sent");
-} else if (operation.equals("receiveMessages")) {
-    MessageConsumer consumer = session.createConsumer(queue);
+}
+
+if (operation.equals("receiveMessages") || operation.equals("receiveNonDurableSubscription")) {
+    MessageConsumer consumer;
+
+    consumer = session.createConsumer(destination);
     connection.start();
+
+    if (latch != null) {
+        latch.countDown();
+    }
 
     System.out.println("Receiving messages");
 
@@ -165,8 +195,6 @@ if (operation.equals("sendAckMessages")) {
     session.commit();
     connection.close();
     System.out.println("Message received");
-} else {
-    throw new RuntimeException("Invalid operation " + operation);
 }
 
 
