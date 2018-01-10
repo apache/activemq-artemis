@@ -3258,7 +3258,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void checkDeadLetterAddressAndExpiryAddress(final AddressSettings settings) {
-      if (!Env.isTestEnv()) {
+      if (!Env.isTestEnv() && !internalQueue && !address.equals(server.getConfiguration().getManagementNotificationAddress())) {
          if (settings.getDeadLetterAddress() == null) {
             ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
          }
