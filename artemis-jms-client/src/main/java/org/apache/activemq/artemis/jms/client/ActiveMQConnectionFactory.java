@@ -195,7 +195,9 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
          serverLocator = locatorParser.newObject(uri, null);
          parser.populateObject(uri, this);
       } catch (Exception e) {
-         throw new InvalidObjectException(e.getMessage());
+         InvalidObjectException ex = new InvalidObjectException(e.getMessage());
+         ex.initCause(e);
+         throw ex;
       }
    }
 

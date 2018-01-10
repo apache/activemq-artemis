@@ -98,6 +98,13 @@ public class GroovyRun {
       }
    }
 
+
+   public static void assertFalse(boolean  value) {
+      if (value) {
+         throw new RuntimeException("Expected false");
+      }
+   }
+
    public static void assertEquals(Object value1, Object value2) {
       if (!value1.equals(value2)) {
          throw new RuntimeException(value1 + "!=" + value2);

@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.activemq.artemis.utils.FileUtil;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,7 +46,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
  * Run->Edit Configuration->Add ArtemisMeshTest and add your properties.
  */
 @RunWith(Parameterized.class)
-public class SerializationTest extends ServerBaseTest {
+public class SerializationTest extends VersionedBaseTest {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -60,7 +63,7 @@ public class SerializationTest extends ServerBaseTest {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
+      combinations.addAll(combinatory(new Object[]{null}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
       return combinations;
    }
 
@@ -68,12 +71,35 @@ public class SerializationTest extends ServerBaseTest {
       super(server, sender, receiver);
    }
 
+   @Before
+   public void beforeTest() throws Throwable {
+      FileUtil.deleteDirectory(serverFolder.getRoot());
+      serverFolder.getRoot().mkdirs();
+      setVariable(senderClassloader, "persistent", false);
+      startServer(serverFolder.getRoot(), senderClassloader, "1");
+   }
+
+   @After
+   public void afterTest() {
+      try {
+         stopServer(senderClassloader);
+      } catch (Throwable ignored) {
+         ignored.printStackTrace();
+      }
+   }
+
    @Test
    public void testSerializeFactory() throws Throwable {
       File file = serverFolder.newFile("objects.ser");
-      file.mkdirs();
-      callScript(senderClassloader,  "serial/serial.groovy", file.getAbsolutePath(), "write");
-      callScript(receiverClassloader,  "serial/serial.groovy", file.getAbsolutePath(), "read");
+      callScript(senderClassloader, "serial/serial.groovy", file.getAbsolutePath(), "write");
+      callScript(receiverClassloader, "serial/serial.groovy", file.getAbsolutePath(), "read");
+   }
+
+   @Test
+   public void testJBMSerializeFactory() throws Throwable {
+      File file = serverFolder.newFile("objectsjbm.ser");
+      callScript(senderClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "write");
+      callScript(receiverClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "read");
    }
 
 }
