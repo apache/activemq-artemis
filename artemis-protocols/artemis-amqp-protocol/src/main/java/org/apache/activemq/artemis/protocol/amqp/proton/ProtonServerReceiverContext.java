@@ -54,7 +54,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    protected final Receiver receiver;
 
-   protected String address;
+   protected SimpleString address;
 
    protected final AMQPSessionCallback sessionSPI;
 
@@ -102,7 +102,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (target.getDynamic()) {
             // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
-            address = sessionSPI.tempQueueName();
+            address = SimpleString.toSimpleString(sessionSPI.tempQueueName());
             defRoutingType = getRoutingType(target.getCapabilities(), address);
 
             try {
@@ -113,12 +113,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
             expiryPolicy = target.getExpiryPolicy() != null ? target.getExpiryPolicy() : TerminusExpiryPolicy.LINK_DETACH;
-            target.setAddress(address);
+            target.setAddress(address.toString());
          } else {
             // the target will have an address unless the remote is requesting an anonymous
             // relay in which case the address in the incoming message's to field will be
             // matched on receive of the message.
-            address = target.getAddress();
+            address = SimpleString.toSimpleString(target.getAddress());
 
             if (address != null && !address.isEmpty()) {
                defRoutingType = getRoutingType(target.getCapabilities(), address);
@@ -134,7 +134,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                }
 
                try {
-                  sessionSPI.check(SimpleString.toSimpleString(address), CheckType.SEND, new SecurityAuth() {
+                  sessionSPI.check(address, CheckType.SEND, new SecurityAuth() {
                      @Override
                      public String getUsername() {
                         String username = null;
@@ -181,12 +181,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       flow(amqpCredits, minCreditRefresh);
    }
 
-   public RoutingType getRoutingType(Receiver receiver, String address) {
+   public RoutingType getRoutingType(Receiver receiver, SimpleString address) {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
       return target != null ? getRoutingType(target.getCapabilities(), address) : getRoutingType((Symbol[]) null, address);
    }
 
-   private RoutingType getRoutingType(Symbol[] symbols, String address) {
+   private RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
       if (symbols != null) {
          for (Symbol symbol : symbols) {
             if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
@@ -264,7 +264,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
       if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {
-            sessionSPI.removeTemporaryQueue(target.getAddress());
+            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(target.getAddress()));
          } catch (Exception e) {
             //ignore on close, its temp anyway and will be removed later
          }

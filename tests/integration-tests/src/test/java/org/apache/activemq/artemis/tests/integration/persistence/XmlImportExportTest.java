@@ -128,7 +128,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
          msg.putStringProperty("mySpecialCharacters", special);
          msg.putStringProperty(new SimpleString("mySimpleStringProperty"), new SimpleString("mySimpleStringPropertyValue_" + i));
-         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), null);
+         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), (SimpleString) null);
          producer.send(msg);
       }
 

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder;
@@ -32,11 +33,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 public class ClientPacketDecoder extends PacketDecoder {
 
    private static final long serialVersionUID = 6952614096979334582L;
-   public static final ClientPacketDecoder INSTANCE = new ClientPacketDecoder();
-
-   protected ClientPacketDecoder() {
-
-   }
+   protected final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    @Override
    public Packet decode(final ActiveMQBuffer in, CoreRemotingConnection connection) {
@@ -56,9 +53,9 @@ public class ClientPacketDecoder extends PacketDecoder {
       switch (packetType) {
          case SESS_RECEIVE_MSG: {
             if (connection.isVersionBeforeAddressChange()) {
-               packet = new SessionReceiveMessage_1X(new ClientMessageImpl());
+               packet = new SessionReceiveMessage_1X(new ClientMessageImpl(coreMessageObjectPools));
             } else {
-               packet = new SessionReceiveMessage(new ClientMessageImpl());
+               packet = new SessionReceiveMessage(new ClientMessageImpl(coreMessageObjectPools));
             }
             break;
          }

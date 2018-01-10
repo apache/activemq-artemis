@@ -18,10 +18,11 @@ package org.apache.activemq.artemis.spi.core.protocol;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 
 public interface MessageConverter<ProtocolMessage extends Message> {
 
-   ICoreMessage toCore(ProtocolMessage pureMessage) throws Exception;
+   ICoreMessage toCore(ProtocolMessage pureMessage, CoreMessageObjectPools coreMessageObjectPools) throws Exception;
 
    ProtocolMessage fromCore(ICoreMessage coreMessage) throws Exception;
 }

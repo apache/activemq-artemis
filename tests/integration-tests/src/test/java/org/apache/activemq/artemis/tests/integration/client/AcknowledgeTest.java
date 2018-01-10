@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -386,6 +387,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       @Override
       public ICoreMessage toCore() {
+         return toCore(null);
+      }
+
+      @Override
+      public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
          return null;
       }
 
@@ -644,6 +650,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       @Override
       public Message putStringProperty(SimpleString key, SimpleString value) {
+         return null;
+      }
+
+      @Override
+      public Message putStringProperty(SimpleString key, String value) {
          return null;
       }
 

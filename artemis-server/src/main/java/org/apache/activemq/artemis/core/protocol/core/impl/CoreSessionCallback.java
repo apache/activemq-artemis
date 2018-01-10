@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
@@ -47,6 +48,8 @@ public final class CoreSessionCallback implements SessionCallback {
    private String name;
 
    private ServerSessionPacketHandler handler;
+
+   private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    public CoreSessionCallback(String name,
                               ProtocolManager protocolManager,
@@ -115,9 +118,9 @@ public final class CoreSessionCallback implements SessionCallback {
 
       Packet packet;
       if (channel.getConnection().isVersionBeforeAddressChange()) {
-         packet = new SessionReceiveMessage_1X(consumer.getID(), message.toCore(), deliveryCount);
+         packet = new SessionReceiveMessage_1X(consumer.getID(), message.toCore(coreMessageObjectPools), deliveryCount);
       } else {
-         packet = new SessionReceiveMessage(consumer.getID(), message.toCore(), deliveryCount);
+         packet = new SessionReceiveMessage(consumer.getID(), message.toCore(coreMessageObjectPools), deliveryCount);
       }
 
       int size = 0;
@@ -159,11 +162,11 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumerId, String queueName) {
+   public void disconnect(ServerConsumer consumerId, SimpleString queueName) {
       if (channel.supports(PacketImpl.DISCONNECT_CONSUMER)) {
          channel.send(new DisconnectConsumerMessage(consumerId.getID()));
       } else {
-         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
+         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName.toString());
       }
    }
 
