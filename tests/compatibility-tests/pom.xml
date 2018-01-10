@@ -275,6 +275,11 @@
          <artifactId>slf4j-api</artifactId>
          <version>1.7.5</version>
       </dependency>
+      <dependency>
+         <groupId>org.jboss.marshalling</groupId>
+         <artifactId>jboss-marshalling-river</artifactId>
+         <version>2.0.2.Final</version>
+      </dependency>
    </dependencies>
 
    <build>
@@ -383,6 +388,7 @@
                         <arg>org.apache.activemq:artemis-amqp-protocol:1.5.5</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:1.5.5</arg>
                         <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                        <arg>org.jboss.marshalling:jboss-marshalling-river:2.0.2.Final</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
