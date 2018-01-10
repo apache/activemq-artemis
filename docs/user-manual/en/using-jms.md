@@ -5,7 +5,7 @@ be more comfortable using JMS.
 
 JMS is a very popular API standard for messaging, and most messaging
 systems provide a JMS API. If you are completely new to JMS we suggest
-you follow the [Oracle JMS tutorial](http://docs.oracle.com/javaee/7/tutorial/partmessaging.htm) -
+you follow the [Oracle JMS tutorial](https://docs.oracle.com/javaee/7/tutorial/partmessaging.htm) -
 a full JMS tutorial is out of scope for this guide.
 
 Apache ActiveMQ Artemis also ships with a wide range of examples, many of which

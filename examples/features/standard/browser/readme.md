@@ -2,7 +2,7 @@
 
 To run the example, simply type **mvn verify** from this directory, or **mvn -PnoServer verify** if you want to start and create the broker manually.
 
-This example shows you how to use a JMS [QueueBrowser](http://java.sun.com/javaee/5/docs/api/javax/jms/QueueBrowser.html) with ActiveMQ Artemis.
+This example shows you how to use a JMS [QueueBrowser](https://docs.oracle.com/javaee/7/api/javax/jms/QueueBrowser.html) with ActiveMQ Artemis.
 
 Queues are a standard part of JMS, please consult the JMS 1.1 specification for full details.
 

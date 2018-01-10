@@ -541,7 +541,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
        * to look through the cipher suites until we find one that's suitable for us.
        * If the JVM running this test is version 7 from Oracle then this cipher suite will will almost certainly require
        * TLSv1.2 (which is not enabled on the client by default).
-       * See http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider for the
+       * See http://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider for the
        * preferred cipher suites.
        */
 

@@ -233,7 +233,7 @@ Let's give an explanation of each config option.
 -   `use-link-headers`. By default, all links (URLs) are published using
     custom headers. You can instead have the Apache ActiveMQ Artemis REST
     implementation publish links using the [Link Header
-    specification](http://tools.ietf.org/html/draft-nottingham-http-link-header-10)
+    specification](https://tools.ietf.org/html/draft-nottingham-http-link-header-10)
     instead if you desire.
 
 -   `default-durable-send`. Whether a posted message should be persisted
