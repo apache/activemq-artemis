@@ -6,7 +6,7 @@ To run the example, simply type:
 
 from this directory, or add **-PnoServer** if you want to start and create the broker manually.
 
-This example shows how to manage ActiveMQ Artemis using [JMX using SSL](http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/)
+This example shows how to manage ActiveMQ Artemis using [JMX using SSL](http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html)
 
 ## Example configuration
 
@@ -20,4 +20,4 @@ With these properties, ActiveMQ Artemis broker will be manageable remotely using
 
 ## More information
 
-*   [Java management guide](http://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)
+*   [Java management guide](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)

@@ -6,7 +6,7 @@ SQL 92 expression syntax.
 It is the same as the syntax used for JMS selectors, but the predefined
 identifiers are different. For documentation on JMS selector syntax
 please the JMS javadoc for
-[javax.jms.Message](http://docs.oracle.com/javaee/6/api/javax/jms/Message.html).
+[javax.jms.Message](https://docs.oracle.com/javaee/7/api/javax/jms/Message.html).
 
 Filter expressions are used in several places in Apache ActiveMQ Artemis
 

@@ -21,7 +21,7 @@ Each acceptor defines a way in which connections can be made to the
 Apache ActiveMQ Artemis server.
 
 In the above example we're defining an acceptor that uses
-[Netty](http://netty.io/) to listen for connections at port
+[Netty](https://netty.io/) to listen for connections at port
 `61617`.
 
 The `acceptor` element contains a `URL` that defines the kind of Acceptor
@@ -97,7 +97,7 @@ Connection jmsConnection = connectionFactory.createConnection();
 ## Configuring the Netty transport
 
 Out of the box, Apache ActiveMQ Artemis currently uses
-[Netty](http://netty.io/), a high performance low level
+[Netty](https://netty.io/), a high performance low level
 network library.
 
 Our Netty transport can be configured in several different ways; to use
@@ -164,9 +164,9 @@ Netty for simple TCP:
     default value for this property is `61616`.
 
 -   `tcpNoDelay`. If this is `true` then [Nagle's
-    algorithm](http://en.wikipedia.org/wiki/Nagle%27s_algorithm) will be
+    algorithm](https://en.wikipedia.org/wiki/Nagle%27s_algorithm) will be
     disabled. This is a [Java (client) socket
-    option](http://docs.oracle.com/javase/7/docs/technotes/guides/net/socketOpt.html).
+    option](https://docs.oracle.com/javase/8/docs/technotes/guides/net/socketOpt.html).
     The default value for this property is `true`.
 
 -   `tcpSendBufferSize`. This parameter determines the size of the

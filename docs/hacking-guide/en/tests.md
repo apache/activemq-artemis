@@ -66,7 +66,7 @@ There are numerous methods in `org.apache.activemq.artemis.tests.util.ActiveMQTe
 methods are named like create&#42;Config(..). Each one creates a slightly different configuration but there is a lot of 
 overlap between them.
 
-In any case, `org.apache.activemq.artemis.core.config.Configuration` is a [_fluent_](http://en.wikipedia.org/wiki/Fluent_interface)
+In any case, `org.apache.activemq.artemis.core.config.Configuration` is a [_fluent_](https://en.wikipedia.org/wiki/Fluent_interface)
 interface so it's easy to customize however you need.
 
 ### Look at other test-cases

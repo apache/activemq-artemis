@@ -45,7 +45,7 @@ The majority of the journal is written in Java, however we abstract out
 the interaction with the actual file system to allow different pluggable
 implementations. Apache ActiveMQ Artemis ships with two implementations:
 
--   Java [NIO](http://en.wikipedia.org/wiki/New_I/O).
+-   Java [NIO](https://en.wikipedia.org/wiki/New_I/O).
 
     The first implementation uses standard Java NIO to interface with
     the file system. This provides extremely good performance and runs
@@ -77,7 +77,7 @@ implementations. Apache ActiveMQ Artemis ships with two implementations:
     
 -   [Memory mapped](https://en.wikipedia.org/wiki/Memory-mapped_file).
 
-    The third implementation uses a file-backed [READ_WRITE](https://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.MapMode.html#READ_WRITE)
+    The third implementation uses a file-backed [READ_WRITE](https://docs.oracle.com/javase/8/docs/api/java/nio/channels/FileChannel.MapMode.html#READ_WRITE)
     memory mapping against the OS page cache to interface with the file system.
     
     This provides extremely good performance (especially under strictly process failure durability requirements), 
@@ -85,8 +85,8 @@ implementations. Apache ActiveMQ Artemis ships with two implementations:
     on any platform where there's a Java 4+ runtime.
     
     Under power failure durability requirements it will perform at least on par with the NIO journal with the only 
-    exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/6/docs/api/java/nio/MappedByteBuffer.html#force%28%29)) implementation necessary to ensure 
-    durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.html#force%28boolean%29) used is case of NIO journal.
+    exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/8/docs/api/java/nio/MappedByteBuffer.html#force%28%29)) implementation necessary to ensure 
+    durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/8/docs/api/java/nio/channels/FileChannel.html#force%28boolean%29) used is case of NIO journal.
     
     It benefits by the configuration of OS [huge pages](https://en.wikipedia.org/wiki/Page_%28computer_memory%29),
     in particular when is used a big number of journal files and sizing them as multiple of the OS page size in bytes.    

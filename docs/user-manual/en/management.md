@@ -448,7 +448,7 @@ You can also configure the connector using the following:
 > Remote connections using the default JVM Agent not enabled by default as Artemis exposes the mBean Server via its own configuration. 
 > This is so Artemis can leverage the JAAS authentication layer via JMX. If you want to expose this then you will need to 
 > disable both the connector and the authorisation by removing them from the `management.xml` configuration.
-> Please refer to [Java Management guide](http://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)
+> Please refer to [Java Management guide](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)
 > to configure the server for remote management (system properties must be set in `artemis.profile`).
 
 By default, Apache ActiveMQ Artemis server uses the JMX domain "org.apache.activemq.artemis".
@@ -466,10 +466,10 @@ and MBean proxies to manage Apache ActiveMQ Artemis.
 
 ### Exposing JMX using Jolokia
 
-The default Broker configuration ships with the [Jolokia](http://www.jolokia.org)
+The default Broker configuration ships with the [Jolokia](https://jolokia.org)
 HTTP agent deployed as a Web Application. Jolokia is a remote
 JMX-over-HTTP bridge that exposes MBeans. For a full guide as
-to how to use it refer to [Jolokia Documentation](http://www.jolokia.org/documentation.html),
+to how to use it refer to [Jolokia Documentation](https://jolokia.org/documentation.html),
 however a simple example to query the broker's version would
 be to use a browser and go to the URL [http://username:password@localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker="0.0.0.0"/Version]().
 
@@ -511,7 +511,7 @@ management message's reply-to address (specified by
 
 A `ClientConsumer` can be used to consume the management reply and
 retrieve the result of the operation (if any) stored in the reply's
-body. For portability, results are returned as a [JSON](http://json.org)
+body. For portability, results are returned as a [JSON](https://json.org)
 String rather than Java Serialization (the
 `org.apache.activemq.artemis.api.core.management.ManagementHelper` can be used
 to convert the JSON string to Java objects).
