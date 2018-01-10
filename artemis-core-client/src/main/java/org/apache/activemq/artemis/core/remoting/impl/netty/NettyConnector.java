@@ -609,7 +609,7 @@ public class NettyConnector extends AbstractConnector {
 
                SslHandler handler = new SslHandler(engine);
 
-               pipeline.addLast(handler);
+               pipeline.addLast("ssl", handler);
             }
 
             if (httpEnabled) {
