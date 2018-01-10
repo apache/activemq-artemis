@@ -231,7 +231,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
     */
    private SimpleString simpleAddress;
 
-   private final TYPE type;
+   private final boolean temporary;
+
+   private final boolean queue;
+
+   private transient TYPE thetype;
 
    private final transient ActiveMQSession session;
 
@@ -242,9 +246,13 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
                                  final ActiveMQSession session) {
       this.simpleAddress = SimpleString.toSimpleString(address);
 
-      this.type = type;
+      this.thetype = type;
 
       this.session = session;
+
+      this.temporary = TYPE.isTemporary(type);
+
+      this.queue = TYPE.isQueue(type);
    }
 
    protected ActiveMQDestination(final SimpleString address,
@@ -252,9 +260,13 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
                                  final ActiveMQSession session) {
       this.simpleAddress = address;
 
-      this.type = type;
+      this.thetype = type;
 
       this.session = session;
+
+      this.temporary = TYPE.isTemporary(type);
+
+      this.queue = TYPE.isQueue(type);
    }
 
    public void setAddress(String address) {
@@ -283,7 +295,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public boolean isQueue() {
-      return TYPE.isQueue(type);
+      return queue;
    }
 
    // Public --------------------------------------------------------
@@ -301,11 +313,26 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public boolean isTemporary() {
-      return TYPE.isTemporary(type);
+      return temporary;
    }
 
    public TYPE getType() {
-      return type;
+      if (thetype == null) {
+         if (temporary) {
+            if (isQueue()) {
+               thetype = TYPE.TEMP_QUEUE;
+            } else {
+               thetype = TYPE.TEMP_TOPIC;
+            }
+         } else {
+            if (isQueue()) {
+               thetype = TYPE.QUEUE;
+            } else {
+               thetype = TYPE.TOPIC;
+            }
+         }
+      }
+      return thetype;
    }
 
    @Override
