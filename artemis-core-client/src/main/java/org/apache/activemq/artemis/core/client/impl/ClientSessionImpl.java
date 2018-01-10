@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -147,6 +148,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    private final ConfirmationWindowWarning confirmationWindowWarning;
 
    private final Executor closeExecutor;
+
+   private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    ClientSessionImpl(final ClientSessionFactoryInternal sessionFactory,
                      final String name,
@@ -869,7 +872,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                       final long expiration,
                                       final long timestamp,
                                       final byte priority) {
-      return new ClientMessageImpl(type, durable, expiration, timestamp, priority, initialMessagePacketSize);
+      return new ClientMessageImpl(type, durable, expiration, timestamp, priority, initialMessagePacketSize, coreMessageObjectPools);
    }
 
    @Override

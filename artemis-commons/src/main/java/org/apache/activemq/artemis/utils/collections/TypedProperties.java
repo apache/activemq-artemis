@@ -28,7 +28,7 @@ import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
-import org.apache.activemq.artemis.utils.AbstractInterner;
+import org.apache.activemq.artemis.utils.AbstractByteBufPool;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -332,8 +332,7 @@ public class TypedProperties {
    }
 
    public synchronized void decode(final ByteBuf buffer,
-                                   final SimpleString.Interner keyInterner,
-                                   final StringValue.Interner valueInterner) {
+                                   final TypedPropertiesDecoderPools keyValuePools) {
       byte b = buffer.readByte();
 
       if (b == DataConstants.NULL) {
@@ -346,15 +345,7 @@ public class TypedProperties {
          size = 0;
 
          for (int i = 0; i < numHeaders; i++) {
-            final SimpleString key;
-            int len = buffer.readInt();
-            if (keyInterner != null) {
-               key = keyInterner.intern(buffer, len);
-            } else {
-               byte[] data = new byte[len];
-               buffer.readBytes(data);
-               key = new SimpleString(data);
-            }
+            final SimpleString key = SimpleString.readSimpleString(buffer, keyValuePools == null ? null : keyValuePools.getPropertyKeysPool());
 
             byte type = buffer.readByte();
 
@@ -412,12 +403,7 @@ public class TypedProperties {
                   break;
                }
                case STRING: {
-                  if (valueInterner != null) {
-                     final int length = buffer.readInt();
-                     val = valueInterner.intern(buffer, length);
-                  } else {
-                     val = new StringValue(buffer);
-                  }
+                  val = StringValue.readStringValue(buffer, keyValuePools == null ? null : keyValuePools.getPropertyValuesPool());
                   doPutValue(key, val);
                   break;
                }
@@ -430,7 +416,7 @@ public class TypedProperties {
    }
 
    public synchronized void decode(final ByteBuf buffer) {
-      decode(buffer, null, null);
+      decode(buffer, null);
    }
 
    public synchronized void encode(final ByteBuf buffer) {
@@ -901,44 +887,18 @@ public class TypedProperties {
 
    public static final class StringValue extends PropertyValue {
 
-      public static final class Interner extends AbstractInterner<StringValue> {
-
-         private final int maxLength;
-
-         public Interner(final int capacity, final int maxCharsLength) {
-            super(capacity);
-            this.maxLength = maxCharsLength;
-         }
-
-         @Override
-         protected boolean isEqual(final StringValue entry, final ByteBuf byteBuf, final int offset, final int length) {
-            if (entry == null) {
-               return false;
-            }
-            return SimpleString.isEqual(entry.val, byteBuf, offset, length);
-         }
-
-         @Override
-         protected boolean canIntern(final ByteBuf byteBuf, final int length) {
-            assert length % 2 == 0 : "length must be a multiple of 2";
-            final int expectedStringLength = length >> 1;
-            return expectedStringLength <= maxLength;
-         }
-
-         @Override
-         protected StringValue create(final ByteBuf byteBuf, final int length) {
-            return new StringValue(SimpleString.readSimpleString(byteBuf, length));
-         }
-      }
-
       final SimpleString val;
 
       private StringValue(final SimpleString val) {
          this.val = val;
       }
 
-      private StringValue(final ByteBuf buffer) {
-         val = SimpleString.readSimpleString(buffer);
+      static StringValue readStringValue(final ByteBuf byteBuf, ByteBufStringValuePool pool) {
+         if (pool == null) {
+            return new StringValue(SimpleString.readSimpleString(byteBuf));
+         } else {
+            return pool.getOrCreate(byteBuf);
+         }
       }
 
       @Override
@@ -955,6 +915,90 @@ public class TypedProperties {
       @Override
       public int encodeSize() {
          return DataConstants.SIZE_BYTE + SimpleString.sizeofString(val);
+      }
+
+      public static final class ByteBufStringValuePool extends AbstractByteBufPool<StringValue> {
+
+         private static final int UUID_LENGTH = 36;
+
+         private final int maxLength;
+
+         public ByteBufStringValuePool() {
+            this.maxLength = UUID_LENGTH;
+         }
+
+         public ByteBufStringValuePool(final int capacity, final int maxCharsLength) {
+            super(capacity);
+            this.maxLength = maxCharsLength;
+         }
+
+         @Override
+         protected boolean isEqual(final StringValue entry, final ByteBuf byteBuf, final int offset, final int length) {
+            if (entry == null || entry.val == null) {
+               return false;
+            }
+            return entry.val.equals(byteBuf, offset, length);
+         }
+
+         @Override
+         protected boolean canPool(final ByteBuf byteBuf, final int length) {
+            assert length % 2 == 0 : "length must be a multiple of 2";
+            final int expectedStringLength = length >> 1;
+            return expectedStringLength <= maxLength;
+         }
+
+         @Override
+         protected StringValue create(final ByteBuf byteBuf, final int length) {
+            return new StringValue(SimpleString.readSimpleString(byteBuf, length));
+         }
+      }
+   }
+
+   public static class TypedPropertiesDecoderPools {
+
+      private SimpleString.ByteBufSimpleStringPool propertyKeysPool;
+      private TypedProperties.StringValue.ByteBufStringValuePool propertyValuesPool;
+
+      public TypedPropertiesDecoderPools() {
+         this.propertyKeysPool = new SimpleString.ByteBufSimpleStringPool();
+         this.propertyValuesPool = new TypedProperties.StringValue.ByteBufStringValuePool();
+      }
+
+      public TypedPropertiesDecoderPools(int keyPoolCapacity, int valuePoolCapacity, int maxCharsLength) {
+         this.propertyKeysPool = new SimpleString.ByteBufSimpleStringPool(keyPoolCapacity, maxCharsLength);
+         this.propertyValuesPool = new TypedProperties.StringValue.ByteBufStringValuePool(valuePoolCapacity, maxCharsLength);
+      }
+
+      public SimpleString.ByteBufSimpleStringPool getPropertyKeysPool() {
+         return propertyKeysPool;
+      }
+
+      public TypedProperties.StringValue.ByteBufStringValuePool getPropertyValuesPool() {
+         return propertyValuesPool;
+      }
+   }
+
+   public static class TypedPropertiesStringSimpleStringPools {
+
+      private SimpleString.StringSimpleStringPool propertyKeysPool;
+      private SimpleString.StringSimpleStringPool propertyValuesPool;
+
+      public TypedPropertiesStringSimpleStringPools() {
+         this.propertyKeysPool = new SimpleString.StringSimpleStringPool();
+         this.propertyValuesPool = new SimpleString.StringSimpleStringPool();
+      }
+
+      public TypedPropertiesStringSimpleStringPools(int keyPoolCapacity, int valuePoolCapacity) {
+         this.propertyKeysPool = new SimpleString.StringSimpleStringPool(keyPoolCapacity);
+         this.propertyValuesPool = new SimpleString.StringSimpleStringPool(valuePoolCapacity);
+      }
+
+      public SimpleString.StringSimpleStringPool getPropertyKeysPool() {
+         return propertyKeysPool;
+      }
+
+      public SimpleString.StringSimpleStringPool getPropertyValuesPool() {
+         return propertyValuesPool;
       }
    }
 

@@ -511,7 +511,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    }
 
    protected PacketDecoder createPacketDecoder() {
-      return ClientPacketDecoder.INSTANCE;
+      return new ClientPacketDecoder();
    }
 
    private void forceReturnChannel1(ActiveMQException cause) {
