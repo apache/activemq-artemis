@@ -28,8 +28,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
 /**
  * To run this test on the IDE and debug it, run the compatibility-tests through a command line once:
@@ -45,11 +45,11 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
  * Run->Edit Configuration->Add ArtemisMeshTest and add your properties.
  */
 @RunWith(Parameterized.class)
-public class ExportImportTest extends VersionedBaseTest {
+public class JournalCompatibilityTest extends VersionedBaseTest {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, sender={1}, consumer={2}")
+   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
@@ -62,12 +62,14 @@ public class ExportImportTest extends VersionedBaseTest {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.add(new Object[]{null, ONE_FIVE, SNAPSHOT});
+      combinations.add(new Object[]{null, TWO_FOUR, SNAPSHOT});
+      // the purpose on this one is just to validate the test itself.
+      /// if it can't run against itself it won't work at all
       combinations.add(new Object[]{null, SNAPSHOT, SNAPSHOT});
       return combinations;
    }
 
-   public ExportImportTest(String server, String sender, String receiver) throws Exception {
+   public JournalCompatibilityTest(String server, String sender, String receiver) throws Exception {
       super(server, sender, receiver);
    }
 
@@ -82,55 +84,25 @@ public class ExportImportTest extends VersionedBaseTest {
       try {
          stopServer(serverClassloader);
       } catch (Throwable ignored) {
-         ignored.printStackTrace();
       }
       try {
          stopServer(receiverClassloader);
       } catch (Throwable ignored) {
-         ignored.printStackTrace();
       }
    }
 
    @Test
    public void testSendReceive() throws Throwable {
-      internalSendReceive(false);
-   }
-
-   @Test
-   public void testSendReceivelegacy() throws Throwable {
-      if (!sender.equals(SNAPSHOT)) {
-         // makes no sense on snapshot
-         internalSendReceive(true);
-      }
-   }
-
-   public void internalSendReceive(boolean legacyPrefixes) throws Throwable {
-      setVariable(senderClassloader, "legacy", false);
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "sender");
+      startServer(serverFolder.getRoot(), senderClassloader, "journalTest");
       callScript(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
-      if (sender.startsWith("ARTEMIS-1")) {
-         callScript(senderClassloader, "exportimport/export1X.groovy", serverFolder.getRoot().getAbsolutePath());
-      } else {
-         callScript(senderClassloader, "exportimport/export.groovy", serverFolder.getRoot().getAbsolutePath());
-      }
+      setVariable(receiverClassloader, "persistent", true);
+      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest");
 
-      setVariable(receiverClassloader, "legacy", legacyPrefixes);
-      try {
-         setVariable(receiverClassloader, "persistent", true);
-         startServer(serverFolder.getRoot(), receiverClassloader, "receiver");
-
-         setVariable(receiverClassloader, "sort", sender.startsWith("ARTEMIS-1"));
-
-         callScript(receiverClassloader, "exportimport/import.groovy", serverFolder.getRoot().getAbsolutePath());
-
-         setVariable(receiverClassloader, "latch", null);
-         callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
-      } finally {
-         setVariable(receiverClassloader, "legacy", false);
-      }
+      setVariable(receiverClassloader, "latch", null);
+      callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
    }
 
 }
