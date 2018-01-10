@@ -138,7 +138,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    private void setVariable(String classPathGenerated) {
       if (variableName != null) {
          project.getProperties().setProperty(variableName, classPathGenerated);
-         getLog().info("dependency-scan setting: " + variableName + "=" + classPathGenerated);
+         getLog().info("dependency-scan setting: -D" + variableName + "=\"" + classPathGenerated + "\"");
       }
    }
 
