@@ -627,7 +627,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             throw new InvalidDestinationException("Cannot create a durable subscription on a temporary topic");
          }
 
-         queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(durability == ConsumerDurability.DURABLE, connection.getClientID(), subscriptionName));
+         queueName = ActiveMQDestination.createQueueNameForSubscription(durability == ConsumerDurability.DURABLE, connection.getClientID(), subscriptionName);
 
          if (durability == ConsumerDurability.DURABLE) {
             try {
@@ -750,7 +750,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   throw new InvalidDestinationException("Cannot create a durable subscription on a temporary topic");
                }
 
-               queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), subscriptionName));
+               queueName = ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), subscriptionName);
 
                QueueQuery subResponse = session.queueQuery(queueName);
 
@@ -918,7 +918,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw new IllegalStateException("Cannot unsubscribe using a QueueSession");
       }
 
-      SimpleString queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), name));
+      SimpleString queueName = ActiveMQDestination.createQueueNameForSubscription(true, connection.getClientID(), name);
 
       try {
          QueueQuery response = session.queueQuery(queueName);

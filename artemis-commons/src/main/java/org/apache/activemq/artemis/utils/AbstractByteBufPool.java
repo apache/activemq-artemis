@@ -28,13 +28,19 @@ import io.netty.util.internal.PlatformDependent;
  * when used by concurrent threads it doesn't ensure the uniqueness of the entries ie
  * the same entry could be allocated multiple times by concurrent calls.
  */
-public abstract class AbstractInterner<T> {
+public abstract class AbstractByteBufPool<T> {
+
+   public static final int DEFAULT_POOL_CAPACITY = 32;
 
    private final T[] entries;
    private final int mask;
    private final int shift;
 
-   public AbstractInterner(final int capacity) {
+   public AbstractByteBufPool() {
+      this(DEFAULT_POOL_CAPACITY);
+   }
+
+   public AbstractByteBufPool(final int capacity) {
       entries = (T[]) new Object[MathUtil.findNextPositivePowerOfTwo(capacity)];
       mask = entries.length - 1;
       //log2 of entries.length
@@ -105,10 +111,10 @@ public abstract class AbstractInterner<T> {
    }
 
    /**
-    * Returns {@code true} if {@code length}'s {@code byteBuf} content from {@link ByteBuf#readerIndex()} can be interned,
+    * Returns {@code true} if {@code length}'s {@code byteBuf} content from {@link ByteBuf#readerIndex()} can be pooled,
     * {@code false} otherwise.
     */
-   protected abstract boolean canIntern(ByteBuf byteBuf, int length);
+   protected abstract boolean canPool(ByteBuf byteBuf, int length);
 
    /**
     * Create a new entry.
@@ -122,12 +128,13 @@ public abstract class AbstractInterner<T> {
    protected abstract boolean isEqual(T entry, ByteBuf byteBuf, int offset, int length);
 
    /**
-    * Returns and interned entry if possible, a new one otherwise.
+    * Returns a pooled entry if possible, a new one otherwise.
     * <p>
     * The {@code byteBuf}'s {@link ByteBuf#readerIndex()} is incremented by {@code length} after it.
     */
-   public final T intern(final ByteBuf byteBuf, final int length) {
-      if (!canIntern(byteBuf, length)) {
+   public final T getOrCreate(final ByteBuf byteBuf) {
+      final int length = byteBuf.readInt();
+      if (!canPool(byteBuf, length)) {
          return create(byteBuf, length);
       } else {
          if (!byteBuf.isReadable(length)) {

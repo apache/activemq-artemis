@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -334,6 +335,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public CoreMessage toCore() {
+         return toCore(null);
+      }
+
+      @Override
+      public CoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
          return null;
       }
 
@@ -587,6 +593,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public Message putStringProperty(SimpleString key, SimpleString value) {
+         return null;
+      }
+
+      @Override
+      public Message putStringProperty(SimpleString key, String value) {
          return null;
       }
 

@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -108,9 +109,10 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
    }
 
    @Override
-   public ICoreMessage toCore(OpenwireMessage pureMessage) throws Exception {
+   public ICoreMessage toCore(OpenwireMessage pureMessage, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       return null;
    }
+
 
    //   @Override
    public Object outbound(org.apache.activemq.artemis.api.core.Message message, int deliveryCount) {
@@ -119,10 +121,10 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
    }
 
 //   @Override
-   public org.apache.activemq.artemis.api.core.Message inbound(Object message) throws Exception {
+   public org.apache.activemq.artemis.api.core.Message inbound(Object message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
 
       Message messageSend = (Message) message;
-      CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize());
+      CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize(), coreMessageObjectPools);
 
       String type = messageSend.getType();
       if (type != null) {
