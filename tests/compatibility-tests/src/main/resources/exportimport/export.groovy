@@ -26,9 +26,9 @@ XmlDataExporter exporter = new XmlDataExporter();
 exporter.binding = arg[0] + "/sender/data/bindings"
 exporter.journal = arg[0] + "/sender/data/journal"
 try {
-    exporter.largeMessages = arg[0] + "/sender/data/largeMessages"
+    exporter.largeMessages = arg[0] + "/sender/data/largemessages"
 } catch (Throwable e) {
-    exporter.largeMessges = arg[0] + "/sender/data/largeMessages"
+    exporter.largeMessges = arg[0] + "/sender/data/largemessages"
 }
 exporter.paging = arg[0] + "/sender/data/paging"
 
