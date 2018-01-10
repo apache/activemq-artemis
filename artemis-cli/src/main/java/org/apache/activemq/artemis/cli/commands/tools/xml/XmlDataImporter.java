@@ -37,10 +37,13 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import io.airlift.airline.Command;
@@ -61,6 +64,8 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.commands.ActionAbstract;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -93,6 +98,8 @@ public final class XmlDataImporter extends ActionAbstract {
 
    String tempFileName = "";
 
+   HashMap<String, String> oldPrefixTranslation = new HashMap<>();
+
    private ClientSession session;
 
    @Option(name = "--host", description = "The host used to import the data (default localhost)")
@@ -112,6 +119,14 @@ public final class XmlDataImporter extends ActionAbstract {
 
    @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
    public String input = "exp.dmp";
+
+   @Option(name = "--sort", description = "Sort the messages from the input (used for older versions that won't sort messages)")
+   public boolean sort = false;
+
+   @Option(name = "--legacy-prefixes", description = "Do not remove prefixes from legacy imports")
+   public boolean legacyPrefixes = false;
+
+   TreeSet<MessageTemp> messages;
 
    public String getPassword() {
       return password;
@@ -224,13 +239,29 @@ public final class XmlDataImporter extends ActionAbstract {
    }
 
    private void processXml() throws Exception {
+      if (sort) {
+         messages = new TreeSet<MessageTemp>(new Comparator<MessageTemp>() {
+            @Override
+            public int compare(MessageTemp o1, MessageTemp o2) {
+               if (o1.id == o2.id) {
+                  return 0;
+               } else if (o1.id > o2.id) {
+                  return 1;
+               } else {
+                  return -1;
+               }
+            }
+         });
+      }
       try {
          while (reader.hasNext()) {
             if (logger.isDebugEnabled()) {
                logger.debug("EVENT:[" + reader.getLocation().getLineNumber() + "][" + reader.getLocation().getColumnNumber() + "] ");
             }
             if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
-               if (XmlDataConstants.QUEUE_BINDINGS_CHILD.equals(reader.getLocalName())) {
+               if (XmlDataConstants.OLD_BINDING.equals(reader.getLocalName())) {
+                  oldBinding(); // export from 1.x
+               } else if (XmlDataConstants.QUEUE_BINDINGS_CHILD.equals(reader.getLocalName())) {
                   bindQueue();
                } else if (XmlDataConstants.ADDRESS_BINDINGS_CHILD.equals(reader.getLocalName())) {
                   bindAddress();
@@ -239,6 +270,12 @@ public final class XmlDataImporter extends ActionAbstract {
                }
             }
             reader.next();
+         }
+
+         if (sort) {
+            for (MessageTemp msgtmp : messages) {
+               sendMessage(msgtmp.queues, msgtmp.message);
+            }
          }
 
          if (!session.isAutoCommitSends()) {
@@ -258,6 +295,7 @@ public final class XmlDataImporter extends ActionAbstract {
       Byte priority = 0;
       Long expiration = 0L;
       Long timestamp = 0L;
+      Long id = 0L;
       org.apache.activemq.artemis.utils.UUID userId = null;
       ArrayList<String> queues = new ArrayList<>();
 
@@ -279,6 +317,9 @@ public final class XmlDataImporter extends ActionAbstract {
                break;
             case XmlDataConstants.MESSAGE_USER_ID:
                userId = UUIDGenerator.getInstance().generateUUID();
+               break;
+            case XmlDataConstants.MESSAGE_ID:
+               id = Long.parseLong(reader.getAttributeValue(i));
                break;
          }
       }
@@ -313,7 +354,25 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
 
-      sendMessage(queues, message);
+      if (sort) {
+         messages.add(new MessageTemp(id, queues, message));
+      } else {
+         sendMessage(queues, message);
+      }
+   }
+
+
+   class MessageTemp {
+      long id;
+      List<String> queues;
+      Message message;
+
+      MessageTemp(long id, List<String> queues, Message message) {
+         this.message = message;
+         this.queues = queues;
+         this.message = message;
+         this.id = id;
+      }
    }
 
    private Byte getMessageType(String value) {
@@ -341,7 +400,7 @@ public final class XmlDataImporter extends ActionAbstract {
       return type;
    }
 
-   private void sendMessage(ArrayList<String> queues, Message message) throws Exception {
+   private void sendMessage(List<String> queues, Message message) throws Exception {
       StringBuilder logMessage = new StringBuilder();
       String destination = addressMap.get(queues.get(0));
 
@@ -400,9 +459,19 @@ public final class XmlDataImporter extends ActionAbstract {
    private void processMessageQueues(ArrayList<String> queues) {
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          if (XmlDataConstants.QUEUE_NAME.equals(reader.getAttributeLocalName(i))) {
-            queues.add(reader.getAttributeValue(i));
+            String queueName = reader.getAttributeValue(i);
+            String translation = checkPrefix(queueName);
+            queues.add(translation);
          }
       }
+   }
+
+   private String checkPrefix(String queueName) {
+      String newQueueName = oldPrefixTranslation.get(queueName);
+      if (newQueueName == null) {
+         newQueueName = queueName;
+      }
+      return newQueueName;
    }
 
    private void processMessageProperties(Message message) {
@@ -529,6 +598,88 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
    }
+
+
+   private void oldBinding() throws Exception {
+      String queueName = "";
+      String address = "";
+      String filter = "";
+
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
+         String attributeName = reader.getAttributeLocalName(i);
+         switch (attributeName) {
+            case XmlDataConstants.OLD_ADDRESS:
+               address = reader.getAttributeValue(i);
+               break;
+            case XmlDataConstants.OLD_QUEUE:
+               queueName = reader.getAttributeValue(i);
+               break;
+            case XmlDataConstants.OLD_FILTER:
+               filter = reader.getAttributeValue(i);
+               break;
+         }
+      }
+
+      if (queueName == null || address == null || filter == null) {
+         // not expected to happen unless someone manually changed the format
+         throw new IllegalStateException("invalid format, missing queue, address or filter");
+      }
+
+      RoutingType routingType = RoutingType.MULTICAST;
+
+      if (address.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+         routingType = RoutingType.ANYCAST;
+         if (!legacyPrefixes) {
+            String newaddress = address.substring(PacketImpl.OLD_QUEUE_PREFIX.length());
+            address = newaddress;
+         }
+      } else if (address.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+         routingType = RoutingType.MULTICAST;
+         if (!legacyPrefixes) {
+            String newaddress = address.substring(PacketImpl.OLD_TOPIC_PREFIX.length());
+            address = newaddress;
+         }
+      }
+
+      if (queueName.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+         if (!legacyPrefixes) {
+            String newQueueName = queueName.substring(PacketImpl.OLD_QUEUE_PREFIX.length());
+            oldPrefixTranslation.put(queueName, newQueueName);
+            queueName = newQueueName;
+         }
+      } else if (queueName.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+         if (!legacyPrefixes) {
+            String newQueueName = queueName.substring(PacketImpl.OLD_TOPIC_PREFIX.length());
+            oldPrefixTranslation.put(queueName, newQueueName);
+            queueName = newQueueName;
+         }
+      }
+
+
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.toSimpleString(address));
+
+      if (!addressQuery.isExists()) {
+         session.createAddress(SimpleString.toSimpleString(address), routingType, true);
+      }
+
+      if (!filter.equals(FilterImpl.GENERIC_IGNORED_FILTER)) {
+         ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
+
+         if (!queueQuery.isExists()) {
+            session.createQueue(address, routingType, queueName, filter, true);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
+            }
+         } else {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Binding " + queueName + " already exists so won't re-bind.");
+            }
+         }
+      }
+
+      addressMap.put(queueName, address);
+   }
+
 
    private void bindQueue() throws Exception {
       String queueName = "";

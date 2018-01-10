@@ -22,6 +22,8 @@ System.out.println("Arg::" + arg[0]);
 File pagingfile = new File(arg[0] + "/sender/data/paging")
 pagingfile.mkdirs()
 XmlDataImporter importer = new XmlDataImporter();
+importer.legacyPrefixes = legacy
+importer.sort = sort;
 
 importer.input = arg[0] + "/journal.export"
 importer.execute(new ActionContext(System.in, System.out, System.err))
