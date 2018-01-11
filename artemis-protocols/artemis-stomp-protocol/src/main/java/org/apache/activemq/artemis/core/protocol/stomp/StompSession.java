@@ -138,6 +138,9 @@ public class StompSession implements SessionCallback {
       ICoreMessage newServerMessage = serverMessage.toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
+         // subscription might be null if the consumer was closed
+         if (subscription == null)
+            return 0;
          StompFrame frame;
          ActiveMQBuffer buffer;
 
