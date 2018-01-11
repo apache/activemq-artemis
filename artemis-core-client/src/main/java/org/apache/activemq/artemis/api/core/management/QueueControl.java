@@ -223,6 +223,9 @@ public interface QueueControl {
    @Operation(desc = "Returns the number of the messages in the queue matching the given filter", impact = MBeanOperationInfo.INFO)
    long countMessages(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filter) throws Exception;
 
+   @Operation(desc = "Returns the number of the messages in the queue", impact = MBeanOperationInfo.INFO)
+   long countMessages() throws Exception;
+
    /**
     * Removes the message corresponding to the specified message ID.
     *
@@ -464,11 +467,12 @@ public interface QueueControl {
    @Operation(desc = "Browse Messages", impact = MBeanOperationInfo.ACTION)
    CompositeData[] browse() throws Exception;
 
-   /**
-    * Resets the MessagesAdded property
-    */
    @Operation(desc = "Browse Messages", impact = MBeanOperationInfo.ACTION)
    CompositeData[] browse(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filter) throws Exception;
+
+   @Operation(desc = "Browse Messages", impact = MBeanOperationInfo.ACTION)
+   CompositeData[] browse(@Parameter(name = "page", desc = "Current page") int page,
+                          @Parameter(name = "pageSize", desc = "Page size") int pageSize) throws Exception;
 
    /**
     * Resets the MessagesAdded property
