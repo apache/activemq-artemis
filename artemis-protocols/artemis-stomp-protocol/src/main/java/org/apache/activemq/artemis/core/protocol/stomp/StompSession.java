@@ -157,7 +157,7 @@ public class StompSession implements SessionCallback {
             buffer = coreMessage.getReadOnlyBodyBuffer();
          }
 
-         if (serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
+         if (Boolean.TRUE.equals(serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
             ActiveMQBuffer qbuff = buffer;
             int bytesToRead = qbuff.readerIndex();
             Inflater inflater = new Inflater();

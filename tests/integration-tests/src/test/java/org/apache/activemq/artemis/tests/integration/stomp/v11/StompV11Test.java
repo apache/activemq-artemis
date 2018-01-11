@@ -1153,7 +1153,7 @@ public class StompV11Test extends StompTestBase {
       }
 
       //ack the last
-      this.ack(conn, "sub1", frame);
+      ack(conn, "sub1", frame);
 
       unsubscribe(conn, "sub1");
 
@@ -1186,7 +1186,7 @@ public class StompV11Test extends StompTestBase {
 
          //ack the 49th
          if (i == num - 2) {
-            this.ack(conn, "sub1", frame);
+            ack(conn, "sub1", frame);
          }
       }
 
@@ -1252,7 +1252,7 @@ public class StompV11Test extends StompTestBase {
          IntegrationTestLogger.LOGGER.info(i + " == received: " + frame);
          //ack on even numbers
          if (i % 2 == 0) {
-            this.ack(conn, "sub1", frame);
+            ack(conn, "sub1", frame);
          }
       }
 
@@ -1279,12 +1279,12 @@ public class StompV11Test extends StompTestBase {
    public void testTwoSubscribers() throws Exception {
       conn.connect(defUser, defPass, CLIENT_ID);
 
-      this.subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, null);
+      subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, null);
 
       StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass, "myclientid2");
 
-      this.subscribeTopic(newConn, "sub2", Stomp.Headers.Subscribe.AckModeValues.AUTO, null);
+      subscribeTopic(newConn, "sub2", Stomp.Headers.Subscribe.AckModeValues.AUTO, null);
 
       send(newConn, getTopicPrefix() + getTopicName(), null, "Hello World");
 
@@ -1302,8 +1302,8 @@ public class StompV11Test extends StompTestBase {
       assertEquals("sub2", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
 
       // remove suscription
-      this.unsubscribe(conn, "sub1", true);
-      this.unsubscribe(newConn, "sub2", true);
+      unsubscribe(conn, "sub1", true);
+      unsubscribe(newConn, "sub2", true);
 
       conn.disconnect();
       newConn.disconnect();
@@ -1318,7 +1318,7 @@ public class StompV11Test extends StompTestBase {
       StompClientConnection connV11_2 = StompClientConnectionFactory.createClientConnection(uri);
       connV11_2.connect(defUser, defPass);
 
-      this.subscribe(connV11_2, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(connV11_2, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       ClientStompFrame frame = connV11_2.receiveFrame(2000);
 
@@ -1347,7 +1347,7 @@ public class StompV11Test extends StompTestBase {
    public void testBodyWithUTF8() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, getName(), Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, getName(), Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       String text = "A" + "\u00ea" + "\u00f1" + "\u00fc" + "C";
       IntegrationTestLogger.LOGGER.info(text);
@@ -1366,7 +1366,7 @@ public class StompV11Test extends StompTestBase {
    public void testClientAckNotPartOfTransaction() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, getName(), Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      subscribe(conn, getName(), Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       sendJmsMessage(getName());
 
@@ -1381,7 +1381,7 @@ public class StompV11Test extends StompTestBase {
 
       beginTransaction(conn, "tx1");
 
-      this.ack(conn, getName(), messageID, "tx1");
+      ack(conn, getName(), messageID, "tx1");
 
       abortTransaction(conn, "tx1");
 
@@ -1389,7 +1389,7 @@ public class StompV11Test extends StompTestBase {
 
       assertNull(frame);
 
-      this.unsubscribe(conn, getName());
+      unsubscribe(conn, getName());
 
       conn.disconnect();
    }
@@ -1398,7 +1398,7 @@ public class StompV11Test extends StompTestBase {
    public void testDisconnectAndError() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, getName(), Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      subscribe(conn, getName(), Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       String uuid = UUID.randomUUID().toString();
 
@@ -1453,9 +1453,9 @@ public class StompV11Test extends StompTestBase {
    public void testDurableSubscriber() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName());
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName());
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName(), false);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT, getName(), false);
       ClientStompFrame frame = conn.receiveFrame();
 
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
@@ -1467,7 +1467,7 @@ public class StompV11Test extends StompTestBase {
    public void testDurableSubscriberWithReconnection() throws Exception {
       conn.connect(defUser, defPass, CLIENT_ID);
 
-      this.subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
+      subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
 
       String uuid = UUID.randomUUID().toString();
 
@@ -1487,7 +1487,7 @@ public class StompV11Test extends StompTestBase {
       conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass, CLIENT_ID);
 
-      this.subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
+      subscribeTopic(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
 
       // we must have received the message
       frame = conn.receiveFrame();
@@ -1496,7 +1496,7 @@ public class StompV11Test extends StompTestBase {
       Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.DESTINATION));
       Assert.assertEquals(getName(), frame.getBody());
 
-      this.unsubscribe(conn, "sub1");
+      unsubscribe(conn, "sub1");
 
       conn.disconnect();
    }
@@ -1505,14 +1505,14 @@ public class StompV11Test extends StompTestBase {
    public void testDurableUnSubscribe() throws Exception {
       conn.connect(defUser, defPass, CLIENT_ID);
 
-      this.subscribeTopic(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
+      subscribeTopic(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
 
       conn.disconnect();
       conn.destroy();
       conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass, CLIENT_ID);
 
-      this.unsubscribe(conn, getName(), null, false, true);
+      unsubscribe(conn, getName(), null, false, true);
 
       long start = System.currentTimeMillis();
       SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
@@ -1552,7 +1552,7 @@ public class StompV11Test extends StompTestBase {
 
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       for (int i = 0; i < ctr; ++i) {
          data[i] = getName() + i;
@@ -1583,7 +1583,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeWithAutoAckAndSelector() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, null, "foo = 'zzz'");
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO, null, "foo = 'zzz'");
 
       sendJmsMessage("Ignored message", "foo", "1234");
       sendJmsMessage("Real message", "foo", "zzz");
@@ -1599,7 +1599,7 @@ public class StompV11Test extends StompTestBase {
    public void testRedeliveryWithClientAck() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "subscriptionId", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      subscribe(conn, "subscriptionId", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       sendJmsMessage(getName());
 
@@ -1834,7 +1834,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeToTopic() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribeTopic(conn, "sub1", null, null, true);
+      subscribeTopic(conn, "sub1", null, null, true);
 
       sendJmsMessage(getName(), topic);
 
@@ -1844,7 +1844,7 @@ public class StompV11Test extends StompTestBase {
       Assert.assertTrue(frame.getHeader(Stomp.Headers.Message.DESTINATION).equals(getTopicPrefix() + getTopicName()));
       Assert.assertTrue(frame.getBody().equals(getName()));
 
-      this.unsubscribe(conn, "sub1", true);
+      unsubscribe(conn, "sub1", true);
 
       sendJmsMessage(getName(), topic);
 
@@ -1858,7 +1858,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeToTopicWithNoLocal() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribeTopic(conn, "sub1", null, null, true, true);
+      subscribeTopic(conn, "sub1", null, null, true, true);
 
       send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
 
@@ -1875,7 +1875,7 @@ public class StompV11Test extends StompTestBase {
       Assert.assertTrue(frame.getHeader(Stomp.Headers.Message.DESTINATION).equals(getTopicPrefix() + getTopicName()));
       Assert.assertTrue(frame.getBody().equals(getName()));
 
-      this.unsubscribe(conn, "sub1");
+      unsubscribe(conn, "sub1");
 
       conn.disconnect();
    }
@@ -1884,7 +1884,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeWithAutoAck() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       sendJmsMessage(getName());
 
@@ -1906,7 +1906,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeWithAutoAckAndBytesMessage() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       byte[] payload = new byte[]{1, 2, 3, 4, 5};
       sendJmsMessage(payload, queue);
@@ -1930,7 +1930,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeWithClientAck() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       sendJmsMessage(getName());
 
@@ -1938,7 +1938,7 @@ public class StompV11Test extends StompTestBase {
 
       assertEquals(getName().length(), Integer.parseInt(frame.getHeader(Stomp.Headers.CONTENT_LENGTH)));
 
-      this.ack(conn, "sub1", frame);
+      ack(conn, "sub1", frame);
 
       conn.disconnect();
 
@@ -1962,7 +1962,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeWithID() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "mysubid", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "mysubid", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       sendJmsMessage(getName());
 
@@ -1977,7 +1977,7 @@ public class StompV11Test extends StompTestBase {
    public void testSubscribeWithMessageSentWithProperties() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       MessageProducer producer = session.createProducer(queue);
       BytesMessage message = session.createBytesMessage();
@@ -2015,7 +2015,7 @@ public class StompV11Test extends StompTestBase {
       conn.connect(defUser, defPass);
 
       // first tx
-      this.beginTransaction(conn, "tx1");
+      beginTransaction(conn, "tx1");
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
                                    .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
@@ -2024,13 +2024,13 @@ public class StompV11Test extends StompTestBase {
 
       conn.sendFrame(frame);
 
-      this.commitTransaction(conn, "tx1");
+      commitTransaction(conn, "tx1");
 
       Message message = consumer.receive(1000);
       Assert.assertNotNull("Should have received a message", message);
 
       // 2nd tx with same tx ID
-      this.beginTransaction(conn, "tx1");
+      beginTransaction(conn, "tx1");
 
       frame = conn.createFrame(Stomp.Commands.SEND)
                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
@@ -2039,7 +2039,7 @@ public class StompV11Test extends StompTestBase {
 
       conn.sendFrame(frame);
 
-      this.commitTransaction(conn, "tx1");
+      commitTransaction(conn, "tx1");
 
       message = consumer.receive(1000);
       Assert.assertNotNull("Should have received a message", message);
@@ -2053,7 +2053,7 @@ public class StompV11Test extends StompTestBase {
 
       conn.connect(defUser, defPass);
 
-      this.beginTransaction(conn, "tx1");
+      beginTransaction(conn, "tx1");
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
                                    .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
@@ -2068,7 +2068,7 @@ public class StompV11Test extends StompTestBase {
       // check the message is not committed
       assertNull(consumer.receive(100));
 
-      this.commitTransaction(conn, "tx1", true);
+      commitTransaction(conn, "tx1", true);
 
       Message message = consumer.receive(1000);
       Assert.assertNotNull("Should have received a message", message);
@@ -2082,7 +2082,7 @@ public class StompV11Test extends StompTestBase {
 
       conn.connect(defUser, defPass);
 
-      this.beginTransaction(conn, "tx1");
+      beginTransaction(conn, "tx1");
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
                                    .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
@@ -2092,9 +2092,9 @@ public class StompV11Test extends StompTestBase {
       conn.sendFrame(frame);
 
       // rollback first message
-      this.abortTransaction(conn, "tx1");
+      abortTransaction(conn, "tx1");
 
-      this.beginTransaction(conn, "tx1");
+      beginTransaction(conn, "tx1");
 
       frame = conn.createFrame(Stomp.Commands.SEND)
                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
@@ -2103,7 +2103,7 @@ public class StompV11Test extends StompTestBase {
 
       conn.sendFrame(frame);
 
-      this.commitTransaction(conn, "tx1", true);
+      commitTransaction(conn, "tx1", true);
 
       // only second msg should be received since first msg was rolled back
       TextMessage message = (TextMessage) consumer.receive(1000);
@@ -2117,7 +2117,7 @@ public class StompV11Test extends StompTestBase {
    public void testUnsubscribe() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       // send a message to our queue
       sendJmsMessage("first message");
@@ -2128,7 +2128,7 @@ public class StompV11Test extends StompTestBase {
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
 
       // remove suscription
-      this.unsubscribe(conn, "sub1", true);
+      unsubscribe(conn, "sub1", true);
 
       // send a message to our queue
       sendJmsMessage("second message");
@@ -2185,7 +2185,7 @@ public class StompV11Test extends StompTestBase {
    protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       sendJmsMessage(getName());
 
@@ -2206,7 +2206,7 @@ public class StompV11Test extends StompTestBase {
       // message should be received since message was not acknowledged
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", null);
+      subscribe(conn, "sub1", null);
 
       frame = conn.receiveFrame();
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
@@ -2218,7 +2218,7 @@ public class StompV11Test extends StompTestBase {
       conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", null, null, true);
+      subscribe(conn, "sub1", null, null, true);
 
       sendJmsMessage("shouldBeNextMessage");
 
@@ -2273,7 +2273,7 @@ public class StompV11Test extends StompTestBase {
    public void testSendContentType() throws Exception {
       conn.connect(defUser, defPass);
 
-      this.subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      subscribe(conn, "sub1", Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       MessageProducer producer = session.createProducer(queue);
       BytesMessage message = session.createBytesMessage();

@@ -219,19 +219,19 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
    }
 
-   protected String getQueueName() {
+   protected static String getQueueName() {
       return "testQueue";
    }
 
-   protected String getQueuePrefix() {
+   protected static String getQueuePrefix() {
       return "";
    }
 
-   protected String getTopicName() {
+   protected static String getTopicName() {
       return "testtopic";
    }
 
-   protected String getTopicPrefix() {
+   protected static String getTopicPrefix() {
       return "";
    }
 
@@ -264,25 +264,25 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       producer.send(message);
    }
 
-   public void abortTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
+   public static void abortTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
       ClientStompFrame abortFrame = conn.createFrame(Stomp.Commands.ABORT)
                                         .addHeader(Stomp.Headers.TRANSACTION, txID);
 
       conn.sendFrame(abortFrame);
    }
 
-   public void beginTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
+   public static void beginTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
       ClientStompFrame beginFrame = conn.createFrame(Stomp.Commands.BEGIN)
                                         .addHeader(Stomp.Headers.TRANSACTION, txID);
 
       conn.sendFrame(beginFrame);
    }
 
-   public void commitTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
+   public static void commitTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
       commitTransaction(conn, txID, false);
    }
 
-   public void commitTransaction(StompClientConnection conn,
+   public static void commitTransaction(StompClientConnection conn,
                                  String txID,
                                  boolean receipt) throws IOException, InterruptedException {
       ClientStompFrame beginFrame = conn.createFrame(Stomp.Commands.COMMIT)
@@ -297,7 +297,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       }
    }
 
-   public void ack(StompClientConnection conn,
+   public static void ack(StompClientConnection conn,
                    String subscriptionId,
                    ClientStompFrame messageIdFrame) throws IOException, InterruptedException {
       String messageID = messageIdFrame.getHeader(Stomp.Headers.Message.MESSAGE_ID);
@@ -315,7 +315,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       }
    }
 
-   public void ack(StompClientConnection conn,
+   public static void ack(StompClientConnection conn,
                    String subscriptionId,
                    String mid,
                    String txID) throws IOException, InterruptedException {
@@ -329,7 +329,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       conn.sendFrame(frame);
    }
 
-   public void nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
+   public static void nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.NACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
                                       .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageId);
@@ -337,25 +337,25 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       conn.sendFrame(frame);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId) throws IOException, InterruptedException {
       return subscribe(conn, subscriptionId, Stomp.Headers.Subscribe.AckModeValues.AUTO);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack) throws IOException, InterruptedException {
       return subscribe(conn, subscriptionId, ack, null);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
                                      String durableId) throws IOException, InterruptedException {
       return subscribe(conn, subscriptionId, ack, durableId, true);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
                                      String durableId,
@@ -363,7 +363,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return subscribe(conn, subscriptionId, ack, durableId, null, receipt);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
                                      String durableId,
@@ -371,7 +371,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return subscribe(conn, subscriptionId, ack, durableId, selector, true);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
                                      String durableId,
@@ -380,11 +380,11 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return subscribe(conn, subscriptionId, ack, durableId, selector, getQueuePrefix() + getQueueName(), receipt);
    }
 
-   public ClientStompFrame subscribeQueue(StompClientConnection conn, String subId, String destination) throws IOException, InterruptedException {
+   public static ClientStompFrame subscribeQueue(StompClientConnection conn, String subId, String destination) throws IOException, InterruptedException {
       return subscribe(conn, subId, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null, destination, true);
    }
 
-   public ClientStompFrame subscribe(StompClientConnection conn,
+   public static ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
                                      String durableId,
@@ -426,14 +426,14 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return frame;
    }
 
-   public ClientStompFrame subscribeTopic(StompClientConnection conn,
+   public static ClientStompFrame subscribeTopic(StompClientConnection conn,
                                           String subscriptionId,
                                           String ack,
                                           String durableId) throws IOException, InterruptedException {
       return subscribeTopic(conn, subscriptionId, ack, durableId, true);
    }
 
-   public ClientStompFrame subscribeTopic(StompClientConnection conn,
+   public static ClientStompFrame subscribeTopic(StompClientConnection conn,
                                           String subscriptionId,
                                           String ack,
                                           String durableId,
@@ -441,7 +441,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return subscribeTopic(conn, subscriptionId, ack, durableId, receipt, false);
    }
 
-   public ClientStompFrame subscribeTopic(StompClientConnection conn,
+   public static ClientStompFrame subscribeTopic(StompClientConnection conn,
                                           String subscriptionId,
                                           String ack,
                                           String durableId,
@@ -481,17 +481,17 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return frame;
    }
 
-   public ClientStompFrame unsubscribe(StompClientConnection conn, String subscriptionId) throws IOException, InterruptedException {
+   public static ClientStompFrame unsubscribe(StompClientConnection conn, String subscriptionId) throws IOException, InterruptedException {
       return unsubscribe(conn, subscriptionId, null, false, false);
    }
 
-   public ClientStompFrame unsubscribe(StompClientConnection conn,
+   public static ClientStompFrame unsubscribe(StompClientConnection conn,
                                        String subscriptionId,
                                        boolean receipt) throws IOException, InterruptedException {
       return unsubscribe(conn, subscriptionId, null, receipt, false);
    }
 
-   public ClientStompFrame unsubscribe(StompClientConnection conn,
+   public static ClientStompFrame unsubscribe(StompClientConnection conn,
                                        String subscriptionId,
                                        String destination,
                                        boolean receipt,
@@ -523,19 +523,19 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return frame;
    }
 
-   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body) throws IOException, InterruptedException {
+   public static ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body) throws IOException, InterruptedException {
       return send(conn, destination, contentType, body, false);
    }
 
-   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt) throws IOException, InterruptedException {
+   public static ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt) throws IOException, InterruptedException {
       return send(conn, destination, contentType, body, receipt, null);
    }
 
-   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, RoutingType destinationType) throws IOException, InterruptedException {
+   public static ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, RoutingType destinationType) throws IOException, InterruptedException {
       return send(conn, destination, contentType, body, receipt, destinationType, null);
    }
 
-   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, RoutingType destinationType, String txId) throws IOException, InterruptedException {
+   public static ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, RoutingType destinationType, String txId) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
                                    .addHeader(Stomp.Headers.Send.DESTINATION, destination)
                                    .setBody(body);
@@ -573,7 +573,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return frame;
    }
 
-   public URI createStompClientUri(String scheme, String hostname, int port) throws URISyntaxException {
+   public static URI createStompClientUri(String scheme, String hostname, int port) throws URISyntaxException {
       return new URI(scheme + "://" + hostname + ":" + port);
    }
 }
