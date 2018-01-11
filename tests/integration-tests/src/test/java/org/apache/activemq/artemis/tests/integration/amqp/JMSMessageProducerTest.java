@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.Random;
+import java.util.UUID;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -26,8 +29,6 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import java.util.Random;
-import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -103,7 +104,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = session.createProducer(null);
 
-         for (int i = 1; i <= getPrecreatedQueueSize(); i++) {
+         for (int i = 0; i < getPrecreatedQueueSize(); i++) {
             javax.jms.Queue target = session.createQueue(getQueueName(i));
             TextMessage message = session.createTextMessage("message for " + target.getQueueName());
             p.send(target, message);
@@ -115,7 +116,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
          Message m = messageConsumer.receive(200);
          Assert.assertNull(m);
 
-         for (int i = 1; i <= getPrecreatedQueueSize(); i++) {
+         for (int i = 0; i < getPrecreatedQueueSize(); i++) {
             javax.jms.Queue target = session.createQueue(getQueueName(i));
             MessageConsumer consumer = session.createConsumer(target);
             TextMessage tm = (TextMessage) consumer.receive(2000);
