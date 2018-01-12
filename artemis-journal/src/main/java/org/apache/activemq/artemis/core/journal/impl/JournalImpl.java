@@ -1367,16 +1367,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       return load(DummyLoader.INSTANCE, true, syncState);
    }
 
-   @Override
-   public JournalLoadInformation load(final List<RecordInfo> committedRecords,
-                                      final List<PreparedTransactionInfo> preparedTransactions,
-                                      final TransactionFailureCallback failureCallback) throws Exception {
-      return load(committedRecords, preparedTransactions, failureCallback, true);
-   }
-
    /**
     * @see JournalImpl#load(LoaderCallback)
     */
+   @Override
    public synchronized JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,

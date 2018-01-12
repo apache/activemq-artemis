@@ -60,6 +60,7 @@ public class StreamClassPathTest {
       openStream(Create.ETC_GLOBAL_MAX_SPECIFIED_TXT);
       openStream(Create.ETC_GLOBAL_MAX_DEFAULT_TXT);
       openStream(Create.ETC_JOLOKIA_ACCESS_XML);
+      openStream(Create.ETC_DATABASE_STORE_TXT);
 
    }
 
