@@ -117,8 +117,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
    private BindingRegistry registry;
 
+   // keys are the core addresses of the JMS queues
    private final Map<String, ActiveMQQueue> queues = new HashMap<>();
 
+   // keys are the core addresses of the topics
    private final Map<String, ActiveMQTopic> topics = new HashMap<>();
 
    private final Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<>();
@@ -465,11 +467,17 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
                                            final String selectorString,
                                            final boolean durable,
                                            final String... bindings) throws Exception {
-      return internalCreateJMSQueue(storeConfig, queueName, selectorString, durable, false, bindings);
+      return internalCreateJMSQueue(storeConfig, queueName, queueName, selectorString, durable, false, bindings);
+   }
+
+   @Override
+   public boolean createQueue(boolean storeConfig, String queueName, String jmsQueueName, String selectorString, boolean durable, String... bindings) throws Exception {
+      return internalCreateJMSQueue(storeConfig, queueName, jmsQueueName, selectorString, durable, false, bindings);
    }
 
    protected boolean internalCreateJMSQueue(final boolean storeConfig,
                                             final String queueName,
+                                            final String jmsQueueName,
                                             final String selectorString,
                                             final boolean durable,
                                             final boolean autoCreated,
@@ -489,7 +497,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          public void runException() throws Exception {
             checkBindings(bindings);
 
-            if (internalCreateQueue(queueName, selectorString, durable, autoCreated)) {
+            if (internalCreateQueue(queueName, jmsQueueName, selectorString, durable, autoCreated)) {
 
                ActiveMQDestination destination = queues.get(queueName);
                if (destination == null) {
@@ -528,32 +536,46 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
    @Override
    public synchronized boolean createTopic(final boolean storeConfig,
-                                           final String topicName,
+                                           final String address,
                                            final String... bindings) throws Exception {
-      return createTopic(storeConfig, topicName, false, bindings);
+      return createTopic(storeConfig, address, false, bindings);
+   }
+
+   @Override
+   public boolean createTopic(String address, boolean storeConfig, String topicName, String... bindings) throws Exception {
+      return createTopic(storeConfig, address, topicName, false, bindings);
    }
 
    @Override
    public synchronized boolean createTopic(final boolean storeConfig,
-                                           final String topicName,
+                                           final String address,
                                            final boolean autoCreated,
                                            final String... bindings) throws Exception {
-      if (active && topics.get(topicName) != null) {
+      return createTopic(storeConfig, address, address, autoCreated, bindings);
+   }
+
+   @Override
+   public boolean createTopic(final boolean storeConfig,
+                              final String address,
+                              final String topicName,
+                              final boolean autoCreated,
+                              final String... bindings) throws Exception {
+      if (active && topics.get(address) != null) {
          return false;
       }
 
       runAfterActive(new WrappedRunnable() {
          @Override
          public String toString() {
-            return "createTopic for " + topicName;
+            return "createTopic for " + address;
          }
 
          @Override
          public void runException() throws Exception {
             checkBindings(bindings);
 
-            if (internalCreateTopic(topicName, autoCreated)) {
-               ActiveMQDestination destination = topics.get(topicName);
+            if (internalCreateTopic(address, topicName, autoCreated)) {
+               ActiveMQDestination destination = topics.get(address);
 
                if (destination == null) {
                   // sanity check. internalCreateQueue should already have done this check
@@ -571,17 +593,17 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
                }
 
                String[] usedBindings = bindingsToAdd.toArray(new String[bindingsToAdd.size()]);
-               addToBindings(topicBindings, topicName, usedBindings);
+               addToBindings(topicBindings, address, usedBindings);
 
                if (storeConfig) {
-                  storage.storeDestination(new PersistedDestination(PersistedType.Topic, topicName));
-                  storage.addBindings(PersistedType.Topic, topicName, usedBindings);
+                  storage.storeDestination(new PersistedDestination(PersistedType.Topic, address));
+                  storage.addBindings(PersistedType.Topic, address, usedBindings);
                }
             }
          }
       });
 
-      sendNotification(JMSNotificationType.TOPIC_CREATED, topicName);
+      sendNotification(JMSNotificationType.TOPIC_CREATED, address);
       return true;
 
    }
@@ -1056,10 +1078,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private synchronized boolean internalCreateQueue(final String queueName,
                                                     final String selectorString,
                                                     final boolean durable) throws Exception {
-      return internalCreateQueue(queueName, selectorString, durable, false);
+      return internalCreateQueue(queueName, queueName, selectorString, durable, false);
    }
 
    private synchronized boolean internalCreateQueue(final String queueName,
+                                                    final String jmsQueueName,
                                                     final String selectorString,
                                                     final boolean durable,
                                                     final boolean autoCreated) throws Exception {
@@ -1078,7 +1101,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          AddressSettings as = server.getAddressSettingsRepository().getMatch(queueName);
          server.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(coreFilterString), null, durable, false, true, false, false, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isAutoCreateAddresses());
 
-         queues.put(queueName, ActiveMQDestination.createQueue(queueName));
+         // create the JMS queue with the logical name jmsQueueName and keeps queueName for its *core* queue name
+         queues.put(queueName, ActiveMQDestination.createQueue(queueName, jmsQueueName));
 
          this.recoverregistryBindings(queueName, PersistedType.Queue);
 
@@ -1090,21 +1114,23 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
     * Performs the internal creation without activating any storage.
     * The storage load will call this method
     *
-    * @param topicName
+    * @param address
     * @return
     * @throws Exception
     */
-   private synchronized boolean internalCreateTopic(final String topicName) throws Exception {
-      return internalCreateTopic(topicName, false);
+   private synchronized boolean internalCreateTopic(final String address) throws Exception {
+      return internalCreateTopic(address, address, false);
    }
 
-   private synchronized boolean internalCreateTopic(final String topicName,
+   private synchronized boolean internalCreateTopic(final String address,
+                                                    final String topicName,
                                                     final boolean autoCreated) throws Exception {
 
-      if (topics.get(topicName) != null) {
+      if (topics.get(address) != null) {
          return false;
       } else {
-         ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(topicName);
+         // Create the JMS topic with topicName as the logical name of the topic *and* address as its address
+         ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(address, topicName);
          server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress()), RoutingType.MULTICAST));
 
          topics.put(topicName, activeMQTopic);
