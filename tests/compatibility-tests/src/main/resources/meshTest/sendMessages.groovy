@@ -27,8 +27,20 @@ String clientType = arg[1];
 String operation = arg[2];
 
 
-String queueName = "queue";
-String topicName = "topic";
+try {
+    legacyOption = legacy;
+} catch (Throwable e) {
+    legacyOption = false;
+}
+
+
+if (legacyOption) {
+    queueName = "jms.queue.queue"
+    topicName = "jms.topic.topic"
+} else {
+    queueName = "queue";
+    topicName = "topic";
+}
 
 int LARGE_MESSAGE_SIZE = 10 * 1024;
 
