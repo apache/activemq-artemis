@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
-import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
@@ -65,7 +65,7 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
          if (dbConf.getDataSource() != null) {
             SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
             if (sqlProviderFactory == null) {
-               sqlProviderFactory = new GenericSQLProvider.Factory();
+               sqlProviderFactory = new PropertySQLProvider.Factory(dbConf.getDataSource());
             }
             bindingsJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL), dbConf.getBindingsTableName(), scheduledExecutorService, executorFactory.getExecutor(), criticalErrorListener);
             messageJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getMessageTableName(), SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL), dbConf.getMessageTableName(), scheduledExecutorService, executorFactory.getExecutor(), criticalErrorListener);
