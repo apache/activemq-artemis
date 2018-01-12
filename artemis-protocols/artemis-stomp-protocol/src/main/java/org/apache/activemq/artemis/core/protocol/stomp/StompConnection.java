@@ -260,25 +260,22 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public boolean autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
-      boolean result = false;
+   public void autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
       ServerSession session = getSession().getCoreSession();
 
       try {
-         if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
+         SimpleString simpleQueue = SimpleString.toSimpleString(queue);
+         if (manager.getServer().getAddressInfo(simpleQueue) == null) {
             AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
-            if (routingType != null && routingType == RoutingType.MULTICAST && addressSettings.isAutoCreateAddresses()) {
-               session.createAddress(SimpleString.toSimpleString(queue), RoutingType.MULTICAST, true);
-               result = true;
-            } else {
-               if (addressSettings.isAutoCreateAddresses()) {
-                  session.createAddress(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, true);
-                  result = true;
-               }
-               if (addressSettings.isAutoCreateQueues()) {
-                  session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), RoutingType.ANYCAST, null, false, true, true);
-                  result = true;
-               }
+
+            RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
+            if (addressSettings.isAutoCreateAddresses()) {
+               session.createAddress(simpleQueue, effectiveAddressRoutingType, true);
+            }
+
+            // only auto create the queue if the address is ANYCAST
+            if (effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues()) {
+               session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, true, true);
             }
          }
       } catch (ActiveMQQueueExistsException e) {
@@ -286,8 +283,6 @@ public final class StompConnection implements RemotingConnection {
       } catch (Exception e) {
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
       }
-
-      return result;
    }
 
    public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
