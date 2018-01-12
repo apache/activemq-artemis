@@ -50,7 +50,9 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -1664,5 +1666,48 @@ public class StompTest extends StompTestBase {
 
       assertTrue(Wait.waitFor(() -> activeMQServer.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + activeMQServer.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount() == 1, 2000, 100));
       assertTrue(Wait.waitFor(() -> activeMQServer.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + activeMQServer.locateQueue(SimpleString.toSimpleString(queueD)).getMessageCount() == 2, 2000, 100));
+   }
+
+   @Test
+   public void testAutoCreatedAnycastAddress() throws Exception {
+      conn.connect(defUser, defPass);
+
+      String queueName = UUID.randomUUID().toString();
+      SimpleString simpleQueueName = SimpleString.toSimpleString(queueName);
+
+      ActiveMQServer activeMQServer = server.getActiveMQServer();
+
+      Assert.assertNull(activeMQServer.getAddressInfo(simpleQueueName));
+      Assert.assertNull(activeMQServer.locateQueue(simpleQueueName));
+
+      activeMQServer.getAddressSettingsRepository().addMatch(queueName, new AddressSettings()
+         .setDefaultAddressRoutingType(RoutingType.ANYCAST)
+         .setDefaultQueueRoutingType(RoutingType.ANYCAST)
+      );
+
+      send(conn, queueName, null, "Hello ANYCAST");
+
+      assertTrue("Address and queue should be created now", Wait.waitFor(() -> (activeMQServer.getAddressInfo(simpleQueueName) != null) && (activeMQServer.locateQueue(simpleQueueName) != null), 2000, 200));
+      assertTrue(activeMQServer.getAddressInfo(simpleQueueName).getRoutingTypes().contains(RoutingType.ANYCAST));
+      assertEquals(RoutingType.ANYCAST, activeMQServer.locateQueue(simpleQueueName).getRoutingType());
+   }
+
+   @Test
+   public void testAutoCreatedMulticastAddress() throws Exception {
+      conn.connect(defUser, defPass);
+
+      String queueName = UUID.randomUUID().toString();
+      SimpleString simpleQueueName = SimpleString.toSimpleString(queueName);
+
+      ActiveMQServer activeMQServer = server.getActiveMQServer();
+
+      Assert.assertNull(activeMQServer.getAddressInfo(simpleQueueName));
+      Assert.assertNull(activeMQServer.locateQueue(simpleQueueName));
+
+      send(conn, queueName, null, "Hello MULTICAST");
+
+      assertTrue("Address should be created now", Wait.waitFor(() -> (activeMQServer.getAddressInfo(simpleQueueName) != null), 2000, 200));
+      assertTrue(activeMQServer.getAddressInfo(simpleQueueName).getRoutingTypes().contains(RoutingType.MULTICAST));
+      Assert.assertNull(activeMQServer.locateQueue(simpleQueueName));
    }
 }
