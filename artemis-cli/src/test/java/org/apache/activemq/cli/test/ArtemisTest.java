@@ -141,6 +141,13 @@ public class ArtemisTest extends CliTestBase {
 
 
    @Test
+   public void testCreateDB() throws Exception {
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.internalExecute("create", instance1.getAbsolutePath(), "--silent", "--jdbc");
+   }
+
+
+   @Test
    public void testSimpleCreateMapped() throws Throwable {
       try {
          //instance1: default using http

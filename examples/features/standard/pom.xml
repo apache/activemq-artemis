@@ -47,6 +47,7 @@ under the License.
             <module>cdi</module>
             <module>client-kickoff</module>
             <module>consumer-rate-limit</module>
+            <module>database</module>
             <module>dead-letter</module>
             <module>delayed-redelivery</module>
             <module>divert</module>
@@ -114,6 +115,7 @@ under the License.
             <module>cdi</module>
             <module>client-kickoff</module>
             <module>consumer-rate-limit</module>
+            <module>database</module>
             <module>dead-letter</module>
             <module>delayed-redelivery</module>
             <module>divert</module>
