@@ -32,9 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -45,31 +42,24 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.tools.OptionalLocking;
-import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.cli.commands.tools.DBOption;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
-import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.MessageDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentAddressBindingEncoding;
@@ -77,24 +67,11 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.Persisten
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataExporter extends OptionalLocking {
+public final class XmlDataExporter extends DBOption {
 
    private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
-
-   private JournalStorageManager storageManager;
-
-   private Configuration config;
-
    private XMLStreamWriter xmlWriter;
 
    // an inner map of message refs hashed by the queue ID to which they belong and then hashed by their record ID
@@ -120,32 +97,52 @@ public final class XmlDataExporter extends OptionalLocking {
       super.execute(context);
 
       try {
-         process(context.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
+         config = getParameterConfiguration();
+         process(context.out);
       } catch (Exception e) {
          treatError(e, "data", "exp");
       }
       return null;
    }
 
+   /**
+    * Use setConfiguration and process(out) instead.
+    *
+    * @param out
+    * @param bindingsDir
+    * @param journalDir
+    * @param pagingDir
+    * @param largeMessagesDir
+    * @throws Exception
+    */
+   @Deprecated
    public void process(OutputStream out,
                        String bindingsDir,
                        String journalDir,
                        String pagingDir,
                        String largeMessagesDir) throws Exception {
       config = new ConfigurationImpl().setBindingsDirectory(bindingsDir).setJournalDirectory(journalDir).setPagingDirectory(pagingDir).setLargeMessagesDirectory(largeMessagesDir).setJournalType(JournalType.NIO);
-      final ExecutorService executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
-      ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
+      initializeJournal(config);
+      writeOutput(out);
+      cleanup();
+   }
 
-      storageManager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), executorFactory, executorFactory);
+   public void process(OutputStream out) throws Exception {
 
+      initializeJournal(config);
+
+      writeOutput(out);
+
+      cleanup();
+   }
+
+   protected void writeOutput(OutputStream out) throws Exception {
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       XMLStreamWriter rawXmlWriter = factory.createXMLStreamWriter(out, "UTF-8");
       PrettyPrintHandler handler = new PrettyPrintHandler(rawXmlWriter);
       xmlWriter = (XMLStreamWriter) Proxy.newProxyInstance(XMLStreamWriter.class.getClassLoader(), new Class[]{XMLStreamWriter.class}, handler);
 
       writeXMLData();
-
-      executor.shutdown();
    }
 
    private void writeXMLData() throws Exception {
@@ -209,7 +206,7 @@ public final class XmlDataExporter extends OptionalLocking {
          }
       };
 
-      ((JournalImpl) messageJournal).load(records, preparedTransactions, transactionFailureCallback, false);
+      messageJournal.load(records, preparedTransactions, transactionFailureCallback, false);
 
       // Since we don't use these nullify the reference so that the garbage collector can clean them up
       preparedTransactions = null;
@@ -303,7 +300,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
       ActiveMQServerLogger.LOGGER.debug("Reading bindings journal from " + config.getBindingsDirectory());
 
-      ((JournalImpl) bindingsJournal).load(records, null, null, false);
+      bindingsJournal.load(records, null, null);
 
       for (RecordInfo info : records) {
          if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
@@ -384,25 +381,13 @@ public final class XmlDataExporter extends OptionalLocking {
     */
    private void printPagedMessagesAsXML() {
       try {
-         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
-         final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
-         ExecutorFactory executorFactory = new ExecutorFactory() {
-            @Override
-            public ArtemisExecutor getExecutor() {
-               return ArtemisExecutor.delegate(executor);
-            }
-         };
-         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduled, executorFactory, true, null);
-         HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>(config.getWildcardConfiguration());
-         addressSettingsRepository.setDefault(new AddressSettings());
-         PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         manager.start();
+         pagingmanager.start();
 
-         SimpleString[] stores = manager.getStoreNames();
+         SimpleString[] stores = pagingmanager.getStoreNames();
 
          for (SimpleString store : stores) {
-            PagingStore pageStore = manager.getPageStore(store);
+            PagingStore pageStore = pagingmanager.getPageStore(store);
 
             if (pageStore != null) {
                File folder = pageStore.getFolder();

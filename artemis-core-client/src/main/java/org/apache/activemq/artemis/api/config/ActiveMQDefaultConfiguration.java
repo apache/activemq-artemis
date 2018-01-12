@@ -423,8 +423,8 @@ public final class ActiveMQDefaultConfiguration {
    // Default database url.  Derby database is used by default.
    private static String DEFAULT_DATABASE_URL = null;
 
-   // Default JDBC Driver class name
-   private static String DEFAULT_JDBC_DRIVER_CLASS_NAME = null;
+   // Default JDBC Driver class name, derby by default just for demo purposes
+   private static String DEFAULT_JDBC_DRIVER_CLASS_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
 
    // Default message table name, used with Database storage type
    private static String DEFAULT_MESSAGE_TABLE_NAME = "MESSAGES";

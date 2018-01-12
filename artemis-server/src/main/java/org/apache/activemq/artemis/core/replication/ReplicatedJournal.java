@@ -426,8 +426,9 @@ public class ReplicatedJournal implements Journal {
    @Override
    public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                       final List<PreparedTransactionInfo> preparedTransactions,
-                                      final TransactionFailureCallback transactionFailure) throws Exception {
-      return localJournal.load(committedRecords, preparedTransactions, transactionFailure);
+                                      final TransactionFailureCallback transactionFailure,
+                                      final boolean fixbadTX) throws Exception {
+      return localJournal.load(committedRecords, preparedTransactions, transactionFailure, fixbadTX);
    }
 
    /**

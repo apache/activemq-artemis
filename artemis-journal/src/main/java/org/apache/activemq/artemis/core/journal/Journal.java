@@ -194,9 +194,16 @@ public interface Journal extends ActiveMQComponent {
 
    void lineUpContext(IOCompletion callback);
 
+   default JournalLoadInformation load(List<RecordInfo> committedRecords,
+                               List<PreparedTransactionInfo> preparedTransactions,
+                               TransactionFailureCallback transactionFailure) throws Exception {
+      return load(committedRecords, preparedTransactions, transactionFailure, true);
+   }
+
    JournalLoadInformation load(List<RecordInfo> committedRecords,
                                List<PreparedTransactionInfo> preparedTransactions,
-                               TransactionFailureCallback transactionFailure) throws Exception;
+                               TransactionFailureCallback transactionFailure,
+                               boolean fixBadTx) throws Exception;
 
    int getAlignment() throws Exception;
 
