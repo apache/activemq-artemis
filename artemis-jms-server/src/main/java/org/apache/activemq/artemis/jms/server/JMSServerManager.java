@@ -60,6 +60,24 @@ public interface JMSServerManager extends ActiveMQComponent {
                        boolean durable,
                        String... bindings) throws Exception;
 
+   /**
+    * Creates a JMS Queue.
+    *
+    * @param queueName      The name of the core queue to create
+    * @param jmsQueueName the name of this JMS queue
+    * @param selectorString
+    * @param durable
+    * @return true if the queue is created or if it existed and was added to
+    * the Binding Registry
+    * @throws Exception if problems were encountered creating the queue.
+    */
+   boolean createQueue(boolean storeConfig,
+                       String queueName,
+                       String jmsQueueName,
+                       String selectorString,
+                       boolean durable,
+                       String... bindings) throws Exception;
+
    boolean addTopicToBindingRegistry(String topicName, String binding) throws Exception;
 
    boolean addQueueToBindingRegistry(String queueName, String binding) throws Exception;
@@ -69,23 +87,46 @@ public interface JMSServerManager extends ActiveMQComponent {
    /**
     * Creates a JMS Topic
     *
+    * @param address the core addres of thetopic
+    * @param bindings  the names of the binding for the Binding Registry or BindingRegistry
+    * @return true if the topic was created or if it existed and was added to
+    * the Binding Registry
+    * @throws Exception if a problem occurred creating the topic
+    */
+   boolean createTopic(boolean storeConfig, String address, String... bindings) throws Exception;
+
+   /**
+    * Creates a JMS Topic
+    *
+    * @param address the core addres of thetopic
     * @param topicName the name of the topic
     * @param bindings  the names of the binding for the Binding Registry or BindingRegistry
     * @return true if the topic was created or if it existed and was added to
     * the Binding Registry
     * @throws Exception if a problem occurred creating the topic
     */
-   boolean createTopic(boolean storeConfig, String topicName, String... bindings) throws Exception;
+   boolean createTopic(String address, boolean storeConfig, String topicName, String... bindings) throws Exception;
 
    /**
     * @param storeConfig
+    * @param address
+    * @param autoCreated
+    * @param bindings
+    * @return
+    * @throws Exception
+    */
+   boolean createTopic(boolean storeConfig, String address, boolean autoCreated, String... bindings) throws Exception;
+
+   /**
+    * @param storeConfig
+    * @param address
     * @param topicName
     * @param autoCreated
     * @param bindings
     * @return
     * @throws Exception
     */
-   boolean createTopic(boolean storeConfig, String topicName, boolean autoCreated, String... bindings) throws Exception;
+   boolean createTopic(boolean storeConfig, String address, String topicName, boolean autoCreated, String... bindings) throws Exception;
 
    /**
     * Remove the topic from the Binding Registry or BindingRegistry.
