@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactoryDriver;
-import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -121,7 +121,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
          if (dbConf.getDataSource() != null) {
             SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
             if (sqlProviderFactory == null) {
-               sqlProviderFactory = new GenericSQLProvider.Factory();
+               sqlProviderFactory = new PropertySQLProvider.Factory(dbConf.getDataSource());
             }
             pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(pageStoreTableNamePrefix, SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor(), criticalErrorListener);
          } else {
@@ -232,9 +232,14 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       if (writeToDirectory) directoryList.write(buffer, true);
       directoryList.close();
 
-      SQLProvider sqlProvider = null;
+      final SQLProvider sqlProvider;
       if (dbConf.getDataSource() != null) {
-         SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory() == null ? new GenericSQLProvider.Factory() : dbConf.getSqlProviderFactory();
+         final SQLProvider.Factory sqlProviderFactory;
+         if (dbConf.getSqlProviderFactory() != null) {
+            sqlProviderFactory = dbConf.getSqlProviderFactory();
+         } else {
+            sqlProviderFactory = new PropertySQLProvider.Factory(dbConf.getDataSource());
+         }
          sqlProvider = sqlProviderFactory.create(getTableNameForGUID(directoryName), SQLProvider.DatabaseStoreType.PAGE);
       } else {
          sqlProvider = JDBCUtils.getSQLProvider(dbConf.getJdbcDriverClassName(), getTableNameForGUID(directoryName), SQLProvider.DatabaseStoreType.PAGE);
