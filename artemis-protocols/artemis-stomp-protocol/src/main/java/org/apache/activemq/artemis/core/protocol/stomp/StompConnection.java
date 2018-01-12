@@ -265,20 +265,29 @@ public final class StompConnection implements RemotingConnection {
       ServerSession session = getSession().getCoreSession();
 
       try {
-         if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
+         SimpleString simpleQueue = SimpleString.toSimpleString(queue);
+         if (manager.getServer().getAddressInfo(simpleQueue) == null) {
             AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
-            if (routingType != null && routingType == RoutingType.MULTICAST && addressSettings.isAutoCreateAddresses()) {
-               session.createAddress(SimpleString.toSimpleString(queue), RoutingType.MULTICAST, true);
+
+            RoutingType effectiveAddressRoutingType = routingType;
+            if (addressSettings.isAutoCreateAddresses()) {
+               if (effectiveAddressRoutingType == null)
+                  effectiveAddressRoutingType = addressSettings.getDefaultAddressRoutingType();
+               if (effectiveAddressRoutingType == null)
+                  effectiveAddressRoutingType = RoutingType.ANYCAST;
+               session.createAddress(simpleQueue, effectiveAddressRoutingType, true);
                result = true;
-            } else {
-               if (addressSettings.isAutoCreateAddresses()) {
-                  session.createAddress(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, true);
-                  result = true;
-               }
-               if (addressSettings.isAutoCreateQueues()) {
-                  session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), RoutingType.ANYCAST, null, false, true, true);
-                  result = true;
-               }
+            }
+
+            // only auto create the queue if the address is not multicast
+            if (effectiveAddressRoutingType != RoutingType.MULTICAST &&  addressSettings.isAutoCreateQueues()) {
+               RoutingType effectiveQueueRoutingType = routingType;
+               if (effectiveQueueRoutingType == null)
+                  effectiveQueueRoutingType = addressSettings.getDefaultAddressRoutingType();
+               if (effectiveQueueRoutingType == null)
+                  effectiveQueueRoutingType = RoutingType.ANYCAST;
+               session.createQueue(simpleQueue, simpleQueue, effectiveQueueRoutingType, null, false, true, true);
+               result = true;
             }
          }
       } catch (ActiveMQQueueExistsException e) {
