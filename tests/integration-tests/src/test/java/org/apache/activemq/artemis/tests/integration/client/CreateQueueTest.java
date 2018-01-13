@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,8 +63,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoCreateAddresses(false));
       server.getAddressSettingsRepository().addMatch(addressB.toString(), new AddressSettings().setAutoCreateAddresses(false));
 
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.ANYCAST);
+      EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST);
       sendSession.createAddress(addressA, routingTypes, false);
       try {
          sendSession.createQueue(addressA, RoutingType.MULTICAST, queueA);
@@ -74,8 +74,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          assertEquals(ActiveMQExceptionType.INTERNAL_ERROR, ae.getType());
       }
 
-      routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.MULTICAST);
+      routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressB, routingTypes, false);
       try {
          sendSession.createQueue(addressB, RoutingType.ANYCAST, queueB);

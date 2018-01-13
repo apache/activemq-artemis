@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -442,6 +443,9 @@ public interface ActiveMQServer extends ServiceComponent {
     * @return {@code true} if the {@code AddressInfo} was updated, {@code false} otherwise
     * @throws Exception
     */
+   boolean updateAddressInfo(SimpleString address, EnumSet<RoutingType> routingTypes) throws Exception;
+
+   @Deprecated
    boolean updateAddressInfo(SimpleString address, Collection<RoutingType> routingTypes) throws Exception;
 
    /**

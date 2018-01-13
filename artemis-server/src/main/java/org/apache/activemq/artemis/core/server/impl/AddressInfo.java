@@ -20,9 +20,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AddressInfo {
 
@@ -32,12 +31,13 @@ public class AddressInfo {
 
    private boolean autoCreated = false;
 
-   private Set<RoutingType> routingTypes;
+   private EnumSet<RoutingType> routingTypes;
+   private RoutingType firstSeen;
 
    private boolean internal = false;
 
    public AddressInfo(SimpleString name) {
-      this(name, new HashSet<>());
+      this(name, EnumSet.noneOf(RoutingType.class));
    }
 
    /**
@@ -45,9 +45,9 @@ public class AddressInfo {
     * @param name
     * @param routingTypes
     */
-   public AddressInfo(SimpleString name, Set<RoutingType> routingTypes) {
+   public AddressInfo(SimpleString name, EnumSet<RoutingType> routingTypes) {
       this.name = name;
-      this.routingTypes = routingTypes;
+      setRoutingTypes(routingTypes);
    }
 
    /**
@@ -57,8 +57,7 @@ public class AddressInfo {
     */
    public AddressInfo(SimpleString name, RoutingType routingType) {
       this.name = name;
-      this.routingTypes = new HashSet<>();
-      routingTypes.add(routingType);
+      addRoutingType(routingType);
    }
 
    public boolean isAutoCreated() {
@@ -82,33 +81,35 @@ public class AddressInfo {
       return id;
    }
 
-   public Set<RoutingType> getRoutingTypes() {
+   public EnumSet<RoutingType> getRoutingTypes() {
       return routingTypes;
    }
 
-   public AddressInfo setRoutingTypes(Set<RoutingType> routingTypes) {
+   public AddressInfo setRoutingTypes(EnumSet<RoutingType> routingTypes) {
       this.routingTypes = routingTypes;
+      if (!routingTypes.isEmpty()) {
+         this.firstSeen = this.routingTypes.iterator().next();
+      }
       return this;
    }
 
    public AddressInfo addRoutingType(RoutingType routingType) {
-      if (routingTypes == null) {
-         routingTypes = new HashSet<>();
+      if (routingType != null) {
+         if (routingTypes == null) {
+            routingTypes = EnumSet.of(routingType);
+            firstSeen = routingType;
+         } else {
+            if (routingTypes.isEmpty()) {
+               firstSeen = routingType;
+            }
+            routingTypes.add(routingType);
+         }
       }
-      routingTypes.add(routingType);
       return this;
    }
 
    public RoutingType getRoutingType() {
-      /* We want to use a Set to guarantee only a single entry for ANYCAST, MULTICAST can be added to routing types.
-         There are cases where we also want to get any routing type (when a queue doesn't specifyc it's routing type for
-         example.  For this reason we return the first element in the Set.
-         */
-      // TODO There must be a better way of doing this.  This creates an iterator on each lookup.
-      for (RoutingType routingType : routingTypes) {
-         return routingType;
-      }
-      return null;
+      return firstSeen;
    }
 
    @Override
