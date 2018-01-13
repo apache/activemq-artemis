@@ -22,9 +22,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -133,9 +132,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Assert.assertEquals(infoAdded.getId(), infoAfterRestart.getId());
 
-      Set<RoutingType> completeSet = new HashSet<>();
-      completeSet.add(RoutingType.ANYCAST);
-      completeSet.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> completeSet = EnumSet.allOf(RoutingType.class);
 
       server.updateAddressInfo(ADDRESS, completeSet);
 

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import javax.json.JsonArrayBuilder;
 import javax.transaction.xa.Xid;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -164,7 +165,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean autoCreated) throws Exception;
 
    AddressInfo createAddress(SimpleString address,
-                             Set<RoutingType> routingTypes,
+                             EnumSet<RoutingType> routingTypes,
                              boolean autoCreated) throws Exception;
 
    AddressInfo createAddress(SimpleString address,
@@ -302,8 +303,8 @@ public interface ServerSession extends SecurityAuth {
     *         name and the {@code java.util.Set} of {@code org.apache.activemq.artemis.api.core.RoutingType} objects
     *         corresponding to the that prefix.
     */
-   Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
-                                                                  Set<RoutingType> defaultRoutingTypes);
+   Pair<SimpleString, EnumSet<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
+                                                                      EnumSet<RoutingType> defaultRoutingTypes);
 
    void addProducer(ServerProducer serverProducer);
 

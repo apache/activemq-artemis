@@ -258,7 +258,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        Collection<RoutingType> routingTypes) throws Exception {
+                                        EnumSet<RoutingType> routingTypes) throws Exception {
 
       AddressInfo info = addressInfoMap.get(addressName);
 
@@ -272,7 +272,7 @@ public class SimpleAddressManager implements AddressManager {
       }
 
       validateRoutingTypes(addressName, routingTypes);
-      final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
+      final EnumSet<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
       info.setRoutingTypes(updatedRoutingTypes);
 
 
@@ -294,7 +294,7 @@ public class SimpleAddressManager implements AddressManager {
       return info;
    }
 
-   private boolean isEquals(Collection<RoutingType> set1, Collection<RoutingType> set2) {
+   private boolean isEquals(Collection<RoutingType> set1, EnumSet<RoutingType> set2) {
       Set<RoutingType> eset1 = set1 == null || set1.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set1);
       Set<RoutingType> eset2 = set2 == null || set2.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set2);
 
@@ -309,7 +309,7 @@ public class SimpleAddressManager implements AddressManager {
       return eset2.containsAll(eset1);
    }
 
-   private void validateRoutingTypes(SimpleString addressName, Collection<RoutingType> routingTypes) {
+   private void validateRoutingTypes(SimpleString addressName, EnumSet<RoutingType> routingTypes) {
       final Bindings bindings = this.mappings.get(addressName);
       if (bindings != null) {
          for (Binding binding : bindings.getBindings()) {
