@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -28,14 +27,14 @@ public class CreateAddressMessage extends PacketImpl {
 
    private SimpleString address;
 
-   private Set<RoutingType> routingTypes;
+   private EnumSet<RoutingType> routingTypes;
 
    private boolean autoCreated;
 
    private boolean requiresResponse;
 
    public CreateAddressMessage(final SimpleString address,
-                               Set<RoutingType> routingTypes,
+                               EnumSet<RoutingType> routingTypes,
                                final boolean autoCreated,
                                final boolean requiresResponse) {
       this();
@@ -78,11 +77,11 @@ public class CreateAddressMessage extends PacketImpl {
       this.address = address;
    }
 
-   public Set<RoutingType> getRoutingTypes() {
+   public EnumSet<RoutingType> getRoutingTypes() {
       return routingTypes;
    }
 
-   public void setRoutingTypes(Set<RoutingType> routingTypes) {
+   public void setRoutingTypes(EnumSet<RoutingType> routingTypes) {
       this.routingTypes = routingTypes;
    }
 
@@ -101,7 +100,7 @@ public class CreateAddressMessage extends PacketImpl {
    public void decodeRest(final ActiveMQBuffer buffer) {
       address = buffer.readSimpleString();
       int routingTypeSetSize = buffer.readInt();
-      routingTypes = new HashSet<>(routingTypeSetSize);
+      routingTypes = EnumSet.noneOf(RoutingType.class);
       for (int i = 0; i < routingTypeSetSize; i++) {
          routingTypes.add(RoutingType.getType(buffer.readByte()));
       }

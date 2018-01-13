@@ -22,6 +22,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -636,9 +637,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public AddressInfo createAddress(final SimpleString address,
-                                    Set<RoutingType> routingTypes,
+                                    EnumSet<RoutingType> routingTypes,
                                     final boolean autoCreated) throws Exception {
-      Pair<SimpleString, Set<RoutingType>> art = getAddressAndRoutingTypes(address, routingTypes);
+      Pair<SimpleString, EnumSet<RoutingType>> art = getAddressAndRoutingTypes(address, routingTypes);
       securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
       server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
       return server.getAddressInfo(art.getA());
@@ -1773,8 +1774,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
-                                                                         Set<RoutingType> defaultRoutingTypes) {
+   public Pair<SimpleString, EnumSet<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
+                                                                         EnumSet<RoutingType> defaultRoutingTypes) {
       if (prefixEnabled) {
          return PrefixUtil.getAddressAndRoutingTypes(address, defaultRoutingTypes, prefixes);
       }

@@ -21,6 +21,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -612,6 +613,13 @@ public class ActiveMQSessionContext extends SessionContext {
    @Override
    public void createAddress(SimpleString address,
                              Set<RoutingType> routingTypes,
+                             final boolean autoCreated) throws ActiveMQException {
+      createAddress(address, EnumSet.copyOf(routingTypes), autoCreated);
+   }
+
+   @Override
+   public void createAddress(SimpleString address,
+                             EnumSet<RoutingType> routingTypes,
                              final boolean autoCreated) throws ActiveMQException {
       CreateAddressMessage request = new CreateAddressMessage(address, routingTypes, autoCreated, true);
       if (!sessionChannel.getConnection().isVersionBeforeAddressChange()) {
