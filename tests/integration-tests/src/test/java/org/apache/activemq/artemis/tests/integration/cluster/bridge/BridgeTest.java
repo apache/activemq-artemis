@@ -1994,7 +1994,12 @@ public class BridgeTest extends ActiveMQTestBase {
       final String BRIDGE = "myBridge";
 
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
-      Transformer transformer = (Message encode) -> null;
+      Transformer transformer = new Transformer() {
+         @Override
+         public Message transform(Message message) {
+            return null;
+         }
+      };
 
       serviceRegistry.addBridgeTransformer(BRIDGE, transformer);
       Configuration config = createDefaultInVMConfig().addConnectorConfiguration("in-vm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
