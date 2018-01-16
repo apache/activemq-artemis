@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.netty.buffer.ByteBuf;
@@ -34,6 +35,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
  */
 public final class SimpleString implements CharSequence, Serializable, Comparable<SimpleString> {
 
+   private static final SimpleString EMPTY = new SimpleString("");
    private static final long serialVersionUID = 4204223851422244307L;
 
    // Attributes
@@ -323,6 +325,14 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * @return An array of SimpleStrings
     */
    public SimpleString[] split(final char delim) {
+      if (this.str != null) {
+         return splitWithCachedString(this, delim);
+      } else {
+         return splitWithoutCachedString(delim);
+      }
+   }
+
+   private SimpleString[] splitWithoutCachedString(final char delim) {
       List<SimpleString> all = null;
 
       byte low = (byte) (delim & 0xFF); // low byte
@@ -361,6 +371,58 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       }
    }
 
+   private static SimpleString[] splitWithCachedString(final SimpleString simpleString, final int delim) {
+      final String str = simpleString.str;
+      final byte[] data = simpleString.data;
+      final int length = str.length();
+      List<SimpleString> all = null;
+      int index = 0;
+      while (index < length) {
+         final int delimIndex = str.indexOf(delim, index);
+         if (delimIndex == -1) {
+            //just need to add the last one
+            break;
+         } else {
+            all = addSimpleStringPart(all, data, index, delimIndex);
+         }
+         index = delimIndex + 1;
+      }
+      if (all == null) {
+         return new SimpleString[]{simpleString};
+      } else {
+         // Adding the last one
+         all = addSimpleStringPart(all, data, index, length);
+         // Converting it to arrays
+         final SimpleString[] parts = new SimpleString[all.size()];
+         return all.toArray(parts);
+      }
+   }
+
+   private static List<SimpleString> addSimpleStringPart(List<SimpleString> all,
+                                                         final byte[] data,
+                                                         final int startIndex,
+                                                         final int endIndex) {
+      final int expectedLength = endIndex - startIndex;
+      final SimpleString ss;
+      if (expectedLength == 0) {
+         ss = EMPTY;
+      } else {
+         //extract a byte[] copy from this
+         final int ssIndex = startIndex << 1;
+         final int delIndex = endIndex << 1;
+         final byte[] bytes = Arrays.copyOfRange(data, ssIndex, delIndex);
+         ss = new SimpleString(bytes);
+      }
+      // We will create the ArrayList lazily
+      if (all == null) {
+         // There will be at least 3 strings on this case (which is the actual common usecase)
+         // For that reason I'm allocating the ArrayList with 3 already
+         all = new ArrayList<>(3);
+      }
+      all.add(ss);
+      return all;
+   }
+
    /**
     * checks to see if this SimpleString contains the char parameter passed in
     *
@@ -368,6 +430,9 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * @return true if the char is found, false otherwise.
     */
    public boolean contains(final char c) {
+      if (this.str != null) {
+         return this.str.indexOf(c) != -1;
+      }
       final byte low = (byte) (c & 0xFF); // low byte
       final byte high = (byte) (c >> 8 & 0xFF); // high byte
 
