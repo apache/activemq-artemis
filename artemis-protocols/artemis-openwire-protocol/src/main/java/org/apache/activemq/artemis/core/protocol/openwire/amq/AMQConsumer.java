@@ -53,8 +53,10 @@ import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.RemoveInfo;
 
 public class AMQConsumer {
+   private static final String AMQ_NOTIFICATIONS_DESTINATION = "activemq.notifications";
    private AMQSession session;
-   private org.apache.activemq.command.ActiveMQDestination openwireDestination;
+   private final org.apache.activemq.command.ActiveMQDestination openwireDestination;
+   private final boolean hasNotificationDestination;
    private ConsumerInfo info;
    private final ScheduledExecutorService scheduledPool;
    private ServerConsumer serverConsumer;
@@ -74,6 +76,7 @@ public class AMQConsumer {
                       boolean internalAddress) {
       this.session = amqSession;
       this.openwireDestination = d;
+      this.hasNotificationDestination = d.toString().contains(AMQ_NOTIFICATIONS_DESTINATION);
       this.info = info;
       this.scheduledPool = scheduledPool;
       this.prefetchSize = info.getPrefetchSize();
@@ -329,6 +332,10 @@ public class AMQConsumer {
 
    public void removeConsumer() throws Exception {
       serverConsumer.close(false);
+   }
+
+   public boolean hasNotificationDestination() {
+      return hasNotificationDestination;
    }
 
    public org.apache.activemq.command.ActiveMQDestination getOpenwireDestination() {
