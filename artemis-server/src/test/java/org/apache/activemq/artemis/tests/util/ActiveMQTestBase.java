@@ -1243,7 +1243,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       if (params == null)
          params = new HashMap<>();
-      return new TransportConfiguration(className, params);
+      return new TransportConfiguration(className, params, UUIDGenerator.getInstance().generateStringUUID(), new HashMap<String, Object>());
    }
 
    protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException {
