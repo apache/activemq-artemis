@@ -83,6 +83,8 @@ public class AMQSession implements SessionCallback {
 
    private final OpenWireProtocolManager protocolManager;
 
+   private final Runnable enableAutoReadAndTtl;
+
    private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    public AMQSession(ConnectionInfo connInfo,
@@ -100,6 +102,7 @@ public class AMQSession implements SessionCallback {
       OpenWireFormat marshaller = (OpenWireFormat) connection.getMarshaller();
 
       this.converter = new OpenWireMessageConverter(marshaller.copy());
+      this.enableAutoReadAndTtl = this::enableAutoReadAndTtl;
    }
 
    public boolean isClosed() {
@@ -308,7 +311,7 @@ public class AMQSession implements SessionCallback {
                     boolean sendProducerAck) throws Exception {
       messageSend.setBrokerInTime(System.currentTimeMillis());
 
-      ActiveMQDestination destination = messageSend.getDestination();
+      final ActiveMQDestination destination = messageSend.getDestination();
 
       ActiveMQDestination[] actualDestinations = null;
       if (destination.isComposite()) {
@@ -318,7 +321,7 @@ public class AMQSession implements SessionCallback {
          actualDestinations = new ActiveMQDestination[]{destination};
       }
 
-      org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend, coreMessageObjectPools);
+      final org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend, coreMessageObjectPools);
 
       originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString(), this.connection.getState().getInfo().getClientId());
 
@@ -339,14 +342,15 @@ public class AMQSession implements SessionCallback {
          connection.getContext().setDontSendReponse(true);
       }
 
-      for (int i = 0; i < actualDestinations.length; i++) {
-         ActiveMQDestination dest = actualDestinations[i];
-         SimpleString address = SimpleString.toSimpleString(dest.getPhysicalName(), coreMessageObjectPools.getAddressStringSimpleStringPool());
-         org.apache.activemq.artemis.api.core.Message coreMsg = originalCoreMsg.copy();
+      for (int i = 0, actualDestinationsCount = actualDestinations.length; i < actualDestinationsCount; i++) {
+         final ActiveMQDestination dest = actualDestinations[i];
+         final SimpleString address = SimpleString.toSimpleString(dest.getPhysicalName(), coreMessageObjectPools.getAddressStringSimpleStringPool());
+         //the last coreMsg could be directly the original one -> it avoid 1 copy if actualDestinations > 1 and ANY copy if actualDestinations == 1
+         final org.apache.activemq.artemis.api.core.Message coreMsg = (i == actualDestinationsCount - 1) ? originalCoreMsg : originalCoreMsg.copy();
          coreMsg.setAddress(address);
 
-         if (actualDestinations[i].isQueue()) {
-            checkAutoCreateQueue(SimpleString.toSimpleString(actualDestinations[i].getPhysicalName(), coreMessageObjectPools.getAddressStringSimpleStringPool()), actualDestinations[i].isTemporary());
+         if (dest.isQueue()) {
+            checkAutoCreateQueue(address, dest.isTemporary());
             coreMsg.setRoutingType(RoutingType.ANYCAST);
          } else {
             coreMsg.setRoutingType(RoutingType.MULTICAST);
@@ -407,12 +411,8 @@ public class AMQSession implements SessionCallback {
             //non-persistent messages goes here, by default we stop reading from
             //transport
             connection.getTransportConnection().setAutoRead(false);
-            if (!store.checkMemory(() -> {
-               connection.getTransportConnection().setAutoRead(true);
-               connection.enableTtl();
-            })) {
-               connection.getTransportConnection().setAutoRead(true);
-               connection.enableTtl();
+            if (!store.checkMemory(enableAutoReadAndTtl)) {
+               enableAutoReadAndTtl();
                throw new ResourceAllocationException("Queue is full " + address);
             }
 
@@ -429,6 +429,11 @@ public class AMQSession implements SessionCallback {
             }
          }
       }
+   }
+
+   private void enableAutoReadAndTtl() {
+      connection.getTransportConnection().setAutoRead(true);
+      connection.enableTtl();
    }
 
    public String convertWildcard(String physicalName) {
