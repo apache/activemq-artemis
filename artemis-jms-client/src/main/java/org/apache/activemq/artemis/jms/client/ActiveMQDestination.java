@@ -241,6 +241,18 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
     */
    private SimpleString simpleAddress;
 
+   /**
+    * Needed for serialization backwards compatibility.
+    */
+   @Deprecated
+   private String address;
+
+   /**
+    * The "JMS" name of the destination. Needed for serialization backwards compatibility.
+    */
+   @Deprecated
+   private String name;
+
    private final boolean temporary;
 
    private final boolean queue;
@@ -254,15 +266,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    protected ActiveMQDestination(final String address,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this.simpleAddress = SimpleString.toSimpleString(address);
-
-      this.thetype = type;
-
-      this.session = session;
-
-      this.temporary = TYPE.isTemporary(type);
-
-      this.queue = TYPE.isQueue(type);
+      this(SimpleString.toSimpleString(address), type, session);
    }
 
    protected ActiveMQDestination(final SimpleString address,
@@ -279,6 +283,26 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       this.queue = TYPE.isQueue(type);
    }
 
+   @Deprecated
+   protected ActiveMQDestination(final String address,
+                                 final String name,
+                                 final TYPE type,
+                                 final ActiveMQSession session) {
+      this(SimpleString.toSimpleString(address), name, type, session);
+   }
+
+   @Deprecated
+   protected ActiveMQDestination(final SimpleString address,
+                                 final String name,
+                                 final TYPE type,
+                                 final ActiveMQSession session) {
+      this(address, type, session);
+
+      this.name = name;
+
+      this.address = simpleAddress != null ? simpleAddress.toString() : null;
+   }
+
    public void setAddress(String address) {
       setSimpleAddress(SimpleString.toSimpleString(address));
    }
@@ -287,6 +311,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       if (address == null) {
          throw new IllegalArgumentException("address cannot be null");
       }
+      this.address = address.toString();
       this.simpleAddress = address;
    }
 
@@ -319,7 +344,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public String getName() {
-      return simpleAddress.toString();
+      return name != null ? name : getAddress();
    }
 
    public boolean isTemporary() {

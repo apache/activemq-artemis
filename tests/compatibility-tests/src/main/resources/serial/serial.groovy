@@ -24,18 +24,25 @@ import org.apache.activemq.artemis.jms.client.*
 
 file = arg[0]
 method = arg[1]
-System.out.println("File::" + file);
+version = arg[2]
+System.out.println("File::" + file)
 
 
 if (method.equals("write")) {
     cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false");
     queue = new ActiveMQQueue("queue");
     topic = new ActiveMQTopic("topic")
+    if (version.equals("ARTEMIS-SNAPSHOT")) {
+        destination = new ActiveMQDestination("address", "name", ActiveMQDestination.TYPE.DESTINATION, null)
+    } else if (version.equals("ARTEMIS-155")) {
+        destination = new ActiveMQDestination("address", "name", false, true, null)
+    }
 
     ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
     objectOutputStream.writeObject(cf);
     objectOutputStream.writeObject(queue)
     objectOutputStream.writeObject(topic)
+    objectOutputStream.writeObject(destination)
     objectOutputStream.close();
 } else {
     ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file))
@@ -43,11 +50,14 @@ if (method.equals("write")) {
     cf = inputStream.readObject();
     queue = inputStream.readObject()
     topic = inputStream.readObject()
+    destination = inputStream.readObject()
     inputStream.close();
 }
 
 GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
-GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
+GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize())
+GroovyRun.assertEquals(destination.getName(), "name")
+GroovyRun.assertEquals(destination.getAddress(), "address")
 
 Connection connection = cf.createConnection();
 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
