@@ -98,6 +98,11 @@ public interface Message {
    SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
 
    /**
+    * The address that this messages was routed under.
+    */
+   SimpleString HDR_ROUTING_ADDRESS = new SimpleString("_AMQ_ROUTING_ADDRESS");
+
+   /**
     * The original address of a message when a message is transferred through DLQ or expiry
     */
    SimpleString HDR_ORIGINAL_QUEUE = new SimpleString("_AMQ_ORIG_QUEUE");

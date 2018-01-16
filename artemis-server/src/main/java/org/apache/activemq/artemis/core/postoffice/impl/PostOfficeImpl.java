@@ -750,7 +750,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress() == null ? message.getAddressSimpleString() : context.getAddress());
+      Bindings bindings;
+      if (context.getAddress() != null) {
+         message.setAnnotation(Message.HDR_ROUTING_ADDRESS, context.getAddress());
+         bindings = addressManager.getBindingsForRoutingAddress(context.getAddress());
+      } else {
+         bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
+      }
 
       // TODO auto-create queues here?
       // first check for the auto-queue creation thing
@@ -892,7 +898,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       // as described on https://issues.jboss.org/browse/JBPAPP-6130
       Message copyRedistribute = message.copy(storageManager.generateID());
 
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
+      SimpleString routingAddress = (SimpleString) message.getAnnotation(Message.HDR_ROUTING_ADDRESS);
+      Bindings bindings;
+      if (routingAddress != null) {
+         bindings = addressManager.getBindingsForRoutingAddress(routingAddress);
+      } else {
+         bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
+      }
 
       if (bindings != null) {
          RoutingContext context = new RoutingContextImpl(tx);
