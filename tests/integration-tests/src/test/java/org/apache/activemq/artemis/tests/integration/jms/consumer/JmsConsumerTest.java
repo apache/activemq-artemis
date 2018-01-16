@@ -31,12 +31,14 @@ import javax.jms.TextMessage;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -814,5 +816,76 @@ public class JmsConsumerTest extends JMSTestBase {
       assertEquals(true, queue.isPurgeOnNoConsumers());
 
       connection.close();
+   }
+
+   /**
+    * Test for ARTEMIS-1610
+    * @throws Exception
+    */
+   @Test
+   public void testConsumerAfterWildcardAddressRemoval() throws Exception {
+      String queue1 = "queue.#";
+      String topic1 = "durable.#";
+      String topic2 = "durable.test";
+
+      //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
+      //inside the WildcardAddressManager manager when the binding is created)
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
+      server.createQueue(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST,
+            SimpleString.toSimpleString(queue1), null, false, false);
+
+      //create addresses for both topics
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+
+      //Remove the wildcard address associated with topic2
+      server.removeAddressInfo(SimpleString.toSimpleString(topic1), null);
+
+      conn = cf.createConnection();
+      conn.setClientID("clientId");
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      //Verify consumer can be created without issue - this caused a NPE
+      //before ARTEMIS-1610
+      sess.createConsumer(sess.createTopic(topic2));
+      sess.close();
+   }
+
+   /**
+    * Test for ARTEMIS-1610
+    * @throws Exception
+    */
+   @Test
+   public void testConsumerAfterWildcardConsumer() throws Exception {
+      String queue1 = "queue.#";
+      String topic1 = "durable.#";
+      String topic2 = "durable.test";
+
+      //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
+      //inside the WildcardAddressManager manager when the binding is created)
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
+      server.createQueue(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST,
+            SimpleString.toSimpleString(queue1), null, false, false);
+
+      //create addresses for both topics
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+
+      conn = cf.createConnection();
+      conn.setClientID("clientId");
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      //create and close consumer on wildcard
+      MessageConsumer c = sess.createConsumer(sess.createTopic(topic1));
+      c.close();
+
+      //Verify consumer can be created without issue - this caused a NPE
+      //before ARTEMIS-1610
+      //will create binding for this topic and will link addresses with durable.# so need to do a null check
+      //on binding add of linked addresses
+      sess.createConsumer(sess.createTopic(topic2));
+      sess.close();
    }
 }

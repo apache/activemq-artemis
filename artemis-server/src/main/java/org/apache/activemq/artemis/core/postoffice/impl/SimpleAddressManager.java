@@ -325,7 +325,7 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public AddressInfo removeAddressInfo(SimpleString address) {
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
       return addressInfoMap.remove(address);
    }
 
