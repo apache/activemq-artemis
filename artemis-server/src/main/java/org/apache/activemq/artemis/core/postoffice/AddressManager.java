@@ -70,7 +70,7 @@ public interface AddressManager {
     *  it will throw an exception if the address doesn't exist */
    AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes) throws Exception;
 
-   AddressInfo removeAddressInfo(SimpleString address);
+   AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
    AddressInfo getAddressInfo(SimpleString address);
 
