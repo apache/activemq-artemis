@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 // TODO: Implement this
@@ -442,6 +443,11 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
+   public Message putStringProperty(SimpleString key, String value) {
+      return null;
+   }
+
+   @Override
    public int getEncodeSize() {
       return 0;
    }
@@ -478,6 +484,11 @@ public class OpenwireMessage implements Message {
 
    @Override
    public ICoreMessage toCore() {
+      return toCore(null);
+   }
+
+   @Override
+   public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
       return null;
    }
 

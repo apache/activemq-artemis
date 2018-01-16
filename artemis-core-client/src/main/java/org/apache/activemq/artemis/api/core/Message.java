@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 /**
@@ -587,6 +588,8 @@ public interface Message {
 
    Message putStringProperty(SimpleString key, SimpleString value);
 
+   Message putStringProperty(SimpleString key, String value);
+
    /**
     * Returns the size of the <em>encoded</em> message.
     */
@@ -648,6 +651,9 @@ public interface Message {
 
    /** This should make you convert your message into Core format. */
    ICoreMessage toCore();
+
+   /** This should make you convert your message into Core format. */
+   ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools);
 
    int getMemoryEstimate();
 

@@ -52,6 +52,7 @@ import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -89,31 +90,31 @@ import io.netty.buffer.PooledByteBufAllocator;
 public class AmqpCoreConverter {
 
    @SuppressWarnings("unchecked")
-   public static ICoreMessage toCore(AMQPMessage message) throws Exception {
+   public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
 
       Section body = message.getProtonMessage().getBody();
       ServerJMSMessage result;
 
       if (body == null) {
          if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
-            result = createObjectMessage(message.getMessageID());
+            result = createObjectMessage(message.getMessageID(), coreMessageObjectPools);
          } else if (isContentType(OCTET_STREAM_CONTENT_TYPE, message.getProtonMessage()) || isContentType(null, message.getProtonMessage())) {
-            result = createBytesMessage(message.getMessageID());
+            result = createBytesMessage(message.getMessageID(), coreMessageObjectPools);
          } else {
             Charset charset = getCharsetForTextualContent(message.getProtonMessage().getContentType());
             if (charset != null) {
-               result = createTextMessage(message.getMessageID());
+               result = createTextMessage(message.getMessageID(), coreMessageObjectPools);
             } else {
-               result = createMessage(message.getMessageID());
+               result = createMessage(message.getMessageID(), coreMessageObjectPools);
             }
          }
       } else if (body instanceof Data) {
          Binary payload = ((Data) body).getValue();
 
          if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
-            result = createObjectMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+            result = createObjectMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
          } else if (isContentType(OCTET_STREAM_CONTENT_TYPE, message.getProtonMessage())) {
-            result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+            result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
          } else {
             Charset charset = getCharsetForTextualContent(message.getProtonMessage().getContentType());
             if (StandardCharsets.UTF_8.equals(charset)) {
@@ -121,18 +122,18 @@ public class AmqpCoreConverter {
 
                try {
                   CharBuffer chars = charset.newDecoder().decode(buf);
-                  result = createTextMessage(message.getMessageID(), String.valueOf(chars));
+                  result = createTextMessage(message.getMessageID(), String.valueOf(chars), coreMessageObjectPools);
                } catch (CharacterCodingException e) {
-                  result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+                  result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
                }
             } else {
-               result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+               result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
             }
          }
 
       } else if (body instanceof AmqpSequence) {
          AmqpSequence sequence = (AmqpSequence) body;
-         ServerJMSStreamMessage m = createStreamMessage(message.getMessageID());
+         ServerJMSStreamMessage m = createStreamMessage(message.getMessageID(), coreMessageObjectPools);
          for (Object item : sequence.getValue()) {
             m.writeObject(item);
          }
@@ -141,31 +142,31 @@ public class AmqpCoreConverter {
       } else if (body instanceof AmqpValue) {
          Object value = ((AmqpValue) body).getValue();
          if (value == null || value instanceof String) {
-            result = createTextMessage(message.getMessageID(), (String) value);
+            result = createTextMessage(message.getMessageID(), (String) value, coreMessageObjectPools);
 
          } else if (value instanceof Binary) {
             Binary payload = (Binary) value;
 
             if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
-               result = createObjectMessage(message.getMessageID(), payload);
+               result = createObjectMessage(message.getMessageID(), payload, coreMessageObjectPools);
             } else {
-               result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+               result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
             }
 
          } else if (value instanceof List) {
-            ServerJMSStreamMessage m = createStreamMessage(message.getMessageID());
+            ServerJMSStreamMessage m = createStreamMessage(message.getMessageID(), coreMessageObjectPools);
             for (Object item : (List<Object>) value) {
                m.writeObject(item);
             }
             result = m;
          } else if (value instanceof Map) {
-            result = createMapMessage(message.getMessageID(), (Map<String, Object>) value);
+            result = createMapMessage(message.getMessageID(), (Map<String, Object>) value, coreMessageObjectPools);
          } else {
             ByteBuf buf = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
             try {
                TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buf));
                TLSEncode.getEncoder().writeObject(body);
-               result = createBytesMessage(message.getMessageID(), buf.array(), 0, buf.writerIndex());
+               result = createBytesMessage(message.getMessageID(), buf.array(), 0, buf.writerIndex(), coreMessageObjectPools);
             } finally {
                buf.release();
                TLSEncode.getEncoder().setByteBuffer((WritableBuffer)null);
@@ -186,7 +187,7 @@ public class AmqpCoreConverter {
       result.getInnerMessage().setReplyTo(message.getReplyTo());
       result.getInnerMessage().setDurable(message.isDurable());
       result.getInnerMessage().setPriority(message.getPriority());
-      result.getInnerMessage().setAddress(message.getAddress());
+      result.getInnerMessage().setAddress(message.getAddressSimpleString());
 
       result.encode();
 

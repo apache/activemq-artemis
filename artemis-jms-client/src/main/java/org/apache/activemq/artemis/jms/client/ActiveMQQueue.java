@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Queue;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * ActiveMQ Artemis implementation of a JMS Queue.
  * <br>
@@ -34,10 +36,14 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
 
    // Constructors --------------------------------------------------
    public ActiveMQQueue() {
-      this(null);
+      this((SimpleString) null);
    }
 
    public ActiveMQQueue(final String address) {
+      super(address, TYPE.QUEUE, null);
+   }
+
+   public ActiveMQQueue(final SimpleString address) {
       super(address, TYPE.QUEUE, null);
    }
 

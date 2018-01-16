@@ -1045,7 +1045,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public void disconnect() {
-      callback.disconnect(this, getQueue().getName().toString());
+      callback.disconnect(this, getQueue().getName());
    }
 
    public float getRate() {
