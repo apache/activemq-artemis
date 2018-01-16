@@ -91,15 +91,15 @@ public class SerializationTest extends VersionedBaseTest {
    @Test
    public void testSerializeFactory() throws Throwable {
       File file = serverFolder.newFile("objects.ser");
-      callScript(senderClassloader, "serial/serial.groovy", file.getAbsolutePath(), "write");
-      callScript(receiverClassloader, "serial/serial.groovy", file.getAbsolutePath(), "read");
+      callScript(senderClassloader, "serial/serial.groovy", file.getAbsolutePath(), "write", sender);
+      callScript(receiverClassloader, "serial/serial.groovy", file.getAbsolutePath(), "read", receiver);
    }
 
    @Test
    public void testJBMSerializeFactory() throws Throwable {
       File file = serverFolder.newFile("objectsjbm.ser");
-      callScript(senderClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "write");
-      callScript(receiverClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "read");
+      callScript(senderClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "write", sender);
+      callScript(receiverClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "read", receiver);
    }
 
 }

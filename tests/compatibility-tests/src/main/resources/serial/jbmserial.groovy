@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.jms.client.*
 
 file = arg[0]
 method = arg[1]
+version = arg[2]
 System.out.println("File::" + file);
 
 
@@ -49,6 +50,11 @@ if (method.equals("write")) {
     topic = new ActiveMQTopic("topic")
     temporary = ActiveMQDestination.createTemporaryQueue("whatever")
     temporaryTopic = ActiveMQDestination.createTemporaryTopic("whatever")
+    if (version.equals("ARTEMIS-SNAPSHOT")) {
+        destination = new ActiveMQDestination("address", "name", ActiveMQDestination.TYPE.DESTINATION, null)
+    } else if (version.equals("ARTEMIS-155")) {
+        destination = new ActiveMQDestination("address", "name", false, true, null)
+    }
 
     Marshaller marshaller = factory.createMarshaller(configuration)
     FileOutputStream fileOutputStream = new FileOutputStream(file)
@@ -58,6 +64,7 @@ if (method.equals("write")) {
     marshaller.writeObject(topic)
     marshaller.writeObject(temporary)
     marshaller.writeObject(temporaryTopic)
+    marshaller.writeObject(destination)
     marshaller.finish()
     fileOutputStream.close();
 } else {
@@ -69,10 +76,13 @@ if (method.equals("write")) {
     topic = unmarshaller.readObject()
     temporary = unmarshaller.readObject()
     temporaryTopic = unmarshaller.readObject()
+    destination = unmarshaller.readObject()
 }
 
 GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
 GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
+GroovyRun.assertEquals(destination.getName(), "name")
+GroovyRun.assertEquals(destination.getAddress(), "address")
 
 Connection connection = cf.createConnection();
 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
