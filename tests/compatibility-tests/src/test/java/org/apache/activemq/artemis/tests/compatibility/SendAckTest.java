@@ -76,8 +76,8 @@ public class SendAckTest extends ServerBaseTest {
 
    @Test
    public void testSendReceive() throws Throwable {
-      callScript(senderClassloader,  "sendAckTest/sendAckMessages.groovy", server, sender, "sendAckMessages");
-      callScript(receiverClassloader,  "sendAckTest/sendAckMessages.groovy", server, receiver, "receiveMessages");
+      evaluate(senderClassloader,  "sendAckTest/sendAckMessages.groovy", server, sender, "sendAckMessages");
+      evaluate(receiverClassloader,  "sendAckTest/sendAckMessages.groovy", server, receiver, "receiveMessages");
    }
 
 }
