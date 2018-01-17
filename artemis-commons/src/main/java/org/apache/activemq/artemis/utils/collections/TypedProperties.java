@@ -95,7 +95,6 @@ public class TypedProperties {
 
    public void putByteProperty(final SimpleString key, final byte value) {
       checkCreateProperties();
-      checkCreateProperties();
       doPutValue(key, ByteValue.valueOf(value));
    }
 
