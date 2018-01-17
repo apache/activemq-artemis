@@ -46,8 +46,13 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       super(address, TYPE.TOPIC, null);
    }
 
+   @Deprecated
+   public ActiveMQTopic(final String address, final String name) {
+      super(address, name, TYPE.TOPIC, null);
+   }
+
    public ActiveMQTopic(final String address, boolean temporary) {
-      super(address, TYPE.TOPIC, null);
+      this(address, temporary, null);
    }
 
    /**
