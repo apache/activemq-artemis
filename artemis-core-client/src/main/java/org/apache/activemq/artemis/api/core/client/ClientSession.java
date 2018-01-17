@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.api.core.client;
 
 import javax.transaction.xa.XAResource;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -216,6 +217,15 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated
     * @throws ActiveMQException
     */
+   void createAddress(SimpleString address, EnumSet<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
+
+   /**
+    * Create Address with a single initial routing type
+    * @param address
+    * @param autoCreated
+    * @throws ActiveMQException
+    */
+   @Deprecated
    void createAddress(SimpleString address, Set<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
    /**

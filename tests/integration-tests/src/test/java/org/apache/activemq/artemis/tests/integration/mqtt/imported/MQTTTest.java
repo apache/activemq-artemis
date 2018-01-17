@@ -28,11 +28,10 @@ import java.net.ProtocolException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -1805,9 +1804,7 @@ public class MQTTTest extends MQTTTestSupport {
    public void testAmbiguousRoutingWithMQTT() throws Exception {
       String anycastAddress = "foo/bar";
 
-      Set<RoutingType> routingTypeSet = new HashSet<>();
-      routingTypeSet.add(RoutingType.ANYCAST);
-      routingTypeSet.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypeSet = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), routingTypeSet));
       String clientId = "testMqtt";

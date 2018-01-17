@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.persistence;
 
-import java.util.Set;
+import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -27,5 +27,5 @@ public interface AddressBindingInfo {
 
    SimpleString getName();
 
-   Set<RoutingType> getRoutingTypes();
+   EnumSet<RoutingType> getRoutingTypes();
 }

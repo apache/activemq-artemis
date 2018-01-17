@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.core.postoffice.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -478,7 +478,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (routingType != null) {
             final SimpleString address = queue.getAddress();
             final AddressInfo addressInfo = addressManager.getAddressInfo(address);
-            final Set<RoutingType> addressRoutingTypes = addressInfo.getRoutingTypes();
+            final EnumSet<RoutingType> addressRoutingTypes = addressInfo.getRoutingTypes();
             if (!addressRoutingTypes.contains(routingType)) {
                throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeUpdate(name.toString(), routingType, address.toString(), addressRoutingTypes);
             }
@@ -516,7 +516,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        Collection<RoutingType> routingTypes) throws Exception {
+                                        EnumSet<RoutingType> routingTypes) throws Exception {
 
       synchronized (addressLock) {
          return addressManager.updateAddressInfo(addressName, routingTypes);
