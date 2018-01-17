@@ -41,9 +41,11 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -197,7 +199,21 @@ public class AMQSession implements SessionCallback {
          try {
             if (!queueBinding.isExists()) {
                if (bindingQuery.isAutoCreateQueues()) {
-                  server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, isTemporary);
+                  SimpleString queueNameToUse = queueName;
+                  SimpleString addressToUse = queueName;
+                  RoutingType routingTypeToUse = RoutingType.ANYCAST;
+                  if (CompositeAddress.isFullyQualified(queueName.toString())) {
+                     CompositeAddress compositeAddress = CompositeAddress.getQueueName(queueName.toString());
+                     addressToUse = new SimpleString(compositeAddress.getAddress());
+                     queueNameToUse = new SimpleString(compositeAddress.getQueueName());
+                     if (bindingQuery.getAddressInfo() != null) {
+                        routingTypeToUse = bindingQuery.getAddressInfo().getRoutingType();
+                     } else {
+                        AddressSettings as = server.getAddressSettingsRepository().getMatch(addressToUse.toString());
+                        routingTypeToUse = as.getDefaultAddressRoutingType();
+                     }
+                  }
+                  server.createQueue(addressToUse, routingTypeToUse, queueNameToUse, null, true, isTemporary);
                   connection.addKnownDestination(queueName);
                } else {
                   hasQueue = false;
