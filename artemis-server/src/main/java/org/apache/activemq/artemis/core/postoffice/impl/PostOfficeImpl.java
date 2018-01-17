@@ -892,7 +892,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       // as described on https://issues.jboss.org/browse/JBPAPP-6130
       Message copyRedistribute = message.copy(storageManager.generateID());
 
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
+      Bindings bindings = addressManager.getBindingsForRoutingAddress(originatingQueue.getAddress());
 
       if (bindings != null) {
          RoutingContext context = new RoutingContextImpl(tx);
