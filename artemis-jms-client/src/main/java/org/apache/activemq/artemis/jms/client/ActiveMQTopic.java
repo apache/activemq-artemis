@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * ActiveMQ Artemis implementation of a JMS Topic.
  * <br>
@@ -33,11 +35,15 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
 
    // Constructors --------------------------------------------------
    public ActiveMQTopic() {
-      this(null);
+      this((SimpleString) null);
    }
 
    public ActiveMQTopic(final String address) {
       this(address, false);
+   }
+
+   public ActiveMQTopic(final SimpleString address) {
+      super(address, TYPE.TOPIC, null);
    }
 
    public ActiveMQTopic(final String address, boolean temporary) {

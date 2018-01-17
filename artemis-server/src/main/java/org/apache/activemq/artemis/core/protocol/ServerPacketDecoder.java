@@ -84,15 +84,14 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 public class ServerPacketDecoder extends ClientPacketDecoder {
 
    private static final long serialVersionUID = 3348673114388400766L;
-   public static final ServerPacketDecoder INSTANCE = new ServerPacketDecoder();
 
-   private static SessionSendMessage decodeSessionSendMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
+   private SessionSendMessage decodeSessionSendMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final SessionSendMessage sendMessage;
 
       if (connection.isVersionBeforeAddressChange()) {
-         sendMessage = new SessionSendMessage_1X(new CoreMessage());
+         sendMessage = new SessionSendMessage_1X(new CoreMessage(this.coreMessageObjectPools));
       } else {
-         sendMessage = new SessionSendMessage(new CoreMessage());
+         sendMessage = new SessionSendMessage(new CoreMessage(this.coreMessageObjectPools));
       }
 
       sendMessage.decode(in);
@@ -259,5 +258,4 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
 
       return packet;
    }
-
 }

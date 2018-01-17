@@ -620,7 +620,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSObjectMessage createObjectMessage(Serializable payload, boolean compression) {
-      ServerJMSObjectMessage result = AMQPMessageSupport.createObjectMessage(0);
+      ServerJMSObjectMessage result = AMQPMessageSupport.createObjectMessage(0, null);
 
       if (compression) {
          // TODO
@@ -647,7 +647,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSTextMessage createTextMessage(String text, boolean compression) {
-      ServerJMSTextMessage result = AMQPMessageSupport.createTextMessage(0);
+      ServerJMSTextMessage result = AMQPMessageSupport.createTextMessage(0, null);
 
       if (compression) {
          // TODO

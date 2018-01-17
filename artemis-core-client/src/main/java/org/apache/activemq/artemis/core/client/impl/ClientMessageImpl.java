@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -57,6 +58,10 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
     * Constructor for when reading from remoting
     */
    public ClientMessageImpl() {
+   }
+
+   public ClientMessageImpl(CoreMessageObjectPools coreMessageObjectPools) {
+      super(coreMessageObjectPools);
    }
 
    protected ClientMessageImpl(ClientMessageImpl other) {
@@ -96,9 +101,20 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
                             final long expiration,
                             final long timestamp,
                             final byte priority,
-                            final int initialMessageBufferSize) {
+                            final int initialMessageBufferSize,
+                            final CoreMessageObjectPools coreMessageObjectPools) {
+      super(coreMessageObjectPools);
       this.setType(type).setExpiration(expiration).setTimestamp(timestamp).setDurable(durable).
            setPriority(priority).initBuffer(initialMessageBufferSize);
+   }
+
+   public ClientMessageImpl(final byte type,
+                            final boolean durable,
+                            final long expiration,
+                            final long timestamp,
+                            final byte priority,
+                            final int initialMessageBufferSize) {
+      this(type, durable, expiration, timestamp, priority, initialMessageBufferSize, null);
    }
 
    @Override
@@ -282,6 +298,11 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
 
    @Override
    public ClientMessageImpl putStringProperty(final SimpleString key, final SimpleString value) {
+      return (ClientMessageImpl) super.putStringProperty(key, value);
+   }
+
+   @Override
+   public ClientMessageImpl putStringProperty(final SimpleString key, final String value) {
       return (ClientMessageImpl) super.putStringProperty(key, value);
    }
 

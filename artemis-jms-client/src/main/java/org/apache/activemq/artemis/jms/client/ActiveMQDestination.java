@@ -99,26 +99,28 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       }
    }
 
-   public static String createQueueNameForSubscription(final boolean isDurable,
+   public static SimpleString createQueueNameForSubscription(final boolean isDurable,
                                                        final String clientID,
                                                        final String subscriptionName) {
+      final String queueName;
       if (clientID != null) {
          if (isDurable) {
-            return ActiveMQDestination.escape(clientID) + SEPARATOR +
+            queueName = ActiveMQDestination.escape(clientID) + SEPARATOR +
                ActiveMQDestination.escape(subscriptionName);
          } else {
-            return "nonDurable" + SEPARATOR +
+            queueName = "nonDurable" + SEPARATOR +
                ActiveMQDestination.escape(clientID) + SEPARATOR +
                ActiveMQDestination.escape(subscriptionName);
          }
       } else {
          if (isDurable) {
-            return ActiveMQDestination.escape(subscriptionName);
+            queueName = ActiveMQDestination.escape(subscriptionName);
          } else {
-            return "nonDurable" + SEPARATOR +
+            queueName = "nonDurable" + SEPARATOR +
                ActiveMQDestination.escape(subscriptionName);
          }
       }
+      return SimpleString.toSimpleString(queueName);
    }
 
    public static String createQueueNameForSharedSubscription(final boolean isDurable,
@@ -192,7 +194,15 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return new ActiveMQQueue(address);
    }
 
+   public static ActiveMQQueue createQueue(final SimpleString address) {
+      return new ActiveMQQueue(address);
+   }
+
    public static ActiveMQTopic createTopic(final String address) {
+      return new ActiveMQTopic(address);
+   }
+
+   public static ActiveMQTopic createTopic(final SimpleString address) {
       return new ActiveMQTopic(address);
    }
 

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
@@ -242,56 +243,56 @@ public final class AMQPMessageSupport {
       return null;
    }
 
-   public static ServerJMSBytesMessage createBytesMessage(long id) {
-      return new ServerJMSBytesMessage(newMessage(id, BYTES_TYPE));
+   public static ServerJMSBytesMessage createBytesMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSBytesMessage(newMessage(id, BYTES_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length) throws JMSException {
-      ServerJMSBytesMessage message = createBytesMessage(id);
+   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSBytesMessage message = createBytesMessage(id, coreMessageObjectPools);
       message.writeBytes(array, arrayOffset, length);
       return message;
    }
 
-   public static ServerJMSStreamMessage createStreamMessage(long id) {
-      return new ServerJMSStreamMessage(newMessage(id, STREAM_TYPE));
+   public static ServerJMSStreamMessage createStreamMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSStreamMessage(newMessage(id, STREAM_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createMessage(long id) {
-      return new ServerJMSMessage(newMessage(id, DEFAULT_TYPE));
+   public static ServerJMSMessage createMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSMessage(newMessage(id, DEFAULT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id) {
-      return new ServerJMSTextMessage(newMessage(id, TEXT_TYPE));
+   public static ServerJMSTextMessage createTextMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSTextMessage(newMessage(id, TEXT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id, String text) throws JMSException {
-      ServerJMSTextMessage message = createTextMessage(id);
+   public static ServerJMSTextMessage createTextMessage(long id, String text, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSTextMessage message = createTextMessage(id, coreMessageObjectPools);
       message.setText(text);
       return message;
    }
 
-   public static ServerJMSObjectMessage createObjectMessage(long id) {
-      return new ServerJMSObjectMessage(newMessage(id, OBJECT_TYPE));
+   public static ServerJMSObjectMessage createObjectMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSObjectMessage(newMessage(id, OBJECT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm) throws JMSException {
-      ServerJMSObjectMessage message = createObjectMessage(id);
+   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(serializedForm);
       return message;
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length) throws JMSException {
-      ServerJMSObjectMessage message = createObjectMessage(id);
+   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(new Binary(array, offset, length));
       return message;
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id) {
-      return new ServerJMSMapMessage(newMessage(id, MAP_TYPE));
+   public static ServerJMSMapMessage createMapMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSMapMessage(newMessage(id, MAP_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content) throws JMSException {
-      ServerJMSMapMessage message = createMapMessage(id);
+   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSMapMessage message = createMapMessage(id, coreMessageObjectPools);
       final Set<Map.Entry<String, Object>> set = content.entrySet();
       for (Map.Entry<String, Object> entry : set) {
          Object value = entry.getValue();
@@ -304,8 +305,8 @@ public final class AMQPMessageSupport {
       return message;
    }
 
-   private static CoreMessage newMessage(long id, byte messageType) {
-      CoreMessage message = new CoreMessage(id, 512);
+   private static CoreMessage newMessage(long id, byte messageType, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreMessage message = new CoreMessage(id, 512, coreMessageObjectPools);
       message.setType(messageType);
 //      ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;
