@@ -109,12 +109,18 @@ public class MessageUtil {
       return message.getSimpleStringProperty(REPLYTO_HEADER_NAME);
    }
 
-   public static void setJMSReplyTo(Message message, final SimpleString dest) {
-
+   public static void setJMSReplyTo(Message message, final String dest) {
       if (dest == null) {
          message.removeProperty(REPLYTO_HEADER_NAME);
       } else {
+         message.putStringProperty(REPLYTO_HEADER_NAME, dest);
+      }
+   }
 
+   public static void setJMSReplyTo(Message message, final SimpleString dest) {
+      if (dest == null) {
+         message.removeProperty(REPLYTO_HEADER_NAME);
+      } else {
          message.putStringProperty(REPLYTO_HEADER_NAME, dest);
       }
    }

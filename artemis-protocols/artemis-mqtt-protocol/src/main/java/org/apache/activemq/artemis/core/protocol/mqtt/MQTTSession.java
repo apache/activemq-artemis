@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -56,10 +57,11 @@ public class MQTTSession {
 
    private MQTTProtocolManager protocolManager;
 
-
    private boolean isClean;
 
    private WildcardConfiguration wildcardConfiguration;
+
+   private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    public MQTTSession(MQTTProtocolHandler protocolHandler,
                       MQTTConnection connection,
@@ -194,5 +196,9 @@ public class MQTTSession {
 
    public void setWildcardConfiguration(WildcardConfiguration wildcardConfiguration) {
       this.wildcardConfiguration = wildcardConfiguration;
+   }
+
+   public CoreMessageObjectPools getCoreMessageObjectPools() {
+      return coreMessageObjectPools;
    }
 }

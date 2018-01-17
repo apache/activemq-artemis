@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
@@ -206,5 +207,126 @@ public class ByteUtil {
       } catch (NumberFormatException e) {
          throw ActiveMQUtilBundle.BUNDLE.failedToParseLong(text);
       }
+   }
+
+   public static boolean equals(final byte[] left, final byte[] right) {
+      return equals(left, right, 0, right.length);
+   }
+
+   public static boolean equals(final byte[] left,
+                                final byte[] right,
+                                final int rightOffset,
+                                final int rightLength) {
+      if (left == right)
+         return true;
+      if (left == null || right == null)
+         return false;
+      if (left.length != rightLength)
+         return false;
+      if (PlatformDependent.isUnaligned() && PlatformDependent.hasUnsafe()) {
+         return equalsUnsafe(left, right, rightOffset, rightLength);
+      } else {
+         return equalsSafe(left, right, rightOffset, rightLength);
+      }
+   }
+
+   private static boolean equalsSafe(byte[] left, byte[] right, int rightOffset, int rightLength) {
+      for (int i = 0; i < rightLength; i++)
+         if (left[i] != right[rightOffset + i])
+            return false;
+      return true;
+   }
+
+   private static boolean equalsUnsafe(final byte[] left,
+                                       final byte[] right,
+                                       final int rightOffset,
+                                       final int rightLength) {
+      final int longCount = rightLength >>> 3;
+      final int bytesCount = rightLength & 7;
+      int bytesIndex = rightOffset;
+      int charsIndex = 0;
+      for (int i = 0; i < longCount; i++) {
+         final long charsLong = PlatformDependent.getLong(left, charsIndex);
+         final long bytesLong = PlatformDependent.getLong(right, bytesIndex);
+         if (charsLong != bytesLong) {
+            return false;
+         }
+         bytesIndex += 8;
+         charsIndex += 8;
+      }
+      for (int i = 0; i < bytesCount; i++) {
+         final byte charsByte = PlatformDependent.getByte(left, charsIndex);
+         final byte bytesByte = PlatformDependent.getByte(right, bytesIndex);
+         if (charsByte != bytesByte) {
+            return false;
+         }
+         bytesIndex++;
+         charsIndex++;
+      }
+      return true;
+   }
+
+
+   /**
+    * Returns {@code true} if  the {@link SimpleString} encoded content into {@code bytes} is equals to {@code s},
+    * {@code false} otherwise.
+    * <p>
+    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie starting right after the
+    * length field.
+    */
+   public static boolean equals(final byte[] bytes, final ByteBuf byteBuf, final int offset, final int length) {
+      if (bytes.length != length)
+         return false;
+      if (PlatformDependent.isUnaligned() && PlatformDependent.hasUnsafe()) {
+         if ((offset + length) > byteBuf.writerIndex()) {
+            throw new IndexOutOfBoundsException();
+         }
+         if (byteBuf.hasArray()) {
+            return equals(bytes, byteBuf.array(), byteBuf.arrayOffset() + offset, length);
+         } else if (byteBuf.hasMemoryAddress()) {
+            return equalsOffHeap(bytes, byteBuf.memoryAddress(), offset, length);
+         }
+      }
+      return equalsOnHeap(bytes, byteBuf, offset, length);
+   }
+
+   private static boolean equalsOnHeap(final byte[] bytes, final ByteBuf byteBuf, final int offset, final int length) {
+      if (bytes.length != length)
+         return false;
+      for (int i = 0; i < length; i++)
+         if (bytes[i] != byteBuf.getByte(offset + i))
+            return false;
+      return true;
+   }
+
+   private static boolean equalsOffHeap(final byte[] bytes,
+                                        final long address,
+                                        final int offset,
+                                        final int length) {
+      final int longCount = length >>> 3;
+      final int bytesCount = length & 7;
+      long bytesAddress = address + offset;
+      int charsIndex = 0;
+      for (int i = 0; i < longCount; i++) {
+         final long charsLong = PlatformDependent.getLong(bytes, charsIndex);
+         final long bytesLong = PlatformDependent.getLong(bytesAddress);
+         if (charsLong != bytesLong) {
+            return false;
+
+         }
+         bytesAddress += 8;
+         charsIndex += 8;
+      }
+      for (int i = 0; i < bytesCount; i++) {
+         final byte charsByte = PlatformDependent.getByte(bytes, charsIndex);
+         final byte bytesByte = PlatformDependent.getByte(bytesAddress);
+         if (charsByte != bytesByte) {
+            return false;
+
+         }
+         bytesAddress++;
+         charsIndex++;
+      }
+      return true;
    }
 }

@@ -409,7 +409,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                      List<Interceptor> incomingInterceptors,
                                      List<Interceptor> outgoingInterceptors,
                                      TopologyResponseHandler topologyResponseHandler) {
-      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors);
+      this.connection = new RemotingConnectionImpl(createPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors);
 
       this.topologyResponseHandler = topologyResponseHandler;
 
@@ -510,8 +510,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
    }
 
-   protected PacketDecoder getPacketDecoder() {
-      return ClientPacketDecoder.INSTANCE;
+   protected PacketDecoder createPacketDecoder() {
+      return new ClientPacketDecoder();
    }
 
    private void forceReturnChannel1(ActiveMQException cause) {
