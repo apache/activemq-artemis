@@ -82,8 +82,8 @@ public class MeshTest extends ServerBaseTest {
    @Test
    public void testSendReceive() throws Throwable {
       setVariable(receiverClassloader, "latch", null);
-      callScript(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
-      callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
+      evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
    }
 
    @Test
@@ -96,7 +96,7 @@ public class MeshTest extends ServerBaseTest {
          @Override
          public void run() {
             try {
-               callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveNonDurableSubscription");
+               evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveNonDurableSubscription");
             } catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
@@ -106,7 +106,7 @@ public class MeshTest extends ServerBaseTest {
 
       t.start();
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      callScript(senderClassloader,"meshTest/sendMessages.groovy", server, sender, "sendTopic");
+      evaluate(senderClassloader,"meshTest/sendMessages.groovy", server, sender, "sendTopic");
 
       t.join();
 
