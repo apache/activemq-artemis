@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 import java.util.Collection;
@@ -95,8 +96,10 @@ public class WildcardAddressManager extends SimpleAddressManager {
          } else {
             for (Address destAdd : add.getLinkedAddresses()) {
                Bindings bindings = super.getBindingsForRoutingAddress(destAdd.getAddress());
-               for (Binding b : bindings.getBindings()) {
-                  super.addMappingInternal(binding.getAddress(), b);
+               if (bindings != null) {
+                  for (Binding b : bindings.getBindings()) {
+                     super.addMappingInternal(binding.getAddress(), b);
+                  }
                }
             }
          }
@@ -124,6 +127,15 @@ public class WildcardAddressManager extends SimpleAddressManager {
          removeAndUpdateAddressMap(add);
       }
       return binding;
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      final AddressInfo removed = super.removeAddressInfo(address);
+      if (removed != null) {
+         removeAndUpdateAddressMap(new AddressImpl(removed.getName(), wildcardConfiguration));
+      }
+      return removed;
    }
 
    @Override
