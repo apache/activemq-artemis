@@ -173,7 +173,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
    @Override
    public String getClientID() {
-      return amqpConnection.getContainer();
+      return amqpConnection.getRemoteContainer();
    }
 
    public void open() {
