@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
@@ -92,7 +93,10 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public SimpleString getAddress() {
+   public SimpleString getAddress(Message message) {
+      if (address == null && message != null) {
+         return message.getAddressSimpleString();
+      }
       return address;
    }
 
