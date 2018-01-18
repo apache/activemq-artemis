@@ -93,7 +93,7 @@ public class DivertImpl implements Divert {
       Message copy = null;
 
       // Shouldn't copy if it's not routed anywhere else
-      if (!forwardAddress.equals(context.getAddress())) {
+      if (!forwardAddress.equals(context.getAddress(message))) {
          long id = storageManager.generateID();
          copy = message.copy(id);
 

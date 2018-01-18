@@ -16,7 +16,7 @@ package clients
  * limitations under the License.
  */
 
-// This script is called by sendMessages.groovy
+// This script is called by sendMessagesPagingPaging.groovy
 
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
