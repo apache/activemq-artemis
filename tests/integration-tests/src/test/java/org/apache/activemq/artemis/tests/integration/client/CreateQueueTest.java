@@ -74,7 +74,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          assertEquals(ActiveMQExceptionType.INTERNAL_ERROR, ae.getType());
       }
 
-      routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
+      routingTypes = EnumSet.of(RoutingType.MULTICAST);
       sendSession.createAddress(addressB, routingTypes, false);
       try {
          sendSession.createQueue(addressB, RoutingType.ANYCAST, queueB);
