@@ -20,9 +20,7 @@ import java.io.Serializable;
 import java.util.Hashtable;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 /**
  * The RA default properties - these are set in the ra.xml file
@@ -66,13 +64,11 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
 
    private boolean useJNDI;
 
-   private boolean useMaskedPassword = false;
+   private Boolean useMaskedPassword = null;
 
    private String passwordCodec;
 
    private boolean initialized = false;
-
-   private transient SensitiveDataCodec<String> codecInstance;
 
    /**
     * Class used to get a JChannel
@@ -217,11 +213,11 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       this.setupInterval = setupInterval;
    }
 
-   public boolean isUseMaskedPassword() {
+   public Boolean isUseMaskedPassword() {
       return useMaskedPassword;
    }
 
-   public void setUseMaskedPassword(boolean useMaskedPassword) {
+   public void setUseMaskedPassword(Boolean useMaskedPassword) {
       this.useMaskedPassword = useMaskedPassword;
    }
 
@@ -243,27 +239,19 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       if (initialized)
          return;
 
-      if (useMaskedPassword) {
-         codecInstance = new DefaultSensitiveStringCodec();
-
-         if (passwordCodec != null) {
-            codecInstance = PasswordMaskingUtil.getCodec(passwordCodec);
-         }
-
+      if (password != null) {
          try {
-            if (password != null) {
-               password = codecInstance.decode(password);
-            }
+            password = PasswordMaskingUtil.resolveMask(useMaskedPassword, password, passwordCodec);
          } catch (Exception e) {
             throw ActiveMQRABundle.BUNDLE.errorDecodingPassword(e);
          }
-
       }
+
       initialized = true;
    }
 
-   public SensitiveDataCodec<String> getCodecInstance() {
-      return codecInstance;
+   public String getCodec() {
+      return passwordCodec;
    }
 
    public String getJgroupsChannelLocatorClass() {

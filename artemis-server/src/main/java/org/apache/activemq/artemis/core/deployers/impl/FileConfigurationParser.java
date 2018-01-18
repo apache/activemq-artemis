@@ -80,7 +80,6 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
@@ -339,7 +338,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setManagementNotificationAddress(new SimpleString(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
 
-      config.setMaskPassword(getBoolean(e, "mask-password", false));
+      config.setMaskPassword(getBoolean(e, "mask-password", null));
 
       config.setPasswordCodec(getString(e, "password-codec", DefaultSensitiveStringCodec.class.getName(), Validators.NOT_NULL_OR_EMPTY));
 
@@ -369,15 +368,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       // parsing cluster password
       String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);
 
-      final boolean maskText = config.isMaskPassword();
+      final Boolean maskText = config.isMaskPassword();
 
       if (passwordText != null) {
-         if (maskText) {
-            SensitiveDataCodec<String> codec = PasswordMaskingUtil.getCodec(config.getPasswordCodec());
-            config.setClusterPassword(codec.decode(passwordText));
-         } else {
-            config.setClusterPassword(passwordText);
-         }
+         String resolvedPassword = PasswordMaskingUtil.resolveMask(maskText, passwordText, config.getPasswordCodec());
+         config.setClusterPassword(resolvedPassword);
       }
 
       config.setClusterUser(getString(e, "cluster-user", config.getClusterUser(), Validators.NO_CHECK));
@@ -1164,12 +1159,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, Object> params = configurations.get(0).getParams();
 
-      if (mainConfig.isMaskPassword()) {
-         params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
+      params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
 
-         if (mainConfig.getPasswordCodec() != null) {
-            params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
-         }
+      if (mainConfig.getPasswordCodec() != null) {
+         params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
       }
 
       return configurations.get(0);
@@ -1187,12 +1180,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, Object> params = configurations.get(0).getParams();
 
-      if (mainConfig.isMaskPassword()) {
-         params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
+      params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
 
-         if (mainConfig.getPasswordCodec() != null) {
-            params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
-         }
+      if (mainConfig.getPasswordCodec() != null) {
+         params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
       }
 
       return configurations.get(0);
@@ -1720,9 +1711,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList clusterPassNodes = brNode.getElementsByTagName("password");
       String password = null;
-      boolean maskPassword = mainConfig.isMaskPassword();
-
-      SensitiveDataCodec<String> codec = null;
 
       if (clusterPassNodes.getLength() > 0) {
          Node passNode = clusterPassNodes.item(0);
@@ -1730,10 +1718,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       if (password != null) {
-         if (maskPassword) {
-            codec = PasswordMaskingUtil.getCodec(mainConfig.getPasswordCodec());
-            password = codec.decode(password);
-         }
+         password = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), password, mainConfig.getPasswordCodec());
       } else {
          password = ActiveMQDefaultConfiguration.getDefaultClusterPassword();
       }

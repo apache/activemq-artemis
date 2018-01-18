@@ -249,7 +249,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<>();
 
-   private boolean maskPassword = ActiveMQDefaultConfiguration.isDefaultMaskPassword();
+   private Boolean maskPassword = ActiveMQDefaultConfiguration.isDefaultMaskPassword();
 
    private transient String passwordCodec;
 
@@ -1461,12 +1461,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public boolean isMaskPassword() {
+   public Boolean isMaskPassword() {
       return maskPassword;
    }
 
    @Override
-   public ConfigurationImpl setMaskPassword(boolean maskPassword) {
+   public ConfigurationImpl setMaskPassword(Boolean maskPassword) {
       this.maskPassword = maskPassword;
       return this;
    }
@@ -1673,7 +1673,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       if (asyncConnectionExecutionEnabled != other.asyncConnectionExecutionEnabled)
          return false;
-
       if (bindingsDirectory == null) {
          if (other.bindingsDirectory != null)
             return false;
@@ -1689,11 +1688,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return false;
       } else if (!broadcastGroupConfigurations.equals(other.broadcastGroupConfigurations))
          return false;
+
       if (clusterConfigurations == null) {
          if (other.clusterConfigurations != null)
             return false;
       } else if (!clusterConfigurations.equals(other.clusterConfigurations))
          return false;
+
       if (clusterPassword == null) {
          if (other.clusterPassword != null)
             return false;
@@ -1720,6 +1721,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       if (createJournalDir != other.createJournalDir)
          return false;
+
       if (discoveryGroupConfigurations == null) {
          if (other.discoveryGroupConfigurations != null)
             return false;
@@ -1801,8 +1803,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return false;
       } else if (!managementNotificationAddress.equals(other.managementNotificationAddress))
          return false;
-      if (maskPassword != other.maskPassword)
-         return false;
+
+      if (this.maskPassword == null) {
+         if (other.maskPassword != null)
+            return false;
+      } else {
+         if (!this.maskPassword.equals(other.maskPassword))
+            return false;
+      }
+
       if (maxConcurrentPageIO != other.maxConcurrentPageIO)
          return false;
       if (memoryMeasureInterval != other.memoryMeasureInterval)
@@ -1824,7 +1833,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return false;
       } else if (!name.equals(other.name))
          return false;
-
       if (outgoingInterceptorClassNames == null) {
          if (other.outgoingInterceptorClassNames != null)
             return false;
@@ -1881,6 +1889,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (journalDatasync != other.journalDatasync) {
          return false;
       }
+
       if (globalMaxSize != null && !globalMaxSize.equals(other.globalMaxSize)) {
          return false;
       }
