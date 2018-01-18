@@ -736,11 +736,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw new IllegalStateException("Message cannot be routed more than once");
       }
 
-      setPagingStore(message);
+      setPagingStore(context.getAddress(message), message);
 
       AtomicBoolean startedTX = new AtomicBoolean(false);
 
-      final SimpleString address = message.getAddressSimpleString();
+      final SimpleString address = context.getAddress(message);
 
       applyExpiryDelay(message, address);
 
@@ -750,7 +750,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress() == null ? message.getAddressSimpleString() : context.getAddress());
+      Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
 
       // TODO auto-create queues here?
       // first check for the auto-queue creation thing
@@ -854,7 +854,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public MessageReference reroute(final Message message, final Queue queue, final Transaction tx) throws Exception {
 
-      setPagingStore(message);
+      setPagingStore(queue.getAddress(), message);
 
       MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
@@ -1040,8 +1040,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    // Private -----------------------------------------------------------------
 
-   private void setPagingStore(final Message message) throws Exception {
-      PagingStore store = pagingManager.getPageStore(message.getAddressSimpleString());
+   private void setPagingStore(SimpleString address, Message message) throws Exception {
+      PagingStore store = pagingManager.getPageStore(address);
 
       message.setContext(store);
    }
@@ -1122,7 +1122,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
-            if (context.isAlreadyAcked(message.getAddressSimpleString(), queue)) {
+            if (context.isAlreadyAcked(context.getAddress(message), queue)) {
                reference.setAlreadyAcked();
                if (tx != null) {
                   queue.acknowledge(tx, reference);
@@ -1261,7 +1261,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // if the message is being sent from the bridge, we just ignore the duplicate id, and use the internal one
          byte[] bridgeDupBytes = (byte[]) bridgeDup;
 
-         DuplicateIDCache cacheBridge = getDuplicateIDCache(BRIDGE_CACHE_STR.concat(message.getAddress()));
+         DuplicateIDCache cacheBridge = getDuplicateIDCache(BRIDGE_CACHE_STR.concat(context.getAddress(message).toString()));
 
          if (context.getTransaction() == null) {
             context.setTransaction(new TransactionImpl(storageManager));
@@ -1284,7 +1284,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          boolean isDuplicate = false;
 
          if (duplicateIDBytes != null) {
-            cache = getDuplicateIDCache(message.getAddressSimpleString());
+            cache = getDuplicateIDCache(context.getAddress(message));
 
             isDuplicate = cache.contains(duplicateIDBytes);
 

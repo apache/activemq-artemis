@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.utils.RunnableEx;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.ClassRule;
@@ -81,11 +80,11 @@ public abstract class VersionedBaseTest {
       loaderMap.clear();
    }
 
-   protected static void callScript(ClassLoader loader, String script, String... arguments) throws Exception {
-      tclCall(loader, () -> {
+   protected static Object evaluate(ClassLoader loader, String script, String... arguments) throws Exception {
+      return tclCall(loader, () -> {
          Class clazz = loader.loadClass(GroovyRun.class.getName());
-         Method method = clazz.getMethod("doTest", String.class, String[].class);
-         method.invoke(null, script, arguments);
+         Method method = clazz.getMethod("evaluate", String.class, String[].class);
+         return method.invoke(null, script, arguments);
       });
    }
 
@@ -94,26 +93,39 @@ public abstract class VersionedBaseTest {
          Class clazz = loader.loadClass(GroovyRun.class.getName());
          Method method = clazz.getMethod("setVariable", String.class, Object.class);
          method.invoke(null, name, object);
+         return null;
       });
    }
 
-   protected static void callExecute(ClassLoader loader, String script) throws Exception {
-      tclCall(loader, () -> {
+   protected static Object setVariable(ClassLoader loader, String name) throws Exception {
+      return tclCall(loader, () -> {
+         Class clazz = loader.loadClass(GroovyRun.class.getName());
+         Method method = clazz.getMethod("getVariable", String.class);
+         return method.invoke(null, name);
+      });
+   }
+
+   protected static Object execute(ClassLoader loader, String script) throws Exception {
+      return tclCall(loader, () -> {
          Class clazz = loader.loadClass(GroovyRun.class.getName());
          Method method = clazz.getMethod("execute", String.class);
-         method.invoke(null, script);
+         return method.invoke(null, script);
       });
    }
 
-   protected static void tclCall(ClassLoader loader, RunnableEx run) throws Exception {
+   protected static Object tclCall(ClassLoader loader, CallIt run) throws Exception {
 
       ClassLoader original = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(loader);
       try {
-         run.run();
+         return run.run();
       } finally {
          Thread.currentThread().setContextClassLoader(original);
       }
+   }
+
+   public interface CallIt {
+      Object run() throws Exception;
    }
 
    protected static ClassLoader defineClassLoader(String classPath) throws MalformedURLException {
@@ -188,10 +200,10 @@ public abstract class VersionedBaseTest {
          scriptToUse = "servers/hornetqServer.groovy";
       }
 
-      callScript(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver);
+      evaluate(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver);
    }
 
    public void stopServer(ClassLoader loader) throws Throwable {
-      callExecute(loader, "server.stop()");
+      execute(loader, "server.stop()");
    }
 }

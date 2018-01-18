@@ -108,13 +108,13 @@ public class ExportImportTest extends VersionedBaseTest {
       setVariable(senderClassloader, "legacy", false);
       setVariable(senderClassloader, "persistent", true);
       startServer(serverFolder.getRoot(), senderClassloader, "sender");
-      callScript(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
       if (sender.startsWith("ARTEMIS-1")) {
-         callScript(senderClassloader, "exportimport/export1X.groovy", serverFolder.getRoot().getAbsolutePath());
+         evaluate(senderClassloader, "exportimport/export1X.groovy", serverFolder.getRoot().getAbsolutePath());
       } else {
-         callScript(senderClassloader, "exportimport/export.groovy", serverFolder.getRoot().getAbsolutePath());
+         evaluate(senderClassloader, "exportimport/export.groovy", serverFolder.getRoot().getAbsolutePath());
       }
 
       setVariable(receiverClassloader, "legacy", legacyPrefixes);
@@ -124,10 +124,10 @@ public class ExportImportTest extends VersionedBaseTest {
 
          setVariable(receiverClassloader, "sort", sender.startsWith("ARTEMIS-1"));
 
-         callScript(receiverClassloader, "exportimport/import.groovy", serverFolder.getRoot().getAbsolutePath());
+         evaluate(receiverClassloader, "exportimport/import.groovy", serverFolder.getRoot().getAbsolutePath());
 
          setVariable(receiverClassloader, "latch", null);
-         callScript(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
+         evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
       } finally {
          setVariable(receiverClassloader, "legacy", false);
       }
