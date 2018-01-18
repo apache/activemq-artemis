@@ -7,12 +7,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.base.Preconditions;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,6 +31,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -67,6 +70,12 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String AFTER_CREATE_CONSUMER = "afterCreateConsumer";
    public static final String BEFORE_CLOSE_CONSUMER = "beforeCloseConsumer";
    public static final String AFTER_CLOSE_CONSUMER = "afterCloseConsumer";
+   public static final String BEFORE_ADD_ADDRESS = "beforeAddAddress";
+   public static final String AFTER_ADD_ADDRESS = "afterAddAddress";
+   public static final String BEFORE_UPDATE_ADDRESS = "beforeUpdateAddress";
+   public static final String AFTER_UPDATE_ADDRESS = "afterUpdateAddress";
+   public static final String BEFORE_REMOVE_ADDRESS = "beforeRemoveAddress";
+   public static final String AFTER_REMOVE_ADDRESS = "afterRemoveAddress";
    public static final String BEFORE_CREATE_QUEUE = "beforeCreateQueue";
    public static final String AFTER_CREATE_QUEUE = "afterCreateQueue";
    public static final String BEFORE_DESTROY_QUEUE = "beforeDestroyQueue";
@@ -165,6 +174,45 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
       Preconditions.checkNotNull(consumer);
       methodCalled(AFTER_CLOSE_CONSUMER);
+   }
+
+   @Override
+   public void beforeAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
+      Preconditions.checkNotNull(addressInfo);
+      methodCalled(BEFORE_ADD_ADDRESS);
+   }
+
+   @Override
+   public void afterAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
+      Preconditions.checkNotNull(addressInfo);
+      methodCalled(AFTER_ADD_ADDRESS);
+   }
+
+   @Override
+   public void beforeUpdateAddress(SimpleString address, EnumSet<RoutingType> routingTypes)
+         throws ActiveMQException {
+      Preconditions.checkNotNull(address);
+      Preconditions.checkNotNull(routingTypes);
+      methodCalled(BEFORE_UPDATE_ADDRESS);
+   }
+
+   @Override
+   public void afterUpdateAddress(AddressInfo addressInfo) throws ActiveMQException {
+      Preconditions.checkNotNull(addressInfo);
+      methodCalled(AFTER_UPDATE_ADDRESS);
+   }
+
+   @Override
+   public void beforeRemoveAddress(SimpleString address) throws ActiveMQException {
+      Preconditions.checkNotNull(address);
+      methodCalled(BEFORE_REMOVE_ADDRESS);
+   }
+
+   @Override
+   public void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
+      Preconditions.checkNotNull(address);
+      Preconditions.checkNotNull(addressInfo);
+      methodCalled(AFTER_REMOVE_ADDRESS);
    }
 
    @Override
