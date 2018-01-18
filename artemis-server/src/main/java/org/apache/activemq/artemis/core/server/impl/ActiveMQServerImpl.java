@@ -28,6 +28,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -2618,7 +2619,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public boolean updateAddressInfo(SimpleString address, Collection<RoutingType> routingTypes) throws Exception {
+   public boolean updateAddressInfo(SimpleString address, EnumSet<RoutingType> routingTypes) throws Exception {
       if (getAddressInfo(address) == null) {
          return false;
       }
@@ -2626,6 +2627,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       //after the postOffice call, updatedAddressInfo could change further (concurrently)!
       postOffice.updateAddressInfo(address, routingTypes);
       return true;
+   }
+
+   @Override
+   public boolean updateAddressInfo(SimpleString address, Collection<RoutingType> routingTypes) throws Exception {
+      return updateAddressInfo(address, EnumSet.copyOf(routingTypes));
    }
 
    @Override
@@ -2715,8 +2721,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             addressInfo.setInternal(addrInfo == null ? false : addrInfo.isInternal());
             addAddressInfo(addressInfo);
          } else if (!info.getRoutingTypes().contains(rt)) {
-            Set<RoutingType> routingTypes = new HashSet<>();
-            routingTypes.addAll(info.getRoutingTypes());
+            EnumSet<RoutingType> routingTypes = EnumSet.copyOf(info.getRoutingTypes());
             routingTypes.add(rt);
             updateAddressInfo(info.getName(), routingTypes);
          }
@@ -2823,8 +2828,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             addressInfo.setAutoCreated(true);
             addAddressInfo(addressInfo);
          } else if (!info.getRoutingTypes().contains(routingType)) {
-            Set<RoutingType> routingTypes = new HashSet<>();
-            routingTypes.addAll(info.getRoutingTypes());
+            EnumSet<RoutingType> routingTypes = EnumSet.copyOf(info.getRoutingTypes());
             routingTypes.add(routingType);
             updateAddressInfo(info.getName(), routingTypes);
          }

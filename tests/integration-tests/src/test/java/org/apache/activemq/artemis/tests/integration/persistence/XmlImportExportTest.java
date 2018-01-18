@@ -27,8 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -1006,9 +1005,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       SimpleString myAddress = SimpleString.toSimpleString("myAddress");
       ClientSession session = basicSetUp();
 
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.ANYCAST);
-      routingTypes.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       session.createAddress(myAddress, routingTypes, false);
 

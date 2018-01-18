@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +52,7 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        Collection<RoutingType> routingTypes) throws Exception {
+                                        EnumSet<RoutingType> routingTypes) throws Exception {
       return null;
    }
 

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.client.impl;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -276,6 +277,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createAddress(final SimpleString address, Set<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException {
+      createAddress(address, EnumSet.copyOf(routingTypes), autoCreated);
+   }
+
+   @Override
+   public void createAddress(final SimpleString address, EnumSet<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException {
       checkClosed();
 
       startCall();
@@ -288,9 +294,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createAddress(final SimpleString address, RoutingType routingType, boolean autoCreated) throws ActiveMQException {
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(routingType);
-      createAddress(address, routingTypes, autoCreated);
+      createAddress(address, EnumSet.of(routingType), autoCreated);
    }
 
    @Override
