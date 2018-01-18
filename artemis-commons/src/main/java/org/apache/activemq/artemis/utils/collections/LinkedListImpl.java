@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils.collections;
 
 import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
@@ -48,7 +49,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    @Override
    public void addHead(E e) {
-      Node<E> node = new Node<>(e);
+      Node<E> node = Node.with(e);
 
       node.next = head.next;
 
@@ -71,7 +72,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       if (size == 0) {
          addHead(e);
       } else {
-         Node<E> node = new Node<>(e);
+         Node<E> node = Node.with(e);
 
          node.prev = tail;
 
@@ -217,23 +218,43 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       throw new IllegalStateException("Cannot find iter to remove");
    }
 
-   private static final class Node<E> {
+   public static class Node<T> {
 
-      Node<E> next;
+      private Node<T> next;
 
-      Node<E> prev;
+      private Node<T> prev;
 
-      final E val;
+      private final T val;
 
-      int iterCount;
+      private int iterCount;
 
-      Node(E e) {
+      @SuppressWarnings("unchecked")
+      protected Node() {
+         val = (T)this;
+      }
+
+      //only the head is allowed to hold a null
+      private Node(T e) {
          val = e;
       }
 
       @Override
       public String toString() {
-         return "Node, value = " + val;
+         return val == this ? "Intrusive Node" : "Node, value = " + val;
+      }
+
+      private static <T> Node<T> with(final T o) {
+         Objects.requireNonNull(o, "Only HEAD nodes are allowed to hold null values");
+         if (o instanceof Node) {
+            final Node node = (Node) o;
+            //only a node that not belong already to a list is allowed to be reused
+            if (node.prev == null && node.next == null) {
+               //reset the iterCount
+               node.iterCount = 0;
+               return node;
+            }
+         }
+         return new Node(o);
       }
    }
 
