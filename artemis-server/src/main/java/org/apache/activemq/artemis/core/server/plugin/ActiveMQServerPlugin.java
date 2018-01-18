@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.server.plugin;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -36,6 +37,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -210,6 +212,71 @@ public interface ActiveMQServerPlugin {
     * @throws ActiveMQException
     */
    default void afterCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
+
+   }
+
+   /**
+    * Before an address is added tot he broker
+    *
+    * @param addressInfo The addressInfo that will be added
+    * @param reload If the address is being reloaded
+    * @throws ActiveMQException
+    */
+   default void beforeAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
+
+   }
+
+   /**
+    * After an address has been added tot he broker
+    *
+    * @param addressInfo The newly added address
+    * @param reload If the address is being reloaded
+    * @throws ActiveMQException
+    */
+   default void afterAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
+
+   }
+
+
+   /**
+    * Before an address is updated
+    *
+    * @param address The existing address info that is about to be updated
+    * @param routingTypes The new routing types that the address will be updated with
+    * @throws ActiveMQException
+    */
+   default void beforeUpdateAddress(SimpleString address, EnumSet<RoutingType> routingTypes) throws ActiveMQException {
+
+   }
+
+   /**
+    * After an address has been updated
+    *
+    * @param addressInfo The newly updated address info
+    * @throws ActiveMQException
+    */
+   default void afterUpdateAddress(AddressInfo addressInfo) throws ActiveMQException {
+
+   }
+
+   /**
+    * Before an address is removed
+    *
+    * @param address The address that will be removed
+    * @throws ActiveMQException
+    */
+   default void beforeRemoveAddress(SimpleString address) throws ActiveMQException {
+
+   }
+
+   /**
+    * After an address has been removed
+    *
+    * @param address The address that has been removed
+    * @param addressInfo The address info that has been removed or null if not removed
+    * @throws ActiveMQException
+    */
+   default void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
 
    }
 

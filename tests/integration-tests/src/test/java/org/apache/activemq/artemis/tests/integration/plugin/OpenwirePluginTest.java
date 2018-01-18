@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CREATE_CONNECTION;
@@ -26,8 +27,10 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_DEPLOY_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_DESTROY_CONNECTION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_MESSAGE_ROUTE;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_REMOVE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_SESSION_METADATA_ADDED;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_ADD_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CREATE_CONSUMER;
@@ -36,6 +39,7 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_DELIVER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_DEPLOY_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_MESSAGE_ROUTE;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_REMOVE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SESSION_METADATA_ADDED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
@@ -68,6 +72,10 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
                                          long maxAddressSize, Map<String, AddressSettings> settings) {
       ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
       server.registerBrokerPlugin(verifier);
+
+      configuration.getAddressesSettings().put("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
+            .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true));
+
       return server;
    }
 
@@ -102,7 +110,26 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
             AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
             AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
             MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-            AFTER_DELIVER);
+            AFTER_DELIVER, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
+
+   }
+
+   @Test
+   public void testAutoCreatedQueue() throws JMSException {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("autoCreated");
+
+      // Reset the session.
+      session.close();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createConsumer(queue);
+      session.close();
+      connection.close();
+
+      //Happens more than once because of advisories
+      verifier.validatePluginMethodsAtLeast(2, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS,
+            BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS);
 
    }
 
