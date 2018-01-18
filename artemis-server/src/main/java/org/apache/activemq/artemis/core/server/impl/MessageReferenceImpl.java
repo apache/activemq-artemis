@@ -22,11 +22,12 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
 /**
  * Implementation of a MessageReference
  */
-public class MessageReferenceImpl implements MessageReference {
+public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
 
    private final AtomicInteger deliveryCount = new AtomicInteger();
 
