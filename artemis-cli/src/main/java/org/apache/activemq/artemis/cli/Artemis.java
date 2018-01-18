@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import io.airlift.airline.Cli;
@@ -176,7 +177,11 @@ public class Artemis {
    }
 
    public static void printBanner() throws Exception {
-      copy(Artemis.class.getResourceAsStream("banner.txt"), System.out);
+      printBanner(System.out);
+   }
+
+   public static void printBanner(PrintStream out) throws Exception {
+      copy(Artemis.class.getResourceAsStream("banner.txt"), out);
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception {

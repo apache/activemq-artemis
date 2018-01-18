@@ -813,7 +813,8 @@ public final class ReplicationTest extends ActiveMQTestBase {
       @Override
       public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                          final List<PreparedTransactionInfo> preparedTransactions,
-                                         final TransactionFailureCallback transactionFailure) throws Exception {
+                                         final TransactionFailureCallback transactionFailure,
+                                         final boolean fixbadtx) throws Exception {
 
          return new JournalLoadInformation();
       }

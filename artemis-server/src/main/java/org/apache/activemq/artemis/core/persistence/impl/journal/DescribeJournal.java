@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
@@ -105,15 +106,22 @@ public final class DescribeJournal {
    }
 
    public static void describeBindingsJournal(final File bindingsDir) throws Exception {
+      describeBindingsJournal(bindingsDir, System.out);
+   }
+
+   public static void describeBindingsJournal(final File bindingsDir, PrintStream out) throws Exception {
 
       SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, null, 1);
 
       JournalImpl bindings = new JournalImpl(1024 * 1024, 2, 2, -1, 0, bindingsFF, "activemq-bindings", "bindings", 1);
-      describeJournal(bindingsFF, bindings, bindingsDir);
+      describeJournal(bindingsFF, bindings, bindingsDir, out);
    }
 
    public static DescribeJournal describeMessagesJournal(final File messagesDir) throws Exception {
+      return describeMessagesJournal(messagesDir, System.out);
+   }
 
+   public static DescribeJournal describeMessagesJournal(final File messagesDir, PrintStream out) throws Exception {
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(messagesDir, null, 1);
 
       // Will use only default values. The load function should adapt to anything different
@@ -121,7 +129,7 @@ public final class DescribeJournal {
 
       JournalImpl messagesJournal = new JournalImpl(defaultValues.getJournalFileSize(), defaultValues.getJournalMinFiles(), defaultValues.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
 
-      return describeJournal(messagesFF, messagesJournal, messagesDir);
+      return describeJournal(messagesFF, messagesJournal, messagesDir, out);
    }
 
    /**
@@ -131,10 +139,9 @@ public final class DescribeJournal {
     */
    private static DescribeJournal describeJournal(SequentialFileFactory fileFactory,
                                                   JournalImpl journal,
-                                                  final File path) throws Exception {
+                                                  final File path,
+                                                  PrintStream out) throws Exception {
       List<JournalFile> files = journal.orderFiles();
-
-      final PrintStream out = System.out;
 
       final Map<Long, PageSubscriptionCounterImpl> counters = new HashMap<>();
 
@@ -246,6 +253,13 @@ public final class DescribeJournal {
          printCounters(out, counters);
       }
 
+      return printSurvivingRecords(journal, out);
+   }
+
+   public static DescribeJournal printSurvivingRecords(Journal journal,
+                                                       PrintStream out) throws Exception {
+
+      final Map<Long, PageSubscriptionCounterImpl> counters = new HashMap<>();
       out.println("### Surviving Records Summary ###");
 
       List<RecordInfo> records = new LinkedList<>();
@@ -276,8 +290,6 @@ public final class DescribeJournal {
 
          }
       }, false);
-
-      counters.clear();
 
       for (RecordInfo info : records) {
          PageSubscriptionCounterImpl subsCounter = null;
