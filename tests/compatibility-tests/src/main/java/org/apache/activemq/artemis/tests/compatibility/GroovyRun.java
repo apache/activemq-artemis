@@ -34,30 +34,25 @@ public class GroovyRun {
    public static final String HORNETQ_235 = "HORNETQ-235";
    public static final String HORNETQ_247 = "HORNETQ-247";
 
-   public static final String WORD_START = "**SERVER STARTED**";
-
    public static Binding binding = new Binding();
    public static GroovyShell shell = new GroovyShell(binding);
-
-   // Called with reflection
-   public static void doTest(String script, String... arg) throws Throwable {
-      int i = 0;
-      for (String a : arg) {
-         System.out.println("[" + (i++) + "]=" + a);
-      }
-      System.out.println();
-
-      evaluate(script, "arg", arg);
-
-      System.out.println(WORD_START);
-   }
 
    /**
     * This can be called from the scripts as well.
     *  The scripts will use this method instead of its own groovy method.
     *  As a classloader operation needs to be done here.
     */
-   public static void evaluate(String script,
+   public static Object evaluate(String script,
+                                 String[] arg) throws URISyntaxException, IOException {
+      return evaluate(script, "arg", arg);
+   }
+
+      /**
+       * This can be called from the scripts as well.
+       *  The scripts will use this method instead of its own groovy method.
+       *  As a classloader operation needs to be done here.
+       */
+   public static Object evaluate(String script,
                                String argVariableName,
                                String[] arg) throws URISyntaxException, IOException {
       URL scriptURL = GroovyRun.class.getClassLoader().getResource(script);
@@ -68,16 +63,20 @@ public class GroovyRun {
 
       setVariable(argVariableName, arg);
 
-      shell.evaluate(scriptURI);
+      return shell.evaluate(scriptURI);
    }
 
    public static void setVariable(String name, Object arg) {
       binding.setVariable(name, arg);
    }
 
+   public static Object getVariable(String name) {
+      return binding.getVariable(name);
+   }
+
    // Called with reflection
-   public static void execute(String script) throws Throwable {
-      shell.evaluate(script);
+   public static Object execute(String script) throws Throwable {
+      return shell.evaluate(script);
    }
 
    public static void assertNotNull(Object value) {
