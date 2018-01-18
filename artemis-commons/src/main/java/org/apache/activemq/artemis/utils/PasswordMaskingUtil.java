@@ -28,14 +28,54 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 
 public final class PasswordMaskingUtil {
 
+   public static final String BEGIN_ENC = "ENC(";
+   public static final String END_ENC = ")";
+
    private PasswordMaskingUtil() {
 
+   }
+
+   /**
+    * This method deals with password masking and returns the password in its plain text form.
+    * @param maskPassword : explicit mask flag. If it's true, the password is interpreted as
+    *                     masked. If it is false, the password is interpreted as plain text.
+    *                     if it is null, the password will be interpreted as masked if the
+    *                     password is wrapped in ENC(), or as plain text otherwise.
+    * @param password : the original value of password string
+    * @param codecClass : the codec used to decode the password. Only when the password is interpreted
+    *              as masked will this codec be used. Ignored otherwise.
+    * @return
+    */
+   public static String resolveMask(Boolean maskPassword, String password, String codecClass) throws Exception {
+      String plainText = password;
+      if (maskPassword == null) {
+         if (isEncMasked(password)) {
+            //masked
+            String bareMaskedPassword = unwrap(password);
+            plainText = getCodec(codecClass).decode(bareMaskedPassword);
+         }
+      } else if (maskPassword) {
+         plainText = getCodec(codecClass).decode(password);
+      }
+      return plainText;
+   }
+
+   public static boolean isEncMasked(String password) {
+      return (password.startsWith(BEGIN_ENC) && password.endsWith(END_ENC));
+   }
+
+   //remove ENC() from the password body
+   public static String unwrap(String password) {
+      return password.substring(4, password.length() - 1);
+   }
+
+   public static String wrap(String password) {
+      return BEGIN_ENC + password + END_ENC;
    }
 
    private static final class LazyPlainTextProcessorHolder {
 
       private LazyPlainTextProcessorHolder() {
-
       }
 
       private static final HashProcessor INSTANCE = new NoHashProcessor();
@@ -83,7 +123,7 @@ public final class PasswordMaskingUtil {
    }
 
    private static boolean isEncoded(String storedPassword) {
-      return storedPassword == null || (storedPassword.startsWith(SecureHashProcessor.BEGIN_HASH) && storedPassword.endsWith(SecureHashProcessor.END_HASH));
+      return storedPassword == null || (isEncMasked(storedPassword));
    }
 
    public static HashProcessor getHashProcessor() {
@@ -106,6 +146,10 @@ public final class PasswordMaskingUtil {
     */
    public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException {
       SensitiveDataCodec<String> codecInstance;
+
+      if (codecDesc == null) {
+         return getDefaultCodec();
+      }
 
       // semi colons
       String[] parts = codecDesc.split(";");

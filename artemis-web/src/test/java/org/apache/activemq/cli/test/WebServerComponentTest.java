@@ -18,6 +18,7 @@ package org.apache.activemq.cli.test;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -43,9 +44,11 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.CharsetUtil;
+import org.apache.activemq.artemis.cli.factory.xml.XmlBrokerFactoryHandler;
 import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.junit.After;
 import org.junit.Assert;
@@ -163,7 +166,7 @@ public class WebServerComponentTest extends Assert {
       webServerDTO.bind = "https://localhost:0";
       webServerDTO.path = "webapps";
       webServerDTO.keyStorePath = "./src/test/resources/server.keystore";
-      webServerDTO.keyStorePassword = "password";
+      webServerDTO.setKeyStorePassword("password");
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -174,7 +177,7 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
 
-      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.keyStorePassword, keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.keyStorePassword);
+      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.getKeyStorePassword(), keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.getKeyStorePassword());
 
       SSLEngine engine = context.createSSLEngine();
       engine.setUseClientMode(true);
@@ -215,10 +218,10 @@ public class WebServerComponentTest extends Assert {
       webServerDTO.bind = "https://localhost:0";
       webServerDTO.path = "webapps";
       webServerDTO.keyStorePath = "./src/test/resources/server.keystore";
-      webServerDTO.keyStorePassword = "password";
+      webServerDTO.setKeyStorePassword("password");
       webServerDTO.clientAuth = true;
       webServerDTO.trustStorePath = "./src/test/resources/server.keystore";
-      webServerDTO.trustStorePassword = "password";
+      webServerDTO.setTrustStorePassword("password");
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -229,7 +232,7 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
 
-      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.keyStorePassword, keyStoreProvider, webServerDTO.trustStorePath, webServerDTO.trustStorePassword);
+      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.getKeyStorePassword(), keyStoreProvider, webServerDTO.trustStorePath, webServerDTO.getTrustStorePassword());
 
       SSLEngine engine = context.createSSLEngine();
       engine.setUseClientMode(true);
@@ -262,6 +265,44 @@ public class WebServerComponentTest extends Assert {
       Assert.assertTrue(webServerComponent.isStarted());
       webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testDefaultMaskPasswords() throws Exception {
+      File bootstrap = new File("./target/test-classes/bootstrap_web.xml");
+      File brokerHome = new File("./target");
+      XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
+      BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
+      assertNotNull(broker.web);
+      assertNull(broker.web.passwordCodec);
+   }
+
+   @Test
+   public void testMaskPasswords() throws Exception {
+      final String keyPassword = "keypass";
+      final String trustPassword = "trustpass";
+      File bootstrap = new File("./target/test-classes/bootstrap_secure_web.xml");
+      File brokerHome = new File("./target");
+      XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
+      BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
+      assertNotNull(broker.web);
+      assertEquals(keyPassword, broker.web.getKeyStorePassword());
+      assertEquals(trustPassword, broker.web.getTrustStorePassword());
+   }
+
+   @Test
+   public void testMaskPasswordCodec() throws Exception {
+      final String keyPassword = "keypass";
+      final String trustPassword = "trustpass";
+      File bootstrap = new File("./target/test-classes/bootstrap_web_codec.xml");
+      File brokerHome = new File("./target");
+      XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
+      BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
+      assertNotNull(broker.web);
+      assertNotNull("password codec not picked up!", broker.web.passwordCodec);
+
+      assertEquals(keyPassword, broker.web.getKeyStorePassword());
+      assertEquals(trustPassword, broker.web.getTrustStorePassword());
    }
 
    class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {
