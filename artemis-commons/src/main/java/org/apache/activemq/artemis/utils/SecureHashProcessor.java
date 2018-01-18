@@ -18,9 +18,6 @@ package org.apache.activemq.artemis.utils;
 
 public class SecureHashProcessor implements HashProcessor {
 
-   public static final String BEGIN_HASH = "ENC(";
-   public static final String END_HASH = ")";
-
    private DefaultSensitiveStringCodec codec;
 
    public SecureHashProcessor(DefaultSensitiveStringCodec codec) {
@@ -29,13 +26,13 @@ public class SecureHashProcessor implements HashProcessor {
 
    @Override
    public String hash(String plainText) throws Exception {
-      return BEGIN_HASH + codec.encode(plainText) + END_HASH;
+      return PasswordMaskingUtil.wrap(codec.encode(plainText));
    }
 
    @Override
    //storedValue must take form of ENC(...)
    public boolean compare(char[] inputValue, String storedValue) {
-      String storedHash = storedValue.substring(4, storedValue.length() - 2);
+      String storedHash = storedValue.substring(4, storedValue.length() - 1);
       return codec.verify(inputValue, storedHash);
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.dto;
 
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -37,21 +39,44 @@ public class WebServerDTO extends ComponentDTO {
    public Boolean clientAuth;
 
    @XmlAttribute
-   public String keyStorePath;
+   public String passwordCodec;
 
    @XmlAttribute
-   public String keyStorePassword;
+   public String keyStorePath;
 
    @XmlAttribute
    public String trustStorePath;
 
-   @XmlAttribute
-   public String trustStorePassword;
-
    @XmlElementRef
    public List<AppDTO> apps;
 
+   @XmlAttribute
+   private String keyStorePassword;
+
+   @XmlAttribute
+   private String trustStorePassword;
+
    public WebServerDTO() {
       componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
+   }
+
+   public String getKeyStorePassword() throws Exception {
+      return getPassword(this.keyStorePassword);
+   }
+
+   private String getPassword(String password) throws Exception {
+      return PasswordMaskingUtil.resolveMask(null, password, this.passwordCodec);
+   }
+
+   public void setKeyStorePassword(String keyStorePassword) {
+      this.keyStorePassword = keyStorePassword;
+   }
+
+   public String getTrustStorePassword() throws Exception {
+      return getPassword(this.trustStorePassword);
+   }
+
+   public void setTrustStorePassword(String trustStorePassword) {
+      this.trustStorePassword = trustStorePassword;
    }
 }

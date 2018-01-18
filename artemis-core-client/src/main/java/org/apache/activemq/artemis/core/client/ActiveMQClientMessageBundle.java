@@ -178,9 +178,6 @@ public interface ActiveMQClientMessageBundle {
    @Message(id = 119043, value = "Invalid argument null handler")
    IllegalArgumentException nullHandler();
 
-   @Message(id = 119044, value = "No available codec to decode password!")
-   IllegalArgumentException noCodec();
-
    @Message(id = 119045, value = "the first node to be compared is null")
    IllegalArgumentException firstNodeNull();
 
@@ -213,9 +210,6 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 119055, value = "Element {0} requires a valid Long value, but ''{1}'' cannot be parsed as a Long", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException mustBeLong(Node element, String value);
-
-   @Message(id = 119056, value = "Failed to get decoder")
-   IllegalArgumentException failedToGetDecoder(@Cause Exception e);
 
    @Message(id = 119057, value = "Error decoding password")
    IllegalArgumentException errordecodingPassword(@Cause Exception e);
