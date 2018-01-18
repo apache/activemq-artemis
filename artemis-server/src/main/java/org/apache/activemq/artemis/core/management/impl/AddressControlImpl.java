@@ -21,6 +21,7 @@ import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,7 +101,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getRoutingTypes() {
-      Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+      EnumSet<RoutingType> routingTypes = addressInfo.getRoutingTypes();
       String[] result = new String[routingTypes.size()];
       int i = 0;
       for (RoutingType routingType : routingTypes) {

@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,7 +68,7 @@ public interface AddressManager {
 
    /** it will return null if there are no updates.
     *  it will throw an exception if the address doesn't exist */
-   AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes) throws Exception;
+   AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception;
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 

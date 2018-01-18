@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +59,7 @@ public interface PostOffice extends ActiveMQComponent {
 
    AddressInfo getAddressInfo(SimpleString address);
 
-   AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes) throws Exception;
+   AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception;
 
    QueueBinding updateQueue(SimpleString name,
                             RoutingType routingType,

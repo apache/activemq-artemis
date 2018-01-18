@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.management;
 import javax.json.JsonArray;
 import javax.json.JsonString;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -295,9 +296,7 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals(RoutingType.ANYCAST.toString(), routingTypes[0]);
 
       address = RandomUtil.randomSimpleString();
-      Set<RoutingType> types = new HashSet<>();
-      types.add(RoutingType.ANYCAST);
-      types.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> types = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       session.createAddress(address, types, false);
 
       addressControl = createManagementControl(address);

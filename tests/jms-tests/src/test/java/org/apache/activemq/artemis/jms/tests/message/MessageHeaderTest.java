@@ -32,6 +32,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.File;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -1369,6 +1370,10 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       @Override
       public int getVersion() {
          return 0;
+      }
+
+      @Override
+      public void createAddress(SimpleString address, EnumSet<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException {
       }
 
       /**

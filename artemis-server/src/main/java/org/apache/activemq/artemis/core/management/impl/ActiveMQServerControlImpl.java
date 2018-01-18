@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -630,7 +631,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          public StringBuilder format(AddressInfo addressInfo, StringBuilder output) {
             output.append("Address [name=").append(addressInfo.getName());
             output.append(", routingTypes={");
-            final Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+            final EnumSet<RoutingType> routingTypes = addressInfo.getRoutingTypes();
             if (!routingTypes.isEmpty()) {
                for (RoutingType routingType : routingTypes) {
                   output.append(routingType).append(',');
@@ -680,7 +681,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         Set<RoutingType> set = new HashSet<>();
+         EnumSet<RoutingType> set = EnumSet.noneOf(RoutingType.class);
          for (String routingType : ListUtil.toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
@@ -701,11 +702,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         final Set<RoutingType> routingTypeSet;
+         final EnumSet<RoutingType> routingTypeSet;
          if (routingTypes == null) {
             routingTypeSet = null;
          } else {
-            routingTypeSet = new HashSet<>();
+            routingTypeSet = EnumSet.noneOf(RoutingType.class);
             final String[] routingTypeNames = routingTypes.split(",");
             for (String routingTypeName : routingTypeNames) {
                routingTypeSet.add(RoutingType.valueOf(routingTypeName));

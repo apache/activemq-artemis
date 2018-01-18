@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.spi.core.remoting;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -185,8 +186,10 @@ public abstract class SessionContext {
 
    public abstract void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
+   @Deprecated
    public abstract void createAddress(SimpleString address, Set<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
+   public abstract void createAddress(SimpleString address, EnumSet<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
    @Deprecated
    public abstract void createQueue(SimpleString address,
