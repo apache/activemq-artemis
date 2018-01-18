@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 @Deprecated
 public class FileSecurityConfiguration extends SecurityConfiguration {
@@ -31,7 +30,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration {
 
    private final String rolesUrl;
 
-   private boolean maskPassword;
+   private Boolean maskPassword;
 
    private String passwordCodec;
 
@@ -65,14 +64,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration {
       if (started) {
          return;
       }
-      SensitiveDataCodec<String> codec = null;
-      if (maskPassword) {
-         if (passwordCodec != null) {
-            codec = PasswordMaskingUtil.getDefaultCodec();
-         } else {
-            codec = PasswordMaskingUtil.getCodec(passwordCodec);
-         }
-      }
+
       URL theUsersUrl = getClass().getClassLoader().getResource(usersUrl);
 
       if (theUsersUrl == null) {
@@ -94,9 +86,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration {
 
       for (String username : keys) {
          String password = userProps.getProperty(username);
-         if (codec != null) {
-            password = codec.decode(password);
-         }
+         password = PasswordMaskingUtil.resolveMask(this.maskPassword, password, passwordCodec);
          addUser(username, password);
       }
 
