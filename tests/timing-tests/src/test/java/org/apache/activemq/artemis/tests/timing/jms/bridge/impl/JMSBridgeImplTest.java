@@ -288,6 +288,45 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    * expires even if the maxBatchSize is not reached
    */
    @Test
+   public void testBridgeWithMaskPasswords() throws Exception {
+
+      ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+      ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
+
+      JMSBridgeImpl bridge = new JMSBridgeImpl();
+      Assert.assertNotNull(bridge);
+
+      bridge.setSourceConnectionFactoryFactory(sourceCFF);
+      bridge.setSourceDestinationFactory(sourceDF);
+      bridge.setTargetConnectionFactoryFactory(targetCFF);
+      bridge.setTargetDestinationFactory(targetDF);
+      bridge.setFailureRetryInterval(10);
+      bridge.setMaxRetries(1);
+      bridge.setMaxBatchSize(1);
+      bridge.setMaxBatchTime(-1);
+      bridge.setTransactionManager(tm);
+      bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
+
+      bridge.setSourceUsername("sourceuser");
+      bridge.setSourcePassword("ENC(5493dd76567ee5ec269d11823973462f)");
+      bridge.setTargetUsername("targetuser");
+      bridge.setTargetPassword("ENC(56a0db3b71043054269d11823973462f)");
+
+      Assert.assertFalse(bridge.isStarted());
+      bridge.start();
+      Assert.assertTrue(bridge.isStarted());
+
+      assertEquals("sourcepassword", bridge.getSourcePassword());
+      assertEquals("targetpassword", bridge.getTargetPassword());
+
+      bridge.stop();
+      Assert.assertFalse(bridge.isStarted());
+   }
+
+   @Test
    public void testSendMessagesWhenMaxBatchTimeExpires() throws Exception {
       int maxBatchSize = 2;
       long maxBatchTime = 500;

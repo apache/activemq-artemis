@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
 import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.junit.Test;
 
 public class ResourceAdapterTest extends ActiveMQRATestBase {
@@ -565,7 +566,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      String mask = (String) codec.encode("helloworld");
+      String mask = codec.encode("helloworld");
 
       qResourceAdapter.setUseMaskedPassword(true);
       qResourceAdapter.setPassword(mask);
@@ -595,6 +596,41 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    }
 
    @Test
+   public void testMaskPasswordENC() throws Exception {
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      String mask = codec.encode("helloworld");
+
+      qResourceAdapter.setPassword(PasswordMaskingUtil.wrap(mask));
+
+      qResourceAdapter.start(ctx);
+
+      assertEquals("helloworld", qResourceAdapter.getPassword());
+
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+      spec.setResourceAdapter(qResourceAdapter);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestination(MDBQUEUE);
+
+      mask = codec.encode("mdbpassword");
+      spec.setPassword(PasswordMaskingUtil.wrap(mask));
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      CountDownLatch latch = new CountDownLatch(1);
+      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
+      qResourceAdapter.endpointActivation(endpointFactory, spec);
+
+      assertEquals("mdbpassword", spec.getPassword());
+
+      qResourceAdapter.stop();
+      assertTrue(endpoint.released);
+   }
+
+   @Test
    public void testMaskPassword2() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
@@ -609,7 +645,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       prop.put("key", "anotherkey");
       codec.init(prop);
 
-      String mask = (String) codec.encode("helloworld");
+      String mask = codec.encode("helloworld");
 
       qResourceAdapter.setPassword(mask);
 
@@ -623,8 +659,50 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
 
-      mask = (String) codec.encode("mdbpassword");
+      mask = codec.encode("mdbpassword");
       spec.setPassword(mask);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      CountDownLatch latch = new CountDownLatch(1);
+      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
+      qResourceAdapter.endpointActivation(endpointFactory, spec);
+
+      assertEquals("mdbpassword", spec.getPassword());
+
+      qResourceAdapter.stop();
+      assertTrue(endpoint.released);
+   }
+
+   @Test
+   public void testMaskPassword2ENC() throws Exception {
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+
+      qResourceAdapter.setPasswordCodec(DefaultSensitiveStringCodec.class.getName() + ";key=anotherkey");
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      Map<String, String> prop = new HashMap<>();
+
+      prop.put("key", "anotherkey");
+      codec.init(prop);
+
+      String mask = codec.encode("helloworld");
+
+      qResourceAdapter.setPassword(PasswordMaskingUtil.wrap(mask));
+
+      qResourceAdapter.start(ctx);
+
+      assertEquals("helloworld", qResourceAdapter.getPassword());
+
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+      spec.setResourceAdapter(qResourceAdapter);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestination(MDBQUEUE);
+
+      mask = codec.encode("mdbpassword");
+      spec.setPassword(PasswordMaskingUtil.wrap(mask));
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       CountDownLatch latch = new CountDownLatch(1);
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);

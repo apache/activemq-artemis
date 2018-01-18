@@ -1000,12 +1000,12 @@ public interface Configuration {
    /**
     * Sets if passwords should be masked or not. True means the passwords should be masked.
     */
-   Configuration setMaskPassword(boolean maskPassword);
+   Configuration setMaskPassword(Boolean maskPassword);
 
    /**
     * If passwords are masked. True means the passwords are masked.
     */
-   boolean isMaskPassword();
+   Boolean isMaskPassword();
 
    /*
    * Whether or not that ActiveMQ Artemis should use all protocols available on the classpath. If false only the core protocol will
