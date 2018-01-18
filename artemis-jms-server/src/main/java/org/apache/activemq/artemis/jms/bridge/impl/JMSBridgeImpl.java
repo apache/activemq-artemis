@@ -69,9 +69,7 @@ import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerBundle;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 public final class JMSBridgeImpl implements JMSBridge {
 
@@ -168,7 +166,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private ObjectName objectName;
 
-   private boolean useMaskedPassword = false;
+   private Boolean useMaskedPassword;
 
    private String passwordCodec;
 
@@ -440,25 +438,16 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    private void initPasswords() throws ActiveMQException {
-      if (useMaskedPassword) {
-         SensitiveDataCodec<String> codecInstance = new DefaultSensitiveStringCodec();
-
-         if (passwordCodec != null) {
-            codecInstance = PasswordMaskingUtil.getCodec(passwordCodec);
+      try {
+         if (this.sourcePassword != null) {
+            sourcePassword = PasswordMaskingUtil.resolveMask(useMaskedPassword, sourcePassword, passwordCodec);
          }
 
-         try {
-            if (this.sourcePassword != null) {
-               sourcePassword = codecInstance.decode(sourcePassword);
-            }
-
-            if (this.targetPassword != null) {
-               targetPassword = codecInstance.decode(targetPassword);
-            }
-         } catch (Exception e) {
-            throw ActiveMQJMSServerBundle.BUNDLE.errorDecodingPassword(e);
+         if (this.targetPassword != null) {
+            targetPassword = PasswordMaskingUtil.resolveMask(useMaskedPassword, targetPassword, passwordCodec);
          }
-
+      } catch (Exception e) {
+         throw ActiveMQJMSServerBundle.BUNDLE.errorDecodingPassword(e);
       }
    }
 

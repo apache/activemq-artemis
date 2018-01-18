@@ -57,7 +57,7 @@ import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.FutureLatch;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.jboss.logging.Logger;
 
 /**
@@ -148,16 +148,12 @@ public class ActiveMQActivation {
          logger.trace("constructor(" + ra + ", " + endpointFactory + ", " + spec + ")");
       }
 
-      if (ra.isUseMaskedPassword()) {
-         String pass = spec.getOwnPassword();
-         if (pass != null) {
-            SensitiveDataCodec<String> codec = ra.getCodecInstance();
-
-            try {
-               spec.setPassword(codec.decode(pass));
-            } catch (Exception e) {
-               throw new ResourceException(e);
-            }
+      String pass = spec.getOwnPassword();
+      if (pass != null) {
+         try {
+            spec.setPassword(PasswordMaskingUtil.resolveMask(ra.isUseMaskedPassword(), pass, ra.getCodec()));
+         } catch (Exception e) {
+            throw new ResourceException(e);
          }
       }
 

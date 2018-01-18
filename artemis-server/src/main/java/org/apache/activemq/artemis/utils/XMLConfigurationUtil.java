@@ -116,7 +116,7 @@ public class XMLConfigurationUtil {
       return getTextBytesAsLongBytes(e, name, def, validator).intValue();
    }
 
-   public static final Boolean getBoolean(final Element e, final String name, final boolean def) {
+   public static final Boolean getBoolean(final Element e, final String name, final Boolean def) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
          return XMLUtil.parseBoolean(nl.item(0));
