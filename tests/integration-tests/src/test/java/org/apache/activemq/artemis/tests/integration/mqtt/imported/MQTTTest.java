@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -1945,5 +1946,21 @@ public class MQTTTest extends MQTTTestSupport {
          if (connection2.isConnected())
             connection2.disconnect();
       }
+   }
+
+   @Test
+   public void autoDestroyAddress() throws Exception {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoDeleteAddresses(true);
+      server.getAddressSettingsRepository().addMatch("foo.bar", addressSettings);
+
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+      subscriptionProvider.subscribe("foo/bar", AT_MOST_ONCE);
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("foo.bar")));
+
+      subscriptionProvider.disconnect();
+
+      assertNull(server.getAddressInfo(SimpleString.toSimpleString("foo.bar")));
    }
 }
