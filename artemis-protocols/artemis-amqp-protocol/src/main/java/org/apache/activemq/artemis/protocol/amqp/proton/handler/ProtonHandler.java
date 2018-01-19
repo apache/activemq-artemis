@@ -306,13 +306,15 @@ public class ProtonHandler extends ProtonInitializable {
             if (chosenMechanism != null) {
 
                byte[] dataSASL = new byte[sasl.pending()];
-               sasl.recv(dataSASL, 0, dataSASL.length);
-
+               int received = sasl.recv(dataSASL, 0, dataSASL.length);
                if (log.isTraceEnabled()) {
-                  log.trace("Working on sasl::" + (dataSASL != null && dataSASL.length > 0 ? ByteUtil.bytesToHex(dataSASL, 2) : "Anonymous"));
+                  log.trace("Working on sasl ::" + (received > 0 ? ByteUtil.bytesToHex(dataSASL, 2) : "recv:" + received));
                }
 
-               byte[] response = chosenMechanism.processSASL(dataSASL);
+               byte[] response = null;
+               if (received != -1) {
+                  response = chosenMechanism.processSASL(dataSASL);
+               }
                if (response != null) {
                   sasl.send(response, 0, response.length);
                }
