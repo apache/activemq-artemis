@@ -103,6 +103,7 @@ public class Create extends InputAbstract {
    public static final String ETC_STOMP_ACCEPTOR_TXT = "etc/stomp-acceptor.txt";
    public static final String ETC_PING_TXT = "etc/ping-settings.txt";
    public static final String ETC_COMMENTED_PING_TXT = "etc/commented-ping-settings.txt";
+   public static final String ETC_DATABASE_STORE_TXT = "etc/database-store.txt";
 
    public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
@@ -260,6 +261,40 @@ public class Create extends InputAbstract {
 
    @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
    private String globalMaxSize;
+
+
+   @Option(name = "--jdbc", description = "It will activate jdbc")
+   boolean jdbc;
+
+   @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindigns table")
+   private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
+
+   @Option(name = "--jdbc-message-table-name", description = "Name of the jdbc messages table")
+   private String jdbcMessages = ActiveMQDefaultConfiguration.getDefaultMessageTableName();
+
+   @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table")
+   private String jdbcLargeMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
+
+   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page sotre messages table")
+   private String jdbcPageStore = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
+
+   @Option(name = "--jdbc-connection-url", description = "The connection used for the database")
+   private String jdbcURL = null;
+
+   @Option(name = "--jdbc-driver-class-name", description = "JDBC driver classname")
+   private String jdbcClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
+
+   @Option(name = "--jdbc-network-timeout", description = "Network timeout")
+   long jdbcNetworkTimeout = ActiveMQDefaultConfiguration.getDefaultJdbcNetworkTimeout();
+
+   @Option(name = "--jdbc-lock-acquisition-timeout", description = "Lock acquisition timeout")
+   long jdbcLockAcquisitionTimeout = ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
+
+   @Option(name = "--jdbc-lock-renew-period", description = "Lock Renew Period")
+   long jdbcLockRenewPeriod = ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis();
+
+   @Option(name = "--jdbc-lock-expiration", description = "Lock expiration")
+   long jdbcLockExpiration = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
 
    private boolean IS_WINDOWS;
    private boolean IS_CYGWIN;
@@ -557,6 +592,25 @@ public class Create extends InputAbstract {
          filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_SPECIFIED_TXT, filters));
       }
 
+      if (jdbc) {
+         if (jdbcURL == null) {
+            jdbcURL = "jdbc:derby:" + getInstance().getAbsolutePath() + "/data/derby/db;create=true";
+         }
+         filters.put("${jdbcBindings}", jdbcBindings);
+         filters.put("${jdbcMessages}", jdbcMessages);
+         filters.put("${jdbcLargeMessages}", jdbcLargeMessages);
+         filters.put("${jdbcPageStore}", jdbcPageStore);
+         filters.put("${jdbcURL}", jdbcURL);
+         filters.put("${jdbcClassName}", jdbcClassName);
+         filters.put("${jdbcNetworkTimeout}", "" + jdbcNetworkTimeout);
+         filters.put("${jdbcLockAcquisitionTimeout}", "" + jdbcLockAcquisitionTimeout);
+         filters.put("${jdbcLockRenewPeriod}", "" + jdbcLockRenewPeriod);
+         filters.put("${jdbcLockExpiration}", "" + jdbcLockExpiration);
+         filters.put("${jdbc}", readTextFile(ETC_DATABASE_STORE_TXT, filters));
+      } else {
+         filters.put("${jdbc}", "");
+      }
+
 
       if (clustered) {
          filters.put("${host}", getHostForClustered());
@@ -682,6 +736,13 @@ public class Create extends InputAbstract {
 
       filters.put("${auto-create}", isAutoCreate() ? "true" : "false");
 
+      if (jdbc) {
+         noAutoTune = true;
+         System.out.println();
+         printStar("Copy a jar containing the JDBC Driver '" + jdbcClassName + "' into " + directory.getAbsolutePath() + "/lib");
+         System.out.println();
+      }
+
       performAutoTune(filters, journalType, dataFolder);
 
       write(ETC_BROKER_XML, filters, false);
@@ -723,6 +784,19 @@ public class Create extends InputAbstract {
       }
 
       return null;
+   }
+
+   private void printStar(String message) {
+      int size = Math.min(message.length(), 80);
+      StringBuffer buffer = new StringBuffer(size);
+      for (int i = 0; i < size; i++) {
+         buffer.append("*");
+      }
+      System.out.println(buffer.toString());
+      System.out.println();
+      System.out.println(message);
+      System.out.println();
+      System.out.println(buffer.toString());
    }
 
    private void setupJournalType() {
@@ -935,7 +1009,13 @@ public class Create extends InputAbstract {
 
       if (filters != null) {
          for (Map.Entry<String, String> entry : filters.entrySet()) {
-            content = replace(content, entry.getKey(), entry.getValue());
+            try {
+               content = replace(content, entry.getKey(), entry.getValue());
+            } catch (Throwable e) {
+               System.out.println("Error on " + entry.getKey());
+               e.printStackTrace();
+               System.exit(-1);
+            }
          }
       }
       return content;

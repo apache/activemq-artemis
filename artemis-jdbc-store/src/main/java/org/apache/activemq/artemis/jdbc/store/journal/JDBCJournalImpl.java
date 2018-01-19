@@ -881,12 +881,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public JournalLoadInformation load(List<RecordInfo> committedRecords,
-                                      List<PreparedTransactionInfo> preparedTransactions,
-                                      TransactionFailureCallback transactionFailure) throws Exception {
-      return load(committedRecords, preparedTransactions, transactionFailure, true);
-   }
-
    public synchronized JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,

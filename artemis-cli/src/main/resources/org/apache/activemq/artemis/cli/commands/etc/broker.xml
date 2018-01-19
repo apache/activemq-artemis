@@ -27,6 +27,7 @@ under the License.
 
       <name>${name}</name>
 
+${jdbc}
       <persistence-enabled>${persistence-enabled}</persistence-enabled>
 
       <!-- this could be ASYNCIO, MAPPED, NIO

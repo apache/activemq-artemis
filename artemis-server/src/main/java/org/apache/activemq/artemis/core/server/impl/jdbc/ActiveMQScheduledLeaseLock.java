@@ -111,9 +111,9 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
       }
       final long measuredRenewPeriodNanos = renewStart - lastRenewStart;
       final long measuredRenewPeriodMillis = TimeUnit.NANOSECONDS.toMillis(measuredRenewPeriodNanos);
-      if (measuredRenewPeriodMillis > expirationMillis) {
+      if (measuredRenewPeriodMillis - expirationMillis > 100) {
          LOGGER.error(lockName + " lock renew period lasted " + measuredRenewPeriodMillis + " ms instead of " + expectedRenewPeriodMillis + " ms");
-      } else if (measuredRenewPeriodMillis > expectedRenewPeriodMillis) {
+      } else if (measuredRenewPeriodMillis - expectedRenewPeriodMillis > 100) {
          LOGGER.warn(lockName + " lock renew period lasted " + measuredRenewPeriodMillis + " ms instead of " + expectedRenewPeriodMillis + " ms");
       }
    }

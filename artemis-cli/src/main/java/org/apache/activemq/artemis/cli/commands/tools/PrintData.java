@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -60,8 +62,10 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
-public class PrintData extends OptionalLocking {
+public class PrintData extends DBOption {
 
+   private static final String BINDINGS_BANNER = "B I N D I N G S  J O U R N A L";
+   private static final String MESSAGES_BANNER = "M E S S A G E S   J O U R N A L";
    static {
       MessagePersister.registerPersister(CoreMessagePersister.getInstance());
    }
@@ -69,18 +73,49 @@ public class PrintData extends OptionalLocking {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
+
+      Configuration configuration = getParameterConfiguration();
+
       try {
-         printData(new File(getBinding()), new File(getJournal()), new File(getPaging()));
+         if (configuration.isJDBC()) {
+            printDataJDBC(configuration, context.out);
+         } else {
+            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out);
+         }
       } catch (Exception e) {
          treatError(e, "data", "print");
       }
       return null;
    }
 
+
+   public void printDataJDBC(Configuration configuration, PrintStream out) throws Exception {
+      initializeJournal(configuration);
+
+      Artemis.printBanner(out);
+
+      printBanner(out, BINDINGS_BANNER);
+
+      DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out);
+
+      printBanner(out, MESSAGES_BANNER);
+
+      DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out);
+
+      printPages(describeJournal, storageManager, pagingmanager, out);
+
+      cleanup();
+
+   }
+
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception {
-      // Having the version on the data report is an information very useful to understand what happened
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out);
+   }
+
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out) throws Exception {
+         // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
-      Artemis.printBanner();
+      Artemis.printBanner(out);
 
       File serverLockFile = new File(messagesDirectory, "server.lock");
 
@@ -88,45 +123,35 @@ public class PrintData extends OptionalLocking {
          try {
             FileLockNodeManager fileLock = new FileLockNodeManager(messagesDirectory, false);
             fileLock.start();
-            System.out.println("********************************************");
-            System.out.println("Server's ID=" + fileLock.getNodeId().toString());
-            System.out.println("********************************************");
+            printBanner(out, "Server's ID=" + fileLock.getNodeId().toString());
             fileLock.stop();
          } catch (Exception e) {
             e.printStackTrace();
          }
       }
 
-      System.out.println("********************************************");
-      System.out.println("B I N D I N G S  J O U R N A L");
-      System.out.println("********************************************");
+      printBanner(out, BINDINGS_BANNER);
 
       try {
-         DescribeJournal.describeBindingsJournal(bindingsDirectory);
+         DescribeJournal.describeBindingsJournal(bindingsDirectory, out);
       } catch (Exception e) {
          e.printStackTrace();
       }
 
-      System.out.println();
-      System.out.println("********************************************");
-      System.out.println("M E S S A G E S   J O U R N A L");
-      System.out.println("********************************************");
+      printBanner(out, MESSAGES_BANNER);
 
       DescribeJournal describeJournal = null;
       try {
-         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory);
+         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out);
       } catch (Exception e) {
          e.printStackTrace();
          return;
       }
 
       try {
-         System.out.println();
-         System.out.println("********************************************");
-         System.out.println("P A G I N G");
-         System.out.println("********************************************");
+         printBanner(out, "P A G I N G");
 
-         printPages(pagingDirectory, describeJournal);
+         printPages(pagingDirectory, describeJournal, out);
       } catch (Exception e) {
          e.printStackTrace();
          return;
@@ -134,12 +159,15 @@ public class PrintData extends OptionalLocking {
 
    }
 
-   private static void printPages(File pageDirectory, DescribeJournal describeJournal) {
+   protected static void printBanner(PrintStream out, String x2) {
+      out.println();
+      out.println("********************************************");
+      out.println(x2);
+      out.println("********************************************");
+   }
+
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out) {
       try {
-
-         PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
-
-         Set<Long> pgTXs = cursorACKs.getPgTXs();
 
          ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
          final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
@@ -155,69 +183,80 @@ public class PrintData extends OptionalLocking {
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         manager.start();
-
-         SimpleString[] stores = manager.getStoreNames();
-
-         for (SimpleString store : stores) {
-            PagingStore pgStore = manager.getPageStore(store);
-            File folder = null;
-
-            if (pgStore != null) {
-               folder = pgStore.getFolder();
-            }
-            System.out.println("####################################################################################################");
-            System.out.println("Exploring store " + store + " folder = " + folder);
-            int pgid = (int) pgStore.getFirstPage();
-            for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
-               System.out.println("*******   Page " + pgid);
-               Page page = pgStore.createPage(pgid);
-               page.open();
-               List<PagedMessage> msgs = page.read(sm);
-               page.close();
-
-               int msgID = 0;
-
-               for (PagedMessage msg : msgs) {
-                  msg.initMessage(sm);
-                  System.out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
-                  System.out.print(",Queues = ");
-                  long[] q = msg.getQueueIDs();
-                  for (int i = 0; i < q.length; i++) {
-                     System.out.print(q[i]);
-
-                     PagePosition posCheck = new PagePositionImpl(pgid, msgID);
-
-                     boolean acked = false;
-
-                     Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
-                     if (positions != null) {
-                        acked = positions.contains(posCheck);
-                     }
-
-                     if (acked) {
-                        System.out.print(" (ACK)");
-                     }
-
-                     if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
-                        System.out.println(" (PG-COMPLETE)");
-                     }
-
-                     if (i + 1 < q.length) {
-                        System.out.print(",");
-                     }
-                  }
-                  if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
-                     System.out.print(", **PG_TX_NOT_FOUND**");
-                  }
-                  System.out.println();
-                  msgID++;
-               }
-               pgid++;
-            }
-         }
+         printPages(describeJournal, sm, manager, out);
       } catch (Exception e) {
          e.printStackTrace();
+      }
+   }
+
+   private static void printPages(DescribeJournal describeJournal,
+                                  StorageManager sm,
+                                  PagingManager manager,
+                                  PrintStream out) throws Exception {
+      PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
+
+      Set<Long> pgTXs = cursorACKs.getPgTXs();
+
+      manager.start();
+
+      SimpleString[] stores = manager.getStoreNames();
+
+      for (SimpleString store : stores) {
+         PagingStore pgStore = manager.getPageStore(store);
+         File folder = null;
+
+         if (pgStore != null) {
+            folder = pgStore.getFolder();
+         }
+         out.println("####################################################################################################");
+         out.println("Exploring store " + store + " folder = " + folder);
+         int pgid = (int) pgStore.getFirstPage();
+         for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
+            out.println("*******   Page " + pgid);
+            Page page = pgStore.createPage(pgid);
+            page.open();
+            List<PagedMessage> msgs = page.read(sm);
+            page.close();
+
+            int msgID = 0;
+
+            for (PagedMessage msg : msgs) {
+               msg.initMessage(sm);
+               out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
+               out.print(",Queues = ");
+               long[] q = msg.getQueueIDs();
+               for (int i = 0; i < q.length; i++) {
+                  out.print(q[i]);
+
+                  PagePosition posCheck = new PagePositionImpl(pgid, msgID);
+
+                  boolean acked = false;
+
+                  Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
+                  if (positions != null) {
+                     acked = positions.contains(posCheck);
+                  }
+
+                  if (acked) {
+                     out.print(" (ACK)");
+                  }
+
+                  if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
+                     out.println(" (PG-COMPLETE)");
+                  }
+
+                  if (i + 1 < q.length) {
+                     out.print(",");
+                  }
+               }
+               if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
+                  out.print(", **PG_TX_NOT_FOUND**");
+               }
+               out.println();
+               msgID++;
+            }
+            pgid++;
+         }
       }
    }
 
