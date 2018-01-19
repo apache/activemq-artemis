@@ -433,6 +433,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private boolean internalAddressInfo(AddressInfo addressInfo, boolean reload) throws Exception {
       synchronized (addressLock) {
+         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeAddAddress(addressInfo, reload) : null);
          boolean result;
          if (reload) {
             result = addressManager.reloadAddressInfo(addressInfo);
@@ -445,6 +446,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                if (!addressInfo.isInternal()) {
                   managementService.registerAddress(addressInfo);
                }
+               server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterAddAddress(addressInfo, reload) : null);
             } catch (Exception e) {
                e.printStackTrace();
             }
@@ -517,23 +519,28 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         EnumSet<RoutingType> routingTypes) throws Exception {
-
       synchronized (addressLock) {
-         return addressManager.updateAddressInfo(addressName, routingTypes);
+         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeUpdateAddress(addressName, routingTypes) : null);
+         final AddressInfo address = addressManager.updateAddressInfo(addressName, routingTypes);
+         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterUpdateAddress(address) : null);
+
+         return address;
       }
-
-
    }
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
       synchronized (addressLock) {
+         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeRemoveAddress(address) : null);
          Bindings bindingsForAddress = getBindingsForAddress(address);
          if (bindingsForAddress.getBindings().size() > 0) {
             throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
          }
          managementService.unregisterAddress(address);
-         return addressManager.removeAddressInfo(address);
+         final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
+         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterRemoveAddress(address, addressInfo) : null);
+
+         return addressInfo;
       }
    }
 
