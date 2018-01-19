@@ -79,6 +79,8 @@ public class JMSServerDeployerTest extends ActiveMQTestBase {
       doTestDeployTopicsWithUnusualNames("topic\\with\\backslashes\\in\\name", "/mytopic4");
 
       doTestDeployTopicsWithUnusualNames("topic with # chars and * chars in name", "/mytopic5");
+
+      doTestDeployTopicsWithUnusualNames("jms.topic.myTopic", "/mytopic6", "myTopic");
    }
 
    private void doTestDeployQueuesWithUnusualNames(final String queueName, final String jndiName) throws Exception {
@@ -95,6 +97,14 @@ public class JMSServerDeployerTest extends ActiveMQTestBase {
       Topic topic = (Topic) context.lookup(jndiName);
       Assert.assertNotNull(topic);
       Assert.assertEquals(topicName, topic.getTopicName());
+   }
+
+   private void doTestDeployTopicsWithUnusualNames(final String topicName, final String jndiName, final String jmsTopicName) throws Exception {
+      jmsServer.createTopic(topicName, false, jmsTopicName, jndiName);
+
+      Topic topic = (Topic) context.lookup(jndiName);
+      Assert.assertNotNull(topic);
+      Assert.assertEquals(jmsTopicName, topic.getTopicName());
    }
 
    // Package protected ---------------------------------------------
