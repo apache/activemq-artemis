@@ -1860,6 +1860,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       queue.deleteQueue(removeConsumers);
 
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
+                                                                                removeConsumers, autoDeleteAddress) : null);
       AddressInfo addressInfo = getAddressInfo(address);
 
       if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated()) {
@@ -1871,9 +1873,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       callPostQueueDeletionCallbacks(address, queueName);
-
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
-                                                                                removeConsumers, autoDeleteAddress) : null);
    }
 
    @Override
@@ -2777,9 +2776,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          managementService.registerQueue(queue, queue.getAddress(), storageManager);
       }
 
-      callPostQueueCreationCallbacks(queue.getName());
-
       callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateQueue(queue) : null);
+
+      callPostQueueCreationCallbacks(queue.getName());
 
       return queue;
    }
@@ -2882,9 +2881,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
-      callPostQueueCreationCallbacks(queue.getName());
-
       callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateQueue(queue) : null);
+
+      callPostQueueCreationCallbacks(queue.getName());
 
       return queue;
    }
