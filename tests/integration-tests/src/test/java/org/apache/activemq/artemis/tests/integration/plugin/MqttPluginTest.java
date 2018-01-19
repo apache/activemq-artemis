@@ -22,10 +22,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CREATE_CONNECTION;
@@ -36,7 +38,9 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_DEPLOY_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_DESTROY_CONNECTION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_MESSAGE_ROUTE;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_REMOVE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_SEND;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_ADD_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CREATE_CONSUMER;
@@ -45,6 +49,7 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_DELIVER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_DEPLOY_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_MESSAGE_ROUTE;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_REMOVE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
@@ -59,6 +64,11 @@ public class MqttPluginTest extends MQTTTestSupport {
    public void configureBroker() throws Exception {
       super.configureBroker();
       server.registerBrokerPlugin(verifier);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoDeleteQueues(true).setAutoDeleteAddresses(true);
+
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
    }
 
    @Test(timeout = 60 * 1000)
@@ -106,7 +116,20 @@ public class MqttPluginTest extends MQTTTestSupport {
             AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
             AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
             MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-            AFTER_DELIVER);
+            AFTER_DELIVER, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testMQTTAutoCreate() throws Exception {
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+
+      subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
+
+      subscriptionProvider.disconnect();
+
+      verifier.validatePluginMethodsAtLeast(1,
+            BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS, BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS);
    }
 
 }
