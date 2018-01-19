@@ -1044,6 +1044,11 @@ public interface Configuration {
     */
    File getBrokerInstance();
 
+   default boolean isJDBC() {
+      StoreConfiguration configuration = getStoreConfiguration();
+      return (configuration != null && configuration.getStoreType() == StoreConfiguration.StoreType.DATABASE);
+   }
+
    StoreConfiguration getStoreConfiguration();
 
    Configuration setStoreConfiguration(StoreConfiguration storeConfiguration);

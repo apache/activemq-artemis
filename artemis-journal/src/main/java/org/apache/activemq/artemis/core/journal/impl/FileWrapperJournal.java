@@ -269,7 +269,8 @@ public final class FileWrapperJournal extends JournalBase {
    @Override
    public JournalLoadInformation load(List<RecordInfo> committedRecords,
                                       List<PreparedTransactionInfo> preparedTransactions,
-                                      TransactionFailureCallback transactionFailure) throws Exception {
+                                      TransactionFailureCallback transactionFailure,
+                                      boolean fixbadtx) throws Exception {
       throw new ActiveMQUnsupportedPacketException();
    }
 
