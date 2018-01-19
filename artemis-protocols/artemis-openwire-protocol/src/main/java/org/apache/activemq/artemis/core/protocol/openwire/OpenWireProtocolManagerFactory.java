@@ -22,6 +22,8 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -38,12 +40,19 @@ public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFacto
 
    private static String[] SUPPORTED_PROTOCOLS = {OPENWIRE_PROTOCOL_NAME};
 
+   private static final Persister<Message>[] OPENWIRE_MESSAGE_PERSISTER = new Persister[]{OpenWireMessagePersister.getInstance()};
+
    @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
                                                 Map<String, Object> parameters,
                                                 final List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
       return BeanSupport.setData(new OpenWireProtocolManager(this, server), parameters);
+   }
+
+   @Override
+   public Persister<Message>[] getPersister() {
+      return OPENWIRE_MESSAGE_PERSISTER;
    }
 
    @Override

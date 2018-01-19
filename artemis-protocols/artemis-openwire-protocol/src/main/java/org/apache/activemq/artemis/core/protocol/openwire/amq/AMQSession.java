@@ -309,7 +309,7 @@ public class AMQSession implements SessionCallback {
                           int deliveryCount) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
       // TODO: use encoders and proper conversions here
-      return theConsumer.handleDeliver(reference, message.toCore(), deliveryCount);
+      return theConsumer.handleDeliver(reference, message, deliveryCount);
    }
 
    @Override
