@@ -5632,7 +5632,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          Queue queue = server.locateQueue(new SimpleString("Q1"));
 
-         queue.moveReferences(10, (Filter) null, new SimpleString("Q2"), false);
+         queue.moveReferences(10, (Filter) null, new SimpleString("Q2"), false, server.getPostOffice().getBinding(new SimpleString("Q2")));
 
          waitForNotPaging(store);
 
