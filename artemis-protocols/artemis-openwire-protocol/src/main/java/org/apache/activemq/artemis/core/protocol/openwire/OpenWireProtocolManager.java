@@ -49,14 +49,18 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.selector.impl.LRUCache;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.BrokerId;
 import org.apache.activemq.command.BrokerInfo;
@@ -70,6 +74,8 @@ import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.WireFormatInfo;
+import org.apache.activemq.filter.DestinationFilter;
+import org.apache.activemq.filter.DestinationPath;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
 import org.apache.activemq.state.ProducerState;
@@ -127,6 +133,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    private final OpenWireMessageConverter internalConverter;
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
+
+   private final Map<DestinationFilter, Integer> vtConsumerDestinationMatchers = new HashMap<>();
+   protected final LRUCache<ActiveMQDestination, ActiveMQDestination> vtDestMapCache = new LRUCache();
 
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
@@ -606,5 +615,71 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    public void setSuppressInternalManagementObjects(boolean suppressInternalManagementObjects) {
       this.suppressInternalManagementObjects = suppressInternalManagementObjects;
+   }
+
+   public void setVirtualTopicConsumerWildcards(String virtualTopicConsumerWildcards) {
+      for (String filter : virtualTopicConsumerWildcards.split(",")) {
+         String[] wildcardLimitPair = filter.split(";");
+         vtConsumerDestinationMatchers.put(DestinationFilter.parseFilter(new ActiveMQQueue(wildcardLimitPair[0])), Integer.valueOf(wildcardLimitPair[1]));
+      }
+   }
+
+   public void setVirtualTopicConsumerLruCacheMax(int max) {
+      vtDestMapCache.setMaxCacheSize(max);
+   }
+
+   public ActiveMQDestination virtualTopicConsumerToFQQN(final ActiveMQDestination destination) {
+
+      if (vtConsumerDestinationMatchers.isEmpty()) {
+         return destination;
+      }
+
+      ActiveMQDestination mappedDestination = null;
+      synchronized (vtDestMapCache) {
+         mappedDestination = vtDestMapCache.get(destination);
+      }
+
+      if (mappedDestination != null) {
+         return mappedDestination;
+      }
+
+      for (Map.Entry<DestinationFilter, Integer> candidate : vtConsumerDestinationMatchers.entrySet()) {
+         if (candidate.getKey().matches(destination)) {
+            // convert to matching FQQN
+            String[] paths = DestinationPath.getDestinationPaths(destination);
+            StringBuilder fqqn = new StringBuilder();
+            int filterPathTerminus = candidate.getValue();
+            // address - ie: topic
+            for (int i = filterPathTerminus; i < paths.length; i++) {
+               if (i > filterPathTerminus) {
+                  fqqn.append(ActiveMQDestination.PATH_SEPERATOR);
+               }
+               fqqn.append(paths[i]);
+            }
+            fqqn.append(CompositeAddress.SEPARATOR);
+            // consumer queue
+            for (int i = 0; i < filterPathTerminus; i++) {
+               if (i > 0) {
+                  fqqn.append(ActiveMQDestination.PATH_SEPERATOR);
+               }
+               fqqn.append(paths[i]);
+            }
+            mappedDestination = new ActiveMQQueue(fqqn.toString());
+            break;
+         }
+      }
+      if (mappedDestination == null) {
+         // cache the identity mapping
+         mappedDestination = destination;
+      }
+      synchronized (vtDestMapCache) {
+         ActiveMQDestination existing = vtDestMapCache.put(destination, mappedDestination);
+         if (existing != null) {
+            // some one beat us to the put, revert
+            vtDestMapCache.put(destination, existing);
+            mappedDestination = existing;
+         }
+      }
+      return mappedDestination;
    }
 }

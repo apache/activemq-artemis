@@ -173,6 +173,7 @@ public class AMQSession implements SessionCallback {
             isInternalAddress = connection.isSuppressInternalManagementObjects();
          }
          if (openWireDest.isQueue()) {
+            openWireDest = protocolManager.virtualTopicConsumerToFQQN(openWireDest);
             SimpleString queueName = new SimpleString(convertWildcard(openWireDest.getPhysicalName()));
 
             if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary())) {
