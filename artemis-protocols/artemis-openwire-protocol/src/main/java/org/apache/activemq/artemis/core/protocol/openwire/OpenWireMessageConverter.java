@@ -120,10 +120,14 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       return null;
    }
 
-   //   @Override
-   public org.apache.activemq.artemis.api.core.Message inbound(Object message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+   public org.apache.activemq.artemis.api.core.Message inbound(Message message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+      return inbound(message, marshaller, coreMessageObjectPools);
+   }
 
-      final Message messageSend = (Message) message;
+   private static org.apache.activemq.artemis.api.core.Message inbound(final Message messageSend,
+                                                                       final WireFormat marshaller,
+                                                                       final CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+
       final CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize(), coreMessageObjectPools);
 
       final String type = messageSend.getType();
