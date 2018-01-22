@@ -8,13 +8,13 @@ ActiveMQ Artemis allows an application to use an interceptor to hook into the me
 
 Once you have your own interceptor class add it to the broker.xml as follows:
 
-    <configuration>
+    <core>
        ...
        <remoting-incoming-interceptors>
           <class-name>org.apache.activemq.artemis.amqp.example.SimpleAmqpInterceptor</class-name>
        </remoting-incoming-interceptors>
         ...
-    </configuration>
+    </core>
 
 With an interceptor you can handle various events in message processing. In this example, a simple interceptor, SimpleAmqpInterceptor, is implemented and configured. When the example is running, the interceptor will display the value of a string property of a sample AMQP message.
 
