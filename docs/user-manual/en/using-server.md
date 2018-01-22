@@ -460,3 +460,13 @@ Just use the following command to install it:
 
 
 The create process should give you a hint of the available commands available for the artemis-service.exe
+
+## Adding Runtime Dependencies
+
+Runtime dependencies like diverts, transformers, broker plugins, JDBC drivers,
+password decoders, etc. must be accessible by the broker at runtime. Package 
+the dependency in a jar, and put it on the broker's classpath. This can be done
+by placing the jar file in the `lib` directory of the broker distribution itself 
+or in the `lib` directory of the broker instance. A broker instance does not have
+a `lib` directory by default so it may need to be created.  It should be on the 
+"top" level with the `bin`, `data`, `log`, etc. directories.
