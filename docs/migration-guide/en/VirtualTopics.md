@@ -11,12 +11,19 @@ component must be unique to a connection on the broker. This means that the subs
 not possible to load balance the stream of messages across consumers and quick failover is difficult because the
 existing connection state on the broker needs to be first disposed.
 With virtual topics, each subscription's stream of messages is redirected to a queue.
+
+In Artemis there are two alternatives, the new JMS 2.0 api or direct access to a subscription queue via the FQQN.
  
-JMS2.0 adds the possibility of shared subscriptions with new API's that are fully supported in Artemis.
+JMS 2.0 shared subscriptions
+----------------------------
+JMS 2.0 adds the possibility of shared subscriptions with new API's that are fully supported in Artemis.
+
+Fully Qualified Queue name (FQQN)
+---------------------------------
 Secondly, Artemis uses a queue per topic subscriber model internally and it is possibly to directly address the
 subscription queue using it's Fully Qualified Queue name (FQQN).
 
-For example, a default 5.x consumer for topic `VirtualTopic.Orders` subscription `A`:
+For example, a default 5.x consumer destination for topic `VirtualTopic.Orders` subscription `A`:
 ```
     ...
     Queue subscriptionQueue = session.createQueue("Consumer.A.VirtualTopic.Orders");
@@ -29,6 +36,19 @@ would be replaced with an Artemis FQQN comprised of the address and queue.
     Queue subscriptionQueue = session.createQueue("VirtualTopic.Orders::Consumer.A");
     session.createConsumer(subscriptionQueue);
 ```
+
+This does require modification to the destination name used by consumers which is not ideal.
+If OpenWire clients cannot be modified, Artemis supports a virtual topic wildcard filter
+mechanism on the openwire protocol handler that will automatically convert the consumer destination into the
+corresponding FQQN.
+The format is a comma separated list of strings pairs, delimited with a ';'. Each pair identifies a filter to match
+the virtual topic consumer destination and an int that specifies the number of path matches that terminate the consumer
+queue identity.
+
+E.g: For the default 5.x virtual topic consumer prefix of ```Consumer.*.``` the url parameter ```virtualTopicConsumerWildcards``` should be: ```Consumer.*.>;2```.
+In this way a consumer destination of ```Consumer.A.VirtualTopic.Orders``` will be transformed into a FQQN of
+```VirtualTopic.Orders::Consumer.A```. 
+
 
 Durable topic subscribers in a network of brokers
 -------------------------------------------------
