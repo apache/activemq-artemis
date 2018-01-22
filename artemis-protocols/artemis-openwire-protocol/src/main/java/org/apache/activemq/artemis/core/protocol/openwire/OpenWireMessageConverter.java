@@ -71,31 +71,31 @@ import org.fusesource.hawtbuf.UTF8Buffer;
 
 public class OpenWireMessageConverter implements MessageConverter<OpenwireMessage> {
 
-   public static final String AMQ_PREFIX = "__HDR_";
-   public static final String AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY = AMQ_PREFIX + "dlqDeliveryFailureCause";
+   private static final SimpleString JMS_TYPE_PROPERTY = new SimpleString("JMSType");
+   private static final SimpleString JMS_CORRELATION_ID_PROPERTY = new SimpleString("JMSCorrelationID");
+   private static final SimpleString AMQ_PREFIX = new SimpleString("__HDR_");
+   public static final SimpleString AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY = new SimpleString(AMQ_PREFIX + "dlqDeliveryFailureCause");
 
-   private static final String AMQ_MSG_ARRIVAL = AMQ_PREFIX + "ARRIVAL";
-   private static final String AMQ_MSG_BROKER_IN_TIME = AMQ_PREFIX + "BROKER_IN_TIME";
+   private static final SimpleString AMQ_MSG_ARRIVAL = new SimpleString(AMQ_PREFIX + "ARRIVAL");
+   private static final SimpleString AMQ_MSG_BROKER_IN_TIME = new SimpleString(AMQ_PREFIX + "BROKER_IN_TIME");
 
-   private static final String AMQ_MSG_BROKER_PATH = AMQ_PREFIX + "BROKER_PATH";
-   private static final String AMQ_MSG_CLUSTER = AMQ_PREFIX + "CLUSTER";
-   private static final String AMQ_MSG_COMMAND_ID = AMQ_PREFIX + "COMMAND_ID";
-   private static final String AMQ_MSG_DATASTRUCTURE = AMQ_PREFIX + "DATASTRUCTURE";
-   private static final String AMQ_MSG_GROUP_ID = org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID.toString();
-   private static final String AMQ_MSG_GROUP_SEQUENCE = AMQ_PREFIX + "GROUP_SEQUENCE";
-   private static final String AMQ_MSG_MESSAGE_ID = AMQ_PREFIX + "MESSAGE_ID";
-   private static final String AMQ_MSG_ORIG_DESTINATION = AMQ_PREFIX + "ORIG_DESTINATION";
-   private static final String AMQ_MSG_ORIG_TXID = AMQ_PREFIX + "ORIG_TXID";
-   private static final String AMQ_MSG_PRODUCER_ID = AMQ_PREFIX + "PRODUCER_ID";
-   private static final String AMQ_MSG_MARSHALL_PROP = AMQ_PREFIX + "MARSHALL_PROP";
-   private static final String AMQ_MSG_REPLY_TO = AMQ_PREFIX + "REPLY_TO";
+   private static final SimpleString AMQ_MSG_BROKER_PATH = new SimpleString(AMQ_PREFIX + "BROKER_PATH");
+   private static final SimpleString AMQ_MSG_CLUSTER = new SimpleString(AMQ_PREFIX + "CLUSTER");
+   private static final SimpleString AMQ_MSG_COMMAND_ID = new SimpleString(AMQ_PREFIX + "COMMAND_ID");
+   private static final SimpleString AMQ_MSG_DATASTRUCTURE = new SimpleString(AMQ_PREFIX + "DATASTRUCTURE");
+   private static final SimpleString AMQ_MSG_GROUP_ID = org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID;
+   private static final SimpleString AMQ_MSG_GROUP_SEQUENCE = new SimpleString(AMQ_PREFIX + "GROUP_SEQUENCE");
+   private static final SimpleString AMQ_MSG_MESSAGE_ID = new SimpleString(AMQ_PREFIX + "MESSAGE_ID");
+   private static final SimpleString AMQ_MSG_ORIG_DESTINATION =  new SimpleString(AMQ_PREFIX + "ORIG_DESTINATION");
+   private static final SimpleString AMQ_MSG_ORIG_TXID = new SimpleString(AMQ_PREFIX + "ORIG_TXID");
+   private static final SimpleString AMQ_MSG_PRODUCER_ID =  new SimpleString(AMQ_PREFIX + "PRODUCER_ID");
+   private static final SimpleString AMQ_MSG_MARSHALL_PROP = new SimpleString(AMQ_PREFIX + "MARSHALL_PROP");
+   private static final SimpleString AMQ_MSG_REPLY_TO = new SimpleString(AMQ_PREFIX + "REPLY_TO");
 
-   private static final String AMQ_MSG_USER_ID = AMQ_PREFIX + "USER_ID";
+   private static final SimpleString AMQ_MSG_USER_ID = new SimpleString(AMQ_PREFIX + "USER_ID");
 
-   private static final String AMQ_MSG_DROPPABLE = AMQ_PREFIX + "DROPPABLE";
-   private static final String AMQ_MSG_COMPRESSED = AMQ_PREFIX + "COMPRESSED";
-
-   private static final String AMQ_NOTIFICATIONS_DESTINATION = "activemq.notifications";
+   private static final SimpleString AMQ_MSG_DROPPABLE =  new SimpleString(AMQ_PREFIX + "DROPPABLE");
+   private static final SimpleString AMQ_MSG_COMPRESSED = new SimpleString(AMQ_PREFIX + "COMPRESSED");
 
    private final WireFormat marshaller;
 
@@ -120,277 +120,361 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       return null;
    }
 
-//   @Override
-   public org.apache.activemq.artemis.api.core.Message inbound(Object message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+   public org.apache.activemq.artemis.api.core.Message inbound(Message message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+      return inbound(message, marshaller, coreMessageObjectPools);
+   }
 
-      Message messageSend = (Message) message;
-      CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize(), coreMessageObjectPools);
+   private static org.apache.activemq.artemis.api.core.Message inbound(final Message messageSend,
+                                                                       final WireFormat marshaller,
+                                                                       final CoreMessageObjectPools coreMessageObjectPools) throws Exception {
 
-      String type = messageSend.getType();
+      final CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize(), coreMessageObjectPools);
+
+      final String type = messageSend.getType();
       if (type != null) {
-         coreMessage.putStringProperty(new SimpleString("JMSType"), new SimpleString(type));
+         coreMessage.putStringProperty(JMS_TYPE_PROPERTY, new SimpleString(type));
       }
       coreMessage.setDurable(messageSend.isPersistent());
       coreMessage.setExpiration(messageSend.getExpiration());
       coreMessage.setPriority(messageSend.getPriority());
       coreMessage.setTimestamp(messageSend.getTimestamp());
 
-      byte coreType = toCoreType(messageSend.getDataStructureType());
+      final byte coreType = toCoreType(messageSend.getDataStructureType());
       coreMessage.setType(coreType);
 
-      ActiveMQBuffer body = coreMessage.getBodyBuffer();
+      final ActiveMQBuffer body = coreMessage.getBodyBuffer();
 
-      ByteSequence contents = messageSend.getContent();
+      final ByteSequence contents = messageSend.getContent();
       if (contents == null && coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
          body.writeNullableString(null);
       } else if (contents != null) {
-         boolean messageCompressed = messageSend.isCompressed();
+         final boolean messageCompressed = messageSend.isCompressed();
          if (messageCompressed) {
             coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, messageCompressed);
          }
 
          switch (coreType) {
             case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
-               InputStream tis = new ByteArrayInputStream(contents);
-               if (messageCompressed) {
-                  tis = new InflaterInputStream(tis);
-               }
-               DataInputStream tdataIn = new DataInputStream(tis);
-               String text = MarshallingSupport.readUTF8(tdataIn);
-               tdataIn.close();
-               body.writeNullableSimpleString(new SimpleString(text));
+               writeTextType(contents, messageCompressed, body);
                break;
             case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
-               InputStream mis = new ByteArrayInputStream(contents);
-               if (messageCompressed) {
-                  mis = new InflaterInputStream(mis);
-               }
-               DataInputStream mdataIn = new DataInputStream(mis);
-               Map<String, Object> map = MarshallingSupport.unmarshalPrimitiveMap(mdataIn);
-               mdataIn.close();
-               TypedProperties props = new TypedProperties();
-               loadMapIntoProperties(props, map);
-               props.encode(body.byteBuf());
+               writeMapType(contents, messageCompressed, body);
                break;
             case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
-               if (messageCompressed) {
-                  try (InputStream ois = new InflaterInputStream(new ByteArrayInputStream(contents));
-                       org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
-                     byte[] buf = new byte[1024];
-                     int n = ois.read(buf);
-                     while (n != -1) {
-                        decompressed.write(buf, 0, n);
-                        n = ois.read();
-                     }
-                     //read done
-                     contents = decompressed.toByteSequence();
-                  }
-               }
-               body.writeInt(contents.length);
-               body.writeBytes(contents.data, contents.offset, contents.length);
+               writeObjectType(contents, messageCompressed, body);
                break;
             case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
-               InputStream sis = new ByteArrayInputStream(contents);
-               if (messageCompressed) {
-                  sis = new InflaterInputStream(sis);
-               }
-               DataInputStream sdis = new DataInputStream(sis);
-               int stype = sdis.read();
-               while (stype != -1) {
-                  switch (stype) {
-                     case MarshallingSupport.BOOLEAN_TYPE:
-                        body.writeByte(DataConstants.BOOLEAN);
-                        body.writeBoolean(sdis.readBoolean());
-                        break;
-                     case MarshallingSupport.BYTE_TYPE:
-                        body.writeByte(DataConstants.BYTE);
-                        body.writeByte(sdis.readByte());
-                        break;
-                     case MarshallingSupport.BYTE_ARRAY_TYPE:
-                        body.writeByte(DataConstants.BYTES);
-                        int slen = sdis.readInt();
-                        byte[] sbytes = new byte[slen];
-                        sdis.read(sbytes);
-                        body.writeInt(slen);
-                        body.writeBytes(sbytes);
-                        break;
-                     case MarshallingSupport.CHAR_TYPE:
-                        body.writeByte(DataConstants.CHAR);
-                        char schar = sdis.readChar();
-                        body.writeShort((short) schar);
-                        break;
-                     case MarshallingSupport.DOUBLE_TYPE:
-                        body.writeByte(DataConstants.DOUBLE);
-                        double sdouble = sdis.readDouble();
-                        body.writeLong(Double.doubleToLongBits(sdouble));
-                        break;
-                     case MarshallingSupport.FLOAT_TYPE:
-                        body.writeByte(DataConstants.FLOAT);
-                        float sfloat = sdis.readFloat();
-                        body.writeInt(Float.floatToIntBits(sfloat));
-                        break;
-                     case MarshallingSupport.INTEGER_TYPE:
-                        body.writeByte(DataConstants.INT);
-                        body.writeInt(sdis.readInt());
-                        break;
-                     case MarshallingSupport.LONG_TYPE:
-                        body.writeByte(DataConstants.LONG);
-                        body.writeLong(sdis.readLong());
-                        break;
-                     case MarshallingSupport.SHORT_TYPE:
-                        body.writeByte(DataConstants.SHORT);
-                        body.writeShort(sdis.readShort());
-                        break;
-                     case MarshallingSupport.STRING_TYPE:
-                        body.writeByte(DataConstants.STRING);
-                        String sstring = sdis.readUTF();
-                        body.writeNullableString(sstring);
-                        break;
-                     case MarshallingSupport.BIG_STRING_TYPE:
-                        body.writeByte(DataConstants.STRING);
-                        String sbigString = MarshallingSupport.readUTF8(sdis);
-                        body.writeNullableString(sbigString);
-                        break;
-                     case MarshallingSupport.NULL:
-                        body.writeByte(DataConstants.STRING);
-                        body.writeNullableString(null);
-                        break;
-                     default:
-                        //something we don't know, ignore
-                        break;
-                  }
-                  stype = sdis.read();
-               }
-               sdis.close();
+               writeStreamType(contents, messageCompressed, body);
                break;
             case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
-               if (messageCompressed) {
-                  Inflater inflater = new Inflater();
-                  try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
-                     int length = ByteSequenceData.readIntBig(contents);
-                     contents.offset = 0;
-                     byte[] data = Arrays.copyOfRange(contents.getData(), 4, contents.getLength());
-
-                     inflater.setInput(data);
-                     byte[] buffer = new byte[length];
-                     int count = inflater.inflate(buffer);
-                     decompressed.write(buffer, 0, count);
-                     contents = decompressed.toByteSequence();
-                  } catch (Exception e) {
-                     throw new IOException(e);
-                  } finally {
-                     inflater.end();
-                  }
-               }
-               body.writeBytes(contents.data, contents.offset, contents.length);
+               writeBytesType(contents, messageCompressed, body);
                break;
             default:
-               if (messageCompressed) {
-                  try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
-                       OutputStream os = new InflaterOutputStream(decompressed)) {
-                     os.write(contents.data, contents.offset, contents.getLength());
-                     contents = decompressed.toByteSequence();
-                  } catch (Exception e) {
-                     throw new IOException(e);
-                  }
-               }
-               body.writeBytes(contents.data, contents.offset, contents.length);
+               writeDefaultType(contents, messageCompressed, body);
                break;
          }
       }
       //amq specific
       coreMessage.putLongProperty(AMQ_MSG_ARRIVAL, messageSend.getArrival());
       coreMessage.putLongProperty(AMQ_MSG_BROKER_IN_TIME, messageSend.getBrokerInTime());
-      BrokerId[] brokers = messageSend.getBrokerPath();
+      final BrokerId[] brokers = messageSend.getBrokerPath();
       if (brokers != null) {
-         StringBuilder builder = new StringBuilder();
-         for (int i = 0; i < brokers.length; i++) {
-            builder.append(brokers[i].getValue());
-            if (i != (brokers.length - 1)) {
-               builder.append(","); //is this separator safe?
-            }
-         }
-         coreMessage.putStringProperty(AMQ_MSG_BROKER_PATH, builder.toString());
+         putMsgBrokerPath(brokers, coreMessage);
       }
-      BrokerId[] cluster = messageSend.getCluster();
+      final BrokerId[] cluster = messageSend.getCluster();
       if (cluster != null) {
-         StringBuilder builder = new StringBuilder();
-         for (int i = 0; i < cluster.length; i++) {
-            builder.append(cluster[i].getValue());
-            if (i != (cluster.length - 1)) {
-               builder.append(","); //is this separator safe?
-            }
-         }
-         coreMessage.putStringProperty(AMQ_MSG_CLUSTER, builder.toString());
+         putMsgCluster(cluster, coreMessage);
       }
 
       coreMessage.putIntProperty(AMQ_MSG_COMMAND_ID, messageSend.getCommandId());
-      String corrId = messageSend.getCorrelationId();
+      final String corrId = messageSend.getCorrelationId();
       if (corrId != null) {
-         coreMessage.putStringProperty("JMSCorrelationID", corrId);
+         coreMessage.putStringProperty(JMS_CORRELATION_ID_PROPERTY, new SimpleString(corrId));
       }
-      DataStructure ds = messageSend.getDataStructure();
+      final DataStructure ds = messageSend.getDataStructure();
       if (ds != null) {
-         ByteSequence dsBytes = marshaller.marshal(ds);
-         dsBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_DATASTRUCTURE, dsBytes.data);
+         putMsgDataStructure(ds, marshaller, coreMessage);
       }
-      String groupId = messageSend.getGroupID();
+      final String groupId = messageSend.getGroupID();
       if (groupId != null) {
-         coreMessage.putStringProperty(AMQ_MSG_GROUP_ID, groupId);
+         coreMessage.putStringProperty(AMQ_MSG_GROUP_ID, new SimpleString(groupId));
       }
       coreMessage.putIntProperty(AMQ_MSG_GROUP_SEQUENCE, messageSend.getGroupSequence());
 
-      MessageId messageId = messageSend.getMessageId();
+      final MessageId messageId = messageSend.getMessageId();
 
-      ByteSequence midBytes = marshaller.marshal(messageId);
+      final ByteSequence midBytes = marshaller.marshal(messageId);
       midBytes.compact();
       coreMessage.putBytesProperty(AMQ_MSG_MESSAGE_ID, midBytes.data);
 
-      ProducerId producerId = messageSend.getProducerId();
+      final ProducerId producerId = messageSend.getProducerId();
       if (producerId != null) {
-         ByteSequence producerIdBytes = marshaller.marshal(producerId);
+         final ByteSequence producerIdBytes = marshaller.marshal(producerId);
          producerIdBytes.compact();
          coreMessage.putBytesProperty(AMQ_MSG_PRODUCER_ID, producerIdBytes.data);
       }
-      ByteSequence propBytes = messageSend.getMarshalledProperties();
+      final ByteSequence propBytes = messageSend.getMarshalledProperties();
       if (propBytes != null) {
-         propBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_MARSHALL_PROP, propBytes.data);
-         //unmarshall properties to core so selector will work
-         Map<String, Object> props = messageSend.getProperties();
-         //Map<String, Object> props = MarshallingSupport.unmarshalPrimitiveMap(new DataInputStream(new ByteArrayInputStream(propBytes)));
-         for (Entry<String, Object> ent : props.entrySet()) {
-            Object value = ent.getValue();
-            try {
-               coreMessage.putObjectProperty(ent.getKey(), value);
-            } catch (ActiveMQPropertyConversionException e) {
-               coreMessage.putStringProperty(ent.getKey(), value.toString());
-            }
-         }
+         putMsgMarshalledProperties(propBytes, messageSend, coreMessage);
       }
 
-      ActiveMQDestination replyTo = messageSend.getReplyTo();
+      final ActiveMQDestination replyTo = messageSend.getReplyTo();
       if (replyTo != null) {
-         ByteSequence replyToBytes = marshaller.marshal(replyTo);
-         replyToBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_REPLY_TO, replyToBytes.data);
+         putMsgReplyTo(replyTo, marshaller, coreMessage);
       }
 
-      String userId = messageSend.getUserID();
+      final String userId = messageSend.getUserID();
       if (userId != null) {
-         coreMessage.putStringProperty(AMQ_MSG_USER_ID, userId);
+         coreMessage.putStringProperty(AMQ_MSG_USER_ID, new SimpleString(userId));
       }
       coreMessage.putBooleanProperty(AMQ_MSG_DROPPABLE, messageSend.isDroppable());
 
-      ActiveMQDestination origDest = messageSend.getOriginalDestination();
+      final ActiveMQDestination origDest = messageSend.getOriginalDestination();
       if (origDest != null) {
-         ByteSequence origDestBytes = marshaller.marshal(origDest);
-         origDestBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_ORIG_DESTINATION, origDestBytes.data);
+         putMsgOriginalDestination(origDest, marshaller, coreMessage);
       }
 
       return coreMessage;
+   }
+
+   private static void writeTextType(final ByteSequence contents,
+                                     final boolean messageCompressed,
+                                     final ActiveMQBuffer body) throws IOException {
+      InputStream tis = new ByteArrayInputStream(contents);
+      if (messageCompressed) {
+         tis = new InflaterInputStream(tis);
+      }
+      DataInputStream tdataIn = new DataInputStream(tis);
+      String text = MarshallingSupport.readUTF8(tdataIn);
+      tdataIn.close();
+      body.writeNullableSimpleString(new SimpleString(text));
+   }
+
+   private static void writeMapType(final ByteSequence contents,
+                                    final boolean messageCompressed,
+                                    final ActiveMQBuffer body) throws IOException {
+      InputStream mis = new ByteArrayInputStream(contents);
+      if (messageCompressed) {
+         mis = new InflaterInputStream(mis);
+      }
+      DataInputStream mdataIn = new DataInputStream(mis);
+      Map<String, Object> map = MarshallingSupport.unmarshalPrimitiveMap(mdataIn);
+      mdataIn.close();
+      TypedProperties props = new TypedProperties();
+      loadMapIntoProperties(props, map);
+      props.encode(body.byteBuf());
+   }
+
+   private static void writeObjectType(ByteSequence contents,
+                                       final boolean messageCompressed,
+                                       final ActiveMQBuffer body) throws IOException {
+      if (messageCompressed) {
+         contents = writeCompressedObjectType(contents);
+      }
+      body.writeInt(contents.length);
+      body.writeBytes(contents.data, contents.offset, contents.length);
+   }
+
+   private static ByteSequence writeCompressedObjectType(final ByteSequence contents) throws IOException {
+      try (InputStream ois = new InflaterInputStream(new ByteArrayInputStream(contents));
+           org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
+         byte[] buf = new byte[1024];
+         int n = ois.read(buf);
+         while (n != -1) {
+            decompressed.write(buf, 0, n);
+            n = ois.read();
+         }
+         //read done
+         return decompressed.toByteSequence();
+      }
+   }
+
+   private static void writeStreamType(final ByteSequence contents,
+                                       final boolean messageCompressed,
+                                       final ActiveMQBuffer body) throws IOException {
+      InputStream sis = new ByteArrayInputStream(contents);
+      if (messageCompressed) {
+         sis = new InflaterInputStream(sis);
+      }
+      DataInputStream sdis = new DataInputStream(sis);
+      int stype = sdis.read();
+      while (stype != -1) {
+         switch (stype) {
+            case MarshallingSupport.BOOLEAN_TYPE:
+               body.writeByte(DataConstants.BOOLEAN);
+               body.writeBoolean(sdis.readBoolean());
+               break;
+            case MarshallingSupport.BYTE_TYPE:
+               body.writeByte(DataConstants.BYTE);
+               body.writeByte(sdis.readByte());
+               break;
+            case MarshallingSupport.BYTE_ARRAY_TYPE:
+               body.writeByte(DataConstants.BYTES);
+               int slen = sdis.readInt();
+               byte[] sbytes = new byte[slen];
+               sdis.read(sbytes);
+               body.writeInt(slen);
+               body.writeBytes(sbytes);
+               break;
+            case MarshallingSupport.CHAR_TYPE:
+               body.writeByte(DataConstants.CHAR);
+               char schar = sdis.readChar();
+               body.writeShort((short) schar);
+               break;
+            case MarshallingSupport.DOUBLE_TYPE:
+               body.writeByte(DataConstants.DOUBLE);
+               double sdouble = sdis.readDouble();
+               body.writeLong(Double.doubleToLongBits(sdouble));
+               break;
+            case MarshallingSupport.FLOAT_TYPE:
+               body.writeByte(DataConstants.FLOAT);
+               float sfloat = sdis.readFloat();
+               body.writeInt(Float.floatToIntBits(sfloat));
+               break;
+            case MarshallingSupport.INTEGER_TYPE:
+               body.writeByte(DataConstants.INT);
+               body.writeInt(sdis.readInt());
+               break;
+            case MarshallingSupport.LONG_TYPE:
+               body.writeByte(DataConstants.LONG);
+               body.writeLong(sdis.readLong());
+               break;
+            case MarshallingSupport.SHORT_TYPE:
+               body.writeByte(DataConstants.SHORT);
+               body.writeShort(sdis.readShort());
+               break;
+            case MarshallingSupport.STRING_TYPE:
+               body.writeByte(DataConstants.STRING);
+               String sstring = sdis.readUTF();
+               body.writeNullableString(sstring);
+               break;
+            case MarshallingSupport.BIG_STRING_TYPE:
+               body.writeByte(DataConstants.STRING);
+               String sbigString = MarshallingSupport.readUTF8(sdis);
+               body.writeNullableString(sbigString);
+               break;
+            case MarshallingSupport.NULL:
+               body.writeByte(DataConstants.STRING);
+               body.writeNullableString(null);
+               break;
+            default:
+               //something we don't know, ignore
+               break;
+         }
+         stype = sdis.read();
+      }
+      sdis.close();
+   }
+
+   private static void writeBytesType(ByteSequence contents,
+                                      final boolean messageCompressed,
+                                      final ActiveMQBuffer body) throws IOException {
+      if (messageCompressed) {
+         contents = writeCompressedBytesType(contents);
+      }
+      body.writeBytes(contents.data, contents.offset, contents.length);
+   }
+
+   private static ByteSequence writeCompressedBytesType(final ByteSequence contents) throws IOException {
+      Inflater inflater = new Inflater();
+      try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
+         int length = ByteSequenceData.readIntBig(contents);
+         contents.offset = 0;
+         byte[] data = Arrays.copyOfRange(contents.getData(), 4, contents.getLength());
+
+         inflater.setInput(data);
+         byte[] buffer = new byte[length];
+         int count = inflater.inflate(buffer);
+         decompressed.write(buffer, 0, count);
+         return decompressed.toByteSequence();
+      } catch (Exception e) {
+         throw new IOException(e);
+      } finally {
+         inflater.end();
+      }
+   }
+
+   private static void writeDefaultType(ByteSequence contents,
+                                        final boolean messageCompressed,
+                                        final ActiveMQBuffer body) throws IOException {
+      if (messageCompressed) {
+         contents = writeCompressedDefaultType(contents);
+      }
+      body.writeBytes(contents.data, contents.offset, contents.length);
+   }
+
+   private static ByteSequence writeCompressedDefaultType(final ByteSequence contents) throws IOException {
+      try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
+           OutputStream os = new InflaterOutputStream(decompressed)) {
+         os.write(contents.data, contents.offset, contents.getLength());
+         return decompressed.toByteSequence();
+      } catch (Exception e) {
+         throw new IOException(e);
+      }
+   }
+
+   private static void putMsgBrokerPath(final BrokerId[] brokers, final CoreMessage coreMessage) {
+      final StringBuilder builder = new StringBuilder();
+      for (int i = 0, size = brokers.length; i < size; i++) {
+         builder.append(brokers[i].getValue());
+         if (i != (size - 1)) {
+            builder.append(','); //is this separator safe?
+         }
+      }
+      coreMessage.putStringProperty(AMQ_MSG_BROKER_PATH, new SimpleString(builder.toString()));
+   }
+
+   private static void putMsgCluster(final BrokerId[] cluster, final CoreMessage coreMessage) {
+      final StringBuilder builder = new StringBuilder();
+      for (int i = 0, size = cluster.length; i < size; i++) {
+         builder.append(cluster[i].getValue());
+         if (i != (size - 1)) {
+            builder.append(','); //is this separator safe?
+         }
+      }
+      coreMessage.putStringProperty(AMQ_MSG_CLUSTER, new SimpleString(builder.toString()));
+   }
+
+   private static void putMsgDataStructure(final DataStructure ds,
+                                           final WireFormat marshaller,
+                                           final CoreMessage coreMessage) throws IOException {
+      final ByteSequence dsBytes = marshaller.marshal(ds);
+      dsBytes.compact();
+      coreMessage.putBytesProperty(AMQ_MSG_DATASTRUCTURE, dsBytes.data);
+   }
+
+   private static void putMsgMarshalledProperties(final ByteSequence propBytes,
+                                                  final Message messageSend,
+                                                  final CoreMessage coreMessage) throws IOException {
+      propBytes.compact();
+      coreMessage.putBytesProperty(AMQ_MSG_MARSHALL_PROP, propBytes.data);
+      //unmarshall properties to core so selector will work
+      final Map<String, Object> props = messageSend.getProperties();
+      if (!props.isEmpty()) {
+         props.forEach((key, value) -> {
+            try {
+               coreMessage.putObjectProperty(key, value);
+            } catch (ActiveMQPropertyConversionException e) {
+               coreMessage.putStringProperty(key, value.toString());
+            }
+         });
+      }
+   }
+
+   private static void putMsgReplyTo(final ActiveMQDestination replyTo,
+                                     final WireFormat marshaller,
+                                     final CoreMessage coreMessage) throws IOException {
+      final ByteSequence replyToBytes = marshaller.marshal(replyTo);
+      replyToBytes.compact();
+      coreMessage.putBytesProperty(AMQ_MSG_REPLY_TO, replyToBytes.data);
+   }
+
+   private static void putMsgOriginalDestination(final ActiveMQDestination origDest,
+                                                 final WireFormat marshaller,
+                                                 final CoreMessage coreMessage) throws IOException {
+      final ByteSequence origDestBytes = marshaller.marshal(origDest);
+      origDestBytes.compact();
+      coreMessage.putBytesProperty(AMQ_MSG_ORIG_DESTINATION, origDestBytes.data);
    }
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
@@ -426,9 +510,9 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
    }
 
    public MessageDispatch createMessageDispatch(MessageReference reference,
-                                                       ICoreMessage message,
-                                                       AMQConsumer consumer) throws IOException, JMSException {
-      ActiveMQMessage amqMessage = toAMQMessage(reference, message, consumer.getOpenwireDestination());
+                                                ICoreMessage message,
+                                                AMQConsumer consumer) throws IOException, JMSException {
+      ActiveMQMessage amqMessage = toAMQMessage(reference, message, marshaller, consumer);
 
       //we can use core message id for sequenceId
       amqMessage.getMessageId().setBrokerSequenceId(message.getMessageID());
@@ -443,35 +527,48 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       return md;
    }
 
-   private ActiveMQMessage toAMQMessage(MessageReference reference,
+   private static ActiveMQMessage toAMQMessage(MessageReference reference,
                                                ICoreMessage coreMessage,
-                                               ActiveMQDestination actualDestination) throws IOException {
-      ActiveMQMessage amqMsg = null;
-      byte coreType = coreMessage.getType();
+                                               WireFormat marshaller,
+                                               AMQConsumer consumer) throws IOException {
+      final ActiveMQMessage amqMsg;
+      final byte coreType = coreMessage.getType();
+      final Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
+      final boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
+      final byte[] bytes;
+      final ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      buffer.resetReaderIndex();
+
       switch (coreType) {
          case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
             amqMsg = new ActiveMQBytesMessage();
+            bytes = toAMQMessageBytesType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
             amqMsg = new ActiveMQMapMessage();
+            bytes = toAMQMessageMapType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
             amqMsg = new ActiveMQObjectMessage();
+            bytes = toAMQMessageObjectType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
             amqMsg = new ActiveMQStreamMessage();
+            bytes = toAMQMessageStreamType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
             amqMsg = new ActiveMQTextMessage();
+            bytes = toAMQMessageTextType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE:
             amqMsg = new ActiveMQMessage();
+            bytes = toAMQMessageDefaultType(buffer, isCompressed);
             break;
          default:
             throw new IllegalStateException("Unknown message type: " + coreMessage.getType());
       }
 
-      String type = coreMessage.getStringProperty(new SimpleString("JMSType"));
+      final String type = coreMessage.getStringProperty(JMS_TYPE_PROPERTY);
       if (type != null) {
          amqMsg.setJMSType(type);
       }
@@ -486,165 +583,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
       amqMsg.setBrokerInTime(brokerInTime);
 
-      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
-      Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
-      boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       amqMsg.setCompressed(isCompressed);
-
-      byte[] bytes = null;
-      if (buffer != null) {
-         buffer.resetReaderIndex();
-         synchronized (buffer) {
-            if (coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
-               SimpleString text = buffer.readNullableSimpleString();
-               if (text != null) {
-                  ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(text.length() + 4);
-                  OutputStream out = bytesOut;
-                  if (isCompressed) {
-                     out = new DeflaterOutputStream(out, true);
-                  }
-                  try (DataOutputStream dataOut = new DataOutputStream(out)) {
-                     MarshallingSupport.writeUTF8(dataOut, text.toString());
-                     dataOut.flush();
-                     bytes = bytesOut.toByteArray();
-                  }
-               }
-            } else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE) {
-               TypedProperties mapData = new TypedProperties();
-               //it could be a null map
-               if (buffer.readableBytes() > 0) {
-                  mapData.decode(buffer.byteBuf());
-                  Map<String, Object> map = mapData.getMap();
-                  ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
-                  OutputStream os = out;
-                  if (isCompressed) {
-                     os = new DeflaterOutputStream(os, true);
-                  }
-                  try (DataOutputStream dataOut = new DataOutputStream(os)) {
-                     MarshallingSupport.marshalPrimitiveMap(map, dataOut);
-                     dataOut.flush();
-                  }
-                  bytes = out.toByteArray();
-               }
-
-            } else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
-               if (buffer.readableBytes() > 0) {
-                  int len = buffer.readInt();
-                  bytes = new byte[len];
-                  buffer.readBytes(bytes);
-                  if (isCompressed) {
-                     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                     try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
-                        out.write(bytes);
-                        out.flush();
-                     }
-                     bytes = bytesOut.toByteArray();
-                  }
-               }
-            } else if (coreType == org.apache.activemq.artemis.api.core.Message.STREAM_TYPE) {
-               org.apache.activemq.util.ByteArrayOutputStream bytesOut = new org.apache.activemq.util.ByteArrayOutputStream();
-               OutputStream out = bytesOut;
-               if (isCompressed) {
-                  out = new DeflaterOutputStream(bytesOut, true);
-               }
-               try (DataOutputStream dataOut = new DataOutputStream(out)) {
-
-                  boolean stop = false;
-                  while (!stop && buffer.readable()) {
-                     byte primitiveType = buffer.readByte();
-                     switch (primitiveType) {
-                        case DataConstants.BOOLEAN:
-                           MarshallingSupport.marshalBoolean(dataOut, buffer.readBoolean());
-                           break;
-                        case DataConstants.BYTE:
-                           MarshallingSupport.marshalByte(dataOut, buffer.readByte());
-                           break;
-                        case DataConstants.BYTES:
-                           int len = buffer.readInt();
-                           byte[] bytesData = new byte[len];
-                           buffer.readBytes(bytesData);
-                           MarshallingSupport.marshalByteArray(dataOut, bytesData);
-                           break;
-                        case DataConstants.CHAR:
-                           char ch = (char) buffer.readShort();
-                           MarshallingSupport.marshalChar(dataOut, ch);
-                           break;
-                        case DataConstants.DOUBLE:
-                           double doubleVal = Double.longBitsToDouble(buffer.readLong());
-                           MarshallingSupport.marshalDouble(dataOut, doubleVal);
-                           break;
-                        case DataConstants.FLOAT:
-                           Float floatVal = Float.intBitsToFloat(buffer.readInt());
-                           MarshallingSupport.marshalFloat(dataOut, floatVal);
-                           break;
-                        case DataConstants.INT:
-                           MarshallingSupport.marshalInt(dataOut, buffer.readInt());
-                           break;
-                        case DataConstants.LONG:
-                           MarshallingSupport.marshalLong(dataOut, buffer.readLong());
-                           break;
-                        case DataConstants.SHORT:
-                           MarshallingSupport.marshalShort(dataOut, buffer.readShort());
-                           break;
-                        case DataConstants.STRING:
-                           String string = buffer.readNullableString();
-                           if (string == null) {
-                              MarshallingSupport.marshalNull(dataOut);
-                           } else {
-                              MarshallingSupport.marshalString(dataOut, string);
-                           }
-                           break;
-                        default:
-                           //now we stop
-                           stop = true;
-                           break;
-                     }
-                     dataOut.flush();
-                  }
-               }
-               bytes = bytesOut.toByteArray();
-            } else if (coreType == org.apache.activemq.artemis.api.core.Message.BYTES_TYPE) {
-               int n = buffer.readableBytes();
-               bytes = new byte[n];
-               buffer.readBytes(bytes);
-               if (isCompressed) {
-                  int length = bytes.length;
-                  Deflater deflater = new Deflater();
-                  try (org.apache.activemq.util.ByteArrayOutputStream compressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
-                     compressed.write(new byte[4]);
-                     deflater.setInput(bytes);
-                     deflater.finish();
-                     byte[] bytesBuf = new byte[1024];
-                     while (!deflater.finished()) {
-                        int count = deflater.deflate(bytesBuf);
-                        compressed.write(bytesBuf, 0, count);
-                     }
-                     compressed.flush();
-                     ByteSequence byteSeq = compressed.toByteSequence();
-                     ByteSequenceData.writeIntBig(byteSeq, length);
-                     bytes = Arrays.copyOfRange(byteSeq.data, 0, byteSeq.length);
-                  } finally {
-                     deflater.end();
-                  }
-               }
-            } else {
-               int n = buffer.readableBytes();
-               bytes = new byte[n];
-               buffer.readBytes(bytes);
-               if (isCompressed) {
-                  try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                       DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
-                     out.write(bytes);
-                     out.flush();
-                     bytes = bytesOut.toByteArray();
-                  }
-               }
-            }
-
-            buffer.resetReaderIndex();// this is important for topics as the buffer
-            // may be read multiple times
-         }
-      }
 
       //we need check null because messages may come from other clients
       //and those amq specific attribute may not be set.
@@ -655,24 +594,14 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
       amqMsg.setArrival(arrival);
 
-      String brokerPath = (String) coreMessage.getObjectProperty(AMQ_MSG_BROKER_PATH);
-      if (brokerPath != null && brokerPath.isEmpty()) {
-         String[] brokers = brokerPath.split(",");
-         BrokerId[] bids = new BrokerId[brokers.length];
-         for (int i = 0; i < bids.length; i++) {
-            bids[i] = new BrokerId(brokers[i]);
-         }
-         amqMsg.setBrokerPath(bids);
+      final String brokerPath = (String) coreMessage.getObjectProperty(AMQ_MSG_BROKER_PATH);
+      if (brokerPath != null && !brokerPath.isEmpty()) {
+         setAMQMsgBrokerPath(amqMsg, brokerPath);
       }
 
-      String clusterPath = (String) coreMessage.getObjectProperty(AMQ_MSG_CLUSTER);
-      if (clusterPath != null && clusterPath.isEmpty()) {
-         String[] cluster = clusterPath.split(",");
-         BrokerId[] bids = new BrokerId[cluster.length];
-         for (int i = 0; i < bids.length; i++) {
-            bids[i] = new BrokerId(cluster[i]);
-         }
-         amqMsg.setCluster(bids);
+      final String clusterPath = (String) coreMessage.getObjectProperty(AMQ_MSG_CLUSTER);
+      if (clusterPath != null && !clusterPath.isEmpty()) {
+         setAMQMsgClusterPath(amqMsg, clusterPath);
       }
 
       Integer commandId = (Integer) coreMessage.getObjectProperty(AMQ_MSG_COMMAND_ID);
@@ -681,21 +610,19 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
       amqMsg.setCommandId(commandId);
 
-      SimpleString corrId = (SimpleString) coreMessage.getObjectProperty("JMSCorrelationID");
+      final SimpleString corrId = (SimpleString) coreMessage.getObjectProperty(JMS_CORRELATION_ID_PROPERTY);
       if (corrId != null) {
          amqMsg.setCorrelationId(corrId.toString());
       }
 
-      byte[] dsBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_DATASTRUCTURE);
+      final byte[] dsBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_DATASTRUCTURE);
       if (dsBytes != null) {
-         ByteSequence seq = new ByteSequence(dsBytes);
-         DataStructure ds = (DataStructure) marshaller.unmarshal(seq);
-         amqMsg.setDataStructure(ds);
+         setAMQMsgDataStructure(amqMsg, marshaller, dsBytes);
       }
-
+      final ActiveMQDestination actualDestination = consumer.getOpenwireDestination();
       amqMsg.setDestination(OpenWireUtil.toAMQAddress(coreMessage, actualDestination));
 
-      Object value = coreMessage.getGroupID();
+      final Object value = coreMessage.getGroupID();
       if (value != null) {
          String groupId = value.toString();
          amqMsg.setGroupID(groupId);
@@ -707,8 +634,8 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
       amqMsg.setGroupSequence(groupSequence);
 
-      MessageId mid = null;
-      byte[] midBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_MESSAGE_ID);
+      final MessageId mid;
+      final byte[] midBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_MESSAGE_ID);
       if (midBytes != null) {
          ByteSequence midSeq = new ByteSequence(midBytes);
          mid = (MessageId) marshaller.unmarshal(midSeq);
@@ -718,92 +645,59 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
 
       amqMsg.setMessageId(mid);
 
-      byte[] origDestBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_ORIG_DESTINATION);
+      final byte[] origDestBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_ORIG_DESTINATION);
       if (origDestBytes != null) {
-         ActiveMQDestination origDest = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(origDestBytes));
-         amqMsg.setOriginalDestination(origDest);
+         setAMQMsgOriginalDestination(amqMsg, marshaller, origDestBytes);
       }
 
-      byte[] origTxIdBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_ORIG_TXID);
+      final byte[] origTxIdBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_ORIG_TXID);
       if (origTxIdBytes != null) {
-         TransactionId origTxId = (TransactionId) marshaller.unmarshal(new ByteSequence(origTxIdBytes));
-         amqMsg.setOriginalTransactionId(origTxId);
+         setAMQMsgOriginalTransactionId(amqMsg, marshaller, origTxIdBytes);
       }
 
-      byte[] producerIdBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_PRODUCER_ID);
+      final byte[] producerIdBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_PRODUCER_ID);
       if (producerIdBytes != null) {
          ProducerId producerId = (ProducerId) marshaller.unmarshal(new ByteSequence(producerIdBytes));
          amqMsg.setProducerId(producerId);
       }
 
-      byte[] marshalledBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_MARSHALL_PROP);
+      final byte[] marshalledBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_MARSHALL_PROP);
       if (marshalledBytes != null) {
          amqMsg.setMarshalledProperties(new ByteSequence(marshalledBytes));
       }
 
       amqMsg.setRedeliveryCounter(reference.getDeliveryCount() - 1);
 
-      byte[] replyToBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_REPLY_TO);
+      final byte[] replyToBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_REPLY_TO);
       if (replyToBytes != null) {
-         ActiveMQDestination replyTo = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(replyToBytes));
-         amqMsg.setReplyTo(replyTo);
+         setAMQMsgReplyTo(amqMsg, marshaller, replyToBytes);
       }
 
-      String userId = (String) coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
+      final String userId = (String) coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
       if (userId != null) {
          amqMsg.setUserID(userId);
       }
 
-      Boolean isDroppable = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_DROPPABLE);
+      final Boolean isDroppable = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_DROPPABLE);
       if (isDroppable != null) {
          amqMsg.setDroppable(isDroppable);
       }
 
-      SimpleString dlqCause = (SimpleString) coreMessage.getObjectProperty(AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
+      final SimpleString dlqCause = (SimpleString) coreMessage.getObjectProperty(AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
       if (dlqCause != null) {
-         try {
-            amqMsg.setStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, dlqCause.toString());
-         } catch (JMSException e) {
-            throw new IOException("failure to set dlq property " + dlqCause, e);
-         }
+         setAMQMsgDlqDeliveryFailureCause(amqMsg, dlqCause);
       }
 
-      SimpleString lastValueProperty = coreMessage.getLastValueProperty();
+      final SimpleString lastValueProperty = coreMessage.getLastValueProperty();
       if (lastValueProperty != null) {
-         try {
-            amqMsg.setStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_LAST_VALUE_NAME.toString(), lastValueProperty.toString());
-         } catch (JMSException e) {
-            throw new IOException("failure to set lvq property " + dlqCause, e);
-         }
+         setAMQMsgHdrLastValueName(amqMsg, lastValueProperty);
       }
 
-      Set<SimpleString> props = coreMessage.getPropertyNames();
+      final Set<SimpleString> props = coreMessage.getPropertyNames();
       if (props != null) {
-         for (SimpleString s : props) {
-            String keyStr = s.toString();
-            if ((keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_")) &&
-                    !(actualDestination.toString().contains(AMQ_NOTIFICATIONS_DESTINATION))) {
-               continue;
-            }
-            Object prop = coreMessage.getObjectProperty(s);
-            try {
-               if (prop instanceof SimpleString) {
-                  amqMsg.setObjectProperty(s.toString(), prop.toString());
-               } else {
-                  if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
-                     Long l = (Long) prop;
-                     amqMsg.setObjectProperty(s.toString(), l.intValue());
-                  } else {
-                     amqMsg.setObjectProperty(s.toString(), prop);
-                  }
-               }
-            } catch (JMSException e) {
-               throw new IOException("exception setting property " + s + " : " + prop, e);
-            }
-         }
+         setAMQMsgObjectProperties(amqMsg, coreMessage, props, consumer);
       }
 
-      amqMsg.setCompressed(isCompressed);
       if (bytes != null) {
          ByteSequence content = new ByteSequence(bytes);
          amqMsg.setContent(content);
@@ -811,4 +705,269 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       return amqMsg;
    }
 
+   private static byte[] toAMQMessageTextType(final ActiveMQBuffer buffer,
+                                              final boolean isCompressed) throws IOException {
+      byte[] bytes = null;
+      SimpleString text = buffer.readNullableSimpleString();
+      if (text != null) {
+         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(text.length() + 4);
+         OutputStream out = bytesOut;
+         if (isCompressed) {
+            out = new DeflaterOutputStream(out, true);
+         }
+         try (DataOutputStream dataOut = new DataOutputStream(out)) {
+            MarshallingSupport.writeUTF8(dataOut, text.toString());
+            dataOut.flush();
+            bytes = bytesOut.toByteArray();
+         }
+      }
+      return bytes;
+   }
+
+   private static byte[] toAMQMessageMapType(final ActiveMQBuffer buffer,
+                                             final boolean isCompressed) throws IOException {
+      byte[] bytes = null;
+      //it could be a null map
+      if (buffer.readableBytes() > 0) {
+         TypedProperties mapData = new TypedProperties();
+         mapData.decode(buffer.byteBuf());
+         Map<String, Object> map = mapData.getMap();
+         ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
+         OutputStream os = out;
+         if (isCompressed) {
+            os = new DeflaterOutputStream(os, true);
+         }
+         try (DataOutputStream dataOut = new DataOutputStream(os)) {
+            MarshallingSupport.marshalPrimitiveMap(map, dataOut);
+            dataOut.flush();
+         }
+         bytes = out.toByteArray();
+      }
+      return bytes;
+   }
+
+   private static byte[] toAMQMessageObjectType(final ActiveMQBuffer buffer,
+                                                final boolean isCompressed) throws IOException {
+      byte[] bytes = null;
+      if (buffer.readableBytes() > 0) {
+         int len = buffer.readInt();
+         bytes = new byte[len];
+         buffer.readBytes(bytes);
+         if (isCompressed) {
+            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+            try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
+               out.write(bytes);
+               out.flush();
+            }
+            bytes = bytesOut.toByteArray();
+         }
+      }
+      return bytes;
+   }
+
+   private static byte[] toAMQMessageStreamType(final ActiveMQBuffer buffer,
+                                                final boolean isCompressed) throws IOException {
+      byte[] bytes;
+      org.apache.activemq.util.ByteArrayOutputStream bytesOut = new org.apache.activemq.util.ByteArrayOutputStream();
+      OutputStream out = bytesOut;
+      if (isCompressed) {
+         out = new DeflaterOutputStream(bytesOut, true);
+      }
+      try (DataOutputStream dataOut = new DataOutputStream(out)) {
+
+         boolean stop = false;
+         while (!stop && buffer.readable()) {
+            byte primitiveType = buffer.readByte();
+            switch (primitiveType) {
+               case DataConstants.BOOLEAN:
+                  MarshallingSupport.marshalBoolean(dataOut, buffer.readBoolean());
+                  break;
+               case DataConstants.BYTE:
+                  MarshallingSupport.marshalByte(dataOut, buffer.readByte());
+                  break;
+               case DataConstants.BYTES:
+                  int len = buffer.readInt();
+                  byte[] bytesData = new byte[len];
+                  buffer.readBytes(bytesData);
+                  MarshallingSupport.marshalByteArray(dataOut, bytesData);
+                  break;
+               case DataConstants.CHAR:
+                  char ch = (char) buffer.readShort();
+                  MarshallingSupport.marshalChar(dataOut, ch);
+                  break;
+               case DataConstants.DOUBLE:
+                  double doubleVal = Double.longBitsToDouble(buffer.readLong());
+                  MarshallingSupport.marshalDouble(dataOut, doubleVal);
+                  break;
+               case DataConstants.FLOAT:
+                  Float floatVal = Float.intBitsToFloat(buffer.readInt());
+                  MarshallingSupport.marshalFloat(dataOut, floatVal);
+                  break;
+               case DataConstants.INT:
+                  MarshallingSupport.marshalInt(dataOut, buffer.readInt());
+                  break;
+               case DataConstants.LONG:
+                  MarshallingSupport.marshalLong(dataOut, buffer.readLong());
+                  break;
+               case DataConstants.SHORT:
+                  MarshallingSupport.marshalShort(dataOut, buffer.readShort());
+                  break;
+               case DataConstants.STRING:
+                  String string = buffer.readNullableString();
+                  if (string == null) {
+                     MarshallingSupport.marshalNull(dataOut);
+                  } else {
+                     MarshallingSupport.marshalString(dataOut, string);
+                  }
+                  break;
+               default:
+                  //now we stop
+                  stop = true;
+                  break;
+            }
+            dataOut.flush();
+         }
+      }
+      bytes = bytesOut.toByteArray();
+      return bytes;
+   }
+
+   private static byte[] toAMQMessageBytesType(final ActiveMQBuffer buffer,
+                                               final boolean isCompressed) throws IOException {
+      int n = buffer.readableBytes();
+      byte[] bytes = new byte[n];
+      buffer.readBytes(bytes);
+      if (isCompressed) {
+         bytes = toAMQMessageCompressedBytesType(bytes);
+      }
+      return bytes;
+   }
+
+   private static byte[] toAMQMessageCompressedBytesType(final byte[] bytes) throws IOException {
+      int length = bytes.length;
+      Deflater deflater = new Deflater();
+      try (org.apache.activemq.util.ByteArrayOutputStream compressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
+         compressed.write(new byte[4]);
+         deflater.setInput(bytes);
+         deflater.finish();
+         byte[] bytesBuf = new byte[1024];
+         while (!deflater.finished()) {
+            int count = deflater.deflate(bytesBuf);
+            compressed.write(bytesBuf, 0, count);
+         }
+         compressed.flush();
+         ByteSequence byteSeq = compressed.toByteSequence();
+         ByteSequenceData.writeIntBig(byteSeq, length);
+         return Arrays.copyOfRange(byteSeq.data, 0, byteSeq.length);
+      } finally {
+         deflater.end();
+      }
+   }
+
+   private static byte[] toAMQMessageDefaultType(final ActiveMQBuffer buffer,
+                                                 final boolean isCompressed) throws IOException {
+      int n = buffer.readableBytes();
+      byte[] bytes = new byte[n];
+      buffer.readBytes(bytes);
+      if (isCompressed) {
+         try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(); DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
+            out.write(bytes);
+            out.flush();
+            bytes = bytesOut.toByteArray();
+         }
+      }
+      return bytes;
+   }
+
+   private static void setAMQMsgBrokerPath(final ActiveMQMessage amqMsg, final String brokerPath) {
+      String[] brokers = brokerPath.split(",");
+      BrokerId[] bids = new BrokerId[brokers.length];
+      for (int i = 0; i < bids.length; i++) {
+         bids[i] = new BrokerId(brokers[i]);
+      }
+      amqMsg.setBrokerPath(bids);
+   }
+
+   private static void setAMQMsgClusterPath(final ActiveMQMessage amqMsg, final String clusterPath) {
+      String[] cluster = clusterPath.split(",");
+      BrokerId[] bids = new BrokerId[cluster.length];
+      for (int i = 0; i < bids.length; i++) {
+         bids[i] = new BrokerId(cluster[i]);
+      }
+      amqMsg.setCluster(bids);
+   }
+
+   private static void setAMQMsgDataStructure(final ActiveMQMessage amqMsg,
+                                              final WireFormat marshaller,
+                                              final byte[] dsBytes) throws IOException {
+      ByteSequence seq = new ByteSequence(dsBytes);
+      DataStructure ds = (DataStructure) marshaller.unmarshal(seq);
+      amqMsg.setDataStructure(ds);
+   }
+
+   private static void setAMQMsgOriginalDestination(final ActiveMQMessage amqMsg,
+                                                    final WireFormat marshaller,
+                                                    final byte[] origDestBytes) throws IOException {
+      ActiveMQDestination origDest = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(origDestBytes));
+      amqMsg.setOriginalDestination(origDest);
+   }
+
+   private static void setAMQMsgOriginalTransactionId(final ActiveMQMessage amqMsg,
+                                                      final WireFormat marshaller,
+                                                      final byte[] origTxIdBytes) throws IOException {
+      TransactionId origTxId = (TransactionId) marshaller.unmarshal(new ByteSequence(origTxIdBytes));
+      amqMsg.setOriginalTransactionId(origTxId);
+   }
+
+   private static void setAMQMsgReplyTo(final ActiveMQMessage amqMsg,
+                                        final WireFormat marshaller,
+                                        final byte[] replyToBytes) throws IOException {
+      ActiveMQDestination replyTo = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(replyToBytes));
+      amqMsg.setReplyTo(replyTo);
+   }
+
+   private static void setAMQMsgDlqDeliveryFailureCause(final ActiveMQMessage amqMsg,
+                                                        final SimpleString dlqCause) throws IOException {
+      try {
+         amqMsg.setStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, dlqCause.toString());
+      } catch (JMSException e) {
+         throw new IOException("failure to set dlq property " + dlqCause, e);
+      }
+   }
+
+   private static void setAMQMsgHdrLastValueName(final ActiveMQMessage amqMsg,
+                                                 final SimpleString lastValueProperty) throws IOException {
+      try {
+         amqMsg.setStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_LAST_VALUE_NAME.toString(), lastValueProperty.toString());
+      } catch (JMSException e) {
+         throw new IOException("failure to set lvq property " + lastValueProperty, e);
+      }
+   }
+
+   private static void setAMQMsgObjectProperties(final ActiveMQMessage amqMsg,
+                                                 final ICoreMessage coreMessage,
+                                                 final Set<SimpleString> props,
+                                                 final AMQConsumer consumer) throws IOException {
+      for (SimpleString s : props) {
+         final String keyStr = s.toString();
+         if (!consumer.hasNotificationDestination() && (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_"))) {
+            continue;
+         }
+         final Object prop = coreMessage.getObjectProperty(s);
+         try {
+            if (prop instanceof SimpleString) {
+               amqMsg.setObjectProperty(keyStr, prop.toString());
+            } else {
+               if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
+                  Long l = (Long) prop;
+                  amqMsg.setObjectProperty(keyStr, l.intValue());
+               } else {
+                  amqMsg.setObjectProperty(keyStr, prop);
+               }
+            }
+         } catch (JMSException e) {
+            throw new IOException("exception setting property " + s + " : " + prop, e);
+         }
+      }
+   }
 }
