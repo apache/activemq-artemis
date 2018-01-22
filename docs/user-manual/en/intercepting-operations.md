@@ -67,8 +67,8 @@ Both incoming and outgoing interceptors are configured in
        <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
     </remoting-outgoing-interceptors>
 
-The interceptors classes (and their dependencies) must be added to the
-server classpath to be properly instantiated and called.
+See the documentation on [adding runtime dependencies](using-server.md) to 
+understand how to make your interceptor available to the broker.
 
 ## Interceptors on the Client Side
 

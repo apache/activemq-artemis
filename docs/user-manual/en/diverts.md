@@ -28,6 +28,9 @@ of them receive the same, original message. This means that the results
 of a transformer on a message are not directly available for other
 diverts or their filters on the same address.
 
+See the documentation on [adding runtime dependencies](using-server.md) to 
+understand how to make your transformer available to the broker.
+
 A divert will only divert a message to an address on the *same server*,
 however, if you want to divert to an address on a different server, a
 common pattern would be to divert to a local store-and-forward queue,
