@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -1135,17 +1136,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public boolean moveReference(long messageID, SimpleString toAddress) throws Exception {
+      public boolean moveReference(long messageID, SimpleString toAddress, Binding binding, boolean rejectDuplicates) throws Exception {
          return false;
       }
 
       @Override
-      public boolean moveReference(long messageID, SimpleString toAddress, boolean rejectDuplicates) throws Exception {
-         return false;
-      }
-
-      @Override
-      public int moveReferences(Filter filter, SimpleString toAddress) throws Exception {
+      public int moveReferences(Filter filter, SimpleString toAddress, Binding binding) throws Exception {
          return 0;
       }
 
@@ -1153,7 +1149,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public int moveReferences(int flushLimit,
                                 Filter filter,
                                 SimpleString toAddress,
-                                boolean rejectDuplicates) throws Exception {
+                                boolean rejectDuplicates,
+                                Binding binding) throws Exception {
          return 0;
       }
 
