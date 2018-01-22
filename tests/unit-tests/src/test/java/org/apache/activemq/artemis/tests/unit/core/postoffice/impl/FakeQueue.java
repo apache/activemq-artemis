@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -480,13 +481,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean moveReference(final long messageID, final SimpleString toAddress) throws Exception {
-      // no-op
-      return false;
-   }
-
-   @Override
-   public int moveReferences(final Filter filter, final SimpleString toAddress) throws Exception {
+   public int moveReferences(final Filter filter, final SimpleString toAddress, Binding binding) throws Exception {
       // no-op
       return 0;
    }
@@ -595,7 +590,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean moveReference(long messageID, SimpleString toAddress, boolean rejectDuplicates) throws Exception {
+   public boolean moveReference(long messageID, SimpleString toAddress, Binding binding, boolean rejectDuplicates) throws Exception {
       // no-op
       return false;
    }
@@ -614,7 +609,8 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    public int moveReferences(int flushLimit,
                              Filter filter,
                              SimpleString toAddress,
-                             boolean rejectDuplicates) throws Exception {
+                             boolean rejectDuplicates,
+                             Binding binding) throws Exception {
       return 0;
    }
 
