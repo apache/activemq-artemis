@@ -56,7 +56,7 @@ public class EmbeddedJMSResourceQueueTest {
    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource();
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServer);
+   public RuleChain rulechain = ThreadLeakCheckRule.getRule().around(jmsServer);
 
    Message pushed = null;
 

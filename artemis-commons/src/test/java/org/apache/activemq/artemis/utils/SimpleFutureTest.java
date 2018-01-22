@@ -20,11 +20,13 @@ package org.apache.activemq.artemis.utils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 public class SimpleFutureTest {
 
    @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule().around(new UnitTestWatcher());
+
 
    @Test
    public void testFuture() throws Exception {

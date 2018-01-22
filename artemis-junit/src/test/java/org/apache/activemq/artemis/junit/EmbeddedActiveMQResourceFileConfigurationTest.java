@@ -42,7 +42,7 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
    private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource("embedded-artemis-server.xml");
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+   public RuleChain rulechain = ThreadLeakCheckRule.getRule().around(server);
 
    @After
    public void tear() {

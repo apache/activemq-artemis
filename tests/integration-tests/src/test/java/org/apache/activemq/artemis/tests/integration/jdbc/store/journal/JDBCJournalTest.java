@@ -36,17 +36,19 @@ import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.utils.UnitTestWatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.DERBY;
 
 public class JDBCJournalTest extends ActiveMQTestBase {
 
    @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule().around(new UnitTestWatcher());
 
    private static final String JOURNAL_TABLE_NAME = "MESSAGE_JOURNAL";
 

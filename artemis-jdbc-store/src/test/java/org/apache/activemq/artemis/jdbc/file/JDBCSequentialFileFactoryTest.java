@@ -46,6 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -55,7 +56,8 @@ import static org.junit.Assert.fail;
 public class JDBCSequentialFileFactoryTest {
 
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule();
+
 
    private static String className = EmbeddedDriver.class.getCanonicalName();
 

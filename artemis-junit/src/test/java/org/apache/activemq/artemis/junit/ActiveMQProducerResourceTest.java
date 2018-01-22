@@ -53,8 +53,7 @@ public class ActiveMQProducerResourceTest {
    ActiveMQProducerResource producer = new ActiveMQProducerResource(server.getVmURL(), TEST_ADDRESS);
 
    @Rule
-   public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
-
+   public RuleChain ruleChain = ThreadLeakCheckRule.getRule().around(server).around(producer);
 
    ClientMessage sent = null;
 

@@ -69,6 +69,12 @@
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <type>test-jar</type>
+         <version>${project.version}</version>
+      </dependency>
 
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>

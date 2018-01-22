@@ -25,11 +25,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 public class CriticalAnalyzerTest {
 
    @Rule
-   public ThreadLeakCheckRule rule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule();
 
    private CriticalAnalyzer analyzer;
 

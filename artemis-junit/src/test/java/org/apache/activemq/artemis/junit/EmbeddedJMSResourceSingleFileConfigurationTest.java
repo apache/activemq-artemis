@@ -52,7 +52,7 @@ public class EmbeddedJMSResourceSingleFileConfigurationTest {
    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource("embedded-artemis-jms-server.xml");
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServer);
+   public RuleChain rulechain = ThreadLeakCheckRule.getRule().around(jmsServer);
 
    ConnectionFactory connectionFactory;
    Connection connection;

@@ -138,6 +138,7 @@ import org.apache.activemq.artemis.utils.CleanupSystemPropertiesRule;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
+import org.apache.activemq.artemis.utils.UnitTestWatcher;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
@@ -147,6 +148,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
@@ -166,7 +168,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    /** This will make sure threads are not leaking between tests */
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule();
 
    /** This will cleanup any system property changed inside tests */
    @Rule
@@ -394,7 +396,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected void disableCheckThread() {
-      leakCheckRule.disable();
+      UnitTestWatcher.disableCheck();
    }
 
    protected String getName() {
