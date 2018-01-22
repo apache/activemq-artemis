@@ -61,4 +61,11 @@ public class ClusterConnectionConfigurationTest {
       Assert.assertEquals("myGroup", configuration.getDiscoveryGroupName());
       Assert.assertEquals(132, configuration.getMinLargeMessageSize());
    }
+
+   @Test
+   public void testClusterConnectionProducerWindowSize() throws Exception {
+      ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
+      ClusterConnectionConfiguration configuration = parser.newObject(new URI("static:(tcp://localhost:6556)?producerWindowSize=1234"), null);
+      Assert.assertEquals(1234, configuration.getProducerWindowSize());
+   }
 }
