@@ -10,7 +10,7 @@ interface, making sure the plugin is on the classpath, and registering it with t
 
 ## Adding the plugin to the classpath
 
-The proper place to add your jar would be under $ARTEMIS_INSTANCE/lib.
+See the documentation on [adding runtime dependencies](using-server.md) to understand how to make your plugin available to the broker.
 
 If you are using an embed system than you will need the jar under the regular classpath of your embedded application.
 
