@@ -1133,7 +1133,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(address, topicName);
          server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress()), RoutingType.MULTICAST));
 
-         topics.put(topicName, activeMQTopic);
+         topics.put(address, activeMQTopic);
 
          this.recoverregistryBindings(topicName, PersistedType.Topic);
 
