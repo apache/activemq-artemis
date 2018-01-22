@@ -8,13 +8,13 @@ ActiveMQ Artemis allows an application to use an interceptor to hook into the me
 
 Once you have your own interceptor class add it to the broker.xml as follows:
 
-    <configuration>
+    <core>
        ...
        <remoting-incoming-interceptors>
           <class-name>org.apache.activemq.artemis.mqtt.example.SimpleMQTTInterceptor</class-name>
        </remoting-incoming-interceptors>
         ...
-    </configuration>
+    </core>
 
 With an interceptor you can handle various events in message processing. In this example, a simple interceptor, SimpleMQTTInterceptor, is implemented and configured. When the example is running, the interceptor will modify the payload of a sample MQTT message.
 
