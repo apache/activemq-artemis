@@ -1574,6 +1574,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222268, value = "Failed to remove a record", format = Message.Format.MESSAGE_FORMAT)
    void failedToRemoveRecord(@Cause Exception e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222269, value = "Please use a fixed value for \"journal-pool-files\". Default changed per https://issues.apache.org/jira/browse/ARTEMIS-1628", format = Message.Format.MESSAGE_FORMAT)
+   void useFixedValueOnJournalPoolFiles();
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
