@@ -173,7 +173,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       ArrayList<String> listCommands = new ArrayList<>();
 
-      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--no-web", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
+      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
 
       if (allowAnonymous) {
          add(listCommands, "--allow-anonymous");
@@ -183,6 +183,10 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       if (!javaOptions.isEmpty()) {
          add(listCommands, "--java-options", javaOptions);
+      }
+
+      if (noWeb) {
+         add(listCommands, "--no-web");
       }
 
       if (slave) {
