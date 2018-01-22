@@ -407,7 +407,8 @@ in the database tables is encoded using Apache ActiveMQ Artemis internal encodin
 
 To configure Apache ActiveMQ Artemis to use a database for persisting messages and bindings data you must do two things.
 
-1. Add the appropriate JDBC driver libraries to the Artemis runtime.  You can do this by dropping the relevant jars in the lib folder of the ActiveMQ Artemis distribution.
+1. See the documentation on [adding runtime dependencies](using-server.md) to 
+   understand how to make the JDBC driver available to the broker.
 
 2. Create a store element in your broker.xml config file under the ```<core>``` element.  For example:
 
