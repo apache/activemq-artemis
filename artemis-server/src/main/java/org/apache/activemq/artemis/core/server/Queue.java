@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -183,16 +184,15 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int changeReferencesPriority(Filter filter, byte newPriority) throws Exception;
 
-   boolean moveReference(long messageID, SimpleString toAddress) throws Exception;
+   boolean moveReference(long messageID, SimpleString toAddress, Binding binding, boolean rejectDuplicates) throws Exception;
 
-   boolean moveReference(long messageID, SimpleString toAddress, boolean rejectDuplicates) throws Exception;
-
-   int moveReferences(Filter filter, SimpleString toAddress) throws Exception;
+   int moveReferences(Filter filter, SimpleString toAddress, Binding binding) throws Exception;
 
    int moveReferences(int flushLimit,
                       Filter filter,
                       SimpleString toAddress,
-                      boolean rejectDuplicates) throws Exception;
+                      boolean rejectDuplicates,
+                      Binding binding) throws Exception;
 
    int retryMessages(Filter filter) throws Exception;
 

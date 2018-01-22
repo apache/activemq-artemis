@@ -1259,7 +1259,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("moving expired reference " + ref + " to address = " + messageExpiryAddress + " from queue=" + this.getName());
          }
-         move(null, messageExpiryAddress, ref, false, AckReason.EXPIRED);
+         move(null, messageExpiryAddress, null, ref, false, AckReason.EXPIRED);
       } else {
          if (logger.isTraceEnabled()) {
             logger.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
@@ -1751,13 +1751,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean moveReference(final long messageID, final SimpleString toAddress) throws Exception {
-      return moveReference(messageID, toAddress, false);
-   }
-
-   @Override
    public synchronized boolean moveReference(final long messageID,
                                              final SimpleString toAddress,
+                                             final Binding binding,
                                              final boolean rejectDuplicate) throws Exception {
       try (LinkedListIterator<MessageReference> iter = iterator()) {
          while (iter.hasNext()) {
@@ -1767,7 +1763,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refRemoved(ref);
                incDelivering();
                try {
-                  move(null, toAddress, ref, rejectDuplicate, AckReason.NORMAL);
+                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL);
                } catch (Exception e) {
                   decDelivering();
                   throw e;
@@ -1780,15 +1776,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public int moveReferences(final Filter filter, final SimpleString toAddress) throws Exception {
-      return moveReferences(DEFAULT_FLUSH_LIMIT, filter, toAddress, false);
+   public int moveReferences(final Filter filter, final SimpleString toAddress, Binding binding) throws Exception {
+      return moveReferences(DEFAULT_FLUSH_LIMIT, filter, toAddress, false, binding);
    }
 
    @Override
    public synchronized int moveReferences(final int flushLimit,
                                           final Filter filter,
                                           final SimpleString toAddress,
-                                          final boolean rejectDuplicates) throws Exception {
+                                          final boolean rejectDuplicates,
+                                          final Binding binding) throws Exception {
       final DuplicateIDCache targetDuplicateCache = postOffice.getDuplicateIDCache(toAddress);
 
       return iterQueue(flushLimit, filter, new QueueIterateAction() {
@@ -1810,7 +1807,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (!ignored) {
-               move(toAddress, tx, ref, false, rejectDuplicates);
+               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL);
+               //move(toAddress, tx, ref, false, rejectDuplicates);
             }
          }
       });
@@ -2648,7 +2646,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ref.acknowledge(tx, AckReason.KILLED);
          } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            move(tx, deadLetterAddress, ref, false, AckReason.KILLED);
+            move(tx, deadLetterAddress,null,  ref, false, AckReason.KILLED);
          }
       } else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
@@ -2659,6 +2657,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void move(final Transaction originalTX,
                      final SimpleString address,
+                     final Binding binding,
                      final MessageReference ref,
                      final boolean rejectDuplicate,
                      final AckReason reason) throws Exception {
@@ -2675,7 +2674,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       copyMessage.setAddress(address);
 
-      postOffice.route(copyMessage, tx, false, rejectDuplicate);
+      postOffice.route(copyMessage, tx, false, rejectDuplicate, binding);
 
       acknowledge(tx, ref, reason);
 
