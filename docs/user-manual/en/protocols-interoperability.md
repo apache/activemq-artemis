@@ -204,6 +204,25 @@ The two parameters are configured on openwire acceptors, via URLs or API. For ex
 
     <acceptor name="artemis">tcp://127.0.0.1:61616?protocols=CORE,AMQP,OPENWIRE;supportAdvisory=true;suppressInternalManagementObjects=false</acceptor>
 
+### Virtual Topic Consumer Destination Translation
+
+For existing Openwire consumers of virtual topic destinations it is possible to configure a mapping function
+that will translate the virtual topic consumer destination into a FQQN address. This address then represents
+the consumer as a multicast binding to an address representing the virtual topic. 
+
+The configuration string property ```virtualTopicConsumerWildcards``` has two parts seperated by a ```;```. 
+The first is the 5.x style destination filter that identifies the destination as belonging to a virtual topic.
+The second identifies the number of ```paths``` that identify the consumer queue such that it can be parsed from the
+destination.
+For example, the default 5.x virtual topic with consumer prefix of ```Consumer.*.```, would require a
+```virtualTopicConsumerWildcards``` filter of:
+
+     <acceptor name="artemis">tcp://127.0.0.1:61616?protocols=OPENWIRE;virtualTopicConsumerWildcards=Consumer.*.>;2</acceptor>
+
+This will translate ```Consumer.A.VirtualTopic.Orders``` into a FQQN of ```VirtualTopic.Orders::Consumer.A``` using the
+int component ```2``` of the configuration to identify the consumer queue as the first two paths of the destination.
+```virtualTopicConsumerWildcards``` is multi valued using a ```,``` separator. 
+  
 ## MQTT
 
 MQTT is a light weight, client to server, publish / subscribe messaging protocol.  MQTT has been specifically
