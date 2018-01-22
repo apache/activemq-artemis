@@ -74,10 +74,7 @@ public class GSSAPIServerSASL implements ServerSASL {
             }));
          }
 
-         byte[] challenge = null;
-         if (bytes.length > 0) {
-            challenge = Subject.doAs(jaasId, (PrivilegedExceptionAction<byte[]>) () -> saslServer.evaluateResponse(bytes));
-         }
+         byte[] challenge = Subject.doAs(jaasId, (PrivilegedExceptionAction<byte[]>) () -> saslServer.evaluateResponse(bytes));
          if (saslServer.isComplete()) {
             result = new GSSAPISASLResult(true, new KerberosPrincipal(saslServer.getAuthorizationID()));
          }
