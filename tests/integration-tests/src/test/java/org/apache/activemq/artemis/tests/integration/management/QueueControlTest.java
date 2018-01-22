@@ -995,6 +995,70 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testMoveMessages2() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queueA = new SimpleString("A");
+      SimpleString queueB = new SimpleString("B");
+      SimpleString queueC = new SimpleString("C");
+
+      server.createQueue(address, RoutingType.MULTICAST, queueA, null, true, false);
+      server.createQueue(address, RoutingType.MULTICAST, queueB, null, true, false);
+      server.createQueue(address, RoutingType.MULTICAST, queueC, null, true, false);
+
+
+      QueueControl queueControlA = createManagementControl(address, queueA);
+      QueueControl queueControlB = createManagementControl(address, queueB);
+      QueueControl queueControlC = createManagementControl(address, queueC);
+
+      // send two messages on queueA
+
+      queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody2".getBytes()), true, "myUser", "myPassword");
+
+      Assert.assertEquals(2, getMessageCount(queueControlA));
+      Assert.assertEquals(0, getMessageCount(queueControlB));
+      Assert.assertEquals(0, getMessageCount(queueControlC));
+
+      // move 2 messages from queueA to queueB
+      queueControlA.moveMessages(null, queueB.toString());
+      Thread.sleep(500);
+      Assert.assertEquals(0, getMessageCount(queueControlA));
+      Assert.assertEquals(2, getMessageCount(queueControlB));
+
+      // move 1 message to queueC
+      queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody3".getBytes()), true, "myUser", "myPassword");
+      Assert.assertEquals(1, getMessageCount(queueControlA));
+      queueControlA.moveMessages(null, queueC.toString());
+      Assert.assertEquals(1, getMessageCount(queueControlC));
+      Assert.assertEquals(0, getMessageCount(queueControlA));
+
+      //move all messages back to A
+      queueControlB.moveMessages(null, queueA.toString());
+      Assert.assertEquals(2, getMessageCount(queueControlA));
+      Assert.assertEquals(0, getMessageCount(queueControlB));
+
+      queueControlC.moveMessages(null, queueA.toString());
+      Assert.assertEquals(3, getMessageCount(queueControlA));
+      Assert.assertEquals(0, getMessageCount(queueControlC));
+
+      // consume the message from queueA
+      ClientConsumer consumer = session.createConsumer(queueA);
+      ClientMessage m1 = consumer.receive(500);
+      ClientMessage m2 = consumer.receive(500);
+      ClientMessage m3 = consumer.receive(500);
+
+      m1.acknowledge();
+      m2.acknowledge();
+      m3.acknowledge();
+
+      consumer.close();
+      session.deleteQueue(queueA);
+      session.deleteQueue(queueB);
+      session.deleteQueue(queueC);
+
+   }
+
+   @Test
    public void testMoveMessagesToUnknownQueue() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();

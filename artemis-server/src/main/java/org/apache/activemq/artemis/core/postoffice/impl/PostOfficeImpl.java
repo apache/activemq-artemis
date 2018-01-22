@@ -717,25 +717,35 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
+   public RoutingStatus route(Message message,
+                              Transaction tx,
+                              boolean direct,
+                              boolean rejectDuplicates) throws Exception {
+      return route(message, new RoutingContextImpl(tx), direct, rejectDuplicates, null);
+   }
+
+   @Override
    public RoutingStatus route(final Message message,
                               final Transaction tx,
                               final boolean direct,
-                              final boolean rejectDuplicates) throws Exception {
-      return route(message, new RoutingContextImpl(tx), direct, rejectDuplicates);
+                              final boolean rejectDuplicates,
+                              final Binding binding) throws Exception {
+      return route(message, new RoutingContextImpl(tx), direct, rejectDuplicates, binding);
    }
 
    @Override
    public RoutingStatus route(final Message message,
                               final RoutingContext context,
                               final boolean direct) throws Exception {
-      return route(message, context, direct, true);
+      return route(message, context, direct, true, null);
    }
 
    @Override
    public RoutingStatus route(final Message message,
                               final RoutingContext context,
                               final boolean direct,
-                              boolean rejectDuplicates) throws Exception {
+                              boolean rejectDuplicates,
+                              final Binding bindingMove) throws Exception {
 
       RoutingStatus result = RoutingStatus.OK;
       // Sanity check
@@ -769,8 +779,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          //            bindings = addressManager.getBindingsForRoutingAddress(address);
          //         }
       }
-
-      if (bindings != null) {
+      if (bindingMove != null) {
+         bindingMove.route(message, context);
+      } else if (bindings != null) {
          bindings.route(message, context);
       } else {
          // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)

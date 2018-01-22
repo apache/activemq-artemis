@@ -701,7 +701,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
-         return queue.moveReference(messageID, binding.getAddress(), rejectDuplicates);
+         return queue.moveReference(messageID, binding.getAddress(), binding, rejectDuplicates);
       } finally {
          blockOnIO();
       }
@@ -730,7 +730,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
-         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates);
+         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, binding);
 
          return retValue;
       } finally {
