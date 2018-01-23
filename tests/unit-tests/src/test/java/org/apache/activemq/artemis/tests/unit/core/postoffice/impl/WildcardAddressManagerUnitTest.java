@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -133,6 +134,65 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       assertEquals(1, wildcardAddresses.size());
       assertNull(ad.getAddressInfo(SimpleString.toSimpleString("Topic1.#")));
       assertNull(wildcardAddresses.get(SimpleString.toSimpleString("Topic1.#")));
+   }
+
+   @Test
+   public void testWildCardAddressRemovalDifferentWildcard() throws Exception {
+
+      final WildcardConfiguration configuration = new WildcardConfiguration();
+      configuration.setAnyWords('>');
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.>"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("Topic1.>", "one"));
+
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+
+      //Remove the address
+      ad.removeAddressInfo(SimpleString.toSimpleString("Topic1.test"));
+
+      //should still have 1 address and binding
+      assertEquals(1, ad.getAddresses().size());
+      assertEquals(1, ad.getBindings().size());
+
+      ad.removeBinding(SimpleString.toSimpleString("one"), null);
+      ad.removeAddressInfo(SimpleString.toSimpleString("Topic1.>"));
+
+      assertEquals(0, ad.getAddresses().size());
+      assertEquals(0, ad.getBindings().size());
+   }
+
+   @Test
+   public void testWildCardAddressDirectBindings() throws Exception {
+
+      final WildcardConfiguration configuration = new WildcardConfiguration();
+      configuration.setAnyWords('>');
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.>"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test.test1"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test.test2"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic2.>"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic2.test"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("Topic1.>", "one"));
+      ad.addBinding(new BindingFake("Topic1.test", "two"));
+      ad.addBinding(new BindingFake("Topic2.test", "three"));
+
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+      assertEquals(2, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test.test1")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test.test2")).getBindings().size());
+
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test1")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test2")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic2.>")).getBindings().size());
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic2.test")).getBindings().size());
+
    }
 
    class BindingFactoryFake implements BindingsFactory {

@@ -532,7 +532,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
       synchronized (addressLock) {
          server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeRemoveAddress(address) : null);
-         Bindings bindingsForAddress = getBindingsForAddress(address);
+         final Bindings bindingsForAddress = getDirectBindings(address);
          if (bindingsForAddress.getBindings().size() > 0) {
             throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
          }
@@ -699,6 +699,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public Bindings getMatchingBindings(final SimpleString address) throws Exception {
       return addressManager.getMatchingBindings(address);
+   }
+
+   @Override
+   public Bindings getDirectBindings(final SimpleString address) throws Exception {
+      return addressManager.getDirectBindings(address);
    }
 
    @Override
