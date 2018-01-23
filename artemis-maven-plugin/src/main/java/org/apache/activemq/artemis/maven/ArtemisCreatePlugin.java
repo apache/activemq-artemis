@@ -237,11 +237,10 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          throw new MojoExecutionException(e.getMessage(), e);
       }
 
-      PrintStream commandLineStream = new PrintStream(outputStream);
-      commandLineStream.println("# These are the commands used to create " + instance.getName());
-      commandLineStream.println(getCommandline(listCommands));
+      try (PrintStream commandLineStream = new PrintStream(outputStream)) {
+         commandLineStream.println("# These are the commands used to create " + instance.getName());
+         commandLineStream.println(getCommandline(listCommands));
 
-      try {
          Artemis.execute(home, null, listCommands);
 
          if (configuration != null) {
@@ -265,8 +264,6 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
                copyToLib(file, commandLineStream);
             }
          }
-
-         commandLineStream.close();
 
          FileUtil.makeExec(commandLine);
 
