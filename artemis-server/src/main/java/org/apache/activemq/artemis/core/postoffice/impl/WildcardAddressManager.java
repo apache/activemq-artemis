@@ -133,6 +133,8 @@ public class WildcardAddressManager extends SimpleAddressManager {
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
       final AddressInfo removed = super.removeAddressInfo(address);
       if (removed != null) {
+         //Remove from mappings so removeAndUpdateAddressMap processes and cleanup
+         mappings.remove(address);
          removeAndUpdateAddressMap(new AddressImpl(removed.getName(), wildcardConfiguration));
       }
       return removed;

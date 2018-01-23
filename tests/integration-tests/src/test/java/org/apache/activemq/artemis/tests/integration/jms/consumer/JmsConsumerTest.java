@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.consumer;
 
+import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jms.Connection;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -28,8 +31,6 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -886,6 +887,51 @@ public class JmsConsumerTest extends JMSTestBase {
       //will create binding for this topic and will link addresses with durable.# so need to do a null check
       //on binding add of linked addresses
       sess.createConsumer(sess.createTopic(topic2));
+      sess.close();
+   }
+
+   /**
+    * ARTEMIS-1627 - Verify that a address can be removed when there are no direct
+    * bindings on the address but does have bindings on a linked address
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testAddressRemovalWithWildcardConsumer() throws Exception {
+      testAddressRemovalWithWithConsumers("durable.#", "durable.test");
+   }
+
+   @Test
+   public void testAddressRemovalWithNonWildcardConsumer() throws Exception {
+      testAddressRemovalWithWithConsumers("durable.test", "durable.#");
+   }
+
+   private void testAddressRemovalWithWithConsumers(String topic1, String topic2) throws Exception {
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+
+      conn = cf.createConnection();
+      conn.setClientID("clientId");
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageConsumer c1 = sess.createDurableConsumer(sess.createTopic(topic1), "sub1");
+      c1.close();
+
+      // Make sure topic2 address can be removed and the bindings still exist for topic1
+      server.removeAddressInfo(SimpleString.toSimpleString(topic2), null);
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(topic1))
+            .getBindings().size());
+
+      // Re-create address by creating a consumer on the topic and make sure the
+      // wildcard and the direct consumer still receive the messages
+      c1 = sess.createDurableConsumer(sess.createTopic(topic1), "sub1");
+      MessageConsumer c2 = sess.createDurableConsumer(sess.createTopic(topic2), "sub2");
+      MessageProducer p1 = sess.createProducer(sess.createTopic("durable.test"));
+      p1.send(sess.createTextMessage("test"));
+
+      assertNotNull(c1.receive(1000));
+      assertNotNull(c2.receive(1000));
       sess.close();
    }
 }
