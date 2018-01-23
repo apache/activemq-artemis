@@ -862,6 +862,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration setJournalPoolFiles(int poolSize) {
       this.journalPoolFiles = poolSize;
+      if (!Env.isTestEnv()) {
+         ActiveMQServerLogger.LOGGER.useFixedValueOnJournalPoolFiles();
+      }
       return this;
    }
 

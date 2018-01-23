@@ -49,7 +49,7 @@ ${jdbc}
 
       <journal-min-files>2</journal-min-files>
 
-      <journal-pool-files>-1</journal-pool-files>
+      <journal-pool-files>10</journal-pool-files>
 
       <journal-file-size>10M</journal-file-size>
       ${journal-buffer.settings}${ping-config.settings}${connector-config.settings}
