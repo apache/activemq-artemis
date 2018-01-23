@@ -53,7 +53,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
             case CONSUMER_ID:
                Queue q = server.locateQueue(new SimpleString(queue.getName()));
                for (Consumer consumer : q.getConsumers()) {
-                  if (value.equals(consumer.sequentialID()))
+                  if (matches(consumer.sequentialID()))
                      return true;
                }
                return false;
