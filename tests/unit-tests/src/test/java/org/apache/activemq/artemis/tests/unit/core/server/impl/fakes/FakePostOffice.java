@@ -148,6 +148,12 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
+   public Bindings getDirectBindings(final SimpleString address) {
+
+      return null;
+   }
+
+   @Override
    public Object getNotificationLock() {
 
       return null;

@@ -55,7 +55,7 @@ public class SimpleAddressManager implements AddressManager {
    /**
     * HashMap<Address, Binding>
     */
-   private final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
+   protected final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
    /**
     * HashMap<QueueName, Binding>
@@ -129,6 +129,19 @@ public class SimpleAddressManager implements AddressManager {
          Address addCheck = new AddressImpl(binding.getAddress(), wildcardConfiguration);
 
          if (addCheck.matches(add)) {
+            bindings.addBinding(binding);
+         }
+      }
+
+      return bindings;
+   }
+
+   @Override
+   public Bindings getDirectBindings(final SimpleString address) throws Exception {
+      Bindings bindings = bindingsFactory.createBindings(address);
+
+      for (Binding binding : nameMap.values()) {
+         if (binding.getAddress().equals(address)) {
             bindings.addBinding(binding);
          }
       }
