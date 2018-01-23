@@ -993,7 +993,12 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
 
       if (clientID != null) {
-         conn.setClientID(clientID);
+         try {
+            conn.setClientID(clientID);
+         } catch (JMSException e) {
+            conn.close();
+            throw e;
+         }
       }
 
       boolean ha = false;
