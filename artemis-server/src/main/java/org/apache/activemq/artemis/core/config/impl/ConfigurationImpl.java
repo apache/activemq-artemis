@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -1431,10 +1432,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public String toString() {
       StringBuilder sb = new StringBuilder("Broker Configuration (");
       sb.append("clustered=").append(isClustered()).append(",");
-      sb.append("journalDirectory=").append(journalDirectory).append(",");
-      sb.append("bindingsDirectory=").append(bindingsDirectory).append(",");
-      sb.append("largeMessagesDirectory=").append(largeMessagesDirectory).append(",");
-      sb.append("pagingDirectory=").append(pagingDirectory);
+      if (isJDBC()) {
+         DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) getStoreConfiguration();
+         sb.append("jdbcDriverClassName=").append(dsc.getJdbcDriverClassName()).append(",");
+         sb.append("jdbcConnectionUrl=").append(dsc.getJdbcConnectionUrl()).append(",");
+         sb.append("messageTableName=").append(dsc.getMessageTableName()).append(",");
+         sb.append("bindingsTableName=").append(dsc.getBindingsTableName()).append(",");
+         sb.append("largeMessageTableName=").append(dsc.getLargeMessageTableName()).append(",");
+         sb.append("pageStoreTableName=").append(dsc.getPageStoreTableName()).append(",");
+
+      } else {
+         sb.append("journalDirectory=").append(journalDirectory).append(",");
+         sb.append("bindingsDirectory=").append(bindingsDirectory).append(",");
+         sb.append("largeMessagesDirectory=").append(largeMessagesDirectory).append(",");
+         sb.append("pagingDirectory=").append(pagingDirectory);
+      }
       sb.append(")");
       return sb.toString();
    }
