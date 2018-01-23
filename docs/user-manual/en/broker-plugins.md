@@ -53,4 +53,80 @@ Configuration config = new ConfigurationImpl();
 config.registerBrokerPlugin(new UserPlugin());
 ```
 
+## Using the LoggingActiveMQServerPlugin
+
+The LoggingActiveMQServerPlugin logs specific broker events.
+
+You can select which events are logged by setting the following configuration properties to `true`.
+
+<table summary="LoggingActiveMQServerPlugin configuration" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Property</th>
+        <th>Property Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>LOG_CONNECTION_EVENTS</td>
+        <td>Log info when a Connection is created/destroy. Default `false`.</td>
+    </tr>
+    <tr>
+        <td>LOG_SESSION_EVENTS</td>
+        <td>Log info when a Session is created/closed. Default `false`.</td>
+    </tr>
+    <tr>
+        <td>LOG_CONSUMER_EVENTS</td>
+        <td>Logs info when a Consumer is created/closed. Default `false`.</td>
+    </tr>
+    <tr>
+        <td>LOG_DELIVERING_EVENTS</td>
+        <td>Logs info when message is delivered to a consumer and when a message is acknowledged by a consumer.
+        Default `false`</td>
+    </tr>
+    <tr>
+        <td>LOG_SENDING_EVENTS</td>
+        <td>Logs info when a message has been sent to an address and when a message has been routed within the broker.
+         Default `false`</td>
+    </tr>
+    <tr>
+        <td>LOG_INTERNAL_EVENTS</td>
+        <td>Logs info when a queue created/destroyed, when a message is expired, when a bridge is deployed and when a critical
+        failure occurs. Default `false`</td>
+    </tr>
+    <tr>
+         <td>LOG_ALL_EVENTS</td>
+         <td>Logs info for all the above events. Default `false`</td>
+        </tr>
+    </tbody>
+</table>
+
+By default the LoggingActiveMQServerPlugin wil not log any information. The logging is activated by setting one (or a selection)
+of the above configuration properties to `true`.
+
+To configure the plugin, you can add the following configuration to the broker. In the example below both LOG_DELIVERING_EVENTS
+and LOG_SENDING_EVENTS will be logged by the broker.
+
+```xml
+<configuration ...>
+
+...
+    <broker-plugins>
+        <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin">
+            <property key="LOG_DELIVERING_EVENTS" value="true" />
+            <property key="LOG_SENDING_EVENTS" value="true" />
+        </broker-plugin>
+    </broker-plugins>
+...
+
+</configuration>
+```
+
+The LoggingActiveMQServerPlugin logs information at Log Level `INFO`. By setting the Logger
+"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin" to `DEBUG` more information for each
+event will be logged.
 
