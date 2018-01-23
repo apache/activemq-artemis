@@ -46,6 +46,8 @@ public interface AddressManager {
 
    Bindings getMatchingBindings(SimpleString address) throws Exception;
 
+   Bindings getDirectBindings(SimpleString address) throws Exception;
+
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
 
    SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
