@@ -126,6 +126,7 @@
       <module>timing-tests</module>
       <module>jms-tests</module>
       <module>integration-tests</module>
+      <module>karaf-client-integration-tests</module>
       <module>compatibility-tests</module>
       <module>soak-tests</module>
       <module>stress-tests</module>
