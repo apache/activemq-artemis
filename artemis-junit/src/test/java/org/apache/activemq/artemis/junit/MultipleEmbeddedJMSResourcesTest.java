@@ -44,7 +44,7 @@ public class MultipleEmbeddedJMSResourcesTest {
    public EmbeddedJMSResource jmsServerTwo = new EmbeddedJMSResource(1);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServerOne).around(jmsServerTwo);
+   public RuleChain rulechain = ThreadLeakCheckRule.getRule().around(jmsServerOne).around(jmsServerTwo);
 
    @Test
    public void testMultipleServers() throws Exception {

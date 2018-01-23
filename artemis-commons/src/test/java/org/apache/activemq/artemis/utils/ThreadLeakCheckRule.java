@@ -29,22 +29,26 @@ import java.util.concurrent.TimeUnit;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.rules.ExternalResource;
+import org.junit.rules.RuleChain;
+import org.junit.runner.Description;
 
 /**
  * This is useful to make sure you won't have leaking threads between tests
  */
-public class ThreadLeakCheckRule extends ExternalResource {
+public class ThreadLeakCheckRule extends ExternalResource implements TestObserver {
 
    private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
 
    private static Set<String> knownThreads = new HashSet<>();
 
-   boolean enabled = true;
+   protected boolean enabled = false;
 
-   private Map<Thread, StackTraceElement[]> previousThreads;
+   protected boolean testFailed = false;
 
-   public void disable() {
-      enabled = false;
+   protected Map<Thread, StackTraceElement[]> previousThreads;
+
+   protected ThreadLeakCheckRule() {
+      UnitTestWatcher.addObserver(this);
    }
 
    /**
@@ -65,6 +69,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
     */
    @Override
    protected void after() {
+      log.info("checking thread enabled? " + enabled + " testFailed? " + testFailed);
       try {
          if (enabled) {
             boolean failed = true;
@@ -86,7 +91,10 @@ public class ThreadLeakCheckRule extends ExternalResource {
             }
 
             if (failed) {
-               Assert.fail("Thread leaked");
+               if (!testFailed) {
+                  //we only fail on thread leak if test passes.
+                  Assert.fail("Thread leaked");
+               }
             } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
                System.out.println();
@@ -162,7 +170,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
       knownThreads.add(name);
    }
 
-   private boolean checkThread() {
+   protected boolean checkThread() {
       boolean failedThread = false;
 
       Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
@@ -170,6 +178,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
       if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size()) {
 
          for (Thread aliveThread : postThreads.keySet()) {
+
             if (aliveThread.isAlive() && !isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
                if (!failedThread) {
                   System.out.println("*********************************************************************************");
@@ -250,6 +259,18 @@ public class ThreadLeakCheckRule extends ExternalResource {
       }
    }
 
+   @Override
+   public void testSucceeded(Description description) {
+      this.enabled = true;
+      this.testFailed = false;
+   }
+
+   @Override
+   public void testFailed(Throwable e, Description description) {
+      this.testFailed = true;
+      this.enabled = true;
+   }
+
    protected static class DumbReference {
 
       private CountDownLatch finalized;
@@ -265,4 +286,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
       }
    }
 
+   public static RuleChain getRule() {
+      return RuleChain.outerRule(new ThreadLeakCheckRule()).around(new UnitTestWatcher());
+   }
 }

@@ -45,6 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 
 public class FileMoveManagerTest {
@@ -53,7 +54,7 @@ public class FileMoveManagerTest {
    public TemporaryFolder temporaryFolder;
 
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule();
 
    private File dataLocation;
    private FileMoveManager manager;

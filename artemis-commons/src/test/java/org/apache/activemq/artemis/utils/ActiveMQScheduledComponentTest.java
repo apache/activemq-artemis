@@ -31,11 +31,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 public class ActiveMQScheduledComponentTest {
 
    @Rule
-   public ThreadLeakCheckRule rule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule().around(new UnitTestWatcher());
 
    ScheduledExecutorService scheduledExecutorService;
    ExecutorService executorService;

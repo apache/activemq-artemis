@@ -52,7 +52,7 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
    }
 
    @Rule
-   public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
+   public RuleChain ruleChain = ThreadLeakCheckRule.getRule().around(server).around(producer);
 
    ClientMessage sentOne = null;
 

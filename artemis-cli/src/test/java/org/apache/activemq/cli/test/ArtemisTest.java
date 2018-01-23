@@ -129,7 +129,6 @@ public class ArtemisTest extends CliTestBase {
       long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false);
       System.out.println("nanoTime avg = " + nanoTime);
       assertEquals(0, LibaioContext.getTotalMaxIO());
-
    }
 
    @Test

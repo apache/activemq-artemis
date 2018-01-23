@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 public class JDBCJournalLoaderCallbackTest {
 
    @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule();
 
    @Test
    public void testAddDeleteRecord() throws Exception {

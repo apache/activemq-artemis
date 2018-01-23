@@ -49,7 +49,7 @@ public class MultipleEmbeddedActiveMQResourcesTest {
    public EmbeddedActiveMQResource serverTwo = new EmbeddedActiveMQResource(1);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(serverOne).around(serverTwo);
+   public RuleChain rulechain = ThreadLeakCheckRule.getRule().around(serverOne).around(serverTwo);
 
    @Before
    public void setUp() throws Exception {

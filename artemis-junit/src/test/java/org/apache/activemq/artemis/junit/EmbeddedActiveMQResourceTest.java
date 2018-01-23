@@ -53,7 +53,7 @@ public class EmbeddedActiveMQResourceTest {
    public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+   public RuleChain rulechain = ThreadLeakCheckRule.getRule().around(server);
 
    ClientMessage sent = null;
 

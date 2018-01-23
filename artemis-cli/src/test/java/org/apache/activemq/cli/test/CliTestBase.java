@@ -21,9 +21,11 @@ import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.utils.UnitTestWatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -34,7 +36,7 @@ public class CliTestBase {
    public TemporaryFolder temporaryFolder;
 
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   public RuleChain testCheckRule = ThreadLeakCheckRule.getRule().around(new UnitTestWatcher());
 
    private String original = System.getProperty("java.security.auth.login.config");
 
