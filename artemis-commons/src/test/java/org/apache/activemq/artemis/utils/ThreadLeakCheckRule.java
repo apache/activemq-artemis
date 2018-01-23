@@ -28,24 +28,23 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
 import org.junit.Assert;
-import org.junit.rules.ExternalResource;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 /**
  * This is useful to make sure you won't have leaking threads between tests
  */
-public class ThreadLeakCheckRule extends ExternalResource {
+public class ThreadLeakCheckRule extends TestWatcher {
 
    private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
 
    private static Set<String> knownThreads = new HashSet<>();
 
-   boolean enabled = true;
+   protected boolean enabled = true;
 
-   private Map<Thread, StackTraceElement[]> previousThreads;
+   protected boolean testFailed = false;
 
-   public void disable() {
-      enabled = false;
-   }
+   protected Map<Thread, StackTraceElement[]> previousThreads;
 
    /**
     * Override to set up your specific external resource.
@@ -53,25 +52,41 @@ public class ThreadLeakCheckRule extends ExternalResource {
     * @throws if setup fails (which will disable {@code after}
     */
    @Override
-   protected void before() throws Throwable {
+   protected void starting(Description description) {
       // do nothing
 
       previousThreads = Thread.getAllStackTraces();
 
    }
 
+   public void disable() {
+      enabled = false;
+   }
+
+   @Override
+   protected void failed(Throwable e, Description description) {
+      this.testFailed = true;
+   }
+
+   @Override
+   protected void succeeded(Description description) {
+      this.testFailed = false;
+   }
+
    /**
     * Override to tear down your specific external resource.
     */
    @Override
-   protected void after() {
+   protected void finished(Description description) {
+      log.info("checking thread enabled? " + enabled + " testFailed? " + testFailed);
       try {
          if (enabled) {
             boolean failed = true;
 
             boolean failedOnce = false;
 
-            long timeout = System.currentTimeMillis() + 60000;
+            // if the test failed.. there's no point on waiting a full minute.. we will report it once and go
+            long timeout = System.currentTimeMillis() + (testFailed ? 1000 : 60000);
             while (failed && timeout > System.currentTimeMillis()) {
                failed = checkThread();
 
@@ -86,7 +101,14 @@ public class ThreadLeakCheckRule extends ExternalResource {
             }
 
             if (failed) {
-               Assert.fail("Thread leaked");
+               if (!testFailed) {
+                  //we only fail on thread leak if test passes.
+                  Assert.fail("Thread leaked");
+               } else {
+                  System.out.println("***********************************************************************");
+                  System.out.println("             The test failed and there is a leak");
+                  System.out.println("***********************************************************************");
+               }
             } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
                System.out.println();
