@@ -80,6 +80,7 @@ public class MQTTSessionState {
    }
 
    boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration) {
+      // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
          addressMessageMap.putIfAbsent(MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<Long, Integer>());
 
@@ -98,6 +99,7 @@ public class MQTTSessionState {
    }
 
    void removeSubscription(String address) {
+      // synchronized to prevent race with addSubscription
       synchronized (subscriptions) {
          subscriptions.remove(address);
          addressMessageMap.remove(address);
