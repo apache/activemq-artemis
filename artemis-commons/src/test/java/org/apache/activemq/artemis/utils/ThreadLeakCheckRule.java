@@ -43,6 +43,8 @@ public class ThreadLeakCheckRule extends ExternalResource implements TestObserve
 
    protected boolean enabled = false;
 
+   protected boolean testFailed = false;
+
    protected Map<Thread, StackTraceElement[]> previousThreads;
 
    protected ThreadLeakCheckRule() {
@@ -67,7 +69,7 @@ public class ThreadLeakCheckRule extends ExternalResource implements TestObserve
     */
    @Override
    protected void after() {
-      log.info("checking thread enabled? " + enabled);
+      log.info("checking thread enabled? " + enabled + " testFailed? " + testFailed);
       try {
          if (enabled) {
             boolean failed = true;
@@ -89,7 +91,10 @@ public class ThreadLeakCheckRule extends ExternalResource implements TestObserve
             }
 
             if (failed) {
-               Assert.fail("Thread leaked");
+               if (!testFailed) {
+                  //we only fail on thread leak if test passes.
+                  Assert.fail("Thread leaked");
+               }
             } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
                System.out.println();
@@ -257,11 +262,13 @@ public class ThreadLeakCheckRule extends ExternalResource implements TestObserve
    @Override
    public void testSucceeded(Description description) {
       this.enabled = true;
+      this.testFailed = false;
    }
 
    @Override
    public void testFailed(Throwable e, Description description) {
-      this.enabled = false;
+      this.testFailed = true;
+      this.enabled = true;
    }
 
    protected static class DumbReference {
