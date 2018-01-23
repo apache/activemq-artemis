@@ -94,6 +94,8 @@ public interface PostOffice extends ActiveMQComponent {
 
    Bindings getMatchingBindings(SimpleString address) throws Exception;
 
+   Bindings getDirectBindings(SimpleString address) throws Exception;
+
    Map<SimpleString, Binding> getAllBindings();
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
