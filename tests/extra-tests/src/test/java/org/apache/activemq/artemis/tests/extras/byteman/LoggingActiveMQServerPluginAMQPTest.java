@@ -50,9 +50,9 @@ public class LoggingActiveMQServerPluginAMQPTest extends LoggingActiveMQServerPl
    @Test
    @BMRules(rules = {@BMRule(name = "test logAll EVENT",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogAll() throws Exception {
 
       //initial plugin
@@ -96,9 +96,9 @@ public class LoggingActiveMQServerPluginAMQPTest extends LoggingActiveMQServerPl
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_CONSUMER_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogConsumerEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_CONSUMER_EVENTS);
@@ -142,9 +142,9 @@ public class LoggingActiveMQServerPluginAMQPTest extends LoggingActiveMQServerPl
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_SESSION_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
 
    public void testLogSessionEvents() throws Exception {
 

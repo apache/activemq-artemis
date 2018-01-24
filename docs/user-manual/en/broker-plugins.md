@@ -126,7 +126,8 @@ and LOG_SENDING_EVENTS will be logged by the broker.
 </configuration>
 ```
 
-The LoggingActiveMQServerPlugin logs information at Log Level `INFO`. By setting the Logger
-"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin" to `DEBUG` more information for each
-event will be logged.
+Most events in the LoggingActiveMQServerPlugin follow a `beforeX` and `afterX` notification pattern e.g beforeCreateConsumer() and afterCreateConsumer().
 
+At Log Level `INFO`, the LoggingActiveMQServerPlugin logs an entry when an `afterX` notification occurs. By setting the Logger
+"org.apache.activemq.artemis.core.server.plugin.impl" to `DEBUG` Level, log entries are generated for both `beforeX` and `afterX` notifications.
+Log Level `DEBUG` will also log more information for a notification when available.
