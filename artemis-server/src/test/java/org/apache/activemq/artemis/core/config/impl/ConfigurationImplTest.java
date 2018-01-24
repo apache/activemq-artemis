@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -468,6 +469,9 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       s = RandomUtil.randomString();
       conf.setClusterPassword(s);
       Assert.assertEquals(s, conf.getClusterPassword());
+
+      conf.registerBrokerPlugin(new LoggingActiveMQServerPlugin());
+      Assert.assertEquals("ensure one plugin registered", 1, conf.getBrokerPlugins().size());
 
       // This will use serialization to perform a deep copy of the object
       Configuration conf2 = conf.copy();
