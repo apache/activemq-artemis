@@ -772,6 +772,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates) : null);
+
       Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
 
       // TODO auto-create queues here?
@@ -841,10 +843,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
       } else {
          try {
-            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates) : null);
             processRoute(message, context, direct);
-            final RoutingStatus finalResult = result;
-            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, finalResult) : null);
          } catch (ActiveMQAddressFullException e) {
             if (startedTX.get()) {
                context.getTransaction().rollback();
@@ -858,6 +857,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (startedTX.get()) {
          context.getTransaction().commit();
       }
+
+      final RoutingStatus finalResult = result;
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, finalResult) : null);
+
       return result;
    }
 
