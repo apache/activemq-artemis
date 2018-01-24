@@ -39,6 +39,7 @@ import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.jboss.logging.Logger.Level;
 
 /**
  * NOTE: this test should be run at log level INFO
@@ -79,9 +80,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_CONNECTION_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogConnectEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_CONNECTION_EVENTS);
@@ -130,9 +131,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_SESSION_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogSessionEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_SESSION_EVENTS);
@@ -166,9 +167,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_CONSUMER_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogConsumerEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_CONSUMER_EVENTS);
@@ -208,9 +209,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_DELIVERING_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogDeliveringEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_DELIVERING_EVENTS);
@@ -250,9 +251,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_SENDING_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogSendingEvents() throws Exception {
 
       //initial plugin
@@ -294,9 +295,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test queue creation log",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testQueueCreationLog() throws Exception {
 
       //initial plugin
@@ -337,9 +338,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test queue creation log",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testExpireMessageLog() throws Exception {
 
       //initial plugin
@@ -382,9 +383,9 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    @Test
    @BMRules(rules = {@BMRule(name = "test logAll EVENT",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogAll() throws Exception {
 
       //initial plugin
@@ -418,42 +419,47 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
    }
 
    //collect the log invocation from LoggingActiveMQServerPlugin
-   public static void infoLog(Object message, org.jboss.logging.Logger logger) {
+   public static void infoLog(Level level, Object message, org.jboss.logging.Logger logger) {
 
-      //not interested
-      if (!logger.getName().equals(LoggingActiveMQServerPlugin.class.getName())) {
+      //only interested in log level INFO
+      if (!level.equals(Level.INFO)) {
+         return;
+      }
+
+      //only interested in one logger
+      if (!logger.getName().startsWith(LoggingActiveMQServerPlugin.class.getPackage().getName())) {
          return;
       }
 
       String stringMessage = (String) message;
 
-      if (stringMessage.startsWith("created connection")) {
+      if (stringMessage.startsWith("AMQ841000")) {
          createdConnectionLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("destroyed connection")) {
+      } else if (stringMessage.startsWith("AMQ841001")) {
          destroyedConnectionLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("created session")) {
+      } else if (stringMessage.startsWith("AMQ841002")) {
          createdSessionLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("closed session")) {
+      } else if (stringMessage.startsWith("AMQ841003")) {
          closedSessionLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("added session metadata")) {
+      } else if (stringMessage.startsWith("AMQ841004")) {
          addedSessionMetaData.add(stringMessage);
-      } else if (stringMessage.startsWith("created consumer")) {
+      } else if (stringMessage.startsWith("AMQ841005")) {
          createdConsumerLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("closed consumer")) {
+      } else if (stringMessage.startsWith("AMQ841006")) {
          closedConsumerLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("delivered message")) {
+      } else if (stringMessage.startsWith("AMQ841012")) {
          deliveredLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("acknowledged message")) {
+      } else if (stringMessage.startsWith("AMQ841014")) {
          ackedLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("sent message")) {
+      } else if (stringMessage.startsWith("AMQ841009")) {
          sentLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("routed message")) {
+      } else if (stringMessage.startsWith("AMQ841010")) {
          routedLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("created queue")) {
+      } else if (stringMessage.startsWith("AMQ841007")) {
          createdQueueLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("destroyed queue")) {
+      } else if (stringMessage.startsWith("AMQ841008")) {
          destroyedQueueLogs.add(stringMessage);
-      } else if (stringMessage.startsWith("expired")) {
+      } else if (stringMessage.startsWith("AMQ841013")) {
          messageExpiredLogs.add(stringMessage);
       } else {
          unexpectedLogs.add(stringMessage);
