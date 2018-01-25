@@ -752,7 +752,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                               boolean rejectDuplicates,
                               final Binding bindingMove) throws Exception {
 
-      RoutingStatus result = RoutingStatus.OK;
+      RoutingStatus result;
       // Sanity check
       if (message.getRefCount() > 0) {
          throw new IllegalStateException("Message cannot be routed more than once");
@@ -842,6 +842,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
          }
       } else {
+         result = RoutingStatus.OK;
          try {
             processRoute(message, context, direct);
          } catch (ActiveMQAddressFullException e) {
@@ -858,8 +859,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          context.getTransaction().commit();
       }
 
-      final RoutingStatus finalResult = result;
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, finalResult) : null);
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, result) : null);
 
       return result;
    }
