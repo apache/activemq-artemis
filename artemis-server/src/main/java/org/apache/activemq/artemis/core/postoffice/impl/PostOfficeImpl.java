@@ -752,7 +752,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                               boolean rejectDuplicates,
                               final Binding bindingMove) throws Exception {
 
-      RoutingStatus result = RoutingStatus.OK;
+      RoutingStatus result;
       // Sanity check
       if (message.getRefCount() > 0) {
          throw new IllegalStateException("Message cannot be routed more than once");
@@ -771,6 +771,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       message.cleanupInternalProperties();
+
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates) : null);
 
       Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
 
@@ -840,11 +842,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
          }
       } else {
+         result = RoutingStatus.OK;
          try {
-            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates) : null);
             processRoute(message, context, direct);
-            final RoutingStatus finalResult = result;
-            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, finalResult) : null);
          } catch (ActiveMQAddressFullException e) {
             if (startedTX.get()) {
                context.getTransaction().rollback();
@@ -858,6 +858,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (startedTX.get()) {
          context.getTransaction().commit();
       }
+
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, result) : null);
+
       return result;
    }
 

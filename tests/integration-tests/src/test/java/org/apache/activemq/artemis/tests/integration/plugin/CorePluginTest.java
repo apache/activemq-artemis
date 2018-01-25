@@ -129,12 +129,14 @@ public class CorePluginTest extends JMSTestBase {
             BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS);
       verifier.validatePluginMethodsEquals(1, AFTER_CREATE_CONNECTION, AFTER_DESTROY_CONNECTION,
             BEFORE_CREATE_CONSUMER, AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER,
-            BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE,
-            AFTER_MESSAGE_ROUTE, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
+            BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
+      verifier.validatePluginMethodsAtLeast(1, BEFORE_MESSAGE_ROUTE,
+            AFTER_MESSAGE_ROUTE);
 
       assertEquals("configurationVerifier is invoked", 1, configurationVerifier.afterSendCounter.get());
+      assertEquals("configurationVerifier is invoked", 1, configurationVerifier.successRoutedCounter.get());
       assertEquals("configurationVerifier config set", "val_1", configurationVerifier.value1);
    }
 
