@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
+import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -40,6 +41,7 @@ public class ConfigurationVerifier implements ActiveMQServerPlugin, Serializable
    public String value2;
    public String value3;
    public AtomicInteger afterSendCounter = new AtomicInteger();
+   public AtomicInteger successRoutedCounter = new AtomicInteger();
 
    @Override
    public void init(Map<String, String> properties) {
@@ -59,6 +61,14 @@ public class ConfigurationVerifier implements ActiveMQServerPlugin, Serializable
                          boolean noAutoCreateQueue,
                          RoutingStatus result) throws ActiveMQException {
       afterSendCounter.incrementAndGet();
+   }
+
+   @Override
+   public void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
+         RoutingStatus result) throws ActiveMQException {
+      if (result == RoutingStatus.OK) {
+         successRoutedCounter.incrementAndGet();
+      }
    }
 
 }
