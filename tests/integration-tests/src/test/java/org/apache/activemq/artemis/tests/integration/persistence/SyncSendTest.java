@@ -32,11 +32,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
@@ -79,7 +80,6 @@ public class SyncSendTest extends ActiveMQTestBase {
    }
 
    ActiveMQServer server;
-   JMSServerManagerImpl jms;
 
    @Override
    public void setUp() throws Exception {
@@ -91,15 +91,13 @@ public class SyncSendTest extends ActiveMQTestBase {
          server = createServer(true, true);
       }
 
-      jms = new JMSServerManagerImpl(server);
-
       if (storage.equals("libaio")) {
          server.getConfiguration().setJournalType(JournalType.ASYNCIO);
       } else {
          server.getConfiguration().setJournalType(JournalType.NIO);
 
       }
-      jms.start();
+      server.start();
    }
 
    private long getTimePerSync() throws Exception {
@@ -154,7 +152,7 @@ public class SyncSendTest extends ActiveMQTestBase {
 
       long recordTime = getTimePerSync();
 
-      jms.createQueue(true, "queue", null, true, null);
+      server.createQueue(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue"), null, true, false);
 
       ConnectionFactory factory = newCF();
 

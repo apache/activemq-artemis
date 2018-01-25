@@ -41,6 +41,7 @@ configuration.addAddressesSetting("myQueue", new AddressSettings().setAddressFul
 configuration.addAddressesSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024).setPageSizeBytes(1024));
 jmsConfiguration = new JMSConfigurationImpl();
 
+// used here even though it's deprecated to be compatible with older versions of the broker
 server = new EmbeddedJMS();
 server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);
