@@ -16,23 +16,20 @@
  */
 package org.apache.activemq.artemis.rest.integration;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 
 public class ActiveMQBootstrapListener implements ServletContextListener {
 
-   private EmbeddedJMS jms;
+   private EmbeddedActiveMQ activeMQ;
 
    @Override
    public void contextInitialized(ServletContextEvent contextEvent) {
-      ServletContext context = contextEvent.getServletContext();
-      jms = new EmbeddedJMS();
-      jms.setRegistry(new ServletContextBindingRegistry(context));
+      activeMQ = new EmbeddedActiveMQ();
       try {
-         jms.start();
+         activeMQ.start();
       } catch (Exception e) {
          throw new RuntimeException(e);
       }
@@ -41,8 +38,8 @@ public class ActiveMQBootstrapListener implements ServletContextListener {
    @Override
    public void contextDestroyed(ServletContextEvent servletContextEvent) {
       try {
-         if (jms != null)
-            jms.stop();
+         if (activeMQ != null)
+            activeMQ.stop();
       } catch (Exception e) {
          throw new RuntimeException(e);
       }

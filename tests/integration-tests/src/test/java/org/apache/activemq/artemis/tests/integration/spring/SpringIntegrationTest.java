@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.tests.integration.spring;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -67,7 +67,7 @@ public class SpringIntegrationTest extends ActiveMQTestBase {
          }
          try {
             if (context != null) {
-               EmbeddedJMS jms = (EmbeddedJMS) context.getBean("EmbeddedJms");
+               EmbeddedActiveMQ jms = (EmbeddedActiveMQ) context.getBean("EmbeddedActiveMQ");
                jms.stop();
             }
          } catch (Throwable ignored) {

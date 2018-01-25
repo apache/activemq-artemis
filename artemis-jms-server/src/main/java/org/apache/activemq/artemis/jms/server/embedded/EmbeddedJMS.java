@@ -30,12 +30,17 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 /**
+ * Deprecated in favor of org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ. Since Artemis 2.0 all JMS
+ * specific broker management classes, interfaces, and methods have been deprecated in favor of their more general
+ * counter-parts.
+ *
  * Simple bootstrap class that parses activemq config files (server and jms and security) and starts
  * an ActiveMQServer instance and populates it with configured JMS endpoints.
  * <p>
  * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry
  * you must set the registry property of this class or call the setRegistry() method if you want to use JNDI
  */
+@Deprecated
 public class EmbeddedJMS extends EmbeddedActiveMQ {
 
    protected JMSServerManagerImpl serverManager;

@@ -22,14 +22,14 @@ These are provided as JUnit "rules" and can make it easier to embed messaging fu
 ### Declare a rule on your JUnit Test
 
 ```java
-import org.apache.activemq.artemis.junit.EmbeddedJMSResource;
+import org.apache.activemq.artemis.junit.EmbeddedActiveMQResource;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class MyTest {
 
    @Rule
-   public EmbeddedJMSResource resource = new EmbeddedJMSResource();
+   public EmbeddedActiveMQResource resource = new EmbeddedActiveMQResource();
 
    @Test
    public void myTest() {
@@ -45,8 +45,8 @@ This will start a server that will be available for your test:
 [main] 17:00:16,666 INFO  [org.apache.activemq.artemis.core.server] AMQ221045: libaio is not available, switching the configuration into NIO
 [main] 17:00:16,688 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
 [main] 17:00:16,801 INFO  [org.apache.activemq.artemis.core.server] AMQ221007: Server is now live
-[main] 17:00:16,801 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 1.5.0-SNAPSHOT [embedded-jms-server, nodeID=39e78380-842c-11e6-9e43-f45c8992f3c7] 
-[main] 17:00:16,891 INFO  [org.apache.activemq.artemis.core.server] AMQ221002: Apache ActiveMQ Artemis Message Broker version 1.5.0-SNAPSHOT [39e78380-842c-11e6-9e43-f45c8992f3c7] stopped, uptime 0.272 seconds
+[main] 17:00:16,801 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 2.5.0-SNAPSHOT [embedded-server, nodeID=39e78380-842c-11e6-9e43-f45c8992f3c7]
+[main] 17:00:16,891 INFO  [org.apache.activemq.artemis.core.server] AMQ221002: Apache ActiveMQ Artemis Message Broker version 2.5.0-SNAPSHOT [39e78380-842c-11e6-9e43-f45c8992f3c7] stopped, uptime 0.272 seconds
 ```
 
 ### Ordering rules

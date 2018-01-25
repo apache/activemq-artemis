@@ -56,6 +56,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Deprecated in favor of EmbeddedActiveMQResource. Since Artemis 2.0 all JMS specific broker management classes,
+ * interfaces, and methods have been deprecated in favor of their more general counter-parts.
+ *
  * A JUnit Rule that embeds an ActiveMQ Artemis JMS server into a test.
  *
  * This JUnit Rule is designed to simplify using embedded servers in unit tests.  Adding the rule to a test will startup
@@ -73,6 +76,7 @@ import org.slf4j.LoggerFactory;
  * }
  * </code></pre>
  */
+@Deprecated
 public class EmbeddedJMSResource extends ExternalResource {
 
    static final String SERVER_NAME = "embedded-jms-server";

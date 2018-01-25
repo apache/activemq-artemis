@@ -34,7 +34,7 @@ public class StompWithSecurityTest extends StompTestBase {
 
    @Test
    public void testJMSXUserID() throws Exception {
-      server.getActiveMQServer().getConfiguration().setPopulateValidatedUser(true);
+      server.getConfiguration().setPopulateValidatedUser(true);
 
       MessageConsumer consumer = session.createConsumer(queue);
 

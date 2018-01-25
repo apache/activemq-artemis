@@ -71,7 +71,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
       try {
          String address = "testLargeMessageAddress";
-         server.getActiveMQServer().createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
+         server.createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
 
          // STOMP default is UTF-8 == 1 byte per char.
          int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
