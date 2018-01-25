@@ -26,20 +26,16 @@ import javax.jms.TextMessage;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
-import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
-import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -53,32 +49,21 @@ import org.junit.Test;
 public class HornetQProtocolManagerTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
-   EmbeddedJMS embeddedJMS;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      Configuration configuration = createDefaultConfig(false);
-      configuration.setPersistenceEnabled(false);
-      configuration.getAcceptorConfigurations().clear();
-      configuration.addAcceptorConfiguration("legacy", "tcp://localhost:61616?protocols=HORNETQ").
-         addAcceptorConfiguration("corepr", "tcp://localhost:61617?protocols=CORE");
-
-      configuration.addConnectorConfiguration("legacy", "tcp://localhost:61616");
-      JMSConfiguration jmsConfiguration = new JMSConfigurationImpl();
-
-      jmsConfiguration.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName("testQueue").setBindings("testQueue"));
-      embeddedJMS = new EmbeddedJMS();
-      embeddedJMS.setConfiguration(configuration);
-      embeddedJMS.setJmsConfiguration(jmsConfiguration);
-      embeddedJMS.start();
-   }
-
-   @Override
-   public void tearDown() throws Exception {
-      embeddedJMS.stop();
-      super.tearDown();
+      server = createServer(createDefaultConfig(false)
+                               .setPersistenceEnabled(false)
+                               .clearAcceptorConfigurations()
+                               .addAcceptorConfiguration("legacy", "tcp://localhost:61616?protocols=HORNETQ")
+                               .addAcceptorConfiguration("corepr", "tcp://localhost:61617?protocols=CORE")
+                               .addQueueConfiguration(new CoreQueueConfiguration()
+                                                         .setName("testQueue")
+                                                         .setAddress("testQueue")
+                                                         .setRoutingType(RoutingType.ANYCAST)));
+      server.start();
    }
 
    @Test
@@ -105,18 +90,10 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
    /** This test will use an ArtemisConnectionFactory with clientProtocolManager=*/
    @Test
    public void testLegacy2() throws Exception {
-
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl();
-      configuration.setConnectorNames("legacy");
-      configuration.setName("legacy");
-      configuration.setProtocolManagerFactoryStr(HornetQClientProtocolManagerFactory.class.getName());
-      embeddedJMS.getJMSServerManager().createConnectionFactory(false, configuration, "legacy");
-
       // WORKAROUND: the 2.0.0 broker introduced addressing change and the 2.2.0 broker added compatibility for old
       // client libraries relying on the legacy prefixes. The new client being used in this test needs prefix explicitly.
       Queue queue = new ActiveMQQueue("jms.queue.testQueue");
-
-      ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) embeddedJMS.lookup("legacy");
+      ActiveMQConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616?protocolManagerFactoryStr=" + HornetQClientProtocolManagerFactory.class.getName(), "legacy");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer producer = session.createProducer(queue);

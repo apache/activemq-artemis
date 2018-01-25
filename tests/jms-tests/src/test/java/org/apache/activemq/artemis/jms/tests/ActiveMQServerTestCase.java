@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.tests.tools.ServerManagement;
 import org.apache.activemq.artemis.jms.tests.tools.container.Server;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -246,10 +245,6 @@ public abstract class ActiveMQServerTestCase {
 
    protected ActiveMQServer getJmsServer() throws Exception {
       return ActiveMQServerTestCase.servers.get(0).getActiveMQServer();
-   }
-
-   protected JMSServerManager getJmsServerManager() throws Exception {
-      return ActiveMQServerTestCase.servers.get(0).getJMSServerManager();
    }
 
    protected void checkNoSubscriptions(final Topic topic) throws Exception {

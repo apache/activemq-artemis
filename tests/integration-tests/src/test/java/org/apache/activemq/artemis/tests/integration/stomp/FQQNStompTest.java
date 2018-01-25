@@ -45,7 +45,7 @@ public class FQQNStompTest extends StompTestBase {
    public void setUp() throws Exception {
       super.setUp();
       conn = StompClientConnectionFactory.createClientConnection(uri);
-      QueueQueryResult result = server.getActiveMQServer().queueQuery(new SimpleString(getQueueName()));
+      QueueQueryResult result = server.queueQuery(new SimpleString(getQueueName()));
       assertTrue(result.isExists());
       System.out.println("address: " + result.getAddress() + " queue " + result.getName());
    }
