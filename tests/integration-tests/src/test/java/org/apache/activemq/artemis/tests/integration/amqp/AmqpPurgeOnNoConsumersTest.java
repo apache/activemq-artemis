@@ -16,10 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -28,57 +38,116 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
 public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
+
+   @Override
+   protected String getConfiguredProtocols() {
+      return "AMQP,OPENWIRE,CORE";
+   }
 
    @Test(timeout = 60000)
    public void testQueueReceiverReadMessage() throws Exception {
+      AmqpConnection connection = null;
+      String queue = "purgeQueue";
+      SimpleString ssQueue = new SimpleString(queue);
+
+      server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
+      server.createQueue(ssQueue, RoutingType.ANYCAST, ssQueue, null, true, false, 1, true, false);
+
+      AmqpClient client = createAmqpClient();
+      connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      final AmqpReceiver receiver = session.createReceiver(queue);
+
+      QueueImpl queueView = (QueueImpl)getProxyToQueue(queue);
+      assertEquals(0L, queueView.getPageSubscription().getPagingStore().getAddressSize());
+      assertEquals(0, queueView.getMessageCount());
+
+      sendMessages(queue, 5, null, true);
+
+      Wait.assertEquals(5, queueView::getMessageCount);
+
+      receiver.flow(5);
+
+      for (int i = 0; i < 4; i++) {
+         try {
+            AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
+            receive.accept();
+            assertNotNull(receive);
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+      }
+      try {
+         receiver.close();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+
+      Wait.assertEquals(0, queueView::getMessageCount);
+      assertEquals(0L, queueView.getPageSubscription().getPagingStore().getAddressSize());
+
+      connection.close();
+
+      server.stop();
+
+      server.start();
+
+      queueView = (QueueImpl)getProxyToQueue(queue);
+
+      assertEquals(0, queueView.getMessageCount());
+      assertEquals(0L, queueView.getPageSubscription().getPagingStore().getAddressSize());
+   }
+
+
+   // I'm adding the core test here to compare semantics between AMQP and core on this test.
+   @Test(timeout = 60000)
+   public void testPurgeQueueCoreRollback() throws Exception {
       String queue = "purgeQueue";
       SimpleString ssQueue = new SimpleString(queue);
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
       server.createQueue(ssQueue, RoutingType.ANYCAST, ssQueue, null, true, false, 1, true, false);
 
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:5672");
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = session.createProducer(session.createQueue("purgeQueue"));
 
-      final AmqpReceiver receiver = session.createReceiver(queue);
+      javax.jms.Queue jmsQueue = session.createQueue(queue);
+      MessageConsumer consumer = session.createConsumer(jmsQueue);
 
-      Queue queueView = getProxyToQueue(queue);
-      assertEquals(0, queueView.getMessageCount());
+      for (int i = 0; i < 10; i++) {
+         Message message = session.createTextMessage("hello " + i);
+         producer.send(message);
+      }
+      session.commit();
 
-      Thread t = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            for (int i = 0; i < 4; i++) {
-               try {
-                  AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
-                  receive.accept();
-                  assertNotNull(receive);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
-            }
-            try {
-               receiver.close();
-            } catch (IOException e) {
-               e.printStackTrace();
-            }
-         }
-      });
+      QueueImpl queueView = (QueueImpl)getProxyToQueue(queue);
 
-      t.start();
+      Wait.assertEquals(10, queueView::getMessageCount);
 
-      receiver.flow(5);
+      connection.start();
 
-      sendMessages(queue, 5);
 
-      t.join(5000);
+      for (int i = 0; i < 10; i++) {
+         TextMessage txt = (TextMessage)consumer.receive(1000);
+         assertNotNull(txt);
+         assertEquals("hello " + i, txt.getText());
+      }
+      consumer.close();
+      session.rollback();
+      connection.close();
 
       Wait.assertEquals(0, queueView::getMessageCount);
 
-      connection.close();
+      server.stop();
+
+      server.start();
+
+      queueView = (QueueImpl)getProxyToQueue(queue);
+
+      assertEquals(0, queueView.getMessageCount());
+      assertEquals(0L, queueView.getPageSubscription().getPagingStore().getAddressSize());
    }
 }
