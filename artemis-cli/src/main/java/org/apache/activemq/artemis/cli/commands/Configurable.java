@@ -136,7 +136,7 @@ public abstract class Configurable extends ActionAbstract {
 
    protected String getConfiguration() {
       if (configuration == null) {
-         File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "bootstrap.xml");
+         File xmlFile = new File(new File(getBrokerEtc()), "bootstrap.xml");
          configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 
          // To support Windows paths as explained above.
@@ -149,7 +149,7 @@ public abstract class Configurable extends ActionAbstract {
    }
 
    protected String getManagementConfiguration() {
-      File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "management.xml");
+      File xmlFile = new File(new File(getBrokerEtc()), "management.xml");
       String configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 
       // To support Windows paths as explained above.

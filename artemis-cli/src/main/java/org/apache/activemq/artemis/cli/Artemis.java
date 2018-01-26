@@ -133,7 +133,6 @@ public class Artemis {
    }
 
    public static Object internalExecute(File artemisHome, File artemisInstance, String[] args, ActionContext context) throws Exception {
-
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
 
