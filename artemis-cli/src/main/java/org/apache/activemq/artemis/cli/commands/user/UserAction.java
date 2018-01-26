@@ -60,7 +60,7 @@ public abstract class UserAction extends InputAbstract {
             String userFileName = (String) entry.getOptions().get(USER_FILE_PROP_NAME);
             String roleFileName = (String) entry.getOptions().get(ROLE_FILE_PROP_NAME);
 
-            File etcDir = new File(getBrokerInstance(), "etc");
+            File etcDir = new File(getBrokerEtc());
             File userFile = new File(etcDir, userFileName);
             File roleFile = new File(etcDir, roleFileName);
 

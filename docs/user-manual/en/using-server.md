@@ -92,7 +92,7 @@ For a full list of updated properties always use:
                 [--autocreate] [--blocking] [--cluster-password <clusterPassword>]
                 [--cluster-user <clusterUser>] [--clustered] [--data <data>]
                 [--default-port <defaultPort>] [--disable-persistence]
-                [--encoding <encoding>] [--failover-on-shutdown] [--force]
+                [--encoding <encoding>] [--etc <etc>] [--failover-on-shutdown] [--force]
                 [--global-max-size <globalMaxSize>] [--home <home>] [--host <host>]
                 [--http-host <httpHost>] [--http-port <httpPort>]
                 [--java-options <javaOptions>] [--mapped] [--max-hops <maxHops>]
@@ -135,8 +135,8 @@ For a full list of updated properties always use:
              Enable clustering
 
          --data <data>
-             Directory where ActiveMQ Data is used. Paths are relative to
-             artemis.instance
+             Directory where ActiveMQ data are stored. Paths can be absolute or
+             relative to artemis.instance directory ('data' by default)
 
          --default-port <defaultPort>
              The port number to use for the main 'artemis' acceptor (Default:
@@ -147,6 +147,10 @@ For a full list of updated properties always use:
 
          --encoding <encoding>
              The encoding that text files should use
+
+         --etc <etc>
+             Directory where ActiveMQ configuration is located. Paths can be absolute or
+             relative to artemis.instance directory ('etc' by default)
 
          --failover-on-shutdown
              Valid for shared store: will shutdown trigger a failover? (Default:
