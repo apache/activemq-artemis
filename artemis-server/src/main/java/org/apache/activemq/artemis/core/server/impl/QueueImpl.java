@@ -2896,9 +2896,24 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    void postRollback(final LinkedList<MessageReference> refs) {
       //if we have purged then ignore adding the messages back
       if (purgeOnNoConsumers && getConsumerCount() == 0) {
+         purgeAfterRollback(refs);
+
          return;
       }
       addHead(refs, false);
+   }
+
+   private void purgeAfterRollback(LinkedList<MessageReference> refs) {
+      try {
+         Transaction transaction = new TransactionImpl(storageManager);
+         for (MessageReference reference : refs) {
+            incDelivering(); // post ack will decrement this, so need to inc
+            acknowledge(transaction, reference, AckReason.KILLED);
+         }
+         transaction.commit();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
    }
 
    private long calculateRedeliveryDelay(final AddressSettings addressSettings, final int deliveryCount) {
