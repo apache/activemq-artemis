@@ -17,18 +17,20 @@
 
 ARTEMIS_HOME='${artemis.home}'
 ARTEMIS_INSTANCE='${artemis.instance}'
+ARTEMIS_DATA_DIR='${artemis.instance.data}'
 
 # The logging config will need an URI
 # this will be encoded in case you use spaces or special characters
 # on your directory structure
 ARTEMIS_INSTANCE_URI='${artemis.instance.uri}'
+ARTEMIS_INSTANCE_ETC_URI='${artemis.instance.etc.uri}'
 
 # Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 #ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
 
 
 # Java Opts
-JAVA_ARGS="${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx2G -Dhawtio.realm=activemq  -Dhawtio.offline="true" -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_URI}/etc/jolokia-access.xml"
+JAVA_ARGS="${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx2G -Dhawtio.realm=activemq  -Dhawtio.offline="true" -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml"
 
 #
 # There might be options that you only want to enable on specifc commands, like setting a JMX port
