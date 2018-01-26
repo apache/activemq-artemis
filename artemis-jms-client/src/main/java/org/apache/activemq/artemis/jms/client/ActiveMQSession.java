@@ -61,6 +61,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
@@ -698,8 +699,17 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              */
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateQueues()) {
+                  SimpleString queueNameToUse = dest.getSimpleAddress();
+                  SimpleString addressToUse = queueNameToUse;
+                  RoutingType routingTypeToUse = RoutingType.ANYCAST;
+                  if (CompositeAddress.isFullyQualified(queueNameToUse.toString())) {
+                     CompositeAddress compositeAddress = CompositeAddress.getQueueName(queueNameToUse.toString());
+                     addressToUse = new SimpleString(compositeAddress.getAddress());
+                     queueNameToUse = new SimpleString(compositeAddress.getQueueName());
+                     routingTypeToUse = RoutingType.MULTICAST;
+                  }
                   try {
-                     session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers());
+                     session.createQueue(addressToUse, routingTypeToUse, queueNameToUse, null, true, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers());
                   } catch (ActiveMQQueueExistsException e) {
                      // The queue was created by another client/admin between the query check and send create queue packet
                   }

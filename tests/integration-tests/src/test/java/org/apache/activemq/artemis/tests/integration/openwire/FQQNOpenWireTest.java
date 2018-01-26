@@ -35,11 +35,13 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,6 +78,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       } else if ("Artemis".equals(factoryType)) {
          factory = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(urlString);
       }
+   }
+
+   @Override
+   protected void extraServerConfig(Configuration serverConfig) {
+      // allow auto creation of advisory dests
+      serverConfig.getAddressesSettings().put("ActiveMQ.Advisory.#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true));
    }
 
    @Test
@@ -325,9 +333,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
 
       try {
-         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
-         exFact.setWatchTopicAdvisories(false);
-         exConn = exFact.createConnection();
+         exConn = factory.createConnection();
          exConn.start();
 
          Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -372,9 +378,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
 
       try {
-         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
-         exFact.setWatchTopicAdvisories(false);
-         exConn = exFact.createConnection();
+         exConn = factory.createConnection();
          exConn.start();
 
          Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -419,9 +423,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
 
       try {
-         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
-         exFact.setWatchTopicAdvisories(false);
-         exConn = exFact.createConnection();
+         exConn = factory.createConnection();
          exConn.start();
 
          Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -469,9 +471,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setDefaultAddressRoutingType(RoutingType.ANYCAST);
 
       try {
-         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
-         exFact.setWatchTopicAdvisories(false);
-         exConn = exFact.createConnection();
+         exConn = factory.createConnection();
          exConn.start();
 
          Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
