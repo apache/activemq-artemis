@@ -139,7 +139,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile Filter filter;
 
-   private final boolean durable;
+   private final boolean propertyDurable;
 
    private final boolean temporary;
 
@@ -405,7 +405,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.pageSubscription = pageSubscription;
 
-      this.durable = durable;
+      this.propertyDurable = durable;
 
       this.temporary = temporary;
 
@@ -495,7 +495,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean isDurable() {
-      return durable;
+      return propertyDurable;
+   }
+
+   @Override
+   public boolean isDurableMessage() {
+      return propertyDurable && !purgeOnNoConsumers;
    }
 
    @Override
@@ -1126,7 +1131,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          Message message = ref.getMessage();
 
-         boolean durableRef = message.isDurable() && durable;
+         boolean durableRef = message.isDurable() && isDurableMessage();
 
          if (durableRef) {
             storageManager.storeAcknowledge(id, message.getMessageID());
@@ -1161,7 +1166,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          Message message = ref.getMessage();
 
-         boolean durableRef = message.isDurable() && durable;
+         boolean durableRef = message.isDurable() && isDurableMessage();
 
          if (durableRef) {
             storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
@@ -1189,7 +1194,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       Message message = ref.getMessage();
 
-      if (message.isDurable() && durable) {
+      if (message.isDurable() && isDurableMessage()) {
          tx.setContainsPersistent();
       }
 
@@ -1372,12 +1377,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter1) throws Exception {
+   public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter1, AckReason ackReason) throws Exception {
       return iterQueue(flushLimit, filter1, new QueueIterateAction() {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
             incDelivering();
-            acknowledge(tx, ref);
+            acknowledge(tx, ref, ackReason);
             refRemoved(ref);
          }
       });
@@ -2385,7 +2390,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return true;
       }
 
-      if (!internalQueue && message.isDurable() && durable && !reference.isPaged()) {
+      if (!internalQueue && message.isDurable() && isDurableMessage() && !reference.isPaged()) {
          storageManager.updateDeliveryCount(reference);
       }
 
@@ -2414,7 +2419,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             reference.setScheduledDeliveryTime(timeBase + redeliveryDelay);
 
-            if (!reference.isPaged() && message.isDurable() && durable) {
+            if (!reference.isPaged() && message.isDurable() && isDurableMessage()) {
                storageManager.updateScheduledDeliveryTime(reference);
             }
          }
@@ -2858,7 +2863,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (message == null)
          return;
 
-      boolean durableRef = message.isDurable() && queue.durable;
+      boolean durableRef = message.isDurable() && queue.isDurableMessage();
 
       try {
          message.decrementRefCount();

@@ -53,6 +53,13 @@ public interface Queue extends Bindable,CriticalComponent {
 
    boolean isDurable();
 
+   /**
+    * The queue definition could be durable, but the messages could eventually be considered non durable.
+    * (e.g. purgeOnNoConsumers)
+    * @return
+    */
+   boolean isDurableMessage();
+
    boolean isTemporary();
 
    boolean isAutoCreated();
@@ -161,7 +168,11 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int deleteMatchingReferences(Filter filter) throws Exception;
 
-   int deleteMatchingReferences(int flushLImit, Filter filter) throws Exception;
+   default int deleteMatchingReferences(int flushLImit, Filter filter) throws Exception {
+      return deleteMatchingReferences(flushLImit, filter, AckReason.NORMAL);
+   }
+
+   int deleteMatchingReferences(int flushLImit, Filter filter, AckReason ackReason) throws Exception;
 
    boolean expireReference(long messageID) throws Exception;
 
