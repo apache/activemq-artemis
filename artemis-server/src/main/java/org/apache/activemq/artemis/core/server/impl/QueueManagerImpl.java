@@ -59,7 +59,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
             ActiveMQServerLogger.LOGGER.debug("purging queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount);
          }
          try {
-            queue.deleteAllReferences();
+            queue.deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToPurgeQueue(e, queueName);
          }

@@ -860,6 +860,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isDurableMessage() {
+         return false;
+      }
+
+      @Override
       public boolean isTemporary() {
          return false;
       }
@@ -1087,7 +1092,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public int deleteMatchingReferences(int flushLImit, Filter filter) throws Exception {
+      public int deleteMatchingReferences(int flushLImit, Filter filter, AckReason reason) throws Exception {
          return 0;
       }
 

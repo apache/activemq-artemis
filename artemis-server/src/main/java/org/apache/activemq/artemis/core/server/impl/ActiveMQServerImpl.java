@@ -207,28 +207,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private HAPolicy haPolicy;
 
-   enum SERVER_STATE {
-      /**
-       * start() has been called but components are not initialized. The whole point of this state,
-       * is to be in a state which is different from {@link SERVER_STATE#STARTED} and
-       * {@link SERVER_STATE#STOPPED}, so that methods testing for these two values such as
-       * {@link #stop(boolean)} worked as intended.
-       */
-      STARTING, /**
-       * server is started. {@code server.isStarted()} returns {@code true}, and all assumptions
-       * about it hold.
-       */
-      STARTED, /**
-       * stop() was called but has not finished yet. Meant to avoids starting components while
-       * stop() is executing.
-       */
-      STOPPING, /**
-       * Stopped: either stop() has been called and has finished running, or start() has never been
-       * called.
-       */
-      STOPPED
-   }
-
    private volatile SERVER_STATE state = SERVER_STATE.STOPPED;
 
    private final Version version;
@@ -712,10 +690,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       super.finalize();
    }
 
+   @Override
    public void setState(SERVER_STATE state) {
       this.state = state;
    }
 
+   @Override
    public SERVER_STATE getState() {
       return state;
    }
