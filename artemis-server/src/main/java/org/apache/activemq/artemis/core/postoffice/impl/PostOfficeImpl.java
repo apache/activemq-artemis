@@ -1464,7 +1464,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          for (MessageReference ref : refs) {
             Message message = ref.getMessage();
 
-            if (message.isDurable() && ref.getQueue().isDurable()) {
+            if (message.isDurable() && ref.getQueue().isDurableMessage()) {
                message.decrementDurableRefCount();
             }
 

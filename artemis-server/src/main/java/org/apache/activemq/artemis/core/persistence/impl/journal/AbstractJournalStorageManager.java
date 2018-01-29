@@ -839,6 +839,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
+      Set<PageTransactionInfo> invalidPageTransactions = null;
+
       Map<Long, Message> messages = new HashMap<>();
       readLock();
       try {
@@ -971,6 +973,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   break;
                }
                case JournalRecordIds.PAGE_TRANSACTION: {
+                  PageTransactionInfo invalidPGTx = null;
                   if (record.isUpdate) {
                      PageUpdateTXEncoding pageUpdate = new PageUpdateTXEncoding();
 
@@ -981,7 +984,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                      if (pageTX == null) {
                         ActiveMQServerLogger.LOGGER.journalCannotFindPageTX(pageUpdate.pageTX);
                      } else {
-                        pageTX.onUpdate(pageUpdate.recods, null, null);
+                        if (!pageTX.onUpdate(pageUpdate.recods, null, null)) {
+                           invalidPGTx = pageTX;
+                        }
                      }
                   } else {
                      PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
@@ -991,6 +996,17 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                      pageTransactionInfo.setRecordID(record.id);
 
                      pagingManager.addTransaction(pageTransactionInfo);
+
+                     if (!pageTransactionInfo.checkSize(null, null)) {
+                        invalidPGTx = pageTransactionInfo;
+                     }
+                  }
+
+                  if (invalidPGTx != null) {
+                     if (invalidPageTransactions == null) {
+                        invalidPageTransactions = new HashSet<>();
+                     }
+                     invalidPageTransactions.add(invalidPGTx);
                   }
 
                   break;
@@ -1170,10 +1186,22 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          }
 
          journalLoader.postLoad(messageJournal, resourceManager, duplicateIDMap);
+
+         checkInvalidPageTransactions(pagingManager, invalidPageTransactions);
+
          journalLoaded = true;
          return info;
       } finally {
          readUnLock();
+      }
+   }
+
+   public void checkInvalidPageTransactions(PagingManager pagingManager,
+                                            Set<PageTransactionInfo> invalidPageTransactions) {
+      if (invalidPageTransactions != null) {
+         for (PageTransactionInfo pginfo : invalidPageTransactions) {
+            pginfo.checkSize(this, pagingManager);
+         }
       }
    }
 

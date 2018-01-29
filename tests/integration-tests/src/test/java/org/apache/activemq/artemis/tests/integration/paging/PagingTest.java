@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -65,6 +69,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -78,8 +83,10 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -381,6 +388,105 @@ public class PagingTest extends ActiveMQTestBase {
 
       System.out.println("pgComplete = " + pgComplete);
    }
+
+
+   @Test
+   public void testPurge() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultNettyConfig().setJournalSyncNonTransactional(false);
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+      server.start();
+
+      String queue = "purgeQueue";
+      SimpleString ssQueue = new SimpleString(queue);
+      server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
+      QueueImpl purgeQueue = (QueueImpl)server.createQueue(ssQueue, RoutingType.ANYCAST, ssQueue, null, true, false, 1, true, false);
+
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue jmsQueue = session.createQueue(queue);
+
+      MessageProducer producer = session.createProducer(jmsQueue);
+
+      for (int i = 0; i < 100; i++) {
+         producer.send(session.createTextMessage("hello" + i));
+      }
+      session.commit();
+
+      Wait.assertEquals(0, purgeQueue::getMessageCount);
+
+      Assert.assertEquals(0, purgeQueue.getPageSubscription().getPagingStore().getAddressSize());
+
+      MessageConsumer consumer = session.createConsumer(jmsQueue);
+
+      for (int i = 0; i < 100; i++) {
+         producer.send(session.createTextMessage("hello" + i));
+         if (i == 10) {
+            purgeQueue.getPageSubscription().getPagingStore().startPaging();
+         }
+      }
+      session.commit();
+
+      consumer.close();
+
+      Wait.assertEquals(0, purgeQueue::getMessageCount);
+
+      Wait.assertFalse(purgeQueue.getPageSubscription()::isPaging);
+
+      Wait.assertEquals(0, purgeQueue.getPageSubscription().getPagingStore()::getAddressSize);
+
+      purgeQueue.getPageSubscription().getPagingStore().startPaging();
+
+      Wait.assertTrue(purgeQueue.getPageSubscription()::isPaging);
+
+      consumer = session.createConsumer(jmsQueue);
+
+      for (int i = 0; i < 100; i++) {
+         purgeQueue.getPageSubscription().getPagingStore().startPaging();
+         Assert.assertTrue(purgeQueue.getPageSubscription().isPaging());
+         producer.send(session.createTextMessage("hello" + i));
+         if (i % 2 == 0) {
+            session.commit();
+         }
+      }
+
+      session.commit();
+
+      connection.start();
+
+
+      server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(50000);
+      Assert.assertNotNull(consumer.receive(5000));
+      session.commit();
+
+      consumer.close();
+
+      Wait.assertEquals(0, purgeQueue::getMessageCount);
+      Wait.assertEquals(0, purgeQueue.getPageSubscription().getPagingStore()::getAddressSize);
+      Wait.assertFalse(purgeQueue.getPageSubscription()::isPaging);
+
+      StorageManager sm = server.getStorageManager();
+
+
+      for (int i = 0; i < 1000; i++) {
+         long tx = sm.generateID();
+         PageTransactionInfoImpl txinfo = new PageTransactionInfoImpl(tx);
+         sm.storePageTransaction(tx, txinfo);
+         sm.commit(tx);
+         tx = sm.generateID();
+         sm.updatePageTransaction(tx, txinfo, 1);
+         sm.commit(tx);
+      }
+
+      server.stop();
+      server.start();
+      Assert.assertEquals(0, server.getPagingManager().getTransactions().size());
+   }
+
 
    // First page is complete but it wasn't deleted
    @Test
@@ -5680,8 +5786,8 @@ public class PagingTest extends ActiveMQTestBase {
    }
 
    @Override
-   protected Configuration createDefaultInVMConfig() throws Exception {
-      Configuration configuration = super.createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+   protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
+      Configuration configuration = super.createDefaultConfig(serverID, netty);
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
          setDBStoreType(configuration);
       } else if (mapped) {
