@@ -247,7 +247,7 @@ public class ManagementServiceImpl implements ManagementService {
 
       QueueControlImpl queueControl = new QueueControlImpl(queue, addressInfo.getName().toString(), postOffice, storageManager, securityStore, addressSettingsRepository);
       if (messageCounterManager != null) {
-         MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurable(), messageCounterManager.getMaxDayCount());
+         MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurableMessage(), messageCounterManager.getMaxDayCount());
          queueControl.setMessageCounter(counter);
          messageCounterManager.registerMessageCounter(queue.getName().toString(), counter);
       }

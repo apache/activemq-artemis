@@ -304,6 +304,10 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    }
 
    protected void sendMessages(String destinationName, int count, RoutingType routingType) throws Exception {
+      sendMessages(destinationName, count, routingType, false);
+   }
+
+   protected void sendMessages(String destinationName, int count, RoutingType routingType, boolean durable) throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       try {
@@ -313,6 +317,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
          for (int i = 0; i < count; ++i) {
             AmqpMessage message = new AmqpMessage();
             message.setMessageId("MessageID:" + i);
+            message.setDurable(true);
             if (routingType != null) {
                message.setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE.toString(), routingType.getType());
             }
