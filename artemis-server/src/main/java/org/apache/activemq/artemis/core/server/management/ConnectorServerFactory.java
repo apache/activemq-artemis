@@ -16,7 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
-import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.rmi.server.RMIClientSocketFactory;
+import java.rmi.server.RMIServerSocketFactory;
+import java.util.Map;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -30,12 +35,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.rmi.server.RMIClientSocketFactory;
-import java.rmi.server.RMIServerSocketFactory;
-import java.util.Map;
+
+import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 
 public class ConnectorServerFactory {
 
@@ -64,7 +65,7 @@ public class ConnectorServerFactory {
    private MBeanServer server;
    private String serviceUrl;
    private String rmiServerHost;
-   private Map environment;
+   private Map<String,Object> environment;
    private ObjectName objectName;
    private JMXConnectorServer connectorServer;
 
@@ -137,11 +138,11 @@ public class ConnectorServerFactory {
       this.rmiServerHost = rmiServerHost;
    }
 
-   public Map getEnvironment() {
+   public Map<String,Object> getEnvironment() {
       return environment;
    }
 
-   public void setEnvironment(Map environment) {
+   public void setEnvironment(Map<String,Object> environment) {
       this.environment = environment;
    }
 

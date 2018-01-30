@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.spi.core.security;
 
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
+import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -35,8 +38,6 @@ import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
 
 /**
  * This implementation delegates to the JAAS security interfaces.
@@ -136,7 +137,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
       boolean authorized = false;
 
       if (localSubject != null) {
-         Set<RolePrincipal> rolesWithPermission = getPrincipalsInRole(checkType, roles);
+         Set<Principal> rolesWithPermission = getPrincipalsInRole(checkType, roles);
 
          // Check the caller's roles
          Set<Principal> rolesForSubject = new HashSet<>();
@@ -148,7 +149,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
             Iterator<Principal> rolesForSubjectIter = rolesForSubject.iterator();
             while (!authorized && rolesForSubjectIter.hasNext()) {
-               Iterator<RolePrincipal> rolesWithPermissionIter = rolesWithPermission.iterator();
+               Iterator<Principal> rolesWithPermissionIter = rolesWithPermission.iterator();
                Principal subjectRole = rolesForSubjectIter.next();
                while (!authorized && rolesWithPermissionIter.hasNext()) {
                   Principal roleWithPermission = rolesWithPermissionIter.next();
@@ -193,8 +194,8 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
       }
    }
 
-   private Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles) {
-      Set principals = new HashSet<>();
+   private Set<Principal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles) {
+      Set<Principal> principals = new HashSet<>();
       for (Role role : roles) {
          if (checkType.hasRole(role)) {
             try {
@@ -247,7 +248,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
       this.rolePrincipalClass = rolePrincipalClass;
    }
 
-   public static Object createGroupPrincipal(String name, String groupClass) throws Exception {
+   public static Principal createGroupPrincipal(String name, String groupClass) throws Exception {
       if (WILDCARD.equals(name)) {
          // simple match all group principal - match any name and class
          return new Principal() {
@@ -273,7 +274,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
       Constructor<?>[] constructors = cls.getConstructors();
       int i;
-      Object instance;
+      Principal instance;
       for (i = 0; i < constructors.length; i++) {
          Class<?>[] paramTypes = constructors[i].getParameterTypes();
          if (paramTypes.length != 0 && paramTypes[0].equals(String.class)) {
@@ -281,9 +282,9 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          }
       }
       if (i < constructors.length) {
-         instance = constructors[i].newInstance(param);
+         instance = (Principal)constructors[i].newInstance(param);
       } else {
-         instance = cls.newInstance();
+         instance = (Principal)cls.newInstance();
          Method[] methods = cls.getMethods();
          i = 0;
          for (i = 0; i < methods.length; i++) {
