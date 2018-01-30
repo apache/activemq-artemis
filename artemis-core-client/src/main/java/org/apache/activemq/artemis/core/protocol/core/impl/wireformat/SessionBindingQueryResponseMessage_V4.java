@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.BufferHelper;
 
 public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryResponseMessage_V3 {
 
@@ -27,12 +28,18 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
    private int defaultMaxConsumers;
 
+   private Boolean defaultExclusive;
+
+   private Boolean defaultLastValue;
+
    public SessionBindingQueryResponseMessage_V4(final boolean exists,
                                                 final List<SimpleString> queueNames,
                                                 final boolean autoCreateQueues,
                                                 final boolean autoCreateAddresses,
                                                 final boolean defaultPurgeOnNoConsumers,
-                                                final int defaultMaxConsumers) {
+                                                final int defaultMaxConsumers,
+                                                final Boolean defaultExclusive,
+                                                final Boolean defaultLastValue) {
       super(SESS_BINDINGQUERY_RESP_V4);
 
       this.exists = exists;
@@ -46,6 +53,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
 
       this.defaultMaxConsumers = defaultMaxConsumers;
+
+      this.defaultExclusive = defaultExclusive;
+
+      this.defaultLastValue = defaultLastValue;
    }
 
    public SessionBindingQueryResponseMessage_V4() {
@@ -60,11 +71,21 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       return defaultMaxConsumers;
    }
 
+   public Boolean isDefaultExclusive() {
+      return defaultExclusive;
+   }
+
+   public Boolean isDefaultLastValue() {
+      return defaultLastValue;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(defaultPurgeOnNoConsumers);
       buffer.writeInt(defaultMaxConsumers);
+      BufferHelper.writeNullableBoolean(buffer, defaultExclusive);
+      BufferHelper.writeNullableBoolean(buffer, defaultLastValue);
    }
 
    @Override
@@ -72,6 +93,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       super.decodeRest(buffer);
       defaultPurgeOnNoConsumers = buffer.readBoolean();
       defaultMaxConsumers = buffer.readInt();
+      if (buffer.readableBytes() > 0) {
+         defaultExclusive = BufferHelper.readNullableBoolean(buffer);
+         defaultLastValue = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -80,6 +105,8 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       int result = super.hashCode();
       result = prime * result + (defaultPurgeOnNoConsumers ? 1231 : 1237);
       result = prime * result + defaultMaxConsumers;
+      result = prime * result + (defaultExclusive == null ? 0 : defaultExclusive ? 1231 : 1237);
+      result = prime * result + (defaultLastValue == null ? 0 : defaultLastValue ? 1231 : 1237);
       return result;
    }
 
@@ -95,6 +122,8 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       StringBuffer buff = new StringBuffer(super.getParentString());
       buff.append(", defaultPurgeOnNoConsumers=" + defaultPurgeOnNoConsumers);
       buff.append(", defaultMaxConsumers=" + defaultMaxConsumers);
+      buff.append(", defaultExclusive=" + defaultExclusive);
+      buff.append(", defaultLastValue=" + defaultLastValue);
       return buff.toString();
    }
 
@@ -110,6 +139,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       if (defaultPurgeOnNoConsumers != other.defaultPurgeOnNoConsumers)
          return false;
       if (defaultMaxConsumers != other.defaultMaxConsumers)
+         return false;
+      if (defaultExclusive != other.defaultExclusive)
+         return false;
+      if (defaultLastValue != other.defaultLastValue)
          return false;
       return true;
    }

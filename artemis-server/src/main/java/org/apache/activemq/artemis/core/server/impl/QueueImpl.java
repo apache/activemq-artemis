@@ -257,6 +257,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile int maxConsumers;
 
+   private volatile boolean exclusive;
+
    private volatile boolean purgeOnNoConsumers;
 
    private final AddressInfo addressInfo;
@@ -389,6 +391,29 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean purgeOnNoConsumers,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
       this.id = id;
@@ -412,6 +437,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.autoCreated = autoCreated;
 
       this.maxConsumers = maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers;
+
+      this.exclusive = exclusive == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : exclusive;
 
       this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
 
@@ -463,7 +490,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return user;
    }
 
+   @Override
    public boolean isExclusive() {
+      return exclusive;
+   }
+
+   @Override
+   public synchronized void setExclusive(boolean exclusive) {
+      this.exclusive = exclusive;
+   }
+
+   @Override
+   public boolean isLastValue() {
       return false;
    }
 
@@ -2190,6 +2228,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   }
                }
 
+               if (exclusive) {
+                  consumer = consumerList.get(0).consumer;
+               }
+
                HandleStatus status = handle(ref, consumer);
 
                if (status == HandleStatus.HANDLED) {
@@ -2237,7 +2279,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             // Only move onto the next position if the consumer on the current position was used.
             // When using group we don't need to load balance to the next position
-            if (groupConsumer == null) {
+            if (!exclusive && groupConsumer == null) {
                pos++;
             }
 
@@ -2730,8 +2772,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
             }
 
+            if (exclusive) {
+               consumer = consumerList.get(0).consumer;
+            }
+
             // Only move onto the next position if the consumer on the current position was used.
-            if (groupConsumer == null) {
+            if (!exclusive && groupConsumer == null) {
                pos++;
             }
 

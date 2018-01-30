@@ -164,6 +164,18 @@ public interface QueueControl {
    @Attribute(desc = "delete this queue when the last consumer disconnects")
    boolean isPurgeOnNoConsumers();
 
+   /**
+    *
+    */
+   @Attribute(desc = "If the queue should route exclusively to one consumer")
+   boolean isExclusive();
+
+   /**
+    *
+    */
+   @Attribute(desc = "is this queue a last value queue")
+   boolean isLastValue();
+
    // Operations ----------------------------------------------------
 
    /**

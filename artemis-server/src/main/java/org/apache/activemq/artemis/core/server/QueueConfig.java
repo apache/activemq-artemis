@@ -37,6 +37,8 @@ public final class QueueConfig {
    private final boolean autoCreated;
    private final RoutingType routingType;
    private final int maxConsumers;
+   private final boolean exclusive;
+   private final boolean lastValue;
    private final boolean purgeOnNoConsumers;
 
    public static final class Builder {
@@ -52,6 +54,8 @@ public final class QueueConfig {
       private boolean autoCreated;
       private RoutingType routingType;
       private int maxConsumers;
+      private boolean exclusive;
+      private boolean lastValue;
       private boolean purgeOnNoConsumers;
 
       private Builder(final long id, final SimpleString name) {
@@ -70,6 +74,8 @@ public final class QueueConfig {
          this.autoCreated = true;
          this.routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
          this.maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+         this.exclusive = ActiveMQDefaultConfiguration.getDefaultExclusive();
+         this.lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
          this.purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
          validateState();
       }
@@ -122,6 +128,17 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder exclusive(final boolean exclusive) {
+         this.exclusive = exclusive;
+         return this;
+      }
+
+      public Builder lastValue(final boolean lastValue) {
+         this.lastValue = lastValue;
+         return this;
+      }
+
+
       public Builder purgeOnNoConsumers(final boolean purgeOnNoConsumers) {
          this.purgeOnNoConsumers = purgeOnNoConsumers;
          return this;
@@ -153,7 +170,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, purgeOnNoConsumers);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, purgeOnNoConsumers);
       }
 
    }
@@ -197,6 +214,8 @@ public final class QueueConfig {
                        final boolean autoCreated,
                        final RoutingType routingType,
                        final int maxConsumers,
+                       final boolean exclusive,
+                       final boolean lastValue,
                        final boolean purgeOnNoConsumers) {
       this.id = id;
       this.address = address;
@@ -209,6 +228,8 @@ public final class QueueConfig {
       this.autoCreated = autoCreated;
       this.routingType = routingType;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
+      this.exclusive = exclusive;
+      this.lastValue = lastValue;
       this.maxConsumers = maxConsumers;
    }
 
@@ -256,6 +277,14 @@ public final class QueueConfig {
       return maxConsumers;
    }
 
+   public boolean isExclusive() {
+      return exclusive;
+   }
+
+   public boolean isLastValue() {
+      return lastValue;
+   }
+
    public RoutingType deliveryMode() {
       return routingType;
    }
@@ -289,6 +318,10 @@ public final class QueueConfig {
          return false;
       if (maxConsumers != that.maxConsumers)
          return false;
+      if (exclusive != that.exclusive)
+         return false;
+      if (lastValue != that.lastValue)
+         return false;
       if (purgeOnNoConsumers != that.purgeOnNoConsumers)
          return false;
       return user != null ? user.equals(that.user) : that.user == null;
@@ -308,6 +341,8 @@ public final class QueueConfig {
       result = 31 * result + (autoCreated ? 1 : 0);
       result = 31 * result + routingType.getType();
       result = 31 * result + maxConsumers;
+      result = 31 * result + (exclusive ? 1 : 0);
+      result = 31 * result + (lastValue ? 1 : 0);
       result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
       return result;
    }
@@ -326,6 +361,8 @@ public final class QueueConfig {
          + ", autoCreated=" + autoCreated
          + ", routingType=" + routingType
          + ", maxConsumers=" + maxConsumers
+         + ", exclusive=" + exclusive
+         + ", lastValue=" + lastValue
          + ", purgeOnNoConsumers=" + purgeOnNoConsumers + '}';
    }
 }
