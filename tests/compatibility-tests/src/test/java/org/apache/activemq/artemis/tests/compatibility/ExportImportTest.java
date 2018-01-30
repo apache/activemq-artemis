@@ -46,6 +46,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
  */
 @RunWith(Parameterized.class)
 public class ExportImportTest extends VersionedBaseTest {
+   private String serverScriptToUse;
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -107,6 +108,9 @@ public class ExportImportTest extends VersionedBaseTest {
    public void internalSendReceive(boolean legacyPrefixes) throws Throwable {
       setVariable(senderClassloader, "legacy", false);
       setVariable(senderClassloader, "persistent", true);
+      if (legacyPrefixes) {
+         serverScriptToUse = "exportimport/artemisServer.groovy";
+      }
       startServer(serverFolder.getRoot(), senderClassloader, "sender");
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
@@ -133,5 +137,9 @@ public class ExportImportTest extends VersionedBaseTest {
       }
    }
 
+   @Override
+   public String getServerScriptToUse() {
+      return serverScriptToUse;
+   }
 }
 
