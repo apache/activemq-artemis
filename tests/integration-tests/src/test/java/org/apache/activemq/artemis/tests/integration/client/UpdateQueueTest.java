@@ -59,7 +59,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false);
+      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false);
 
       conn.close();
       factory.close();

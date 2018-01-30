@@ -46,7 +46,8 @@ public class FakePostOffice implements PostOffice {
    public QueueBinding updateQueue(SimpleString name,
                                    RoutingType routingType,
                                    Integer maxConsumers,
-                                   Boolean purgeOnNoConsumers) throws Exception {
+                                   Boolean purgeOnNoConsumers,
+                                   Boolean exclusive) throws Exception {
       return null;
    }
 

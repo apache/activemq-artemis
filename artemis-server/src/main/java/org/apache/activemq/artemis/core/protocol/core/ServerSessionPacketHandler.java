@@ -353,7 +353,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   CreateQueueMessage_V2 request = (CreateQueueMessage_V2) packet;
                   requiresResponse = request.isRequiresResponse();
                   session.createQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isTemporary(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(),
-                                      request.isAutoCreated());
+                                      request.isExclusive(), request.isLastValue(), request.isAutoCreated());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -371,7 +371,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_SHARED_QUEUE_V2: {
                   CreateSharedQueueMessage_V2 request = (CreateSharedQueueMessage_V2) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.isDurable(), request.getFilterString());
+                  session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(), request.isExclusive(), request.isLastValue());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -417,13 +417,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      if (!queueNames.isEmpty()) {
                         final List<SimpleString> convertedQueueNames = request.convertQueueNames(clientVersion, queueNames);
                         if (convertedQueueNames != queueNames) {
-                           result = new BindingQueryResult(result.isExists(), result.getAddressInfo(), convertedQueueNames, result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
+                           result = new BindingQueryResult(result.isExists(), result.getAddressInfo(), convertedQueueNames, result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers(), result.isDefaultExclusive(), result.isDefaultLastValue());
                         }
                      }
                   }
 
                   if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4)) {
-                     response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
+                     response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers(), result.isDefaultExclusive(), result.isDefaultLastValue());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
                      response = new SessionBindingQueryResponseMessage_V3(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {

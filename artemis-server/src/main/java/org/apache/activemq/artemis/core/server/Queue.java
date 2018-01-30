@@ -68,6 +68,12 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setPurgeOnNoConsumers(boolean value);
 
+   boolean isExclusive();
+
+   void setExclusive(boolean value);
+
+   boolean isLastValue();
+
    int getMaxConsumers();
 
    void setMaxConsumer(int maxConsumers);
