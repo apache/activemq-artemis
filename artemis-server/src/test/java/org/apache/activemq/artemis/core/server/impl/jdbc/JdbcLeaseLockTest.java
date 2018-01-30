@@ -25,31 +25,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.DERBY;
+public class JdbcLeaseLockTest extends ActiveMQTestBase {
 
-public class JdbcLeaseLockTest {
-
-   private static final long DEFAULT_LOCK_EXPIRATION_MILLIS = TimeUnit.SECONDS.toMillis(10);
-   private static final SQLProvider SQL_PROVIDER = new PropertySQLProvider.Factory(DERBY).create(ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER);
-   private static final String JDBC_URL = "jdbc:derby:memory:server_lock_db;create=true";
-   private static final String DRIVER_CLASS_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
    private JdbcSharedStateManager jdbcSharedStateManager;
+   private DatabaseStorageConfiguration dbConf;
+   private SQLProvider sqlProvider;
 
    private LeaseLock lock() {
-      return lock(DEFAULT_LOCK_EXPIRATION_MILLIS);
+      return lock(dbConf.getJdbcLockExpirationMillis());
    }
 
    private LeaseLock lock(long acquireMillis) {
       try {
-         return JdbcSharedStateManager.createLiveLock(UUID.randomUUID().toString(), jdbcSharedStateManager.getConnection(), SQL_PROVIDER, acquireMillis, 0);
+         return JdbcSharedStateManager
+            .createLiveLock(
+               UUID.randomUUID().toString(),
+               jdbcSharedStateManager.getConnection(),
+               sqlProvider,
+               acquireMillis,
+               0);
       } catch (SQLException e) {
          throw new IllegalStateException(e);
       }
@@ -57,7 +60,18 @@ public class JdbcLeaseLockTest {
 
    @Before
    public void createLockTable() {
-      jdbcSharedStateManager = JdbcSharedStateManager.usingConnectionUrl(UUID.randomUUID().toString(), DEFAULT_LOCK_EXPIRATION_MILLIS, JDBC_URL, DRIVER_CLASS_NAME, SQL_PROVIDER);
+      dbConf = createDefaultDatabaseStorageConfiguration();
+      sqlProvider = JDBCUtils.getSQLProvider(
+         dbConf.getJdbcDriverClassName(),
+         dbConf.getNodeManagerStoreTableName(),
+         SQLProvider.DatabaseStoreType.NODE_MANAGER);
+      jdbcSharedStateManager = JdbcSharedStateManager
+         .usingConnectionUrl(
+            UUID.randomUUID().toString(),
+            dbConf.getJdbcLockExpirationMillis(),
+            dbConf.getJdbcConnectionUrl(),
+            dbConf.getJdbcDriverClassName(),
+            sqlProvider);
    }
 
    @After

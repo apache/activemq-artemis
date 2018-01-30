@@ -44,9 +44,12 @@ public final class JdbcNodeManager extends NodeManager {
    private static final Logger logger = Logger.getLogger(JdbcNodeManager.class);
    private static final long MAX_PAUSE_MILLIS = 2000L;
 
-   private final SharedStateManager sharedStateManager;
-   private final ScheduledLeaseLock scheduledLiveLock;
-   private final ScheduledLeaseLock scheduledBackupLock;
+   private final Supplier<? extends SharedStateManager> sharedStateManagerFactory;
+   private final Supplier<? extends ScheduledLeaseLock> scheduledLiveLockFactory;
+   private final Supplier<? extends ScheduledLeaseLock> scheduledBackupLockFactory;
+   private SharedStateManager sharedStateManager;
+   private ScheduledLeaseLock scheduledLiveLock;
+   private ScheduledLeaseLock scheduledBackupLock;
    private final long lockRenewPeriodMillis;
    private final long lockAcquisitionTimeoutMillis;
    private volatile boolean interrupted = false;
@@ -82,7 +85,14 @@ public final class JdbcNodeManager extends NodeManager {
                                           ScheduledExecutorService scheduledExecutorService,
                                           ExecutorFactory executorFactory,
                                           IOCriticalErrorListener ioCriticalErrorListener) {
-      return new JdbcNodeManager(JdbcSharedStateManager.usingDataSource(brokerId, lockExpirationMillis, dataSource, provider), false, lockRenewPeriodMillis, lockAcquisitionTimeoutMillis, scheduledExecutorService, executorFactory, ioCriticalErrorListener);
+      return new JdbcNodeManager(
+         () -> JdbcSharedStateManager.usingDataSource(brokerId, lockExpirationMillis, dataSource, provider),
+         false,
+         lockRenewPeriodMillis,
+         lockAcquisitionTimeoutMillis,
+         scheduledExecutorService,
+         executorFactory,
+         ioCriticalErrorListener);
    }
 
    public static JdbcNodeManager usingConnectionUrl(String brokerId,
@@ -95,10 +105,17 @@ public final class JdbcNodeManager extends NodeManager {
                                                     ScheduledExecutorService scheduledExecutorService,
                                                     ExecutorFactory executorFactory,
                                                     IOCriticalErrorListener ioCriticalErrorListener) {
-      return new JdbcNodeManager(JdbcSharedStateManager.usingConnectionUrl(brokerId, lockExpirationMillis, jdbcUrl, driverClass, provider), false, lockRenewPeriodMillis, lockAcquisitionTimeoutMillis, scheduledExecutorService, executorFactory, ioCriticalErrorListener);
+      return new JdbcNodeManager(
+         () -> JdbcSharedStateManager.usingConnectionUrl(brokerId, lockExpirationMillis, jdbcUrl, driverClass, provider),
+         false,
+         lockRenewPeriodMillis,
+         lockAcquisitionTimeoutMillis,
+         scheduledExecutorService,
+         executorFactory,
+         ioCriticalErrorListener);
    }
 
-   private JdbcNodeManager(final SharedStateManager sharedStateManager,
+   private JdbcNodeManager(Supplier<? extends SharedStateManager> sharedStateManagerFactory,
                            boolean replicatedBackup,
                            long lockRenewPeriodMillis,
                            long lockAcquisitionTimeoutMillis,
@@ -109,10 +126,26 @@ public final class JdbcNodeManager extends NodeManager {
       this.lockAcquisitionTimeoutMillis = lockAcquisitionTimeoutMillis;
       this.lockRenewPeriodMillis = lockRenewPeriodMillis;
       this.pauser = LeaseLock.Pauser.sleep(Math.min(this.lockRenewPeriodMillis, MAX_PAUSE_MILLIS), TimeUnit.MILLISECONDS);
-      this.sharedStateManager = sharedStateManager;
-      this.scheduledLiveLock = ScheduledLeaseLock.of(scheduledExecutorService, executorFactory != null ? executorFactory.getExecutor() : null, "live", this.sharedStateManager.liveLock(), lockRenewPeriodMillis, ioCriticalErrorListener);
-      this.scheduledBackupLock = ScheduledLeaseLock.of(scheduledExecutorService, executorFactory != null ? executorFactory.getExecutor() : null, "backup", this.sharedStateManager.backupLock(), lockRenewPeriodMillis, ioCriticalErrorListener);
+      this.sharedStateManagerFactory = sharedStateManagerFactory;
+      this.scheduledLiveLockFactory = () -> ScheduledLeaseLock.of(
+         scheduledExecutorService,
+         executorFactory != null ? executorFactory.getExecutor() : null,
+         "live",
+         this.sharedStateManager.liveLock(),
+         lockRenewPeriodMillis,
+         ioCriticalErrorListener);
+      this.scheduledBackupLockFactory = () -> ScheduledLeaseLock.of(
+         scheduledExecutorService,
+         executorFactory != null ?
+            executorFactory.getExecutor() : null,
+         "backup",
+         this.sharedStateManager.backupLock(),
+         lockRenewPeriodMillis,
+         ioCriticalErrorListener);
       this.ioCriticalErrorListener = ioCriticalErrorListener;
+      this.sharedStateManager = null;
+      this.scheduledLiveLock = null;
+      this.scheduledBackupLock = null;
    }
 
    @Override
@@ -122,13 +155,19 @@ public final class JdbcNodeManager extends NodeManager {
             if (isStarted()) {
                return;
             }
+            this.sharedStateManager = sharedStateManagerFactory.get();
             if (!replicatedBackup) {
                final UUID nodeId = sharedStateManager.setup(UUIDGenerator.getInstance()::generateUUID);
                setUUID(nodeId);
             }
+            this.scheduledLiveLock = scheduledLiveLockFactory.get();
+            this.scheduledBackupLock = scheduledBackupLockFactory.get();
             super.start();
          }
       } catch (IllegalStateException e) {
+         this.sharedStateManager = null;
+         this.scheduledLiveLock = null;
+         this.scheduledBackupLock = null;
          if (this.ioCriticalErrorListener != null) {
             this.ioCriticalErrorListener.onIOException(e, "Failed to setup the JdbcNodeManager", null);
          }
@@ -145,6 +184,9 @@ public final class JdbcNodeManager extends NodeManager {
          } finally {
             super.stop();
             this.sharedStateManager.close();
+            this.sharedStateManager = null;
+            this.scheduledLiveLock = null;
+            this.scheduledBackupLock = null;
          }
       }
    }

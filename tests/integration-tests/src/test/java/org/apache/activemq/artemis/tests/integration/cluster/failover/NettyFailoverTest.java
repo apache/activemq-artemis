@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -34,13 +34,17 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
-import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
-import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -50,17 +54,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.DERBY;
-
 @RunWith(Parameterized.class)
 public class NettyFailoverTest extends FailoverTest {
-
-   private static final long JDBC_LOCK_EXPIRATION_MILLIS = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
-   private static final long JDBC_LOCK_RENEW_PERIOD_MILLIS = ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis();
-   private static final long JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = ActiveMQDefaultConfiguration.getDefaultJdbcLockAcquisitionTimeoutMillis();
-   private static final SQLProvider SQL_PROVIDER = new PropertySQLProvider.Factory(DERBY).create(ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER);
-   private static final String JDBC_URL = "jdbc:derby:memory:server_lock_db;create=true";
-   private static final String DRIVER_CLASS_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
 
    public enum NodeManagerType {
       InVM, Jdbc
@@ -84,8 +79,8 @@ public class NettyFailoverTest extends FailoverTest {
       return getNettyConnectorTransportConfiguration(live);
    }
 
-   private ScheduledExecutorService scheduledExecutorService;
-   private ExecutorService executor;
+   private List<ScheduledExecutorService> scheduledExecutorServices = new ArrayList<>();
+   private List<ExecutorService> executors = new ArrayList<>();
 
    @Override
    protected NodeManager createReplicatedBackupNodeManager(Configuration backupConfig) {
@@ -94,23 +89,25 @@ public class NettyFailoverTest extends FailoverTest {
    }
 
    @Override
-   protected NodeManager createNodeManager() {
+   protected NodeManager createNodeManager() throws Exception {
 
       switch (nodeManagerType) {
 
          case InVM:
             return new InVMNodeManager(false);
          case Jdbc:
-            //It can uses an in memory JavaDB: the failover tests are in process
             final ThreadFactory daemonThreadFactory = t -> {
                final Thread th = new Thread(t);
                th.setDaemon(true);
                return th;
             };
-            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(daemonThreadFactory);
-            executor = Executors.newFixedThreadPool(2, daemonThreadFactory);
+            final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(daemonThreadFactory);
+            scheduledExecutorServices.add(scheduledExecutorService);
+            final ExecutorService executor = Executors.newFixedThreadPool(2, daemonThreadFactory);
+            executors.add(executor);
+            final DatabaseStorageConfiguration dbConf = createDefaultDatabaseStorageConfiguration();
             final ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
-            return JdbcNodeManager.usingConnectionUrl(UUID.randomUUID().toString(), JDBC_LOCK_EXPIRATION_MILLIS, JDBC_LOCK_RENEW_PERIOD_MILLIS, JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS, JDBC_URL, DRIVER_CLASS_NAME, SQL_PROVIDER, scheduledExecutorService, executorFactory, (code, message, file) -> {
+            return JdbcNodeManager.with(dbConf, scheduledExecutorService, executorFactory, (code, message, file) -> {
                code.printStackTrace();
                Assert.fail(message);
             });
@@ -119,13 +116,27 @@ public class NettyFailoverTest extends FailoverTest {
       }
    }
 
+
+   @Override
+   protected TestableServer createTestableServer(Configuration config) throws Exception {
+      final boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+      NodeManager nodeManager = this.nodeManager;
+      //create a separate NodeManager for the backup
+      if (isBackup && nodeManagerType == NodeManagerType.Jdbc) {
+         nodeManager = createNodeManager();
+      }
+      return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
+   }
+
+
    @After
    public void shutDownExecutors() {
-      if (scheduledExecutorService != null) {
-         executor.shutdown();
-         scheduledExecutorService.shutdown();
-         this.executor = null;
-         this.scheduledExecutorService = null;
+      if (!scheduledExecutorServices.isEmpty()) {
+         ThreadLeakCheckRule.addKownThread("oracle.jdbc.driver.BlockSource.ThreadedCachingBlockSource.BlockReleaser");
+         executors.forEach(ExecutorService::shutdown);
+         scheduledExecutorServices.forEach(ExecutorService::shutdown);
+         executors.clear();
+         scheduledExecutorServices.clear();
       }
    }
 

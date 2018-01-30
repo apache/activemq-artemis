@@ -112,7 +112,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       liveServer.setIdentity(this.getClass().getSimpleName() + "/liveServer");
    }
 
-   protected TestableServer createTestableServer(Configuration config) {
+   protected TestableServer createTestableServer(Configuration config) throws Exception {
       boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
@@ -156,7 +156,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    /**
     * Override this if is needed a different implementation of {@link NodeManager} to be used into {@link #createConfigs()}.
     */
-   protected NodeManager createNodeManager() {
+   protected NodeManager createNodeManager() throws Exception {
       return new InVMNodeManager(false);
    }
 
