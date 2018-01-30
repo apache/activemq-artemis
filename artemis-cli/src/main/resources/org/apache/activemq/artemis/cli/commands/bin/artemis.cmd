@@ -19,10 +19,7 @@ rem under the License.
 setlocal
 
 if NOT "%ARTEMIS_INSTANCE%"=="" goto CHECK_ARTEMIS_INSTANCE
-PUSHD .
-CD %~dp0..
-set ARTEMIS_INSTANCE="%CD%"
-POPD
+set ARTEMIS_INSTANCE="%~dp0.."
 
 :CHECK_ARTEMIS_INSTANCE
 if exist %ARTEMIS_INSTANCE%\bin\artemis.cmd goto CHECK_JAVA

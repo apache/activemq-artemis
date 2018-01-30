@@ -19,10 +19,7 @@ rem under the License.
 setlocal
 
 if NOT "%ARTEMIS_HOME%"=="" goto CHECK_ARTEMIS_HOME
-PUSHD .
-CD %~dp0..
-set ARTEMIS_HOME="%CD%"
-POPD
+set ARTEMIS_HOME="%~dp0.."
 
 :CHECK_ARTEMIS_HOME
 if exist %ARTEMIS_HOME%\bin\artemis.cmd goto CHECK_JAVA
