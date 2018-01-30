@@ -63,4 +63,9 @@ class HornetQProtocolManager extends CoreProtocolManager {
       String frameStart = new String(array, StandardCharsets.US_ASCII);
       return frameStart.startsWith("HORNETQ");
    }
+
+   @Override
+   public String toString() {
+      return "HornetQProtocolManager(server=" + super.server + ")";
+   }
 }

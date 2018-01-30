@@ -19,27 +19,36 @@ package servers
 // starts an artemis server
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.server.JournalType
-import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS
-import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
 
 
 String folder = arg[0];
-String id = "server"
+String id = arg[1];
+String type = arg[2];
+String producer = arg[3];
+String consumer = arg[4];
+
+println("type = " + type);
 
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
 System.out.println("folder:: " + folder);
 configuration.setBrokerInstance(new File(folder + "/" + id));
-configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616?anycastPrefix=jms.queue.&multicastPrefix=jms.topic.");
+configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616");
 configuration.setSecurityEnabled(false);
-configuration.setPersistenceEnabled(false);
-configuration.addAddressesSetting("myQueue", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeBytes(1024 * 1024 * 1024).setPageSizeBytes(1024));
-// if the client is using the wrong address, it will wrongly block
-configuration.addAddressesSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024).setPageSizeBytes(1024));
+configuration.setPersistenceEnabled(persistent);
+try {
+    if (!type.startsWith("ARTEMIS-1")) {
+        configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
+    }
+} catch (Throwable e) {
+    // need to ignore this for 1.4
+    e.printStackTrace();
+}
+
 jmsConfiguration = new JMSConfigurationImpl();
 
 server = new EmbeddedJMS();
@@ -47,4 +56,5 @@ server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);
 server.start();
 
-server.getJMSServerManager().createQueue(true, "myQueue", null, true);
+server.getJMSServerManager().createTopic(true, "topic");
+server.getJMSServerManager().createQueue(true, "queue", null, true);

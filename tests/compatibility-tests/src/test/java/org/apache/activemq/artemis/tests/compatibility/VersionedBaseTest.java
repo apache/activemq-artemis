@@ -194,7 +194,9 @@ public abstract class VersionedBaseTest {
       System.out.println("Folder::" + folder);
 
       String scriptToUse;
-      if (server.startsWith("ARTEMIS")) {
+      if (getServerScriptToUse() != null && getServerScriptToUse().length() != 0) {
+         scriptToUse = getServerScriptToUse();
+      } else if (server.startsWith("ARTEMIS")) {
          scriptToUse = "servers/artemisServer.groovy";
       } else {
          scriptToUse = "servers/hornetqServer.groovy";
@@ -205,5 +207,9 @@ public abstract class VersionedBaseTest {
 
    public void stopServer(ClassLoader loader) throws Throwable {
       execute(loader, "server.stop()");
+   }
+
+   public String getServerScriptToUse() {
+      return null;
    }
 }

@@ -314,11 +314,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_CREATECONSUMER: {
                   SessionCreateConsumerMessage request = (SessionCreateConsumerMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createConsumer(request.getID(), request.getQueueName(remotingConnection.getChannelVersion()), request.getFilterString(), request.isBrowseOnly());
+                  session.createConsumer(request.getID(), request.getQueueName(), request.getFilterString(), request.isBrowseOnly());
                   if (requiresResponse) {
                      // We send back queue information on the queue as a response- this allows the queue to
                      // be automatically recreated on failover
-                     QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName(remotingConnection.getChannelVersion()));
+                     QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName());
 
                      if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V3)) {
                         response = new SessionQueueQueryResponseMessage_V3(queueQueryResult);
@@ -387,7 +387,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_QUEUEQUERY: {
                   requiresResponse = true;
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
-                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName(remotingConnection.getChannelVersion()));
+                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
 
                   if (remotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
                      result.setAddress(SessionQueueQueryMessage.getOldPrefixedAddress(result.getAddress(), result.getRoutingType()));
@@ -406,7 +406,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
                   final int clientVersion = remotingConnection.getChannelVersion();
-                  BindingQueryResult result = session.executeBindingQuery(request.getAddress(clientVersion));
+                  BindingQueryResult result = session.executeBindingQuery(request.getAddress());
 
                   /* if the session is JMS and it's from an older client then we need to add the old prefix to the queue
                    * names otherwise the older client won't realize the queue exists and will try to create it and receive

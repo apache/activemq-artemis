@@ -28,35 +28,15 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 public abstract class QueueAbstractPacket extends PacketImpl {
 
    protected SimpleString queueName;
-   protected SimpleString oldVersionQueueName;
 
    protected SimpleString address;
-   protected SimpleString oldVersionAddresseName;
 
-   public SimpleString getQueueName(int clientVersion) {
-
-      if (clientVersion < ADDRESSING_CHANGE_VERSION) {
-         if (oldVersionQueueName == null) {
-            oldVersionQueueName = convertName(queueName);
-         }
-
-         return oldVersionQueueName;
-      } else {
-         return queueName;
-      }
+   public SimpleString getQueueName() {
+      return queueName;
    }
 
-   public SimpleString getAddress(int clientVersion) {
-
-      if (clientVersion < ADDRESSING_CHANGE_VERSION) {
-         if (oldVersionAddresseName == null) {
-            oldVersionAddresseName = convertName(address);
-         }
-
-         return oldVersionAddresseName;
-      } else {
-         return address;
-      }
+   public SimpleString getAddress() {
+      return address;
    }
 
    /**
@@ -69,30 +49,29 @@ public abstract class QueueAbstractPacket extends PacketImpl {
     */
    public final List<SimpleString> convertQueueNames(int clientVersion, List<SimpleString> queueNames) {
       if (clientVersion < ADDRESSING_CHANGE_VERSION) {
-         return applyAddressPrefixTo(queueNames);
+         final int names = queueNames.size();
+         if (names == 0) {
+            return Collections.emptyList();
+         } else {
+            final SimpleString prefix = jmsPrefixOf(this.address);
+            if (prefix != null) {
+               final List<SimpleString> prefixedQueueNames = new ArrayList<>(names);
+               for (int i = 0; i < names; i++) {
+                  final SimpleString oldQueueName = queueNames.get(i);
+                  if (oldQueueName.startsWith(prefix)) {
+                     prefixedQueueNames.add(oldQueueName);
+                  } else {
+                     final SimpleString prefixedQueueName = prefix.concat(oldQueueName);
+                     prefixedQueueNames.add(prefixedQueueName);
+                  }
+               }
+               return prefixedQueueNames;
+            } else {
+               return queueNames;
+            }
+         }
       } else {
          return queueNames;
-      }
-   }
-
-   private List<SimpleString> applyAddressPrefixTo(List<SimpleString> queueNames) {
-      final int names = queueNames.size();
-      if (names == 0) {
-         return Collections.emptyList();
-      } else {
-         final SimpleString address = this.address;
-         final SimpleString prefix = jmsPrefixOf(address);
-         if (prefix != null) {
-            final List<SimpleString> prefixedQueueNames = new ArrayList<>(names);
-            for (int i = 0; i < names; i++) {
-               final SimpleString oldQueueNames = queueNames.get(i);
-               final SimpleString prefixedQueueName = prefix.concat(oldQueueNames);
-               prefixedQueueNames.add(prefixedQueueName);
-            }
-            return prefixedQueueNames;
-         } else {
-            return queueNames;
-         }
       }
    }
 
@@ -111,10 +90,12 @@ public abstract class QueueAbstractPacket extends PacketImpl {
    }
 
    public static SimpleString getOldPrefixedAddress(SimpleString address, RoutingType routingType) {
-      switch (routingType) {
-         case MULTICAST: return OLD_TOPIC_PREFIX.concat(address);
-         case ANYCAST: return OLD_QUEUE_PREFIX.concat(address);
-         default: return address;
+      if (routingType == RoutingType.MULTICAST && !address.startsWith(OLD_TOPIC_PREFIX)) {
+         return OLD_TOPIC_PREFIX.concat(address);
+      } else if (routingType == RoutingType.ANYCAST && !address.startsWith(OLD_QUEUE_PREFIX)) {
+         return OLD_QUEUE_PREFIX.concat(address);
       }
+
+      return address;
    }
 }
