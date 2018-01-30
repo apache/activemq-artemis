@@ -70,7 +70,12 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
       synchronized (monitorLock) {
          // JDBC storage may return this as null, and we may need to ignore it
          if (file != null && file.exists()) {
-            addStore(Files.getFileStore(file.toPath()));
+            try {
+               addStore(Files.getFileStore(file.toPath()));
+            } catch (IOException e) {
+               logger.error("Error getting file store for " + file.getAbsolutePath(), e);
+               throw e;
+            }
          }
          return this;
       }
