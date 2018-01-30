@@ -43,7 +43,7 @@ public class JMSLVQTest extends JMSClientTestSupport {
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
-      server.getAddressSettingsRepository().addMatch(LVQ_QUEUE_NAME, new AddressSettings().setLastValueQueue(true));
+      server.getAddressSettingsRepository().addMatch(LVQ_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true));
    }
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {

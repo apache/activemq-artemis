@@ -249,8 +249,21 @@ public class ActiveMQSessionContext extends SessionContext {
                                  SimpleString queueName,
                                  RoutingType routingType,
                                  SimpleString filterString,
+                                 boolean durable,
+                                 Integer maxConsumers,
+                                 Boolean purgeOnNoConsumers,
+                                 Boolean exclusive,
+                                 Boolean lastValue) throws ActiveMQException {
+      sessionChannel.sendBlocking(new CreateSharedQueueMessage_V2(address, queueName, routingType, filterString, durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, true), PacketImpl.NULL_RESPONSE);
+   }
+
+   @Override
+   public void createSharedQueue(SimpleString address,
+                                 SimpleString queueName,
+                                 RoutingType routingType,
+                                 SimpleString filterString,
                                  boolean durable) throws ActiveMQException {
-      sessionChannel.sendBlocking(new CreateSharedQueueMessage_V2(address, queueName, routingType, filterString, durable, true), PacketImpl.NULL_RESPONSE);
+      createSharedQueue(address, queueName, routingType, filterString, durable, null, null, null, null);
    }
 
    @Override
@@ -325,19 +338,19 @@ public class ActiveMQSessionContext extends SessionContext {
       if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4, getServerVersion())) {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V4);
          SessionBindingQueryResponseMessage_V4 response = (SessionBindingQueryResponseMessage_V4) packet;
-         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), response.isAutoCreateAddresses(), response.isDefaultPurgeOnNoConsumers(), response.getDefaultMaxConsumers());
+         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), response.isAutoCreateAddresses(), response.isDefaultPurgeOnNoConsumers(), response.getDefaultMaxConsumers(), response.isDefaultExclusive(), response.isDefaultLastValue());
       } else if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3, getServerVersion())) {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V3);
          SessionBindingQueryResponseMessage_V3 response = (SessionBindingQueryResponseMessage_V3) packet;
-         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), response.isAutoCreateAddresses(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
+         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), response.isAutoCreateAddresses(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), null, null);
       } else if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2, getServerVersion())) {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V2);
          SessionBindingQueryResponseMessage_V2 response = (SessionBindingQueryResponseMessage_V2) packet;
-         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
+         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), null, null);
       } else {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP);
          SessionBindingQueryResponseMessage response = (SessionBindingQueryResponseMessage) packet;
-         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false, false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
+         return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false, false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), null, null);
       }
    }
 
@@ -647,14 +660,30 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean temp,
                            int maxConsumers,
                            boolean purgeOnNoConsumers,
-                           boolean autoCreated) throws ActiveMQException {
+                           boolean autoCreated,
+                           Boolean exclusive,
+                           Boolean lastValue) throws ActiveMQException {
       if (sessionChannel.getConnection().isVersionBeforeAddressChange()) {
          CreateQueueMessage request = new CreateQueueMessage(address, queueName, filterString, durable, temp, true);
          sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
       } else {
-         CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, routingType, filterString, durable, temp, maxConsumers, purgeOnNoConsumers, autoCreated, true);
+         CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, routingType, filterString, durable, temp, maxConsumers, purgeOnNoConsumers, autoCreated, true, exclusive, lastValue);
          sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
       }
+   }
+
+   @Deprecated
+   @Override
+   public void createQueue(SimpleString address,
+                           RoutingType routingType,
+                           SimpleString queueName,
+                           SimpleString filterString,
+                           boolean durable,
+                           boolean temp,
+                           int maxConsumers,
+                           boolean purgeOnNoConsumers,
+                           boolean autoCreated) throws ActiveMQException {
+      createQueue(address, routingType, queueName, filterString, durable, temp, maxConsumers, purgeOnNoConsumers, autoCreated, null, null);
    }
 
    @Override
@@ -741,7 +770,7 @@ public class ActiveMQSessionContext extends SessionContext {
       // they are defined in broker.xml
       // This allows e.g. JMS non durable subs and temporary queues to continue to be used after failover
       if (!queueInfo.isDurable()) {
-         CreateQueueMessage_V2 createQueueRequest = new CreateQueueMessage_V2(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getRoutingType(), queueInfo.getFilterString(), false, queueInfo.isTemporary(), queueInfo.getMaxConsumers(), queueInfo.isPurgeOnNoConsumers(), queueInfo.isAutoCreated(), false);
+         CreateQueueMessage_V2 createQueueRequest = new CreateQueueMessage_V2(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getRoutingType(), queueInfo.getFilterString(), false, queueInfo.isTemporary(), queueInfo.getMaxConsumers(), queueInfo.isPurgeOnNoConsumers(), queueInfo.isAutoCreated(), false, queueInfo.isExclusive(), queueInfo.isLastValue());
 
          sendPacketWithoutLock(sessionChannel, createQueueRequest);
       }

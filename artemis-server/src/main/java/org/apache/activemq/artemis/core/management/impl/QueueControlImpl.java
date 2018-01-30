@@ -382,6 +382,30 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public boolean isExclusive() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isExclusive();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isLastValue() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isLastValue();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
       checkStarted();
 

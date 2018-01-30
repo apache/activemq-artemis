@@ -48,6 +48,10 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final int maxConsumers;
 
+   private final Boolean exclusive;
+
+   private final Boolean lastValue;
+
    public QueueQueryImpl(final boolean durable,
                          final boolean temporary,
                          final int consumerCount,
@@ -84,6 +88,23 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final boolean autoCreated,
                          final boolean purgeOnNoConsumers,
                          final RoutingType routingType) {
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, null, null);
+   }
+   public QueueQueryImpl(final boolean durable,
+                         final boolean temporary,
+                         final int consumerCount,
+                         final long messageCount,
+                         final SimpleString filterString,
+                         final SimpleString address,
+                         final SimpleString name,
+                         final boolean exists,
+                         final boolean autoCreateQueues,
+                         final int maxConsumers,
+                         final boolean autoCreated,
+                         final boolean purgeOnNoConsumers,
+                         final RoutingType routingType,
+                         final Boolean exclusive,
+                         final Boolean lastValue) {
       this.durable = durable;
       this.temporary = temporary;
       this.consumerCount = consumerCount;
@@ -97,6 +118,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.autoCreated = autoCreated;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.routingType = routingType;
+      this.exclusive = exclusive;
+      this.lastValue = lastValue;
    }
 
    @Override
@@ -162,6 +185,16 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    @Override
    public boolean isAutoCreated() {
       return autoCreated;
+   }
+
+   @Override
+   public Boolean isExclusive() {
+      return exclusive;
+   }
+
+   @Override
+   public Boolean isLastValue() {
+      return lastValue;
    }
 
 }

@@ -150,6 +150,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .autoCreated(queueBindingInfo.isAutoCreated())
             .purgeOnNoConsumers(queueBindingInfo.isPurgeOnNoConsumers())
             .maxConsumers(queueBindingInfo.getMaxConsumers())
+            .exclusive(queueBindingInfo.isExclusive())
             .routingType(RoutingType.getType(queueBindingInfo.getRoutingType()));
          final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());
          queue.setConsumersRefCount(new QueueManagerImpl(((PostOfficeImpl)postOffice).getServer(), queueBindingInfo.getQueueName()));

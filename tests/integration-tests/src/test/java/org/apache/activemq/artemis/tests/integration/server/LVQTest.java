@@ -648,7 +648,7 @@ public class LVQTest extends ActiveMQTestBase {
       // start the server
       server.start();
 
-      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setDefaultLastValueQueue(true));
       // then we create a client as normalServer
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
 

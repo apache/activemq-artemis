@@ -60,6 +60,7 @@ public class LastValueQueue extends QueueImpl {
                          final boolean autoCreated,
                          final RoutingType routingType,
                          final Integer maxConsumers,
+                         final Boolean exclusive,
                          final Boolean purgeOnNoConsumers,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
@@ -68,7 +69,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    @Override
@@ -160,6 +161,11 @@ public class LastValueQueue extends QueueImpl {
       }
 
       super.refRemoved(ref);
+   }
+
+   @Override
+   public boolean isLastValue() {
+      return true;
    }
 
    private class HolderReference implements MessageReference {

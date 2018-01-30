@@ -48,6 +48,23 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isExclusive() {
+      // no-op
+      return false;
+   }
+
+   @Override
+   public void setExclusive(boolean value) {
+      // no-op
+   }
+
+   @Override
+   public boolean isLastValue() {
+      // no-op
+      return false;
+   }
+
+   @Override
    public void setMaxConsumer(int maxConsumers) {
 
    }

@@ -19,16 +19,25 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.utils.BufferHelper;
 
 public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
 
    private RoutingType routingType;
+   Integer maxConsumers;
+   Boolean purgeOnNoConsumers;
+   private Boolean exclusive;
+   private Boolean lastValue;
 
    public CreateSharedQueueMessage_V2(final SimpleString address,
                                       final SimpleString queueName,
                                       final RoutingType routingType,
                                       final SimpleString filterString,
                                       final boolean durable,
+                                      final Integer maxConsumers,
+                                      final Boolean purgeOnNoConsumers,
+                                      final Boolean exclusive,
+                                      final Boolean lastValue,
                                       final boolean requiresResponse) {
       this();
 
@@ -36,8 +45,13 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.queueName = queueName;
       this.filterString = filterString;
       this.durable = durable;
-      this.requiresResponse = requiresResponse;
       this.routingType = routingType;
+      this.maxConsumers = maxConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
+      this.exclusive = exclusive;
+      this.lastValue = lastValue;
+      this.requiresResponse = requiresResponse;
+
    }
 
    public CreateSharedQueueMessage_V2() {
@@ -52,6 +66,38 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.routingType = routingType;
    }
 
+   public Integer getMaxConsumers() {
+      return maxConsumers;
+   }
+
+   public void setMaxConsumers(Integer maxConsumers) {
+      this.maxConsumers = maxConsumers;
+   }
+
+   public Boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
+   }
+
+   public void setPurgeOnNoConsumers(Boolean purgeOnNoConsumers) {
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
+   }
+
+   public Boolean isExclusive() {
+      return exclusive;
+   }
+
+   public void setExclusive(Boolean exclusive) {
+      this.exclusive = exclusive;
+   }
+
+   public Boolean isLastValue() {
+      return lastValue;
+   }
+
+   public void setLastValue(Boolean lastValue) {
+      this.lastValue = lastValue;
+   }
+
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
@@ -59,6 +105,11 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buff.append(", queueName=" + queueName);
       buff.append(", filterString=" + filterString);
       buff.append(", durable=" + durable);
+      buff.append(", routingType=" + routingType);
+      buff.append(", maxConsumers=" + maxConsumers);
+      buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
+      buff.append(", exclusive=" + exclusive);
+      buff.append(", lastValue=" + lastValue);
       buff.append(", requiresResponse=" + requiresResponse);
       buff.append("]");
       return buff.toString();
@@ -72,6 +123,10 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buffer.writeBoolean(durable);
       buffer.writeByte(routingType.getType());
       buffer.writeBoolean(requiresResponse);
+      BufferHelper.writeNullableInteger(buffer, maxConsumers);
+      BufferHelper.writeNullableBoolean(buffer, purgeOnNoConsumers);
+      BufferHelper.writeNullableBoolean(buffer, exclusive);
+      BufferHelper.writeNullableBoolean(buffer, lastValue);
    }
 
    @Override
@@ -82,6 +137,12 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       durable = buffer.readBoolean();
       routingType = RoutingType.getType(buffer.readByte());
       requiresResponse = buffer.readBoolean();
+      if (buffer.readableBytes() > 0) {
+         maxConsumers = BufferHelper.readNullableInteger(buffer);
+         purgeOnNoConsumers = BufferHelper.readNullableBoolean(buffer);
+         exclusive = BufferHelper.readNullableBoolean(buffer);
+         lastValue = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -94,6 +155,10 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       result = prime * result + (durable ? 1231 : 1237);
       result = prime * result + routingType.getType();
       result = prime * result + (requiresResponse ? 1231 : 1237);
+      result = prime * result + (maxConsumers == null ? 0 : maxConsumers.hashCode());
+      result = prime * result + (purgeOnNoConsumers == null ? 0 : purgeOnNoConsumers ? 1231 : 1237);
+      result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
+      result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
       return result;
    }
 
@@ -126,6 +191,14 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       if (routingType != other.routingType)
          return false;
       if (requiresResponse != other.requiresResponse)
+         return false;
+      if (maxConsumers != other.maxConsumers)
+         return false;
+      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
+         return false;
+      if (exclusive != other.exclusive)
+         return false;
+      if (lastValue != other.lastValue)
          return false;
       return true;
    }

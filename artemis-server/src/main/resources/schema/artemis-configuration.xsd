@@ -502,6 +502,8 @@
                         </xsd:attribute>
                         <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
                         <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
                      </xsd:complexType>
                   </xsd:element>
                </xsd:sequence>
@@ -2693,7 +2695,23 @@
             <xsd:element name="last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether to treat the queue as a last value queue
+                     This is deprecated please use default-last-value-queue instead.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether to treat the queues under the address as a last value queues by default
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-exclusive-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether to treat the queues under the address as exclusive queues by default
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -3009,6 +3027,8 @@
       <xsd:attribute name="name" type="xsd:string" use="required"/>
       <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
    </xsd:complexType>
 
    <xsd:complexType name="addressType">
