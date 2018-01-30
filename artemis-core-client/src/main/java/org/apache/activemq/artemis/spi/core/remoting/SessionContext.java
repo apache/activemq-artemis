@@ -171,8 +171,20 @@ public abstract class SessionContext {
     * @param routingType
     * @param filterString
     * @param durable
+    * @param exclusive
+    * @param lastValue
     * @throws ActiveMQException
     */
+   public abstract void createSharedQueue(SimpleString address,
+                                          SimpleString queueName,
+                                          RoutingType routingType,
+                                          SimpleString filterString,
+                                          boolean durable,
+                                          Integer maxConsumers,
+                                          Boolean purgeOnNoConsumers,
+                                          Boolean exclusive,
+                                          Boolean lastValue) throws ActiveMQException;
+
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
                                           RoutingType routingType,
@@ -199,6 +211,7 @@ public abstract class SessionContext {
                                     boolean temp,
                                     boolean autoCreated) throws ActiveMQException;
 
+   @Deprecated
    public abstract void createQueue(SimpleString address,
                                     RoutingType routingType,
                                     SimpleString queueName,
@@ -208,6 +221,18 @@ public abstract class SessionContext {
                                     int maxConsumers,
                                     boolean purgeOnNoConsumers,
                                     boolean autoCreated) throws ActiveMQException;
+
+   public abstract void createQueue(SimpleString address,
+                                    RoutingType routingType,
+                                    SimpleString queueName,
+                                    SimpleString filterString,
+                                    boolean durable,
+                                    boolean temp,
+                                    int maxConsumers,
+                                    boolean purgeOnNoConsumers,
+                                    boolean autoCreated,
+                                    Boolean exclusive,
+                                    Boolean lastVale) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 
