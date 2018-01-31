@@ -406,7 +406,9 @@ public final class ClusterManager implements ActiveMQComponent {
          return;
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeDeployBridge(config) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeDeployBridge(config));
+      }
 
       Queue queue = (Queue) binding.getBindable();
 
@@ -481,7 +483,9 @@ public final class ClusterManager implements ActiveMQComponent {
 
       bridge.start();
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterDeployBridge(bridge) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterDeployBridge(bridge));
+      }
    }
 
    public static class IncomingInterceptorLookingForExceptionMessage implements Interceptor {

@@ -444,7 +444,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       try {
          Message message = reference.getMessage();
 
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeDeliver(this, reference) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.beforeDeliver(this, reference));
+         }
 
          if (message.isLargeMessage() && supportLargeMessage) {
             if (largeMessageDeliverer == null) {
@@ -462,7 +464,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       } finally {
          lockDelivery.readLock().unlock();
          callback.afterDelivery();
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterDeliver(this, reference) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.afterDeliver(this, reference));
+         }
       }
 
    }
@@ -478,7 +482,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          logger.trace("ServerConsumerImpl::" + this + " being closed with failed=" + failed, new Exception("trace"));
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCloseConsumer(this, failed) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeCloseConsumer(this, failed));
+      }
 
       setStarted(false);
 
@@ -537,7 +543,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          managementService.sendNotification(notification);
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCloseConsumer(this, failed) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterCloseConsumer(this, failed));
+      }
    }
 
    @Override
