@@ -53,6 +53,12 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private Object protocolData;
 
+   private final boolean largeMessage;
+
+   private final long transactionID;
+
+   private final long messageID;
+
    @Override
    public Object getProtocolData() {
       return protocolData;
@@ -95,6 +101,9 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
       this.position = position;
       this.message = new WeakReference<>(message);
       this.subscription = subscription;
+      this.largeMessage = message.getMessage().isLargeMessage();
+      this.transactionID = message.getTransactionID();
+      this.messageID = message.getMessage().getMessageID();
    }
 
    @Override
@@ -254,6 +263,21 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    @Override
    public Long getConsumerId() {
       return this.consumerId;
+   }
+
+   @Override
+   public boolean isLargeMessage() {
+      return largeMessage;
+   }
+
+   @Override
+   public long getTransactionID() {
+      return transactionID;
+   }
+
+   @Override
+   public long getMessageID() {
+      return messageID;
    }
 
 }
