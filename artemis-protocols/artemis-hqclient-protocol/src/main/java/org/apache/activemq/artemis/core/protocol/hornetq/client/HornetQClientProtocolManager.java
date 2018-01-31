@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
@@ -73,11 +74,20 @@ public class HornetQClientProtocolManager extends ActiveMQClientProtocolManager 
       return true;
    }
 
+
    @Override
-   public void updateTransportConfiguration(TransportConfiguration connector) {
-      String factoryClassName = connector.getFactoryClassName();
-      if ("org.hornetq.core.remoting.impl.netty.NettyConnectorFactory".equals(factoryClassName)) {
-         connector.setFactoryClassName(NettyConnectorFactory.class.getName());
+   protected ClusterTopologyChangeMessage updateTransportConfiguration(final ClusterTopologyChangeMessage topMessage) {
+      updateTransportConfiguration(topMessage.getPair().getA());
+      updateTransportConfiguration(topMessage.getPair().getB());
+      return super.updateTransportConfiguration(topMessage);
+   }
+
+   private void updateTransportConfiguration(TransportConfiguration connector) {
+      if (connector != null) {
+         String factoryClassName = connector.getFactoryClassName();
+         if ("org.hornetq.core.remoting.impl.netty.NettyConnectorFactory".equals(factoryClassName)) {
+            connector.setFactoryClassName(NettyConnectorFactory.class.getName());
+         }
       }
    }
 

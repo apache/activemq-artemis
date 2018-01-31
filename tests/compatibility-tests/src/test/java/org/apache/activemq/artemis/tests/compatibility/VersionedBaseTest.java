@@ -203,38 +203,7 @@ public abstract class VersionedBaseTest {
       evaluate(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver);
    }
 
-   public void startServerWithBackup(File folder, ClassLoader loader, String serverName) throws Throwable {
-      folder.mkdirs();
-
-      System.out.println("Folder::" + folder);
-
-      String liveScript;
-      String backupScript;
-      String topologyScript;
-
-      if (server.startsWith("ARTEMIS")) {
-         liveScript = "servers/node/artemisServer.groovy";
-         backupScript = "servers/node/artemisServer_backup.groovy";
-         topologyScript = null;
-      } else {
-         liveScript = "servers/node/hornetqServer.groovy";
-         backupScript = "servers/node/hornetqServer_backup.groovy";
-      }
-
-      evaluate(loader, liveScript, folder.getAbsolutePath(), serverName, "0");
-      evaluate(loader, backupScript, folder.getAbsolutePath(), serverName, "1");
-   }
-
-   public void stopServerWithBackup(ClassLoader loader) throws Throwable {
-      execute(loader, "backupServer.stop()");
-      execute(loader, "server.stop()");
-   }
-
    public void stopServer(ClassLoader loader) throws Throwable {
       execute(loader, "server.stop()");
-   }
-
-   public void stopBackup(ClassLoader loader) throws Throwable {
-      execute(loader, "backupServer.stop()");
    }
 }
