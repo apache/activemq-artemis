@@ -22,7 +22,6 @@ import java.util.concurrent.locks.Lock;
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
@@ -79,6 +78,4 @@ public interface ClientProtocolManager {
 
    String getName();
 
-   default void updateTransportConfiguration(TransportConfiguration backUp) {
-   }
 }

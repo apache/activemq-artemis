@@ -429,6 +429,12 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
    }
 
+
+   protected ClusterTopologyChangeMessage updateTransportConfiguration(final ClusterTopologyChangeMessage topMessage) {
+      return topMessage;
+   }
+
+
    private class Channel0Handler implements ChannelHandler {
 
       private final CoreRemotingConnection conn;
@@ -456,13 +462,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
-            notifyTopologyChange(topMessage);
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2) {
             ClusterTopologyChangeMessage_V2 topMessage = (ClusterTopologyChangeMessage_V2) packet;
-            notifyTopologyChange(topMessage);
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
-            notifyTopologyChange(topMessage);
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
          } else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
          }
@@ -471,7 +477,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       /**
        * @param topMessage
        */
-      private void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage) {
+      protected void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage) {
          final long eventUID;
          final String backupGroupName;
          final String scaleDownGroupName;

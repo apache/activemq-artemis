@@ -256,10 +256,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    public void setBackupConnector(final TransportConfiguration live, final TransportConfiguration backUp) {
       Connector localConnector = connector;
 
-      if (backUp != null) {
-         this.clientProtocolManager.updateTransportConfiguration(backUp);
-      }
-
       // if the connector has never been used (i.e. the getConnection hasn't been called yet), we will need
       // to create a connector just to validate if the parameters are ok.
       // so this will create the instance to be used on the isEquivalent check
