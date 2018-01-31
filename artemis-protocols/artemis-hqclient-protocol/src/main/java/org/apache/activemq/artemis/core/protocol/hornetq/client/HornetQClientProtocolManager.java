@@ -17,12 +17,15 @@
 
 package org.apache.activemq.artemis.core.protocol.hornetq.client;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
@@ -62,6 +65,20 @@ public class HornetQClientProtocolManager extends ActiveMQClientProtocolManager 
    @Override
    public void sendSubscribeTopology(final boolean isServer) {
       getChannel0().send(new SubscribeClusterTopologyUpdatesMessageV2(isServer, VERSION_PLAYED));
+   }
+
+   @Override
+   public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
+      //HornetQ doesn't support CheckFailoverMessage packet
+      return true;
+   }
+
+   @Override
+   public void updateTransportConfiguration(TransportConfiguration connector) {
+      String factoryClassName = connector.getFactoryClassName();
+      if ("org.hornetq.core.remoting.impl.netty.NettyConnectorFactory".equals(factoryClassName)) {
+         connector.setFactoryClassName(NettyConnectorFactory.class.getName());
+      }
    }
 
 }
