@@ -401,4 +401,8 @@ public class TransportConfiguration implements Serializable {
    private static String replaceWildcardChars(final String str) {
       return str.replace('.', '-');
    }
+
+   public void setFactoryClassName(String factoryClassName) {
+      this.factoryClassName = factoryClassName;
+   }
 }
