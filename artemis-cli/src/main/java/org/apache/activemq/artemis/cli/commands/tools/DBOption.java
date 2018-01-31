@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryDatabase;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
@@ -195,6 +196,7 @@ public class DBOption extends OptionalLocking {
          configuration.setJournalDirectory(getJournal());
          configuration.setPagingDirectory(getPaging());
          configuration.setLargeMessagesDirectory(getLargeMessages());
+         configuration.setJournalType(JournalType.NIO);
       }
 
       return configuration;
