@@ -356,7 +356,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       synchronized (this) {
          if (!closed) {
-            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCloseSession(this, failed) : null);
+            if (server.hasBrokerPlugins()) {
+               server.callBrokerPlugins(plugin -> plugin.beforeCloseSession(this, failed));
+            }
          }
          this.setStarted(false);
          if (closed)
@@ -410,7 +412,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          closed = true;
 
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCloseSession(this, failed) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.afterCloseSession(this, failed));
+         }
       }
    }
 
@@ -466,13 +470,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       Filter filter = FilterImpl.createFilter(filterString);
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCreateConsumer(consumerID, (QueueBinding) binding,
-            filterString, browseOnly, supportLargeMessage) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeCreateConsumer(consumerID, (QueueBinding) binding,
+               filterString, browseOnly, supportLargeMessage));
+      }
 
       ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
       consumers.put(consumer.getID(), consumer);
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCreateConsumer(consumer) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterCreateConsumer(consumer));
+      }
 
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
@@ -1356,7 +1364,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          message = msg;
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
+      }
 
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
       if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
@@ -1365,7 +1375,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw exception;
       }
 
-      RoutingStatus result = RoutingStatus.OK;
+      final RoutingStatus result;
       //large message may come from StompSession directly, in which
       //case the id header already generated.
       if (!message.isLargeMessage()) {
@@ -1402,8 +1412,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          result = doSend(tx, message, address, direct, noAutoCreateQueue);
       }
 
-      final RoutingStatus finalResult = result;
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, finalResult) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, result));
+      }
 
       return result;
    }
@@ -1435,12 +1446,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void addMetaData(String key, String data) throws Exception {
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSessionMetadataAdded(this, key, data) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeSessionMetadataAdded(this, key, data));
+      }
+
       if (metaData == null) {
          metaData = new HashMap<>();
       }
       metaData.put(key, data);
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterSessionMetadataAdded(this, key, data) : null);
+
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterSessionMetadataAdded(this, key, data));
+      }
    }
 
    @Override
