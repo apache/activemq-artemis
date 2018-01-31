@@ -16,18 +16,26 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.UnsignedByte;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
+import org.apache.qpid.proton.amqp.UnsignedShort;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
 
 public class AmqpManagementTest extends AmqpClientTestSupport {
 
@@ -64,5 +72,33 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
       } finally {
          connection.close();
       }
+   }
+
+   /**
+    * Some clients use Unsigned types from org.apache.qpid.proton.amqp
+    * @throws Exception
+    */
+   @Test(timeout = 60000)
+   public void testUnsignedValues() throws Exception {
+      int sequence = 42;
+      LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+      map.put("sequence", new UnsignedInteger(sequence));
+      ServerJMSMapMessage msg = createMapMessage(1, map, null);
+      assertEquals(msg.getInt("sequence"), sequence);
+
+      map.clear();
+      map.put("sequence", new UnsignedLong(sequence));
+      msg = createMapMessage(1, map, null);
+      assertEquals(msg.getLong("sequence"), sequence);
+
+      map.clear();
+      map.put("sequence", new UnsignedShort((short)sequence));
+      msg = createMapMessage(1, map, null);
+      assertEquals(msg.getShort("sequence"), sequence);
+
+      map.clear();
+      map.put("sequence", new UnsignedByte((byte) sequence));
+      msg = createMapMessage(1, map, null);
+      assertEquals(msg.getByte("sequence"), sequence);
    }
 }
