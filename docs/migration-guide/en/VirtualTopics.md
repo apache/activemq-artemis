@@ -39,13 +39,15 @@ would be replaced with an Artemis FQQN comprised of the address and queue.
 
 This does require modification to the destination name used by consumers which is not ideal.
 If OpenWire clients cannot be modified, Artemis supports a virtual topic wildcard filter
-mechanism on the openwire protocol handler that will automatically convert the consumer destination into the
+mechanism on the OpenWire protocol handler that will automatically convert the consumer destination into the
 corresponding FQQN.
 The format is a comma separated list of strings pairs, delimited with a ';'. Each pair identifies a filter to match
 the virtual topic consumer destination and an int that specifies the number of path matches that terminate the consumer
 queue identity.
 
-E.g: For the default 5.x virtual topic consumer prefix of ```Consumer.*.``` the url parameter ```virtualTopicConsumerWildcards``` should be: ```Consumer.*.>;2```.
+E.g: For the default 5.x virtual topic consumer prefix of ```Consumer.*.``` the parameter ```virtualTopicConsumerWildcards``` should be: ```Consumer.*.>;2```.
+However, there is a caveat because this value needs to be a encoded in a uri for the xml configuration. Any unsafe url characters
+, in this case: ```> ;``` need to be escaped with their hex code point representation; leading to a value of ```Consumer.*.%3E%3B2```. 
 In this way a consumer destination of ```Consumer.A.VirtualTopic.Orders``` will be transformed into a FQQN of
 ```VirtualTopic.Orders::Consumer.A```. 
 
