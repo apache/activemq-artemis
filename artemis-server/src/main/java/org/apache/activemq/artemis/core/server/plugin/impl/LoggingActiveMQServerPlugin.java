@@ -42,7 +42,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
-import org.jboss.logging.Logger;
 
 /**
  * plugin to log various events within the broker, configured with the following booleans
@@ -56,8 +55,6 @@ import org.jboss.logging.Logger;
  */
 
 public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serializable {
-
-   private static final Logger logger = Logger.getLogger(LoggingActiveMQServerPlugin.class);
 
    private static final long serialVersionUID = 1L;
 
@@ -123,7 +120,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
       logSendingEvents = Boolean.parseBoolean(properties.getOrDefault(LOG_SENDING_EVENTS, "false"));
       logInternalEvents = Boolean.parseBoolean(properties.getOrDefault(LOG_INTERNAL_EVENTS, "false"));
 
-      if (logger.isDebugEnabled()) {
+      if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
          dumpConfiguration();
       }
 
@@ -137,8 +134,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logConnectionEvents)) {
-         logger.infof("created connection: %s", connection);
+      if (logAll || logConnectionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterCreateConnection(connection);
       }
    }
 
@@ -150,8 +147,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterDestroyConnection(RemotingConnection connection) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logConnectionEvents)) {
-         logger.infof("destroyed connection: %s", connection);
+      if (logAll || logConnectionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterDestroyConnection(connection);
       }
    }
 
@@ -188,11 +185,10 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                                    OperationContext context,
                                    Map<SimpleString, RoutingType> prefixes) throws ActiveMQException {
 
-      if (logger.isDebugEnabled() && (logAll || logSessionEvents)) {
-         logger.debugf("beforeCreateSession called with name: %s , username: %s, minLargeMessageSize: %s , connection: %s"
-                          + ", autoCommitSends: %s, autoCommitAcks: %s, preAcknowledge: %s, xa: %s, publicAddress: %s"
-                          + ", , autoCreateQueues: %s, context: %s ", name, username, minLargeMessageSize, connection,
-                       autoCommitSends, autoCommitAcks, preAcknowledge, xa, publicAddress, autoCreateQueues, context);
+      if (logAll || logSessionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeCreateSession(name, username, minLargeMessageSize, connection,
+                                                                      autoCommitSends, autoCommitAcks, preAcknowledge,
+                                                                      xa, publicAddress, context);
       }
 
    }
@@ -205,10 +201,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterCreateSession(ServerSession session) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logSessionEvents)) {
-         logger.infof("created session name: %s, session connectionID:  %s",
-                      (session == null ? UNAVAILABLE : session.getName()),
-                      (session == null ? UNAVAILABLE : session.getConnectionID()));
+      if (logAll || logSessionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterCreateSession((session == null ? UNAVAILABLE : session.getName()),
+                                                                     (session == null ? UNAVAILABLE : session.getConnectionID()));
       }
 
    }
@@ -222,9 +217,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logSessionEvents)) {
-         logger.debugf("beforeCloseSession called with session name : %s, session: %s, failed: %s",
-                       (session == null ? UNAVAILABLE : session.getName()), session, failed);
+      if (logAll || logSessionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeCloseSession((session == null ? UNAVAILABLE : session.getName()),
+                                                                     session, failed);
       }
    }
 
@@ -237,9 +232,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logSessionEvents)) {
-         logger.infof("closed session with session name: %s, failed: %s",
-                      (session == null ? UNAVAILABLE : session.getName()), failed);
+      if (logAll || logSessionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterCloseSession((session == null ? UNAVAILABLE : session.getName()),
+                                                                    failed);
       }
    }
 
@@ -253,10 +248,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void beforeSessionMetadataAdded(ServerSession session, String key, String data) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logSessionEvents)) {
-         logger.debugf("beforeSessionMetadataAdded called with session name: %s , session: %s, key: %s, data: %s",
-                       (session == null ? UNAVAILABLE : session.getName()), session, key, data);
-
+      if (logAll || logSessionEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeSessionMetadataAdded((session == null ? UNAVAILABLE : session.getName()),
+                                                                             session, key, data);
       }
    }
 
@@ -270,14 +264,15 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterSessionMetadataAdded(ServerSession session, String key, String data) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logSessionEvents)) {
-         logger.debugf("added session metadata for session name : %s, session: %s, key: %s, data: %s",
-                       (session == null ? UNAVAILABLE : session.getName()), session, key, data);
+      if (logAll || logSessionEvents) {
 
-      } else if (logger.isInfoEnabled() && (logAll || logSessionEvents)) {
-         logger.infof("added session metadata for session name : %s, key: %s, data: %s",
-                      (session == null ? UNAVAILABLE : session.getName()), key, data);
+         //Details - debug level
+         LoggingActiveMQServerPluginLogger.LOGGER.afterSessionMetadataAddedDetails((session == null ? UNAVAILABLE : session.getName()),
+                                                                                   session, key, data);
 
+         // info level  log
+         LoggingActiveMQServerPluginLogger.LOGGER.afterSessionMetadataAdded((session == null ? UNAVAILABLE : session.getName()),
+                                                                            key, data);
       }
    }
 
@@ -298,10 +293,11 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                                     boolean browseOnly,
                                     boolean supportLargeMessage) throws ActiveMQException {
 
-      if (logger.isDebugEnabled() && (logAll || logConsumerEvents)) {
-         logger.debugf("beforeCreateConsumer called with ConsumerID: %s, QueueBinding: %s, filterString: %s," +
-                          " browseOnly: %s, supportLargeMessage: %s", consumerID, queueBinding, filterString, browseOnly,
-                       supportLargeMessage);
+      if (logAll || logConsumerEvents) {
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            LoggingActiveMQServerPluginLogger.LOGGER.beforeCreateConsumer(Long.toString(consumerID), queueBinding,
+                                                                          filterString, browseOnly, supportLargeMessage);
+         }
       }
 
    }
@@ -315,10 +311,11 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    @Override
    public void afterCreateConsumer(ServerConsumer consumer) throws ActiveMQException {
 
-      if (logger.isInfoEnabled() && (logAll || logConsumerEvents)) {
-         logger.infof("created consumer with ID: %s, with session name: %s",
-                      (consumer == null ? UNAVAILABLE : consumer.getID()),
-                      (consumer == null ? UNAVAILABLE : consumer.getSessionID()));
+      if (logAll || logConsumerEvents) {
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            LoggingActiveMQServerPluginLogger.LOGGER.afterCreateConsumer((consumer == null ? UNAVAILABLE : Long.toString(consumer.getID())),
+                                                                         (consumer == null ? UNAVAILABLE : consumer.getSessionID()));
+         }
       }
 
    }
@@ -333,9 +330,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    @Override
    public void beforeCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
 
-      if (logger.isDebugEnabled() && (logAll || logConsumerEvents)) {
-         logger.debugf("beforeCloseConsumer called with consumer: %s, consumer sessionID: %s, failed: %s",
-                       consumer, (consumer == null ? UNAVAILABLE : consumer.getSessionID()), failed);
+      if (logAll || logConsumerEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeCloseConsumer(consumer, (consumer == null ? UNAVAILABLE : consumer.getSessionID()),
+                                                                      failed);
       }
    }
 
@@ -349,10 +346,11 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    @Override
    public void afterCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
 
-      if (logger.isInfoEnabled() && (logAll || logConsumerEvents)) {
-         logger.infof("closed consumer ID: %s, with  consumer Session: %s, failed: %s",
-                      (consumer == null ? UNAVAILABLE : consumer.getID()),
-                      (consumer == null ? UNAVAILABLE : consumer.getSessionID()), failed);
+      if (logAll || logConsumerEvents) {
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            LoggingActiveMQServerPluginLogger.LOGGER.afterCloseConsumer((consumer == null ? UNAVAILABLE : Long.toString(consumer.getID())),
+                                                                        (consumer == null ? UNAVAILABLE : consumer.getSessionID()), failed);
+         }
       }
 
    }
@@ -365,8 +363,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void beforeCreateQueue(QueueConfig queueConfig) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logInternalEvents)) {
-         logger.debugf("beforeCreateQueue called with queueConfig: %s", queueConfig);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeCreateQueue(queueConfig);
       }
 
    }
@@ -379,8 +377,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterCreateQueue(Queue queue) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logInternalEvents)) {
-         logger.infof("created queue: %s", queue);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterCreateQueue(queue);
       }
    }
 
@@ -400,11 +398,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                                   boolean checkConsumerCount,
                                   boolean removeConsumers,
                                   boolean autoDeleteAddress) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logInternalEvents)) {
-
-         logger.debugf("beforeDestroyQueue called with queueName: %s, session: %s, checkConsumerCount: %s," +
-                          " removeConsumers: %s, autoDeleteAddress: %s", queueName, session, checkConsumerCount,
-                       removeConsumers, autoDeleteAddress);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeDestroyQueue(queueName, session, checkConsumerCount, removeConsumers,
+                                                                     autoDeleteAddress);
       }
 
    }
@@ -428,11 +424,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                                  boolean removeConsumers,
                                  boolean autoDeleteAddress) throws ActiveMQException {
 
-      if (logger.isInfoEnabled() && (logAll || logInternalEvents)) {
-
-         logger.infof("destroyed queue: %s, with args address: %s, session: %s, checkConsumerCount: %s," +
-                         " removeConsumers: %s, autoDeleteAddress: %s", queue, address, session, checkConsumerCount,
-                      removeConsumers, autoDeleteAddress);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterDestroyQueue(queue, address, session, checkConsumerCount,
+                                                                    removeConsumers, autoDeleteAddress);
       }
 
    }
@@ -454,9 +448,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                           boolean direct,
                           boolean noAutoCreateQueue) throws ActiveMQException {
 
-      if (logger.isDebugEnabled() && (logAll || logSendingEvents)) {
-         logger.debugf("beforeSend called with message: %s, tx: %s, session: %s, direct: %s, noAutoCreateQueue: %s",
-                       message, tx, session, direct, noAutoCreateQueue);
+      if (logAll || logSendingEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeSend(message, tx, session, direct, noAutoCreateQueue);
       }
    }
 
@@ -479,17 +472,22 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                          boolean noAutoCreateQueue,
                          RoutingStatus result) throws ActiveMQException {
 
-      if (logger.isDebugEnabled() && (logAll || logSendingEvents)) {
-         logger.debugf("sent message: %s, session name : %s, session connectionID: %s, with tx: %s, session: %s," +
-                          " direct: %s, noAutoCreateQueue: %s, result: %s", message,
-                       (session == null ? UNAVAILABLE : session.getName()),
-                       (session == null ? UNAVAILABLE : session.getConnectionID()),
-                       tx, session, direct, noAutoCreateQueue, result);
-      } else if (logger.isInfoEnabled() && (logAll || logSendingEvents)) {
-         logger.infof("sent message with ID: %s, session name: %s, session connectionID: %s, result: %s",
-                      (message == null ? UNAVAILABLE : message.getMessageID()),
-                      (session == null ? UNAVAILABLE : session.getName()),
-                      (session == null ? UNAVAILABLE : session.getConnectionID()), result);
+      if (logAll || logSendingEvents) {
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
+            //details - debug level
+            LoggingActiveMQServerPluginLogger.LOGGER.afterSendDetails((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                      message, (session == null ? UNAVAILABLE : session.getName()),
+                                                                      tx, session, direct, noAutoCreateQueue);
+         }
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            //info level log
+            LoggingActiveMQServerPluginLogger.LOGGER.afterSend((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                               (session == null ? UNAVAILABLE : session.getName()),
+                                                               (session == null ? UNAVAILABLE : session.getConnectionID().toString()),
+                                                               result);
+         }
       }
    }
 
@@ -507,9 +505,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                                   RoutingContext context,
                                   boolean direct,
                                   boolean rejectDuplicates) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logSendingEvents)) {
-         logger.debugf("beforeMessageRoute called with message: %s, context: %s, direct: %s, rejectDuplicates: %s",
-                       message, context, direct, rejectDuplicates);
+      if (logAll || logSendingEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeMessageRoute(message, context, direct, rejectDuplicates);
       }
    }
 
@@ -529,13 +526,16 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                                  boolean direct,
                                  boolean rejectDuplicates,
                                  RoutingStatus result) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logSendingEvents)) {
-         logger.debugf("routed message: %s, with context: %s, direct: %s, rejectDuplicates: %s, result: %s",
-                       message, context, direct, rejectDuplicates, result);
+      if (logAll || logSendingEvents) {
 
-      } else if (logger.isInfoEnabled() && (logAll || logSendingEvents)) {
-         logger.infof("routed message with ID: %s, result: %s",
-                      (message == null ? UNAVAILABLE : message.getMessageID()), result);
+         //details - debug level logging
+         LoggingActiveMQServerPluginLogger.LOGGER.afterMessageRouteDetails(message, context, direct, rejectDuplicates);
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            //info level log
+            LoggingActiveMQServerPluginLogger.LOGGER.afterMessageRoute((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                       result);
+         }
 
       }
    }
@@ -549,8 +549,9 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void beforeDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logDeliveringEvents)) {
-         logger.debugf("beforeDeliver called with consumer: %s, reference: %s", consumer, reference);
+
+      if (logAll || logDeliveringEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeDeliver(consumer, reference);
       }
    }
 
@@ -563,26 +564,32 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logDeliveringEvents)) {
+
+      if (logAll || logDeliveringEvents) {
          Message message = (reference == null ? null : reference.getMessage());
 
-         if (consumer != null) {
-            logger.debugf("delivered message with message ID: %s to consumer on address: %s, queue: %s, consumer sessionID: %s,"
-                             + " consumerID: %s, full message: %s, full consumer: %s", (message == null ? UNAVAILABLE : message.getMessageID()),
-                          consumer.getQueueAddress(), consumer.getQueueName(), consumer.getSessionID(), consumer.getID(), reference, consumer);
-         } else {
-            logger.debugf("delivered message with message ID: %s, consumer info UNAVAILABLE", (message == null ? UNAVAILABLE : message.getMessageID()));
+         if (consumer == null) {
+            // log at info level and exit
+            if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+               LoggingActiveMQServerPluginLogger.LOGGER.afterDeliverNoConsumer((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())));
+            }
+            return;
          }
 
-      } else if (logger.isInfoEnabled() && (logAll || logDeliveringEvents)) {
-         Message message = (reference == null ? null : reference.getMessage());
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
+            //details --- debug level
+            LoggingActiveMQServerPluginLogger.LOGGER.afterDeliverDetails((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                         consumer.getQueueAddress(), consumer.getQueueName(),
+                                                                         consumer.getSessionID(), consumer.getID(),
+                                                                         reference, consumer);
+         }
 
-         if (consumer != null) {
-            logger.infof("delivered message with message ID: %s, to consumer on address: %s, queue: %s, consumer sessionID: %s, consumerID: %s",
-                         (message == null ? UNAVAILABLE : message.getMessageID()), consumer.getQueueAddress(), consumer.getQueueName(),
-                         consumer.getSessionID(), consumer.getID());
-         } else {
-            logger.infof("delivered message with message ID: %s, consumer info UNAVAILABLE", (message == null ? UNAVAILABLE : message.getMessageID()));
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            //info level log
+            LoggingActiveMQServerPluginLogger.LOGGER.afterDeliver((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                  consumer.getQueueAddress(),
+                                                                  consumer.getQueueName(),
+                                                                  consumer.getSessionID(), consumer.getID());
          }
 
       }
@@ -597,8 +604,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void messageExpired(MessageReference message, SimpleString messageExpiryAddress) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logInternalEvents)) {
-         logger.infof("expired message: %s, messageExpiryAddress: %s", message, messageExpiryAddress);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.messageExpired(message, messageExpiryAddress);
       }
    }
 
@@ -611,15 +618,21 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void messageAcknowledged(MessageReference ref, AckReason reason) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logDeliveringEvents)) {
-         logger.debugf("acknowledged message: %s, with ackReason: %s", ref, reason);
-      } else if (logger.isInfoEnabled() && (logAll || logDeliveringEvents)) {
-         Message message = (ref == null ? null : ref.getMessage());
-         Queue queue = (ref == null ? null : ref.getQueue());
+      if (logAll || logDeliveringEvents) {
 
-         logger.infof("acknowledged message ID: %s, with messageRef consumerID: %s, messageRef QueueName: %s,  with ackReason: %s",
-                      (message == null ? UNAVAILABLE : message.getMessageID()), (ref == null ? UNAVAILABLE : ref.getConsumerId()),
-                      (queue == null ? UNAVAILABLE : queue.getName()), reason);
+         //details - debug logging
+         LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledgedDetails(ref, reason);
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            Message message = (ref == null ? null : ref.getMessage());
+            Queue queue = (ref == null ? null : ref.getQueue());
+
+            // info level logging
+            LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledged((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                         (ref == null ? UNAVAILABLE : Long.toString(ref.getConsumerId())),
+                                                                         (queue == null ? UNAVAILABLE : queue.getName().toString()),
+                                                                         reason);
+         }
       }
    }
 
@@ -631,8 +644,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void beforeDeployBridge(BridgeConfiguration config) throws ActiveMQException {
-      if (logger.isDebugEnabled() && (logAll || logInternalEvents)) {
-         logger.debugf("beforeDeployBridge called with bridgeConfiguration: %s", config);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.beforeDeployBridge(config);
       }
    }
 
@@ -644,8 +657,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void afterDeployBridge(Bridge bridge) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logInternalEvents)) {
-         logger.infof("deployed bridge: %s", bridge);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterDeployBridge(bridge);
       }
    }
 
@@ -658,8 +671,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    @Override
    public void criticalFailure(CriticalComponent components) throws ActiveMQException {
-      if (logger.isInfoEnabled() && (logAll || logInternalEvents)) {
-         logger.infof("criticalFailure called with criticalComponent: %s", components);
+      if (logAll || logInternalEvents) {
+         LoggingActiveMQServerPluginLogger.LOGGER.criticalFailure(components);
       }
    }
 
@@ -667,14 +680,14 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * dump the configuration of the logging Plugin
     */
    private void dumpConfiguration() {
-      if (logger.isDebugEnabled()) {
-         logger.debug("LoggingPlugin logAll=" + logAll);
-         logger.debug("LoggingPlugin logConnectionEvents=" + logConnectionEvents);
-         logger.debug("LoggingPlugin logSessionEvents=" + logSessionEvents);
-         logger.debug("LoggingPlugin logConsumerEvents=" + logConsumerEvents);
-         logger.debug("LoggingPlugin logSendingEvents=" + logSendingEvents);
-         logger.debug("LoggingPlugin logDeliveringEvents=" + logDeliveringEvents);
-         logger.debug("LoggingPlugin logInternalEvents=" + logInternalEvents);
+      if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logAll=" + logAll);
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logConnectionEvents=" + logConnectionEvents);
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logSessionEvents=" + logSessionEvents);
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logConsumerEvents=" + logConsumerEvents);
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logSendingEvents=" + logSendingEvents);
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logDeliveringEvents=" + logDeliveringEvents);
+         LoggingActiveMQServerPluginLogger.LOGGER.debug("LoggingPlugin logInternalEvents=" + logInternalEvents);
       }
 
    }

@@ -52,9 +52,9 @@ public class LoggingActiveMQServerPluginOpenWireTest extends LoggingActiveMQServ
    @Test
    @BMRules(rules = {@BMRule(name = "test queue creation log",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testQueueCreationLog() throws Exception {
 
       //initial plugin
@@ -100,9 +100,9 @@ public class LoggingActiveMQServerPluginOpenWireTest extends LoggingActiveMQServ
    @Test
    @BMRules(rules = {@BMRule(name = "test LOG_SESSION_EVENTS",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
 
    public void testLogSessionEvents() throws Exception {
 
@@ -141,9 +141,9 @@ public class LoggingActiveMQServerPluginOpenWireTest extends LoggingActiveMQServ
    @Test
    @BMRules(rules = {@BMRule(name = "test logAll EVENT",
       targetClass = "org.jboss.logging.Logger",
-      targetMethod = "infof",
+      targetMethod = "logv",
       targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($1, $0)")})
+      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogAll() throws Exception {
 
       //initial plugin
