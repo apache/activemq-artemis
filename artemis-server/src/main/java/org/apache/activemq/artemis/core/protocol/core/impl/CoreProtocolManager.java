@@ -68,7 +68,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
    private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
 
-   private final ActiveMQServer server;
+   protected final ActiveMQServer server;
 
    private final List<Interceptor> incomingInterceptors;
 
