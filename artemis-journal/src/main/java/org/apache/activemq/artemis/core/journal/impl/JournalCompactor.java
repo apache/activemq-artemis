@@ -486,7 +486,11 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       @Override
       void execute() throws Exception {
          JournalRecord updateRecord = journal.getRecords().get(id);
-         updateRecord.addUpdateFile(usedFile, size);
+         if (updateRecord == null) {
+            ActiveMQJournalLogger.LOGGER.noRecordDuringCompactReplay(id);
+         } else {
+            updateRecord.addUpdateFile(usedFile, size);
+         }
       }
 
       @Override
