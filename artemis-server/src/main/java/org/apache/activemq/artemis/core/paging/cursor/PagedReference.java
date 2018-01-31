@@ -24,4 +24,8 @@ public interface PagedReference extends MessageReference {
    PagePosition getPosition();
 
    PagedMessage getPagedMessage();
+
+   boolean isLargeMessage();
+
+   long getTransactionID();
 }
