@@ -542,6 +542,11 @@ public class ActiveMQActivation {
                }
 
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
+               if (isTopic && spec.getTopicPrefix() != null) {
+                  calculatedDestinationName = spec.getTopicPrefix() + calculatedDestinationName;
+               } else if (!isTopic && spec.getQueuePrefix() != null) {
+                  calculatedDestinationName = spec.getQueuePrefix() + calculatedDestinationName;
+               }
 
                logger.debug("Unable to retrieve " + destinationName +
                                                 " from JNDI. Creating a new " + destinationType.getName() +
