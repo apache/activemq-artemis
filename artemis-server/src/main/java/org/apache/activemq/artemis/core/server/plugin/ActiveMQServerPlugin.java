@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -43,6 +44,9 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
+/**
+ *
+ */
 public interface ActiveMQServerPlugin {
 
 
@@ -328,6 +332,50 @@ public interface ActiveMQServerPlugin {
     */
    default void afterDestroyQueue(Queue queue, SimpleString address, final SecurityAuth session, boolean checkConsumerCount,
          boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
+
+   }
+
+   /**
+    * Before a binding is added
+    *
+    * @param binding
+    * @throws ActiveMQException
+    */
+   default void beforeAddBinding(Binding binding) throws ActiveMQException {
+
+   }
+
+   /**
+    * After a binding has been added
+    *
+    * @param binding The newly added binding
+    * @throws ActiveMQException
+    */
+   default void afterAddBinding(Binding binding) throws ActiveMQException {
+
+   }
+
+   /**
+    * Before a binding is removed
+    *
+    * @param uniqueName
+    * @param tx
+    * @param deleteData
+    * @throws ActiveMQException
+    */
+   default void beforeRemoveBinding(SimpleString uniqueName, Transaction tx, boolean deleteData) throws ActiveMQException {
+
+   }
+
+   /**
+    * After a binding is removed
+    *
+    * @param binding
+    * @param tx
+    * @param deleteData
+    * @throws ActiveMQException
+    */
+   default void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
 
    }
 
