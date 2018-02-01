@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -80,6 +81,10 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String AFTER_CREATE_QUEUE = "afterCreateQueue";
    public static final String BEFORE_DESTROY_QUEUE = "beforeDestroyQueue";
    public static final String AFTER_DESTROY_QUEUE = "afterDestroyQueue";
+   public static final String BEFORE_ADD_BINDING = "beforeAddBinding";
+   public static final String AFTER_ADD_BINDING = "afterAddBinding";
+   public static final String BEFORE_REMOVE_BINDING = "beforeRemoveBinding";
+   public static final String AFTER_REMOVE_BINDING = "afterRemoveBinding";
    public static final String MESSAGE_EXPIRED = "messageExpired";
    public static final String MESSAGE_ACKED = "messageAcknowledged";
    public static final String BEFORE_SEND = "beforeSend";
@@ -239,6 +244,31 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
          boolean removeConsumers, boolean autoDeleteAddress) {
       Preconditions.checkNotNull(queue);
       methodCalled(AFTER_DESTROY_QUEUE);
+   }
+
+   @Override
+   public void beforeAddBinding(Binding binding) throws ActiveMQException {
+      Preconditions.checkNotNull(binding);
+      methodCalled(BEFORE_ADD_BINDING);
+   }
+
+   @Override
+   public void afterAddBinding(Binding binding) throws ActiveMQException {
+      Preconditions.checkNotNull(binding);
+      methodCalled(AFTER_ADD_BINDING);
+   }
+
+   @Override
+   public void beforeRemoveBinding(SimpleString uniqueName, Transaction tx, boolean deleteData)
+         throws ActiveMQException {
+      Preconditions.checkNotNull(uniqueName);
+      methodCalled(BEFORE_REMOVE_BINDING);
+   }
+
+   @Override
+   public void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
+      Preconditions.checkNotNull(binding);
+      methodCalled(AFTER_REMOVE_BINDING);
    }
 
    @Override

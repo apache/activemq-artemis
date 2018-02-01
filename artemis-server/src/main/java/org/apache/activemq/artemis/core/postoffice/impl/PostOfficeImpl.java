@@ -433,7 +433,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private boolean internalAddressInfo(AddressInfo addressInfo, boolean reload) throws Exception {
       synchronized (addressLock) {
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeAddAddress(addressInfo, reload) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
+         }
+
          boolean result;
          if (reload) {
             result = addressManager.reloadAddressInfo(addressInfo);
@@ -446,7 +449,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                if (!addressInfo.isInternal()) {
                   managementService.registerAddress(addressInfo);
                }
-               server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterAddAddress(addressInfo, reload) : null);
+               if (server.hasBrokerPlugins()) {
+                  server.callBrokerPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
+               }
             } catch (Exception e) {
                e.printStackTrace();
             }
@@ -520,9 +525,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         EnumSet<RoutingType> routingTypes) throws Exception {
       synchronized (addressLock) {
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeUpdateAddress(addressName, routingTypes) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.beforeUpdateAddress(addressName, routingTypes));
+         }
+
          final AddressInfo address = addressManager.updateAddressInfo(addressName, routingTypes);
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterUpdateAddress(address) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.afterUpdateAddress(address));
+         }
 
          return address;
       }
@@ -531,14 +541,19 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
       synchronized (addressLock) {
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeRemoveAddress(address) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.beforeRemoveAddress(address));
+         }
+
          final Bindings bindingsForAddress = getDirectBindings(address);
          if (bindingsForAddress.getBindings().size() > 0) {
             throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
          }
          managementService.unregisterAddress(address);
          final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterRemoveAddress(address, addressInfo) : null);
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.afterRemoveAddress(address, addressInfo));
+         }
 
          return addressInfo;
       }
@@ -571,6 +586,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    // even though failover is complete
    @Override
    public synchronized void addBinding(final Binding binding) throws Exception {
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeAddBinding(binding));
+      }
+
       addressManager.addBinding(binding);
 
       TypedProperties props = new TypedProperties();
@@ -600,12 +619,21 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       managementService.sendNotification(new Notification(uid, CoreNotificationType.BINDING_ADDED, props));
+
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterAddBinding(binding));
+      }
+
    }
 
    @Override
    public synchronized Binding removeBinding(final SimpleString uniqueName,
                                              Transaction tx,
                                              boolean deleteData) throws Exception {
+
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeRemoveBinding(uniqueName, tx, deleteData));
+      }
 
       addressSettingsRepository.clearCache();
 
@@ -651,6 +679,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       binding.close();
+
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterRemoveBinding(binding, tx, deleteData) );
+      }
 
       return binding;
    }
@@ -772,7 +804,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
+      }
 
       Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
 
@@ -859,7 +893,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          context.getTransaction().commit();
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, result) : null);
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, result));
+      }
 
       return result;
    }
