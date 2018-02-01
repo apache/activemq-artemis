@@ -35,4 +35,15 @@ public class AcceptorParserTest {
          Assert.assertTrue(config.getExtraParams().get("banana").equals("x"));
       }
    }
+
+   @Test
+   public void testAcceptorWithQueryParamEscapes() throws Exception {
+      List<TransportConfiguration> configs = ConfigurationUtils.parseAcceptorURI("test", "tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;virtualTopicConsumerWildcards=Consumer.*.%3E%3B2");
+
+      for (TransportConfiguration config : configs) {
+         System.out.println("config:" + config);
+         System.out.println(config.getExtraParams().get("virtualTopicConsumerWildcards"));
+         Assert.assertTrue(config.getExtraParams().get("virtualTopicConsumerWildcards").equals("Consumer.*.>;2"));
+      }
+   }
 }
