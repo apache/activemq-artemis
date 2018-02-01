@@ -199,6 +199,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_CREATE_QUEUES = "auto-create-queues";
 
+   private static final String AUTO_CREATE_QUEUES_DURABLE = "auto-create-queues-durable";
+
    private static final String AUTO_DELETE_QUEUES = "auto-delete-queues";
 
    private static final String CONFIG_DELETE_QUEUES = "config-delete-queues";
@@ -1022,6 +1024,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setAutoDeleteJmsTopics(XMLUtil.parseBoolean(child));
          } else if (AUTO_CREATE_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateQueues(XMLUtil.parseBoolean(child));
+         } else if (AUTO_CREATE_QUEUES_DURABLE.equalsIgnoreCase(name)) {
+            addressSettings.setAutoCreateQueuesDurable(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteQueues(XMLUtil.parseBoolean(child));
          } else if (CONFIG_DELETE_QUEUES.equalsIgnoreCase(name)) {

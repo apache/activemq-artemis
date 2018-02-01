@@ -16,30 +16,31 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryResponseMessage_V3 {
+import java.util.List;
 
-   protected boolean defaultPurgeOnNoConsumers;
+public class SessionBindingQueryResponseMessage_V5 extends SessionBindingQueryResponseMessage_V4 {
 
-   protected int defaultMaxConsumers;
+   private boolean autoCreateQueuesDurable;
 
-   public SessionBindingQueryResponseMessage_V4(final boolean exists,
+   public SessionBindingQueryResponseMessage_V5(final boolean exists,
                                                 final List<SimpleString> queueNames,
                                                 final boolean autoCreateQueues,
+                                                final AutoCreatedQueuesDurability autoCreateQueuesDurable,
                                                 final boolean autoCreateAddresses,
                                                 final boolean defaultPurgeOnNoConsumers,
                                                 final int defaultMaxConsumers) {
-      super(SESS_BINDINGQUERY_RESP_V4);
+      super(SESS_BINDINGQUERY_RESP_V5);
 
       this.exists = exists;
 
       this.queueNames = queueNames;
 
       this.autoCreateQueues = autoCreateQueues;
+
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable.getDurability();
 
       this.autoCreateAddresses = autoCreateAddresses;
 
@@ -48,38 +49,31 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       this.defaultMaxConsumers = defaultMaxConsumers;
    }
 
-   public SessionBindingQueryResponseMessage_V4() {
-      super(SESS_BINDINGQUERY_RESP_V4);
+   public SessionBindingQueryResponseMessage_V5() {
+      super(SESS_BINDINGQUERY_RESP_V5);
    }
 
-   public boolean isDefaultPurgeOnNoConsumers() {
-      return defaultPurgeOnNoConsumers;
-   }
-
-   public int getDefaultMaxConsumers() {
-      return defaultMaxConsumers;
+   public boolean isAutoCreateQueuesDurable() {
+      return autoCreateQueuesDurable;
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      buffer.writeBoolean(defaultPurgeOnNoConsumers);
-      buffer.writeInt(defaultMaxConsumers);
+      buffer.writeBoolean(autoCreateQueuesDurable);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      defaultPurgeOnNoConsumers = buffer.readBoolean();
-      defaultMaxConsumers = buffer.readInt();
+      autoCreateQueuesDurable = buffer.readBoolean();
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (defaultPurgeOnNoConsumers ? 1231 : 1237);
-      result = prime * result + defaultMaxConsumers;
+      result = prime * result + (autoCreateQueuesDurable ? 1231 : 1237);
       return result;
    }
 
@@ -93,8 +87,7 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
    @Override
    public String getParentString() {
       StringBuffer buff = new StringBuffer(super.getParentString());
-      buff.append(", defaultPurgeOnNoConsumers=" + defaultPurgeOnNoConsumers);
-      buff.append(", defaultMaxConsumers=" + defaultMaxConsumers);
+      buff.append(", autoCreateQueuesDurable=" + autoCreateQueuesDurable);
       return buff.toString();
    }
 
@@ -104,17 +97,11 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V4))
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V5))
          return false;
-      SessionBindingQueryResponseMessage_V4 other = (SessionBindingQueryResponseMessage_V4) obj;
-      if (defaultPurgeOnNoConsumers != other.defaultPurgeOnNoConsumers)
-         return false;
-      if (defaultMaxConsumers != other.defaultMaxConsumers)
+      SessionBindingQueryResponseMessage_V5 other = (SessionBindingQueryResponseMessage_V5) obj;
+      if (autoCreateQueuesDurable != other.autoCreateQueuesDurable)
          return false;
       return true;
-   }
-
-   public SessionBindingQueryResponseMessage_V4(byte v) {
-      super(v);
    }
 }

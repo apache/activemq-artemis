@@ -35,6 +35,7 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
       this.queueNames = queueNames;
 
       this.autoCreateQueues = autoCreateQueues;
+
    }
 
    public SessionBindingQueryResponseMessage_V2() {

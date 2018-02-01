@@ -821,7 +821,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       String realAddress = addressKey.isFqqn() ? addressKey.getAddress() : addressKey.getQueueName();
       AddressSettings addressSettings = getAddressSettingsRepository().getMatch(realAddress);
 
-      boolean autoCreateQeueus = addressSettings.isAutoCreateQueues();
+      boolean autoCreateQueues = addressSettings.isAutoCreateQueues();
+      boolean autoCreateQueuesDurable = addressSettings.isAutoCreateQueuesDurable();
       boolean autoCreateAddresses = addressSettings.isAutoCreateAddresses();
       boolean defaultPurgeOnNoConsumers = addressSettings.isDefaultPurgeOnNoConsumers();
       int defaultMaxConsumers = addressSettings.getDefaultMaxConsumers();
@@ -833,7 +834,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       SimpleString bindAddress = new SimpleString(realAddress);
       if (managementService != null) {
          if (bindAddress.equals(managementService.getManagementAddress())) {
-            return new BindingQueryResult(true, null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+            return new BindingQueryResult(true, null, names, autoCreateQueues, autoCreateQueuesDurable, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
          }
       }
 
@@ -851,7 +852,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       AddressInfo info = getAddressInfo(bindAddress);
 
-      return new BindingQueryResult(info != null, info, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+      return new BindingQueryResult(info != null, info, names, autoCreateQueues, autoCreateQueuesDurable, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
    }
 
    @Override
@@ -861,8 +862,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       boolean autoCreateQueues = getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateQueues();
+      boolean autoCreateQueuesDurable = getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateQueuesDurable();
       boolean defaultPurgeOnNoConsumers = getAddressSettingsRepository().getMatch(name.toString()).isDefaultPurgeOnNoConsumers();
       int defaultMaxConsumers = getAddressSettingsRepository().getMatch(name.toString()).getDefaultMaxConsumers();
+
+
 
       QueueQueryResult response;
 
@@ -877,14 +881,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          SimpleString filterString = filter == null ? null : filter.getFilterString();
 
-         response = new QueueQueryResult(name, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateQueues, true, queue.isAutoCreated(), queue.isPurgeOnNoConsumers(), queue.getRoutingType(), queue.getMaxConsumers());
+         response = new QueueQueryResult(name, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateQueues, autoCreateQueuesDurable, true, queue.isAutoCreated(), queue.isPurgeOnNoConsumers(), queue.getRoutingType(), queue.getMaxConsumers());
       } else if (name.equals(managementAddress)) {
          // make an exception for the management address (see HORNETQ-29)
-         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateQueues, true, false, false, RoutingType.MULTICAST, -1);
+         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateQueues, autoCreateQueuesDurable,true, false, false, RoutingType.MULTICAST, -1);
       } else if (autoCreateQueues) {
-         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false, false, defaultPurgeOnNoConsumers, RoutingType.MULTICAST, defaultMaxConsumers);
+         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, autoCreateQueuesDurable, false, false, defaultPurgeOnNoConsumers, RoutingType.MULTICAST, defaultMaxConsumers);
       } else {
-         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, 0);
+         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, autoCreateQueuesDurable,false, false, false, RoutingType.MULTICAST, 0);
       }
 
       return response;

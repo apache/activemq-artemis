@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.AutoCreatedQueuesDurability;
 
 public class AddressQueryImpl implements ClientSession.AddressQuery {
 
@@ -29,6 +30,10 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    private final ArrayList<SimpleString> queueNames;
 
    private final boolean autoCreateQueues;
+
+   private final boolean autoCreateQueuesDurable;
+
+   private final AutoCreatedQueuesDurability acqd;
 
    private final boolean autoCreateAddresses;
 
@@ -39,12 +44,15 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    public AddressQueryImpl(final boolean exists,
                            final List<SimpleString> queueNames,
                            final boolean autoCreateQueues,
+                           final AutoCreatedQueuesDurability autoCreateQueuesDurable,
                            final boolean autoCreateAddresses,
                            final boolean defaultPurgeOnNoConsumers,
                            final int defaultMaxConsumers) {
       this.exists = exists;
       this.queueNames = new ArrayList<>(queueNames);
       this.autoCreateQueues = autoCreateQueues;
+      this.acqd = autoCreateQueuesDurable;
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable.getDurability();
       this.autoCreateAddresses = autoCreateAddresses;
       this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
       this.defaultMaxConsumers = defaultMaxConsumers;
@@ -63,6 +71,15 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    @Override
    public boolean isAutoCreateQueues() {
       return autoCreateQueues;
+   }
+
+   @Override
+   public AutoCreatedQueuesDurability isAutoCreateQueuesDurable() {
+      if (this.autoCreateQueuesDurable && acqd != AutoCreatedQueuesDurability.OFF) {
+         return AutoCreatedQueuesDurability.DURABLE;
+      } else {
+         return AutoCreatedQueuesDurability.NON_DURABLE;
+      }
    }
 
    @Override

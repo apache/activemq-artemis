@@ -34,11 +34,11 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    protected int maxConsumers;
 
    public SessionQueueQueryResponseMessage_V3(final QueueQueryResult result) {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers());
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreateQueuesDurable(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers());
    }
 
    public SessionQueueQueryResponseMessage_V3() {
-      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1);
+      this(null, null, false, false, null, 0, 0, false, false,false, false, false, RoutingType.MULTICAST, -1);
    }
 
    private SessionQueueQueryResponseMessage_V3(final SimpleString name,
@@ -50,6 +50,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
                                                final long messageCount,
                                                final boolean exists,
                                                final boolean autoCreateQueues,
+                                               final boolean autoCreateQueuesDurable,
                                                final boolean autoCreated,
                                                final boolean purgeOnNoConsumers,
                                                final RoutingType routingType,
@@ -73,6 +74,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       this.exists = exists;
 
       this.autoCreateQueues = autoCreateQueues;
+
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable;
 
       this.autoCreated = autoCreated;
 
@@ -163,7 +166,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), isAutoCreateQueuesDurable(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType());
    }
 
    @Override

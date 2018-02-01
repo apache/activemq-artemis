@@ -26,12 +26,14 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    protected boolean autoCreateQueues;
 
+   protected boolean autoCreateQueuesDurable;
+
    public SessionQueueQueryResponseMessage_V2(final QueueQueryResult result) {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues());
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreateQueuesDurable());
    }
 
    public SessionQueueQueryResponseMessage_V2() {
-      this(null, null, false, false, null, 0, 0, false, false);
+      this(null, null, false, false, null, 0, 0, false, false, false);
    }
 
    private SessionQueueQueryResponseMessage_V2(final SimpleString name,
@@ -42,7 +44,8 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
                                                final int consumerCount,
                                                final long messageCount,
                                                final boolean exists,
-                                               final boolean autoCreateQueues) {
+                                               final boolean autoCreateQueues,
+                                               final boolean autoCreateQueuesDurable) {
       super(SESS_QUEUEQUERY_RESP_V2);
 
       this.durable = durable;
@@ -62,6 +65,8 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
       this.exists = exists;
 
       this.autoCreateQueues = autoCreateQueues;
+
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable;
    }
    public SessionQueueQueryResponseMessage_V2(byte v) {
       super(v);
@@ -69,6 +74,10 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    public boolean isAutoCreateQueues() {
       return autoCreateQueues;
+   }
+
+   public boolean isAutoCreateQueuesDurable() {
+      return autoCreateQueuesDurable;
    }
 
    @Override
@@ -107,7 +116,7 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), isAutoCreateQueuesDurable());
    }
 
    @Override

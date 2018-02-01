@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.AutoCreatedQueuesDurability;
 
 /**
  * A ClientSession is a single-thread object required for producing and consuming messages.
@@ -68,6 +69,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
       boolean isAutoCreateQueues();
 
       /**
+       * Returns <code>true</code> if auto-create-queues-durable for this address is set to true, <code>false</code> else.
+       */
+      AutoCreatedQueuesDurability isAutoCreateQueuesDurable();
+
+      /**
        * Returns <code>true</code> if auto-address-creation for this address is enabled, <code>false</code> else.
        */
       boolean isAutoCreateAddresses();
@@ -104,6 +110,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
        * <code>false</code> else.
        */
       boolean isAutoCreateQueues();
+
+      /**
+       * Returns <code>true</code> if auto created queue is should be durable,
+       * <code>false</code> else.
+       */
+      boolean isAutoCreateQueuesDurable();
 
       /**
        * Returns the number of consumers attached to the queue.

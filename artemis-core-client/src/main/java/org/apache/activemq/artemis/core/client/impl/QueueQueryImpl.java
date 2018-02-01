@@ -40,6 +40,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final boolean autoCreateQueues;
 
+   private final boolean autoCreateQueuesDurable;
+
    private final boolean autoCreated;
 
    private final RoutingType routingType;
@@ -56,19 +58,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final SimpleString address,
                          final SimpleString name,
                          final boolean exists) {
-      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, false);
-   }
-
-   public QueueQueryImpl(final boolean durable,
-                         final boolean temporary,
-                         final int consumerCount,
-                         final long messageCount,
-                         final SimpleString filterString,
-                         final SimpleString address,
-                         final SimpleString name,
-                         final boolean exists,
-                         final boolean autoCreateQueues) {
-      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, -1, false, false, RoutingType.MULTICAST);
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, false, false);
    }
 
    public QueueQueryImpl(final boolean durable,
@@ -80,6 +70,20 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final SimpleString name,
                          final boolean exists,
                          final boolean autoCreateQueues,
+                         final boolean autoCreateQueuesDurable) {
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, autoCreateQueuesDurable, -1, false, false, RoutingType.MULTICAST);
+   }
+
+   public QueueQueryImpl(final boolean durable,
+                         final boolean temporary,
+                         final int consumerCount,
+                         final long messageCount,
+                         final SimpleString filterString,
+                         final SimpleString address,
+                         final SimpleString name,
+                         final boolean exists,
+                         final boolean autoCreateQueues,
+                         final boolean autoCreateQueuesDurable,
                          final int maxConsumers,
                          final boolean autoCreated,
                          final boolean purgeOnNoConsumers,
@@ -93,6 +97,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.name = name;
       this.exists = exists;
       this.autoCreateQueues = autoCreateQueues;
+      this.autoCreateQueuesDurable = autoCreateQueuesDurable;
       this.maxConsumers = maxConsumers;
       this.autoCreated = autoCreated;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
@@ -132,6 +137,11 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    @Override
    public boolean isAutoCreateQueues() {
       return autoCreateQueues;
+   }
+
+   @Override
+   public boolean isAutoCreateQueuesDurable() {
+      return autoCreateQueuesDurable;
    }
 
    @Override

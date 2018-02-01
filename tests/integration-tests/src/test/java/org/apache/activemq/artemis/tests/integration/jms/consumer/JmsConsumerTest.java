@@ -816,6 +816,32 @@ public class JmsConsumerTest extends JMSTestBase {
       assertEquals(5, queue.getMaxConsumers());
       assertEquals(true, queue.isPurgeOnNoConsumers());
 
+      boolean result = queue.isAutoCreated();
+
+      connection.close();
+   }
+
+   @Test
+   public void autoCreatedQueueDurableTest() throws Exception {
+      boolean autoCreateQueuesDurable = true;
+      final String queueName = "q2";
+
+      server.getAddressSettingsRepository()
+            .addMatch(queueName, new AddressSettings().setAutoCreateQueuesDurable(autoCreateQueuesDurable).setAutoCreateQueues(true));
+
+      Connection connection = cf.createConnection();
+
+      Session session = connection.createSession();
+
+      javax.jms.Queue jmsQueue = session.createQueue(queueName);
+
+      session.createConsumer(jmsQueue);
+
+      org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+
+      Assert.assertTrue(queue.isAutoCreated());
+      Assert.assertEquals(autoCreateQueuesDurable, queue.isDurable());
+
       connection.close();
    }
 

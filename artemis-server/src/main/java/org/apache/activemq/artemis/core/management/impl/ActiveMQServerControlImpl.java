@@ -2088,6 +2088,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
             .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsQueues())
             .add("autoCreateQueues", addressSettings.isAutoCreateQueues())
+            .add("autoCreateQueuesDurable", addressSettings.isAutoCreateQueuesDurable())
             .add("autoDeleteQueues", addressSettings.isAutoDeleteQueues())
             .add("autoCreateAddress", addressSettings.isAutoCreateAddresses())
             .add("autoDeleteAddress", addressSettings.isAutoDeleteAddresses())
@@ -2118,7 +2119,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final boolean autoDeleteJmsQueues,
                                   final boolean autoCreateJmsTopics,
                                   final boolean autoDeleteJmsTopics) throws Exception {
-      addAddressSettings(address, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
+      addAddressSettings(address, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES_DURABLE, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
    }
 
    @Override
@@ -2145,6 +2146,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final boolean autoCreateJmsTopics,
                                   final boolean autoDeleteJmsTopics,
                                   final boolean autoCreateQueues,
+                                  final boolean autoCreateQueuesDurable,
                                   final boolean autoDeleteQueues,
                                   final boolean autoCreateAddresses,
                                   final boolean autoDeleteAddresses) throws Exception {
@@ -2198,6 +2200,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoCreateJmsTopics(autoCreateJmsTopics);
       addressSettings.setAutoDeleteJmsTopics(autoDeleteJmsTopics);
       addressSettings.setAutoCreateQueues(autoCreateQueues);
+      addressSettings.setAutoCreateQueuesDurable(autoCreateQueuesDurable);
       addressSettings.setAutoDeleteQueues(autoDeleteQueues);
       addressSettings.setAutoCreateAddresses(autoCreateAddresses);
       addressSettings.setAutoDeleteAddresses(autoDeleteAddresses);

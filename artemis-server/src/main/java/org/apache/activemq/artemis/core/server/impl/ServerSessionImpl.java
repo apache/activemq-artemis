@@ -583,7 +583,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, server.getAddressSettingsRepository().getMatch(art.getName().toString()).isAutoCreateAddresses());
+      boolean dur = durable;
+      if (autoCreated)
+         dur = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString()).isAutoCreateQueuesDurable();
+
+      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), dur, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, server.getAddressSettingsRepository().getMatch(art.getName().toString()).isAutoCreateAddresses());
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
