@@ -273,7 +273,7 @@ public final class XmlDataImporter extends ActionAbstract {
 
          if (sort) {
             for (MessageTemp msgtmp : messages) {
-               sendMessage(msgtmp.queues, msgtmp.message);
+               sendMessage(msgtmp.queues, msgtmp.message, msgtmp.tempFileName);
             }
          }
 
@@ -354,9 +354,9 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       if (sort) {
-         messages.add(new MessageTemp(id, queues, message));
+         messages.add(new MessageTemp(id, queues, message, tempFileName));
       } else {
-         sendMessage(queues, message);
+         sendMessage(queues, message, tempFileName);
       }
    }
 
@@ -365,12 +365,14 @@ public final class XmlDataImporter extends ActionAbstract {
       long id;
       List<String> queues;
       Message message;
+      String tempFileName;
 
-      MessageTemp(long id, List<String> queues, Message message) {
+      MessageTemp(long id, List<String> queues, Message message, String tempFileName) {
          this.message = message;
          this.queues = queues;
          this.message = message;
          this.id = id;
+         this.tempFileName = tempFileName;
       }
    }
 
@@ -399,7 +401,7 @@ public final class XmlDataImporter extends ActionAbstract {
       return type;
    }
 
-   private void sendMessage(List<String> queues, Message message) throws Exception {
+   private void sendMessage(List<String> queues, Message message, String tempFileName) throws Exception {
       StringBuilder logMessage = new StringBuilder();
       String destination = addressMap.get(queues.get(0));
 
@@ -451,7 +453,6 @@ public final class XmlDataImporter extends ActionAbstract {
          if (!tempFile.delete()) {
             ActiveMQServerLogger.LOGGER.couldNotDeleteTempFile(tempFileName);
          }
-         tempFileName = "";
       }
    }
 
