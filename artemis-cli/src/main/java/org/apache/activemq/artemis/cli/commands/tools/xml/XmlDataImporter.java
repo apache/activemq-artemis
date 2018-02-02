@@ -26,6 +26,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -94,8 +94,6 @@ public final class XmlDataImporter extends ActionAbstract {
    final Map<String, String> addressMap = new HashMap<>();
 
    final Map<String, Long> queueIDs = new HashMap<>();
-
-   String tempFileName = "";
 
    HashMap<String, String> oldPrefixTranslation = new HashMap<>();
 
@@ -273,7 +271,7 @@ public final class XmlDataImporter extends ActionAbstract {
 
          if (sort) {
             for (MessageTemp msgtmp : messages) {
-               sendMessage(msgtmp.queues, msgtmp.message);
+               sendMessage(msgtmp.queues, msgtmp.message, msgtmp.tempFileName);
             }
          }
 
@@ -328,13 +326,14 @@ public final class XmlDataImporter extends ActionAbstract {
 
       boolean endLoop = false;
 
+      File largeMessageTemporaryFile = null;
       // loop through the XML and gather up all the message's data (i.e. body, properties, queues, etc.)
       while (reader.hasNext()) {
          int eventType = reader.getEventType();
          switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
                if (XmlDataConstants.MESSAGE_BODY.equals(reader.getLocalName())) {
-                  processMessageBody(message.toCore());
+                  largeMessageTemporaryFile = processMessageBody(message.toCore());
                } else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName())) {
                   processMessageProperties(message);
                } else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName())) {
@@ -354,9 +353,9 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       if (sort) {
-         messages.add(new MessageTemp(id, queues, message));
+         messages.add(new MessageTemp(id, queues, message, largeMessageTemporaryFile));
       } else {
-         sendMessage(queues, message);
+         sendMessage(queues, message, largeMessageTemporaryFile);
       }
    }
 
@@ -365,12 +364,14 @@ public final class XmlDataImporter extends ActionAbstract {
       long id;
       List<String> queues;
       Message message;
+      File tempFileName;
 
-      MessageTemp(long id, List<String> queues, Message message) {
+      MessageTemp(long id, List<String> queues, Message message, File tempFileName) {
          this.message = message;
          this.queues = queues;
          this.message = message;
          this.id = id;
+         this.tempFileName = tempFileName;
       }
    }
 
@@ -399,7 +400,7 @@ public final class XmlDataImporter extends ActionAbstract {
       return type;
    }
 
-   private void sendMessage(List<String> queues, Message message) throws Exception {
+   private void sendMessage(List<String> queues, Message message, File tempFileName) throws Exception {
       StringBuilder logMessage = new StringBuilder();
       String destination = addressMap.get(queues.get(0));
 
@@ -446,12 +447,16 @@ public final class XmlDataImporter extends ActionAbstract {
          producer.send(message);
       }
 
-      if (tempFileName.length() > 0) {
-         File tempFile = new File(tempFileName);
-         if (!tempFile.delete()) {
-            ActiveMQServerLogger.LOGGER.couldNotDeleteTempFile(tempFileName);
+      if (tempFileName != null) {
+         try {
+            // this is to make sure the large message is sent before we delete it
+            // to avoid races
+            session.commit();
+         } catch (Throwable dontcare) {
          }
-         tempFileName = "";
+         if (!tempFileName.delete()) {
+            ActiveMQServerLogger.LOGGER.couldNotDeleteTempFile(tempFileName.getAbsolutePath());
+         }
       }
    }
 
@@ -531,7 +536,8 @@ public final class XmlDataImporter extends ActionAbstract {
       }
    }
 
-   private void processMessageBody(final ICoreMessage message) throws XMLStreamException, IOException {
+   private File processMessageBody(final ICoreMessage message) throws XMLStreamException, IOException {
+      File tempFileName = null;
       boolean isLarge = false;
 
       for (int i = 0; i < reader.getAttributeCount(); i++) {
@@ -545,11 +551,11 @@ public final class XmlDataImporter extends ActionAbstract {
          logger.debug("XMLStreamReader impl: " + reader);
       }
       if (isLarge) {
-         tempFileName = UUID.randomUUID().toString() + ".tmp";
+         tempFileName = File.createTempFile("largeMessage", ".tmp");
          if (logger.isDebugEnabled()) {
             logger.debug("Creating temp file " + tempFileName + " for large message.");
          }
-         try (OutputStream out = new FileOutputStream(tempFileName)) {
+         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFileName))) {
             getMessageBodyBytes(new MessageBodyBytesProcessor() {
                @Override
                public void processBodyBytes(byte[] bytes) throws IOException {
@@ -568,6 +574,8 @@ public final class XmlDataImporter extends ActionAbstract {
             }
          });
       }
+
+      return tempFileName;
    }
 
    /**
