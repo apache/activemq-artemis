@@ -356,7 +356,7 @@ public class DivertTest extends ActiveMQTestBase {
          System.out.println("Received message " + message);
          assertNotNull(message);
 
-         if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue1")) {
+         if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("divert1")) {
             countOriginal1++;
          } else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
