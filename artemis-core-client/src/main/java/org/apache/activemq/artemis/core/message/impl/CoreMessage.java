@@ -437,7 +437,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setAddress(SimpleString address) {
-      if (validBuffer && !address.equals(this.address)) {
+      if (address == null && this.address == null) {
+         // no-op so just return
+         return this;
+      }
+      if (validBuffer && (address == null || !address.equals(this.address))) {
          messageChanged();
       }
       this.address = address;
