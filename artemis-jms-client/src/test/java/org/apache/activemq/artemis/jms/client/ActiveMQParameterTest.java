@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.jms.client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -42,5 +43,21 @@ public class ActiveMQParameterTest {
 
       activeMQDestination = new ActiveMQQueue("jms.queue.foo?last-value=false");
       assertFalse(activeMQDestination.getQueueAttributes().getLastValue());
+
+   }
+
+   @Test
+   public void testMultipleQueueParameters() {
+      ActiveMQDestination activeMQDestination = new ActiveMQQueue("jms.queue.foo?last-value=true&exclusive=true");
+      assertEquals("jms.queue.foo", activeMQDestination.getAddress());
+      assertTrue(activeMQDestination.getQueueAttributes().getLastValue());
+      assertTrue(activeMQDestination.getQueueAttributes().getExclusive());
+   }
+
+   @Test
+   public void testNoQueueParameters() {
+      ActiveMQDestination activeMQDestination = new ActiveMQQueue("jms.queue.foo");
+      assertEquals("jms.queue.foo", activeMQDestination.getAddress());
+      assertNull(activeMQDestination.getQueueAttributes());
    }
 }

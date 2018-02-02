@@ -16,46 +16,32 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import static org.apache.activemq.artemis.utils.uri.URISupport.appendParameters;
+import static org.apache.activemq.artemis.utils.uri.URISupport.parseQuery;
+
+import java.net.URISyntaxException;
 import java.util.Map;
+
+import org.apache.activemq.artemis.utils.uri.URISupport;
 
 public class ParameterisedAddress {
 
-   public static SimpleString toParameterisedAddress(SimpleString address, Map<String, String> parameters) {
-      if (parameters != null && parameters.size() > 0) {
+   public static SimpleString toParameterisedAddress(SimpleString address, Map<String, String> parameters) throws URISyntaxException {
+      if (parameters != null && !parameters.isEmpty()) {
          return SimpleString.toSimpleString(toParameterisedAddress(address.toString(), parameters));
       } else {
          return address;
       }
    }
 
-   public static String toParameterisedAddress(String address, Map<String, String> parameters) {
-      if (parameters != null && parameters.size() > 0) {
-         StringBuilder stringBuilder = new StringBuilder(address).append(PARAMETER_MARKER);
-         return toParameterString(stringBuilder, parameters).toString();
+   public static String toParameterisedAddress(String address, Map<String, String> parameters) throws URISyntaxException {
+      if (parameters != null && !parameters.isEmpty()) {
+         return appendParameters(new StringBuilder(address), parameters).toString();
       } else {
          return address;
       }
    }
 
-   private static StringBuilder toParameterString(StringBuilder stringBuilder, Map<String, String> parameters) {
-      boolean first = true;
-      for (Map.Entry<String, String> entry : parameters.entrySet()) {
-         if (first) {
-            first = false;
-         } else {
-            stringBuilder.append(PARAMETER_SEPERATOR);
-         }
-         stringBuilder.append(entry.getKey()).append(PARAMETER_KEY_VALUE_SEPERATOR).append(entry.getValue());
-      }
-      return stringBuilder;
-   }
-
-   public static char PARAMETER_SEPERATOR = '&';
-   public static char PARAMETER_KEY_VALUE_SEPERATOR = '=';
-   public static char PARAMETER_MARKER = '?';
-   public static String PARAMETER_SEPERATOR_STRING = Character.toString(PARAMETER_SEPERATOR);
-   public static String PARAMETER_KEY_VALUE_SEPERATOR_STRING = Character.toString(PARAMETER_KEY_VALUE_SEPERATOR);
-   public static String PARAMETER_MARKER_STRING = Character.toString(PARAMETER_MARKER);
    private final SimpleString address;
    private final QueueAttributes queueAttributes;
 
@@ -81,22 +67,17 @@ public class ParameterisedAddress {
    }
 
    public ParameterisedAddress(String address) {
-      int index = address.indexOf(PARAMETER_MARKER);
+      int index = address.indexOf('?');
       if (index == -1) {
          this.address = SimpleString.toSimpleString(address);
          this.queueAttributes = null;
       } else {
          this.address = SimpleString.toSimpleString(address.substring(0, index));
-         String parametersString = address.substring(index + 1, address.length());
-         String[] parameterPairs = parametersString.split(PARAMETER_SEPERATOR_STRING);
          QueueAttributes queueAttributes = new QueueAttributes();
-         for (String param : parameterPairs) {
-            String[] keyValue = param.split(PARAMETER_KEY_VALUE_SEPERATOR_STRING);
-            if (keyValue.length != 2) {
-               throw new IllegalArgumentException("Malformed parameter section " + param);
-            } else {
-               queueAttributes.set(keyValue[0], keyValue[1]);
-            }
+         try {
+            parseQuery(address).forEach(queueAttributes::set);
+         } catch (URISyntaxException use) {
+            throw new IllegalArgumentException("Malformed parameters in address " + address);
          }
          this.queueAttributes = queueAttributes;
       }
@@ -107,11 +88,11 @@ public class ParameterisedAddress {
    }
 
    public static boolean isParameterised(String address) {
-      return address.contains(PARAMETER_MARKER_STRING);
+      return URISupport.containsQuery(address);
    }
 
    public static boolean isParameterised(SimpleString address) {
-      return address.contains(PARAMETER_MARKER);
+      return URISupport.containsQuery(address);
    }
 
 }
