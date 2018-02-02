@@ -297,24 +297,26 @@ public class TransportConfiguration implements Serializable {
 
    private void encodeMap(final ActiveMQBuffer buffer, final Map<String, Object> map) {
       for (Map.Entry<String, Object> entry : map.entrySet()) {
-         buffer.writeString(entry.getKey());
+         if (entry.getValue() != null) {
+            buffer.writeString(entry.getKey());
 
-         Object val = entry.getValue();
+            Object val = entry.getValue();
 
-         if (val instanceof Boolean) {
-            buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
-            buffer.writeBoolean((Boolean) val);
-         } else if (val instanceof Integer) {
-            buffer.writeByte(TransportConfiguration.TYPE_INT);
-            buffer.writeInt((Integer) val);
-         } else if (val instanceof Long) {
-            buffer.writeByte(TransportConfiguration.TYPE_LONG);
-            buffer.writeLong((Long) val);
-         } else if (val instanceof String) {
-            buffer.writeByte(TransportConfiguration.TYPE_STRING);
-            buffer.writeString((String) val);
-         } else {
-            throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
+            if (val instanceof Boolean) {
+               buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
+               buffer.writeBoolean((Boolean) val);
+            } else if (val instanceof Integer) {
+               buffer.writeByte(TransportConfiguration.TYPE_INT);
+               buffer.writeInt((Integer) val);
+            } else if (val instanceof Long) {
+               buffer.writeByte(TransportConfiguration.TYPE_LONG);
+               buffer.writeLong((Long) val);
+            } else if (val instanceof String) {
+               buffer.writeByte(TransportConfiguration.TYPE_STRING);
+               buffer.writeString((String) val);
+            } else {
+               throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
+            }
          }
       }
    }
