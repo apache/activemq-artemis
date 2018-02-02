@@ -99,6 +99,16 @@ public final class ActiveMQBuffers {
    }
 
    /**
+    * Creates an ActiveMQBuffer wrapping an underlying byte array
+    *
+    * @param underlying the underlying byte array
+    * @return an ActiveMQBuffer wrapping the underlying byte array
+    */
+   public static ActiveMQBuffer wrappedBuffer(final byte[] underlying, final int offset, final int length) {
+      return new ChannelBufferWrapper(Unpooled.wrappedBuffer(underlying, offset, length));
+   }
+
+   /**
     * Creates a <em>fixed</em> ActiveMQBuffer of the given size
     *
     * @param size the size of the created ActiveMQBuffer
