@@ -1813,6 +1813,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (!ignored) {
                move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL);
+               refRemoved(ref);
                //move(toAddress, tx, ref, false, rejectDuplicates);
             }
          }
@@ -1861,9 +1862,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false, targetQueue.longValue());
                } else {
                   move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false);
-
                }
-
+               refRemoved(ref);
             }
          }
       });
