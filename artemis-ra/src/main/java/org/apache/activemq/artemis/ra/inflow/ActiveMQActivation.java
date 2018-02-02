@@ -541,7 +541,14 @@ public class ActiveMQActivation {
                   throw ActiveMQRABundle.BUNDLE.noDestinationName();
                }
 
-               String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
+               String calculatedDestinationName;
+               if (isTopic && spec.getTopicPrefix() != null) {
+                  calculatedDestinationName = spec.getTopicPrefix() + destinationName.substring(destinationName.lastIndexOf('/') + 1);
+               } else if (!isTopic && spec.getQueuePrefix() != null) {
+                  calculatedDestinationName = spec.getQueuePrefix() + destinationName.substring(destinationName.lastIndexOf('/') + 1);
+               } else {
+                  calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
+               }
 
                logger.debug("Unable to retrieve " + destinationName +
                                                 " from JNDI. Creating a new " + destinationType.getName() +
