@@ -53,6 +53,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public String strConnectionParameters;
    protected Boolean allowLocalTransactions;
 
+
    /**
     * The resource adapter
     */
@@ -134,6 +135,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    private Long setupInterval;
 
    private Boolean rebalanceConnections = false;
+
+   // Enables backwards compatibility of the pre 2.x addressing model
+   private String topicPrefix;
+
+   private String queuePrefix;
 
    /**
     * Constructor
@@ -366,6 +372,23 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       } else {
          return "Auto-acknowledge";
       }
+   }
+
+
+   public void setQueuePrefix(String prefix) {
+      this.queuePrefix = prefix;
+   }
+
+   public String getQueuePrefix() {
+      return queuePrefix;
+   }
+
+   public void setTopicPrefix(String prefix) {
+      this.topicPrefix = prefix;
+   }
+
+   public String getTopicPrefix() {
+      return topicPrefix;
    }
 
    /**
@@ -878,6 +901,10 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          return false;
       if (setupAttempts != null ? !setupAttempts.equals(that.setupAttempts) : that.setupAttempts != null)
          return false;
+      if (queuePrefix != null ? !queuePrefix.equals(that.queuePrefix) : that.queuePrefix != null)
+         return false;
+      if (topicPrefix != null ? !topicPrefix.equals(that.topicPrefix) : that.topicPrefix != null)
+         return false;
       return !(setupInterval != null ? !setupInterval.equals(that.setupInterval) : that.setupInterval != null);
 
    }
@@ -907,6 +934,8 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       result = 31 * result + (rebalanceConnections != null ? rebalanceConnections.hashCode() : 0);
       result = 31 * result + (setupAttempts != null ? setupAttempts.hashCode() : 0);
       result = 31 * result + (setupInterval != null ? setupInterval.hashCode() : 0);
+      result = 31 * result + (queuePrefix != null ? queuePrefix.hashCode() : 0);
+      result = 31 * result + (topicPrefix != null ? queuePrefix.hashCode() :0);
       return result;
    }
 }
