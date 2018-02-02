@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -60,6 +61,7 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
+import org.apache.activemq.wireformat.WireFormat;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
@@ -80,11 +82,6 @@ public class AMQSession implements SessionCallback {
 
    private final ScheduledExecutorService scheduledPool;
 
-   // The sessionWireformat used by the session
-   // this object is meant to be used per thread / session
-   // so we make a new one per AMQSession
-   private final OpenWireMessageConverter converter;
-
    private final OpenWireProtocolManager protocolManager;
 
    private final Runnable enableAutoReadAndTtl;
@@ -93,31 +90,31 @@ public class AMQSession implements SessionCallback {
 
    private String[] existingQueuesCache;
 
+   private final OpenWireFormat inWireFormat;
+
+   private final Supplier<OpenWireFormat> wireFormatFactory;
+
    public AMQSession(ConnectionInfo connInfo,
                      SessionInfo sessInfo,
                      ActiveMQServer server,
                      OpenWireConnection connection,
-                     OpenWireProtocolManager protocolManager) {
+                     OpenWireProtocolManager protocolManager,
+                     OpenWireFormat inWireFormat,
+                     Supplier<OpenWireFormat> wireFormatFactory) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
-
       this.server = server;
       this.connection = connection;
       this.protocolManager = protocolManager;
       this.scheduledPool = protocolManager.getScheduledPool();
-      OpenWireFormat marshaller = (OpenWireFormat) connection.getMarshaller();
-
-      this.converter = new OpenWireMessageConverter(marshaller.copy());
       this.enableAutoReadAndTtl = this::enableAutoReadAndTtl;
       this.existingQueuesCache = null;
+      this.wireFormatFactory = wireFormatFactory;
+      this.inWireFormat = inWireFormat;
    }
 
    public boolean isClosed() {
       return coreSession.isClosed();
-   }
-
-   public OpenWireMessageConverter getConverter() {
-      return protocolManager.getInternalConverter();
    }
 
    public void initialize() {
@@ -188,7 +185,7 @@ public class AMQSession implements SessionCallback {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
             }
          }
-         AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool, isInternalAddress);
+         AMQConsumer consumer = new AMQConsumer(this, wireFormatFactory, openWireDest, info, scheduledPool, isInternalAddress);
 
          long nativeID = consumerIDGenerator.generateID();
          consumer.init(slowConsumerDetectionListener, nativeID);
@@ -370,7 +367,7 @@ public class AMQSession implements SessionCallback {
          actualDestinations = new ActiveMQDestination[]{destination};
       }
 
-      final org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend, coreMessageObjectPools);
+      final org.apache.activemq.artemis.api.core.Message originalCoreMsg = OpenWireMessageConverter.inbound(messageSend, inWireFormat, coreMessageObjectPools);
 
       originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME, SimpleString.toSimpleString(this.connection.getState().getInfo().getClientId()));
 
@@ -513,11 +510,7 @@ public class AMQSession implements SessionCallback {
    public ActiveMQServer getCoreServer() {
       return this.server;
    }
-/*
-   public WireFormat getMarshaller() {
-      return this.connection.getMarshaller();
-   }
-*/
+
    public ConnectionInfo getConnectionInfo() {
       return this.connInfo;
    }
@@ -526,8 +519,8 @@ public class AMQSession implements SessionCallback {
       this.coreSession.disableSecurity();
    }
 
-   public void deliverMessage(MessageDispatch dispatch) {
-      this.connection.deliverMessage(dispatch);
+   public void deliverMessage(MessageDispatch dispatch, WireFormat outWireFormat) {
+      this.connection.deliverMessage(dispatch, outWireFormat);
    }
 
    public void close() throws Exception {

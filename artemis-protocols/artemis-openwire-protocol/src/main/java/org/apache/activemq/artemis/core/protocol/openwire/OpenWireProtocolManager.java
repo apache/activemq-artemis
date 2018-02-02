@@ -76,7 +76,6 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.filter.DestinationFilter;
 import org.apache.activemq.filter.DestinationPath;
-import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
 import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.util.IdGenerator;
@@ -130,8 +129,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    //to management service
    private boolean suppressInternalManagementObjects = true;
 
-   private final OpenWireMessageConverter internalConverter;
-
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
    private final Map<DestinationFilter, Integer> vtConsumerDestinationMatchers = new HashMap<>();
@@ -145,7 +142,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       wireFactory.setCacheEnabled(false);
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       scheduledPool = server.getScheduledPool();
-      this.internalConverter = new OpenWireMessageConverter(wireFactory.createWireFormat());
 
       final ClusterManager clusterManager = this.server.getClusterManager();
 
@@ -231,8 +227,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
-      OpenWireFormat wf = (OpenWireFormat) wireFactory.createWireFormat();
-      OpenWireConnection owConn = new OpenWireConnection(connection, server, server.getExecutorFactory().getExecutor(), this, wf);
+      OpenWireConnection owConn = new OpenWireConnection(connection, server, server.getExecutorFactory().getExecutor(), this);
       owConn.sendHandshake();
 
       //first we setup ttl to -1
@@ -597,8 +592,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       return total;
    }
 
-   public OpenWireMessageConverter getInternalConverter() {
-      return internalConverter;
+   public OpenWireFormatFactory wireFormatFactory() {
+      return wireFactory;
    }
 
    public boolean isSupportAdvisory() {

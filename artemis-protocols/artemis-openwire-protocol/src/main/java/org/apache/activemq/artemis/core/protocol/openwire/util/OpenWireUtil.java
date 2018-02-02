@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.util;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 
@@ -27,7 +25,6 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.XATransactionId;
-import org.apache.activemq.util.ByteSequence;
 
 public class OpenWireUtil {
 
@@ -40,13 +37,6 @@ public class OpenWireUtil {
    }
 
    public static final WildcardConfiguration OPENWIRE_WILDCARD = new OpenWireWildcardConfiguration();
-
-   public static ActiveMQBuffer toActiveMQBuffer(ByteSequence bytes) {
-      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bytes.length);
-
-      buffer.writeBytes(bytes.data, bytes.offset, bytes.length);
-      return buffer;
-   }
 
    /**
     * We convert the core address to an ActiveMQ Destination. We use the actual address on the message rather than the

@@ -144,7 +144,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final Object sendLock = new Object();
 
-   private final OpenWireFormat wireFormat;
+   private final OpenWireFormat inWireFormat;
+
+   private final OpenWireFormat outWireFormat;
 
    private AMQConnectionContext context;
 
@@ -193,13 +195,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
                              Executor executor,
-                             OpenWireProtocolManager openWireProtocolManager,
-                             OpenWireFormat wf) {
+                             OpenWireProtocolManager openWireProtocolManager) {
       super(connection, executor);
       this.server = server;
       this.operationContext = server.newOperationContext();
       this.protocolManager = openWireProtocolManager;
-      this.wireFormat = wf;
+      this.inWireFormat = (OpenWireFormat) openWireProtocolManager.wireFormatFactory().createWireFormat();
+      this.outWireFormat = inWireFormat.copy();
       this.useKeepAlive = openWireProtocolManager.isUseKeepAlive();
       this.maxInactivityDuration = openWireProtocolManager.getMaxInactivityDuration();
    }
@@ -259,7 +261,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          recoverOperationContext();
 
-         Command command = (Command) wireFormat.unmarshal(buffer);
+         Command command = (Command) inWireFormat.unmarshal(buffer);
 
          // log the openwire command
          if (logger.isTraceEnabled()) {
@@ -430,7 +432,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    // send a WireFormatInfo to the peer
    public void sendHandshake() {
-      WireFormatInfo info = wireFormat.getPreferedWireFormatInfo();
+      WireFormatInfo info = outWireFormat.getPreferedWireFormatInfo();
       sendCommand(info);
    }
 
@@ -439,6 +441,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void physicalSend(Command command) throws IOException {
+      physicalSend(command, outWireFormat);
+   }
+
+   public void physicalSend(Command command, WireFormat wireFormat) throws IOException {
 
       if (logger.isTraceEnabled()) {
          logger.trace("connectionID: " + (getTransportConnection() == null ? "" : getTransportConnection().getID())
@@ -446,10 +452,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       try {
-         ByteSequence bytes = wireFormat.marshal(command);
-         ActiveMQBuffer buffer = OpenWireUtil.toActiveMQBuffer(bytes);
+         final ByteSequence bytes = wireFormat.marshal(command);
+         //Netty will create a copy of any heap ByteBuf anyway
+         final ActiveMQBuffer buffer = transportConnection.createTransportBuffer(bytes.length);
+         buffer.writeBytes(bytes.data, bytes.offset, bytes.length);
          synchronized (sendLock) {
-            getTransportConnection().write(buffer, false, false);
+            transportConnection.write(buffer, false, false);
          }
          bufferSent();
       } catch (IOException e) {
@@ -550,18 +558,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return result;
    }
 
-   public void deliverMessage(MessageDispatch dispatch) {
+   public void deliverMessage(MessageDispatch dispatch, WireFormat wireFormat) {
       Message m = dispatch.getMessage();
       if (m != null) {
          long endTime = System.currentTimeMillis();
          m.setBrokerOutTime(endTime);
       }
 
-      sendCommand(dispatch);
-   }
-
-   public WireFormat getMarshaller() {
-      return this.wireFormat;
+      sendCommand(dispatch, wireFormat);
    }
 
    private void shutdown(boolean fail) {
@@ -649,7 +653,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public AMQConnectionContext initContext(ConnectionInfo info) throws Exception {
-      WireFormatInfo wireFormatInfo = wireFormat.getPreferedWireFormatInfo();
+      WireFormatInfo wireFormatInfo = inWireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
       // they were not.
       if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2) {
@@ -692,7 +696,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    //raise the refCount of context
    public void reconnect(AMQConnectionContext existingContext, ConnectionInfo info) {
       this.context = existingContext;
-      WireFormatInfo wireFormatInfo = wireFormat.getPreferedWireFormatInfo();
+      WireFormatInfo wireFormatInfo = inWireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
       // they were not.
       if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2) {
@@ -717,6 +721,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * This will answer with commands to the client
     */
    public boolean sendCommand(final Command command) {
+      return sendCommand(command, outWireFormat);
+   }
+
+   public boolean sendCommand(final Command command, final WireFormat wireFormat) {
       if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("sending " + command);
       }
@@ -726,7 +734,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       try {
-         physicalSend(command);
+         physicalSend(command, wireFormat);
       } catch (Exception e) {
          return false;
       } catch (Throwable t) {
@@ -932,12 +940,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   public AMQSession addSession(SessionInfo ss) {
+   private AMQSession addSession(SessionInfo ss) {
       return addSession(ss, false);
    }
 
-   public AMQSession addSession(SessionInfo ss, boolean internal) {
-      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager);
+   private AMQSession addSession(SessionInfo ss, boolean internal) {
+      //every sessions share the same wire format to process messages, because OpenWireConnection::bufferReceived
+      //is calling AMQSession::send of all sessions synchronously
+      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager, inWireFormat, inWireFormat::copy);
       amqSession.initialize();
 
       if (internal) {
@@ -1240,7 +1250,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processWireFormat(WireFormatInfo command) throws Exception {
-         wireFormat.renegotiateWireFormat(command);
+         //both format instances need to be renogotiated
+         outWireFormat.renegotiateWireFormat(command);
+         inWireFormat.renegotiateWireFormat(command);
          //throw back a brokerInfo here
          protocolManager.sendBrokerInfo(OpenWireConnection.this);
          protocolManager.setUpInactivityParams(OpenWireConnection.this, command);

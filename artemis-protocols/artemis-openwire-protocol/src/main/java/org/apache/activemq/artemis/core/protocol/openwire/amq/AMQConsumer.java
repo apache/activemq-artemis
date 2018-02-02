@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -51,10 +52,11 @@ import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.RemoveInfo;
+import org.apache.activemq.openwire.OpenWireFormat;
 
 public class AMQConsumer {
    private static final String AMQ_NOTIFICATIONS_DESTINATION = "activemq.notifications";
-   private AMQSession session;
+   private final AMQSession session;
    private final org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private final boolean hasNotificationDestination;
    private ConsumerInfo info;
@@ -68,8 +70,10 @@ public class AMQConsumer {
    //internal means we don't expose
    //it's address/queue to management service
    private boolean internalAddress = false;
+   private final OpenWireFormat outWireFormat;
 
    public AMQConsumer(AMQSession amqSession,
+                      Supplier<OpenWireFormat> wireFormatFactory,
                       org.apache.activemq.command.ActiveMQDestination d,
                       ConsumerInfo info,
                       ScheduledExecutorService scheduledPool,
@@ -85,6 +89,7 @@ public class AMQConsumer {
          messagePullHandler = new MessagePullHandler();
       }
       this.internalAddress = internalAddress;
+      this.outWireFormat = wireFormatFactory.get();
    }
 
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
@@ -223,10 +228,10 @@ public class AMQConsumer {
             //so we need to remove this property too.
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
-         dispatch = session.getConverter().createMessageDispatch(reference, message, this);
+         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, outWireFormat, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
-         session.deliverMessage(dispatch);
+         session.deliverMessage(dispatch, outWireFormat);
          currentWindow.decrementAndGet();
          return size;
       } catch (IOException e) {
@@ -242,7 +247,7 @@ public class AMQConsumer {
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(getId());
       md.setDestination(openwireDestination);
-      session.deliverMessage(md);
+      session.deliverMessage(md, outWireFormat);
    }
 
    /**
@@ -312,7 +317,7 @@ public class AMQConsumer {
       md.setMessage(null);
       md.setDestination(null);
 
-      session.deliverMessage(md);
+      session.deliverMessage(md, outWireFormat);
    }
 
    public ConsumerInfo getInfo() {
