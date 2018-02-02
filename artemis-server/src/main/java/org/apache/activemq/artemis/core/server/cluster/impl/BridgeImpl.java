@@ -506,10 +506,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
-   protected boolean isPlainCoreBridge() {
-      return true;
-   }
-
    /* Hook for processing message before forwarding */
    protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
       if (useDuplicateDetection) {
@@ -824,7 +820,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       return csf;
    }
 
-   private ClientSessionFactoryInternal reconnectOnOriginalNode() throws Exception {
+   protected ClientSessionFactoryInternal reconnectOnOriginalNode() throws Exception {
       String targetNodeIdUse = targetNodeID;
       TopologyMember nodeUse = targetNode;
       if (targetNodeIdUse != null && nodeUse != null) {
@@ -916,10 +912,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
             ActiveMQServerLogger.LOGGER.bridgeConnected(this);
 
-            // We only do this on plain core bridges
-            if (isPlainCoreBridge()) {
-               serverLocator.addClusterTopologyListener(new TopologyListener());
-            }
+            serverLocator.addClusterTopologyListener(new TopologyListener());
 
             keepConnecting = false;
             return;
