@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -126,7 +127,6 @@ import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.state.SessionState;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq.wireformat.WireFormat;
 import org.jboss.logging.Logger;
 
 /**
@@ -142,9 +142,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private boolean destroyed = false;
 
-   private final Object sendLock = new Object();
+   //separated in/out wireFormats allow deliveries (eg async and consumers) to not slow down bufferReceived
+   private final OpenWireFormat inWireFormat;
 
-   private final OpenWireFormat wireFormat;
+   private final OpenWireFormat outWireFormat;
 
    private AMQConnectionContext context;
 
@@ -181,6 +182,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final OperationContext operationContext;
 
+   private static final AtomicLongFieldUpdater<OpenWireConnection> LAST_SENT_UPDATER = AtomicLongFieldUpdater.newUpdater(OpenWireConnection.class, "lastSent");
    private volatile long lastSent = -1;
    private ConnectionEntry connectionEntry;
    private boolean useKeepAlive;
@@ -199,7 +201,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.server = server;
       this.operationContext = server.newOperationContext();
       this.protocolManager = openWireProtocolManager;
-      this.wireFormat = wf;
+      this.inWireFormat = wf;
+      this.outWireFormat = wf.copy();
       this.useKeepAlive = openWireProtocolManager.isUseKeepAlive();
       this.maxInactivityDuration = openWireProtocolManager.getMaxInactivityDuration();
    }
@@ -248,8 +251,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    //tells the connection that
    //some bytes just sent
-   public void bufferSent() {
-      lastSent = System.currentTimeMillis();
+   private void bufferSent() {
+      //much cheaper than a volatile set if contended, but less precise (ie allows stale loads)
+      LAST_SENT_UPDATER.lazySet(this, System.currentTimeMillis());
+   }
+
+   /**
+    * Log packaged into a separate method for performance reasons.
+    */
+   private static void traceBufferReceived(Object connectionID, Command command) {
+      logger.trace("connectionID: " + connectionID + " RECEIVED: " + (command == null ? "NULL" : command));
    }
 
    @Override
@@ -259,11 +270,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          recoverOperationContext();
 
-         Command command = (Command) wireFormat.unmarshal(buffer);
+         Command command = (Command) inWireFormat.unmarshal(buffer);
 
          // log the openwire command
          if (logger.isTraceEnabled()) {
-            logger.trace("connectionID: " + connectionID + " RECEIVED: " + (command == null ? "NULL" : command));
+            traceBufferReceived(connectionID, command);
          }
 
          boolean responseRequired = command.isResponseRequired();
@@ -430,7 +441,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    // send a WireFormatInfo to the peer
    public void sendHandshake() {
-      WireFormatInfo info = wireFormat.getPreferedWireFormatInfo();
+      WireFormatInfo info = inWireFormat.getPreferedWireFormatInfo();
       sendCommand(info);
    }
 
@@ -438,19 +449,25 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return state;
    }
 
+   /**
+    * Log packaged into a separate method for performance reasons.
+    */
+   private static void tracePhysicalSend(Connection transportConnection, Command command) {
+      logger.trace("connectionID: " + (transportConnection == null ? "" : transportConnection.getID()) + " SENDING: " + (command == null ? "NULL" : command));
+   }
+
    public void physicalSend(Command command) throws IOException {
 
       if (logger.isTraceEnabled()) {
-         logger.trace("connectionID: " + (getTransportConnection() == null ? "" : getTransportConnection().getID())
-                         + " SENDING: " + (command == null ? "NULL" : command));
+         tracePhysicalSend(transportConnection, command);
       }
 
       try {
-         ByteSequence bytes = wireFormat.marshal(command);
-         ActiveMQBuffer buffer = OpenWireUtil.toActiveMQBuffer(bytes);
-         synchronized (sendLock) {
-            getTransportConnection().write(buffer, false, false);
-         }
+         final ByteSequence bytes = outWireFormat.marshal(command);
+         final int bufferSize = bytes.length;
+         final ActiveMQBuffer buffer = transportConnection.createTransportBuffer(bufferSize);
+         buffer.writeBytes(bytes.data, bytes.offset, bufferSize);
+         transportConnection.write(buffer, false, false);
          bufferSent();
       } catch (IOException e) {
          throw e;
@@ -560,8 +577,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       sendCommand(dispatch);
    }
 
-   public WireFormat getMarshaller() {
-      return this.wireFormat;
+   public OpenWireFormat wireFormat() {
+      return this.inWireFormat;
    }
 
    private void shutdown(boolean fail) {
@@ -589,9 +606,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       callFailureListeners(me);
 
       // this should clean up temp dests
-      synchronized (sendLock) {
-         callClosingListeners();
-      }
+      callClosingListeners();
 
       destroyed = true;
 
@@ -649,7 +664,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public AMQConnectionContext initContext(ConnectionInfo info) throws Exception {
-      WireFormatInfo wireFormatInfo = wireFormat.getPreferedWireFormatInfo();
+      WireFormatInfo wireFormatInfo = inWireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
       // they were not.
       if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2) {
@@ -692,7 +707,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    //raise the refCount of context
    public void reconnect(AMQConnectionContext existingContext, ConnectionInfo info) {
       this.context = existingContext;
-      WireFormatInfo wireFormatInfo = wireFormat.getPreferedWireFormatInfo();
+      WireFormatInfo wireFormatInfo = inWireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
       // they were not.
       if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2) {
@@ -1240,7 +1255,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processWireFormat(WireFormatInfo command) throws Exception {
-         wireFormat.renegotiateWireFormat(command);
+         inWireFormat.renegotiateWireFormat(command);
+         outWireFormat.renegotiateWireFormat(command);
          //throw back a brokerInfo here
          protocolManager.sendBrokerInfo(OpenWireConnection.this);
          protocolManager.setUpInactivityParams(OpenWireConnection.this, command);
@@ -1648,7 +1664,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    @Override
    public String getTransportLocalAddress() {
-      return getTransportConnection().getLocalAddress();
+      return transportConnection.getLocalAddress();
    }
 
 }
