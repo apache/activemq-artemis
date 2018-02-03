@@ -935,7 +935,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       result = 31 * result + (setupAttempts != null ? setupAttempts.hashCode() : 0);
       result = 31 * result + (setupInterval != null ? setupInterval.hashCode() : 0);
       result = 31 * result + (queuePrefix != null ? queuePrefix.hashCode() : 0);
-      result = 31 * result + (topicPrefix != null ? queuePrefix.hashCode() :0);
+      result = 31 * result + (topicPrefix != null ? queuePrefix.hashCode() :0 );
       return result;
    }
 }
