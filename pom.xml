@@ -250,6 +250,12 @@
             <!-- License: CPL 1.0 -->
             <!-- There are newer versions of the JUnit but they break our tests -->
          </dependency>
+         <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+         </dependency>
 
          <!-- ### For MQTT Tests && Examples -->
          <dependency>
@@ -687,6 +693,18 @@
             <artifactId>HdrHistogram</artifactId>
             <version>${org.hdrhistogram.version}</version>
             <!-- License: Public Domain -->
+         </dependency>
+
+         <!-- needed by artemis-selector -->
+         <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>2.0.2</version>
+         </dependency>
+         <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.2</version>
          </dependency>
 
          <dependency>
