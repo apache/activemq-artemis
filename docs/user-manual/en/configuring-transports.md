@@ -433,6 +433,16 @@ following additional properties:
 
     Valid values are `true` or `false`. Default is `false`.
 
+-   `sslProvider`
+    
+    Used to change the SSL Provider between `JDK` and `OPENSSL`. The default is `JDK`. 
+    If used with `OPENSSL` you can add `netty-tcnative` to your classpath to use the native 
+    installed openssl. This can be useful if you want to use special ciphersuite - elliptic curve combinations
+    which are support through openssl but not through the JDK provider. See https://en.wikipedia.org/wiki/Comparison_of_TLS_implementations
+    for more information's.
+    
+    
+    
 ## Configuring Netty HTTP
 
 Netty HTTP tunnels packets over the HTTP protocol. It can be useful in
