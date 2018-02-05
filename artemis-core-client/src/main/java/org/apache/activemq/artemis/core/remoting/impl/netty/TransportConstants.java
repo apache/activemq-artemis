@@ -113,6 +113,8 @@ public class TransportConstants {
 
    public static final String USE_DEFAULT_SSL_CONTEXT_PROP_NAME = "useDefaultSslContext";
 
+   public static final String SSL_PROVIDER = "sslProvider";
+
    public static final String NETTY_VERSION;
 
    /**
@@ -200,6 +202,10 @@ public class TransportConstants {
    public static final boolean DEFAULT_NEED_CLIENT_AUTH = false;
 
    public static final boolean DEFAULT_VERIFY_HOST = false;
+
+   public static final String DEFAULT_SSL_PROVIDER = "JDK";
+
+   public static final String OPENSSL_PROVIDER = "OPENSSL";
 
    public static final boolean DEFAULT_TRUST_ALL = false;
 
@@ -316,6 +322,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.BACKLOG_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
+      allowableAcceptorKeys.add(TransportConstants.SSL_PROVIDER);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
@@ -361,6 +368,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SSL_PROVIDER);
       allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
 

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
@@ -40,6 +41,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -49,6 +51,7 @@ import javax.security.auth.login.LoginContext;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
@@ -90,13 +93,13 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -215,6 +218,8 @@ public class NettyConnector extends AbstractConnector {
    private String enabledCipherSuites;
 
    private String enabledProtocols;
+
+   private String sslProvider;
 
    private boolean verifyHost;
 
@@ -354,6 +359,8 @@ public class NettyConnector extends AbstractConnector {
 
          trustAll = ConfigurationHelper.getBooleanProperty(TransportConstants.TRUST_ALL_PROP_NAME, TransportConstants.DEFAULT_TRUST_ALL, configuration);
 
+         sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
+
          sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
 
          kerb5Config = ConfigurationHelper.getStringProperty(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, TransportConstants.DEFAULT_SSL_KRB5_CONFIG, configuration);
@@ -484,67 +491,30 @@ public class NettyConnector extends AbstractConnector {
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
       channelGroup = new DefaultChannelGroup("activemq-connector", GlobalEventExecutor.INSTANCE);
 
-      final SSLContext context;
+      final String realKeyStorePath;
+      final String realKeyStoreProvider;
+      final String realKeyStorePassword;
+      final String realTrustStorePath;
+      final String realTrustStoreProvider;
+      final String realTrustStorePassword;
+
       if (sslEnabled) {
-         try {
-            if (useDefaultSslContext) {
-               context = SSLContext.getDefault();
-            } else {
-               // HORNETQ-680 - override the server-side config if client-side system properties are set
-               String realKeyStorePath = keyStorePath;
-               String realKeyStoreProvider = keyStoreProvider;
-               String realKeyStorePassword = keyStorePassword;
-               if (System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME) != null) {
-                  realKeyStorePath = System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME);
-               }
-               if (System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME) != null) {
-                  realKeyStorePassword = System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME);
-               }
+         // HORNETQ-680 - override the server-side config if client-side system properties are set
 
-               if (System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME) != null) {
-                  realKeyStoreProvider = System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME);
-               }
-               if (System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME) != null) {
-                  realKeyStorePath = System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME);
-               }
-               if (System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME) != null) {
-                  realKeyStorePassword = System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME);
-               }
+         realKeyStorePath = Stream.of(System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME), System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME), keyStorePath).map(v -> useDefaultSslContext ? keyStorePath : v).filter(Objects::nonNull).findFirst().orElse(null);
+         realKeyStorePassword = Stream.of(System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME), System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME), keyStorePassword).map(v -> useDefaultSslContext ? keyStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+         realKeyStoreProvider = Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME), keyStoreProvider).map(v -> useDefaultSslContext ? keyStoreProvider : v).filter(Objects::nonNull).findFirst().orElse(null);
 
-               String realTrustStorePath = trustStorePath;
-               String realTrustStoreProvider = trustStoreProvider;
-               String realTrustStorePassword = trustStorePassword;
-               if (System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME) != null) {
-                  realTrustStorePath = System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME);
-               }
-               if (System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME) != null) {
-                  realTrustStorePassword = System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME);
-               }
-
-               if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME) != null) {
-                  realTrustStoreProvider = System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME);
-               }
-               if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME) != null) {
-                  realTrustStorePath = System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME);
-               }
-               if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME) != null) {
-                  realTrustStorePassword = System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME);
-               }
-               context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, trustAll, crlPath);
-            }
-         } catch (Exception e) {
-            close();
-            IllegalStateException ise = new IllegalStateException("Unable to create NettyConnector for " + host + ":" + port);
-            ise.initCause(e);
-            throw ise;
-         }
+         realTrustStorePath = Stream.of(System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME), System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME), trustStorePath).map(v -> useDefaultSslContext ? trustStorePath : v).filter(Objects::nonNull).findFirst().orElse(null);
+         realTrustStorePassword = Stream.of(System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME), System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME), trustStorePassword).map(v -> useDefaultSslContext ? trustStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+         realTrustStoreProvider = Stream.of(System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME), trustStoreProvider).map(v -> useDefaultSslContext ? trustStoreProvider : v).filter(Objects::nonNull).findFirst().orElse(null);
       } else {
-         context = null; // Unused
-      }
-
-      if (context != null && useServlet) {
-         // TODO: Fix me
-         //bootstrap.setOption("sslContext", context);
+         realKeyStorePath = null;
+         realKeyStoreProvider = null;
+         realKeyStorePassword = null;
+         realTrustStorePath = null;
+         realTrustStoreProvider = null;
+         realTrustStorePassword = null;
       }
 
       bootstrap.handler(new ChannelInitializer<Channel>() {
@@ -553,24 +523,12 @@ public class NettyConnector extends AbstractConnector {
             final ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled && !useServlet) {
 
-               Subject subject = null;
-               if (kerb5Config != null) {
-                  LoginContext loginContext = new LoginContext(kerb5Config);
-                  loginContext.login();
-                  subject = loginContext.getSubject();
-                  verifyHost = true;
+               SSLEngine engine;
+               if (sslProvider.equals(TransportConstants.OPENSSL_PROVIDER)) {
+                  engine = loadOpenSslEngine(channel.alloc(), realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
+               } else {
+                  engine = loadJdkSslEngine(useDefaultSslContext, realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
                }
-
-               SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-                  @Override
-                  public SSLEngine run() {
-                     if (verifyHost) {
-                        return context.createSSLEngine(sniHost != null ? sniHost : host, port);
-                     } else {
-                        return context.createSSLEngine();
-                     }
-                  }
-               });
 
                engine.setUseClientMode(true);
 
@@ -640,7 +598,72 @@ public class NettyConnector extends AbstractConnector {
 
          batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
-      ActiveMQClientLogger.LOGGER.startedNettyConnector(connectorType,  TransportConstants.NETTY_VERSION, host, port);
+      ActiveMQClientLogger.LOGGER.startedNettyConnector(connectorType, TransportConstants.NETTY_VERSION, host, port);
+   }
+
+   private SSLEngine loadJdkSslEngine(boolean useDefaultSslContext,
+                                      String realKeyStoreProvider,
+                                      String realKeyStorePath,
+                                      String realKeyStorePassword,
+                                      String realTrustStoreProvider,
+                                      String realTrustStorePath,
+                                      String realTrustStorePassword) throws Exception {
+      SSLContext context;
+      if (useDefaultSslContext) {
+         context = SSLContext.getDefault();
+      } else {
+         context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, trustAll, crlPath);
+      }
+      Subject subject = null;
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
+         loginContext.login();
+         subject = loginContext.getSubject();
+         verifyHost = true;
+      }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.createSSLEngine(host, port);
+            } else {
+               return context.createSSLEngine();
+            }
+         }
+      });
+      return engine;
+   }
+
+   private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc,
+                                       String realKeyStoreProvider,
+                                       String realKeyStorePath,
+                                       String realKeyStorePassword,
+                                       String realTrustStoreProvider,
+                                       String realTrustStorePath,
+                                       String realTrustStorePassword) throws Exception {
+
+      SslContext context = SSLSupport.createNettyContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, sslProvider);
+
+      Subject subject = null;
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
+         loginContext.login();
+         subject = loginContext.getSubject();
+         verifyHost = true;
+      }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.newEngine(alloc, sniHost != null ? sniHost : host, port);
+            } else {
+               return context.newEngine(alloc);
+            }
+         }
+      });
+      return engine;
    }
 
    @Override
