@@ -189,6 +189,10 @@ public abstract class VersionedBaseTest {
    }
 
    public void startServer(File folder, ClassLoader loader, String serverName) throws Throwable {
+      startServer(folder, loader, serverName, null);
+   }
+
+   public void startServer(File folder, ClassLoader loader, String serverName, String globalMaxSize) throws Throwable {
       folder.mkdirs();
 
       System.out.println("Folder::" + folder);
@@ -202,9 +206,8 @@ public abstract class VersionedBaseTest {
          scriptToUse = "servers/hornetqServer.groovy";
       }
 
-      evaluate(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver);
+      evaluate(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver, globalMaxSize);
    }
-
    public void stopServer(ClassLoader loader) throws Throwable {
       execute(loader, "server.stop()");
    }

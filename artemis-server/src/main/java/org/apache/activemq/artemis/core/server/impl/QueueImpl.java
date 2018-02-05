@@ -171,6 +171,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // The estimate of memory being consumed by this queue. Used to calculate instances of messages to depage
    private final AtomicInteger queueMemorySize = new AtomicInteger(0);
 
+   private final QueuePendingMessageMetrics pendingMetrics = new QueuePendingMessageMetrics(this);
+
+   private final QueuePendingMessageMetrics deliveringMetrics = new QueuePendingMessageMetrics(this);
+
    // used to control if we should recalculate certain positions inside deliverAsync
    private volatile boolean consumersChanged = true;
 
@@ -185,8 +189,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private AtomicLong messagesExpired = new AtomicLong(0);
 
    private AtomicLong messagesKilled = new AtomicLong(0);
-
-   protected final AtomicInteger deliveringCount = new AtomicInteger(0);
 
    private boolean paused;
 
@@ -452,7 +454,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.server = server;
 
-      scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor);
+      scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor, this);
 
       if (addressSettingsRepository != null) {
          addressSettingsRepositoryListener = new AddressSettingsRepositoryListener();
@@ -1118,15 +1120,65 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (pageSubscription != null) {
          // messageReferences will have depaged messages which we need to discount from the counter as they are
          // counted on the pageSubscription as well
-         return messageReferences.size() + getScheduledCount() + deliveringCount.get() + pageSubscription.getMessageCount();
+         return pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
       } else {
-         return messageReferences.size() + getScheduledCount() + deliveringCount.get();
+         return pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount();
       }
+   }
+
+   @Override
+   public long getPersistentSize() {
+      if (pageSubscription != null) {
+         // messageReferences will have depaged messages which we need to discount from the counter as they are
+         // counted on the pageSubscription as well
+         return pendingMetrics.getPersistentSize() + getScheduledSize() + getDeliveringSize() + pageSubscription.getPersistentSize();
+      } else {
+         return pendingMetrics.getPersistentSize() + getScheduledSize() + getDeliveringSize();
+      }
+   }
+
+   @Override
+   public long getDurableMessageCount() {
+      if (isDurable()) {
+         if (pageSubscription != null) {
+            return pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount() + pageSubscription.getMessageCount();
+         } else {
+            return pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount();
+         }
+      }
+      return 0;
+   }
+
+   @Override
+   public long getDurablePersistentSize() {
+      if (isDurable()) {
+         if (pageSubscription != null) {
+            return pendingMetrics.getDurablePersistentSize() + getDurableScheduledSize() + getDurableDeliveringSize() + pageSubscription.getPersistentSize();
+         } else {
+            return pendingMetrics.getDurablePersistentSize() + getDurableScheduledSize() + getDurableDeliveringSize();
+         }
+      }
+      return 0;
    }
 
    @Override
    public synchronized int getScheduledCount() {
       return scheduledDeliveryHandler.getScheduledCount();
+   }
+
+   @Override
+   public synchronized long getScheduledSize() {
+      return scheduledDeliveryHandler.getScheduledSize();
+   }
+
+   @Override
+   public synchronized int getDurableScheduledCount() {
+      return scheduledDeliveryHandler.getDurableScheduledCount();
+   }
+
+   @Override
+   public synchronized long getDurableScheduledSize() {
+      return scheduledDeliveryHandler.getDurableScheduledSize();
    }
 
    @Override
@@ -1153,7 +1205,22 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public int getDeliveringCount() {
-      return deliveringCount.get();
+      return deliveringMetrics.getMessageCount();
+   }
+
+   @Override
+   public long getDeliveringSize() {
+      return deliveringMetrics.getPersistentSize();
+   }
+
+   @Override
+   public int getDurableDeliveringCount() {
+      return deliveringMetrics.getDurableMessageCount();
+   }
+
+   @Override
+   public long getDurableDeliveringSize() {
+      return deliveringMetrics.getDurablePersistentSize();
    }
 
    @Override
@@ -1239,7 +1306,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       getRefsOperation(tx).addAck(ref);
 
       // https://issues.jboss.org/browse/HORNETQ-609
-      incDelivering();
+      incDelivering(ref);
 
       messagesAcknowledged.incrementAndGet();
    }
@@ -1287,7 +1354,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          resetAllIterators();
       } else {
-         decDelivering();
+         decDelivering(reference);
       }
    }
 
@@ -1354,8 +1421,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void referenceHandled() {
-      incDelivering();
+   public void referenceHandled(MessageReference ref) {
+      incDelivering(ref);
    }
 
    @Override
@@ -1419,7 +1486,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return iterQueue(flushLimit, filter1, new QueueIterateAction() {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
-            incDelivering();
+            incDelivering(ref);
             acknowledge(tx, ref, ackReason);
             refRemoved(ref);
          }
@@ -1539,7 +1606,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering();
+               incDelivering(ref);
                acknowledge(tx, ref);
                iter.remove();
                refRemoved(ref);
@@ -1618,7 +1685,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering();
+               incDelivering(ref);
                expire(ref);
                iter.remove();
                refRemoved(ref);
@@ -1644,7 +1711,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
-               incDelivering();
+               incDelivering(ref);
                expire(tx, ref);
                iter.remove();
                refRemoved(ref);
@@ -1711,7 +1778,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                         if (tx == null) {
                            tx = new TransactionImpl(storageManager);
                         }
-                        incDelivering();
+                        incDelivering(ref);
                         expired = true;
                         expire(tx, ref);
                         iter.remove();
@@ -1763,7 +1830,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering();
+               incDelivering(ref);
                sendToDeadLetterAddress(null, ref);
                iter.remove();
                refRemoved(ref);
@@ -1782,7 +1849,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
-               incDelivering();
+               incDelivering(ref);
                sendToDeadLetterAddress(null, ref);
                iter.remove();
                refRemoved(ref);
@@ -1804,11 +1871,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (ref.getMessage().getMessageID() == messageID) {
                iter.remove();
                refRemoved(ref);
-               incDelivering();
+               incDelivering(ref);
                try {
                   move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL);
                } catch (Exception e) {
-                  decDelivering();
+                  decDelivering(ref);
                   throw e;
                }
                return true;
@@ -1836,7 +1903,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
             boolean ignored = false;
 
-            incDelivering();
+            incDelivering(ref);
 
             if (rejectDuplicates) {
                byte[] duplicateBytes = ref.getMessage().getDuplicateIDBytes();
@@ -1881,7 +1948,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (originalMessageAddress != null) {
 
-               incDelivering();
+               incDelivering(ref);
 
                Long targetQueue = null;
                if (originalMessageQueue != null && !originalMessageQueue.equals(originalMessageAddress)) {
@@ -2065,6 +2132,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private synchronized void internalAddTail(final MessageReference ref) {
       refAdded(ref);
       messageReferences.addTail(ref, getPriority(ref));
+      pendingMetrics.incrementMetrics(ref);
    }
 
    /**
@@ -2076,6 +2144,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    private void internalAddHead(final MessageReference ref) {
       queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      pendingMetrics.incrementMetrics(ref);
       refAdded(ref);
 
       int priority = getPriority(ref);
@@ -2330,6 +2399,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    protected void refRemoved(MessageReference ref) {
       queueMemorySize.addAndGet(-ref.getMessageMemoryEstimate());
+      pendingMetrics.decrementMetrics(ref);
       if (ref.isPaged()) {
          pagedReferences.decrementAndGet();
       }
@@ -2379,6 +2449,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
          addTail(reference, false);
          pageIterator.remove();
+
+         //We have to increment this here instead of in the iterator so we have access to the reference from next()
+         pageSubscription.incrementDeliveredSize(getPersistentSize(reference));
       }
 
       if (logger.isDebugEnabled()) {
@@ -2387,7 +2460,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          if (logger.isDebugEnabled()) {
-            logger.debug("Queue Memory Size after depage on queue=" + this.getName() + " is " + queueMemorySize.get() + " with maxSize = " + maxSize + ". Depaged " + depaged + " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() + ", queueDelivering=" + deliveringCount.get());
+            logger.debug("Queue Memory Size after depage on queue=" + this.getName() + " is " + queueMemorySize.get() + " with maxSize = " + maxSize + ". Depaged " + depaged + " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() + ", queueDelivering=" + deliveringMetrics.getMessageCount());
 
          }
       }
@@ -2466,7 +2539,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
          }
 
-         decDelivering();
+         decDelivering(reference);
 
          return true;
       }
@@ -2890,7 +2963,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void postAcknowledge(final MessageReference ref) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
-      queue.decDelivering();
+      queue.decDelivering(ref);
 
       if (ref.isPaged()) {
          // nothing to be done
@@ -2958,7 +3031,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          Transaction transaction = new TransactionImpl(storageManager);
          for (MessageReference reference : refs) {
-            incDelivering(); // post ack will decrement this, so need to inc
+            incDelivering(reference); // post ack will decrement this, so need to inc
             acknowledge(transaction, reference, AckReason.KILLED);
          }
          transaction.commit();
@@ -3264,17 +3337,24 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   private int incDelivering() {
-      return deliveringCount.incrementAndGet();
+   private void incDelivering(MessageReference ref) {
+      deliveringMetrics.incrementMetrics(ref);
    }
 
-   public void decDelivering() {
-      deliveringCount.decrementAndGet();
+   public void decDelivering(final MessageReference reference) {
+      deliveringMetrics.decrementMetrics(reference);
    }
 
-   @Override
-   public void decDelivering(int size) {
-      deliveringCount.addAndGet(-size);
+   private long getPersistentSize(final MessageReference reference) {
+      long size = 0;
+
+      try {
+         size = reference.getPersistentSize() > 0 ? reference.getPersistentSize() : 0;
+      } catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.errorCalculatePersistentSize(e);
+      }
+
+      return size;
    }
 
    private void configureExpiry(final AddressSettings settings) {

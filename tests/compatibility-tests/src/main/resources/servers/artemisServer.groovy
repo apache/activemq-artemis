@@ -31,8 +31,10 @@ String id = arg[1];
 String type = arg[2];
 String producer = arg[3];
 String consumer = arg[4];
+String globalMaxSize = arg[5];
 
 println("type = " + type);
+println("globalMaxSize = " + globalMaxSize);
 
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
@@ -44,6 +46,10 @@ configuration.setPersistenceEnabled(persistent);
 try {
     if (!type.startsWith("ARTEMIS-1")) {
         configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
+        if (globalMaxSize != null) {
+            configuration.getAddressesSettings().get("#").setPageSizeBytes(globalMaxSize);
+            configuration.setGlobalMaxSize(Long.parseLong(globalMaxSize));
+        }
     }
 } catch (Throwable e) {
     // need to ignore this for 1.4

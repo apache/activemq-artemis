@@ -122,6 +122,21 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
       return control.getMessageCount();
    }
 
+   protected long getDurableMessageCount(QueueControl control) throws Exception {
+      control.flushExecutor();
+      return control.getDurableMessageCount();
+   }
+
+   protected long getMessageSize(QueueControl control) throws Exception {
+      control.flushExecutor();
+      return control.getPersistentSize();
+   }
+
+   protected long getDurableMessageSize(QueueControl control) throws Exception {
+      control.flushExecutor();
+      return control.getDurablePersistentSize();
+   }
+
    protected long getMessagesAdded(QueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessagesAdded();
