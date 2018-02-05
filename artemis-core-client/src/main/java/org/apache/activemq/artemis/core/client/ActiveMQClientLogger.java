@@ -64,7 +64,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 211001, value = "session created", format = Message.Format.MESSAGE_FORMAT)
    void dumpingSessionStack(@Cause Exception e);
 
-   @LogMessage(level = Logger.Level.INFO)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 211002, value = "Started {0} Netty Connector version {1} to {2}:{3,number,#}", format = Message.Format.MESSAGE_FORMAT)
    void startedNettyConnector(String connectorType, String version, String host, Integer port);
 
