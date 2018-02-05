@@ -29,6 +29,10 @@ import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.qpid.proton.amqp.UnsignedByte;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
+import org.apache.qpid.proton.amqp.UnsignedShort;
 
 import static org.apache.activemq.artemis.reader.MapMessageUtil.readBodyMap;
 import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;
@@ -122,7 +126,18 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    @Override
    public void setObject(final String name, final Object value) throws JMSException {
       try {
-         TypedProperties.setObjectProperty(new SimpleString(name), value, map);
+         // primitives and String
+         Object val = value;
+         if (value instanceof UnsignedInteger) {
+            val = ((UnsignedInteger) value).intValue();
+         } else if (value instanceof UnsignedShort) {
+            val = ((UnsignedShort) value).shortValue();
+         } else if (value instanceof UnsignedByte) {
+            val = ((UnsignedByte) value).byteValue();
+         } else if (value instanceof UnsignedLong) {
+            val = ((UnsignedLong) value).longValue();
+         }
+         TypedProperties.setObjectProperty(new SimpleString(name), val, map);
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
