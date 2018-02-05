@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.ssl;
 
-import java.security.Security;
-import java.security.cert.CRL;
-import java.security.cert.CertStore;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CollectionCertStoreParameters;
-import java.security.cert.PKIXBuilderParameters;
-import java.security.cert.X509CertSelector;
-import java.util.Collection;
 import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -37,12 +29,24 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.SecureRandom;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import java.security.Security;
+import java.security.cert.CRL;
+import java.security.cert.CertStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CollectionCertStoreParameters;
+import java.security.cert.PKIXBuilderParameters;
+import java.security.cert.X509CertSelector;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
 
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 /**
  * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ Artemis test-suite to
@@ -99,6 +103,21 @@ public class SSLSupport {
       return context;
    }
 
+   public static SslContext createNettyContext(final String keystoreProvider,
+                                               final String keystorePath,
+                                               final String keystorePassword,
+                                               final String trustStoreProvider,
+                                               final String trustStorePath,
+                                               final String trustStorePassword,
+                                               final String sslProvider) throws Exception {
+
+      KeyStore keyStore = SSLSupport.loadKeystore(keystoreProvider, keystorePath, keystorePassword);
+      String alias = keyStore.aliases().nextElement();
+      PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
+      X509Certificate certificate = (X509Certificate) keyStore.getCertificate(alias);
+      return SslContextBuilder.forServer(privateKey, certificate).sslProvider(SslProvider.valueOf(sslProvider)).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, false, null)).build();
+   }
+
    public static String[] parseCommaSeparatedListIntoArray(String suites) {
       String[] cipherSuites = suites.split(",");
       for (int i = 0; i < cipherSuites.length; i++) {
@@ -120,15 +139,14 @@ public class SSLSupport {
    }
 
    // Private -------------------------------------------------------
-
-   private static TrustManager[] loadTrustManager(final String trustStoreProvider,
-                                                  final String trustStorePath,
-                                                  final String trustStorePassword,
-                                                  final boolean trustAll,
-                                                  final String crlPath) throws Exception {
+   private static TrustManagerFactory loadTrustManagerFactory(final String trustStoreProvider,
+                                                              final String trustStorePath,
+                                                              final String trustStorePassword,
+                                                              final boolean trustAll,
+                                                              final String crlPath) throws Exception {
       if (trustAll) {
          //This is useful for testing but not should be used outside of that purpose
-         return InsecureTrustManagerFactory.INSTANCE.getTrustManagers();
+         return InsecureTrustManagerFactory.INSTANCE;
       } else if (trustStorePath == null && (trustStoreProvider == null || !"PKCS11".equals(trustStoreProvider.toUpperCase()))) {
          return null;
       } else {
@@ -153,10 +171,20 @@ public class SSLSupport {
          if (!initialized) {
             trustMgrFactory.init(trustStore);
          }
-
-         return trustMgrFactory.getTrustManagers();
-
+         return trustMgrFactory;
       }
+   }
+
+   private static TrustManager[] loadTrustManager(final String trustStoreProvider,
+                                                  final String trustStorePath,
+                                                  final String trustStorePassword,
+                                                  final boolean trustAll,
+                                                  final String crlPath) throws Exception {
+      TrustManagerFactory trustManagerFactory = loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, trustAll, crlPath);
+      if (trustManagerFactory == null) {
+         return null;
+      }
+      return trustManagerFactory.getTrustManagers();
    }
 
    private static Collection<? extends CRL> loadCRL(String crlPath) throws Exception {
@@ -196,14 +224,24 @@ public class SSLSupport {
    private static KeyManager[] loadKeyManagers(final String keyStoreProvider,
                                                final String keystorePath,
                                                final String keystorePassword) throws Exception {
+
+      KeyManagerFactory factory = loadKeyManagerFactory(keyStoreProvider, keystorePath, keystorePassword);
+      if (factory == null) {
+         return null;
+      }
+      return factory.getKeyManagers();
+   }
+
+   private static KeyManagerFactory loadKeyManagerFactory(final String keyStoreProvider,
+                                                          final String keystorePath,
+                                                          final String keystorePassword) throws Exception {
       if (keystorePath == null && (keyStoreProvider == null || !"PKCS11".equals(keyStoreProvider.toUpperCase()))) {
          return null;
       } else {
          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
          KeyStore ks = SSLSupport.loadKeystore(keyStoreProvider, keystorePath, keystorePassword);
          kmf.init(ks, keystorePassword == null ? null : keystorePassword.toCharArray());
-
-         return kmf.getKeyManagers();
+         return kmf;
       }
    }
 
