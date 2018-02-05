@@ -50,8 +50,12 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    // just adding some information to keep it in order accordingly to the initial operations
    private final TreeSet<RefScheduled> scheduledReferences = new TreeSet<>(new MessageReferenceComparator());
 
-   public ScheduledDeliveryHandlerImpl(final ScheduledExecutorService scheduledExecutor) {
+   private final QueuePendingMessageMetrics metrics;
+
+   public ScheduledDeliveryHandlerImpl(final ScheduledExecutorService scheduledExecutor,
+         final Queue queue) {
       this.scheduledExecutor = scheduledExecutor;
+      this.metrics = new QueuePendingMessageMetrics(queue);
    }
 
    @Override
@@ -76,13 +80,27 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       synchronized (scheduledReferences) {
          scheduledReferences.add(new RefScheduled(ref, tail));
       }
+      metrics.incrementMetrics(ref);
    }
 
    @Override
    public int getScheduledCount() {
-      synchronized (scheduledReferences) {
-         return scheduledReferences.size();
-      }
+      return metrics.getMessageCount();
+   }
+
+   @Override
+   public int getDurableScheduledCount() {
+      return metrics.getDurableMessageCount();
+   }
+
+   @Override
+   public long getScheduledSize() {
+      return metrics.getPersistentSize();
+   }
+
+   @Override
+   public long getDurableScheduledSize() {
+      return metrics.getDurablePersistentSize();
    }
 
    @Override
@@ -109,6 +127,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             if (filter == null || filter.match(ref.getMessage())) {
                iter.remove();
                refs.add(ref);
+               metrics.decrementMetrics(ref);
             }
          }
       }
@@ -123,6 +142,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             MessageReference ref = iter.next().getRef();
             if (ref.getMessage().getMessageID() == id) {
                iter.remove();
+               metrics.decrementMetrics(ref);
                return ref;
             }
          }
@@ -205,6 +225,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
                }
 
                iter.remove();
+               metrics.decrementMetrics(reference);
 
                reference.setScheduledDeliveryTime(0);
 

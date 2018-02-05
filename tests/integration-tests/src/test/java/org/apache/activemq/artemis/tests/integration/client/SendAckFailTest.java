@@ -668,8 +668,8 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounter(long txID, long queueID, long value) throws Exception {
-         return manager.storePageCounter(txID, queueID, value);
+      public long storePageCounter(long txID, long queueID, long value, long size) throws Exception {
+         return manager.storePageCounter(txID, queueID, value, size);
       }
 
       @Override
@@ -693,13 +693,13 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounterInc(long txID, long queueID, int add) throws Exception {
-         return manager.storePageCounterInc(txID, queueID, add);
+      public long storePageCounterInc(long txID, long queueID, int add, long size) throws Exception {
+         return manager.storePageCounterInc(txID, queueID, add, size);
       }
 
       @Override
-      public long storePageCounterInc(long queueID, int add) throws Exception {
-         return manager.storePageCounterInc(queueID, add);
+      public long storePageCounterInc(long queueID, int add, long size) throws Exception {
+         return manager.storePageCounterInc(queueID, add, size);
       }
 
       @Override
