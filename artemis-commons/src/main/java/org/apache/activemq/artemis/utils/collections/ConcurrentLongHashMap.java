@@ -26,6 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.LongFunction;
 
@@ -199,7 +200,8 @@ public class ConcurrentLongHashMap<V> {
       private long[] keys;
       private V[] values;
 
-      private int capacity;
+      private volatile int capacity;
+      private static final AtomicIntegerFieldUpdater capacityUpdater = AtomicIntegerFieldUpdater.newUpdater(Section.class, "capacity");
       private volatile int size;
       private int usedBuckets;
       private int resizeThreshold;
@@ -457,11 +459,11 @@ public class ConcurrentLongHashMap<V> {
             }
          }
 
-         capacity = newCapacity;
          keys = newKeys;
          values = newValues;
          usedBuckets = size;
-         resizeThreshold = (int) (capacity * MapFillFactor);
+         capacityUpdater.lazySet(this, newCapacity);
+         resizeThreshold = (int) (newCapacity * MapFillFactor);
       }
 
       private static <V> void insertKeyValueNoLock(long[] keys, V[] values, long key, V value) {
