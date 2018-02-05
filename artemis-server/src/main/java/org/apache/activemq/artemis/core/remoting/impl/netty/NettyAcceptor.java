@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -63,6 +64,7 @@ import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -163,6 +165,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final String enabledProtocols;
 
    private final boolean needClientAuth;
+
+   private final String sslProvider;
 
    private final boolean verifyHost;
 
@@ -270,6 +274,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_NEED_CLIENT_AUTH, configuration);
 
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
+
+         sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -282,6 +288,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
+         sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -364,7 +371,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled) {
-               pipeline.addLast("ssl", getSslHandler());
+               pipeline.addLast("ssl", getSslHandler(channel.alloc()));
                pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
             }
             pipeline.addLast(protocolHandler.getProtocolDecoder());
@@ -451,36 +458,13 @@ public class NettyAcceptor extends AbstractAcceptor {
       startServerChannels();
    }
 
-   public synchronized SslHandler getSslHandler() throws Exception {
-      final SSLContext context;
-      try {
-         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
-            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
-                                                  "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
-                                                  "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
-         context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword, crlPath);
-      } catch (Exception e) {
-         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
-         ise.initCause(e);
-         throw ise;
+   public synchronized SslHandler getSslHandler(ByteBufAllocator alloc) throws Exception {
+      SSLEngine engine;
+      if (sslProvider.equals(TransportConstants.OPENSSL_PROVIDER)) {
+         engine = loadOpenSslEngine(alloc);
+      } else {
+         engine = loadJdkSslEngine();
       }
-      Subject subject = null;
-      if (kerb5Config != null) {
-         LoginContext loginContext = new LoginContext(kerb5Config);
-         loginContext.login();
-         subject = loginContext.getSubject();
-      }
-
-      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-         @Override
-         public SSLEngine run() {
-            if (verifyHost) {
-               return context.createSSLEngine(host, port);
-            } else {
-               return context.createSSLEngine();
-            }
-         }
-      });
 
       engine.setUseClientMode(false);
 
@@ -537,6 +521,68 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
 
       return new SslHandler(engine);
+   }
+
+   private SSLEngine loadJdkSslEngine() throws Exception {
+      final SSLContext context;
+      try {
+         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
+            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " + "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
+         context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword, crlPath);
+      } catch (Exception e) {
+         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
+         ise.initCause(e);
+         throw ise;
+      }
+      Subject subject = null;
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
+         loginContext.login();
+         subject = loginContext.getSubject();
+      }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.createSSLEngine(host, port);
+            } else {
+               return context.createSSLEngine();
+            }
+         }
+      });
+      return engine;
+   }
+
+   private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc) throws Exception {
+      final SslContext context;
+      try {
+         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
+            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " + "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
+         context = SSLSupport.createNettyContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword, sslProvider);
+      } catch (Exception e) {
+         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
+         ise.initCause(e);
+         throw ise;
+      }
+      Subject subject = null;
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
+         loginContext.login();
+         subject = loginContext.getSubject();
+      }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.newEngine(alloc, host, port);
+            } else {
+               return context.newEngine(alloc);
+            }
+         }
+      });
+      return engine;
    }
 
    private void startServerChannels() {
