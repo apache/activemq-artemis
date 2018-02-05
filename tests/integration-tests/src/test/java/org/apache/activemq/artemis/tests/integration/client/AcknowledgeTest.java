@@ -817,5 +817,10 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       public Map<String, Object> toPropertyMap() {
          return null;
       }
+
+      @Override
+      public long getPersistentSize() throws ActiveMQException {
+         return 0;
+      }
    }
 }

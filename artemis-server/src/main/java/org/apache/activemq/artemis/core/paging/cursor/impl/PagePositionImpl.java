@@ -37,6 +37,12 @@ public class PagePositionImpl implements PagePosition {
    private long recordID = -1;
 
    /**
+    * Optional size value that can be set to specify the peristent size of the message
+    * for metrics tracking purposes
+    */
+   private long persistentSize;
+
+   /**
     * @param pageNr
     * @param messageNr
     */
@@ -80,6 +86,22 @@ public class PagePositionImpl implements PagePosition {
    @Override
    public int getMessageNr() {
       return messageNr;
+   }
+
+   /**
+    * @return the persistentSize
+    */
+   @Override
+   public long getPersistentSize() {
+      return persistentSize;
+   }
+
+   /**
+    * @param persistentSize the persistentSize to set
+    */
+   @Override
+   public void setPersistentSize(long persistentSize) {
+      this.persistentSize = persistentSize;
    }
 
    @Override

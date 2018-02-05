@@ -16,7 +16,13 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
-import javax.transaction.xa.Xid;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.DigestInputStream;
@@ -36,6 +42,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -108,13 +116,6 @@ import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -1084,7 +1085,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
 
                   if (sub != null) {
-                     sub.getCounter().loadValue(record.id, encoding.getValue());
+                     sub.getCounter().loadValue(record.id, encoding.getValue(), encoding.getPersistentSize());
                   } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.getQueueID());
                      messageJournal.appendDeleteRecord(record.id, false);
@@ -1101,7 +1102,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
 
                   if (sub != null) {
-                     sub.getCounter().loadInc(record.id, encoding.getValue());
+                     sub.getCounter().loadInc(record.id, encoding.getValue(), encoding.getPersistentSize());
                   } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPageCursor(encoding.getQueueID());
                      messageJournal.appendDeleteRecord(record.id, false);
@@ -1136,6 +1137,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                case JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER: {
 
                   PageCountPendingImpl pendingCountEncoding = new PageCountPendingImpl();
+
                   pendingCountEncoding.decode(buff);
                   pendingCountEncoding.setID(record.id);
 
@@ -1143,6 +1145,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   if (pendingNonTXPageCounter != null) {
                      pendingNonTXPageCounter.add(pendingCountEncoding);
                   }
+
                   break;
                }
 
@@ -1349,11 +1352,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePageCounterInc(long txID, long queueID, int value) throws Exception {
+   public long storePageCounterInc(long txID, long queueID, int value, long persistentSize) throws Exception {
       readLock();
       try {
          long recordID = idGenerator.generateID();
-         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value));
+         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value, persistentSize));
          return recordID;
       } finally {
          readUnLock();
@@ -1361,11 +1364,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePageCounterInc(long queueID, int value) throws Exception {
+   public long storePageCounterInc(long queueID, int value, long persistentSize) throws Exception {
       readLock();
       try {
          final long recordID = idGenerator.generateID();
-         messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value), true, getContext());
+         messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value, persistentSize), true, getContext());
          return recordID;
       } finally {
          readUnLock();
@@ -1373,11 +1376,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePageCounter(long txID, long queueID, long value) throws Exception {
+   public long storePageCounter(long txID, long queueID, long value, long persistentSize) throws Exception {
       readLock();
       try {
          final long recordID = idGenerator.generateID();
-         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE, new PageCountRecord(queueID, value));
+         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE, new PageCountRecord(queueID, value, persistentSize));
          return recordID;
       } finally {
          readUnLock();
@@ -1789,7 +1792,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
 
                   if (sub != null) {
-                     sub.getCounter().applyIncrementOnTX(tx, record.id, encoding.getValue());
+                     sub.getCounter().applyIncrementOnTX(tx, record.id, encoding.getValue(), encoding.getPersistentSize());
                      sub.notEmpty();
                   } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.getQueueID());

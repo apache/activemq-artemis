@@ -16,15 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import javax.management.openmbean.CompositeData;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.management.openmbean.CompositeData;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(value = Parameterized.class)
 public class QueueControlUsingCoreTest extends QueueControlTest {
+
+   public QueueControlUsingCoreTest(boolean durable) {
+      super(durable);
+   }
 
    @Override
    protected QueueControl createManagementControl(final SimpleString address,
@@ -117,6 +125,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long getDeliveringSize() {
+            return (Long) proxy.retrieveAttributeValue("deliveringSize", Long.class);
+         }
+
+         @Override
+         public int getDurableDeliveringCount() {
+            return (Integer) proxy.retrieveAttributeValue("durableDeliveringCount", Integer.class);
+         }
+
+         @Override
+         public long getDurableDeliveringSize() {
+            return (Long) proxy.retrieveAttributeValue("durableDeliveringSize", Long.class);
+         }
+
+         @Override
          public String getExpiryAddress() {
             return (String) proxy.retrieveAttributeValue("expiryAddress");
          }
@@ -184,6 +207,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public long getScheduledCount() {
             return (Long) proxy.retrieveAttributeValue("scheduledCount", Long.class);
+         }
+
+         @Override
+         public long getScheduledSize() {
+            return (Long) proxy.retrieveAttributeValue("scheduledSize", Long.class);
+         }
+
+         @Override
+         public long getDurableScheduledCount() {
+            return (Long) proxy.retrieveAttributeValue("durableScheduledCount", Long.class);
+         }
+
+         @Override
+         public long getDurableScheduledSize() {
+            return (Long) proxy.retrieveAttributeValue("durableScheduledSize", Long.class);
          }
 
          @Override
@@ -454,6 +492,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public String listDeliveringMessagesAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listDeliveringMessagesAsJSON");
+         }
+
+         @Override
+         public long getPersistentSize() {
+            return (Long) proxy.retrieveAttributeValue("persistentSize", Long.class);
+         }
+
+         @Override
+         public long getDurableMessageCount() {
+            return (Long) proxy.retrieveAttributeValue("durableMessageCount", Long.class);
+         }
+
+         @Override
+         public long getDurablePersistentSize() {
+            return (Long) proxy.retrieveAttributeValue("durablePersistentSize", Long.class);
          }
       };
    }

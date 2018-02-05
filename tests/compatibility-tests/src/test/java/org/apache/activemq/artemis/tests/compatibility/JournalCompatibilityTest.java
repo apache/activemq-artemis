@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,9 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
 /**
  * To run this test on the IDE and debug it, run the compatibility-tests through a command line once:
@@ -105,5 +105,42 @@ public class JournalCompatibilityTest extends VersionedBaseTest {
       evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
    }
 
+   /**
+    * Test that the server starts properly using an old journal even though persistent size
+    * metrics were not originaly stored
+    */
+   @Test
+   public void testSendReceiveQueueMetrics() throws Throwable {
+      setVariable(senderClassloader, "persistent", true);
+      startServer(serverFolder.getRoot(), senderClassloader, "journalTest");
+      evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      stopServer(senderClassloader);
+
+      setVariable(receiverClassloader, "persistent", true);
+      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest");
+
+      setVariable(receiverClassloader, "latch", null);
+      evaluate(receiverClassloader, "metrics/queueMetrics.groovy", server, receiver, "receiveMessages");
+   }
+
+   /**
+    * Test that the metrics are recovered when paging.  Even though the paging counts won't
+    * be persisted the journal the server should still start properly.  The persistent sizes
+    * will be recovered when the messages are depaged
+    */
+   @Test
+   public void testSendReceiveSizeQueueMetricsPaging() throws Throwable {
+      setVariable(senderClassloader, "persistent", true);
+      //Set max size to 1 to cause messages to immediately go to the paging store
+      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", Long.toString(1));
+      evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      stopServer(senderClassloader);
+
+      setVariable(receiverClassloader, "persistent", true);
+      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", Long.toString(1));
+
+
+      evaluate(receiverClassloader, "metrics/queueMetrics.groovy", server, receiver, "receiveMessages");
+   }
 }
 

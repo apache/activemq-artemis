@@ -26,18 +26,21 @@ public class PageCountRecord implements EncodingSupport {
 
    private long value;
 
+   private long persistentSize;
+
    @Override
    public String toString() {
-      return "PageCountRecord [queueID=" + queueID + ", value=" + value + "]";
+      return "PageCountRecord [queueID=" + queueID + ", value=" + value + ", persistentSize=" + persistentSize + "]";
    }
 
    public PageCountRecord() {
 
    }
 
-   public PageCountRecord(long queueID, long value) {
+   public PageCountRecord(long queueID, long value, long persistentSize) {
       this.queueID = queueID;
       this.value = value;
+      this.persistentSize = persistentSize;
    }
 
    public long getQueueID() {
@@ -48,21 +51,30 @@ public class PageCountRecord implements EncodingSupport {
       return value;
    }
 
+   public long getPersistentSize() {
+      return persistentSize;
+   }
+
    @Override
    public int getEncodeSize() {
-      return DataConstants.SIZE_LONG * 2;
+      return DataConstants.SIZE_LONG * 3;
    }
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeLong(queueID);
       buffer.writeLong(value);
+      buffer.writeLong(persistentSize);
    }
 
    @Override
    public void decode(ActiveMQBuffer buffer) {
       queueID = buffer.readLong();
       value = buffer.readLong();
+
+      if (buffer.readableBytes() > 0) {
+         persistentSize = buffer.readLong();
+      }
    }
 
 }

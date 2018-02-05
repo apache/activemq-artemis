@@ -840,7 +840,8 @@ public class PagingStoreImpl implements PagingStore {
             // the apply counter will make sure we write a record on journal
             // especially on the case for non transactional sends and paging
             // doing this will give us a possibility of recovering the page counters
-            applyPageCounters(tx, getCurrentPage(), listCtx);
+            long persistentSize = pagedMessage.getPersistentSize() > 0 ? pagedMessage.getPersistentSize() : 0;
+            applyPageCounters(tx, getCurrentPage(), listCtx, persistentSize);
 
             currentPage.write(pagedMessage);
 
@@ -906,22 +907,22 @@ public class PagingStoreImpl implements PagingStore {
     * @param ctx
     * @throws Exception
     */
-   private void applyPageCounters(Transaction tx, Page page, RouteContextList ctx) throws Exception {
+   private void applyPageCounters(Transaction tx, Page page, RouteContextList ctx, long size) throws Exception {
       List<org.apache.activemq.artemis.core.server.Queue> durableQueues = ctx.getDurableQueues();
       List<org.apache.activemq.artemis.core.server.Queue> nonDurableQueues = ctx.getNonDurableQueues();
       for (org.apache.activemq.artemis.core.server.Queue q : durableQueues) {
          if (tx == null) {
             // non transactional writes need an intermediate place
             // to avoid the counter getting out of sync
-            q.getPageSubscription().getCounter().pendingCounter(page, 1);
+            q.getPageSubscription().getCounter().pendingCounter(page, 1, size);
          } else {
             // null tx is treated through pending counters
-            q.getPageSubscription().getCounter().increment(tx, 1);
+            q.getPageSubscription().getCounter().increment(tx, 1, size);
          }
       }
 
       for (org.apache.activemq.artemis.core.server.Queue q : nonDurableQueues) {
-         q.getPageSubscription().getCounter().increment(tx, 1);
+         q.getPageSubscription().getCounter().increment(tx, 1, size);
       }
 
    }
