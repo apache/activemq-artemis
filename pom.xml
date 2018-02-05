@@ -41,10 +41,12 @@
       <module>artemis-selector</module>
       <module>artemis-core-client</module>
       <module>artemis-core-client-all</module>
+      <module>artemis-core-client-osgi</module>
       <module>artemis-server</module>
       <module>artemis-junit</module>
       <module>artemis-jms-client</module>
       <module>artemis-jms-client-all</module>
+      <module>artemis-jms-client-osgi</module>
       <module>artemis-jms-server</module>
       <module>artemis-native</module>
       <module>artemis-journal</module>
@@ -73,6 +75,8 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
+      <karaf.version>4.0.6</karaf.version>
+      <pax.exam.version>4.9.1</pax.exam.version>
       <commons.config.version>2.1</commons.config.version>
       <commons.lang.version>3.0</commons.lang.version>
       <activemq5-version>5.14.5</activemq5-version>
