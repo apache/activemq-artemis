@@ -16,21 +16,22 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import java.util.Set;
+
 import javax.security.auth.login.LoginException;
 import javax.security.cert.X509Certificate;
-import java.util.Set;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule;
 
 public class StubCertificateLoginModule extends CertificateLoginModule {
 
    final String userName;
-   final Set groupNames;
+   final Set<String> groupNames;
 
    String lastUserName;
    X509Certificate[] lastCertChain;
 
-   public StubCertificateLoginModule(String userName, Set groupNames) {
+   public StubCertificateLoginModule(String userName, Set<String> groupNames) {
       this.userName = userName;
       this.groupNames = groupNames;
    }
@@ -42,7 +43,7 @@ public class StubCertificateLoginModule extends CertificateLoginModule {
    }
 
    @Override
-   protected Set getUserRoles(String username) throws LoginException {
+   protected Set<String> getUserRoles(String username) throws LoginException {
       lastUserName = username;
       return this.groupNames;
    }

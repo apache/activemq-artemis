@@ -29,14 +29,14 @@ public class PropertiesLoader {
    static Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
    protected boolean debug;
 
-   public void init(Map options) {
+   public void init(Map<String,?> options) {
       debug = booleanOption("debug", options);
       if (debug) {
          logger.debug("Initialized debug");
       }
    }
 
-   public ReloadableProperties load(String nameProperty, String fallbackName, Map options) {
+   public ReloadableProperties load(String nameProperty, String fallbackName, Map<String,?> options) {
       ReloadableProperties result;
       FileNameKey key = new FileNameKey(nameProperty, fallbackName, options);
       key.setDebug(debug);
@@ -52,7 +52,7 @@ public class PropertiesLoader {
       return result.obtained();
    }
 
-   private static boolean booleanOption(String name, Map options) {
+   private static boolean booleanOption(String name, Map<String,?> options) {
       return Boolean.parseBoolean((String) options.get(name));
    }
 
@@ -64,7 +64,7 @@ public class PropertiesLoader {
       private boolean decrypt;
       private boolean debug;
 
-      public FileNameKey(String nameProperty, String fallbackName, Map options) {
+      public FileNameKey(String nameProperty, String fallbackName, Map<String,?> options) {
          this.file = new File(baseDir(options), stringOption(nameProperty, fallbackName, options));
          absPath = file.getAbsolutePath();
          reload = booleanOption("reload", options);
@@ -97,12 +97,12 @@ public class PropertiesLoader {
          this.decrypt = decrypt;
       }
 
-      private String stringOption(String key, String nameDefault, Map options) {
+      private String stringOption(String key, String nameDefault, Map<String,?> options) {
          Object result = options.get(key);
          return result != null ? result.toString() : nameDefault;
       }
 
-      private File baseDir(Map options) {
+      private File baseDir(Map<String,?> options) {
          File baseDir = null;
          if (options.get("baseDir") != null) {
             baseDir = new File((String) options.get("baseDir"));

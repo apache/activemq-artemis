@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
-import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+
+import javax.management.MBeanServer;
 
 public class MBeanServerFactory {
 
@@ -69,9 +70,9 @@ public class MBeanServerFactory {
 
    public void init() throws Exception {
       if (this.locateExistingServerIfPossible) {
-         List servers = javax.management.MBeanServerFactory.findMBeanServer(null);
+         List<MBeanServer> servers = javax.management.MBeanServerFactory.findMBeanServer(null);
          if (servers != null && servers.size() > 0) {
-            this.server = (MBeanServer) servers.get(0);
+            this.server = servers.get(0);
          }
          if (this.server == null) {
             this.server = ManagementFactory.getPlatformMBeanServer();
