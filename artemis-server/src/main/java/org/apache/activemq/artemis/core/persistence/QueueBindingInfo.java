@@ -54,6 +54,10 @@ public interface QueueBindingInfo {
 
    void setPurgeOnNoConsumers(boolean purgeOnNoConsumers);
 
+   boolean isExclusive();
+
+   void setExclusive(boolean exclusive);
+
    byte getRoutingType();
 
    void setRoutingType(byte routingType);

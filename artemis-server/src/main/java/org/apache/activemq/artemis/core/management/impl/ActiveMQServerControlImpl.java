@@ -823,12 +823,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              String routingType,
                              Integer maxConsumers,
                              Boolean purgeOnNoConsumers) throws Exception {
+      return updateQueue(name, routingType, maxConsumers, purgeOnNoConsumers, null);
+   }
+
+   @Override
+   public String updateQueue(String name,
+                             String routingType,
+                             Integer maxConsumers,
+                             Boolean purgeOnNoConsumers,
+                             Boolean exclusive) throws Exception {
       checkStarted();
 
       clearIO();
 
       try {
-         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, purgeOnNoConsumers);
+         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, purgeOnNoConsumers, exclusive);
          if (queue == null) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
          }
@@ -2077,7 +2086,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
             .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
             .add("redistributionDelay", addressSettings.getRedistributionDelay())
-            .add("lastValueQueue", addressSettings.isLastValueQueue())
+            .add("lastValueQueue", addressSettings.isDefaultLastValueQueue())
             .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
             .add("addressFullMessagePolicy", policy)
             .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
@@ -2163,7 +2172,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setDeadLetterAddress(DLA == null ? null : new SimpleString(DLA));
       addressSettings.setExpiryAddress(expiryAddress == null ? null : new SimpleString(expiryAddress));
       addressSettings.setExpiryDelay(expiryDelay);
-      addressSettings.setLastValueQueue(lastValueQueue);
+      addressSettings.setDefaultLastValueQueue(lastValueQueue);
       addressSettings.setMaxDeliveryAttempts(deliveryAttempts);
       addressSettings.setPageCacheMaxSize(pageMaxCacheSize);
       addressSettings.setMaxSizeBytes(maxSizeBytes);
