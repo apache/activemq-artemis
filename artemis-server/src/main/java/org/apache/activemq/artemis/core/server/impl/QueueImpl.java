@@ -2122,7 +2122,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       doInternalPoll();
+      if (exclusive) {
+         deliverExclusive();
+      } else {
+         deliverRoundRobin();
+      }
+   }
 
+   private void deliverRoundRobin() {
       // Either the iterator is empty or the consumer is busy
       int noDelivery = 0;
 
@@ -2135,22 +2142,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       long timeout = System.currentTimeMillis() + DELIVERY_TIMEOUT;
 
       while (true) {
-         if (handled == MAX_DELIVERIES_IN_LOOP) {
-            // Schedule another one - we do this to prevent a single thread getting caught up in this loop for too
-            // long
-
+         if (handled == MAX_DELIVERIES_IN_LOOP || checkTimeout(timeout)) {
             deliverAsync();
-
-            return;
-         }
-
-         if (System.currentTimeMillis() > timeout) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("delivery has been running for too long. Scheduling another delivery task now");
-            }
-
-            deliverAsync();
-
             return;
          }
 
@@ -2200,15 +2193,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                noDelivery++;
             } else {
                if (checkExpired(ref)) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("Reference " + ref + " being expired");
-                  }
-                  holder.iter.remove();
-
-                  refRemoved(ref);
-
+                  expire(ref, holder);
                   handled++;
-
                   continue;
                }
 
@@ -2226,10 +2212,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   if (groupConsumer != null) {
                      consumer = groupConsumer;
                   }
-               }
-
-               if (exclusive) {
-                  consumer = consumerList.get(0).consumer;
                }
 
                HandleStatus status = handle(ref, consumer);
@@ -2279,7 +2261,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             // Only move onto the next position if the consumer on the current position was used.
             // When using group we don't need to load balance to the next position
-            if (!exclusive && groupConsumer == null) {
+            if (groupConsumer == null) {
                pos++;
             }
 
@@ -2294,6 +2276,102 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       checkDepage();
+   }
+
+   private void deliverExclusive() {
+      int handled = 0;
+
+      long timeout = System.currentTimeMillis() + DELIVERY_TIMEOUT;
+
+      while (true) {
+         if (handled == MAX_DELIVERIES_IN_LOOP || checkTimeout(timeout)) {
+            deliverAsync();
+            return;
+         }
+
+         MessageReference ref;
+
+         synchronized (this) {
+
+            // Need to do these checks inside the synchronized
+            if (paused || consumerList.isEmpty()) {
+               return;
+            }
+
+            if (messageReferences.size() == 0) {
+               break;
+            }
+
+            ConsumerHolder holder = consumerList.get(0);
+
+            Consumer consumer = holder.consumer;
+
+            if (holder.iter == null) {
+               holder.iter = messageReferences.iterator();
+            }
+
+            if (holder.iter.hasNext()) {
+               ref = holder.iter.next();
+            } else {
+               ref = null;
+            }
+            if (ref != null) {
+               if (checkExpired(ref)) {
+                  expire(ref, holder);
+                  handled++;
+                  continue;
+               }
+
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Queue " + this.getName() + " is delivering reference " + ref);
+               }
+
+               HandleStatus status = handle(ref, consumer);
+
+               if (status == HandleStatus.HANDLED) {
+
+                  deliveriesInTransit.countUp();
+
+                  holder.iter.remove();
+
+                  refRemoved(ref);
+
+                  handled++;
+                  proceedDeliver(consumer, ref);
+               } else if (status == HandleStatus.BUSY) {
+                  holder.iter.repeat();
+
+                  if (logger.isDebugEnabled()) {
+                     logger.debug(this + "::The exclusive consumer was busy, giving up now");
+                  }
+                  break;
+               } else if (status == HandleStatus.NO_MATCH) {
+                  // nothing to be done on this case, the iterators will just jump next
+               }
+            }
+         }
+      }
+
+      checkDepage();
+   }
+
+   private void expire(MessageReference ref, ConsumerHolder holder) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Reference " + ref + " being expired");
+      }
+      holder.iter.remove();
+
+      refRemoved(ref);
+   }
+
+   private static boolean checkTimeout(long timeout) {
+      if (System.currentTimeMillis() > timeout) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("delivery has been running for too long. Scheduling another delivery task now");
+         }
+         return true;
+      }
+      return false;
    }
 
    private void checkDepage() {
@@ -2748,64 +2826,84 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (checkExpired(ref)) {
             return true;
          }
+         if (exclusive) {
+            return deliverDirectExclusive(ref);
+         } else {
+            return deliverDirectRoundRobin(ref);
+         }
+      }
+   }
 
-         int startPos = pos;
+   private boolean deliverDirectRoundRobin(final MessageReference ref) {
+      int startPos = pos;
 
-         int size = consumerList.size();
+      int size = consumerList.size();
 
-         while (true) {
-            ConsumerHolder holder = consumerList.get(pos);
+      while (true) {
+         ConsumerHolder holder = consumerList.get(pos);
 
-            Consumer consumer = holder.consumer;
+         Consumer consumer = holder.consumer;
 
-            Consumer groupConsumer = null;
+         Consumer groupConsumer = null;
 
-            // If a group id is set, then this overrides the consumer chosen round-robin
+         // If a group id is set, then this overrides the consumer chosen round-robin
 
-            SimpleString groupID = extractGroupID(ref);
+         SimpleString groupID = extractGroupID(ref);
 
-            if (groupID != null) {
-               groupConsumer = groups.get(groupID);
+         if (groupID != null) {
+            groupConsumer = groups.get(groupID);
 
-               if (groupConsumer != null) {
-                  consumer = groupConsumer;
-               }
-            }
-
-            if (exclusive) {
-               consumer = consumerList.get(0).consumer;
-            }
-
-            // Only move onto the next position if the consumer on the current position was used.
-            if (!exclusive && groupConsumer == null) {
-               pos++;
-            }
-
-            if (pos == size) {
-               pos = 0;
-            }
-
-            HandleStatus status = handle(ref, consumer);
-
-            if (status == HandleStatus.HANDLED) {
-               if (groupID != null && groupConsumer == null) {
-                  groups.put(groupID, consumer);
-               }
-
-               messagesAdded.incrementAndGet();
-
-               deliveriesInTransit.countUp();
-               proceedDeliver(consumer, ref);
-               return true;
-            }
-
-            if (pos == startPos) {
-               // Tried them all
-               break;
+            if (groupConsumer != null) {
+               consumer = groupConsumer;
             }
          }
-         return false;
+
+         // Only move onto the next position if the consumer on the current position was used.
+         if (groupConsumer == null) {
+            pos++;
+         }
+
+         if (pos == size) {
+            pos = 0;
+         }
+
+         HandleStatus status = handle(ref, consumer);
+
+         if (status == HandleStatus.HANDLED) {
+            if (groupID != null && groupConsumer == null) {
+               groups.put(groupID, consumer);
+            }
+
+            messagesAdded.incrementAndGet();
+
+            deliveriesInTransit.countUp();
+            proceedDeliver(consumer, ref);
+            return true;
+         }
+
+         if (pos == startPos) {
+            // Tried them all
+            break;
+         }
       }
+      return false;
+   }
+
+   private boolean deliverDirectExclusive(final MessageReference ref) {
+      ConsumerHolder holder = consumerList.get(0);
+
+      Consumer consumer = holder.consumer;
+
+      HandleStatus status = handle(ref, consumer);
+
+      if (status == HandleStatus.HANDLED) {
+         messagesAdded.incrementAndGet();
+
+         deliveriesInTransit.countUp();
+         proceedDeliver(consumer, ref);
+         return true;
+      }
+      return false;
    }
 
    private void proceedDeliver(Consumer consumer, MessageReference reference) {
