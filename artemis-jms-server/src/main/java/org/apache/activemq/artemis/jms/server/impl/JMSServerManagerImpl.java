@@ -1367,7 +1367,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          TransactionDetail detail = new JMSTransactionDetail(xid, tx, entry.getValue());
          txDetailListJson.add(detail.toJSON());
       }
-      return txDetailListJson.toString();
+      return txDetailListJson.build().toString();
    }
 
    @Override
