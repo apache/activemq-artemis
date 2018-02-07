@@ -155,6 +155,18 @@ public interface ServerSession extends SecurityAuth {
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable,
+                     int maxConsumers,
+                     boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean lastValue,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
                      boolean autoCreated) throws Exception;
 
    Queue createQueue(AddressInfo addressInfo,
@@ -162,6 +174,15 @@ public interface ServerSession extends SecurityAuth {
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(AddressInfo addressInfo,
+                     SimpleString name,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     Boolean exclusive,
+                     Boolean lastValue,
                      boolean autoCreated) throws Exception;
 
    AddressInfo createAddress(SimpleString address,
@@ -252,6 +273,16 @@ public interface ServerSession extends SecurityAuth {
    ServerConsumer locateConsumer(long consumerID) throws Exception;
 
    boolean isClosed();
+
+   void createSharedQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean durable,
+                     Integer maxConsumers,
+                     Boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean lastValue) throws Exception;
 
    void createSharedQueue(SimpleString address,
                           SimpleString name,

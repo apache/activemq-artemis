@@ -1312,6 +1312,21 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isLastValue() {
+         return false;
+      }
+
+      @Override
+      public boolean isExclusive() {
+         return false;
+      }
+
+      @Override
+      public void setExclusive(boolean exclusive) {
+
+      }
+
+      @Override
       public void decDelivering(int size) {
 
       }

@@ -37,13 +37,19 @@ public class BindingQueryResult {
 
    private final AddressInfo addressInfo;
 
+   private boolean defaultExclusive;
+
+   private boolean defaultLastValue;
+
    public BindingQueryResult(final boolean exists,
                              final AddressInfo addressInfo,
                              final List<SimpleString> queueNames,
                              final boolean autoCreateQueues,
                              final boolean autoCreateAddresses,
                              final boolean defaultPurgeOnNoConsumers,
-                             final int defaultMaxConsumers) {
+                             final int defaultMaxConsumers,
+                             final boolean defaultExclusive,
+                             final boolean defaultLastValue) {
       this.addressInfo = addressInfo;
 
       this.exists = exists;
@@ -57,6 +63,10 @@ public class BindingQueryResult {
       this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
 
       this.defaultMaxConsumers = defaultMaxConsumers;
+
+      this.defaultExclusive = defaultExclusive;
+
+      this.defaultLastValue = defaultLastValue;
    }
 
    public boolean isExists() {
@@ -85,5 +95,13 @@ public class BindingQueryResult {
 
    public int getDefaultMaxConsumers() {
       return defaultMaxConsumers;
+   }
+
+   public boolean isDefaultExclusive() {
+      return defaultExclusive;
+   }
+
+   public boolean isDefaultLastValue() {
+      return defaultLastValue;
    }
 }

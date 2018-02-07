@@ -617,6 +617,22 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers) throws Exception;
 
 
+   /**
+    * Update a queue.
+    *
+    * @param name                name of the queue
+    * @param routingType         the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
+    * @return a textual summary of the queue
+    * @throws Exception
+    */
+   String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                      @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                      @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                      @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
+                      @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive) throws Exception;
+
 
    /**
     * Deploy a durable queue.

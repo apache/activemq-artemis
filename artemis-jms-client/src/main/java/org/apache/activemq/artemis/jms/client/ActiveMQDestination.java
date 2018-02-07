@@ -24,8 +24,10 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
+import org.apache.activemq.artemis.api.core.ParameterisedAddress;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Destination.
@@ -250,6 +252,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    private SimpleString simpleAddress;
 
    /**
+    * Queue parameters;
+    */
+   private QueueAttributes queueAttributes;
+
+   /**
     * Needed for serialization backwards compatibility.
     */
    @Deprecated
@@ -280,7 +287,10 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    protected ActiveMQDestination(final SimpleString address,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this.simpleAddress = address;
+
+      if (address != null) {
+         setSimpleAddress(address);
+      }
 
       this.thetype = type;
 
@@ -319,8 +329,16 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       if (address == null) {
          throw new IllegalArgumentException("address cannot be null");
       }
-      this.address = address.toString();
-      this.simpleAddress = address;
+      if (ParameterisedAddress.isParameterised(address)) {
+         ParameterisedAddress parameteredAddress = new ParameterisedAddress(address);
+         this.simpleAddress = parameteredAddress.getAddress();
+         this.address = parameteredAddress.getAddress().toString();
+         this.queueAttributes = parameteredAddress.getQueueAttributes();
+      } else {
+         this.simpleAddress = address;
+         this.address = address.toString();
+         this.queueAttributes = null;
+      }
    }
 
    public void delete() throws JMSException {
@@ -349,6 +367,10 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
    public SimpleString getSimpleAddress() {
       return simpleAddress;
+   }
+
+   public QueueAttributes getQueueAttributes() {
+      return queueAttributes;
    }
 
    public String getName() {

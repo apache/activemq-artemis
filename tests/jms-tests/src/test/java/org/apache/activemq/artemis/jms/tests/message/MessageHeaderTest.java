@@ -917,6 +917,12 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                                    boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>non-temporary</em> queue.
        *
@@ -1018,6 +1024,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable,
+                              boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue)
+         throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>non-temporary</em>queue.
        *
@@ -1048,6 +1061,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable,
+                              boolean autoCreated,
+                              int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>temporary</em> queue.
        *
@@ -1071,6 +1091,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
        */
       @Override
       public void createTemporaryQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                                       int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue)
+         throws ActiveMQException {
 
       }
 
