@@ -465,6 +465,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final int DEFAULT_MAX_QUEUE_CONSUMERS = -1;
 
+   public static final boolean DEFAULT_EXCLUSIVE = false;
+
+   public static final boolean DEFAULT_LAST_VALUE = false;
+
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
@@ -1275,6 +1279,14 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultMaxQueueConsumers() {
       return DEFAULT_MAX_QUEUE_CONSUMERS;
+   }
+
+   public static boolean getDefaultExclusive() {
+      return DEFAULT_EXCLUSIVE;
+   }
+
+   public static boolean getDefaultLastValue() {
+      return DEFAULT_EXCLUSIVE;
    }
 
    public static boolean getDefaultPurgeOnNoConsumers() {

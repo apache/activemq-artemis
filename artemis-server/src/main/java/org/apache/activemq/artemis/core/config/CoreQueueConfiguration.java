@@ -35,6 +35,10 @@ public class CoreQueueConfiguration implements Serializable {
 
    private String user = null;
 
+   private Boolean exclusive;
+
+   private Boolean lastValue;
+
    private Integer maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
    private Boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
@@ -62,6 +66,14 @@ public class CoreQueueConfiguration implements Serializable {
 
    public String getUser() {
       return user;
+   }
+
+   public Boolean isExclusive() {
+      return exclusive;
+   }
+
+   public Boolean isLastValue() {
+      return lastValue;
    }
 
    /**
@@ -120,6 +132,16 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
+   public CoreQueueConfiguration setExclusive(Boolean exclusive) {
+      this.exclusive = exclusive;
+      return this;
+   }
+
+   public CoreQueueConfiguration setLastValue(Boolean lastValue) {
+      this.lastValue = lastValue;
+      return this;
+   }
+
    public boolean getPurgeOnNoConsumers() {
       return purgeOnNoConsumers;
    }
@@ -147,6 +169,8 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((maxConsumers == null) ? 0 : maxConsumers.hashCode());
       result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
+      result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
+      result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
       return result;
    }
 
@@ -185,6 +209,18 @@ public class CoreQueueConfiguration implements Serializable {
          if (other.purgeOnNoConsumers != null)
             return false;
       } else if (!purgeOnNoConsumers.equals(other.purgeOnNoConsumers)) {
+         return false;
+      }
+      if (exclusive == null) {
+         if (other.exclusive != null)
+            return false;
+      } else if (!exclusive.equals(other.exclusive)) {
+         return false;
+      }
+      if (lastValue == null) {
+         if (other.lastValue != null)
+            return false;
+      } else if (!lastValue.equals(other.lastValue)) {
          return false;
       }
       return true;

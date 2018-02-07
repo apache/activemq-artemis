@@ -376,7 +376,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
-                          autoCreated);
+                          autoCreated, null, null);
    }
 
    @Override
@@ -400,12 +400,42 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           maxConsumers,
                           purgeOnNoConsumers,
-                          autoCreated);
+                          autoCreated, null, null);
+   }
+
+   @Override
+   public void createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString filterString,
+                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers, final Boolean exclusive, final Boolean lastValue) throws ActiveMQException {
+      internalCreateQueue(address,
+                          queueName, routingType,
+                          filterString,
+                          durable,
+                          false,
+                          maxConsumers,
+                          purgeOnNoConsumers,
+                          autoCreated,
+                          exclusive,
+                          lastValue);
    }
 
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers) throws ActiveMQException {
+      createQueue(address,
+                  routingType,
+                  queueName,
+                  filterString,
+                  durable,
+                  autoCreated,
+                  maxConsumers,
+                  purgeOnNoConsumers,
+                  null,
+                  null);
+   }
+
+   @Override
+   public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
+                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address),
                   routingType,
                   SimpleString.toSimpleString(queueName),
@@ -413,7 +443,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                   durable,
                   autoCreated,
                   maxConsumers,
-                  purgeOnNoConsumers);
+                  purgeOnNoConsumers,
+                  exclusive,
+                  lastValue);
    }
 
    @Override
@@ -432,15 +464,27 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createTemporaryQueue(final SimpleString address,
                                     final RoutingType routingType,
                                     final SimpleString queueName,
-                                    final SimpleString filter) throws ActiveMQException {
+                                    final SimpleString filter,
+                                    final int maxConsumers,
+                                    final boolean purgeOnNoConsumers,
+                                    final Boolean exclusive,
+                                    final Boolean lastValue) throws ActiveMQException {
       internalCreateQueue(address,
                           queueName, routingType,
                           filter,
                           false,
                           true,
-                          ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
-                          false);
+                          maxConsumers,
+                          purgeOnNoConsumers,
+                          false, exclusive, lastValue);
+   }
+
+   @Override
+   public void createTemporaryQueue(final SimpleString address,
+                                    final RoutingType routingType,
+                                    final SimpleString queueName,
+                                    final SimpleString filter) throws ActiveMQException {
+      createTemporaryQueue(address, routingType, queueName, filter, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), null, null);
    }
 
    @Override
@@ -466,7 +510,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
-                          false);
+                          false, null, null);
    }
 
    /**
@@ -500,11 +544,31 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                                  boolean durable) throws ActiveMQException {
+      createSharedQueue(address, routingType, queueName, filter, durable, null, null, null, null);
+   }
+
+   /**
+    * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
+    *
+    * @param address      the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName    the name of the queue
+    * @param filter       whether the queue is durable or not
+    * @param durable      if the queue is durable
+    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
+    * @param exclusive    if the queue is exclusive queue
+    * @param lastValue    if the queue is last value queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   @Override
+   public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                                 boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
       checkClosed();
 
       startCall();
       try {
-         sessionContext.createSharedQueue(address, queueName, routingType, filter, durable);
+         sessionContext.createSharedQueue(address, queueName, routingType, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue);
       } finally {
          endCall();
       }
@@ -541,7 +605,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
-                          false);
+                          false, null, null);
    }
 
    /**
@@ -562,7 +626,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
-                          false);
+                          false, null, null);
    }
 
    /**
@@ -586,7 +650,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
-                          false);
+                          false, null, null);
    }
 
    /**
@@ -1847,7 +1911,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     final boolean temp,
                                     final int maxConsumers,
                                     final boolean purgeOnNoConsumers,
-                                    final boolean autoCreated) throws ActiveMQException {
+                                    final boolean autoCreated,
+                                    final Boolean exclusive,
+                                    final Boolean lastValue) throws ActiveMQException {
       checkClosed();
 
       if (durable && temp) {
@@ -1864,7 +1930,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     temp,
                                     maxConsumers,
                                     purgeOnNoConsumers,
-                                    autoCreated);
+                                    autoCreated,
+                                    exclusive,
+                                    lastValue);
       } finally {
          endCall();
       }

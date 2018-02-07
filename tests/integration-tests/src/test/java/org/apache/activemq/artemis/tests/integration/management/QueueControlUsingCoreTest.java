@@ -102,6 +102,16 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isExclusive() {
+            return (Boolean) proxy.retrieveAttributeValue("exclusive");
+         }
+
+         @Override
+         public boolean isLastValue() {
+            return (Boolean) proxy.retrieveAttributeValue("lastValue");
+         }
+
+         @Override
          public int getDeliveringCount() {
             return (Integer) proxy.retrieveAttributeValue("deliveringCount", Integer.class);
          }

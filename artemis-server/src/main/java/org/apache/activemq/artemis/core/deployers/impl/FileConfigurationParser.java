@@ -179,6 +179,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String LVQ_NODE_NAME = "last-value-queue";
 
+   private static final String DEFAULT_LVQ_NODE_NAME = "default-last-value-queue";
+
+   private static final String DEFAULT_EXCLUSIVE_NODE_NAME = "default-exclusive-queue";
+
    private static final String REDISTRIBUTION_DELAY_NODE_NAME = "redistribution-delay";
 
    private static final String SEND_TO_DLA_ON_NO_ROUTE = "send-to-dla-on-no-route";
@@ -989,8 +993,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Validators.ADDRESS_FULL_MESSAGE_POLICY_TYPE.validate(ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME, value);
             AddressFullMessagePolicy policy = Enum.valueOf(AddressFullMessagePolicy.class, value);
             addressSettings.setAddressFullMessagePolicy(policy);
-         } else if (LVQ_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setLastValueQueue(XMLUtil.parseBoolean(child));
+         } else if (LVQ_NODE_NAME.equalsIgnoreCase(name) || DEFAULT_LVQ_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultLastValueQueue(XMLUtil.parseBoolean(child));
+         } else if (DEFAULT_EXCLUSIVE_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultExclusiveQueue(XMLUtil.parseBoolean(child));
          } else if (MAX_DELIVERY_ATTEMPTS.equalsIgnoreCase(name)) {
             addressSettings.setMaxDeliveryAttempts(XMLUtil.parseInt(child));
          } else if (REDISTRIBUTION_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1090,6 +1096,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       int maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
       boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
       String user = null;
+      Boolean exclusive = null;
+      Boolean lastValue = null;
 
       NamedNodeMap attributes = node.getAttributes();
       for (int i = 0; i < attributes.getLength(); i++) {
@@ -1099,6 +1107,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Validators.MAX_QUEUE_CONSUMERS.validate(name, maxConsumers);
          } else if (item.getNodeName().equals("purge-on-no-consumers")) {
             purgeOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("exclusive")) {
+            exclusive = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("last-value")) {
+            lastValue = Boolean.parseBoolean(item.getNodeValue());
          }
       }
 
@@ -1117,7 +1129,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setUser(user);
+      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setUser(user)
+                                         .setExclusive(exclusive).setLastValue(lastValue);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {

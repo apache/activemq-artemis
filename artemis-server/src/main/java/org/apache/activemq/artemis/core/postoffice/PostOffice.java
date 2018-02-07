@@ -64,7 +64,8 @@ public interface PostOffice extends ActiveMQComponent {
    QueueBinding updateQueue(SimpleString name,
                             RoutingType routingType,
                             Integer maxConsumers,
-                            Boolean purgeOnNoConsumers) throws Exception;
+                            Boolean purgeOnNoConsumers,
+                            Boolean exclusive) throws Exception;
 
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 

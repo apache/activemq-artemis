@@ -74,7 +74,7 @@ public class MultipleProducersTest extends JMSTestBase {
       addressSettings.setDeadLetterAddress(expiryQueue);
       addressSettings.setRedeliveryDelay(0);
       addressSettings.setMessageCounterHistoryDayLimit(2);
-      addressSettings.setLastValueQueue(false);
+      addressSettings.setDefaultLastValueQueue(false);
       addressSettings.setMaxDeliveryAttempts(10);
       addressSettings.setMaxSizeBytes(1048576);
       addressSettings.setPageCacheMaxSize(5);
