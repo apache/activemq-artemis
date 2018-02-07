@@ -860,7 +860,8 @@ public class JMSServerControlTest extends ManagementTestBase {
 
       ss.close();
 
-      control.listPreparedTransactionDetailsAsJSON();
+      String result = control.listPreparedTransactionDetailsAsJSON();
+      Assert.assertTrue("".equals(result) || (JsonUtil.readJsonArray(result) instanceof JsonArray));
    }
 
    @Test
