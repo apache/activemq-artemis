@@ -133,11 +133,14 @@ public class JournalCompatibilityTest extends VersionedBaseTest {
       setVariable(senderClassloader, "persistent", true);
       //Set max size to 1 to cause messages to immediately go to the paging store
       startServer(serverFolder.getRoot(), senderClassloader, "journalTest", Long.toString(1));
+      evaluate(senderClassloader, "journalcompatibility/forcepaging.groovy");
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      evaluate(senderClassloader, "journalcompatibility/ispaging.groovy");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
       startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", Long.toString(1));
+      evaluate(receiverClassloader, "journalcompatibility/ispaging.groovy");
 
 
       evaluate(receiverClassloader, "metrics/queueMetrics.groovy", server, receiver, "receiveMessages");
