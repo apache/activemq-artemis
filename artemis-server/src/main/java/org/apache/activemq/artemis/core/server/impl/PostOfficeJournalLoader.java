@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -364,16 +365,25 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
                List<PagedMessage> pgMessages = pg.read(storageManager);
                Map<Long, AtomicInteger> countsPerQueueOnPage = new HashMap<>();
+               Map<Long, AtomicLong> sizePerQueueOnPage = new HashMap<>();
 
                for (PagedMessage pgd : pgMessages) {
                   if (pgd.getTransactionID() <= 0) {
                      for (long q : pgd.getQueueIDs()) {
                         AtomicInteger countQ = countsPerQueueOnPage.get(q);
+                        AtomicLong sizeQ = sizePerQueueOnPage.get(q);
                         if (countQ == null) {
                            countQ = new AtomicInteger(0);
                            countsPerQueueOnPage.put(q, countQ);
                         }
+                        if (sizeQ == null) {
+                           sizeQ = new AtomicLong(0);
+                           sizePerQueueOnPage.put(q, sizeQ);
+                        }
                         countQ.incrementAndGet();
+                        if (pgd.getPersistentSize() > 0) {
+                           sizeQ.addAndGet(pgd.getPersistentSize());
+                        }
                      }
                   }
                }
@@ -387,12 +397,13 @@ public class PostOfficeJournalLoader implements JournalLoader {
                   PageSubscriptionCounter counter = store.getCursorProvider().getSubscription(entry.getKey()).getCounter();
 
                   AtomicInteger value = countsPerQueueOnPage.get(entry.getKey());
+                  AtomicLong sizeValue = sizePerQueueOnPage.get(entry.getKey());
 
                   if (value == null) {
                      logger.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
                   } else {
                      logger.debug("Replacing counter " + value.get());
-                     counter.increment(txRecoverCounter, value.get());
+                     counter.increment(txRecoverCounter, value.get(), sizeValue.get());
                   }
                }
             } else {

@@ -1,3 +1,7 @@
+import org.apache.activemq.artemis.api.core.SimpleString
+import org.apache.activemq.artemis.core.server.Queue
+import org.apache.activemq.artemis.tests.compatibility.GroovyRun
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -14,28 +18,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
 
-import java.util.List;
-
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.filter.Filter;
-
-public interface ScheduledDeliveryHandler {
-
-   boolean checkAndSchedule(MessageReference ref, boolean tail);
-
-   int getScheduledCount();
-
-   long getScheduledSize();
-
-   int getDurableScheduledCount();
-
-   long getDurableScheduledSize();
-
-   List<MessageReference> getScheduledReferences();
-
-   List<MessageReference> cancel(Filter filter) throws ActiveMQException;
-
-   MessageReference removeReferenceWithID(long id) throws ActiveMQException;
-}
+Queue queue = server.getJMSServerManager().getActiveMQServer().locateQueue(SimpleString.toSimpleString("queue"))
+queue.getPageSubscription().getPagingStore().startPaging();

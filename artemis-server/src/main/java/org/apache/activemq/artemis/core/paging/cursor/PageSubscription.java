@@ -44,6 +44,8 @@ public interface PageSubscription {
 
    long getMessageCount();
 
+   long getPersistentSize();
+
    long getId();
 
    boolean isPersistent();
@@ -161,4 +163,11 @@ public interface PageSubscription {
     * @throws Exception
     */
    void onDeletePage(Page deletedPage) throws Exception;
+
+   long getDeliveredCount();
+
+   long getDeliveredSize();
+
+   void incrementDeliveredSize(long size);
+
 }

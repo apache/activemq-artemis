@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -158,7 +159,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    @Override
    public void handled() {
-      queue.referenceHandled();
+      queue.referenceHandled(this);
    }
 
    @Override
@@ -238,5 +239,10 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    @Override
    public int hashCode() {
       return this.getMessage().hashCode();
+   }
+
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
+      return this.getMessage().getPersistentSize();
    }
 }

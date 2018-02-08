@@ -59,6 +59,8 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private final long messageID;
 
+   private long messageSize = -1;
+
    @Override
    public Object getProtocolData() {
       return protocolData;
@@ -104,6 +106,9 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
       this.largeMessage = message.getMessage().isLargeMessage();
       this.transactionID = message.getTransactionID();
       this.messageID = message.getMessage().getMessageID();
+
+      //pre-cache the message size so we don't have to reload the message later if it is GC'd
+      getPersistentSize();
    }
 
    @Override
@@ -191,7 +196,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void handled() {
-      getQueue().referenceHandled();
+      getQueue().referenceHandled(this);
    }
 
    @Override
@@ -278,6 +283,18 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    @Override
    public long getMessageID() {
       return messageID;
+   }
+
+   @Override
+   public long getPersistentSize() {
+      if (messageSize == -1) {
+         try {
+            messageSize = getPagedMessage().getPersistentSize();
+         } catch (Throwable e) {
+            ActiveMQServerLogger.LOGGER.errorCalculatePersistentSize(e);
+         }
+      }
+      return messageSize;
    }
 
 }

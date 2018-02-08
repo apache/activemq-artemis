@@ -81,10 +81,50 @@ public interface QueueControl {
    long getMessageCount();
 
    /**
+    * Returns the persistent size of all messages currently in this queue. The persistent size of a message
+    * is the amount of space the message would take up on disk which is used to track how much data there
+    * is to consume on this queue
+    */
+   @Attribute(desc = "persistent size of all messages (including durable and non-durable) currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   long getPersistentSize();
+
+   /**
+    * Returns the number of durable messages currently in this queue.
+    */
+   @Attribute(desc = "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   long getDurableMessageCount();
+
+   /**
+    * Returns the persistent size of durable messages currently in this queue. The persistent size of a message
+    * is the amount of space the message would take up on disk which is used to track how much data there
+    * is to consume on this queue
+    */
+   @Attribute(desc = "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   long getDurablePersistentSize();
+
+   /**
     * Returns the number of scheduled messages in this queue.
     */
    @Attribute(desc = "number of scheduled messages in this queue")
    long getScheduledCount();
+
+   /**
+    * Returns the size of scheduled messages in this queue.
+    */
+   @Attribute(desc = "persistent size of scheduled messages in this queue")
+   long getScheduledSize();
+
+   /**
+    * Returns the number of durable scheduled messages in this queue.
+    */
+   @Attribute(desc = "number of durable scheduled messages in this queue")
+   long getDurableScheduledCount();
+
+   /**
+    * Returns the size of durable scheduled messages in this queue.
+    */
+   @Attribute(desc = "persistent size of durable scheduled messages in this queue")
+   long getDurableScheduledSize();
 
    /**
     * Returns the number of consumers consuming messages from this queue.
@@ -97,6 +137,24 @@ public interface QueueControl {
     */
    @Attribute(desc = "number of messages that this queue is currently delivering to its consumers")
    int getDeliveringCount();
+
+   /**
+    * Returns the persistent size of messages that this queue is currently delivering to its consumers.
+    */
+   @Attribute(desc = "persistent size of messages that this queue is currently delivering to its consumers")
+   long getDeliveringSize();
+
+   /**
+    * Returns the number of durable messages that this queue is currently delivering to its consumers.
+    */
+   @Attribute(desc = "number of durable messages that this queue is currently delivering to its consumers")
+   int getDurableDeliveringCount();
+
+   /**
+    * Returns the size of durable messages that this queue is currently delivering to its consumers.
+    */
+   @Attribute(desc = "persistent size of durable messages that this queue is currently delivering to its consumers")
+   long getDurableDeliveringSize();
 
    /**
     * Returns the number of messages added to this queue since it was created.
