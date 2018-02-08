@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -34,6 +33,8 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.Unpooled;
 
 public final class LargeServerMessageImpl extends CoreMessage implements LargeServerMessage {
 
@@ -344,6 +345,13 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       return file;
    }
 
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
+      long size = super.getPersistentSize();
+      size += getBodyEncoder().getLargeBodySize();
+
+      return size;
+   }
    @Override
    public String toString() {
       return "LargeServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() +

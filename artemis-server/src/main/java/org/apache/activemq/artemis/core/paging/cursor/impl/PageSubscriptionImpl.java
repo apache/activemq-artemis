@@ -96,6 +96,8 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    private final AtomicLong deliveredCount = new AtomicLong(0);
 
+   private final AtomicLong deliveredSize = new AtomicLong(0);
+
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,
                         final StorageManager store,
@@ -174,6 +176,18 @@ final class PageSubscriptionImpl implements PageSubscription {
          return 0;
       } else {
          return counter.getValue() - deliveredCount.get();
+      }
+   }
+
+   @Override
+   public long getPersistentSize() {
+      if (empty) {
+         return 0;
+      } else {
+         //A negative value could happen if an old journal was loaded that didn't have
+         //size metrics for old records
+         long messageSize = counter.getPersistentSize() - deliveredSize.get();
+         return messageSize > 0 ? messageSize : 0;
       }
    }
 
@@ -439,7 +453,7 @@ final class PageSubscriptionImpl implements PageSubscription {
    public void ackTx(final Transaction tx, final PagedReference reference) throws Exception {
       confirmPosition(tx, reference.getPosition());
 
-      counter.increment(tx, -1);
+      counter.increment(tx, -1, -getPersistentSize(reference));
 
       PageTransactionInfo txInfo = getPageTransaction(reference);
       if (txInfo != null) {
@@ -831,6 +845,12 @@ final class PageSubscriptionImpl implements PageSubscription {
       }
 
       PageCursorInfo info = getPageInfo(position);
+      PageCache cache = info.getCache();
+      long size = 0;
+      if (cache != null) {
+         size = getPersistentSize(cache.getMessage(position.getMessageNr()));
+         position.setPersistentSize(size);
+      }
 
       logger.tracef("InstallTXCallback looking up pagePosition %s, result=%s", position, info);
 
@@ -1060,6 +1080,13 @@ final class PageSubscriptionImpl implements PageSubscription {
          }
       }
 
+      /**
+       * @return the cache
+       */
+      public PageCache getCache() {
+         return cache != null ? cache.get() : null;
+      }
+
    }
 
    private final class PageCursorTX extends TransactionOperationAbstract {
@@ -1087,6 +1114,7 @@ final class PageSubscriptionImpl implements PageSubscription {
             for (PagePosition confirmed : positions) {
                cursor.processACK(confirmed);
                cursor.deliveredCount.decrementAndGet();
+               cursor.deliveredSize.addAndGet(-confirmed.getPersistentSize());
             }
 
          }
@@ -1307,6 +1335,45 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       @Override
       public void close() {
+      }
+   }
+
+   /**
+    * @return the deliveredCount
+    */
+   @Override
+   public long getDeliveredCount() {
+      return deliveredCount.get();
+   }
+
+   /**
+    * @return the deliveredSize
+    */
+   @Override
+   public long getDeliveredSize() {
+      return deliveredSize.get();
+   }
+
+   @Override
+   public void incrementDeliveredSize(long size) {
+      deliveredSize.addAndGet(size);
+   }
+
+   private long getPersistentSize(PagedMessage msg) {
+      try {
+         return msg != null && msg.getPersistentSize() > 0 ? msg.getPersistentSize() : 0;
+      } catch (ActiveMQException e) {
+         logger.warn("Error computing persistent size of message: " + msg, e);
+         return 0;
+      }
+   }
+
+   private long getPersistentSize(PagedReference ref) {
+      try {
+         return ref != null && ref.getPersistentSize() > 0 ? ref.getPersistentSize() : 0;
+      } catch (ActiveMQException e) {
+         logger.warn("Error computing persistent size of message: " + ref, e);
+         return 0;
       }
    }
 }

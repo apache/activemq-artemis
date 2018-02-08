@@ -191,7 +191,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private Executor appendExecutor = null;
 
-   private ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<>();
+   private final ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<>();
 
    private final ExecutorFactory providedIOThreadPool;
    protected ExecutorFactory ioExecutorFactory;
@@ -2413,7 +2413,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                                  final List<JournalFile> newFiles,
                                                  final List<Pair<String, String>> renames) throws Exception {
 
-      return JournalCompactor.writeControlFile(fileFactory, files, newFiles, renames);
+      return AbstractJournalUpdateTask.writeControlFile(fileFactory, files, newFiles, renames);
    }
 
 
@@ -2763,7 +2763,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       ArrayList<String> newFiles = new ArrayList<>();
       ArrayList<Pair<String, String>> renames = new ArrayList<>();
 
-      SequentialFile controlFile = JournalCompactor.readControlFile(fileFactory, dataFiles, newFiles, renames);
+      SequentialFile controlFile = AbstractJournalUpdateTask.readControlFile(fileFactory, dataFiles, newFiles, renames);
       if (controlFile != null) {
          for (String dataFile : dataFiles) {
             SequentialFile file = fileFactory.createSequentialFile(dataFile);

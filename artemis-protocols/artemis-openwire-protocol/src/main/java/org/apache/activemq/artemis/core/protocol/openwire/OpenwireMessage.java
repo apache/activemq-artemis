@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 
 import java.util.Set;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
+
+import io.netty.buffer.ByteBuf;
 
 // TODO: Implement this
 public class OpenwireMessage implements Message {
@@ -494,6 +496,11 @@ public class OpenwireMessage implements Message {
 
    @Override
    public int getMemoryEstimate() {
+      return 0;
+   }
+
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
       return 0;
    }
 }

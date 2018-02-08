@@ -138,11 +138,41 @@ public interface Queue extends Bindable,CriticalComponent {
 
    long getMessageCount();
 
+   /**
+    * This is the size of the messages in the queue when persisted on disk which is used for metrics tracking
+    * to give an idea of the amount of data on the queue to be consumed
+    *
+    * Note that this includes all messages on the queue, even messages that are non-durable which may only be in memory
+    */
+   long getPersistentSize();
+
+   /**
+    * This is the number of the durable messages in the queue
+    */
+   long getDurableMessageCount();
+
+   /**
+    * This is the persistent size of all the durable messages in the queue
+    */
+   long getDurablePersistentSize();
+
    int getDeliveringCount();
 
-   void referenceHandled();
+   long getDeliveringSize();
+
+   int getDurableDeliveringCount();
+
+   long getDurableDeliveringSize();
+
+   void referenceHandled(MessageReference ref);
 
    int getScheduledCount();
+
+   long getScheduledSize();
+
+   int getDurableScheduledCount();
+
+   long getDurableScheduledSize();
 
    List<MessageReference> getScheduledMessages();
 
@@ -313,8 +343,6 @@ public interface Queue extends Bindable,CriticalComponent {
     * @return the user who created this queue
     */
    SimpleString getUser();
-
-   void decDelivering(int size);
 
    /** This is to perform a check on the counter again */
    void recheckRefCount(OperationContext context);

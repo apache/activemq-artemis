@@ -336,7 +336,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    /**
     * @return The ID with the stored counter
     */
-   long storePageCounter(long txID, long queueID, long value) throws Exception;
+   long storePageCounter(long txID, long queueID, long value, long persistentSize) throws Exception;
 
    long storePendingCounter(long queueID, long pageID, int inc) throws Exception;
 
@@ -350,13 +350,13 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @return the ID with the increment record
     * @throws Exception
     */
-   long storePageCounterInc(long txID, long queueID, int add) throws Exception;
+   long storePageCounterInc(long txID, long queueID, int add, long persistentSize) throws Exception;
 
    /**
     * @return the ID with the increment record
     * @throws Exception
     */
-   long storePageCounterInc(long queueID, int add) throws Exception;
+   long storePageCounterInc(long queueID, int add, long size) throws Exception;
 
    /**
     * @return the bindings journal
