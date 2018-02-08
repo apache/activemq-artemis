@@ -192,13 +192,25 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          return false;
       if (requiresResponse != other.requiresResponse)
          return false;
-      if (maxConsumers != other.maxConsumers)
+      if (maxConsumers == null) {
+         if (other.maxConsumers != null)
+            return false;
+      } else if (!maxConsumers.equals(other.maxConsumers))
          return false;
-      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
+      if (purgeOnNoConsumers == null) {
+         if (other.purgeOnNoConsumers != null)
+            return false;
+      } else if (!purgeOnNoConsumers.equals(other.purgeOnNoConsumers))
          return false;
-      if (exclusive != other.exclusive)
+      if (exclusive == null) {
+         if (other.exclusive != null)
+            return false;
+      } else if (!exclusive.equals(other.exclusive))
          return false;
-      if (lastValue != other.lastValue)
+      if (lastValue == null) {
+         if (other.lastValue != null)
+            return false;
+      } else if (!lastValue.equals(other.lastValue))
          return false;
       return true;
    }
