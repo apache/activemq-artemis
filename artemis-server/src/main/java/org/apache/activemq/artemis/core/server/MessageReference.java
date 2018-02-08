@@ -38,6 +38,8 @@ public interface MessageReference {
 
    Message getMessage();
 
+   long getMessageID();
+
    /**
     * We define this method aggregation here because on paging we need to hold the original estimate,
     * so we need to perform some extra steps on paging.
