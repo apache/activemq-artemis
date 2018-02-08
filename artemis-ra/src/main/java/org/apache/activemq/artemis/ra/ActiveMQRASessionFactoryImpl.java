@@ -819,13 +819,12 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             //from createSession
             // In a Java EE web or EJB container, when there is an active JTA transaction in progress:
             //Both arguments {@code transacted} and {@code acknowledgeMode} are ignored.
-            if (inJtaTransaction()) {
+            // fix of ARTEMIS-1669 - when a JMSConnectionFactoryDefinition annotation with the transactional attribute set to false="false" is set
+            // then it should not be included in any JTA transaction and behave like that there is no JTA transaction.
+            if (!mcf.isIgnoreJTA() && inJtaTransaction()) {
                transacted = true;
                //from getAcknowledgeMode
-               // If the session is not transacted, returns the
-               // current acknowledgement mode for the session.
-               // If the session
-               // is transacted, returns SESSION_TRANSACTED.
+               // If the session is transacted, returns SESSION_TRANSACTED.
                acknowledgeMode = Session.SESSION_TRANSACTED;
             } else {
                //In the Java EE web or EJB container, when there is no active JTA transaction in progress
