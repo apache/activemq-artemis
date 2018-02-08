@@ -122,6 +122,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    private String entries;
 
+   //fix of ARTEMIS-1669 - propagated value of transactional attribute JMSConnectionFactoryDefinition annotation with the
+   //default value is falso -> original behavior
+   private boolean ignoreJTA;
+
    /**
     * Keep track of the connection factories that we create so we don't create a bunch of instances of factories
     * configured the exact same way. Using the same connection factory instance also makes connection load-balancing
@@ -2030,6 +2034,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (val5 != null) {
          cf.setDeserializationWhiteList(val5);
       }
+      
+      cf.setIgnoreJTA(isIgnoreJTA());
    }
 
    public void setManagedConnectionFactory(ActiveMQRAManagedConnectionFactory activeMQRAManagedConnectionFactory) {
@@ -2046,5 +2052,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (pair.getA() != null && pair.getA() != defaultActiveMQConnectionFactory && references == 0) {
          knownConnectionFactories.remove(properties).getA().close();
       }
+   }
+
+   public boolean isIgnoreJTA() {
+      return ignoreJTA;
+   }
+
+   public void setIgnoreJTA(boolean ignoreJTA) {
+      this.ignoreJTA = ignoreJTA;
    }
 }
