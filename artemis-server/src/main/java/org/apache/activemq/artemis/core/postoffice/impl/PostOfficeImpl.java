@@ -809,10 +809,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
-      }
-
       Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
 
       // TODO auto-create queues here?
@@ -834,6 +830,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't find any bindings for address=" + address + " on message=" + message);
          }
+      }
+
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
       }
 
       if (logger.isTraceEnabled()) {
