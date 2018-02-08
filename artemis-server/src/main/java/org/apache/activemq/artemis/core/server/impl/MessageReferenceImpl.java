@@ -147,6 +147,11 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    }
 
    @Override
+   public long getMessageID() {
+      return getMessage().getMessageID();
+   }
+
+   @Override
    public Queue getQueue() {
       return queue;
    }

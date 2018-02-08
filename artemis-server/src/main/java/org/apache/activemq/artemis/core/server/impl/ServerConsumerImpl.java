@@ -867,7 +867,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
             acks++;
          }
-         while (ref.getMessage().getMessageID() != messageID);
+         while (ref.getMessageID() != messageID);
 
          if (startedTransaction) {
             tx.commit();

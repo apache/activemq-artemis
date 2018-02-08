@@ -238,6 +238,11 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
+      public long getMessageID() {
+         return getMessage().getMessageID();
+      }
+
+      @Override
       public Queue getQueue() {
          return ref.getQueue();
       }
