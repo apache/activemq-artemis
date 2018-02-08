@@ -19,7 +19,8 @@ package servers
 // starts an artemis server
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.JournalType
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS
@@ -31,8 +32,10 @@ String id = arg[1];
 String type = arg[2];
 String producer = arg[3];
 String consumer = arg[4];
+String globalMaxSize = arg[5];
 
 println("type = " + type);
+println("globalMaxSize = " + globalMaxSize);
 
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
@@ -44,6 +47,10 @@ configuration.setPersistenceEnabled(persistent);
 try {
     if (!type.startsWith("ARTEMIS-1")) {
         configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
+        if (globalMaxSize != null) {
+            configuration.getAddressesSettings().get("#").setPageSizeBytes(globalMaxSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+            configuration.setGlobalMaxSize(Long.parseLong(globalMaxSize));
+        }
     }
 } catch (Throwable e) {
     // need to ignore this for 1.4

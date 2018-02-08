@@ -695,4 +695,9 @@ public class MessageInternalImpl implements MessageInternal {
       return new TypedProperties(message.getTypedProperties());
    }
 
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
+      return message.getPersistentSize();
+   }
+
 }
