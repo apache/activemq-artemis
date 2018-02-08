@@ -19,7 +19,8 @@ package servers
 // starts an artemis server
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.JournalType
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS
@@ -47,7 +48,7 @@ try {
     if (!type.startsWith("ARTEMIS-1")) {
         configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
         if (globalMaxSize != null) {
-            configuration.getAddressesSettings().get("#").setPageSizeBytes(globalMaxSize);
+            configuration.getAddressesSettings().get("#").setPageSizeBytes(globalMaxSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
             configuration.setGlobalMaxSize(Long.parseLong(globalMaxSize));
         }
     }
