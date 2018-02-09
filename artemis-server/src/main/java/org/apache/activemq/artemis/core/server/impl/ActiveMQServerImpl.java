@@ -3103,20 +3103,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       @Override
       public void reload(URL uri) throws Exception {
-         Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
-         securityRepository.swap(config.getSecurityRoles().entrySet());
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
-         addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
-         for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
-            if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
-               deployDivert(divertConfig);
+         if (isActive()) {
+            Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
+            ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
+            securityRepository.swap(config.getSecurityRoles().entrySet());
+            ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
+            addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
+            ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+            for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
+               if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
+                  deployDivert(divertConfig);
+               }
             }
+            ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
+            deployAddressesFromConfiguration(config);
+            undeployAddressesAndQueueNotInConfiguration(config);
          }
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
-         deployAddressesFromConfiguration(config);
-         undeployAddressesAndQueueNotInConfiguration(config);
       }
    }
 
