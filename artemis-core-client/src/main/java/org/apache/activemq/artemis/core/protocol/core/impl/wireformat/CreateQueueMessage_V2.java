@@ -182,9 +182,15 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          return false;
       if (purgeOnNoConsumers != other.purgeOnNoConsumers)
          return false;
-      if (exclusive != other.exclusive)
+      if (exclusive == null) {
+         if (other.exclusive != null)
+            return false;
+      } else if (!exclusive.equals(other.exclusive))
          return false;
-      if (lastValue != other.lastValue)
+      if (lastValue == null) {
+         if (other.lastValue != null)
+            return false;
+      } else if (!lastValue.equals(other.lastValue))
          return false;
       if (routingType == null) {
          if (other.routingType != null)
