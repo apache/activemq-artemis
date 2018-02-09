@@ -1666,6 +1666,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       @Override
       public boolean delete(SimpleString queueName) throws Exception {
          Queue queue = server.locateQueue(queueName);
+         if (queue == null) {
+            return false;
+         }
          SimpleString address = queue.getAddress();
          AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
          long consumerCount = queue.getConsumerCount();
