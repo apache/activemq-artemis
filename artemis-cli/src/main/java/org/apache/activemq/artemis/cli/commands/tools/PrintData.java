@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -64,6 +65,10 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
 public class PrintData extends DBOption {
 
+
+   @Option(name = "--safe", description = "It will print your data structure without showing your data")
+   private boolean safe = false;
+
    private static final String BINDINGS_BANNER = "B I N D I N G S  J O U R N A L";
    private static final String MESSAGES_BANNER = "M E S S A G E S   J O U R N A L";
    static {
@@ -80,7 +85,7 @@ public class PrintData extends DBOption {
          if (configuration.isJDBC()) {
             printDataJDBC(configuration, context.out);
          } else {
-            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out);
+            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out, safe);
          }
       } catch (Exception e) {
          treatError(e, "data", "print");
@@ -96,23 +101,26 @@ public class PrintData extends DBOption {
 
       printBanner(out, BINDINGS_BANNER);
 
-      DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out);
+      DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe);
 
       printBanner(out, MESSAGES_BANNER);
 
-      DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out);
+      DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe);
 
-      printPages(describeJournal, storageManager, pagingmanager, out);
+      printPages(describeJournal, storageManager, pagingmanager, out, safe);
 
       cleanup();
 
    }
-
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception {
-      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out);
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, false);
    }
 
-   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out) throws Exception {
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, boolean secret) throws Exception {
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out, secret);
+   }
+
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe) throws Exception {
          // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
       Artemis.printBanner(out);
@@ -133,7 +141,7 @@ public class PrintData extends DBOption {
       printBanner(out, BINDINGS_BANNER);
 
       try {
-         DescribeJournal.describeBindingsJournal(bindingsDirectory, out);
+         DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe);
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -142,7 +150,7 @@ public class PrintData extends DBOption {
 
       DescribeJournal describeJournal = null;
       try {
-         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out);
+         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe);
       } catch (Exception e) {
          e.printStackTrace();
          return;
@@ -151,7 +159,7 @@ public class PrintData extends DBOption {
       try {
          printBanner(out, "P A G I N G");
 
-         printPages(pagingDirectory, describeJournal, out);
+         printPages(pagingDirectory, describeJournal, out, safe);
       } catch (Exception e) {
          e.printStackTrace();
          return;
@@ -166,7 +174,7 @@ public class PrintData extends DBOption {
       out.println("********************************************");
    }
 
-   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out) {
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe) {
       try {
 
          ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
@@ -183,7 +191,7 @@ public class PrintData extends DBOption {
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         printPages(describeJournal, sm, manager, out);
+         printPages(describeJournal, sm, manager, out, safe);
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -192,7 +200,8 @@ public class PrintData extends DBOption {
    private static void printPages(DescribeJournal describeJournal,
                                   StorageManager sm,
                                   PagingManager manager,
-                                  PrintStream out) throws Exception {
+                                  PrintStream out,
+                                  boolean safe) throws Exception {
       PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
 
       Set<Long> pgTXs = cursorACKs.getPgTXs();
@@ -222,7 +231,15 @@ public class PrintData extends DBOption {
 
             for (PagedMessage msg : msgs) {
                msg.initMessage(sm);
-               out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
+               if (safe) {
+                  try {
+                     out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data, size=" + msg.getMessage().getPersistentSize() + ")");
+                  } catch (Exception e) {
+                     out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data)");
+                  }
+               } else {
+                  out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
+               }
                out.print(",Queues = ");
                long[] q = msg.getQueueIDs();
                for (int i = 0; i < q.length; i++) {
