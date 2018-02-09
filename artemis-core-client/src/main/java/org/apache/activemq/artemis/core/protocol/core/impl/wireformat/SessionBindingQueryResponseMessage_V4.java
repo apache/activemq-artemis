@@ -140,9 +140,15 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
          return false;
       if (defaultMaxConsumers != other.defaultMaxConsumers)
          return false;
-      if (defaultExclusive != other.defaultExclusive)
+      if (defaultExclusive == null) {
+         if (other.defaultExclusive != null)
+            return false;
+      } else if (!defaultExclusive.equals(other.defaultExclusive))
          return false;
-      if (defaultLastValue != other.defaultLastValue)
+      if (defaultLastValue == null) {
+         if (other.defaultLastValue != null)
+            return false;
+      } else if (!defaultLastValue.equals(other.defaultLastValue))
          return false;
       return true;
    }
