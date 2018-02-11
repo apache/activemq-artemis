@@ -32,21 +32,23 @@ under the License.
            MAPPED: mmap files
            NIO: Plain Java Files
        -->
-      <journal-type>ASYNCIO</journal-type>
+      <journal-type>NIO</journal-type>
 
-      <paging-directory>./data/artemis/paging</paging-directory>
+      <paging-directory>./paging</paging-directory>
 
-      <bindings-directory>./data/artemis/bindings</bindings-directory>
+      <bindings-directory>./bindings</bindings-directory>
 
-      <journal-directory>./data/artemis/journal</journal-directory>
+      <journal-directory>./journal</journal-directory>
 
-      <large-messages-directory>./data/artemis/large-messages</large-messages-directory>
+      <large-messages-directory>./large-messages</large-messages-directory>
 
       <journal-datasync>true</journal-datasync>
 
       <journal-min-files>2</journal-min-files>
 
-      <journal-pool-files>-1</journal-pool-files>
+      <journal-pool-files>10</journal-pool-files>
+
+      <journal-file-size>10M</journal-file-size>
 
       <!--
         You can verify the network health of a particular NIC by specifying the <network-check-NIC> element.
@@ -76,20 +78,12 @@ under the License.
 
 
 
-      <!--
-       This value was determined through a calculation.
-       Your system could perform 20.83 writes per millisecond
-       on the current journal configuration.
-       That translates as a sync write every 48000 nanoseconds
-      -->
-      <journal-buffer-timeout>48000</journal-buffer-timeout>
-
 
       <!-- how often we are looking for how many bytes are being used on the disk in ms -->
       <disk-scan-period>5000</disk-scan-period>
 
       <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
-     that won't support flow control. -->
+           that won't support flow control. -->
       <max-disk-usage>90</max-disk-usage>
 
       <!-- should the broker detect dead locks and other issues -->
@@ -107,7 +101,7 @@ under the License.
             The system will use half of the available memory (-Xmx) by default for the global-max-size.
             You may specify a different value here if you need to customize it to your needs.
 
-      <global-max-size>100Mb</global-max-size>
+            <global-max-size>100Mb</global-max-size>
 
       -->
 
@@ -116,6 +110,10 @@ under the License.
          <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
          <!-- amqpCredits: The number of credits sent to AMQP producers -->
          <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
+
+         <!-- Note: If an acceptor needs to be compatible with HornetQ and/or Artemis 1.x clients add
+                    "anycastPrefix=jms.queue.;multicastPrefix=jms.topic." to the acceptor url.
+                    See https://issues.apache.org/jira/browse/ARTEMIS-1644 for more information. -->
 
          <!-- Acceptor for every supported protocol -->
          <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300</acceptor>
@@ -127,7 +125,7 @@ under the License.
          <acceptor name="stomp">tcp://0.0.0.0:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
 
          <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
-         <acceptor name="hornetq">tcp://0.0.0.0:5445?protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
+         <acceptor name="hornetq">tcp://0.0.0.0:5445?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.;protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
 
          <!-- MQTT Acceptor -->
          <acceptor name="mqtt">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
@@ -195,6 +193,21 @@ under the License.
          </address>
 
       </addresses>
+
+
+      <!-- Uncomment the following if you want to use the Standard LoggingActiveMQServerPlugin pluging to log in events
+      <broker-plugins>
+         <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin">
+            <property key="LOG_ALL_EVENTS" value="true"/>
+            <property key="LOG_CONNECTION_EVENTS" value="true"/>
+            <property key="LOG_SESSION_EVENTS" value="true"/>
+            <property key="LOG_CONSUMER_EVENTS" value="true"/>
+            <property key="LOG_DELIVERING_EVENTS" value="true"/>
+            <property key="LOG_SENDING_EVENTS" value="true"/>
+            <property key="LOG_INTERNAL_EVENTS" value="true"/>
+         </broker-plugin>
+      </broker-plugins>
+      -->
 
    </core>
 </configuration>
