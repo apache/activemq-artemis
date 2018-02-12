@@ -1128,7 +1128,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          checkProperties();
          return "CoreMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority()  +
             ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
-            ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties + "]@" + System.identityHashCode(this);
+            ", durable=" + durable + ", address=" + getAddress() + ",size=" + getPersistentSize() + ",properties=" + properties + "]@" + System.identityHashCode(this);
       } catch (Throwable e) {
          logger.warn("Error creating String for message: ", e);
          return "ServerMessage[messageID=" + messageID + "]";
