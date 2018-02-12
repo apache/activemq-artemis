@@ -1171,6 +1171,7 @@ public class AMQPMessage extends RefCountMessage {
       return "AMQPMessage [durable=" + isDurable() +
          ", messageID=" + getMessageID() +
          ", address=" + getAddress() +
+         ", size=" + getEncodeSize() +
          "]";
    }
 
