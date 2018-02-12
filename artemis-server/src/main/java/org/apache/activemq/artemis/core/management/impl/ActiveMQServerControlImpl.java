@@ -114,6 +114,7 @@ import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionDetail;
+import org.apache.activemq.artemis.core.transaction.TransactionDetailFactory;
 import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -1241,6 +1242,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listPreparedTransactionDetailsAsJSON() throws Exception {
+      return listPreparedTransactionDetailsAsJSON((xid, tx, creation) -> new CoreTransactionDetail(xid, tx, creation));
+   }
+
+   public String listPreparedTransactionDetailsAsJSON(TransactionDetailFactory factory) throws Exception {
       checkStarted();
 
       clearIO();
@@ -1269,7 +1274,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                continue;
             }
 
-            TransactionDetail detail = new CoreTransactionDetail(xid, tx, entry.getValue());
+            TransactionDetail detail = factory.createTransactionDetail(xid, tx, entry.getValue());
 
             txDetailListJson.add(detail.toJSON());
          }
@@ -1281,6 +1286,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listPreparedTransactionDetailsAsHTML() throws Exception {
+      return listPreparedTransactionDetailsAsHTML((xid, tx, creation) -> new CoreTransactionDetail(xid, tx, creation));
+   }
+
+   public String listPreparedTransactionDetailsAsHTML(TransactionDetailFactory factory) throws Exception {
       checkStarted();
 
       clearIO();
@@ -1311,7 +1320,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                continue;
             }
 
-            TransactionDetail detail = new CoreTransactionDetail(xid, tx, entry.getValue());
+            TransactionDetail detail = factory.createTransactionDetail(xid, tx, entry.getValue());
 
             JsonObject txJson = detail.toJSON();
 
