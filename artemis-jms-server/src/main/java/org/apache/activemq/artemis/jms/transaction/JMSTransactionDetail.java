@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 public class JMSTransactionDetail extends TransactionDetail {
 
-   public JMSTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception {
+   public JMSTransactionDetail(Xid xid, Transaction tx, Long creation) {
       super(xid, tx, creation);
    }
 
