@@ -68,7 +68,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 211002, value = "Started {0} Netty Connector version {1} to {2}:{3,number,#}", format = Message.Format.MESSAGE_FORMAT)
    void startedNettyConnector(String connectorType, String version, String host, Integer port);
 
-   @LogMessage(level = Logger.Level.INFO)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 211003, value = "Started InVM Connector", format = Message.Format.MESSAGE_FORMAT)
    void startedInVMConnector();
 
