@@ -33,7 +33,7 @@ public class PageCountPendingImpl implements EncodingSupport, PageCountPending {
 
    }
 
-   public PageCountPendingImpl(long queueID, long pageID, int inc) {
+   public PageCountPendingImpl(long queueID, long pageID) {
       this.queueID = queueID;
       this.pageID = pageID;
    }
@@ -65,7 +65,7 @@ public class PageCountPendingImpl implements EncodingSupport, PageCountPending {
 
    @Override
    public int getEncodeSize() {
-      return DataConstants.SIZE_LONG * 3;
+      return DataConstants.SIZE_LONG * 2;
    }
 
    @Override

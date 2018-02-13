@@ -673,8 +673,8 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
-         return manager.storePendingCounter(queueID, pageID, inc);
+      public long storePendingCounter(long queueID, long pageID) throws Exception {
+         return manager.storePendingCounter(queueID, pageID);
       }
 
       @Override

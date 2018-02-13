@@ -338,7 +338,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     */
    long storePageCounter(long txID, long queueID, long value, long persistentSize) throws Exception;
 
-   long storePendingCounter(long queueID, long pageID, int inc) throws Exception;
+   long storePendingCounter(long queueID, long pageID) throws Exception;
 
    void deleteIncrementRecord(long txID, long recordID) throws Exception;
 
