@@ -135,7 +135,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          // We have to make sure this is sync here
          // not syncing this to disk may cause the page files to be out of sync on pages.
          // we can't afford the case where a page file is written without a record here
-         long id = storage.storePendingCounter(this.subscriptionID, page.getPageId(), increment);
+         long id = storage.storePendingCounter(this.subscriptionID, page.getPageId());
          pendingInfo = new PendingCounter(id, increment, size);
          pendingCounters.put((long) page.getPageId(), pendingInfo);
       } else {
@@ -422,7 +422,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       /**
        * @param id
        * @param count
-       * @param size
+       * @param persistentSize
        */
       PendingCounter(long id, int count, long persistentSize) {
          super();

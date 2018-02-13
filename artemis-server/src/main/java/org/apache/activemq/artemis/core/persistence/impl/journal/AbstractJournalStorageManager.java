@@ -1388,11 +1388,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePendingCounter(final long queueID, final long pageID, final int inc) throws Exception {
+   public long storePendingCounter(final long queueID, final long pageID) throws Exception {
       readLock();
       try {
          final long recordID = idGenerator.generateID();
-         PageCountPendingImpl pendingInc = new PageCountPendingImpl(queueID, pageID, inc);
+         PageCountPendingImpl pendingInc = new PageCountPendingImpl(queueID, pageID);
          // We must guarantee the record sync before we actually write on the page otherwise we may get out of sync
          // on the counter
          messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER, pendingInc, true);
