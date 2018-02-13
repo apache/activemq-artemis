@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -1233,9 +1232,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          } catch (Exception ignore) {
          }
 
-         Bindings theBindings = postOffice.getBindingsForAddress(queueAddress);
-
-         theBindings.setMessageLoadBalancingType(messageLoadBalancingType);
+         try {
+            postOffice.updateMessageLoadBalancingTypeForAddress(queueAddress, messageLoadBalancingType);
+         } catch (Exception e) {
+            if (logger.isTraceEnabled()) {
+               logger.trace(e.getLocalizedMessage(), e);
+            }
+         }
 
       }
 
@@ -1256,7 +1259,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          RemoteQueueBinding binding = bindings.remove(clusterName);
 
          if (binding == null) {
-            throw new IllegalStateException("Cannot find binding for queue " + clusterName);
+            logger.warn("Cannot remove binding, because cannot find binding for queue " + clusterName);
+            return;
          }
 
          postOffice.removeBinding(binding.getUniqueName(), null, false);
