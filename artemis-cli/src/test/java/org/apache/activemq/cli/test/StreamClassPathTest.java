@@ -33,16 +33,16 @@ public class StreamClassPathTest {
       openStream(Create.BIN_ARTEMIS_CMD);
       openStream(Create.BIN_ARTEMIS_SERVICE_EXE);
       openStream(Create.BIN_ARTEMIS_SERVICE_XML);
-      openStream(Create.ETC_ARTEMIS_PROFILE_CMD);
+      openStream("etc/" + Create.ETC_ARTEMIS_PROFILE_CMD);
       openStream(Create.BIN_ARTEMIS);
       openStream(Create.BIN_ARTEMIS_SERVICE);
-      openStream(Create.ETC_ARTEMIS_PROFILE);
-      openStream(Create.ETC_LOGGING_PROPERTIES);
-      openStream(Create.ETC_BOOTSTRAP_XML);
-      openStream(Create.ETC_MANAGEMENT_XML);
-      openStream(Create.ETC_BROKER_XML);
-      openStream(Create.ETC_ARTEMIS_ROLES_PROPERTIES);
-      openStream(Create.ETC_ARTEMIS_USERS_PROPERTIES);
+      openStream("etc/" + Create.ETC_ARTEMIS_PROFILE);
+      openStream("etc/" + Create.ETC_LOGGING_PROPERTIES);
+      openStream("etc/" + Create.ETC_BOOTSTRAP_XML);
+      openStream("etc/" + Create.ETC_MANAGEMENT_XML);
+      openStream("etc/" + Create.ETC_BROKER_XML);
+      openStream("etc/" + Create.ETC_ARTEMIS_ROLES_PROPERTIES);
+      openStream("etc/" + Create.ETC_ARTEMIS_USERS_PROPERTIES);
       openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
       openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
       openStream(Create.ETC_SHARED_STORE_SETTINGS_TXT);
@@ -59,7 +59,7 @@ public class StreamClassPathTest {
       openStream(Create.ETC_COMMENTED_PING_TXT);
       openStream(Create.ETC_GLOBAL_MAX_SPECIFIED_TXT);
       openStream(Create.ETC_GLOBAL_MAX_DEFAULT_TXT);
-      openStream(Create.ETC_JOLOKIA_ACCESS_XML);
+      openStream("etc/" + Create.ETC_JOLOKIA_ACCESS_XML);
       openStream(Create.ETC_DATABASE_STORE_TXT);
 
    }

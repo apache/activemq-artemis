@@ -30,6 +30,8 @@ public abstract class ActionAbstract implements Action {
 
    private String brokerHome;
 
+   private String brokerEtc;
+
    private URI brokerInstanceURI;
 
    protected ActionContext context;
@@ -63,6 +65,19 @@ public abstract class ActionAbstract implements Action {
          }
       }
       return brokerInstance;
+   }
+
+   public String getBrokerEtc() {
+      if (brokerEtc == null) {
+         brokerEtc = System.getProperty("artemis.instance.etc");
+         if (brokerEtc != null) {
+            brokerEtc = brokerEtc.replace("\\", "/");
+         } else {
+            brokerEtc = getBrokerInstance() + "/etc";
+         }
+         System.setProperty("artemis.instance.etc", brokerEtc);
+      }
+      return brokerEtc;
    }
 
 

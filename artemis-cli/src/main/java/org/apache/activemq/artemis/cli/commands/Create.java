@@ -76,18 +76,18 @@ public class Create extends InputAbstract {
    public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
    public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
-   public static final String ETC_ARTEMIS_PROFILE_CMD = "etc/artemis.profile.cmd";
+   public static final String ETC_ARTEMIS_PROFILE_CMD = "artemis.profile.cmd";
    public static final String BIN_ARTEMIS = "bin/artemis";
    public static final String BIN_ARTEMIS_SERVICE = "bin/artemis-service";
-   public static final String ETC_ARTEMIS_PROFILE = "etc/artemis.profile";
-   public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
-   public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
-   public static final String ETC_MANAGEMENT_XML = "etc/management.xml";
-   public static final String ETC_BROKER_XML = "etc/broker.xml";
+   public static final String ETC_ARTEMIS_PROFILE = "artemis.profile";
+   public static final String ETC_LOGGING_PROPERTIES = "logging.properties";
+   public static final String ETC_BOOTSTRAP_XML = "bootstrap.xml";
+   public static final String ETC_MANAGEMENT_XML = "management.xml";
+   public static final String ETC_BROKER_XML = "broker.xml";
 
-   public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
-   public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
-   private static final String ETC_LOGIN_CONFIG = "etc/login.config";
+   public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "artemis-roles.properties";
+   public static final String ETC_ARTEMIS_USERS_PROPERTIES = "artemis-users.properties";
+   private static final String ETC_LOGIN_CONFIG = "login.config";
    private static final String ETC_LOGIN_CONFIG_WITH_GUEST = "etc/login-with-guest.config";
    private static final String ETC_LOGIN_CONFIG_WITHOUT_GUEST = "etc/login-without-guest.config";
    public static final String ETC_REPLICATED_SETTINGS_TXT = "etc/replicated-settings.txt";
@@ -107,7 +107,7 @@ public class Create extends InputAbstract {
 
    public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
-   public static final String ETC_JOLOKIA_ACCESS_XML = "etc/jolokia-access.xml";
+   public static final String ETC_JOLOKIA_ACCESS_XML = "jolokia-access.xml";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    private File directory;
@@ -154,8 +154,11 @@ public class Create extends InputAbstract {
    @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
    private File home;
 
-   @Option(name = "--data", description = "Directory where ActiveMQ Data is used. Paths are relative to artemis.instance")
-   private String data = "./data";
+   @Option(name = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory ('data' by default)")
+   private String data = "data";
+
+   @Option(name = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory ('etc' by default)")
+   private String etc = "etc";
 
    @Option(name = "--clustered", description = "Enable clustering")
    private boolean clustered = false;
@@ -387,6 +390,14 @@ public class Create extends InputAbstract {
       this.data = data;
    }
 
+   public String getEtc() {
+      return etc;
+   }
+
+   public void setEtc(String etc) {
+      this.etc = etc;
+   }
+
    private String getClusterUser() {
       if (clusterUser == null) {
          clusterUser = input("--cluster-user", "Please provide the username:", "cluster-admin");
@@ -506,6 +517,15 @@ public class Create extends InputAbstract {
       } else if (!directory.canWrite()) {
          throw new RuntimeException(String.format("The path '%s' is not writable.", directory));
       }
+   }
+
+   private File createDirectory(String name, File root) {
+      File directory = new File(name);
+      if (!directory.isAbsolute()) {
+         directory = new File(root, name);
+      }
+      directory.mkdirs();
+      return directory;
    }
 
    public Object run(ActionContext context) throws Exception {
@@ -651,12 +671,15 @@ public class Create extends InputAbstract {
       filters.put("${java.home}", path(System.getProperty("java.home")));
 
       new File(directory, "bin").mkdirs();
-      new File(directory, "etc").mkdirs();
+      File etcFolder = createDirectory(etc, directory);
+      filters.put("${artemis.instance.etc.uri}", etcFolder.toURI().toString());
+      filters.put("${artemis.instance.etc.uri.windows}", etcFolder.toURI().toString().replaceAll("%", "%%"));
+      filters.put("${artemis.instance.etc}", path(etcFolder));
       new File(directory, "log").mkdirs();
       new File(directory, "tmp").mkdirs();
       new File(directory, "lib").mkdirs();
-      File dataFolder = new File(directory, "data");
-      dataFolder.mkdirs();
+      File dataFolder = createDirectory(data, directory);
+      filters.put("${artemis.instance.data}", path(dataFolder));
 
       filters.put("${logmanager}", getLogManager());
 
@@ -667,20 +690,18 @@ public class Create extends InputAbstract {
       filters.put("${java-opts}", javaOptions);
 
       if (isAllowAnonymous()) {
-         write(ETC_LOGIN_CONFIG_WITH_GUEST, filters, false);
-         new File(directory, ETC_LOGIN_CONFIG_WITH_GUEST).renameTo(new File(directory, ETC_LOGIN_CONFIG));
+         write(ETC_LOGIN_CONFIG_WITH_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);
       } else {
-         write(ETC_LOGIN_CONFIG_WITHOUT_GUEST, filters, false);
-         new File(directory, ETC_LOGIN_CONFIG_WITHOUT_GUEST).renameTo(new File(directory, ETC_LOGIN_CONFIG));
+         write(ETC_LOGIN_CONFIG_WITHOUT_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);
       }
 
-      write(ETC_ARTEMIS_ROLES_PROPERTIES, filters, false);
+      writeEtc(ETC_ARTEMIS_ROLES_PROPERTIES, etcFolder, filters, false);
 
       if (IS_WINDOWS) {
-         write(BIN_ARTEMIS_CMD, null, false);
+         write(BIN_ARTEMIS_CMD, filters, false);
          write(BIN_ARTEMIS_SERVICE_EXE);
          write(BIN_ARTEMIS_SERVICE_XML, filters, false);
-         write(ETC_ARTEMIS_PROFILE_CMD, filters, false);
+         writeEtc(ETC_ARTEMIS_PROFILE_CMD, etcFolder, filters, false);
       }
 
       if (!IS_WINDOWS || IS_CYGWIN) {
@@ -688,10 +709,10 @@ public class Create extends InputAbstract {
          makeExec(BIN_ARTEMIS);
          write(BIN_ARTEMIS_SERVICE, filters, true);
          makeExec(BIN_ARTEMIS_SERVICE);
-         write(ETC_ARTEMIS_PROFILE, filters, true);
+         writeEtc(ETC_ARTEMIS_PROFILE, etcFolder, filters, true);
       }
 
-      write(ETC_LOGGING_PROPERTIES, null, false);
+      writeEtc(ETC_LOGGING_PROPERTIES, etcFolder, null, false);
 
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
@@ -745,14 +766,14 @@ public class Create extends InputAbstract {
 
       performAutoTune(filters, journalType, dataFolder);
 
-      write(ETC_BROKER_XML, filters, false);
-      write(ETC_ARTEMIS_USERS_PROPERTIES, filters, false);
+      writeEtc(ETC_BROKER_XML, etcFolder, filters, false);
+      writeEtc(ETC_ARTEMIS_USERS_PROPERTIES, etcFolder, filters, false);
 
       // we want this variable to remain unchanged so that it will use the value set in the profile
       filters.remove("${artemis.instance}");
-      write(ETC_BOOTSTRAP_XML, filters, false);
-      write(ETC_MANAGEMENT_XML, filters, false);
-      write(ETC_JOLOKIA_ACCESS_XML, filters, false);
+      writeEtc(ETC_BOOTSTRAP_XML, etcFolder, filters, false);
+      writeEtc(ETC_MANAGEMENT_XML, etcFolder, filters, false);
+      writeEtc(ETC_JOLOKIA_ACCESS_XML, etcFolder, filters, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
@@ -984,6 +1005,10 @@ public class Create extends InputAbstract {
       write(source, new File(directory, source), filters, unixTarget);
    }
 
+   private void writeEtc(String source, File etcFolder, HashMap<String, String> filters, boolean unixTarget) throws Exception {
+      write("etc/" + source, new File(etcFolder, source), filters, unixTarget);
+   }
+
    private void write(String source,
                       File target,
                       HashMap<String, String> filters,
@@ -999,7 +1024,6 @@ public class Create extends InputAbstract {
       String separator = unixTarget && IS_CYGWIN ? "\n" : System.getProperty("line.separator");
       content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
       ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes(encoding));
-
       try (FileOutputStream fout = new FileOutputStream(target)) {
          copy(in, fout);
       }

@@ -45,11 +45,11 @@ if [ -z "$ARTEMIS_INSTANCE" ] ; then
 fi
 
 # Load Profile Data
-. "$ARTEMIS_INSTANCE/etc/artemis.profile"
+ARTEMIS_INSTANCE_ETC='${artemis.instance.etc}'
+. "$ARTEMIS_INSTANCE_ETC/artemis.profile"
 
 # Set Defaults Properties
-ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_URI/etc/logging.properties"
-ARTEMIS_DATA_DIR="$ARTEMIS_INSTANCE/data"
+ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_ETC_URI/logging.properties"
 ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 
@@ -109,7 +109,7 @@ fi
 exec "$JAVACMD" \
     $JAVA_ARGS \
     -Xbootclasspath/a:"$LOG_MANAGER" \
-    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE/etc/login.config" \
+    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC_URI/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
     -Dartemis.home="$ARTEMIS_HOME" \
@@ -117,6 +117,7 @@ exec "$JAVACMD" \
     -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-$(uname -m)" \
     -Djava.io.tmpdir="$ARTEMIS_INSTANCE/tmp" \
     -Ddata.dir="$ARTEMIS_DATA_DIR" \
+    -Dartemis.instance.etc="$ARTEMIS_INSTANCE_ETC" \
     -Djava.util.logging.manager="$ARTEMIS_LOG_MANAGER" \
     -Dlogging.configuration="$ARTEMIS_LOGGING_CONF" \
     $DEBUG_ARGS \
