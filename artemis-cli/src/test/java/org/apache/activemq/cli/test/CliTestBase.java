@@ -54,6 +54,7 @@ public class CliTestBase {
    public void tearDown() throws Exception {
       ActiveMQClient.clearThreadPools();
       System.clearProperty("artemis.instance");
+      System.clearProperty("artemis.instance.etc");
       Run.setEmbedded(false);
 
       if (original == null) {
