@@ -680,17 +680,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   protected final void finalize() throws Throwable {
-      if (state != SERVER_STATE.STOPPED) {
-         ActiveMQServerLogger.LOGGER.serverFinalisedWIthoutBeingSTopped();
-
-         stop();
-      }
-
-      super.finalize();
-   }
-
-   @Override
    public void setState(SERVER_STATE state) {
       this.state = state;
    }
