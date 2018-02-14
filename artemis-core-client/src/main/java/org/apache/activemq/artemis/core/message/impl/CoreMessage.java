@@ -369,6 +369,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public Message copy() {
+      checkProperties();
       checkEncode();
       return new CoreMessage(this);
    }
@@ -936,8 +937,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public CoreMessage putObjectProperty(final SimpleString key,
                                         final Object value) throws ActiveMQPropertyConversionException {
-      messageChanged();
       checkProperties();
+      messageChanged();
       TypedProperties.setObjectProperty(key, value, properties);
       return this;
    }

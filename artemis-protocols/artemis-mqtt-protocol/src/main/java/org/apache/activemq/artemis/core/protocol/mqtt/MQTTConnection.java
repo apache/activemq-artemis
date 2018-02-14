@@ -18,8 +18,8 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -47,9 +47,9 @@ public class MQTTConnection implements RemotingConnection {
 
    private String clientID;
 
-   private final List<FailureListener> failureListeners = Collections.synchronizedList(new ArrayList<FailureListener>());
+   private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
 
-   private final List<CloseListener> closeListeners = Collections.synchronizedList(new ArrayList<CloseListener>());
+   private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
 
    public MQTTConnection(Connection transportConnection) throws Exception {
       this.transportConnection = transportConnection;
@@ -100,15 +100,14 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public List<CloseListener> removeCloseListeners() {
-      synchronized (closeListeners) {
-         List<CloseListener> deletedCloseListeners = new ArrayList<>(closeListeners);
-         closeListeners.clear();
-         return deletedCloseListeners;
-      }
+      List<CloseListener> deletedCloseListeners = copyCloseListeners();
+      closeListeners.clear();
+      return deletedCloseListeners;
    }
 
    @Override
    public void setCloseListeners(List<CloseListener> listeners) {
+      closeListeners.clear();
       closeListeners.addAll(listeners);
    }
 
@@ -119,19 +118,15 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public List<FailureListener> removeFailureListeners() {
-      synchronized (failureListeners) {
-         List<FailureListener> deletedFailureListeners = new ArrayList<>(failureListeners);
-         failureListeners.clear();
-         return deletedFailureListeners;
-      }
+      List<FailureListener> deletedFailureListeners = copyFailureListeners();
+      failureListeners.clear();
+      return deletedFailureListeners;
    }
 
    @Override
    public void setFailureListeners(List<FailureListener> listeners) {
-      synchronized (failureListeners) {
-         failureListeners.clear();
-         failureListeners.addAll(listeners);
-      }
+      failureListeners.clear();
+      failureListeners.addAll(listeners);
    }
 
    @Override
@@ -141,11 +136,18 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public void fail(ActiveMQException me) {
-      synchronized (failureListeners) {
-         for (FailureListener listener : failureListeners) {
-            listener.connectionFailed(me, false);
-         }
+      List<FailureListener> copy = copyFailureListeners();
+      for (FailureListener listener : copy) {
+         listener.connectionFailed(me, false);
       }
+   }
+
+   private List<FailureListener> copyFailureListeners() {
+      return new ArrayList<>(failureListeners);
+   }
+
+   private List<CloseListener> copyCloseListeners() {
+      return new ArrayList<>(closeListeners);
    }
 
    @Override
