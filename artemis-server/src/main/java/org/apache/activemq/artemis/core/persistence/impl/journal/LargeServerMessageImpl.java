@@ -362,12 +362,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       }
    }
 
-   @Override
-   protected void finalize() throws Throwable {
-      releaseResources();
-      super.finalize();
-   }
-
    // Private -------------------------------------------------------
 
    public synchronized void validateFile() throws ActiveMQException {
