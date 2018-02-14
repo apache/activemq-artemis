@@ -18,17 +18,20 @@ rem under the License.
 
 set ARTEMIS_HOME="${artemis.home}"
 set ARTEMIS_INSTANCE="${artemis.instance}"
+set ARTEMIS_DATA_DIR='${artemis.instance.data}'
+
 
 rem The logging config will need an URI
 rem this will be encoded in case you use spaces or special characters
 rem on your directory structure
 set ARTEMIS_INSTANCE_URI="${artemis.instance.uri.windows}"
+set ARTEMIS_INSTANCE_ETC_URI="${artemis.instance.etc.uri.windows}"
 
 rem Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
-set JAVA_ARGS=${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager} -Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config -Dhawtio.offline="true" -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_URI%\etc\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%
+set JAVA_ARGS=${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager} -Djava.security.auth.login.config=%ARTEMIS_ETC_INSTANCE%\login.config -Dhawtio.offline="true" -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%
 
 rem There might be options that you only want to enable on specifc commands, like setting a JMX port
 rem See https://issues.apache.org/jira/browse/ARTEMIS-318
