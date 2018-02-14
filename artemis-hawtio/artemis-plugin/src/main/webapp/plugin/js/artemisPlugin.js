@@ -155,7 +155,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
    // one-time initialization happens in the run function
    // of our module
-   ARTEMIS.module.run(function(workspace, viewRegistry, helpRegistry, preferencesRegistry, localStorage, jolokia, ARTEMISService, $rootScope) {
+   ARTEMIS.module.run(function(workspace, viewRegistry, helpRegistry, preferencesRegistry, localStorage, jolokia, ARTEMISService, $rootScope, preLogoutTasks) {
       // let folks know we're actually running
       ARTEMIS.log.info("plugin running " + jolokia);
 
@@ -297,6 +297,12 @@ var ARTEMIS = (function(ARTEMIS) {
            isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
            href: function () { return "#/artemis/connections"; }
        });
+
+       preLogoutTasks.addTask("clearArtemisCredentials", () => {
+           localStorage.removeItem('artemisUserName');
+           localStorage.removeItem('artemisPassword');
+       });
+
 });
 
 
