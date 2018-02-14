@@ -835,7 +835,7 @@ public class PagingTest extends ActiveMQTestBase {
          ClientMessage message = session.createMessage(true);
 
          if (i < 1000) {
-            message.setExpiration(System.currentTimeMillis() + 1000);
+            message.setExpiration(System.currentTimeMillis() + 100);
          }
 
          message.putIntProperty("tst-count", i);
@@ -852,12 +852,7 @@ public class PagingTest extends ActiveMQTestBase {
       session.commit();
       producer.close();
 
-      for (long timeout = System.currentTimeMillis() + 60000; timeout > System.currentTimeMillis() && getMessageCount(qEXP) < 1000; ) {
-         System.out.println("count = " + getMessageCount(qEXP));
-         Thread.sleep(100);
-      }
-
-      assertEquals(1000, getMessageCount(qEXP));
+      Wait.assertEquals(1000, qEXP::getMessageCount);
 
       session.start();
 
@@ -874,10 +869,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       assertNull(consumer.receiveImmediate());
 
-      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(queue1) != 0; ) {
-         Thread.sleep(100);
-      }
-      assertEquals(0, getMessageCount(queue1));
+      Wait.assertEquals(0, queue1::getMessageCount);
 
       consumer.close();
 

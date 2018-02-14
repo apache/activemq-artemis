@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
 import org.jboss.logging.Logger;
 
@@ -199,6 +200,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private Executor startExecutor;
 
+   private Actor<Long> updateArrayActor;
+
    private AfterConnectInternalListener afterConnectListener;
 
    private String groupID;
@@ -251,6 +254,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          scheduledThreadPool = Executors.newScheduledThreadPool(scheduledThreadPoolMaxSize, factory);
       }
+
+      this.updateArrayActor = new Actor<>(threadPool, this::internalUpdateArray);
    }
 
    @Override
@@ -534,6 +539,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private TransportConfiguration selectConnector() {
       Pair<TransportConfiguration, TransportConfiguration>[] usedTopology;
 
+      flushTopology();
+
       synchronized (topologyArrayGuard) {
          usedTopology = topologyArray;
       }
@@ -743,6 +750,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       initialise();
 
+      flushTopology();
+
       if (this.getNumInitialConnectors() == 0 && discoveryGroup != null) {
          // Wait for an initial broadcast to give us at least one node in the cluster
          long timeout = clusterConnection ? 0 : discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout();
@@ -810,6 +819,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       addFactory(factory);
 
       return factory;
+   }
+
+   public void flushTopology() {
+      if (updateArrayActor != null) {
+         updateArrayActor.flush(10, TimeUnit.SECONDS);
+      }
    }
 
    @Override
@@ -1426,14 +1441,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       topology.removeMember(eventTime, nodeID);
 
       if (clusterConnection) {
-         updateArraysAndPairs();
+         updateArraysAndPairs(eventTime);
       } else {
          if (topology.isEmpty()) {
             // Resetting the topology to its original condition as it was brand new
             receivedTopology = false;
             topologyArray = null;
          } else {
-            updateArraysAndPairs();
+            updateArraysAndPairs(eventTime);
 
             if (topology.nodes() == 1 && topology.getMember(this.nodeID) != null) {
                // Resetting the topology to its original condition as it was brand new
@@ -1472,7 +1487,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          }
       }
 
-      updateArraysAndPairs();
+      updateArraysAndPairs(uniqueEventID);
 
       if (last) {
          receivedTopology = true;
@@ -1496,7 +1511,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @SuppressWarnings("unchecked")
-   private void updateArraysAndPairs() {
+   private void updateArraysAndPairs(long time) {
+      if (updateArrayActor == null) {
+         // if for some reason we don't have an actor, just go straight
+         internalUpdateArray(time);
+      } else {
+         updateArrayActor.act(time);
+      }
+   }
+
+   private void internalUpdateArray(long time) {
       synchronized (topologyArrayGuard) {
          Collection<TopologyMemberImpl> membersCopy = topology.getMembers();
 
@@ -1506,7 +1530,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          for (TopologyMemberImpl pair : membersCopy) {
             Pair<TransportConfiguration, TransportConfiguration> transportConfigs = pair.getConnector();
             topologyArrayLocal[count++] = new Pair<>(protocolManagerFactory.adaptTransportConfiguration(transportConfigs.getA()),
-                    protocolManagerFactory.adaptTransportConfiguration(transportConfigs.getB()));
+                                                     protocolManagerFactory.adaptTransportConfiguration(transportConfigs.getB()));
          }
 
          this.topologyArray = topologyArrayLocal;
