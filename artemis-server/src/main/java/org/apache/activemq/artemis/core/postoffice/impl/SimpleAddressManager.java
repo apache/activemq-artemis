@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -345,5 +346,10 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public AddressInfo getAddressInfo(SimpleString addressName) {
       return addressInfoMap.get(addressName);
+   }
+
+   @Override
+   public void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+      getBindingsForRoutingAddress(address).setMessageLoadBalancingType(messageLoadBalancingType);
    }
 }
