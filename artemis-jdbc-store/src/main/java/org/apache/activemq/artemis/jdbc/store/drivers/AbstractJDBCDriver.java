@@ -95,6 +95,7 @@ public abstract class AbstractJDBCDriver {
       synchronized (connection) {
          if (sqlProvider.closeConnectionOnShutdown()) {
             try {
+               connection.setAutoCommit(true);
                connection.close();
             } catch (SQLException e) {
                logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));

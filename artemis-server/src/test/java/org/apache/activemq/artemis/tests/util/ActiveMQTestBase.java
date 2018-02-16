@@ -505,6 +505,7 @@ public abstract class ActiveMQTestBase extends Assert {
                connection.rollback();
             }
          }
+         connection.setAutoCommit(true);
       } catch (Throwable e) {
          e.printStackTrace();
       } finally {
