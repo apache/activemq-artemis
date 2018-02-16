@@ -78,7 +78,7 @@ public class ThreadLeakCheckRule extends TestWatcher {
     */
    @Override
    protected void finished(Description description) {
-      log.info("checking thread enabled? " + enabled + " testFailed? " + testFailed);
+      log.debug("checking thread enabled? " + enabled + " testFailed? " + testFailed);
       try {
          if (enabled) {
             boolean failed = true;
