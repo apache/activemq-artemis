@@ -76,6 +76,7 @@ public class MQTTConnectionManager {
 
       session.setSessionState(getSessionState(clientId));
       String password = passwordInBytes == null ? null : new String(passwordInBytes, CharsetUtil.UTF_8);
+      session.getConnection().setClientID(clientId);
       ServerSessionImpl serverSession = createServerSession(username, password);
       serverSession.start();
 
@@ -93,7 +94,6 @@ public class MQTTConnectionManager {
 
       session.getConnection().setConnected(true);
       session.start();
-      session.getConnection().setClientID(clientId);
       session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED);
    }
 
