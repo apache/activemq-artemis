@@ -538,7 +538,7 @@ public class ArtemisTest extends CliTestBase {
       Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--no-autotune", "--require-login");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
-      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5", "--tries", "1", "--verbose");
+      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5", "--tries", "1");
 
    }
 
@@ -581,8 +581,8 @@ public class ArtemisTest extends CliTestBase {
          }
          Artemis.internalExecute("data", "print", "--f");
 
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100", "--verbose", "--user", "admin", "--password", "admin"));
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
 
          ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
          Connection connection = cf.createConnection("admin", "admin");
@@ -603,20 +603,20 @@ public class ArtemisTest extends CliTestBase {
          connection.close();
          cf.close();
 
-         assertEquals(Integer.valueOf(1), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(1), Artemis.internalExecute("browser", "--txt-size", "50", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
 
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='orange'", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("browser", "--txt-size", "50", "--filter", "fruit='orange'", "--user", "admin", "--password", "admin"));
 
-         assertEquals(Integer.valueOf(101), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(101), Artemis.internalExecute("browser", "--txt-size", "50", "--user", "admin", "--password", "admin"));
 
          // should only receive 10 messages on browse as I'm setting messageCount=10
-         assertEquals(Integer.valueOf(10), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--message-count", "10", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("browser", "--txt-size", "50", "--message-count", "10", "--user", "admin", "--password", "admin"));
 
          // Nothing was consumed until here as it was only browsing, check it's receiving again
-         assertEquals(Integer.valueOf(1), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(1), Artemis.internalExecute("consumer", "--txt-size", "50", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
 
          // Checking it was acked before
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--txt-size", "50", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
       } finally {
          stopServer();
       }
