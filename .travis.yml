@@ -1,5 +1,6 @@
 sudo: false
 language: java
+install: true
 script: mvn -Pfast-tests -Pextra-tests -B install
 cache:
   directories:
