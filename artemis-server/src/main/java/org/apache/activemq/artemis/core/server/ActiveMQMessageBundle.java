@@ -436,4 +436,6 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119213, value = "User: {0} does not have permission=''{1}'' for queue {2} on address {3}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQSecurityException userNoPermissionsQueue(String username, CheckType checkType, String squeue, String saddress);
 
+   @Message(id = 119214, value = "{0} must be a valid percentage value between 0 and 100 or -1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException notPercentOrMinusOne(String name, Number val);
 }
