@@ -169,6 +169,8 @@ public class MqttClusterWildcardTest extends ClusterTestBase {
 
          waitForBindings(1, TOPIC, 1, 1, false);
          waitForBindings(1, TOPIC, 1, 1, true);
+         waitForBindings(0, TOPIC, 1, 1, true);
+
 
          connection1.publish("test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
          connection1.publish("test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
