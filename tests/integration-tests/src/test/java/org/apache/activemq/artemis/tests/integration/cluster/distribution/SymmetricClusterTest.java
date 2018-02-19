@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
@@ -225,44 +221,6 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(2, "queues.testaddress", 4, 4, false);
       waitForBindings(3, "queues.testaddress", 4, 4, false);
       waitForBindings(4, "queues.testaddress", 4, 4, false);
-
-      send(0, "queues.testaddress", 1000, true, null);
-
-      verifyReceiveRoundRobinInSomeOrder(1000, 0, 1, 2, 3, 4);
-
-      verifyNotReceive(0, 1, 2, 3, 4);
-   }
-
-   @Test
-   public void testBasicRoundRobinManyMessagesNoAddressAutoCreate() throws Exception {
-      setupCluster();
-
-      startServers();
-
-      for (int i = 0; i < 5; i++) {
-         servers[i].getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
-      }
-
-      for (int i = 0; i < 5; i++) {
-         setupSessionFactory(i, isNetty());
-      }
-
-      for (int i = 0; i < 5; i++) {
-         servers[i].addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queues.testaddress"), RoutingType.MULTICAST));
-         createQueue(i, "queues.testaddress", "queue0", null, false);
-      }
-
-      for (int i = 0; i < 5; i++) {
-         addConsumer(i, i, "queue0", null);
-      }
-
-      for (int i = 0; i < 5; i++) {
-         waitForBindings(i, "queues.testaddress", 1, 1, true);
-      }
-
-      for (int i = 0; i < 5; i++) {
-         waitForBindings(i, "queues.testaddress", 4, 4, false);
-      }
 
       send(0, "queues.testaddress", 1000, true, null);
 
