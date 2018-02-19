@@ -137,7 +137,15 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    }
 
    protected double calculateUsage(FileStore store) throws IOException {
-      return 1.0 - (double) store.getUsableSpace() / (double) store.getTotalSpace();
+      return 1.0 - (double) store.getUsableSpace() / getTotalSpace(store);
+   }
+
+   private double getTotalSpace(FileStore store) throws IOException {
+      double totalSpace = (double) store.getTotalSpace();
+      if (totalSpace < 0) {
+         totalSpace = Long.MAX_VALUE;
+      }
+      return totalSpace;
    }
 
    public interface Callback {

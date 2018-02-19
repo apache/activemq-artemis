@@ -76,6 +76,16 @@ public final class Validators {
       }
    };
 
+   public static final Validator PERCENTAGE_OR_MINUS_ONE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val == null || ((val.intValue() < 0 || val.intValue() > 100) && val.intValue() != -1)) {
+            throw ActiveMQMessageBundle.BUNDLE.notPercentOrMinusOne(name, val);
+         }
+      }
+   };
+
    public static final Validator GE_ZERO = new Validator() {
       @Override
       public void validate(final String name, final Object value) {
