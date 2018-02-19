@@ -110,6 +110,16 @@ public class ValidatorsTest extends Assert {
       ValidatorsTest.failure(Validators.PERCENTAGE, null);
    }
 
+   @Test
+   public void testPERCENTAGE_OR_MINUS_ONE() {
+      ValidatorsTest.success(Validators.PERCENTAGE_OR_MINUS_ONE, 99);
+      ValidatorsTest.success(Validators.PERCENTAGE_OR_MINUS_ONE, 100);
+      ValidatorsTest.success(Validators.PERCENTAGE_OR_MINUS_ONE, 0);
+      ValidatorsTest.success(Validators.PERCENTAGE_OR_MINUS_ONE, -1);
+      ValidatorsTest.failure(Validators.PERCENTAGE_OR_MINUS_ONE, 101);
+      ValidatorsTest.failure(Validators.PERCENTAGE_OR_MINUS_ONE, null);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
