@@ -1001,11 +1001,10 @@
       </profile>
       <profile>
          <!-- This will represent a subset of the tests
-              This is used on PR checks on the Jenkins instance at build.apache.org -->
+              This is used on PR checks -->
          <id>fast-tests</id>
          <modules>
             <module>artemis-dto</module>
-            <module>artemis-web</module>
             <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
@@ -1017,7 +1016,6 @@
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
-            <module>artemis-rest</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>

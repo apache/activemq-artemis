@@ -365,8 +365,6 @@ public abstract class ActiveMQTestBase extends Assert {
       InVMRegistry.instance.clear();
 
       // checkFreePort(TransportConstants.DEFAULT_PORT);
-
-      logAndSystemOut("#test " + getName());
    }
 
    public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual) {

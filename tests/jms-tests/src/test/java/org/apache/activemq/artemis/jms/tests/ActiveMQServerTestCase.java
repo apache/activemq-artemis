@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.tests.tools.ServerManagement;
 import org.apache.activemq.artemis.jms.tests.tools.container.Server;
@@ -205,6 +206,8 @@ public abstract class ActiveMQServerTestCase {
    }
 
    protected void deployAdministeredObjects() throws Exception {
+      // set DLA and expiry to avoid spamming the log with warnings
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
       createTopic("Topic1");
       createTopic("Topic2");
       createTopic("Topic3");

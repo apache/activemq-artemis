@@ -2891,18 +2891,22 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          update(i);
       }
 
-      System.out.println("Before stop ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      /**
+       * Enable System.outs again if test fails and needs to be debugged
+       */
+
+      //      System.out.println("Before stop ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       stopJournal();
       createJournal();
       startJournal();
       loadAndCheck();
 
-      System.out.println("After start ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("After start ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       journal.forceMoveNextFile();
 
@@ -2910,49 +2914,49 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          delete(i);
       }
 
-      System.out.println("After delete ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("After delete ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       for (int i = 100; i < 200; i++) {
          updateTx(transactionID, i);
       }
 
-      System.out.println("After updatetx ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("After updatetx ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       journal.forceMoveNextFile();
 
       commit(transactionID++);
 
-      System.out.println("After commit ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("After commit ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       for (int i = 100; i < 200; i++) {
          updateTx(transactionID, i);
          deleteTx(transactionID, i);
       }
 
-      System.out.println("After delete ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("After delete ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       commit(transactionID++);
 
-      System.out.println("Before reclaim/after commit ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("Before reclaim/after commit ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       stopJournal();
       createJournal();
       startJournal();
       loadAndCheck();
 
-      System.out.println("After reclaim ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      //      System.out.println("After reclaim ****************************");
+      //      System.out.println(journal.debug());
+      //      System.out.println("*****************************************");
 
       journal.forceMoveNextFile();
       checkAndReclaimFiles();
