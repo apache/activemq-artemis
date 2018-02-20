@@ -221,12 +221,12 @@ public abstract class ActiveMQTestBase extends Assert {
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
-         log.info(String.format("#*#*# Starting test: %s()...", description.getMethodName()));
+         log.info(String.format("**** start #test %s() ***", description.getMethodName()));
       }
 
       @Override
       protected void finished(Description description) {
-         log.info(String.format("#*#*# Finished test: %s()...", description.getMethodName()));
+         log.info(String.format("**** end #test %s() ***", description.getMethodName()));
       }
    };
 
@@ -365,8 +365,6 @@ public abstract class ActiveMQTestBase extends Assert {
       InVMRegistry.instance.clear();
 
       // checkFreePort(TransportConstants.DEFAULT_PORT);
-
-      logAndSystemOut("#test " + getName());
    }
 
    public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual) {

@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.rest.test;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.rest.MessageServiceConfiguration;
 import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
@@ -68,6 +70,9 @@ class EmbeddedTestServer {
          Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
          activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
+         // set DLA and expiry to avoid spamming the log with warnings
+         activeMQServer.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+
          activeMQServer.start();
       }
       tjws.start();
