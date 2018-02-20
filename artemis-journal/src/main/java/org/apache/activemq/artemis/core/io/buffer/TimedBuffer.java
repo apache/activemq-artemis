@@ -170,6 +170,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
    public void stop() {
       enterCritical(CRITICAL_PATH_STOP);
+      Thread localTimer = null;
       try {
          // add critical analyzer here.... <<<<
          synchronized (this) {
@@ -190,15 +191,23 @@ public final class TimedBuffer extends CriticalComponentImpl {
                   logRatesTimerTask.cancel();
                }
 
-               while (timerThread.isAlive()) {
-                  try {
-                     timerThread.join();
-                  } catch (InterruptedException e) {
-                     throw new ActiveMQInterruptedException(e);
-                  }
-               }
+               localTimer = timerThread;
+               timerThread = null;
+
             } finally {
                started = false;
+            }
+         }
+         if (localTimer != null) {
+            while (localTimer.isAlive()) {
+               try {
+                  localTimer.join(1000);
+                  if (localTimer.isAlive()) {
+                     localTimer.interrupt();
+                  }
+               } catch (InterruptedException e) {
+                  throw new ActiveMQInterruptedException(e);
+               }
             }
          }
       } finally {
