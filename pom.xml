@@ -186,6 +186,10 @@
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
       <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
+
+      <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
+           This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
+      <testFailureIgnore>true</testFailureIgnore>
    </properties>
 
    <scm>
@@ -1031,6 +1035,7 @@
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
             <skipCompatibilityTests>false</skipCompatibilityTests>
+            <testFailureIgnore>false</testFailureIgnore>
          </properties>
       </profile>
       <profile>
@@ -1419,7 +1424,7 @@
                <version>2.18.1</version>
                <configuration>
                   <forkMode>once</forkMode>
-                  <testFailureIgnore>true</testFailureIgnore>
+                  <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
                   <redirectTestOutputToFile>false</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
