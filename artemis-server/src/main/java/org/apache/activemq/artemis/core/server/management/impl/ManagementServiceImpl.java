@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -540,6 +541,33 @@ public class ManagementServiceImpl implements ManagementService {
       }
 
       started = true;
+
+      /**
+       * Ensure the management notification address is created otherwise if auto-create-address = false then cluster
+       * bridges won't be able to connect.
+       */
+      messagingServer.registerActivateCallback(new ActivateCallback() {
+         @Override
+         public void preActivate() {
+         }
+
+         @Override
+         public void activated() {
+            try {
+               messagingServer.addAddressInfo(new AddressInfo(managementNotificationAddress, RoutingType.MULTICAST));
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.unableToCreateManagementNotificationAddress(managementNotificationAddress, e);
+            }
+         }
+
+         @Override
+         public void deActivate() {
+         }
+
+         @Override
+         public void activationComplete() {
+         }
+      });
    }
 
    @Override
