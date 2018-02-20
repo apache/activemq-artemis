@@ -436,7 +436,6 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
          assertEquals(el.toString(), elementsByTagName.getLength(), 1);
          Node configPropertyNameNode = elementsByTagName.item(0);
          String configPropertyName = configPropertyNameNode.getTextContent();
-         System.out.println("configPropertyName = " + configPropertyName);
          Method setter = methodList.remove("set" + configPropertyName);
          assertNotNull("setter " + configPropertyName + " does not exist", setter);
          Class c = lookupType(setter);
@@ -459,8 +458,6 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
          }
          System.out.println(newConfig);
          fail("methods not shown please see previous and add");
-      } else {
-         System.out.println(commentedOutConfigs);
       }
    }
 

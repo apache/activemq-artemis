@@ -45,6 +45,11 @@
          <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.jboss.logmanager</groupId>
+         <artifactId>jboss-logmanager</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
          <version>${project.version}</version>

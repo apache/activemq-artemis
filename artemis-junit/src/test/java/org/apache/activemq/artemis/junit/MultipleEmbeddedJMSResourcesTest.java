@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.junit;
 
 import javax.jms.Message;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -48,6 +50,9 @@ public class MultipleEmbeddedJMSResourcesTest {
 
    @Test
    public void testMultipleServers() throws Exception {
+      jmsServerOne.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      jmsServerTwo.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+
       Message pushedOne = jmsServerOne.pushMessage(TEST_QUEUE_ONE, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_ONE), pushedOne);
 
