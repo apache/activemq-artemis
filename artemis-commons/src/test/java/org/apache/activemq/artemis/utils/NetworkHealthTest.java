@@ -92,7 +92,7 @@ public class NetworkHealthTest {
 
    private void startHTTPServer() throws IOException {
       Assert.assertNull(httpServer);
-      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
+      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       httpServer = HttpServer.create(address, 100);
       httpServer.start();
       httpServer.createContext("/", new HttpHandler() {
@@ -197,15 +197,15 @@ public class NetworkHealthTest {
 
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 1000));
 
-      Assert.assertTrue(check.check(new URL("http://localhost:8080")));
+      Assert.assertTrue(check.check(new URL("http://localhost:8787")));
 
       stopHTTPServer();
 
-      Assert.assertFalse(check.check(new URL("http://localhost:8080")));
+      Assert.assertFalse(check.check(new URL("http://localhost:8787")));
 
       check.addComponent(component);
 
-      URL url = new URL("http://localhost:8080");
+      URL url = new URL("http://localhost:8787");
       Assert.assertFalse(check.check(url));
 
       startHTTPServer();
