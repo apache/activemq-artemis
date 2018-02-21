@@ -131,12 +131,8 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(0, MESSAGE_EXPIRED, BEFORE_DEPLOY_BRIDGE, AFTER_DEPLOY_BRIDGE,
             BEFORE_DESTROY_QUEUE, AFTER_DESTROY_QUEUE, BEFORE_UPDATE_ADDRESS, AFTER_UPDATE_ADDRESS,
             BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS, BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
-      verifier.validatePluginMethodsEquals(1, AFTER_CREATE_CONNECTION, AFTER_DESTROY_CONNECTION,
-            BEFORE_CREATE_CONSUMER, AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER,
-            BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_ADD_BINDING, AFTER_ADD_BINDING, MESSAGE_ACKED, BEFORE_SEND,
-            AFTER_SEND, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
-            AFTER_CLOSE_SESSION);
+            AFTER_CLOSE_SESSION, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
       verifier.validatePluginMethodsAtLeast(1, BEFORE_MESSAGE_ROUTE,
             AFTER_MESSAGE_ROUTE);
 
@@ -155,8 +151,9 @@ public class CorePluginTest extends JMSTestBase {
 
       server.destroyQueue(new SimpleString(queue.getQueueName()));
 
+      verifier.validatePluginMethodsEquals(2, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
       verifier.validatePluginMethodsEquals(1, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_DESTROY_QUEUE,
-            AFTER_DESTROY_QUEUE, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS, BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
+            AFTER_DESTROY_QUEUE, BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
    }
 
    @Test
@@ -171,8 +168,11 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(1,  BEFORE_DESTROY_QUEUE,
             AFTER_DESTROY_QUEUE, BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS);
 
-      verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_ADD_ADDRESS,
-            AFTER_ADD_ADDRESS, BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
+      verifier.validatePluginMethodsEquals(3, BEFORE_ADD_ADDRESS,
+                                           AFTER_ADD_ADDRESS);
+
+      verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
+            BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
    }
 
    @Test
@@ -190,8 +190,11 @@ public class CorePluginTest extends JMSTestBase {
 
       //Before/Add address are called twice because of the autocreated destination and the
       //created destination in the before method
-      verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_ADD_ADDRESS,
-            AFTER_ADD_ADDRESS, BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
+      verifier.validatePluginMethodsEquals(3, BEFORE_ADD_ADDRESS,
+                                           AFTER_ADD_ADDRESS);
+
+      verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
+            BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
    }
 
    @Test
