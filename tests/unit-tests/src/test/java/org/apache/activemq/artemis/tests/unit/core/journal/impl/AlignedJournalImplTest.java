@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
@@ -998,10 +999,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
    @Test
    public void testReclaimAfterRollabck() throws Exception {
       final int JOURNAL_SIZE = 2000;
+      final int COUNT = 10;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < COUNT; i++) {
          journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 0));
          journalImpl.forceMoveNextFile();
       }
@@ -1009,6 +1011,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       journalImpl.appendRollbackRecord(1L, false);
 
       journalImpl.forceMoveNextFile();
+
+      // wait for the previous call to forceMoveNextFile() to complete
+      assertTrue(Wait.waitFor(() -> factory.listFiles("tt").size() == COUNT + 3, 2000, 50));
 
       journalImpl.checkReclaimStatus();
 
