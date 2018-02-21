@@ -482,8 +482,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    @Override
    public void stop(final boolean waitForOnMessage) throws ActiveMQException {
-      waitForOnMessageToComplete(waitForOnMessage);
-
       if (browseOnly) {
          // stop shouldn't affect browser delivery
          return;
@@ -496,6 +494,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          stopped = true;
       }
+      waitForOnMessageToComplete(waitForOnMessage);
    }
 
    @Override
