@@ -143,7 +143,6 @@
       <skipConcurrentTests>true</skipConcurrentTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
-      <skipExtraTests>true</skipExtraTests>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -1000,7 +999,6 @@
             <skipExtraTests>false</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
-            <skipExtraTests>false</skipExtraTests>
          </properties>
       </profile>
       <profile>
@@ -1030,8 +1028,6 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipConcurrentTests>false</skipConcurrentTests>
-            <skipRestTests>false</skipRestTests>
-            <skipExtraTests>true</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
             <skipCompatibilityTests>false</skipCompatibilityTests>
