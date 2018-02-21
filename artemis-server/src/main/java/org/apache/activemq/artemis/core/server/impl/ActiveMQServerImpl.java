@@ -2403,10 +2403,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          postOffice.startExpiryScanner();
       }
 
-      try {
-         injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, shutdownOnCriticalIO));
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
+      if (configuration.getMaxDiskUsage() != -1) {
+         try {
+            injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, shutdownOnCriticalIO));
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
+         }
       }
    }
 
