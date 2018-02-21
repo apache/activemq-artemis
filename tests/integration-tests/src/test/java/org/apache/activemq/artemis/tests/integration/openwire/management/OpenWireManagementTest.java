@@ -110,7 +110,7 @@ public class OpenWireManagementTest extends OpenWireTestBase {
 
 
       String[] addresses = serverControl.getAddressNames();
-      assertEquals(3, addresses.length);
+      assertEquals(4, addresses.length);
       for (String addr : addresses) {
          assertFalse(addr.startsWith(AdvisorySupport.ADVISORY_TOPIC_PREFIX));
       }
