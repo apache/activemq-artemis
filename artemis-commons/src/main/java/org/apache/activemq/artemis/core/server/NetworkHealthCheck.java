@@ -380,7 +380,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          if (error) {
             ActiveMQUtilLogger.LOGGER.failedToReadFromStream(inputLine);
          } else {
-            logger.trace(inputLine);
+            logger.debug(inputLine);
          }
       }
 

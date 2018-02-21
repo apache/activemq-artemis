@@ -34,6 +34,7 @@ under the License.
     <name>Artemis Tomcat JNDI Resources Example</name>
 
     <properties>
+        <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <projectBaseUri>${project.baseUri}</projectBaseUri>
         <java.version>1.6</java.version>
