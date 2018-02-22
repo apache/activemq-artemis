@@ -211,7 +211,7 @@ public interface Configuration {
 
    /**
     * Returns whether graceful shutdown is enabled for this server. <br>
-    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_GRACEFUL_SHUTDOWN_ENABLED}.
     */
    boolean isGracefulShutdownEnabled();
 
