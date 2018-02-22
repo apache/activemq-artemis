@@ -548,24 +548,12 @@ public class ManagementServiceImpl implements ManagementService {
        */
       messagingServer.registerActivateCallback(new ActivateCallback() {
          @Override
-         public void preActivate() {
-         }
-
-         @Override
          public void activated() {
             try {
                messagingServer.addAddressInfo(new AddressInfo(managementNotificationAddress, RoutingType.MULTICAST));
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.unableToCreateManagementNotificationAddress(managementNotificationAddress, e);
             }
-         }
-
-         @Override
-         public void deActivate() {
-         }
-
-         @Override
-         public void activationComplete() {
          }
       });
    }
