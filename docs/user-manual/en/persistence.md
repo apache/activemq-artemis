@@ -67,9 +67,7 @@ implementations. Apache ActiveMQ Artemis ships with two implementations:
     installed). For instructions on how to install libaio please see Installing AIO section.
 
     Also, please note that AIO will only work with the following file
-    systems: ext2, ext3, ext4, jfs, xfs. With other file systems, e.g.
-    NFS it may appear to work, but it will fall back to a slower
-    synchronous behaviour. Don't put the journal on a NFS share!
+    systems: ext2, ext3, ext4, jfs, xfs and NFSV4.
 
     For more information on libaio please see [lib AIO](libaio.md).
 
