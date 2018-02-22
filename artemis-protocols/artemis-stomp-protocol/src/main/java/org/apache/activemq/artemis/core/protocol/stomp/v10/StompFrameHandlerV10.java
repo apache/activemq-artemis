@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp.v10;
 
+import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -29,8 +31,6 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompVersions;
 import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandler;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-
-import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements FrameEventListener {
 
@@ -52,27 +52,36 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       String clientID = headers.get(Stomp.Headers.Connect.CLIENT_ID);
       String requestID = headers.get(Stomp.Headers.Connect.REQUEST_ID);
 
-      connection.setClientID(clientID);
-      if (connection.validateUser(login, passcode, connection)) {
-         connection.setValid(true);
+      try {
+         connection.setClientID(clientID);
+         if (connection.validateUser(login, passcode, connection)) {
+            connection.setValid(true);
 
-         response = new StompFrameV10(Stomp.Responses.CONNECTED);
+            // Create session after validating user - this will cache the session in the
+            // protocol manager
+            connection.getSession();
 
-         if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION)) {
-            response.addHeader(Stomp.Headers.Connected.VERSION, StompVersions.V1_0.toString());
+            response = new StompFrameV10(Stomp.Responses.CONNECTED);
+
+            if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION)) {
+               response.addHeader(Stomp.Headers.Connected.VERSION, StompVersions.V1_0.toString());
+            }
+
+            response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
+
+            if (requestID != null) {
+               response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
+            }
+         } else {
+            // not valid
+            response = new StompFrameV10(Stomp.Responses.ERROR);
+            String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
+            response.setBody(responseText);
+            response.setNeedsDisconnect(true);
+            response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
          }
-
-         response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
-
-         if (requestID != null) {
-            response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
-         }
-      } else {
-         //not valid
-         response = new StompFrameV10(Stomp.Responses.ERROR);
-         String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
-         response.setBody(responseText);
-         response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
+      } catch (ActiveMQStompException e) {
+         response = e.getFrame();
       }
       return response;
    }
@@ -90,6 +99,9 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       String durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
       if (durableSubscriptionName == null) {
          durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME);
+      }
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME);
       }
 
       String subscriptionID = null;
