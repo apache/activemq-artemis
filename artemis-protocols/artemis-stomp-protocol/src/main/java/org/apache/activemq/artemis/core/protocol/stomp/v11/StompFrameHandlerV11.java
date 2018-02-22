@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp.v11;
 
+import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,8 +38,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-
-import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements FrameEventListener {
 
@@ -71,6 +71,10 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          connection.setClientID(clientID);
          if (connection.validateUser(login, passcode, connection)) {
             connection.setValid(true);
+
+            // Create session after validating user - this will cache the session in the
+            // protocol manager
+            connection.getSession();
 
             response = this.createStompFrame(Stomp.Responses.CONNECTED);
 
@@ -153,6 +157,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       String durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
       if (durableSubscriptionName == null) {
          durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME);
+      }
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME);
       }
 
       String subscriptionID = null;
