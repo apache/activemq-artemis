@@ -155,7 +155,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
 	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
-            if (mbean) {
+            if (mbean.includes("undefined")) {
+                onBadMBean();
+            } else if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);
                 console.log("Filter string: " + filter);
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [filter, $scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable, { error: onError }));
@@ -163,6 +165,9 @@ var ARTEMIS = (function(ARTEMIS) {
         };
         function onError() {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
+        }
+        function onBadMBean() {
+            Core.notification("error", "Could not retrieve " + objectType + " list. Wrong MBean selected.");
         }
         function populateTable(response) {
             var data = JSON.parse(response.value);
