@@ -351,18 +351,6 @@ public final class JdbcNodeManager extends NodeManager {
 
       return new ActivateCallback() {
          @Override
-         public void preActivate() {
-         }
-
-         @Override
-         public void activated() {
-         }
-
-         @Override
-         public void deActivate() {
-         }
-
-         @Override
          public void activationComplete() {
             try {
                //state can be written only if the live renew task is running

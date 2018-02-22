@@ -109,18 +109,6 @@ public final class InVMNodeManager extends NodeManager {
       liveLock.acquire();
       return new ActivateCallback() {
          @Override
-         public void preActivate() {
-         }
-
-         @Override
-         public void activated() {
-         }
-
-         @Override
-         public void deActivate() {
-         }
-
-         @Override
          public void activationComplete() {
             try {
                state = LIVE;
