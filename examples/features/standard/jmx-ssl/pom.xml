@@ -84,7 +84,10 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.JMXExample</clientClass>
+                     <args>
+                        <arg>${project.build.outputDirectory}/activemq/server0/</arg>
+                     </args>
+                     <clientClass>org.apache.activemq.artemis.jms.example.JMXOverSSLExample</clientClass>
                   </configuration>
                </execution>
                <execution>
@@ -103,7 +106,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>jmx</artifactId>
+                  <artifactId>jmx-ssl</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>

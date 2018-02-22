@@ -67,6 +67,7 @@ under the License.
             <module>jms-context</module>
             <module>jms-shared-consumer</module>
             <module>jmx</module>
+            <module>jmx-ssl</module>
             <module>large-message</module>
             <module>last-value-queue</module>
             <module>management</module>
@@ -135,6 +136,7 @@ under the License.
             <module>jms-context</module>
             <module>jms-shared-consumer</module>
             <module>jmx</module>
+            <module>jmx-ssl</module>
             <module>large-message</module>
             <module>last-value-queue</module>
             <module>management</module>
