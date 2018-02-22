@@ -1671,7 +1671,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseGroupingHandlerConfiguration(final Element node, final Configuration mainConfiguration) {
       String name = node.getAttribute("name");
       String type = getString(node, "type", null, Validators.NOT_NULL_OR_EMPTY);
-      String address = getString(node, "address", null, Validators.NOT_NULL_OR_EMPTY);
+      String address = getString(node, "address", "", Validators.NO_CHECK);
       Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
       Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
       Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);
