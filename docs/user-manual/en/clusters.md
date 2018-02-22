@@ -479,12 +479,12 @@ In the above cluster connection all parameters have been explicitly
 specified. The following shows all the available configuration options
 
 -   `address` Each cluster connection only applies to addresses that
-    match the specified address field. An address is matched on the
+    match the specified `address` field. An address is matched on the
     cluster connection when it begins with the string specified in this
-    field. The address field on a cluster connection also supports comma
-    separated lists and an exclude syntax '!'. To prevent an address
+    field. The `address` field on a cluster connection also supports comma
+    separated lists and an exclude syntax `!`. To prevent an address
     from being matched on this cluster connection, prepend a cluster
-    connection address string with '!'.
+    connection address string with `!`.
 
     In the case shown above the cluster connection will load balance
     messages sent to all addresses (since it's empty).
@@ -521,8 +521,6 @@ specified. The following shows all the available configuration options
         inclusion.
     -   Address matching on cluster connections does not support
         wild-card matching.
-
-    This parameter is mandatory.
 
 -   `connector-ref`. This is the connector which will be sent to other
     nodes in the cluster so they have the correct cluster topology.

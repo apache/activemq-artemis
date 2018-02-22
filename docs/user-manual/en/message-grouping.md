@@ -99,13 +99,8 @@ have its own grouping handler and when a messages is sent with a group
 id assigned, the handlers will decide between them which route the
 message should take.
 
-There are 2 types of handlers; Local and Remote. Each cluster should
-choose 1 node to have a local grouping handler and all the other nodes
-should have remote handlers- it's the local handler that actually makes
-the decision as to what route should be used, all the other remote
-handlers converse with this. Here is a sample config for both types of
-handler, this should be configured in the *broker.xml*
-file.
+Here is a sample config for each type of handler. This should be 
+configured in `broker.xml`.
 
     <grouping-handler name="my-grouping-handler">
        <type>LOCAL</type>
@@ -118,12 +113,20 @@ file.
        <address>jms</address>
        <timeout>5000</timeout>
     </grouping-handler>
+    
+ - `type` two types of handlers are supported - `LOCAL` and `REMOTE`. 
+   Each cluster should choose 1 node to have a `LOCAL` grouping handler
+   and all the other nodes should have `REMOTE` handlers. It's the `LOCAL`
+   handler that actually makes the decision as to what route should be
+   used, all the other `REMOTE` handlers converse with this. 
 
-The *address* attribute refers to a [cluster connection and the address
-it uses](clusters.md#configuring-cluster-connections), refer to the clustering section on how to
-configure clusters. The *timeout* attribute referees to how long to wait
-for a decision to be made, an exception will be thrown during the send
-if this timeout is reached, this ensures that strict ordering is kept.
+ - `address` refers to a [cluster connection and the address
+   it uses](clusters.md#configuring-cluster-connections). Refer to the 
+   clustering section on how to configure clusters.
+    
+ - `timeout` how long to wait for a decision to be made. An exception 
+   will be thrown during the send if this timeout is reached, this 
+   ensures that strict ordering is kept.
 
 The decision as to where a message should be routed to is initially
 proposed by the node that receives the message. The node will pick a
