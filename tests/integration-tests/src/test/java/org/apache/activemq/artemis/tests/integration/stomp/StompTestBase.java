@@ -442,9 +442,28 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    public static ClientStompFrame subscribeTopic(StompClientConnection conn,
+         String subscriptionId,
+         String ack,
+         String durableId,
+         boolean receipt,
+         boolean noLocal) throws IOException, InterruptedException {
+      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, receipt, noLocal);
+   }
+
+   public static ClientStompFrame subscribeTopicLegacyActiveMQ(StompClientConnection conn,
+         String subscriptionId,
+         String ack,
+         String durableId,
+         boolean receipt,
+         boolean noLocal) throws IOException, InterruptedException {
+      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME, receipt, noLocal);
+   }
+
+   public static ClientStompFrame subscribeTopic(StompClientConnection conn,
                                           String subscriptionId,
                                           String ack,
                                           String durableId,
+                                          String durableIdHeader,
                                           boolean receipt,
                                           boolean noLocal) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
@@ -457,7 +476,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          frame.addHeader(Stomp.Headers.Subscribe.ACK_MODE, ack);
       }
       if (durableId != null) {
-         frame.addHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, durableId);
+         frame.addHeader(durableIdHeader, durableId);
       }
       String uuid = UUID.randomUUID().toString();
       if (receipt) {
@@ -492,13 +511,30 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    public static ClientStompFrame unsubscribe(StompClientConnection conn,
+         String subscriptionId,
+         String destination,
+         boolean receipt,
+         boolean durable) throws IOException, InterruptedException {
+      return unsubscribe(conn, subscriptionId, Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, destination, receipt, durable);
+   }
+
+   public static ClientStompFrame unsubscribeLegacyActiveMQ(StompClientConnection conn,
+         String subscriptionId,
+         String destination,
+         boolean receipt,
+         boolean durable) throws IOException, InterruptedException {
+      return unsubscribe(conn, subscriptionId, Stomp.Headers.Unsubscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME, destination, receipt, durable);
+   }
+
+   public static ClientStompFrame unsubscribe(StompClientConnection conn,
                                        String subscriptionId,
+                                       String subscriptionIdHeader,
                                        String destination,
                                        boolean receipt,
                                        boolean durable) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE);
       if (durable && subscriptionId != null) {
-         frame.addHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, subscriptionId);
+         frame.addHeader(subscriptionIdHeader, subscriptionId);
       } else if (!durable && subscriptionId != null) {
          frame.addHeader(Stomp.Headers.Unsubscribe.ID, subscriptionId);
       }
