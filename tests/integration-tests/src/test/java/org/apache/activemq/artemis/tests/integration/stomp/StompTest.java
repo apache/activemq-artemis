@@ -1216,10 +1216,51 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testDurableSubscriberWithReconnectionLegacy() throws Exception {
+      conn.connect(defUser, defPass, "myclientid");
+      subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
+
+      conn.disconnect();
+
+      Thread.sleep(500);
+
+      // send the message when the durable subscriber is disconnected
+      sendJmsMessage(getName(), topic);
+
+      conn.destroy();
+      conn = StompClientConnectionFactory.createClientConnection(uri);
+      conn.connect(defUser, defPass, "myclientid");
+
+      subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
+
+      ClientStompFrame frame = conn.receiveFrame(3000);
+      assertNotNull("Should have received a message from the durable subscription", frame);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals(getName(), frame.getBody());
+
+      unsubscribeLegacyActiveMQ(conn, null, getTopicPrefix() + getTopicName(), true, true);
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testDurableSubscriber() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopic(conn, null, null, getName(), true);
       ClientStompFrame response = subscribeTopic(conn, null, null, getName(), true);
+
+      // creating a subscriber with the same durable-subscriber-name must fail
+      Assert.assertEquals(Stomp.Responses.ERROR, response.getCommand());
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testDurableSubscriberLegacySubscriptionHeader() throws Exception {
+      conn.connect(defUser, defPass, "myclientid");
+      subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
+      ClientStompFrame response = subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
 
       // creating a subscriber with the same durable-subscriber-name must fail
       Assert.assertEquals(Stomp.Responses.ERROR, response.getCommand());
@@ -1241,6 +1282,26 @@ public class StompTest extends StompTestBase {
 
       conn.connect(defUser, defPass, "myclientid");
       unsubscribe(conn, getName(), getTopicPrefix() + getTopicName(), false, true);
+      conn.disconnect();
+      Thread.sleep(500);
+
+      assertNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
+   }
+
+   @Test
+   public void testDurableUnSubscribeLegacySubscriptionHeader() throws Exception {
+      conn.connect(defUser, defPass, "myclientid");
+      subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
+      conn.disconnect();
+      Thread.sleep(500);
+
+      assertNotNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
+
+      conn.destroy();
+      conn = StompClientConnectionFactory.createClientConnection(uri);
+
+      conn.connect(defUser, defPass, "myclientid");
+      unsubscribeLegacyActiveMQ(conn, getName(), getTopicPrefix() + getTopicName(), false, true);
       conn.disconnect();
       Thread.sleep(500);
 

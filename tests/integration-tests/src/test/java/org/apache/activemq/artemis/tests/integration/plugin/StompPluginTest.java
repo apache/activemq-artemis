@@ -49,12 +49,24 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -65,6 +77,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 public class StompPluginTest extends StompTestBase {
 
@@ -72,6 +85,11 @@ public class StompPluginTest extends StompTestBase {
    public static final String CLIENT_ID = "myclientid";
 
    private StompClientConnectionV12 conn;
+
+   @Parameterized.Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
+   }
 
    @Override
    @Before
@@ -96,57 +114,71 @@ public class StompPluginTest extends StompTestBase {
 
    private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
+   private final AtomicBoolean stompBeforeCreateSession = new AtomicBoolean();
+   private final AtomicBoolean stompBeforeRemoveSession = new AtomicBoolean();
 
    @Override
    protected JMSServerManager createServer() throws Exception {
       JMSServerManager server = super.createServer();
       server.getActiveMQServer().registerBrokerPlugin(verifier);
+      server.getActiveMQServer().registerBrokerPlugin(new ActiveMQServerPlugin() {
+
+         @Override
+         public void beforeCreateSession(String name, String username, int minLargeMessageSize,
+               RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge,
+               boolean xa, String defaultAddress, SessionCallback callback, boolean autoCreateQueues,
+               OperationContext context, Map<SimpleString, RoutingType> prefixes) throws ActiveMQException {
+
+            if (connection instanceof StompConnection) {
+               stompBeforeCreateSession.set(true);
+            }
+         }
+
+         @Override
+         public void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
+            if (session.getRemotingConnection() instanceof StompConnection) {
+               stompBeforeRemoveSession.set(true);
+            }
+         }
+      });
       return server;
    }
 
    @Test
    public void testSendAndReceive() throws Exception {
 
-      // subscribe
-      //StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
-      try {
-         URI uri = new URI("ws+v12.stomp://localhost:61613");
-         StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
-         newConn.connect(defUser, defPass);
-         subscribe(newConn, "a-sub");
+      URI uri = new URI(scheme + "://localhost:61613");
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
+      newConn.connect(defUser, defPass);
+      subscribe(newConn, "a-sub");
 
-         send(newConn, getQueuePrefix() + getQueueName(), "text/plain", "Hello World 1!");
-         ClientStompFrame frame = newConn.receiveFrame();
+      send(newConn, getQueuePrefix() + getQueueName(), "text/plain", "Hello World 1!");
+      ClientStompFrame frame = newConn.receiveFrame();
 
-         System.out.println("received " + frame);
-         Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      System.out.println("received " + frame);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
-         verifier.validatePluginMethodsAtLeast(1, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-                                               AFTER_DELIVER);
+      verifier.validatePluginMethodsAtLeast(1, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
+                                            AFTER_DELIVER);
 
 
-         // unsub
-         unsubscribe(newConn, "a-sub");
+      // unsub
+      unsubscribe(newConn, "a-sub");
 
-         newConn.disconnect();
+      newConn.disconnect();
 
-         verifier.validatePluginMethodsEquals(0, MESSAGE_EXPIRED, BEFORE_DEPLOY_BRIDGE, AFTER_DEPLOY_BRIDGE, BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
-         verifier.validatePluginMethodsAtLeast(1, AFTER_CREATE_CONNECTION, AFTER_DESTROY_CONNECTION, BEFORE_CREATE_SESSION,
-                                               AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
-                                               AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
-                                               MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-                                               AFTER_DELIVER, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS, BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
-
-      } catch (Throwable e) {
-         fail(e.getMessage());
-      }
-
+      verifier.validatePluginMethodsEquals(0, MESSAGE_EXPIRED, BEFORE_DEPLOY_BRIDGE, AFTER_DEPLOY_BRIDGE, BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
+      verifier.validatePluginMethodsAtLeast(1, AFTER_CREATE_CONNECTION, AFTER_DESTROY_CONNECTION, BEFORE_CREATE_SESSION,
+                                            AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
+                                            AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
+                                            MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
+                                            AFTER_DELIVER, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS, BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
    }
 
    @Test
    public void testStompAutoCreateAddress() throws Exception {
 
-      URI uri = new URI("ws+v12.stomp://localhost:61613");
+      URI uri = new URI(scheme + "://localhost:61613");
       StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
       newConn.connect(defUser, defPass);
 
@@ -161,4 +193,22 @@ public class StompPluginTest extends StompTestBase {
 
    }
 
+   @Test
+   public void testConnect() throws Exception {
+
+      URI uri = new URI(scheme + "://localhost:61613");
+      StompClientConnection newConn = StompClientConnectionFactory.createClientConnection(uri);
+      newConn.connect(defUser, defPass);
+
+      //Make sure session is created on connect
+      assertTrue(stompBeforeCreateSession.get());
+
+      newConn.disconnect();
+
+      Thread.sleep(500);
+
+      //Make sure session is removed on disconnect
+      assertTrue(stompBeforeRemoveSession.get());
+
+   }
 }
