@@ -195,21 +195,6 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       @Override
       public ActivateCallback startLiveNode() throws Exception {
          return new ActivateCallback() {
-            @Override
-            public void preActivate() {
-            }
-
-            @Override
-            public void activated() {
-            }
-
-            @Override
-            public void deActivate() {
-            }
-
-            @Override
-            public void activationComplete() {
-            }
          };
       }
 

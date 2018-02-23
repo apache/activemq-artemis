@@ -369,6 +369,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public Message copy() {
+      checkProperties();
       checkEncode();
       return new CoreMessage(this);
    }
@@ -437,7 +438,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setAddress(SimpleString address) {
-      if (validBuffer && !address.equals(this.address)) {
+      if (address == null && this.address == null) {
+         // no-op so just return
+         return this;
+      }
+      if (validBuffer && (address == null || !address.equals(this.address))) {
          messageChanged();
       }
       this.address = address;
@@ -932,8 +937,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public CoreMessage putObjectProperty(final SimpleString key,
                                         final Object value) throws ActiveMQPropertyConversionException {
-      messageChanged();
       checkProperties();
+      messageChanged();
       TypedProperties.setObjectProperty(key, value, properties);
       return this;
    }
@@ -1124,7 +1129,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          checkProperties();
          return "CoreMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority()  +
             ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
-            ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties + "]@" + System.identityHashCode(this);
+            ", durable=" + durable + ", address=" + getAddress() + ",size=" + getPersistentSize() + ",properties=" + properties + "]@" + System.identityHashCode(this);
       } catch (Throwable e) {
          logger.warn("Error creating String for message: ", e);
          return "ServerMessage[messageID=" + messageID + "]";
@@ -1145,5 +1150,10 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    private SimpleString.StringSimpleStringPool getPropertyValuesPool() {
       return coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesStringSimpleStringPools().getPropertyValuesPool();
+   }
+
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
+      return getEncodeSize();
    }
 }

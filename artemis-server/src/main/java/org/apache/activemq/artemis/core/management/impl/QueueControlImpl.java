@@ -227,6 +227,42 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getPersistentSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getPersistentSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableMessageCount() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableMessageCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurablePersistentSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurablePersistentSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public int getConsumerCount() {
       checkStarted();
 
@@ -245,6 +281,42 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          return queue.getDeliveringCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDeliveringSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDeliveringSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getDurableDeliveringCount() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableDeliveringCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableDeliveringSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableDeliveringSize();
       } finally {
          blockOnIO();
       }
@@ -323,6 +395,42 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getScheduledSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getScheduledSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableScheduledCount() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableScheduledCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableScheduledSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableScheduledSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String getDeadLetterAddress() {
       checkStarted();
 
@@ -376,6 +484,30 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          return queue.isPurgeOnNoConsumers();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isExclusive() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isExclusive();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isLastValue() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isLastValue();
       } finally {
          blockOnIO();
       }
@@ -974,7 +1106,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          long index = 0;
          long start = (page - 1) * pageSize;
-         long end = Math.min((long)(page * pageSize), queue.getMessageCount());
+         long end = Math.min(page * pageSize, queue.getMessageCount());
 
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter thefilter = FilterImpl.createFilter(filter);

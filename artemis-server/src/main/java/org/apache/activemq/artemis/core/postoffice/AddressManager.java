@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -75,5 +76,7 @@ public interface AddressManager {
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
    AddressInfo getAddressInfo(SimpleString address);
+
+   void updateMessageLoadBalancingTypeForAddress(SimpleString address, MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 
 }

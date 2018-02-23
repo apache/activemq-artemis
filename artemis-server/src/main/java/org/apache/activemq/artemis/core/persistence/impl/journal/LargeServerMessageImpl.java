@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -34,6 +33,8 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.Unpooled;
 
 public final class LargeServerMessageImpl extends CoreMessage implements LargeServerMessage {
 
@@ -345,16 +346,20 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    }
 
    @Override
-   public String toString() {
-      return "LargeServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() +
-         ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
-         ", durable=" + durable + ", address=" + getAddress() + ",properties=" + (properties != null ? properties.toString() : "") + "]@" + System.identityHashCode(this);
-   }
+   public long getPersistentSize() throws ActiveMQException {
+      long size = super.getPersistentSize();
+      size += getBodyEncoder().getLargeBodySize();
 
+      return size;
+   }
    @Override
-   protected void finalize() throws Throwable {
-      releaseResources();
-      super.finalize();
+   public String toString() {
+      try {
+         return "LargeServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() + ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) + ", durable=" + durable + ", address=" + getAddress() + ",size=" + getPersistentSize() + ",properties=" + (properties != null ? properties.toString() : "") + "]@" + System.identityHashCode(this);
+      } catch (Exception e) {
+         e.printStackTrace();
+         return "LargeServerMessage[messageID=" + messageID + "]";
+      }
    }
 
    // Private -------------------------------------------------------

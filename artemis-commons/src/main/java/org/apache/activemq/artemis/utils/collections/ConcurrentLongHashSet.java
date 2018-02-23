@@ -165,7 +165,7 @@ public class ConcurrentLongHashSet {
       // Keys and values are stored interleaved in the table array
       private long[] table;
 
-      private int capacity;
+      private volatile int capacity;
       private volatile int size;
       private int usedBuckets;
       private int resizeThreshold;
@@ -374,9 +374,9 @@ public class ConcurrentLongHashSet {
             }
          }
 
-         capacity = newCapacity;
          table = newTable;
          usedBuckets = size;
+         capacity = newCapacity;
          resizeThreshold = (int) (capacity * SetFillFactor);
       }
 

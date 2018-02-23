@@ -427,6 +427,28 @@ Open the file <broker-instance>/etc/broker.xml for editing.
 </configuration>
 ```
 
+#### Pre-configuring a queue as an exclusive consumer queue
+
+If a user requires to pre-create a queue that routes exclusively to one active consumer the **exclusive** flag can be enabled on the queue.  
+When **exclusive** is set to **true**.  The queue will route messages to the a single active consumer.  When the active consumer that is being routed to is detached from the queue, if another active consumer exist, one will be chosen and routing will now be exclusive to it. 
+
+See [Exclusive Queue](exclusive.md) for further information.
+
+Open the file <broker-instance>/etc/broker.xml for editing.
+
+```xml
+<configuration ...>
+  <core ...>
+    ...
+    <address name="foo.bar">
+      <multicast>
+        <queue name="orders1" exclusive="true"/>
+      </multicast>
+    </address>
+  </core>
+</configuration>
+```
+
 ## Additional Information: Protocol Managers, Address
 
 A protocol manager maps protocol specific concepts down to the Apache ActiveMQ Artemis core model of addresses, queues and routing types. For example, when a client sends a MQTT subscription packet with the addresses 

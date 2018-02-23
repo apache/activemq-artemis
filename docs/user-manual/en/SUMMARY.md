@@ -33,6 +33,7 @@
 * [Paging](paging.md)
 * [Scheduled Messages](scheduled-messages.md)
 * [Last-Value Queues](last-value-queues.md)
+* [Exclusive Queues](exclusive-queues.md)
 * [Message Grouping](message-grouping.md)
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)

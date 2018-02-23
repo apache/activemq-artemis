@@ -467,12 +467,12 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public long storePageCounter(final long txID, final long queueID, final long value) throws Exception {
+   public long storePageCounter(final long txID, final long queueID, final long value, final long size) throws Exception {
       return 0;
    }
 
    @Override
-   public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
+   public long storePendingCounter(long queueID, long pageID) throws Exception {
       return -1;
    }
 
@@ -489,12 +489,12 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public long storePageCounterInc(final long txID, final long queueID, final int add) throws Exception {
+   public long storePageCounterInc(final long txID, final long queueID, final int add, final long size) throws Exception {
       return 0;
    }
 
    @Override
-   public long storePageCounterInc(final long queueID, final int add) throws Exception {
+   public long storePageCounterInc(final long queueID, final int add, final long size) throws Exception {
       return 0;
    }
 

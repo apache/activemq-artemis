@@ -41,7 +41,7 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
          return true;
       switch (f) {
          case ID:
-            return matches(consumer.getID());
+            return matches(consumer.getSequentialID());
          case SESSION_ID:
             return matches(consumer.getSessionID());
          case USER:

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
@@ -37,6 +38,8 @@ public interface MessageReference {
    boolean isPaged();
 
    Message getMessage();
+
+   long getMessageID();
 
    /**
     * We define this method aggregation here because on paging we need to hold the original estimate,
@@ -97,4 +100,14 @@ public interface MessageReference {
    void setAlreadyAcked();
 
    boolean isAlreadyAcked();
+
+   /**
+    * This is the size of the message when persisted on disk which is used for metrics tracking
+    * Note that even if the message itself is not persisted on disk (ie non-durable) this value is
+    * still used for metrics tracking for the amount of data on a queue
+    *
+    * @return
+    * @throws ActiveMQException
+    */
+   long getPersistentSize() throws ActiveMQException;
 }

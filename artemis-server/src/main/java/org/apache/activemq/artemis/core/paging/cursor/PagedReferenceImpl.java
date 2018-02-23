@@ -53,6 +53,14 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private Object protocolData;
 
+   private Boolean largeMessage;
+
+   private long transactionID = -1;
+
+   private long messageID = -1;
+
+   private long messageSize = -1;
+
    @Override
    public Object getProtocolData() {
       return protocolData;
@@ -95,6 +103,19 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
       this.position = position;
       this.message = new WeakReference<>(message);
       this.subscription = subscription;
+      if (message != null) {
+         this.largeMessage = message.getMessage().isLargeMessage();
+         this.transactionID = message.getTransactionID();
+         this.messageID = message.getMessage().getMessageID();
+
+         //pre-cache the message size so we don't have to reload the message later if it is GC'd
+         getPersistentSize();
+      } else {
+         this.largeMessage = null;
+         this.transactionID = -1;
+         this.messageID = -1;
+         this.messageSize = -1;
+      }
    }
 
    @Override
@@ -182,7 +203,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void handled() {
-      getQueue().referenceHandled();
+      getQueue().referenceHandled(this);
    }
 
    @Override
@@ -254,6 +275,42 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    @Override
    public Long getConsumerId() {
       return this.consumerId;
+   }
+
+   @Override
+   public boolean isLargeMessage() {
+      if (largeMessage == null && message != null) {
+         largeMessage = getMessage().isLargeMessage();
+      }
+      return largeMessage;
+   }
+
+   @Override
+   public long getTransactionID() {
+      if (transactionID < 0) {
+         transactionID = getPagedMessage().getTransactionID();
+      }
+      return transactionID;
+   }
+
+   @Override
+   public long getMessageID() {
+      if (messageID < 0) {
+         messageID = getPagedMessage().getMessage().getMessageID();
+      }
+      return messageID;
+   }
+
+   @Override
+   public long getPersistentSize() {
+      if (messageSize == -1) {
+         try {
+            messageSize = getPagedMessage().getPersistentSize();
+         } catch (Throwable e) {
+            ActiveMQServerLogger.LOGGER.errorCalculatePersistentSize(e);
+         }
+      }
+      return messageSize;
    }
 
 }

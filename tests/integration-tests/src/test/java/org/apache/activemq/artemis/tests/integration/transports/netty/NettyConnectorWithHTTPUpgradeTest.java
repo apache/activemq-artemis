@@ -91,7 +91,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
 
    private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");
 
-   private static final int HTTP_PORT = 8080;
+   private static final int HTTP_PORT = 8789;
 
    private Configuration conf;
    private ActiveMQServer server;

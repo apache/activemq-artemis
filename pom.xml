@@ -41,10 +41,12 @@
       <module>artemis-selector</module>
       <module>artemis-core-client</module>
       <module>artemis-core-client-all</module>
+      <module>artemis-core-client-osgi</module>
       <module>artemis-server</module>
       <module>artemis-junit</module>
       <module>artemis-jms-client</module>
       <module>artemis-jms-client-all</module>
+      <module>artemis-jms-client-osgi</module>
       <module>artemis-jms-server</module>
       <module>artemis-native</module>
       <module>artemis-journal</module>
@@ -73,6 +75,8 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
+      <karaf.version>4.0.6</karaf.version>
+      <pax.exam.version>4.9.1</pax.exam.version>
       <commons.config.version>2.1</commons.config.version>
       <commons.lang.version>3.0</commons.lang.version>
       <activemq5-version>5.14.5</activemq5-version>
@@ -139,7 +143,6 @@
       <skipConcurrentTests>true</skipConcurrentTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
-      <skipExtraTests>true</skipExtraTests>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -182,6 +185,10 @@
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
       <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
+
+      <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
+           This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
+      <testFailureIgnore>true</testFailureIgnore>
    </properties>
 
    <scm>
@@ -245,6 +252,12 @@
             <scope>test</scope>
             <!-- License: CPL 1.0 -->
             <!-- There are newer versions of the JUnit but they break our tests -->
+         </dependency>
+         <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
          </dependency>
 
          <!-- ### For MQTT Tests && Examples -->
@@ -685,6 +698,18 @@
             <!-- License: Public Domain -->
          </dependency>
 
+         <!-- needed by artemis-selector -->
+         <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>2.0.2</version>
+         </dependency>
+         <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.2</version>
+         </dependency>
+
          <dependency>
             <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-impl</artifactId>
@@ -974,16 +999,14 @@
             <skipExtraTests>false</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
-            <skipExtraTests>false</skipExtraTests>
          </properties>
       </profile>
       <profile>
          <!-- This will represent a subset of the tests
-              This is used on PR checks on the Jenkins instance at build.apache.org -->
+              This is used on PR checks -->
          <id>fast-tests</id>
          <modules>
             <module>artemis-dto</module>
-            <module>artemis-web</module>
             <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
@@ -995,7 +1018,6 @@
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
-            <module>artemis-rest</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
@@ -1006,11 +1028,10 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipConcurrentTests>false</skipConcurrentTests>
-            <skipRestTests>false</skipRestTests>
-            <skipExtraTests>true</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
             <skipCompatibilityTests>false</skipCompatibilityTests>
+            <testFailureIgnore>false</testFailureIgnore>
          </properties>
       </profile>
       <profile>
@@ -1399,7 +1420,7 @@
                <version>2.18.1</version>
                <configuration>
                   <forkMode>once</forkMode>
-                  <testFailureIgnore>true</testFailureIgnore>
+                  <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
                   <redirectTestOutputToFile>false</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
@@ -1571,6 +1592,7 @@
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <skip>${skipLicenseCheck}</skip>
                <excludes>
+                  <exclude>.travis.yml</exclude>
                   <exclude>**/footer.html</exclude>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>

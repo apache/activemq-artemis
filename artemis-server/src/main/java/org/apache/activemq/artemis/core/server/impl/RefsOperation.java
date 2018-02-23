@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -159,7 +160,9 @@ public class RefsOperation extends TransactionOperationAbstract {
 
       if (pagedMessagesToPostACK != null) {
          for (MessageReference refmsg : pagedMessagesToPostACK) {
-            decrementRefCount(refmsg);
+            if (((PagedReference) refmsg).isLargeMessage()) {
+               decrementRefCount(refmsg);
+            }
          }
       }
    }

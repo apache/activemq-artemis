@@ -48,6 +48,23 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isExclusive() {
+      // no-op
+      return false;
+   }
+
+   @Override
+   public void setExclusive(boolean value) {
+      // no-op
+   }
+
+   @Override
+   public boolean isLastValue() {
+      // no-op
+      return false;
+   }
+
+   @Override
    public void setMaxConsumer(int maxConsumers) {
 
    }
@@ -345,6 +362,21 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
       return messageCount;
    }
 
+   @Override
+   public long getPersistentSize() {
+      return 0;
+   }
+
+   @Override
+   public long getDurableMessageCount() {
+      return 0;
+   }
+
+   @Override
+   public long getDurablePersistentSize() {
+      return 0;
+   }
+
    public void setMessageCount(long messageCount) {
       this.messageCount = messageCount;
    }
@@ -436,6 +468,12 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public long getScheduledSize() {
+      // no-op
+      return 0;
+   }
+
+   @Override
    public List<MessageReference> getScheduledMessages() {
       // no-op
       return null;
@@ -505,7 +543,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void referenceHandled() {
+   public void referenceHandled(MessageReference ref) {
       // no-op
 
    }
@@ -667,6 +705,28 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void decDelivering(int size) {
+   public long getDeliveringSize() {
+      return 0;
    }
+
+   @Override
+   public int getDurableDeliveringCount() {
+      return 0;
+   }
+
+   @Override
+   public long getDurableDeliveringSize() {
+      return 0;
+   }
+
+   @Override
+   public int getDurableScheduledCount() {
+      return 0;
+   }
+
+   @Override
+   public long getDurableScheduledSize() {
+      return 0;
+   }
+
 }

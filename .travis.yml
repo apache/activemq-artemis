@@ -1,0 +1,11 @@
+sudo: false
+language: java
+install: true
+
+# use 'install' so smoke-tests will work
+# use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
+script: mvn -Pfast-tests -Pextra-tests -B install
+
+cache:
+  directories:
+  - $HOME/.m2

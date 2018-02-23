@@ -24,7 +24,10 @@
 
    <env name="ARTEMIS_HOME" value="${artemis.home}"/>
    <env name="ARTEMIS_INSTANCE" value="${artemis.instance}"/>
+   <env name="ARTEMIS_INSTANCE_ETC" value="${artemis.instance.etc}"/>
    <env name="ARTEMIS_INSTANCE_URI" value="${artemis.instance.uri}"/>
+   <env name="ARTEMIS_INSTANCE_ETC_URI" value="${artemis.instance.etc.uri.windows}"/>
+   <env name="ARTEMIS_DATA_DIR" value="${artemis.instance.data}"/>
 
    <logpath>${artemis.instance}\log</logpath>
    <logmode>roll</logmode>
@@ -55,14 +58,16 @@
    <argument>%ARTEMIS_HOME%\lib\artemis-boot.jar</argument>
    <argument>-Dartemis.home=%ARTEMIS_HOME%</argument>
    <argument>-Dartemis.instance=%ARTEMIS_INSTANCE%</argument>
+   <argument>-Ddata.dir=%ARTEMIS_DATA_DIR%</argument>
+   <argument>-Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"</argument>
    <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
-   <argument>-Dlogging.configuration=%ARTEMIS_INSTANCE_URI%/etc/logging.properties</argument>
-   <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config</argument>
+   <argument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</argument>
+   <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config</argument>
    <argument>-Dhawtio.realm=activemq</argument>
    <argument>-Dhawtio.offline="true"</argument>
    <argument>-Dhawtio.role=${role}</argument>
    <argument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</argument>
-   <argument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_URI%/etc/jolokia-access.xml</argument>
+   <argument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</argument>
 
    <!-- Debug args: Uncomment to enable debug
    <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>

@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -464,7 +465,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public QueueBinding updateQueue(SimpleString name,
                                    RoutingType routingType,
                                    Integer maxConsumers,
-                                   Boolean purgeOnNoConsumers) throws Exception {
+                                   Boolean purgeOnNoConsumers,
+                                   Boolean exclusive) throws Exception {
       synchronized (addressLock) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -503,6 +505,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (purgeOnNoConsumers != null && queue.isPurgeOnNoConsumers() != purgeOnNoConsumers.booleanValue()) {
             changed = true;
             queue.setPurgeOnNoConsumers(purgeOnNoConsumers);
+         }
+         if (exclusive != null && queue.isExclusive() != exclusive.booleanValue()) {
+            changed = true;
+            queue.setExclusive(exclusive);
          }
 
          if (changed) {
@@ -804,10 +810,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
-      }
-
       Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
 
       // TODO auto-create queues here?
@@ -829,6 +831,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't find any bindings for address=" + address + " on message=" + message);
          }
+      }
+
+      if (server.hasBrokerPlugins()) {
+         server.callBrokerPlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
       }
 
       if (logger.isTraceEnabled()) {
@@ -998,6 +1004,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public Set<SimpleString> getAddresses() {
       return addressManager.getAddresses();
+   }
+
+   @Override
+   public void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+      addressManager.updateMessageLoadBalancingTypeForAddress(address, messageLoadBalancingType);
    }
 
    @Override
@@ -1475,7 +1486,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       public void afterPrepare(final Transaction tx) {
          for (MessageReference ref : refs) {
             if (ref.isAlreadyAcked()) {
-               ref.getQueue().referenceHandled();
+               ref.getQueue().referenceHandled(ref);
                ref.getQueue().incrementMesssagesAdded();
             }
          }

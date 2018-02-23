@@ -10,14 +10,39 @@ are only interested by the latest value for a particular stock.
 
 ## Configuring Last-Value Queues
 
-Last-value queues are defined in the address-setting configuration:
+Last-Value queues can be pre configured at the address queue level
+
+```xml
+<configuration ...>
+  <core ...>
+    ...
+    <address name="foo.bar">
+      <multicast>
+        <queue name="orders1" last-value="true"/>
+      </multicast>
+    </address>
+  </core>
+</configuration>
+```
+
+Specified on creating a Queue by using the CORE api specifying the parameter `lastValue` to `true`. 
+
+Or on auto-create when using the JMS Client by using address parameters when creating the destination used by the consumer.
+
+    Queue queue = session.createQueue("my.destination.name?last-value=true");
+    Topic topic = session.createTopic("my.destination.name?last-value=true");
+
+Also the default for all queues under and address can be defaulted using the address-setting configuration:
 
     <address-setting match="lastValueQueue">
-       <last-value-queue>true</last-value-queue>
+       <default-last-value-queue>true</default-last-value-queue>
     </address-setting>
 
-By default, `last-value-queue` is false. Address wildcards can be used
-to configure Last-Value queues for a set of addresses (see [here](wildcard-syntax.md)).
+By default, `default-last-value-queue` is false. 
+Address wildcards can be used to configure Last-Value queues 
+for a set of addresses (see [here](wildcard-syntax.md)).
+
+Note that address-setting `last-value-queue` config is deprecated, please use `default-last-value-queue` instead.
 
 ## Using Last-Value Property
 

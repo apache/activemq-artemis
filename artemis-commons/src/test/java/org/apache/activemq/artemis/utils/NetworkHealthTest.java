@@ -37,6 +37,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assume.assumeTrue;
+
 public class NetworkHealthTest {
 
    private static final InetAddress INVALID_ADDRESS;
@@ -92,7 +94,7 @@ public class NetworkHealthTest {
 
    private void startHTTPServer() throws IOException {
       Assert.assertNull(httpServer);
-      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
+      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       httpServer = HttpServer.create(address, 100);
       httpServer.start();
       httpServer.createContext("/", new HttpHandler() {
@@ -127,6 +129,7 @@ public class NetworkHealthTest {
 
    @Test
    public void testCheck6() throws Exception {
+      assumeTrue(purePingWorks(IPV6_LOCAL));
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
       check.addComponent(component);
 
@@ -161,6 +164,7 @@ public class NetworkHealthTest {
 
    @Test
    public void testPings() throws Exception {
+      assumeTrue(purePingWorks("127.0.0.1"));
       doCheck("127.0.0.1");
    }
 
@@ -181,7 +185,16 @@ public class NetworkHealthTest {
 
    @Test
    public void testPingsIPV6() throws Exception {
+      assumeTrue(purePingWorks(IPV6_LOCAL));
       doCheck(IPV6_LOCAL);
+   }
+
+   private boolean purePingWorks(String localaddress) throws Exception {
+      try {
+         return addCheck(new NetworkHealthCheck(null, 100, 100)).purePing(InetAddress.getByName(localaddress));
+      } catch (Exception e) {
+         return false;
+      }
    }
 
    @Test
@@ -197,15 +210,15 @@ public class NetworkHealthTest {
 
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 1000));
 
-      Assert.assertTrue(check.check(new URL("http://localhost:8080")));
+      Assert.assertTrue(check.check(new URL("http://localhost:8787")));
 
       stopHTTPServer();
 
-      Assert.assertFalse(check.check(new URL("http://localhost:8080")));
+      Assert.assertFalse(check.check(new URL("http://localhost:8787")));
 
       check.addComponent(component);
 
-      URL url = new URL("http://localhost:8080");
+      URL url = new URL("http://localhost:8787");
       Assert.assertFalse(check.check(url));
 
       startHTTPServer();

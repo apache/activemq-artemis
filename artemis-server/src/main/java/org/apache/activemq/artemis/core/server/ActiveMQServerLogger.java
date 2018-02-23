@@ -1578,6 +1578,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222269, value = "Please use a fixed value for \"journal-pool-files\". Default changed per https://issues.apache.org/jira/browse/ARTEMIS-1628", format = Message.Format.MESSAGE_FORMAT)
    void useFixedValueOnJournalPoolFiles();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222270, value = "Unable to create management notification address: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void unableToCreateManagementNotificationAddress(SimpleString addressName, @Cause Exception e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
@@ -1600,7 +1604,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224006, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void invalidFilter(SimpleString filter, @Cause Throwable cause);
+   void invalidFilter(SimpleString filter);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224007, value = "page subscription = {0} error={1}", format = Message.Format.MESSAGE_FORMAT)
@@ -1911,4 +1915,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224088, value = "Timeout ({0} seconds) while handshaking has occurred.", format = Message.Format.MESSAGE_FORMAT)
    void handshakeTimeout(int timeout);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224089, value = "Failed to calculate persistent size", format = Message.Format.MESSAGE_FORMAT)
+   void errorCalculatePersistentSize(@Cause Throwable e);
 }

@@ -722,7 +722,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             refs.remove(message.getMessageID());
 
             // The delivering count should also be decreased as to avoid inconsistencies
-            ((QueueImpl) ref.getQueue()).decDelivering();
+            ((QueueImpl) ref.getQueue()).decDelivering(ref);
          }
 
          connectionFailed(e, false);

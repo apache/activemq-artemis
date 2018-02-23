@@ -506,6 +506,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       // Validate that the resolve method will work even with artemis.instance doesn't exist
 
       String oldProperty = System.getProperty("artemis.instance");
+      String oldEtc = System.getProperty("artemis.instance.etc");
 
       File tempFolder = null;
       try {
@@ -526,8 +527,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
+            System.clearProperty("artemis.instance.etc");
          } else {
             System.setProperty("artemis.instance", oldProperty);
+            System.setProperty("artemis.instance.etc", oldEtc);
          }
 
          if (tempFolder != null) {

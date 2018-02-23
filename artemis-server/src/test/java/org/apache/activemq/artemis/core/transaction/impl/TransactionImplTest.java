@@ -587,12 +587,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounter(long txID, long queueID, long value) throws Exception {
+      public long storePageCounter(long txID, long queueID, long value, long size) throws Exception {
          return 0;
       }
 
       @Override
-      public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
+      public long storePendingCounter(long queueID, long pageID) throws Exception {
          return 0;
       }
 
@@ -612,12 +612,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounterInc(long txID, long queueID, int add) throws Exception {
+      public long storePageCounterInc(long txID, long queueID, int add, long size) throws Exception {
          return 0;
       }
 
       @Override
-      public long storePageCounterInc(long queueID, int add) throws Exception {
+      public long storePageCounterInc(long queueID, int add, long size) throws Exception {
          return 0;
       }
 

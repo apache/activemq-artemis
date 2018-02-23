@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -60,6 +61,7 @@ public class LastValueQueue extends QueueImpl {
                          final boolean autoCreated,
                          final RoutingType routingType,
                          final Integer maxConsumers,
+                         final Boolean exclusive,
                          final Boolean purgeOnNoConsumers,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
@@ -68,7 +70,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    @Override
@@ -115,7 +117,7 @@ public class LastValueQueue extends QueueImpl {
             } else {
                // We keep the current ref and ack the one we are returning
 
-               super.referenceHandled();
+               super.referenceHandled(ref);
 
                try {
                   super.acknowledge(ref);
@@ -138,7 +140,7 @@ public class LastValueQueue extends QueueImpl {
    private void replaceLVQMessage(MessageReference ref, HolderReference hr) {
       MessageReference oldRef = hr.getReference();
 
-      referenceHandled();
+      referenceHandled(ref);
 
       try {
          oldRef.acknowledge();
@@ -160,6 +162,11 @@ public class LastValueQueue extends QueueImpl {
       }
 
       super.refRemoved(ref);
+   }
+
+   @Override
+   public boolean isLastValue() {
+      return true;
    }
 
    private class HolderReference implements MessageReference {
@@ -229,6 +236,11 @@ public class LastValueQueue extends QueueImpl {
       @Override
       public Message getMessage() {
          return ref.getMessage();
+      }
+
+      @Override
+      public long getMessageID() {
+         return getMessage().getMessageID();
       }
 
       @Override
@@ -311,6 +323,11 @@ public class LastValueQueue extends QueueImpl {
       @Override
       public Long getConsumerId() {
          return this.consumerId;
+      }
+
+      @Override
+      public long getPersistentSize() throws ActiveMQException {
+         return ref.getPersistentSize();
       }
    }
 
