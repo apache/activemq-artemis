@@ -199,7 +199,7 @@ public class ConcurrentLongHashMap<V> {
       private long[] keys;
       private V[] values;
 
-      private int capacity;
+      private volatile int capacity;
       private volatile int size;
       private int usedBuckets;
       private int resizeThreshold;
@@ -457,10 +457,10 @@ public class ConcurrentLongHashMap<V> {
             }
          }
 
-         capacity = newCapacity;
          keys = newKeys;
          values = newValues;
          usedBuckets = size;
+         capacity = newCapacity;
          resizeThreshold = (int) (capacity * MapFillFactor);
       }
 
