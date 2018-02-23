@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -73,6 +74,11 @@ public class GlobalPagingTest extends PagingTest {
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       return server;
+   }
+
+   // test doesn't make sense on GlobalPaging due to configuration issues
+   @Test @Ignore @Override
+   public void testPurge() throws Exception {
    }
 
    @Test
