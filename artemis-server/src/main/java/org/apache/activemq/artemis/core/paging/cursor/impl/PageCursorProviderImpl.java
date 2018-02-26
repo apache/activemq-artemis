@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -38,7 +39,6 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.SoftValueHashMap;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
@@ -244,12 +244,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    private void waitForFuture() {
-      FutureLatch future = new FutureLatch();
+      if (!executor.flush(10, TimeUnit.SECONDS)) {
+         ActiveMQServerLogger.LOGGER.timedOutStoppingPagingCursor(executor);
 
-      executor.execute(future);
-
-      while (!future.await(10000)) {
-         ActiveMQServerLogger.LOGGER.timedOutStoppingPagingCursor(future, executor);
       }
    }
 
