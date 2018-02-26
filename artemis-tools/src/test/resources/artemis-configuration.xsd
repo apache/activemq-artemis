@@ -379,6 +379,7 @@
                <xsd:sequence>
                   <xsd:element name="connector" type="transportType" maxOccurs="unbounded"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -392,6 +393,7 @@
                <xsd:sequence>
                   <xsd:element name="acceptor" type="transportType" maxOccurs="unbounded"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -405,6 +407,7 @@
                <xsd:sequence>
                   <xsd:element ref="broadcast-group" maxOccurs="unbounded" minOccurs="0"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -424,6 +427,7 @@
                      </xsd:annotation>
                   </xsd:element>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -437,6 +441,7 @@
                <xsd:sequence>
                   <xsd:element name="divert" type="divertType" maxOccurs="unbounded" minOccurs="0"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -486,9 +491,11 @@
                         <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
                      </xsd:complexType>
                   </xsd:element>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -502,6 +509,7 @@
                <xsd:sequence>
                   <xsd:element name="bridge" type="bridgeType" maxOccurs="unbounded" minOccurs="0"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -782,6 +790,7 @@
                                        </xsd:documentation>
                                     </xsd:annotation>
                                  </xsd:attribute>
+                                 <xsd:attributeGroup ref="xml:specialAttrs"/>
                               </xsd:complexType>
                            </xsd:element>
                         </xsd:sequence>
@@ -792,6 +801,7 @@
                               </xsd:documentation>
                            </xsd:annotation>
                         </xsd:attribute>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
                      </xsd:complexType>
                   </xsd:element>
                   <xsd:element name="security-setting-plugin" maxOccurs="1" minOccurs="0">
@@ -818,6 +828,7 @@
                                        </xsd:documentation>
                                     </xsd:annotation>
                                  </xsd:attribute>
+                                 <xsd:attributeGroup ref="xml:specialAttrs"/>
                               </xsd:complexType>
                            </xsd:element>
                         </xsd:sequence>
@@ -828,9 +839,11 @@
                               </xsd:documentation>
                            </xsd:annotation>
                         </xsd:attribute>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
                      </xsd:complexType>
                   </xsd:element>
                </xsd:choice>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -844,6 +857,7 @@
                <xsd:sequence>
                   <xsd:element ref="address-setting" maxOccurs="unbounded" minOccurs="0"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -857,6 +871,7 @@
                <xsd:sequence>
                   <xsd:element ref="resource-limit-setting" maxOccurs="unbounded" minOccurs="0"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -866,6 +881,7 @@
                   <xsd:element name="connector-service" type="connector-serviceType" maxOccurs="unbounded"
                                minOccurs="0"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
 
@@ -879,6 +895,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:element name="local-bind-address" type="xsd:string">
@@ -955,6 +972,7 @@
             </xsd:annotation>
          </xsd:attribute>
 
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
@@ -1020,12 +1038,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
    <xsd:element name="discovery-group-ref">
       <xsd:complexType>
          <xsd:attribute name="discovery-group-name" type="xsd:IDREF"/>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
@@ -1044,6 +1064,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="paramType">
@@ -1061,6 +1082,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <!-- BRIDGE CONFIGURATION -->
@@ -1238,6 +1260,7 @@
                   <xsd:sequence>
                      <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
                   </xsd:sequence>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
             <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="1">
@@ -1249,6 +1272,7 @@
                         </xsd:documentation>
                      </xsd:annotation>
                   </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
          </xsd:choice>
@@ -1261,6 +1285,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <!-- TRANSFORMER CONFIGURATION -->
@@ -1281,6 +1306,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:element name="property">
@@ -1299,6 +1325,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
@@ -1313,6 +1340,7 @@
             </xsd:element>
          </xsd:choice>
       </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="cluster-connectionUriType">
@@ -1330,6 +1358,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="cluster-connectionType">
@@ -1526,6 +1555,7 @@
                         </xsd:documentation>
                      </xsd:annotation>
                   </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
             <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="0">
@@ -1537,6 +1567,7 @@
                         </xsd:documentation>
                      </xsd:annotation>
                   </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
          </xsd:choice>
@@ -1555,6 +1586,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
 
@@ -1573,6 +1605,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <!-- DIVERT CONFIGURATION TYPE -->
@@ -1652,7 +1685,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
-
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="storeType">
@@ -1672,9 +1705,11 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:choice>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="fileStoreType">
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="databaseStoreType">
@@ -1722,6 +1757,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="haPolicyType">
@@ -1748,6 +1784,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:choice>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="haReplicationType">
@@ -1774,6 +1811,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:choice>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
 
@@ -1825,6 +1863,7 @@
                <xsd:sequence>
                   <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
          <xsd:element name="master" type="replicatedPolicyType" minOccurs="0" maxOccurs="1">
@@ -1842,6 +1881,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="haColocationSharedStoreType">
@@ -1896,6 +1936,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="haSharedStoreType">
@@ -1922,6 +1963,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:choice>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="haLiveOnlyPolicyType">
@@ -1934,6 +1976,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="replicatedPolicyType">
       <xsd:all>
@@ -1974,6 +2017,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="replicaPolicyType">
       <xsd:all>
@@ -2046,6 +2090,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="colocatedReplicaPolicyType">
       <xsd:all>
@@ -2090,6 +2135,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="sharedStoreMasterPolicyType">
       <xsd:all>
@@ -2108,6 +2154,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="sharedStoreSlavePolicyType">
       <xsd:all>
@@ -2150,6 +2197,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="colocatedPolicyType">
       <xsd:all>
@@ -2189,6 +2237,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
    <xsd:complexType name="scaleDownType">
       <xsd:sequence>
@@ -2219,6 +2268,7 @@
                         </xsd:documentation>
                      </xsd:annotation>
                   </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
             <xsd:element name="connectors" minOccurs="0" maxOccurs="1">
@@ -2233,10 +2283,12 @@
                   <xsd:sequence>
                      <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
                   </xsd:sequence>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
          </xsd:choice>
       </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="groupingHandlerType">
@@ -2293,6 +2345,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:element name="address-setting">
@@ -2613,6 +2666,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
@@ -2648,6 +2702,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
@@ -2665,6 +2720,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
@@ -2686,6 +2742,7 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="transportType">
@@ -2712,6 +2769,7 @@
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="addressType">
@@ -2726,6 +2784,7 @@
                <xsd:sequence>
                   <xsd:element name="queue" type="queueType" maxOccurs="unbounded" minOccurs="0" />
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
          <xsd:element name="multicast" maxOccurs="1" minOccurs="0">
@@ -2738,6 +2797,7 @@
                <xsd:sequence>
                   <xsd:element name="queue" type="queueType" maxOccurs="unbounded" minOccurs="0" />
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
       </xsd:all>
@@ -2748,12 +2808,14 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="addressesType">
       <xsd:sequence>
          <xsd:element name="address" type="addressType" maxOccurs="unbounded" minOccurs="0"/>
       </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="wildcardType">
@@ -2799,5 +2861,6 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 </xsd:schema>

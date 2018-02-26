@@ -1,0 +1,66 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<address-settings xmlns="urn:activemq:core">
+   <address-setting match="a1">
+      <dead-letter-address>a1.1</dead-letter-address>
+      <expiry-address>a1.2</expiry-address>
+      <redelivery-delay>1</redelivery-delay>
+      <max-size-bytes>817M</max-size-bytes>
+      <page-size-bytes>81738173872337</page-size-bytes>
+      <page-max-cache-size>10</page-max-cache-size>
+      <message-counter-history-day-limit>4</message-counter-history-day-limit>
+      <slow-consumer-threshold>10</slow-consumer-threshold>
+      <slow-consumer-check-period>5</slow-consumer-check-period>
+      <slow-consumer-policy>NOTIFY</slow-consumer-policy>
+      <auto-create-jms-queues>true</auto-create-jms-queues>
+      <auto-delete-jms-queues>true</auto-delete-jms-queues>
+      <auto-create-jms-topics>true</auto-create-jms-topics>
+      <auto-delete-jms-topics>true</auto-delete-jms-topics>
+      <auto-create-queues>true</auto-create-queues>
+      <auto-delete-queues>true</auto-delete-queues>
+      <auto-create-addresses>true</auto-create-addresses>
+      <auto-delete-addresses>true</auto-delete-addresses>
+      <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
+      <default-max-consumers>5</default-max-consumers>
+      <default-queue-routing-type>ANYCAST</default-queue-routing-type>
+      <default-address-routing-type>MULTICAST</default-address-routing-type>
+   </address-setting>
+   <address-setting match="a2">
+      <dead-letter-address>a2.1</dead-letter-address>
+      <expiry-address>a2.2</expiry-address>
+      <redelivery-delay>5</redelivery-delay>
+      <max-size-bytes>932489234928324</max-size-bytes>
+      <page-size-bytes>7126716262626</page-size-bytes>
+      <page-max-cache-size>20</page-max-cache-size>
+      <message-counter-history-day-limit>8</message-counter-history-day-limit>
+      <slow-consumer-threshold>20</slow-consumer-threshold>
+      <slow-consumer-check-period>15</slow-consumer-check-period>
+      <slow-consumer-policy>KILL</slow-consumer-policy>
+      <auto-create-jms-queues>false</auto-create-jms-queues>
+      <auto-delete-jms-queues>false</auto-delete-jms-queues>
+      <auto-create-jms-topics>false</auto-create-jms-topics>
+      <auto-delete-jms-topics>false</auto-delete-jms-topics>
+      <auto-create-queues>false</auto-create-queues>
+      <auto-delete-queues>false</auto-delete-queues>
+      <auto-create-addresses>false</auto-create-addresses>
+      <auto-delete-addresses>false</auto-delete-addresses>
+      <default-purge-on-no-consumers>true</default-purge-on-no-consumers>
+      <default-max-consumers>15</default-max-consumers>
+      <default-queue-routing-type>MULTICAST</default-queue-routing-type>
+      <default-address-routing-type>ANYCAST</default-address-routing-type>
+   </address-setting>
+</address-settings>
