@@ -25,9 +25,11 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.security.AccessController;
 import java.security.DigestInputStream;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +40,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -50,6 +54,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -110,6 +115,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
@@ -1519,7 +1525,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       beforeStart();
 
-      singleThreadExecutor = executorFactory.getExecutor();
+      ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+         @Override
+         public ThreadFactory run() {
+            return new ActiveMQThreadFactory("ActiveMQ-journal-server-" + this.toString(), true, ClientSessionFactoryImpl.class.getClassLoader());
+         }
+      });
+      singleThreadExecutor = Executors.newSingleThreadExecutor(tFactory);
 
       bindingsJournal.start();
 
