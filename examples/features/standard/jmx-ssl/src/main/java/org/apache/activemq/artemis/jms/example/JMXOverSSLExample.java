@@ -37,12 +37,11 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMX.
  */
-public class JMXExample {
+public class JMXOverSSLExample {
 
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi";
 
@@ -84,7 +83,12 @@ public class JMXExample {
          String[] creds = {"guest", "guest"};
          env.put(JMXConnector.CREDENTIALS, creds);
 
-         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXExample.JMX_URL), env);
+         System.setProperty("javax.net.ssl.trustStore", args[0] + "activemq.example.truststore");
+         System.setProperty("javax.net.ssl.trustStorePassword", "activemqexample");
+         System.setProperty("javax.net.ssl.keyStore", args[0] + "activemq.example.keystore");
+         System.setProperty("javax.net.ssl.keyStorePassword", "activemqexample");
+
+         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXOverSSLExample.JMX_URL), env);
 
          // Step 11. Retrieve the MBeanServerConnection
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
@@ -95,7 +99,7 @@ public class JMXExample {
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
 
          // Step 14. Remove the message sent at step #8
-         System.out.println("message has been removed: " + queueControl.removeMessage(((ActiveMQTextMessage) message).getCoreMessage().getMessageID()));
+         System.out.println("message has been removed: " + queueControl.removeMessages(null));
 
          // Step 15. Display the number of messages in the queue
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
@@ -113,6 +117,11 @@ public class JMXExample {
          // operation, there is none to consume.
          // The call will timeout after 5000ms and messageReceived will be null
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+
+         if (messageReceived != null) {
+            throw new IllegalStateException("message should be null!");
+         }
+
          System.out.println("Received message: " + messageReceived);
       } finally {
          // Step 20. Be sure to close the resources!
