@@ -2525,7 +2525,7 @@
                </xsd:restriction>
             </xsd:simpleType>
          </xsd:element>
-         <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="1">
+         <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A reference to a cluster connection address
