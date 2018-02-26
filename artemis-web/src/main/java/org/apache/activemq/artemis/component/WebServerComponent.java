@@ -110,7 +110,7 @@ public class WebServerComponent implements ExternalComponent {
 
       ResourceHandler resourceHandler = new ResourceHandler();
       resourceHandler.setResourceBase(warDir.toString());
-      resourceHandler.setDirectoriesListed(true);
+      resourceHandler.setDirectoriesListed(false);
       resourceHandler.setWelcomeFiles(new String[]{"index.html"});
 
       DefaultHandler defaultHandler = new DefaultHandler();
@@ -120,6 +120,7 @@ public class WebServerComponent implements ExternalComponent {
       context.setContextPath("/");
       context.setResourceBase(warDir.toString());
       context.setHandler(resourceHandler);
+      context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
       handlers.addHandler(context);
       handlers.addHandler(defaultHandler);
