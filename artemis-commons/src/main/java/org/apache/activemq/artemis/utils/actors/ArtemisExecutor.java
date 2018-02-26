@@ -50,6 +50,23 @@ public interface ArtemisExecutor extends Executor {
       return 0;
    }
 
+   /** To be used to flush an executor from a different thread.
+    *  WARNING: Do not call this within the executor. That would be stoopid ;)
+    *
+    * @param timeout
+    * @param unit
+    * @return
+    */
+   default boolean flush(long timeout, TimeUnit unit) {
+      CountDownLatch latch = new CountDownLatch(1);
+      execute(latch::countDown);
+      try {
+         return latch.await(timeout, unit);
+      } catch (Exception e) {
+         return false;
+      }
+   }
+
    /**
     * It will wait the current execution (if there is one) to finish
     * but will not complete any further executions

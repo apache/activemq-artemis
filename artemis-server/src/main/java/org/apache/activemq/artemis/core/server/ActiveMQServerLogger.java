@@ -61,7 +61,6 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.utils.FutureLatch;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -512,8 +511,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void problemUndeployingNode(@Cause Exception e, Node node);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222022, value = "Timed out waiting for paging cursor to stop {0} {1}", format = Message.Format.MESSAGE_FORMAT)
-   void timedOutStoppingPagingCursor(FutureLatch future, Executor executor);
+   @Message(id = 222022, value = "Timed out waiting for paging cursor to stop {0}", format = Message.Format.MESSAGE_FORMAT)
+   void timedOutStoppingPagingCursor(Executor executor);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222023, value = "problem cleaning page address {0}", format = Message.Format.MESSAGE_FORMAT)
