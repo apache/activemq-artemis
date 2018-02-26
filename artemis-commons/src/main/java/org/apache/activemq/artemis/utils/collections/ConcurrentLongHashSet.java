@@ -20,12 +20,13 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.StampedLock;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Concurrent hash set for primitive longs
@@ -77,6 +78,9 @@ public class ConcurrentLongHashSet {
    public int size() {
       int size = 0;
       for (Section s : sections) {
+         //read-acquire s.size that was write-released by s.unlockWrite
+         s.tryOptimisticRead();
+         //a stale value won't hurt: anyway it's subject to concurrent modifications
          size += s.size;
       }
       return size;
@@ -92,6 +96,9 @@ public class ConcurrentLongHashSet {
 
    public boolean isEmpty() {
       for (Section s : sections) {
+         //read-acquire s.size that was write-released by s.unlockWrite
+         s.tryOptimisticRead();
+         //a stale value won't hurt: anyway it's subject to concurrent modifications
          if (s.size != 0) {
             return false;
          }
@@ -162,11 +169,12 @@ public class ConcurrentLongHashSet {
    // A section is a portion of the hash map that is covered by a single
    @SuppressWarnings("serial")
    private static final class Section extends StampedLock {
+      private static final AtomicIntegerFieldUpdater<Section> CAPACITY_UPDATER = AtomicIntegerFieldUpdater.newUpdater(Section.class, "capacity");
       // Keys and values are stored interleaved in the table array
       private long[] table;
 
       private volatile int capacity;
-      private volatile int size;
+      private int size;
       private int usedBuckets;
       private int resizeThreshold;
 
@@ -376,8 +384,8 @@ public class ConcurrentLongHashSet {
 
          table = newTable;
          usedBuckets = size;
-         capacity = newCapacity;
-         resizeThreshold = (int) (capacity * SetFillFactor);
+         CAPACITY_UPDATER.lazySet(this, newCapacity);
+         resizeThreshold = (int) (newCapacity * SetFillFactor);
       }
 
       private static void insertKeyValueNoLock(long[] table, int capacity, long item) {
