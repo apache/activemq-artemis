@@ -109,7 +109,7 @@ fi
 exec "$JAVACMD" \
     $JAVA_ARGS \
     -Xbootclasspath/a:"$LOG_MANAGER" \
-    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC_URI/login.config" \
+    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
     -Dartemis.home="$ARTEMIS_HOME" \
