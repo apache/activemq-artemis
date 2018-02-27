@@ -146,6 +146,15 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthenticationWithCerts() throws Exception {
+      testJAASSecurityManagerAuthenticationWithCerts(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithCertsWantClientAuth() throws Exception {
+      testJAASSecurityManagerAuthenticationWithCerts(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
+   }
+
+   protected void testJAASSecurityManagerAuthenticationWithCerts(String clientAuthPropName) throws Exception {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
@@ -155,7 +164,7 @@ public class SecurityTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      params.put(clientAuthPropName, true);
 
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
@@ -612,6 +621,15 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationPositiveWithCerts() throws Exception {
+      testJAASSecurityManagerAuthorizationPositiveWithCerts(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositiveWithCertsWantClientAuth() throws Exception {
+      testJAASSecurityManagerAuthorizationPositiveWithCerts(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
+   }
+
+   protected void testJAASSecurityManagerAuthorizationPositiveWithCerts(String clientAuthPropName) throws Exception {
       final SimpleString ADDRESS = new SimpleString("address");
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
@@ -625,7 +643,7 @@ public class SecurityTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      params.put(clientAuthPropName, true);
 
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
