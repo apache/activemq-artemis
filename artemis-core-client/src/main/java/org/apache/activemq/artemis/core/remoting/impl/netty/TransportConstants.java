@@ -103,6 +103,8 @@ public class TransportConstants {
 
    public static final String NEED_CLIENT_AUTH_PROP_NAME = "needClientAuth";
 
+   public static final String WANT_CLIENT_AUTH_PROP_NAME = "wantClientAuth";
+
    public static final String VERIFY_HOST_PROP_NAME = "verifyHost";
 
    public static final String TRUST_ALL_PROP_NAME = "trustAll";
@@ -201,6 +203,8 @@ public class TransportConstants {
 
    public static final boolean DEFAULT_NEED_CLIENT_AUTH = false;
 
+   public static final boolean DEFAULT_WANT_CLIENT_AUTH = false;
+
    public static final boolean DEFAULT_VERIFY_HOST = false;
 
    public static final String DEFAULT_SSL_PROVIDER = "JDK";
@@ -297,6 +301,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.VERIFY_HOST_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);

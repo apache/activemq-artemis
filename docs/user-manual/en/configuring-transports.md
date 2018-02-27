@@ -403,6 +403,18 @@ following additional properties:
     This property is only for an `acceptor`. It tells a client
     connecting to this acceptor that 2-way SSL is required. Valid values
     are `true` or `false`. Default is `false`.
+    
+    Note that this property takes precedence over `wantClientAuth` and if
+    its value is set to true then `wantClientAuth` will be ignored.
+    
+-   `wantClientAuth`
+
+    This property is only for an `acceptor`. It tells a client
+    connecting to this acceptor that 2-way SSL is requested but not required. 
+    Valid values are `true` or `false`. Default is `false`. 
+    
+    Note that if the property `needClientAuth` is set to true then that
+    property will take precedence and this property will be ignored.
 
 -   `verifyHost`
 
