@@ -130,7 +130,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    //to management service
    private boolean suppressInternalManagementObjects = true;
 
-   private final OpenWireMessageConverter internalConverter;
+   private final OpenWireFormat wireFormat;
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
@@ -145,7 +145,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       wireFactory.setCacheEnabled(false);
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       scheduledPool = server.getScheduledPool();
-      this.internalConverter = new OpenWireMessageConverter(wireFactory.createWireFormat());
+      this.wireFormat = (OpenWireFormat) wireFactory.createWireFormat();
 
       final ClusterManager clusterManager = this.server.getClusterManager();
 
@@ -597,8 +597,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       return total;
    }
 
-   public OpenWireMessageConverter getInternalConverter() {
-      return internalConverter;
+   public OpenWireFormat wireFormat() {
+      return wireFormat;
    }
 
    public boolean isSupportAdvisory() {
