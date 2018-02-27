@@ -544,16 +544,31 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
    }
 
+
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      return removeAddressInfo(address, false);
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception {
       synchronized (addressLock) {
          if (server.hasBrokerPlugins()) {
             server.callBrokerPlugins(plugin -> plugin.beforeRemoveAddress(address));
          }
 
          final Bindings bindingsForAddress = getDirectBindings(address);
-         if (bindingsForAddress.getBindings().size() > 0) {
-            throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
+         if (force) {
+            for (Binding binding : bindingsForAddress.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  ((QueueBinding)binding).getQueue().deleteQueue(true);
+               }
+            }
+
+         } else {
+            if (bindingsForAddress.getBindings().size() > 0) {
+               throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
+            }
          }
          managementService.unregisterAddress(address);
          final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
