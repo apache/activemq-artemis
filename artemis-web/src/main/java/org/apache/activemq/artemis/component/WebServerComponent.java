@@ -95,12 +95,17 @@ public class WebServerComponent implements ExternalComponent {
 
       handlers = new HandlerList();
 
-      Path warDir = Paths.get(artemisHome != null ? artemisHome : ".").resolve(webServerConfig.path).toAbsolutePath();
+      Path homeWarDir = Paths.get(artemisHome != null ? artemisHome : ".").resolve(webServerConfig.path).toAbsolutePath();
+      Path instanceWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve(webServerConfig.path).toAbsolutePath();
 
       if (webServerConfig.apps != null && webServerConfig.apps.size() > 0) {
          webContexts = new ArrayList<>();
          for (AppDTO app : webServerConfig.apps) {
-            WebAppContext webContext = deployWar(app.url, app.war, warDir);
+            Path dirToUse = homeWarDir;
+            if (new File(instanceWarDir.toFile().toString() + File.separator + app.war).exists()) {
+               dirToUse = instanceWarDir;
+            }
+            WebAppContext webContext = deployWar(app.url, app.war, dirToUse);
             webContexts.add(webContext);
             if (app.war.startsWith("console")) {
                consoleUrl = webServerConfig.bind + "/" + app.url;
@@ -108,21 +113,33 @@ public class WebServerComponent implements ExternalComponent {
          }
       }
 
-      ResourceHandler resourceHandler = new ResourceHandler();
-      resourceHandler.setResourceBase(warDir.toString());
-      resourceHandler.setDirectoriesListed(false);
-      resourceHandler.setWelcomeFiles(new String[]{"index.html"});
+      ResourceHandler homeResourceHandler = new ResourceHandler();
+      homeResourceHandler.setResourceBase(homeWarDir.toString());
+      homeResourceHandler.setDirectoriesListed(false);
+      homeResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+
+      ContextHandler homeContext = new ContextHandler();
+      homeContext.setContextPath("/");
+      homeContext.setResourceBase(homeWarDir.toString());
+      homeContext.setHandler(homeResourceHandler);
+      homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+
+      ResourceHandler instanceResourceHandler = new ResourceHandler();
+      instanceResourceHandler.setResourceBase(instanceWarDir.toString());
+      instanceResourceHandler.setDirectoriesListed(false);
+      instanceResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+
+      ContextHandler instanceContext = new ContextHandler();
+      instanceContext.setContextPath("/");
+      instanceContext.setResourceBase(instanceWarDir.toString());
+      instanceContext.setHandler(instanceResourceHandler);
+      homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
 
-      ContextHandler context = new ContextHandler();
-      context.setContextPath("/");
-      context.setResourceBase(warDir.toString());
-      context.setHandler(resourceHandler);
-      context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-
-      handlers.addHandler(context);
+      handlers.addHandler(homeContext);
+      handlers.addHandler(instanceContext);
       handlers.addHandler(defaultHandler);
       server.setHandler(handlers);
    }
