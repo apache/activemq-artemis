@@ -32,6 +32,43 @@ You can also change the prefix through the broker.xml by setting:
 
 This is to help you customize artemis on embedded systems.
 
+# Modularising config into separate files.
+
+XML XInclude support is provided in the configuration as such if you wish to break your configuration out into separate files you can.
+
+To do this ensure the following is defined at the root configuration element.
+
+```
+   xmlns:xi="http://www.w3.org/2001/XInclude"
+```
+
+You can now define include tag's where you want to bring in xml configuration from another file:
+
+```
+   <xi:include href="my-address-settings.xml"/>
+```
+
+You should ensure xml elements in separated files should be namespaced correctly for example if address-settings element was separated, it should have the element namespace defined:
+
+```
+ <address-settings xmlns="urn:activemq:core">
+```
+
+An example can of this feature can be seen in the test suites:
+``` 
+   ./artemis-server/src/test/resources/ConfigurationTest-xinclude-config.xml
+```
+N.B. if you use xmllint to validate xml's against schema you should enable xinclude flag when running.
+
+```
+   --xinclude
+```
+
+For further information on XInclude see:
+
+[https://www.w3.org/TR/xinclude/](https://www.w3.org/TR/xinclude/) 
+
+
 # The core configuration
 
 This describes the root of the XML configuration. You will see here also multiple sub-types listed.
