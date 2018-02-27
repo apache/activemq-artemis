@@ -70,20 +70,20 @@ public class AMQSession implements SessionCallback {
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
-   private ConnectionInfo connInfo;
+   private final ConnectionInfo connInfo;
    private ServerSession coreSession;
-   private SessionInfo sessInfo;
-   private ActiveMQServer server;
-   private OpenWireConnection connection;
+   private final SessionInfo sessInfo;
+   private final ActiveMQServer server;
+   private final OpenWireConnection connection;
 
-   private AtomicBoolean started = new AtomicBoolean(false);
+   private final AtomicBoolean started = new AtomicBoolean(false);
 
    private final ScheduledExecutorService scheduledPool;
 
    // The sessionWireformat used by the session
    // this object is meant to be used per thread / session
    // so we make a new one per AMQSession
-   private final OpenWireMessageConverter converter;
+   private final OpenWireFormat protocolManagerWireFormat;
 
    private final OpenWireProtocolManager protocolManager;
 
@@ -93,6 +93,8 @@ public class AMQSession implements SessionCallback {
 
    private String[] existingQueuesCache;
 
+   private final SimpleString clientId;
+
    public AMQSession(ConnectionInfo connInfo,
                      SessionInfo sessInfo,
                      ActiveMQServer server,
@@ -100,14 +102,12 @@ public class AMQSession implements SessionCallback {
                      OpenWireProtocolManager protocolManager) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
-
+      this.clientId = SimpleString.toSimpleString(connInfo.getClientId());
       this.server = server;
       this.connection = connection;
       this.protocolManager = protocolManager;
       this.scheduledPool = protocolManager.getScheduledPool();
-      OpenWireFormat marshaller = (OpenWireFormat) connection.getMarshaller();
-
-      this.converter = new OpenWireMessageConverter(marshaller.copy());
+      this.protocolManagerWireFormat = protocolManager.wireFormat().copy();
       this.enableAutoReadAndTtl = this::enableAutoReadAndTtl;
       this.existingQueuesCache = null;
    }
@@ -116,8 +116,8 @@ public class AMQSession implements SessionCallback {
       return coreSession.isClosed();
    }
 
-   public OpenWireMessageConverter getConverter() {
-      return protocolManager.getInternalConverter();
+   public OpenWireFormat wireFormat() {
+      return protocolManagerWireFormat;
    }
 
    public void initialize() {
@@ -357,22 +357,26 @@ public class AMQSession implements SessionCallback {
 
    public void send(final ProducerInfo producerInfo,
                     final Message messageSend,
-                    boolean sendProducerAck) throws Exception {
+                    final boolean sendProducerAck) throws Exception {
       messageSend.setBrokerInTime(System.currentTimeMillis());
 
       final ActiveMQDestination destination = messageSend.getDestination();
 
-      ActiveMQDestination[] actualDestinations = null;
+      final ActiveMQDestination[] actualDestinations;
+      final int actualDestinationsCount;
       if (destination.isComposite()) {
          actualDestinations = destination.getCompositeDestinations();
          messageSend.setOriginalDestination(destination);
+         actualDestinationsCount = actualDestinations.length;
       } else {
-         actualDestinations = new ActiveMQDestination[]{destination};
+         actualDestinations = null;
+         actualDestinationsCount = 1;
       }
 
-      final org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend, coreMessageObjectPools);
+      final org.apache.activemq.artemis.api.core.Message originalCoreMsg = OpenWireMessageConverter.inbound(messageSend, protocolManagerWireFormat, coreMessageObjectPools);
 
-      originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME, SimpleString.toSimpleString(this.connection.getState().getInfo().getClientId()));
+      assert clientId.toString().equals(this.connection.getState().getInfo().getClientId()) : "Session cached clientId must be the same of the connection";
+      originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME, clientId);
 
       /* ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
       * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
@@ -384,15 +388,14 @@ public class AMQSession implements SessionCallback {
 
       final boolean shouldBlockProducer = producerInfo.getWindowSize() > 0 || messageSend.isResponseRequired();
 
-      final AtomicInteger count = new AtomicInteger(actualDestinations.length);
-
+      final AtomicInteger count = actualDestinations != null ? new AtomicInteger(actualDestinationsCount) : null;
 
       if (shouldBlockProducer) {
          connection.getContext().setDontSendReponse(true);
       }
 
-      for (int i = 0, actualDestinationsCount = actualDestinations.length; i < actualDestinationsCount; i++) {
-         final ActiveMQDestination dest = actualDestinations[i];
+      for (int i = 0; i < actualDestinationsCount; i++) {
+         final ActiveMQDestination dest = actualDestinations != null ? actualDestinations[i] : destination;
          final String physicalName = dest.getPhysicalName();
          final SimpleString address = SimpleString.toSimpleString(physicalName, coreMessageObjectPools.getAddressStringSimpleStringPool());
          //the last coreMsg could be directly the original one -> it avoid 1 copy if actualDestinations > 1 and ANY copy if actualDestinations == 1
@@ -405,74 +408,11 @@ public class AMQSession implements SessionCallback {
          } else {
             coreMsg.setRoutingType(RoutingType.MULTICAST);
          }
-         PagingStore store = server.getPagingManager().getPageStore(address);
-
+         final PagingStore store = server.getPagingManager().getPageStore(address);
 
          this.connection.disableTtl();
          if (shouldBlockProducer) {
-            if (!store.checkMemory(() -> {
-               Exception exceptionToSend = null;
-
-               try {
-                  RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
-
-                  if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
-                     throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
-                  }
-               } catch (Exception e) {
-
-                  logger.warn(e.getMessage(), e);
-                  exceptionToSend = e;
-               }
-               connection.enableTtl();
-               if (count.decrementAndGet() == 0) {
-                  if (exceptionToSend != null) {
-                     this.connection.getContext().setDontSendReponse(false);
-                     connection.sendException(exceptionToSend);
-                  } else {
-                     server.getStorageManager().afterCompleteOperations(new IOCallback() {
-                        @Override
-                        public void done() {
-                           if (sendProducerAck) {
-                              try {
-                                 ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
-                                 connection.dispatchAsync(ack);
-                              } catch (Exception e) {
-                                 connection.getContext().setDontSendReponse(false);
-                                 ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-                                 connection.sendException(e);
-                              }
-                           } else {
-                              connection.getContext().setDontSendReponse(false);
-                              try {
-                                 Response response = new Response();
-                                 response.setCorrelationId(messageSend.getCommandId());
-                                 connection.dispatchAsync(response);
-                              } catch (Exception e) {
-                                 ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-                                 connection.sendException(e);
-                              }
-                           }
-                        }
-
-                        @Override
-                        public void onError(int errorCode, String errorMessage) {
-                           try {
-                              final IOException e = new IOException(errorMessage);
-                              ActiveMQServerLogger.LOGGER.warn(errorMessage);
-                              connection.serviceException(e);
-                           } catch (Exception ex) {
-                              ActiveMQServerLogger.LOGGER.debug(ex);
-                           }
-                        }
-                     });
-                  }
-               }
-            })) {
-               this.connection.getContext().setDontSendReponse(false);
-               connection.enableTtl();
-               throw new ResourceAllocationException("Queue is full " + address);
-            }
+            sendShouldBlockProducer(producerInfo, messageSend, sendProducerAck, store, dest, count, coreMsg, address);
          } else {
             //non-persistent messages goes here, by default we stop reading from
             //transport
@@ -482,18 +422,91 @@ public class AMQSession implements SessionCallback {
                throw new ResourceAllocationException("Queue is full " + address);
             }
 
-            RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
+            final RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
             if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
                throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
             }
 
-            if (count.decrementAndGet() == 0) {
+            if (count == null || count.decrementAndGet() == 0) {
                if (sendProducerAck) {
-                  ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                  final ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
                   connection.dispatchAsync(ack);
                }
             }
          }
+      }
+   }
+
+   private void sendShouldBlockProducer(final ProducerInfo producerInfo,
+                                        final Message messageSend,
+                                        final boolean sendProducerAck,
+                                        final PagingStore store,
+                                        final ActiveMQDestination dest,
+                                        final AtomicInteger count,
+                                        final org.apache.activemq.artemis.api.core.Message coreMsg,
+                                        final SimpleString address) throws ResourceAllocationException {
+      if (!store.checkMemory(() -> {
+         Exception exceptionToSend = null;
+
+         try {
+            RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
+
+            if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
+               throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
+            }
+         } catch (Exception e) {
+
+            logger.warn(e.getMessage(), e);
+            exceptionToSend = e;
+         }
+         connection.enableTtl();
+         if (count == null || count.decrementAndGet() == 0) {
+            if (exceptionToSend != null) {
+               this.connection.getContext().setDontSendReponse(false);
+               connection.sendException(exceptionToSend);
+            } else {
+               server.getStorageManager().afterCompleteOperations(new IOCallback() {
+                  @Override
+                  public void done() {
+                     if (sendProducerAck) {
+                        try {
+                           ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                           connection.dispatchAsync(ack);
+                        } catch (Exception e) {
+                           connection.getContext().setDontSendReponse(false);
+                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           connection.sendException(e);
+                        }
+                     } else {
+                        connection.getContext().setDontSendReponse(false);
+                        try {
+                           Response response = new Response();
+                           response.setCorrelationId(messageSend.getCommandId());
+                           connection.dispatchAsync(response);
+                        } catch (Exception e) {
+                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           connection.sendException(e);
+                        }
+                     }
+                  }
+
+                  @Override
+                  public void onError(int errorCode, String errorMessage) {
+                     try {
+                        final IOException e = new IOException(errorMessage);
+                        ActiveMQServerLogger.LOGGER.warn(errorMessage);
+                        connection.serviceException(e);
+                     } catch (Exception ex) {
+                        ActiveMQServerLogger.LOGGER.debug(ex);
+                     }
+                  }
+               });
+            }
+         }
+      })) {
+         this.connection.getContext().setDontSendReponse(false);
+         connection.enableTtl();
+         throw new ResourceAllocationException("Queue is full " + address);
       }
    }
 
@@ -513,11 +526,7 @@ public class AMQSession implements SessionCallback {
    public ActiveMQServer getCoreServer() {
       return this.server;
    }
-/*
-   public WireFormat getMarshaller() {
-      return this.connection.getMarshaller();
-   }
-*/
+
    public ConnectionInfo getConnectionInfo() {
       return this.connInfo;
    }
