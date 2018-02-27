@@ -2661,14 +2661,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return getAddressInfo(addressInfo.getName());
    }
 
+
    @Override
    public void removeAddressInfo(final SimpleString address, final SecurityAuth auth) throws Exception {
+      removeAddressInfo(address, auth, false);
+   }
+
+   @Override
+   public void removeAddressInfo(final SimpleString address, final SecurityAuth auth, boolean force) throws Exception {
       if (auth != null) {
          securityStore.check(address, CheckType.DELETE_ADDRESS, auth);
       }
 
       AddressInfo addressInfo = getAddressInfo(address);
-      if (postOffice.removeAddressInfo(address) == null) {
+      if (postOffice.removeAddressInfo(address, force) == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
       }
 

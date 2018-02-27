@@ -438,7 +438,6 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "global maximum limit for in-memory messages, in bytes")
    long getGlobalMaxSize();
 
-
    /**
     * Returns the  memory used by all the addresses on broker for in-memory messages
     */
@@ -457,14 +456,18 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
    String createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
+                        @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
    @Operation(desc = "update an address", impact = MBeanOperationInfo.ACTION)
    String updateAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
+                        @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
+
+   @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
+   void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                      @Parameter(name = "force", desc = "Force consumers and queues out") boolean force) throws Exception;
 
    /**
     * Create a durable queue.
@@ -481,7 +484,6 @@ public interface ActiveMQServerControl {
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name) throws Exception;
 
-
    /**
     * Create a durable queue.
     * <br>
@@ -489,15 +491,14 @@ public interface ActiveMQServerControl {
     * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
-    * @param address address to bind the queue to
-    * @param name    name of the queue
+    * @param address     address to bind the queue to
+    * @param name        name of the queue
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
     */
    @Operation(desc = "Create a queue with the specified address", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
                     @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType) throws Exception;
-
 
    /**
     * Create a queue.
@@ -523,9 +524,9 @@ public interface ActiveMQServerControl {
     * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
-    * @param address address to bind the queue to
-    * @param name    name of the queue
-    * @param durable whether the queue is durable
+    * @param address     address to bind the queue to
+    * @param name        name of the queue
+    * @param durable     whether the queue is durable
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
     */
    @Operation(desc = "Create a queue with the specified address, name and durability", impact = MBeanOperationInfo.ACTION)
@@ -559,10 +560,10 @@ public interface ActiveMQServerControl {
     * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
-    * @param address address to bind the queue to
-    * @param name    name of the queue
-    * @param filter  of the queue
-    * @param durable whether the queue is durable
+    * @param address     address to bind the queue to
+    * @param name        name of the queue
+    * @param filter      of the queue
+    * @param durable     whether the queue is durable
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
     */
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
@@ -572,7 +573,6 @@ public interface ActiveMQServerControl {
                     @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
                     @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType) throws Exception;
 
-
    /**
     * Create a queue.
     * <br>
@@ -580,33 +580,33 @@ public interface ActiveMQServerControl {
     * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
-    * @param address             address to bind the queue to
-    * @param routingType         the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param name                name of the queue
-    * @param filterStr           filter of the queue
-    * @param durable             is the queue durable?
-    * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
+    * @param address            address to bind the queue to
+    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param name               name of the queue
+    * @param filterStr          filter of the queue
+    * @param durable            is the queue durable?
+    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param autoCreateAddress   create an address with default values should a matching address not be found
+    * @param autoCreateAddress  create an address with default values should a matching address not be found
     * @return a textual summary of the queue
     * @throws Exception
     */
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
-                    @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
-                    @Parameter(name = "name", desc = "Name of the queue") String name,
-                    @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
-                    @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
-                    @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                    @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
-                    @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
+                      @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                      @Parameter(name = "name", desc = "Name of the queue") String name,
+                      @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
+                      @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                      @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                      @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
+                      @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
 
    /**
     * Update a queue.
     *
-    * @param name                name of the queue
-    * @param routingType         the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
+    * @param name               name of the queue
+    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @return a textual summary of the queue
     * @throws Exception
@@ -616,13 +616,12 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers) throws Exception;
 
-
    /**
     * Update a queue.
     *
-    * @param name                name of the queue
-    * @param routingType         the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
+    * @param name               name of the queue
+    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @return a textual summary of the queue
     * @throws Exception
@@ -632,7 +631,6 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
                       @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive) throws Exception;
-
 
    /**
     * Deploy a durable queue.
@@ -688,7 +686,6 @@ public interface ActiveMQServerControl {
    void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
                      @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers,
                      @Parameter(name = "autoDeleteAddress", desc = "Automatically delete the address if this was the last queue") boolean autoDeleteAddress) throws Exception;
-
 
    /**
     * Enables message counters for this server.
@@ -987,6 +984,7 @@ public interface ActiveMQServerControl {
                            @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
                            @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
                            @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics) throws Exception;
+
    /**
     * adds a new address setting for a specific address
     */
@@ -1213,8 +1211,8 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Search for Consumers", impact = MBeanOperationInfo.INFO)
    String listConsumers(@Parameter(name = "Options") String options,
-                       @Parameter(name = "Page Number") int page,
-                       @Parameter(name = "Page Size") int pageSize) throws Exception;
+                        @Parameter(name = "Page Number") int page,
+                        @Parameter(name = "Page Size") int pageSize) throws Exception;
 
    @Operation(desc = "Search for Consumers", impact = MBeanOperationInfo.INFO)
    String listProducers(@Parameter(name = "Options") String options,

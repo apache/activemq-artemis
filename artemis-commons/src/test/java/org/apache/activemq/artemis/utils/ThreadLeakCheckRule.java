@@ -230,6 +230,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
 
       if (threadName.contains("SunPKCS11")) {
          return true;
+      } else if (threadName.contains("Keep-Alive-Timer")) {
+         return true;
       } else if (threadName.contains("Attach Listener")) {
          return true;
       } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
