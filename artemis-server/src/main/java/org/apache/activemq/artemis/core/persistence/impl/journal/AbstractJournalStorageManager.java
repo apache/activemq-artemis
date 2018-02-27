@@ -155,7 +155,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected BatchingIDGenerator idGenerator;
 
-   protected final ExecutorFactory ioExecutors;
+   protected final ExecutorFactory ioExecutorFactory;
 
    protected final ScheduledExecutorService scheduledExecutorService;
 
@@ -197,15 +197,15 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                         final CriticalAnalyzer analyzer,
                                         final ExecutorFactory executorFactory,
                                         final ScheduledExecutorService scheduledExecutorService,
-                                        final ExecutorFactory ioExecutors) {
-      this(config, analyzer, executorFactory, scheduledExecutorService, ioExecutors, null);
+                                        final ExecutorFactory ioExecutorFactory) {
+      this(config, analyzer, executorFactory, scheduledExecutorService, ioExecutorFactory, null);
    }
 
    public AbstractJournalStorageManager(Configuration config,
                                         CriticalAnalyzer analyzer,
                                         ExecutorFactory executorFactory,
                                         ScheduledExecutorService scheduledExecutorService,
-                                        ExecutorFactory ioExecutors,
+                                        ExecutorFactory ioExecutorFactory,
                                         IOCriticalErrorListener criticalErrorListener) {
       super(analyzer, CRITICAL_PATHS);
 
@@ -213,7 +213,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       this.ioCriticalErrorListener = criticalErrorListener;
 
-      this.ioExecutors = ioExecutors;
+      this.ioExecutorFactory = ioExecutorFactory;
 
       this.scheduledExecutorService = scheduledExecutorService;
 
@@ -1519,7 +1519,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       beforeStart();
 
-      singleThreadExecutor = executorFactory.getExecutor();
+      singleThreadExecutor = ioExecutorFactory.getExecutor();
 
       bindingsJournal.start();
 

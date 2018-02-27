@@ -533,7 +533,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             cursor.confirmPosition(new PagePositionImpl(currentPage.getPageId(), -1));
          }
 
-         while (!storageManager.waitOnOperations(5000)) {
+         // we just need to make sure the storage is done..
+         // if the thread pool is full, we will just log it once instead of looping
+         if (!storageManager.waitOnOperations(5000)) {
             ActiveMQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
          }
       } finally {
