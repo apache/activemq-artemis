@@ -149,6 +149,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
          admin.deleteTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.deleteTopic(PubSubTestCase.TOPIC_NAME);
       } catch (Exception ignored) {
+         ignored.printStackTrace();
       } finally {
          publisherTopic = null;
          publisher = null;

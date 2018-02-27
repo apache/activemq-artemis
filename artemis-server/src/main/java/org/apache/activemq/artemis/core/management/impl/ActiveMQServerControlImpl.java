@@ -722,13 +722,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+
    @Override
    public void deleteAddress(String name) throws Exception {
+      deleteAddress(name, false);
+   }
+
+   @Override
+   public void deleteAddress(String name, boolean force) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.removeAddressInfo(new SimpleString(name), null);
+         server.removeAddressInfo(new SimpleString(name), null, force);
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       } finally {

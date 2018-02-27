@@ -151,6 +151,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name, @Parameter(name = "force", desc = "Force everything out!") boolean force) throws Exception {
+            proxy.invokeOperation("deleteAddress", name, force);
+         }
+
+         @Override
          public void createQueue(final String address,
                                  final String name,
                                  final String filter,
