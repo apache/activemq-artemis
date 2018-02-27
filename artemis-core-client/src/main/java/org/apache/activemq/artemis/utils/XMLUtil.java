@@ -85,6 +85,7 @@ public final class XMLUtil {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6529766
       factory.setNamespaceAware(true);
+      factory.setXIncludeAware(true);
       DocumentBuilder parser = factory.newDocumentBuilder();
       Document doc = parser.parse(new InputSource(sreader));
       return doc.getDocumentElement();

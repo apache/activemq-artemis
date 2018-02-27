@@ -59,7 +59,9 @@ import org.junit.Test;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 
-   private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
+   protected String getConfigurationName() {
+      return "ConfigurationTest-full-config.xml";
+   }
 
    @Override
    @Test
@@ -588,7 +590,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       try {
 
          // copy working configuration to a location where the standard classloader cannot find it
-         final Path workingConfiguration = new File(getClass().getResource("/" + fullConfigurationName).toURI()).toPath();
+         final Path workingConfiguration = new File(getClass().getResource("/" + getConfigurationName()).toURI()).toPath();
          final Path targetFile = customConfiguration.toPath();
 
          Files.copy(workingConfiguration, targetFile, StandardCopyOption.REPLACE_EXISTING);
@@ -663,7 +665,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    @Override
    protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager(fullConfigurationName);
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
       return fc;
