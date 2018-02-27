@@ -223,7 +223,8 @@ public class AMQConsumer {
             //so we need to remove this property too.
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
-         dispatch = session.getConverter().createMessageDispatch(reference, message, this);
+         //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
+         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
