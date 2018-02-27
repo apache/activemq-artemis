@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire;
 
-import javax.jms.IllegalStateException;
-import javax.jms.InvalidClientIDException;
-import javax.jms.InvalidDestinationException;
-import javax.jms.JMSSecurityException;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +28,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
+import javax.jms.IllegalStateException;
+import javax.jms.InvalidClientIDException;
+import javax.jms.InvalidDestinationException;
+import javax.jms.JMSSecurityException;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -765,11 +768,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             addressInfo.setInternal(true);
          }
          if (dest.isQueue() && (addressSettings.isAutoCreateQueues() || dest.isTemporary())) {
-            internalSession.createQueue(addressInfo, qName, null, dest.isTemporary(), !dest.isTemporary(), !dest.isTemporary());
-            created = true;
+            try {
+               internalSession.createQueue(addressInfo, qName, null, dest.isTemporary(), !dest.isTemporary(), !dest.isTemporary());
+               created = true;
+            } catch (ActiveMQQueueExistsException exists) {
+               // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+            }
          } else if (dest.isTopic() && (addressSettings.isAutoCreateAddresses() || dest.isTemporary())) {
-            internalSession.createAddress(addressInfo, !dest.isTemporary());
-            created = true;
+            try {
+               internalSession.createAddress(addressInfo, !dest.isTemporary());
+               created = true;
+            } catch (ActiveMQAddressExistsException exists) {
+               // The address may have been created by another thread in the mean time.  Catch and do nothing.
+            }
          }
       }
 
