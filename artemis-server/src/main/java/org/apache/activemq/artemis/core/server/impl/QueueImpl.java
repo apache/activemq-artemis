@@ -86,7 +86,6 @@ import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.Env;
-import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -859,16 +858,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private boolean internalFlushExecutor(long timeout, boolean log) {
-      FutureLatch future = new FutureLatch();
 
-      getExecutor().execute(future);
-
-      boolean result = future.await(timeout);
-
-      if (log && !result) {
-         ActiveMQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
+      if (!getExecutor().flush(timeout, TimeUnit.MILLISECONDS)) {
+         if (log) {
+            ActiveMQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
+         }
+         return false;
+      } else {
+         return true;
       }
-      return result;
    }
 
    @Override
