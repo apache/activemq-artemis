@@ -60,9 +60,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
 
@@ -76,6 +79,19 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
                                          long maxAddressSize, Map<String, AddressSettings> settings) {
       ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
       server.registerBrokerPlugin(verifier);
+      server.registerBrokerPlugin(new ActiveMQServerPlugin() {
+
+         @Override
+         public void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
+            try {
+               //Verify that calling getClientID() before initialized doesn't cause an error
+               //Test for ARTEMIS-1713
+               connection.getClientID();
+            } catch (Exception e) {
+               throw new ActiveMQException(e.getMessage());
+            }
+         }
+      });
 
       configuration.getAddressesSettings().put("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
             .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true));
@@ -83,7 +99,7 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
       return server;
    }
 
-   @Test
+   @Test(timeout = 10000)
    public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -119,7 +135,7 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
 
    }
 
-   @Test
+   @Test(timeout = 10000)
    public void testAutoCreatedQueue() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
