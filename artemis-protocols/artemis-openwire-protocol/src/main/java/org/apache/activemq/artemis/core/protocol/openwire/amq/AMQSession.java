@@ -16,13 +16,16 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import javax.jms.InvalidDestinationException;
-import javax.jms.ResourceAllocationException;
+import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.jms.InvalidDestinationException;
+import javax.jms.ResourceAllocationException;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -31,7 +34,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
@@ -61,8 +63,6 @@ import org.apache.activemq.command.Response;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
 
 public class AMQSession implements SessionCallback {
    private final Logger logger = Logger.getLogger(AMQSession.class);
@@ -422,10 +422,7 @@ public class AMQSession implements SessionCallback {
                throw new ResourceAllocationException("Queue is full " + address);
             }
 
-            final RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
-            if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
-               throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
-            }
+            getCoreSession().send(coreMsg, false, dest.isTemporary());
 
             if (count == null || count.decrementAndGet() == 0) {
                if (sendProducerAck) {
@@ -449,13 +446,8 @@ public class AMQSession implements SessionCallback {
          Exception exceptionToSend = null;
 
          try {
-            RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
-
-            if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
-               throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
-            }
+            getCoreSession().send(coreMsg, false, dest.isTemporary());
          } catch (Exception e) {
-
             logger.warn(e.getMessage(), e);
             exceptionToSend = e;
          }
