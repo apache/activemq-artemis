@@ -193,7 +193,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
 
-   private AtomicBoolean disableTtl = new AtomicBoolean(false);
+   private final AtomicBoolean disableTtl = new AtomicBoolean(false);
 
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
@@ -1676,7 +1676,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    @Override
    public String getClientID() {
-      return context.getClientId();
+      return context != null ? context.getClientId() : null;
    }
 
    @Override
