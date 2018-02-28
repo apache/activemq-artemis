@@ -105,6 +105,17 @@ public class InVMConnector extends AbstractConnector {
    public static synchronized void resetThreadPool() {
       if (threadPoolExecutor != null) {
          threadPoolExecutor.shutdownNow();
+         if (threadPoolExecutor instanceof ThreadPoolExecutor) {
+            ThreadPoolExecutor tp = (ThreadPoolExecutor) threadPoolExecutor;
+            if (tp.getThreadFactory() instanceof ActiveMQThreadFactory) {
+               ActiveMQThreadFactory tf = (ActiveMQThreadFactory)tp.getThreadFactory();
+               if (!tf.join(10, TimeUnit.SECONDS)) {
+                  // resetThreadPool is only used on tests.
+                  // no need to use a logger method, this is just fine.
+                  logger.warn("Thread pool is still busy. couldn't stop on time");
+               }
+            }
+         }
          threadPoolExecutor = null;
       }
    }

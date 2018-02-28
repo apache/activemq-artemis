@@ -20,6 +20,7 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ActiveMQThreadFactory implements ThreadFactory {
@@ -27,6 +28,8 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
    private String groupName;
 
    private final AtomicInteger threadCount = new AtomicInteger(0);
+
+   private final ReusableLatch active = new ReusableLatch(0);
 
    private final int threadPriority;
 
@@ -96,8 +99,28 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       }
    }
 
+   /** It will wait all threads to finish */
+   public boolean join(int timeout, TimeUnit timeUnit) {
+      try {
+         return active.await(timeout, timeUnit);
+      } catch (InterruptedException e) {
+         Thread.currentThread().interrupt();
+         return false;
+      }
+   }
+
    private Thread createThread(final Runnable command) {
-      final Thread t = new Thread(command, prefix + threadCount.getAndIncrement() + " (" + groupName + ")");
+      active.countUp();
+      final Thread t = new Thread(command, prefix + threadCount.getAndIncrement() + " (" + groupName + ")") {
+         @Override
+         public void run() {
+            try {
+               command.run();
+            } finally {
+               active.countDown();
+            }
+         }
+      };
       t.setDaemon(daemon);
       t.setPriority(threadPriority);
       t.setContextClassLoader(tccl);
