@@ -31,6 +31,7 @@ import org.junit.Test;
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
@@ -108,6 +109,70 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
 
             Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
 
+            message.acknowledge();
+         }
+
+         Assert.assertNull(consumer2.receive(50));
+      } finally {
+         if (openwireConnection != null) {
+            openwireConnection.close();
+         }
+      }
+   }
+
+   @Test
+   //openwire sending, openwire receiving
+   public void testSingleNonExclusiveDivertOpenWirePublisher() throws Exception {
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession coreSession = sf.createSession(false, true, true);
+
+      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName2 = new SimpleString("queue2");
+
+      coreSession.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
+      coreSession.createQueue(new SimpleString(testAddress), RoutingType.ANYCAST, queueName2, null, false);
+      coreSession.close();
+
+      //use openwire to receive
+      factory = new ActiveMQConnectionFactory(urlString);
+      Connection openwireConnection = factory.createConnection();
+
+      try {
+         Session session = openwireConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         openwireConnection.start();
+
+         MessageProducer producer = session.createProducer(session.createQueue(testAddress));
+
+         final int numMessages = 10;
+         final String propKey = "testkey";
+
+         for (int i = 0; i < numMessages; i++) {
+            Message message = session.createMessage();
+            message.setIntProperty(propKey, i);
+            producer.send(message);
+         }
+
+         Queue q1 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue1"));
+         Queue q2 = session.createQueue(CompositeAddress.toFullQN(forwardAddress, "queue2"));
+
+         MessageConsumer consumer1 = session.createConsumer(q1);
+         MessageConsumer consumer2 = session.createConsumer(q2);
+
+         System.out.println("receiving ...");
+         for (int i = 0; i < numMessages; i++) {
+            Message message = consumer1.receive(TIMEOUT);
+            Assert.assertNotNull(message);
+            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
+            message.acknowledge();
+         }
+
+         Assert.assertNull(consumer1.receive(50));
+
+         for (int i = 0; i < numMessages; i++) {
+            Message message = consumer2.receive(TIMEOUT);
+            Assert.assertNotNull(message);
+            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
             message.acknowledge();
          }
 
