@@ -1156,7 +1156,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       @Override
       public Response processRollbackTransaction(TransactionInfo info) throws Exception {
          Transaction tx = lookupTX(info.getTransactionId(), null, true);
-         AMQSession amqSession = (AMQSession) tx.getProtocolData();
+
+         final AMQSession amqSession;
+         if (tx != null) {
+            amqSession = (AMQSession) tx.getProtocolData();
+         } else {
+            amqSession = null;
+         }
 
          if (info.getTransactionId().isXATransaction() && tx == null) {
             throw newXAException("Transaction '" + info.getTransactionId() + "' has not been started.", XAException.XAER_NOTA);
