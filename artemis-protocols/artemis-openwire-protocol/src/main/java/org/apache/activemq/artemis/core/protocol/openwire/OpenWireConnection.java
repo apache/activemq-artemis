@@ -80,7 +80,6 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -227,7 +226,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    // SecurityAuth implementation
    @Override
-   public RemotingConnection getRemotingConnection() {
+   public OpenWireConnection getRemotingConnection() {
       return this;
    }
 
@@ -989,7 +988,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
          try {
-            server.destroyQueue(new SimpleString(dest.getPhysicalName()));
+            server.destroyQueue(new SimpleString(dest.getPhysicalName()), getRemotingConnection());
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             ActiveMQServerLogger.LOGGER.debug("queue never existed");
