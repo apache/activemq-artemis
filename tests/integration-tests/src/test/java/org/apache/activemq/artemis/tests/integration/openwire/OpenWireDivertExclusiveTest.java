@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -27,12 +34,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.Session;
 
 public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
 
@@ -106,6 +107,63 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
          Assert.assertNull(consumer2.receive(50));
          Assert.assertNull(consumer3.receive(50));
          Assert.assertNull(consumer4.receive(50));
+      } finally {
+         if (openwireConnection != null) {
+            openwireConnection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testSingleExclusiveDivertOpenWirePublisher() throws Exception {
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession coreSession = sf.createSession(false, true, true);
+
+      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName2 = new SimpleString("queue2");
+
+      coreSession.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
+      coreSession.createQueue(new SimpleString(testAddress), RoutingType.ANYCAST, queueName2, null, false);
+      coreSession.close();
+
+      factory = new ActiveMQConnectionFactory(urlString);
+      Connection openwireConnection = factory.createConnection();
+
+      try {
+         openwireConnection.start();
+         Session session = openwireConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(session.createQueue(testAddress));
+
+         final int numMessages = 10;
+
+         final String propKey = "testkey";
+
+         for (int i = 0; i < numMessages; i++) {
+            Message message = session.createMessage();
+            message.setIntProperty(propKey, i);
+            producer.send(message);
+         }
+
+         Queue q1 = session.createQueue(CompositeAddress.toFullQN(forwardAddress, "queue1"));
+         Queue q2 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue2"));
+
+         MessageConsumer consumer1 = session.createConsumer(q1);
+         MessageConsumer consumer2 = session.createConsumer(q2);
+
+         System.out.println("receiving ...");
+         for (int i = 0; i < numMessages; i++) {
+            Message message = consumer1.receive(TIMEOUT);
+
+            Assert.assertNotNull(message);
+
+            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
+
+            message.acknowledge();
+         }
+         Assert.assertNull(consumer1.receive(50));
+         Assert.assertNull(consumer2.receive(50));
       } finally {
          if (openwireConnection != null) {
             openwireConnection.close();
