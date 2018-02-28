@@ -1158,31 +1158,31 @@ public class QueueControlTest extends ManagementTestBase {
       queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
       queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody2".getBytes()), true, "myUser", "myPassword");
 
-      Assert.assertEquals(2, getMessageCount(queueControlA));
-      Assert.assertEquals(0, getMessageCount(queueControlB));
-      Assert.assertEquals(0, getMessageCount(queueControlC));
+      Wait.assertEquals(2, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlB));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlC));
 
       // move 2 messages from queueA to queueB
       queueControlA.moveMessages(null, queueB.toString());
       Thread.sleep(500);
-      Assert.assertEquals(0, getMessageCount(queueControlA));
-      Assert.assertEquals(2, getMessageCount(queueControlB));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(2, () -> getMessageCount(queueControlB));
 
       // move 1 message to queueC
       queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody3".getBytes()), true, "myUser", "myPassword");
-      Assert.assertEquals(1, getMessageCount(queueControlA));
+      Wait.assertEquals(1, () -> getMessageCount(queueControlA));
       queueControlA.moveMessages(null, queueC.toString());
-      Assert.assertEquals(1, getMessageCount(queueControlC));
-      Assert.assertEquals(0, getMessageCount(queueControlA));
+      Wait.assertEquals(1, () -> getMessageCount(queueControlC));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlA));
 
       //move all messages back to A
       queueControlB.moveMessages(null, queueA.toString());
-      Assert.assertEquals(2, getMessageCount(queueControlA));
-      Assert.assertEquals(0, getMessageCount(queueControlB));
+      Wait.assertEquals(2, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlB));
 
       queueControlC.moveMessages(null, queueA.toString());
-      Assert.assertEquals(3, getMessageCount(queueControlA));
-      Assert.assertEquals(0, getMessageCount(queueControlC));
+      Wait.assertEquals(3, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlC));
 
       // consume the message from queueA
       ClientConsumer consumer = session.createConsumer(queueA);
@@ -2430,7 +2430,7 @@ public class QueueControlTest extends ManagementTestBase {
       queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
       queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
 
-      Assert.assertEquals(2, getMessageCount(queueControl));
+      Wait.assertEquals(2, () -> getMessageCount(queueControl));
 
       // the message IDs are set on the server
       CompositeData[] browse = queueControl.browse(null);
