@@ -18,8 +18,6 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -41,12 +39,12 @@ import org.junit.runners.Parameterized;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-/** This test will run a hornetq server with artemis clients
- *  and it will make sure that failover happens without any problems. */
+/**
+ * This test will run a hornetq server with artemis clients
+ * and it will make sure that failover happens without any problems.
+ */
 @RunWith(Parameterized.class)
 public class HQFailoverTest extends VersionedBaseTest {
 
@@ -101,15 +99,10 @@ public class HQFailoverTest extends VersionedBaseTest {
 
       assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-      session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      conn.start();
-      queue = session.createQueue("queue");
-      MessageConsumer consumer = session.createConsumer(queue);
+      // We should still be able to send more after failover.
+      // This test is to validate stuff can still work well after failover against hornetq
       for (int i = 0; i < 10; i++) {
-         Message msg = consumer.receive(5000);
-         assertNotNull(msg);
+         producer.send(session.createTextMessage(textBody + i));
       }
-      assertNull(consumer.receiveNoWait());
-
    }
 }
