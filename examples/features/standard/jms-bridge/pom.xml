@@ -27,7 +27,7 @@ under the License.
       <version>2.5.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>bridge</artifactId>
+   <artifactId>jms-bridge</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Bridge Example</name>
 
@@ -147,7 +147,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>bridge</artifactId>
+                  <artifactId>jms-bridge</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>

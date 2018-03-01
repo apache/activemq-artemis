@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>message-listener</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Queue Example for openwire</name>
+   <name>ActiveMQ Artemis OpenWire JMS Message Listener Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -84,7 +84,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.QueueExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.jms.example.MessageListenerExample</clientClass>
                   </configuration>
                </execution>
                <execution>

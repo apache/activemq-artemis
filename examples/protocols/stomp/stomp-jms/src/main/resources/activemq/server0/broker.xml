@@ -19,6 +19,7 @@ under the License.
 -->
 <configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core">
+
       <bindings-directory>./data/messaging/bindings</bindings-directory>
 
       <journal-directory>./data/messaging/journal</journal-directory>
@@ -27,35 +28,17 @@ under the License.
 
       <paging-directory>./data/messaging/paging</paging-directory>
 
-      <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616?anycastPrefix=/queue/</acceptor>
       </acceptors>
 
-      
-
-      <!-- Other config -->
-
       <security-settings>
-         <!--security for example queue-->
-         <security-setting match="exampleQueue">
-            <permission roles="guest" type="createDurableQueue"/>
-            <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
+         <security-setting match="#">
             <permission roles="guest" type="consume"/>
             <permission roles="guest" type="send"/>
+            <permission roles="guest" type="createAddress"/>
+            <permission roles="guest" type="createDurableQueue"/>
          </security-setting>
       </security-settings>
-
-      <addresses>
-         <address name="exampleQueue">
-            <multicast>
-               <queue name="exampleQueue">
-                  <filter string="color='red'"/>
-               </queue>
-            </multicast>
-         </address>
-      </addresses>
    </core>
 </configuration>

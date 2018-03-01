@@ -19,6 +19,7 @@ under the License.
 -->
 <configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core">
+
       <bindings-directory>./data/messaging/bindings</bindings-directory>
 
       <journal-directory>./data/messaging/journal</journal-directory>
@@ -27,35 +28,26 @@ under the License.
 
       <paging-directory>./data/messaging/paging</paging-directory>
 
-      <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616?protocols=CORE</acceptor>
+         <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP</acceptor>
       </acceptors>
 
-      
-
-      <!-- Other config -->
-
       <security-settings>
-         <!--security for example queue-->
-         <security-setting match="exampleQueue">
-            <permission roles="guest" type="createDurableQueue"/>
-            <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
+         <security-setting match="#">
+            <permission type="send" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="createAddress" roles="guest"/>
+            <permission type="createDurableQueue" roles="guest"/>
          </security-setting>
       </security-settings>
 
-      <addresses>
-         <address name="exampleQueue">
-            <multicast>
-               <queue name="exampleQueue">
-                  <filter string="color='red'"/>
-               </queue>
-            </multicast>
-         </address>
-      </addresses>
+      <address-settings>
+         <address-setting match="#">
+            <default-address-routing-type>ANYCAST</default-address-routing-type>
+            <default-queue-routing-type>ANYCAST</default-queue-routing-type>
+         </address-setting>
+      </address-settings>
+
    </core>
 </configuration>
