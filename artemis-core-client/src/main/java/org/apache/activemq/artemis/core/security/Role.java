@@ -79,6 +79,7 @@ public class Role implements Serializable {
       this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, consume);
    }
 
+   @Deprecated
    public Role(final String name,
                final boolean send,
                final boolean consume,
@@ -154,6 +155,14 @@ public class Role implements Serializable {
 
    public boolean isDeleteNonDurableQueue() {
       return deleteNonDurableQueue;
+   }
+
+   public boolean isManage() {
+      return manage;
+   }
+
+   public boolean isBrowse() {
+      return browse;
    }
 
    @Override
@@ -259,13 +268,5 @@ public class Role implements Serializable {
       result = 31 * result + (manage ? 1 : 0);
       result = 31 * result + (browse ? 1 : 0);
       return result;
-   }
-
-   public boolean isManage() {
-      return manage;
-   }
-
-   public boolean isBrowse() {
-      return browse;
    }
 }

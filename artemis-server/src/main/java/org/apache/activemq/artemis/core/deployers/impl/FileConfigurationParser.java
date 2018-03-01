@@ -871,7 +871,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       for (String role : allRoles) {
-         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role)));
+         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role)));
       }
 
       return securityMatch;
