@@ -230,7 +230,7 @@ var ARTEMIS = (function(ARTEMIS) {
       });
 
       workspace.subLevelTabs.push({
-         content: '<i class="icon-plus"></i> Delete',
+         content: '<i class="icon-remove"></i> Delete',
          title: "Delete an address",
          isValid: function (workspace) {
             return isAddress(workspace, artemisJmxDomain);
@@ -341,7 +341,11 @@ var ARTEMIS = (function(ARTEMIS) {
    }
 
    function isAddress(workspace, domain) {
-      return workspace.hasDomainAndProperties(domain, {'component': 'addresses'}) && !workspace.hasDomainAndProperties(domain, {'subcomponent': 'queues'});
+      return workspace.hasDomainAndProperties(domain, {'component': 'addresses'}) && !workspace.hasDomainAndProperties(domain, {'subcomponent': 'queues'}) && !workspace.hasDomainAndProperties(domain, {'subcomponent': 'diverts'});
+   }
+
+   function isDivert(workspace, domain) {
+      return workspace.hasDomainAndProperties(domain, {'subcomponent': 'diverts'});
    }
 
    function isQueue(workspace, domain) {
