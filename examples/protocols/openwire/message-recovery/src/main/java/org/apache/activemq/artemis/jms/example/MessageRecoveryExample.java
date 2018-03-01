@@ -29,15 +29,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.util.ServerUtil;
 
-/**
- * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
- */
-public class QueueExample {
+public class MessageRecoveryExample {
 
    public static void main(final String[] args) throws Exception {
       Connection connection = null;
+      Process server0 = null;
       try {
+         server0 = ServerUtil.startServer(args[0], MessageRecoveryExample.class.getSimpleName() + "0", 0, 5000);
 
          ConnectionFactory cf = new ActiveMQConnectionFactory();
 
@@ -47,17 +47,11 @@ public class QueueExample {
 
          Queue queue = session.createQueue("exampleQueue");
 
-         int nMessages = 1000;
-
-         CountDownLatch latch = new CountDownLatch(nMessages);
-         MessageConsumer messageConsumer = session.createConsumer(queue);
-         messageConsumer.setMessageListener(new LocalListener(latch));
-
-         connection.start();
-
          MessageProducer producer = session.createProducer(queue);
 
-         for (int i = 0; i < 1000; i++) {
+         int nMessages = 1000;
+
+         for (int i = 0; i < nMessages; i++) {
             TextMessage message = session.createTextMessage("This is a text message " + i);
 
             System.out.println("Sent message: " + message.getText());
@@ -65,16 +59,35 @@ public class QueueExample {
             producer.send(message);
          }
 
+         connection.close();
+
+         ServerUtil.killServer(server0);
+
+         server0 = ServerUtil.startServer(args[0], MessageRecoveryExample.class.getSimpleName() + "0", 0, 5000);
+
+         ServerUtil.waitForServerToStart(0, 5000);
+
+         connection = cf.createConnection();
+
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         CountDownLatch latch = new CountDownLatch(nMessages);
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+         messageConsumer.setMessageListener(new LocalListener(latch));
+
+         connection.start();
+
          if (!latch.await(5, TimeUnit.SECONDS)) {
             throw new RuntimeException("listener didn't receive all the messages");
          }
 
          System.out.println("Finished ok!");
-
       } finally {
          if (connection != null) {
             connection.close();
          }
+
+         ServerUtil.killServer(server0);
       }
    }
 

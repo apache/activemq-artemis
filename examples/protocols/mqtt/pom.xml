@@ -40,15 +40,15 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
-            <module>basic-pubsub</module>
             <module>clustered-queue-mqtt</module>
+            <module>publish-subscribe</module>
          </modules>
       </profile>
       <profile>
          <id>examples</id>
          <modules>
-            <module>basic-pubsub</module>
             <module>clustered-queue-mqtt</module>
+            <module>publish-subscribe</module>
          </modules>
       </profile>
    </profiles>

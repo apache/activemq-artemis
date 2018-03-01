@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>clustered-queue-mqtt</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Clustered Queue Example</name>
+   <name>ActiveMQ Artemis MQTT Clustered Queue Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -117,7 +117,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.ClusteredQueueMQTTExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.mqtt.example.ClusteredQueueMQTTExample</clientClass>
                   </configuration>
                </execution>
                <execution>
@@ -149,7 +149,7 @@ under the License.
             </executions>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.activemq.examples.clustered</groupId>
+                  <groupId>org.apache.activemq.examples.mqtt</groupId>
                   <artifactId>clustered-queue-mqtt</artifactId>
                   <version>${project.version}</version>
                </dependency>
