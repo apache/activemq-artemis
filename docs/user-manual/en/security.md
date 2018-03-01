@@ -35,6 +35,12 @@ wildcard match can be used using the wildcard characters '`#`' and
 Eight different permissions can be given to the set of queues which
 match the address. Those permissions are:
 
+-   `createAddress`. This permission allows the user to create an
+    address fitting the `match`.
+
+-   `deleteAddress`. This permission allows the user to delete an
+    address fitting the `match`.
+
 -   `createDurableQueue`. This permission allows the user to create a
     durable queue under matching addresses.
 
@@ -225,13 +231,14 @@ The name of the queue or topic defined in LDAP will serve as the "match" for the
 will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is.
 
 ActiveMQ 5.x only has 3 permission types - `read`, `write`, and `admin`. These permission types are described on their
-[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 7 permission
-types - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`,
-`browse`, and `manage`. Here's how the old types are mapped to the new types:
+[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 9 permission
+types - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, 
+`deleteNonDurableQueue`, `send`, `consume`, `browse`, and `manage`. Here's how the old types are mapped to the new types:
 
 -   `read` - `consume`, `browse`
 -   `write` - `send`
--   `admin` - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`
+-   `admin` - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, 
+    `deleteNonDurableQueue`
 
 As mentioned, there are a few places where a translation was performed to achieve some equivalence.:
 

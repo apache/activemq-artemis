@@ -41,12 +41,15 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
-            <module>bridge</module>
+            <module>auto-closeable</module>
             <module>browser</module>
             <module>broker-plugin</module>
             <module>cdi</module>
             <module>client-kickoff</module>
+            <module>completion-listener</module>
             <module>consumer-rate-limit</module>
+            <module>context</module>
+            <module>core-bridge</module>
             <module>database</module>
             <module>dead-letter</module>
             <module>delayed-redelivery</module>
@@ -61,11 +64,7 @@ under the License.
             <module>interceptor-mqtt</module>
             <module>interceptor-amqp</module>
             <module>instantiate-connection-factory</module>
-            <module>jms-auto-closeable</module>
             <module>jms-bridge</module>
-            <module>jms-completion-listener</module>
-            <module>jms-context</module>
-            <module>jms-shared-consumer</module>
             <module>jmx</module>
             <module>jmx-ssl</module>
             <module>large-message</module>
@@ -90,32 +89,36 @@ under the License.
             <module>security</module>
             <module>security-ldap</module>
             <module>send-acknowledgements</module>
+            <module>shared-consumer</module>
             <module>slow-consumer</module>
             <module>spring-integration</module>
             <module>ssl-enabled</module>
+            <module>ssl-enabled-crl-mqtt</module>
             <module>ssl-enabled-dual-authentication</module>
             <module>static-selector</module>
             <module>temp-queue</module>
             <module>topic</module>
             <module>topic-hierarchies</module>
-            <module>topic-selector-example1</module>
-            <module>topic-selector-example2</module>
+            <module>topic-selector1</module>
+            <module>topic-selector2</module>
             <module>transactional</module>
             <module>xa-heuristic</module>
             <module>xa-receive</module>
             <module>xa-send</module>
-            <module>ssl-enabled-crl-mqtt</module>
          </modules>
       </profile>
       <profile>
          <id>examples</id>
          <modules>
-            <module>bridge</module>
+            <module>auto-closeable</module>
             <module>browser</module>
             <module>broker-plugin</module>
             <module>cdi</module>
             <module>client-kickoff</module>
+            <module>completion-listener</module>
             <module>consumer-rate-limit</module>
+            <module>context</module>
+            <module>core-bridge</module>
             <module>database</module>
             <module>dead-letter</module>
             <module>delayed-redelivery</module>
@@ -129,12 +132,8 @@ under the License.
             <module>interceptor-client</module>
             <module>interceptor-mqtt</module>
             <module>interceptor-amqp</module>
-            <module>jms-auto-closeable</module>
             <module>instantiate-connection-factory</module>
             <module>jms-bridge</module>
-            <module>jms-completion-listener</module>
-            <module>jms-context</module>
-            <module>jms-shared-consumer</module>
             <module>jmx</module>
             <module>jmx-ssl</module>
             <module>large-message</module>
@@ -153,16 +152,17 @@ under the License.
             <module>queue-requestor</module>
             <module>queue-selector</module>
             <module>reattach-node</module>
-
-            <module>request-reply</module>
             <module>rest</module>
+            <module>request-reply</module>
             <module>scheduled-message</module>
             <module>security</module>
             <module>security-ldap</module>
             <module>send-acknowledgements</module>
+            <module>shared-consumer</module>
             <module>slow-consumer</module>
             <module>spring-integration</module>
             <module>ssl-enabled</module>
+            <module>ssl-enabled-crl-mqtt</module>
             <module>ssl-enabled-dual-authentication</module>
             <module>static-selector</module>
 
@@ -172,13 +172,12 @@ under the License.
             <module>temp-queue</module>
             <module>topic</module>
             <module>topic-hierarchies</module>
-            <module>topic-selector-example1</module>
-            <module>topic-selector-example2</module>
+            <module>topic-selector1</module>
+            <module>topic-selector2</module>
             <module>transactional</module>
             <module>xa-heuristic</module>
             <module>xa-receive</module>
             <module>xa-send</module>
-            <module>ssl-enabled-crl-mqtt</module>
          </modules>
       </profile>
 

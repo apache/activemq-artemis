@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jms.example;
+package org.apache.activemq.artemis.mqtt.example;
 
 import java.util.concurrent.TimeUnit;
 import org.fusesource.mqtt.client.BlockingConnection;

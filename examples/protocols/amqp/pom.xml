@@ -56,8 +56,9 @@ under the License.
       <profile>
          <id>examples</id>
          <modules>
-            <!-- this one to be run manually
-            <module>proton-cpp</module> -->
+            <!-- these to be run manually
+            <module>proton-cpp</module>
+            <module>proton-clustered-cpp</module> -->
 
             <module>queue</module>
             <module>proton-ruby</module>

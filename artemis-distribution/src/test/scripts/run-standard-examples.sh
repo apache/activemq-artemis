@@ -30,12 +30,16 @@ export TEST_TARGET="./target"
 
 cd $ARTEMIS_HOME/examples/features/standard/
 
-cd bridge; mvn verify; cd ..
-cd bridge; mvn verify; cd ..
-cd browser; mvn verify; cd ..
+cd auto-closeable; mvn verify; cd ..
 cd broker-plugin; mvn verify; cd ..
+cd browser; mvn verify; cd ..
+cd cdi; mvn verify; cd ..
 cd client-kickoff; mvn verify; cd ..
+cd completion-listener; mvn verify; cd ..
 cd consumer-rate-limit; mvn verify; cd ..
+cd context; mvn verify; cd ..
+cd core-bridge; mvn verify; cd ..
+cd database; mvn verify; cd ..
 cd dead-letter; mvn verify; cd ..
 cd delayed-redelivery; mvn verify; cd ..
 cd divert; mvn verify; cd ..
@@ -44,15 +48,14 @@ cd embedded; mvn verify; cd ..
 cd embedded-simple; mvn verify; cd ..
 cd expiry; mvn verify; cd ..
 cd http-transport; mvn verify; cd ..
-cd interceptor; mvn verify; cd ..
-cd interceptor-client; mvn verify; cd ..
-cd jms-auto-closeable; mvn verify; cd ..
 cd instantiate-connection-factory; mvn verify; cd ..
+cd interceptor; mvn verify; cd ..
+cd interceptor-amqp; mvn verify; cd ..
+cd interceptor-client; mvn verify; cd ..
+cd interceptor-mqtt; mvn verify; cd ..
 cd jms-bridge; mvn verify; cd ..
-cd jms-completion-listener; mvn verify; cd ..
-cd jms-context; mvn verify; cd ..
-cd jms-shared-consumer; mvn verify; cd ..
 cd jmx; mvn verify; cd ..
+cd jmx-ssl; mvn verify; cd ..
 
 # too big for most CI machines
 #cd large-message; mvn verify; cd ..
@@ -78,15 +81,18 @@ cd scheduled-message; mvn verify; cd ..
 cd security; mvn verify; cd ..
 cd security-ldap; mvn verify; cd ..
 cd send-acknowledgements; mvn verify; cd ..
+cd shared-consumer; mvn verify; cd ..
+cd slow-consumer; mvn verify; cd ..
 cd spring-integration; mvn verify; cd ..
 cd ssl-enabled; mvn verify; cd ..
+cd ssl-enabled-crl-mqtt; mvn verify; cd ..
 cd ssl-enabled-dual-authentication; mvn verify; cd ..
 cd static-selector; mvn verify; cd ..
 cd temp-queue; mvn verify; cd ..
 cd topic; mvn verify; cd ..
 cd topic-hierarchies; mvn verify; cd ..
-cd topic-selector-example1; mvn verify; cd ..
-cd topic-selector-example2; mvn verify; cd ..
+cd topic-selector1; mvn verify; cd ..
+cd topic-selector2; mvn verify; cd ..
 cd transactional; mvn verify; cd ..
 cd xa-heuristic; mvn verify; cd ..
 cd xa-receive; mvn verify; cd ..

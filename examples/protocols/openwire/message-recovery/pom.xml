@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>message-recovery</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Queue Example for openwire</name>
+   <name>ActiveMQ Artemis OpenWire JMS Message Recovery Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -79,7 +79,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.QueueExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.jms.example.MessageRecoveryExample</clientClass>
                      <args>
                         <param>${basedir}/target/server0</param>
                      </args>

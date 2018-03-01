@@ -27,9 +27,9 @@ under the License.
       <version>2.5.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>datatabase</artifactId>
+   <artifactId>database</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Expiry Example</name>
+   <name>ActiveMQ Artemis JMS Database Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -104,7 +104,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>datatabase</artifactId>
+                  <artifactId>database</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>
