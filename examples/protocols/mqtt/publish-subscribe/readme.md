@@ -1,4 +1,4 @@
-# MQTT Example
+# MQTT Publish/Subscribe Example
 
 This is a basic MQTT example that demonstrates how to setup and connect to an Apache Artemis broker and send and receive messages using the MQTT protocol.
 

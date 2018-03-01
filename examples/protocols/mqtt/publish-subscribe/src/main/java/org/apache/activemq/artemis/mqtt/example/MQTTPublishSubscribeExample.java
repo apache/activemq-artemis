@@ -27,7 +27,7 @@ import org.fusesource.mqtt.client.Topic;
 /**
  * A simple MQTT publish and subscribe example.
  */
-public class MQTTBasicPubSubExample {
+public class MQTTPublishSubscribeExample {
 
    public static void main(final String[] args) throws Exception {
       // Create a new MQTT connection to the broker.  We are not setting the client ID.  The broker will pick one for us.

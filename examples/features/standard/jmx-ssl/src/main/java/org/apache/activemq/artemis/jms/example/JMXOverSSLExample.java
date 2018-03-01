@@ -83,10 +83,10 @@ public class JMXOverSSLExample {
          String[] creds = {"guest", "guest"};
          env.put(JMXConnector.CREDENTIALS, creds);
 
-         System.setProperty("javax.net.ssl.trustStore", args[0] + "activemq.example.truststore");
-         System.setProperty("javax.net.ssl.trustStorePassword", "activemqexample");
-         System.setProperty("javax.net.ssl.keyStore", args[0] + "activemq.example.keystore");
-         System.setProperty("javax.net.ssl.keyStorePassword", "activemqexample");
+         System.setProperty("javax.net.ssl.trustStore", args[0] + "client-side-truststore.jks");
+         System.setProperty("javax.net.ssl.trustStorePassword", "secureexample");
+         System.setProperty("javax.net.ssl.keyStore", args[0] + "client-side-keystore.jks");
+         System.setProperty("javax.net.ssl.keyStorePassword", "secureexample");
 
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXOverSSLExample.JMX_URL), env);
 
@@ -131,6 +131,11 @@ public class JMXOverSSLExample {
          if (connection != null) {
             connection.close();
          }
+
+         System.clearProperty("javax.net.ssl.trustStore");
+         System.clearProperty("javax.net.ssl.trustStorePassword");
+         System.clearProperty("javax.net.ssl.keyStore");
+         System.clearProperty("javax.net.ssl.keyStorePassword");
       }
    }
 }
