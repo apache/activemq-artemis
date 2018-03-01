@@ -285,13 +285,11 @@ public class StompTest extends StompTestBase {
 
    }
 
-   @Test
-   public void testSendMessageToNonExistentQueue() throws Exception {
-      String nonExistentQueue = RandomUtil.randomString();
+   public void sendMessageToNonExistentQueue(String queuePrefix, String queue, RoutingType routingType) throws Exception {
       conn.connect(defUser, defPass);
-      send(conn, getQueuePrefix() + nonExistentQueue, null, "Hello World", true, RoutingType.ANYCAST);
+      send(conn, queuePrefix + queue, null, "Hello World", true, routingType);
 
-      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(nonExistentQueue));
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(queue));
       TextMessage message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
       Assert.assertEquals("Hello World", message.getText());
@@ -305,26 +303,32 @@ public class StompTest extends StompTestBase {
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
       // closing the consumer here should trigger auto-deletion
-      assertNotNull(server.getActiveMQServer()
-                          .getPostOffice()
-                          .getBinding(new SimpleString(nonExistentQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(queue)));
       consumer.close();
-      assertNull(server.getActiveMQServer()
-                       .getPostOffice()
-                       .getBinding(new SimpleString(nonExistentQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(queue)));
    }
 
    @Test
-   public void testSendMessageToNonExistentTopic() throws Exception {
-      String nonExistentTopic = RandomUtil.randomString();
+   public void testSendMessageToNonExistentQueue() throws Exception {
+      sendMessageToNonExistentQueue(getQueuePrefix(), RandomUtil.randomString(), RoutingType.ANYCAST);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentQueueUsingExplicitDefaultRouting() throws Exception {
+      String nonExistentQueue = RandomUtil.randomString();
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch(nonExistentQueue, new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST).setDefaultQueueRoutingType(RoutingType.ANYCAST));
+      sendMessageToNonExistentQueue(getQueuePrefix(), nonExistentQueue, null);
+   }
+
+   public void sendMessageToNonExistentTopic(String topicPrefix, String topic, RoutingType routingType) throws Exception {
       conn.connect(defUser, defPass);
 
       // first send a message to ensure that sending to a non-existent topic won't throw an error
-      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true, RoutingType.MULTICAST);
+      send(conn, topicPrefix + topic, null, "Hello World", true, routingType);
 
       // create a subscription on the topic and send/receive another message
-      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(nonExistentTopic));
-      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true);
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(topic));
+      send(conn, topicPrefix + topic, null, "Hello World", true, routingType);
       TextMessage message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
       Assert.assertEquals("Hello World", message.getText());
@@ -337,14 +341,29 @@ public class StompTest extends StompTestBase {
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
-      assertNotNull(server.getActiveMQServer()
-                          .getAddressInfo(new SimpleString(nonExistentTopic)));
+      assertNotNull(server.getActiveMQServer().getAddressInfo(new SimpleString(topic)));
 
       // closing the consumer here should trigger auto-deletion of the subscription queue and address
       consumer.close();
       Thread.sleep(200);
-      assertNull(server.getActiveMQServer()
-                       .getAddressInfo(new SimpleString(nonExistentTopic)));
+      assertNull(server.getActiveMQServer().getAddressInfo(new SimpleString(topic)));
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopic() throws Exception {
+      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), RoutingType.MULTICAST);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopicUsingExplicitDefaultRouting() throws Exception {
+      String nonExistentTopic = RandomUtil.randomString();
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch(nonExistentTopic, new AddressSettings().setDefaultAddressRoutingType(RoutingType.MULTICAST).setDefaultQueueRoutingType(RoutingType.MULTICAST));
+      sendMessageToNonExistentTopic(getTopicPrefix(), nonExistentTopic, null);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopicUsingImplicitDefaultRouting() throws Exception {
+      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), null);
    }
 
    /*
