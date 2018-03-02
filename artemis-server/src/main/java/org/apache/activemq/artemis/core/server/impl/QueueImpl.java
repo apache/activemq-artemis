@@ -2741,6 +2741,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
+            acknowledge(tx, ref, AckReason.EXPIRED);
          } else {
             move(expiryAddress, tx, ref, true, true);
          }
@@ -2751,7 +2752,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
          }
 
-         acknowledge(tx, ref);
+         acknowledge(tx, ref, AckReason.EXPIRED);
       }
    }
 
