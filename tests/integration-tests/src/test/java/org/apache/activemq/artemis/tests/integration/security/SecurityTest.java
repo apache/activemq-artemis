@@ -16,16 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
-import javax.jms.Session;
-import javax.security.cert.X509Certificate;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.jms.MessageProducer;
+import javax.jms.QueueBrowser;
+import javax.jms.Session;
+import javax.security.cert.X509Certificate;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQSslConnectionFactory;
@@ -60,6 +63,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -217,6 +221,119 @@ public class SecurityTest extends ActiveMQTestBase {
       } catch (Throwable e) {
          e.printStackTrace();
          Assert.fail("should not throw exception");
+      }
+   }
+
+   /**
+    * Verify role permissions are applied properly when using OpenWire
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testJAASSecurityManagerOpenWireNegative() throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
+      server.getConfiguration().putSecurityRoles("#", roles);
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      server.start();
+
+      ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616");
+      factory.setUserName("test-user");
+      factory.setTrustStore("client-side-truststore.jks");
+      factory.setTrustStorePassword("secureexample");
+      factory.setKeyStore("client-side-keystore.jks");
+      factory.setKeyStorePassword("secureexample");
+
+      try (ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         //Test queue creation permission
+         try {
+            session.createConsumer(session.createQueue("test.queue"));
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_DURABLE_QUEUE' for queue test.queue on address test.queue"));
+         }
+
+         //Test non durable create permission
+         try {
+            session.createConsumer(session.createTopic("test.topic"));
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_NON_DURABLE_QUEUE'"));
+         }
+
+         //Add a test queue and topic to the server
+         SimpleString address = SimpleString.toSimpleString("test.queue");
+         server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+         server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+
+         SimpleString address2 = SimpleString.toSimpleString("test.topic");
+         server.addAddressInfo(new AddressInfo(address2, RoutingType.MULTICAST));
+
+         //Test queue produce permission
+         try {
+            MessageProducer producer = session.createProducer(session.createQueue("test.queue"));
+            producer.send(session.createMessage());
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='SEND'"));
+         }
+
+         //Test queue consume permission
+         try {
+            session.createConsumer(session.createQueue("test.queue"));
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='CONSUME' for queue test.queue on address test.queue"));
+         }
+
+         //Test queue browse permission
+         try {
+            QueueBrowser browser = session.createBrowser(session.createQueue("test.queue"));
+            browser.getEnumeration();
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='BROWSE' for queue test.queue on address test.queue"));
+         }
+
+         //Test queue deletion permission
+         try {
+            connection.destroyDestination(new ActiveMQQueue("test.queue"));
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='DELETE_DURABLE_QUEUE' for queue test.queue on address test.queue"));
+         }
+
+         //Test temp queue
+         try {
+            session.createTemporaryQueue();
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_NON_DURABLE_QUEUE'"));
+         }
+
+         //Test temp topic
+         try {
+            session.createTemporaryTopic();
+            Assert.fail("should throw exception here");
+         } catch (Exception e) {
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_ADDRESS'"));
+         }
+
+         session.close();
       }
    }
 
