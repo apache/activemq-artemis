@@ -1,6 +1,8 @@
 **/*.iml
 **/nb-configuration.xml
 **/target
+**/bin
+**/obj
 .idea/
 ratReport.txt
 **/server.lock
