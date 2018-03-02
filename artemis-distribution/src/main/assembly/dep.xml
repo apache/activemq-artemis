@@ -184,6 +184,11 @@
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
       </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/artemis-dto/target/schema/org.apache.activemq/dto/</directory>
+         <outputDirectory>schema</outputDirectory>
+         <lineEnding>keep</lineEnding>
+      </fileSet>
       <!-- resources -->
       <fileSet>
          <directory>src/main/resources</directory>
