@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton.handler;
 
-import javax.security.auth.Subject;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.security.auth.Subject;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonInitializable;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
@@ -42,6 +43,7 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Transport;
+import org.apache.qpid.proton.engine.impl.TransportInternal;
 import org.jboss.logging.Logger;
 
 import io.netty.buffer.ByteBuf;
@@ -93,6 +95,14 @@ public class ProtonHandler extends ProtonInitializable {
       });
       this.creationTime = System.currentTimeMillis();
       this.isServer = isServer;
+
+      try {
+         ((TransportInternal) transport).setUseReadOnlyOutputBuffer(false);
+      } catch (NoSuchMethodError nsme) {
+         // using a version at runtime where the optimization isn't available, ignore
+         log.trace("Proton output buffer optimisation unavailable");
+      }
+
       transport.bind(connection);
       connection.collect(collector);
    }
