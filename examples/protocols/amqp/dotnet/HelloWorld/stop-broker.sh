@@ -16,7 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# if you are using a source distribution you will have to create and start the broker manually
+# if you are using a source distribution you will have to stop the broker manually
 # Use this as a reference!
-../../../../../bin/artemis create ./server1 --user a --password a --role a --allow-anonymous --force
-./server1/bin/artemis-service start
+./server1/bin/artemis-service stop
