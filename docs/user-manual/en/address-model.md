@@ -432,7 +432,7 @@ Open the file <broker-instance>/etc/broker.xml for editing.
 If a user requires to pre-create a queue that routes exclusively to one active consumer the **exclusive** flag can be enabled on the queue.  
 When **exclusive** is set to **true**.  The queue will route messages to the a single active consumer.  When the active consumer that is being routed to is detached from the queue, if another active consumer exist, one will be chosen and routing will now be exclusive to it. 
 
-See [Exclusive Queue](exclusive.md) for further information.
+See [Exclusive Queue](exclusive-queues.md) for further information.
 
 Open the file <broker-instance>/etc/broker.xml for editing.
 
