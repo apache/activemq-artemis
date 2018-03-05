@@ -38,6 +38,18 @@
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-client</artifactId>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <!--Let's compile against JMS 2-->
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_1.1_spec</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
