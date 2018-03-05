@@ -21,9 +21,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -87,7 +88,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private static final Symbol QUEUE = Symbol.valueOf("queue");
    private static final Symbol SHARED = Symbol.valueOf("shared");
    private static final Symbol GLOBAL = Symbol.valueOf("global");
-
+   private static final ByteBuf SEND_BUFFER_BUSY = Unpooled.EMPTY_BUFFER;
    private Consumer brokerConsumer;
 
    protected final AMQPSessionContext protonSession;
@@ -103,6 +104,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private boolean global = false;
    private boolean isVolatile = false;
    private SimpleString tempQueueName;
+   private final AtomicReference<ByteBuf> heapSendBuffer;
 
    public ProtonServerSenderContext(AMQPConnectionContext connection,
                                     Sender sender,
@@ -113,6 +115,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       this.sender = sender;
       this.protonSession = protonSession;
       this.sessionSPI = server;
+      this.heapSendBuffer = new AtomicReference<>();
    }
 
    public Object getBrokerConsumer() {
@@ -689,12 +692,32 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       // we only need a tag if we are going to settle later
       byte[] tag = preSettle ? new byte[0] : protonSession.getTag();
-
-      ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(message.getEncodeSize());
+      final int encodeSize = message.getEncodeSize();
+      //try to re-use the pooled send buffer (if any) or just create a fresh new unpooled one
+      boolean pooledSendBuffer = false;
+      boolean sendBufferReleased = false;
+      ByteBuf sendBuffer = null;
       try {
-         message.sendBuffer(nettyBuffer, deliveryCount);
+         final ByteBuf currentSendBuffer = this.heapSendBuffer.get();
+         if (currentSendBuffer == SEND_BUFFER_BUSY || !this.heapSendBuffer.compareAndSet(currentSendBuffer, SEND_BUFFER_BUSY)) {
+            //the send buffer is already used by another thread or has lost the race to acquire it
+            //it can have an exact maxCapacity, because it won't be returned to the pool and enlarged anymore
+            sendBuffer = Unpooled.buffer(encodeSize, encodeSize);
+         } else {
+            //winner of a null ByteBuf or of the pooled one
+            pooledSendBuffer = true;
+            if (currentSendBuffer != null) {
+               sendBuffer = currentSendBuffer;
+               sendBuffer.clear();
+               sendBuffer.ensureWritable(encodeSize);
+            } else {
+               sendBuffer = Unpooled.buffer(encodeSize);
+            }
+         }
 
-         int size = nettyBuffer.writerIndex();
+         message.sendBuffer(sendBuffer, deliveryCount);
+
+         int size = sendBuffer.writerIndex();
 
          while (!connection.tryLock(1, TimeUnit.SECONDS)) {
             if (closed || sender.getLocalState() == EndpointState.CLOSED) {
@@ -715,7 +738,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             delivery.setContext(messageReference);
 
             // this will avoid a copy.. patch provided by Norman using buffer.array()
-            sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
+            sender.send(sendBuffer.array(), sendBuffer.arrayOffset() + sendBuffer.readerIndex(), sendBuffer.readableBytes());
+            if (pooledSendBuffer) {
+               //it is uncontended ie lazySet is enough
+               this.heapSendBuffer.lazySet(sendBuffer);
+               sendBufferReleased = true;
+            }
 
             if (preSettle) {
                // Presettled means the client implicitly accepts any delivery we send it.
@@ -731,7 +759,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          return size;
       } finally {
-         nettyBuffer.release();
+         if (pooledSendBuffer && !sendBufferReleased) {
+            //return it whatever it is: null or anything
+            this.heapSendBuffer.lazySet(sendBuffer);
+         }
       }
    }
 
