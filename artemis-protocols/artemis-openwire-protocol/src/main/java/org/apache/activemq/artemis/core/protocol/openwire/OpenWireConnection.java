@@ -40,6 +40,7 @@ import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
@@ -299,10 +300,15 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
 
             if (response instanceof ExceptionResponse) {
+               Throwable cause = ((ExceptionResponse)response).getException();
                if (!responseRequired) {
-                  Throwable cause = ((ExceptionResponse) response).getException();
                   serviceException(cause);
                   response = null;
+               }
+               // If there was an exception when processing ConnectionInfo we should
+               // stop the connection to prevent dangling sockets
+               if (command instanceof ConnectionInfo) {
+                  delayedStop(2000, cause.getMessage(), cause);
                }
             }
 
@@ -640,11 +646,27 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
       }
       try {
-         protocolManager.removeConnection(this.getConnectionInfo(), me);
+         if (this.getConnectionInfo() != null) {
+            protocolManager.removeConnection(this.getConnectionInfo(), me);
+         }
       } catch (InvalidClientIDException e) {
          ActiveMQServerLogger.LOGGER.warn("Couldn't close connection because invalid clientID", e);
       }
       shutdown(true);
+   }
+
+   private void delayedStop(final int waitTimeMillis, final String reason, Throwable cause) {
+      if (waitTimeMillis > 0) {
+         try {
+            protocolManager.getScheduledPool().schedule(() -> {
+               fail(new ActiveMQException(reason, cause, ActiveMQExceptionType.GENERIC_EXCEPTION), reason);
+               ActiveMQServerLogger.LOGGER.warn("Stopping " + transportConnection.getRemoteAddress() + "because " +
+                        reason);
+            }, waitTimeMillis, TimeUnit.MILLISECONDS);
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.warn("Cannot stop connection. This exception will be ignored.", t);
+         }
+      }
    }
 
    public void setAdvisorySession(AMQSession amqSession) {
