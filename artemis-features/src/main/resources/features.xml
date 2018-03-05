@@ -117,4 +117,12 @@
 		<bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${pom.version}</bundle>
 	</feature>
 
+	<feature name="artemis-openwire-client" version="${pom.version}" description="ActiveMQ Artemis Openwire Client libraries">
+		<feature>transaction</feature>
+		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuff.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
+		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+		<bundle>mvn:org.apache.activemq/activemq-client/${activemq5-version}</bundle>
+	</feature>
+
 </features>
