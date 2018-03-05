@@ -334,7 +334,9 @@ final class PageSubscriptionImpl implements PageSubscription {
          }
 
          infoPG.acks.clear();
+         infoPG.acks = Collections.synchronizedSet(new LinkedHashSet<PagePosition>());
          infoPG.removedReferences.clear();
+         infoPG.removedReferences = new ConcurrentHashSet<>();
       }
 
       tx.addOperation(new TransactionOperationAbstract() {
@@ -901,11 +903,11 @@ final class PageSubscriptionImpl implements PageSubscription {
       private final long pageId;
 
       // Confirmed ACKs on this page
-      private final Set<PagePosition> acks = Collections.synchronizedSet(new LinkedHashSet<PagePosition>());
+      private Set<PagePosition> acks = Collections.synchronizedSet(new LinkedHashSet<PagePosition>());
 
       private WeakReference<PageCache> cache;
 
-      private final Set<PagePosition> removedReferences = new ConcurrentHashSet<>();
+      private Set<PagePosition> removedReferences = new ConcurrentHashSet<>();
 
       // The page was live at the time of the creation
       private final boolean wasLive;
