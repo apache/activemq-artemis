@@ -118,6 +118,18 @@ public class SSLSupport {
       return SslContextBuilder.forServer(privateKey, certificate).sslProvider(SslProvider.valueOf(sslProvider)).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, false, null)).build();
    }
 
+   public static SslContext createNettyClientContext(final String keystoreProvider,
+                                               final String keystorePath,
+                                               final String keystorePassword,
+                                               final String trustStoreProvider,
+                                               final String trustStorePath,
+                                               final String trustStorePassword,
+                                               final String sslProvider) throws Exception {
+
+      return SslContextBuilder.forClient().sslProvider(SslProvider.valueOf(sslProvider)).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, false, null)).build();
+   }
+
+
    public static String[] parseCommaSeparatedListIntoArray(String suites) {
       String[] cipherSuites = suites.split(",");
       for (int i = 0; i < cipherSuites.length; i++) {
