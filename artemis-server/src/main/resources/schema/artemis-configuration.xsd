@@ -22,7 +22,7 @@
             elementFormDefault="qualified"
             version="1.0">
 
-   <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2005/08/xml.xsd"/>
+   <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
    <xsd:element name="core" type="configurationType"/>
 

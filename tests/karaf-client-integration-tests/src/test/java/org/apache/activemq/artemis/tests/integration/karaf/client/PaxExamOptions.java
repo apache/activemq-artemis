@@ -75,6 +75,16 @@ public enum PaxExamOptions {
                            .versionAsInProject(),
                    "artemis-amqp-client")
    ),
+   ARTEMIS_OPENWIRE_CLIENT(
+           features(
+                   maven()
+                           .groupId("org.apache.activemq")
+                           .artifactId("artemis-features")
+                           .type("xml")
+                           .classifier("features")
+                           .versionAsInProject(),
+                   "artemis-openwire-client")
+   ),
    ARTEMIS_TRANSACTION_MANAGER(
            features(
                    maven()
