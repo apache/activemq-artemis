@@ -642,7 +642,7 @@ public class NettyConnector extends AbstractConnector {
                                        String realTrustStorePath,
                                        String realTrustStorePassword) throws Exception {
 
-      SslContext context = SSLSupport.createNettyContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, sslProvider);
+      SslContext context = SSLSupport.createNettyClientContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, sslProvider, trustAll);
 
       Subject subject = null;
       if (kerb5Config != null) {
