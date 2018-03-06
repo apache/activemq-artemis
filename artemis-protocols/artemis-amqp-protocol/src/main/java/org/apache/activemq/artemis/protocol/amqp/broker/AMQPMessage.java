@@ -665,16 +665,20 @@ public class AMQPMessage extends RefCountMessage {
 
    private synchronized void checkBuffer() {
       if (!bufferValid) {
-         int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
-         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
-         try {
-            getProtonMessage().encode(new NettyWritable(buffer));
-            byte[] bytes = new byte[buffer.writerIndex()];
-            buffer.readBytes(bytes);
-            this.data = Unpooled.wrappedBuffer(bytes);
-         } finally {
-            buffer.release();
-         }
+         encodeProtonMessage();
+      }
+   }
+
+   private void encodeProtonMessage() {
+      int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
+      ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
+      try {
+         getProtonMessage().encode(new NettyWritable(buffer));
+         byte[] bytes = new byte[buffer.writerIndex()];
+         buffer.readBytes(bytes);
+         this.data = Unpooled.wrappedBuffer(bytes);
+      } finally {
+         buffer.release();
       }
    }
 
@@ -691,15 +695,16 @@ public class AMQPMessage extends RefCountMessage {
 
       int amqpDeliveryCount = deliveryCount - 1;
 
-      Header header = getHeader();
-      if (header == null && (amqpDeliveryCount > 0)) {
-         header = new Header();
-         header.setDurable(durable);
-      }
-
       // If the re-delivering the message then the header must be re-encoded
       // otherwise we want to write the original header if present.
       if (amqpDeliveryCount > 0) {
+
+         Header header = getHeader();
+         if (header == null) {
+            header = new Header();
+            header.setDurable(durable);
+         }
+
          synchronized (header) {
             header.setDeliveryCount(UnsignedInteger.valueOf(amqpDeliveryCount));
             TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buffer));
@@ -711,6 +716,76 @@ public class AMQPMessage extends RefCountMessage {
       }
 
       buffer.writeBytes(data, messagePaylodStart, data.writerIndex() - messagePaylodStart);
+   }
+
+   /**
+    * Gets a ByteBuf from the Message that contains the encoded bytes to be sent on the wire.
+    * <p>
+    * When possible this method will present the bytes to the caller without copying them into
+    * another buffer copy.  If copying is needed a new Netty buffer is created and returned. The
+    * caller should ensure that the reference count on the returned buffer is always decremented
+    * to avoid a leak in the case of a copied buffer being returned.
+    *
+    * @param deliveryCount
+    *       The new delivery count for this message.
+    *
+    * @return a Netty ByteBuf containing the encoded bytes of this Message instance.
+    */
+   public ByteBuf getSendBuffer(int deliveryCount) {
+      checkBuffer();
+
+      if (deliveryCount > 1) {
+         return createCopyWithNewDeliveryCount(deliveryCount);
+      } else if (headerEnds != messagePaylodStart) {
+         return createCopyWithoutDeliveryAnnotations();
+      } else {
+         // Common case message has no delivery annotations and this is the first delivery
+         // so no re-encoding or section skipping needed.
+         return data.retainedDuplicate();
+      }
+   }
+
+   private ByteBuf createCopyWithoutDeliveryAnnotations() {
+      assert headerEnds != messagePaylodStart;
+
+      // The original message had delivery annotations and so we must copy into a new
+      // buffer skipping the delivery annotations section as that is not meant to survive
+      // beyond this hop.
+      final ByteBuf result = PooledByteBufAllocator.DEFAULT.heapBuffer(getEncodeSize());
+      result.writeBytes(data, 0, headerEnds);
+      result.writeBytes(data, messagePaylodStart, data.writerIndex() - messagePaylodStart);
+      return result;
+   }
+
+   private ByteBuf createCopyWithNewDeliveryCount(int deliveryCount) {
+      assert deliveryCount > 1;
+
+      final int amqpDeliveryCount = deliveryCount - 1;
+      // If the re-delivering the message then the header must be re-encoded
+      // (or created if not previously present).  Any delivery annotations should
+      // be skipped as well in the resulting buffer.
+
+      final ByteBuf result = PooledByteBufAllocator.DEFAULT.heapBuffer(getEncodeSize());
+
+      Header header = getHeader();
+      if (header == null) {
+         header = new Header();
+         header.setDurable(durable);
+      }
+
+      synchronized (header) {
+         // Updates or adds a Header section with the correct delivery count
+         header.setDeliveryCount(UnsignedInteger.valueOf(amqpDeliveryCount));
+         TLSEncode.getEncoder().setByteBuffer(new NettyWritable(result));
+         TLSEncode.getEncoder().writeObject(header);
+         TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
+      }
+
+      // This will skip any existing delivery annotations that might have been present
+      // in the original message.
+      result.writeBytes(data, messagePaylodStart, data.writerIndex() - messagePaylodStart);
+
+      return result;
    }
 
    public TypedProperties createExtraProperties() {
