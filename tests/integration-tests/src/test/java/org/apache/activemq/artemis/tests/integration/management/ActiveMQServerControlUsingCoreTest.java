@@ -1003,6 +1003,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String listAllSessionsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listAllSessionsAsJSON");
+         }
+
+         @Override
          public String listAddresses(@Parameter(name = "separator", desc = "Separator used on the string listing") String separator) throws Exception {
             return (String) proxy.invokeOperation("listAddresses", separator);
          }
