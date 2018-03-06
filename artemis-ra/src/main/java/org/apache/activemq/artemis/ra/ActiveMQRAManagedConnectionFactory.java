@@ -268,6 +268,10 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       return ra;
    }
 
+   public boolean isIgnoreJTA() {
+      return ra.isIgnoreJTA();
+   }
+
    /**
     * Set the resource adapter
     * <br>
