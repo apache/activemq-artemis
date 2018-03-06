@@ -905,6 +905,29 @@ public interface ActiveMQServerControl {
    String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
    /**
+    * Lists details about all sessions.
+    * The returned String is a JSON string containing details about each and every session, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "sessionID":"e71d61d7-2176-11e8-9057-a0afbd82eaba",
+    *     "creationTime":1520365520212,
+    *     "consumerCount":1,
+    *     "principal":"myUser"
+    *   },
+    *   {
+    *     "sessionID":"e718a6e6-2176-11e8-9057-a0afbd82eaba",
+    *     "creationTime":1520365520191,
+    *     "consumerCount":0,
+    *     "principal":"guest"
+    *   }
+    * ]
+    * </pre>
+    */
+   @Operation(desc = "List all sessions as a JSON string", impact = MBeanOperationInfo.INFO)
+   String listAllSessionsAsJSON() throws Exception;
+
+   /**
     * Lists all the sessions IDs for the specified connection ID.
     */
    @Operation(desc = "List the sessions for the given connectionID", impact = MBeanOperationInfo.INFO)

@@ -1864,6 +1864,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public String listAllSessionsAsJSON() throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
+      try {
+         Set<ServerSession> sessions = server.getSessions();
+         for (ServerSession sess : sessions) {
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
+
+            if (sess.getValidatedUser() != null) {
+               obj.add("principal", sess.getValidatedUser());
+            }
+
+            array.add(obj);
+         }
+      } finally {
+         blockOnIO();
+      }
+      return array.build().toString();
+   }
+
+   @Override
    public String listConsumersAsJSON(String connectionID) throws Exception {
       checkStarted();
 
