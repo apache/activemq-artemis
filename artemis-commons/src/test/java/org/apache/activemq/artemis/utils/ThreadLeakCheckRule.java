@@ -257,6 +257,9 @@ public class ThreadLeakCheckRule extends TestWatcher {
       } else if (threadName.contains("hawtdispatch") || (group != null && group.getName().contains("hawtdispatch"))) {
          // Static workers used by MQTT client.
          return true;
+      } else if (threadName.contains("ObjectCleanerThread")) {
+         // Required since upgrade to Netty 4.1.22 maybe because https://github.com/netty/netty/commit/739e70398ccb6b11ffa97c6b5f8d55e455a2165e
+         return true;
       } else {
          for (StackTraceElement element : thread.getStackTrace()) {
             if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
