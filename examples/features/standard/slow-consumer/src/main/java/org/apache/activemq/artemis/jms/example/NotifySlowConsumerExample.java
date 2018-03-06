@@ -103,8 +103,6 @@ public class NotifySlowConsumerExample {
          if (!isNotified) {
             throw new RuntimeException("SlowConsumerExample.demoSlowConsumerNotify() FAILED; timeout occurred before" + " - slow consumer notification was received. ");
          }
-
       }
-
    }
 }

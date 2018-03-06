@@ -52,13 +52,13 @@ under the License.
          <address-setting match="slow.consumer.kill">
             <slow-consumer-threshold>10</slow-consumer-threshold>
             <slow-consumer-policy>KILL</slow-consumer-policy>
-            <slow-consumer-check-period>5</slow-consumer-check-period>
+            <slow-consumer-check-period>3</slow-consumer-check-period>
          </address-setting>
 
          <address-setting match="slow.consumer.notify">
             <slow-consumer-threshold>10</slow-consumer-threshold>
             <slow-consumer-policy>NOTIFY</slow-consumer-policy>
-            <slow-consumer-check-period>5</slow-consumer-check-period>
+            <slow-consumer-check-period>3</slow-consumer-check-period>
          </address-setting>
       </address-settings>
 

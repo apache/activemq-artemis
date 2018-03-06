@@ -34,12 +34,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
  *
  * - sends messages to a queue "slow.consumer.kill".
  * - starts a consumer BUT does not consume any messages.
- * - waits for 8 seconds and tries to consume a message.
+ * - waits for 10 seconds and tries to consume a message.
  * - receive an exception as the connection should already be closed.
  */
 public class KillSlowConsumerExample {
 
-   public static final int WAIT_TIME = 7;
+   public static final int WAIT_TIME = 10;
 
    public static void main(final String[] args) throws Exception {
 
@@ -98,7 +98,6 @@ public class KillSlowConsumerExample {
             }
          }
       }
-
    }
 }
 
