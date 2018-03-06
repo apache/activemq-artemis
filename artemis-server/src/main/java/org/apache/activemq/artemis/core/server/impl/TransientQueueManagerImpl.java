@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -40,6 +41,8 @@ public class TransientQueueManagerImpl extends ReferenceCounterUtil implements T
 
          try {
             server.destroyQueue(queueName, null, false);
+         } catch (ActiveMQNonExistentQueueException e) {
+            // ignore
          } catch (ActiveMQException e) {
             ActiveMQServerLogger.LOGGER.errorOnDeletingQueue(queueName.toString(), e);
          }
