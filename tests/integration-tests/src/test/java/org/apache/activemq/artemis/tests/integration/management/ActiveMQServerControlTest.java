@@ -1473,6 +1473,52 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testListAllSessionsAsJSON() throws Exception {
+      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory factory = createSessionFactory(locator);
+      ServerLocator locator2 = createInVMNonHALocator();
+      ClientSessionFactory factory2 = createSessionFactory(locator2);
+      ClientSession session1 = addClientSession(factory.createSession());
+      Thread.sleep(5);
+      ClientSession session2 = addClientSession(factory2.createSession("myUser", "myPass", false, false, false, false, 0));
+      session2.createConsumer(queueName);
+
+      String jsonString = serverControl.listAllSessionsAsJSON();
+      IntegrationTestLogger.LOGGER.info(jsonString);
+      Assert.assertNotNull(jsonString);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(2 + (usingCore() ? 1 : 0), array.size());
+      JsonObject first;
+      JsonObject second;
+      if (array.getJsonObject(0).getJsonNumber("creationTime").longValue() < array.getJsonObject(1).getJsonNumber("creationTime").longValue()) {
+         first = array.getJsonObject(0);
+         second = array.getJsonObject(1);
+      } else {
+         first = array.getJsonObject(1);
+         second = array.getJsonObject(0);
+      }
+
+      Assert.assertTrue(first.getString("sessionID").length() > 0);
+      Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
+      Assert.assertTrue(first.getString("principal").length() > 0);
+      Assert.assertEquals("guest", first.getString("principal"));
+      Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
+      Assert.assertEquals(0, first.getJsonNumber("consumerCount").longValue());
+
+      Assert.assertTrue(second.getString("sessionID").length() > 0);
+      Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
+      Assert.assertTrue(second.getString("principal").length() > 0);
+      Assert.assertEquals("myUser", second.getString("principal"));
+      Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
+      Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+   }
+
+   @Test
    public void testListQueues() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("my_queue_two");
