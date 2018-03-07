@@ -2034,7 +2034,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (val5 != null) {
          cf.setDeserializationWhiteList(val5);
       }
-      
+
       cf.setIgnoreJTA(isIgnoreJTA());
    }
 
