@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.utils;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -254,5 +256,37 @@ public class TypedPropertiesTest {
       SimpleString.writeSimpleString(bb, tooLong);
       final TypedProperties.StringValue.ByteBufStringValuePool pool = new TypedProperties.StringValue.ByteBufStringValuePool(1, tooLong.length() - 1);
       Assert.assertNotSame(pool.getOrCreate(bb), pool.getOrCreate(bb.resetReaderIndex()));
+   }
+
+   @Test
+   public void testCopyingWhileMessingUp() throws Exception {
+      TypedProperties properties = new TypedProperties();
+      AtomicBoolean running = new AtomicBoolean(true);
+      AtomicLong copies = new AtomicLong(0);
+      AtomicBoolean error = new AtomicBoolean(false);
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            while (running.get() && !error.get()) {
+               try {
+                  copies.incrementAndGet();
+                  TypedProperties copiedProperties = new TypedProperties(properties);
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  error.set(true);
+               }
+            }
+         }
+      };
+      t.start();
+      for (int i = 0; !error.get() && (i < 100 || copies.get() < 5000); i++) {
+         properties.putIntProperty(SimpleString.toSimpleString("key" + i), i);
+      }
+
+      running.set(false);
+
+      t.join();
+
+      Assert.assertFalse(error.get());
    }
 }
