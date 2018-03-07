@@ -439,7 +439,7 @@ configuration file as follows:
        <replication>
           <master>
              <check-for-live-server>true</check-for-live-server>
-          <master>
+          </master>
        </replication>
     </ha-policy>
 
@@ -573,7 +573,7 @@ so:
              <master/>
              <slave/>
           </colocated>
-       <replication>
+       </replication>
     </ha-policy>
 
 
