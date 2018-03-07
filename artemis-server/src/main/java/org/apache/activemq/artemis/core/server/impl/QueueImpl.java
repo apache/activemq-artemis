@@ -2324,7 +2324,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                   handled++;
                } else if (status == HandleStatus.BUSY) {
-                  holder.iter.repeat();
+                  try {
+                     holder.iter.repeat();
+                  } catch (NoSuchElementException e) {
+                     // this could happen if there was an exception on the queue handling
+                     // and it returned BUSY because of that exception
+                     //
+                     // We will just log it as there's nothing else we can do now.
+                     logger.warn(e.getMessage(), e);
+                  }
 
                   noDelivery++;
                } else if (status == HandleStatus.NO_MATCH) {
