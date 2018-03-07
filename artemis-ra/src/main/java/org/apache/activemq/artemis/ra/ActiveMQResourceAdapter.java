@@ -1754,8 +1754,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
 
          if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" +
-                                             Arrays.toString(transportConfigurations) + " with ha=" + ha);
+            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations) + " with ha=" + ha);
          }
 
          if (ha) {
