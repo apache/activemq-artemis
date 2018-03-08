@@ -26,6 +26,7 @@
 
    <artifactId>artemis-native</artifactId>
    <packaging>bundle</packaging>
+
    <dependencies>
       <dependency>
          <groupId>org.jboss.logging</groupId>
@@ -65,6 +66,18 @@
          </resource>
       </resources>
       <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>${version.maven.jar.plugin}</version>
+            <configuration>
+               <archive>
+                  <manifestEntries>
+                     <Automatic-Module-Name>artemis.jni</Automatic-Module-Name>
+                  </manifestEntries>
+               </archive>
+            </configuration>
+         </plugin>
          <plugin>
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
