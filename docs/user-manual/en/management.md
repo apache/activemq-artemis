@@ -49,11 +49,11 @@ with the word `Control` at the end.
 The way to invoke management operations depends on whether JMX, Core
 messages, or Core JMS messages are used.
 
-### Apache ActiveMQ Artemis Management API
+### Management API
 
 For full details of the API please consult the Javadoc. In summary:
 
-#### Apache ActiveMQ Artemis Server Management
+#### Server Management
 
 The `ActiveMQServerControl` interface is the entry point for broker management.
 
@@ -456,8 +456,10 @@ To manage several Apache ActiveMQ Artemis servers from the *same* MBeanServer, t
 domain can be configured for each individual Apache ActiveMQ Artemis server by setting
 `jmx-domain` in `broker.xml`:
 
-    <!-- use a specific JMX domain for ActiveMQ Artemis MBeans -->
-    <jmx-domain>my.org.apache.activemq</jmx-domain>
+```xml
+<!-- use a specific JMX domain for ActiveMQ Artemis MBeans -->
+<jmx-domain>my.org.apache.activemq</jmx-domain>
+```
 
 ### Example
 
@@ -488,9 +490,9 @@ You can configure multiple roles by changing this to `-Dhawtio.roles=amq,view,up
 If a user doesn't have the correct role to invoke a specific operation then this will display an authorisation exception 
 in the console. 
 
-## Using Management Via Apache ActiveMQ Artemis API
+## Using Management Message API
 
-The management API in ActiveMQ Artemis is accessed by sending Core Client messages
+The management message API in ActiveMQ Artemis is accessed by sending Core Client messages
 to a special address, the *management address*.
 
 *Management messages* are regular Core Client messages with well-known
@@ -537,7 +539,7 @@ operations using Core messages:
 For example, to find out the number of messages in the queue
 `exampleQueue`:
 
-``` java
+```java
 ClientSession session = ...
 ClientRequestor requestor = new ClientRequestor(session, "activemq.management");
 ClientMessage message = session.createMessage(false);
@@ -574,11 +576,13 @@ The management address requires a *special* user permission `manage` to
 be able to receive and handle management messages. This is also
 configured in broker.xml:
 
-    <!-- users with the admin role will be allowed to manage -->
-    <!-- Apache ActiveMQ Artemis using management messages        -->
-    <security-setting match="activemq.management">
-       <permission type="manage" roles="admin" />
-    </security-setting>
+```xml
+<!-- users with the admin role will be allowed to manage -->
+<!-- Apache ActiveMQ Artemis using management messages        -->
+<security-setting match="activemq.management">
+   <permission type="manage" roles="admin" />
+</security-setting>
+```
 
 ### Example
 
@@ -626,7 +630,9 @@ of all the notifications emitted by the server.
 The management notification address to receive management notifications
 is configured in `broker.xml`:
 
-    <management-notification-address>activemq.notifications</management-notification-address>
+```xml
+<management-notification-address>activemq.notifications</management-notification-address>
+```
 
 By default, the address is `activemq.notifications`.
 
@@ -634,7 +640,7 @@ By default, the address is `activemq.notifications`.
 
 Apache ActiveMQ Artemis's Core JMS Client can be used to receive notifications:
 
-``` java
+```java
 Topic notificationsTopic = ActiveMQJMSClient.createTopic("activemq.notifications");
 
 Session session = ...
@@ -819,7 +825,9 @@ negative effect on memory.
 To enable message counters, you can set it to `true` in
 `broker.xml`:
 
-    <message-counter-enabled>true</message-counter-enabled>
+```xml
+<message-counter-enabled>true</message-counter-enabled>
+```
 
 Message counters keep a history of the queue metrics (10 days by
 default) and sample all the queues at regular interval (10 seconds by
@@ -827,15 +835,17 @@ default). If message counters are enabled, these values should be
 configured to suit your messaging use case in
 `broker.xml`:
 
-    <!-- keep history for a week -->
-    <message-counter-max-day-history>7</message-counter-max-day-history>
-    <!-- sample the queues every minute (60000ms) -->
-    <message-counter-sample-period>60000</message-counter-sample-period>
+```xml
+<!-- keep history for a week -->
+<message-counter-max-day-history>7</message-counter-max-day-history>
+<!-- sample the queues every minute (60000ms) -->
+<message-counter-sample-period>60000</message-counter-sample-period>
+```
 
 Message counters can be retrieved using the Management API. For example,
 to retrieve message counters on a queue using JMX:
 
-``` java
+```java
 // retrieve a connection to Apache ActiveMQ Artemis's MBeanServer
 MBeanServerConnection mbsc = ...
 QueueControlMBean queueControl = (QueueControl)MBeanServerInvocationHandler.newProxyInstance(mbsc,

@@ -24,14 +24,14 @@ has been instantiated.
 ```xml
 <configuration ...>
 
-...
+    ...
     <broker-plugins>
         <broker-plugin class-name="some.plugin.UserPlugin">
             <property key="property1" value="val_1" />
             <property key="property2" value="val_2" />
         </broker-plugin>
     </broker-plugins>
-...
+    ...
 
 </configuration>
 ```

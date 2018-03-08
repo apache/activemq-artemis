@@ -19,8 +19,7 @@ server for JMS and creating a simple JMS program. We'll also show how to
 configure and use JNDI, and also how to use JMS with Apache ActiveMQ Artemis without
 using any JNDI.
 
-A simple ordering system
-========================
+## A simple ordering system
 
 For this chapter we're going to use a very simple ordering system as our
 example. It is a somewhat contrived example because of its extreme
@@ -36,8 +35,7 @@ restart or crash. We also want to pre-deploy the queue, i.e. specify the
 queue in the server configuration so it is created automatically
 without us having to explicitly create it from the client.
 
-JNDI Configuration
-==================
+## JNDI Configuration
 
 The JMS specification establishes the convention that *administered
 objects* (i.e. JMS queue, topic and connection factory instances) are
@@ -57,8 +55,7 @@ kinds of administered objects and how to configure them.
 > to an application server (e.g. Wildfly) the application server itself
 > will almost certainly provide a JNDI client with its own properties.
 
-ConnectionFactory JNDI
-----------------------
+### ConnectionFactory JNDI
 
 A JMS connection factory is used by the client to make connections to
 the server. It knows the location of the server it is connecting to, as
@@ -206,7 +203,9 @@ The property *value* should be the name of the queue hosted by the
 Apache ActiveMQ Artemis server. For example, if the server had a JMS queue configured
 like so:
 
-    <queue name="OrderQueue"/>
+```xml
+<queue name="OrderQueue"/>
+```
 
 And if the client wanted to bind this queue to "queues/OrderQueue" then
 the JNDI properties would be configured like so:
@@ -231,7 +230,7 @@ First we'll create a JNDI initial context from which to lookup our JMS
 objects. If the above properties are set in `jndi.properties` and it is
 on the classpath then any new, empty `InitialContext` will be
 initialized using those properties:
-``` java
+```java
 InitialContext ic = new InitialContext();
 
 //Now we'll look up the connection factory from which we can create
@@ -289,7 +288,7 @@ see the examples directory in the distribution.
 > your application will perform very poorly. This is discussed further
 > in the section on performance tuning [Performance Tuning](perf-tuning.md).
 
-### Directly instantiating JMS Resources without using JNDI
+## Directly instantiating JMS Resources without using JNDI
 
 Although it is a very common JMS usage pattern to lookup JMS
 *Administered Objects* (that's JMS Queue, Topic and ConnectionFactory
@@ -311,7 +310,7 @@ Utility class, note we need to provide connection parameters and specify
 which transport we are using, for more information on connectors please
 see [Configuring the Transport](configuring-transports.md).
 
-``` java
+```java
 TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName());
 
 ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,transportConfiguration);
@@ -354,7 +353,7 @@ TextMessage receivedMessage = (TextMessage)consumer.receive();
 System.out.println("Got order: " + receivedMessage.getText());
 ```
 
-### Setting The Client ID
+## Setting The Client ID
 
 This represents the client id for a JMS client and is needed for
 creating durable subscriptions. It is possible to configure this on the
@@ -362,7 +361,7 @@ connection factory and can be set via the `clientId` element. Any
 connection created by this connection factory will have this set as its
 client id.
 
-### Setting The Batch Size for DUPS_OK
+## Setting The Batch Size for DUPS_OK
 
 When the JMS acknowledge mode is set to `DUPS_OK` it is possible to
 configure the consumer so that it sends acknowledgements in batches
@@ -370,7 +369,7 @@ rather that one at a time, saving valuable bandwidth. This can be
 configured via the connection factory via the `dupsOkBatchSize`
 element and is set in bytes. The default is 1024 \* 1024 bytes = 1 MiB.
 
-### Setting The Transaction Batch Size
+## Setting The Transaction Batch Size
 
 When receiving messages in a transaction it is possible to configure the
 consumer to send acknowledgements in batches rather than individually
@@ -378,7 +377,7 @@ saving valuable bandwidth. This can be configured on the connection
 factory via the `transactionBatchSize` element and is set in bytes.
 The default is 1024 \* 1024.
 
-### Setting The Destination Cache
+## Setting The Destination Cache
 
 Many frameworks such as Spring resolve the destination by name on every operation,
 this can cause a performance issue and extra calls to the broker, 

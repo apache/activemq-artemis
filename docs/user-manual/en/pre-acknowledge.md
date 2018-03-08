@@ -48,8 +48,10 @@ to `true`.
 Alternatively, when using the JMS API, create a JMS Session with the
 `ActiveMQSession.PRE_ACKNOWLEDGE` constant.
 
-    // messages will be acknowledge on the server *before* being delivered to the client
-    Session session = connection.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
+```java
+// messages will be acknowledge on the server *before* being delivered to the client
+Session session = connection.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
+```
 
 ## Individual Acknowledge
 

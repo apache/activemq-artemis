@@ -32,7 +32,7 @@ universally supported in every password configuration in Artemis.
 The other way is to use a `mask-password` attribute to tell that a password
 in a configuration file should be treated as 'masked'. For example:
 
-```
+```xml
 <mask-password>true</mask-password>
 <cluster-password>xyz</cluster-password>
 ```
@@ -63,7 +63,7 @@ If it is specified in ENC() syntax it will be treated as masked, or
 
 If `mask-password` is `true` the `cluster-password` will be treated as masked.
 
-##### Passwords in connectors and acceptors
+##### Connectors & Acceptors
 
 In broker.xml `connector` and `acceptor` configurations sometimes needs to
 specify passwords. For example, if a user wants to use an `acceptor` with
@@ -80,13 +80,13 @@ these to use if they so wish.
 
 The preferred way, however, is to use the ENC() syntax.
 
-##### Passwords in bridge configurations
+##### Core Bridges
 
 Core Bridges are configured in the server configuration file and so the
 masking of its `password` properties follows the same rules as that of
 `cluster-password`. It supports ENC() syntax.
 
-For using 'mask-password' property, the following table summarizes the 
+For using `mask-password` property, the following table summarizes the 
 relations among the above-mentioned properties
 
   mask-password  | cluster-password  | acceptor/connector passwords |  bridge password
@@ -95,7 +95,7 @@ relations among the above-mentioned properties
   false    |       plain text     |    plain text       |              plain text
   true     |       masked         |    masked           |              masked
 
-It is recommended that you use the ENC() syntax for new applications/deployments.
+It is recommended that you use the `ENC()` syntax for new applications/deployments.
 
 #### Examples
 
@@ -145,14 +145,14 @@ You can also set the `passwordCodec` attribute if you want to use a password cod
 other than the default one. For example
 
 ```xml
-   <web bind="https://localhost:8443" path="web" 
-        keyStorePassword="ENC(-5a2376c61c668aaf)"
-        trustStorePassword="ENC(3d617352d12839eb71208edf41d66b34)">
-       <app url="activemq-branding" war="activemq-branding.war"/>
-   </web>
+<web bind="https://localhost:8443" path="web" 
+     keyStorePassword="ENC(-5a2376c61c668aaf)"
+     trustStorePassword="ENC(3d617352d12839eb71208edf41d66b34)">
+    <app url="activemq-branding" war="activemq-branding.war"/>
+</web>
 ```
 
-### Masking passwords in ActiveMQ Artemis JCA ResourceAdapter and MDB activation configurations
+### Passwords for the JCA Resource Adapter
 
 Both ra.xml and MDB activation configuration have a `password` property
 that can be masked preferably using ENC() syntax.
@@ -209,7 +209,7 @@ Example 2 Using the "UseMaskedPassword" property:
 With this configuration, both passwords in ra.xml and all of its MDBs
 will have to be in masked form.
 
-### Masking passwords in artemis-users.properties
+### Passwords in artemis-users.properties
 
 Apache ActiveMQ Artemis's built-in security manager uses plain properties files
 where the user passwords are specified in a hashed form by default. Note, the passwords
@@ -231,7 +231,7 @@ Passwords in `artemis-users.properties` are automatically detected as hashed or 
 by looking for the syntax `ENC(<hash>)`. The `mask-password` parameter does not need
 to be `true` to use hashed passwords here.
 
-### Masking password in JAAS login config file (login.config)
+### Password in login.config
 
 Artemis supports LDAP login modules to be configured in JAAS configuration
 file (default name is `login.config`). When connecting to a LDAP server usually
@@ -310,7 +310,7 @@ can also be service loaded rather than class loaded, if the decoder's service pr
 Then configure the server to use it as follows:
 
 ```xml
-    <password-codec>com.foo.SomeDecoder;key1=value1;key2=value2</password-codec>
+<password-codec>com.foo.SomeDecoder;key1=value1;key2=value2</password-codec>
 ```
 
 If your decoder needs params passed to it you can do this via key/value
@@ -318,27 +318,27 @@ pairs when configuring. For instance if your decoder needs say a
 "key-location" parameter, you can define like so:
 
 ```xml
-    <password-codec>com.foo.NewDecoder;key-location=/some/url/to/keyfile</password-codec>
+<password-codec>com.foo.NewDecoder;key-location=/some/url/to/keyfile</password-codec>
 ```
 
 Then configure your cluster-password like this:
 
 ```xml
-    <cluster-password>ENC(masked_password)</cluster-password>
+<cluster-password>ENC(masked_password)</cluster-password>
 ```
 
 When Apache ActiveMQ Artemis reads the cluster-password it will initialize the
 NewDecoder and use it to decode "mask\_password". It also process all
 passwords using the new defined decoder.
 
-#### Implementing your own codecs
+#### Implementing Custom Codecs
 
 To use a different decoder than the built-in one, you either pick one
 from existing libraries or you implement it yourself. All decoders must
 implement the `org.apache.activemq.artemis.utils.SensitiveDataCodec<T>`
 interface:
 
-``` java
+```java
 public interface SensitiveDataCodec<T>
 {
    T decode(Object mask) throws Exception;
@@ -366,6 +366,5 @@ public class MyNewDecoder implements SensitiveDataCodec<String>
 }
 ```
 
-Last but not least, once you get your own decoder, please add it to the
-classpath by packaging it in a JAR file and putting the JAR file in the `lib`
-directory. Otherwise Apache ActiveMQ Artemis will fail to load it!
+Last but not least, once you get your own decoder please [add it to the
+classpath](using-server.md#adding-runtime-dependencies) otherwise the broker will fail to load it!

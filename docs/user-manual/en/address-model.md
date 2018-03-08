@@ -1,4 +1,4 @@
-# Apache ActiveMQ Artemis Addressing and Queues
+# Addressing Model
 
 Apache ActiveMQ Artemis has a unique addressing model that is both powerful and flexible and that offers great performance. The addressing model comprises three main concepts: addresses, queues and routing types.
 
@@ -32,9 +32,9 @@ When a message is received on an address using anycast, Apache ActiveMQ Artemis 
 ![Point to Point](images/addressing-model-p2p.png)
 Figure 1. Point to Point Messaging
 
-#### Configuring an Address to Use the Anycast Routing Type
+#### Using the Anycast Routing Type
 
-Open the file <broker-instance>/etc/broker.xml for editing.
+Open the file `<broker-instance>/etc/broker.xml` for editing.
 
 Add an address configuration element and its associated queue if they do not exist already.
 
@@ -62,7 +62,7 @@ To configure an address with publish-subscribe semantics, create an address with
 ![Publish Subscribe](images/addressing-model-pubsub.png)
 Figure 2. Publish-Subscribe
 
-#### Configuring an Address to Use the Multicast Routing Type
+#### Using the Multicast Routing Type
 
 Open the file <broker-instance>/etc/broker.xml for editing.
 
@@ -167,11 +167,11 @@ filter element when configuring a queue.  Open up the broker.xml and add an addr
 to configure a filter on this queue.
 
 ```xml
-    <address name="filter">
-       <queue name="filter">
-          <filter string="color='red'"/>
-        </queue>
-    </address>
+<address name="filter">
+   <queue name="filter">
+      <filter string="color='red'"/>
+    </queue>
+</address>
 ```
 
 The filter defined above ensures that only messages with an attribute "color='red'" is sent to this queue.
@@ -184,10 +184,9 @@ follow JMS example shows how to consumer filters work.
 1. Define an address with a single queue, with no filter applied.
 
 ```xml
-    <address name="filter">
-       <queue name="filter">
-       </queue>
-    </address>
+<address name="filter">
+   <queue name="filter"/>
+</address>
 ```
 
 ```java
@@ -222,7 +221,7 @@ The resulting queue would now be
 green, green, green
 ```
 
-## Creating and Deleting Addresses and Queues Automatically
+## Automatic Address/Queue Management
 
 You can configure Apache ActiveMQ Artemis to automatically create addresses and queues, and then delete them when they are no longer in use. This saves you from having to preconfigure each address and queue before a client can connect to it. Automatic creation and deletion is configured on a per address basis and is controlled by following:
 
@@ -232,17 +231,17 @@ You can configure Apache ActiveMQ Artemis to automatically create addresses and 
 | auto-delete-addresses | When set to true, the broker will be delete any **auto-created** adddress once all of it’s queues have been deleted. The default is true |
 |default-address-routing-type | The routing type to use if the client does not specify one.   Possible values are MULTICAST and ANYCAST. See earlier in this chapter for more information about routing types. The default value is MULTICAST. |
 
-### Configuring an Address to be Automatically Created
+### Auto Address Creation
 
-Edit the file <broker-instance>/etc/broker.xml and add the auto-create-addresses element to the address-setting you want the broker to automatically create.
+- Edit the file `<broker-instance>/etc/broker.xml` and add the `auto-create-addresses` element to the `address-setting` you want the broker to automatically create.
 
-(Optional) Add the address-setting if it does not exits. Use the match parameter and the The Apache ActiveMQ Artemis Wildcard Syntax to match more than one specific address.
+- (Optional) Add the `address-setting` if it does not exits. Use the match parameter and the [wildcard syntax](wildcard-syntax.md) to match more than one specific address.
 
-Set auto-create-addresses to true
+- Set `auto-create-addresses` to `true`
 
-(Optional) Assign MULTICAST or ANYCAST as the default routing type for the address.
+- (Optional) Assign `MULTICAST` or `ANYCAST` as the default routing type for the address.
 
-The example below configures an address-setting to be automatically created by the broker. The default routing type to be used if not specified by the client is MULTICAST. Note that wildcard syntax is used. Any address starting with /news/politics/ will be automatically created by the broker.
+The example below configures an `address-setting` to be automatically created by the broker. The default routing type to be used if not specified by the client is MULTICAST. Note that wildcard syntax is used. Any address starting with /news/politics/ will be automatically created by the broker.
 
 ```xml
 <configuration ...>
@@ -259,15 +258,15 @@ The example below configures an address-setting to be automatically created by t
 </configuration>
 ```
 
-### Configuring an Address to be Automatically Deleted
+### Auto Address Deletion
 
-Edit the file <broker-instance>/etc/broker.xml and add the auto-delete-addresses element to the address-setting you want the broker to automatically create.
+Edit the file `<broker-instance>/etc/broker.xml` and add the `auto-delete-addresses` element to the `address-setting` you want the broker to automatically create.
 
-(Optional) Add the address-setting if it does not exits. Use the match parameter and the The Apache ActiveMQ Artemis Wildcard Syntax to match more than one specific address.
+(Optional) Add the `address-setting` if it does not exits. Use the match parameter and the [wildcard syntax](wildcard-syntax.md) to match more than one specific address.
 
-Set auto-delete-addresses to true
+Set `auto-delete-addresses` to `true`
 
-The example below configures an address-setting to be automatically deleted by the broker. Note that wildcard syntax is used. Any address request by the client that starts with /news/politics/ is configured to be automatically deleted by the broker.
+The example below configures an `address-setting` to be automatically deleted by the broker. Note that wildcard syntax is used. Any address request by the client that starts with `/news/politics/` is configured to be automatically deleted by the broker.
 
 ```xml
 <configuration ...>
@@ -284,12 +283,11 @@ The example below configures an address-setting to be automatically deleted by t
 </configuration>
 ```
 
-## Fully Qualified Queue Names
+## "Fully Qualified" Queue Names
 
 Internally the broker maps a client’s request for an address to specific queues. The broker decides on behalf of the client which queues to send messages to or from which queue to receive messages. However, more advanced use cases might require that the client specify a queue directly. In these situations the client and use a fully qualified queue name, by specifying both the address name and the queue name, separated by a ::.
 
-Currently Artemis supports fully qualified queue names on Core, AMQP, JMS, OpenWire, MQTT and Stomp protocols for 
- receiving messages only.
+Currently Artemis supports fully qualified queue names on Core, AMQP, JMS, OpenWire, MQTT and Stomp protocols for receiving messages only.
 
 ### Specifying a Fully Qualified Queue Name
 In this example, the address foo is configured with two queues q1, q2 as shown in the configuration below.
@@ -318,15 +316,15 @@ Queue q1 session.createQueue(FQQN);
 MessageConsumer consumer = session.createConsumer(q1);
 ```
 
-## Configuring a Prefix to Connect to a Specific Routing Type
+## Using Prefixes to Determine Routing Type
 
-Normally, if a Apache ActiveMQ Artemis receivs a message sent to a particular address, that has both anycast and multicast routing types enable, Apache ActiveMQ Artemis will route a copy of the message to **one** of the anycast queues and to **all** of the multicast queues.
+Normally, if the broker receives a message sent to a particular address, that has both `ANYCAST` and `MULTICAST` routing types enable, it will route a copy of the message to **one** of the `ANYCAST` queues and to **all** of the `MULTICAST` queues.
 
-However, clients can specify a special prefix when connecting to an address to specify whether to connect using anycast or multicast. The prefixes are custom values that are designated using the anycastPrefix and multicastPrefix parameters within the URL of an acceptor.
+However, clients can specify a special prefix when connecting to an address to indicate which kind of routing type to use. The prefixes are custom values that are designated using the anycastPrefix and multicastPrefix parameters within the URL of an acceptor.
 
 ### Configuring an Anycast Prefix
 
-In <broker-instance>/etc/broker.xml, add the anycastPrefix to the URL of the desired acceptor. In the example below, the acceptor is configured to use anycast:// for the anycastPrefix. Client code can specify anycast://foo/ if the client needs to send a message to only one of the anycast queues.
+In `<broker-instance>/etc/broker.xml`, add the `anycastPrefix` to the URL of the desired acceptor. In the example below, the acceptor is configured to use `anycast://` for the `anycastPrefix`. Client code can specify `anycast://foo/` if the client needs to send a message to only one of the `ANYCAST` queues.
 
 ```xml
 <configuration ...>
@@ -342,7 +340,7 @@ In <broker-instance>/etc/broker.xml, add the anycastPrefix to the URL of the des
 
 ### Configuring a Multicast Prefix
 
-In <broker-instance>/etc/broker.xml, add the anycastPrefix to the URL of the desired acceptor. In the example below, the acceptor is configured to use multicast:// for the multicastPrefix. Client code can specify multicast://foo/ if the client needs the message sent to only the multicast queues of the address.
+In `<broker-instance>/etc/broker.xml`, add the `multicastPrefix` to the URL of the desired acceptor. In the example below, the acceptor is configured to use `multicast://` for the `multicastPrefix`. Client code can specify `multicast://foo/` if the client needs to send a message to only one of the `MULTICAST` queues.
 
 ```xml
 <configuration ...>
@@ -358,17 +356,17 @@ In <broker-instance>/etc/broker.xml, add the anycastPrefix to the URL of the des
 
 ## Advanced Address Configuration
 
-### Pre-configuring subscription queue semantics
+### Static Subscription Queues
 
-In most cases it’s not necessary to pre-create subscription queues. The relevant protocol managers take care of creating subscription queues when clients request to subscribe to an address.  The type of subscription queue created, depends on what properties the client request.  E.g. durable, non-shared, shared etc...  Protocol managers uses special queue names to identify which queues below to which consumers and users need not worry about the details.
+In most cases it’s not necessary to statically configure subscription queues. The relevant protocol managers take care of dynamically creating subscription queues when clients request to subscribe to an address.  The type of subscription queue created depends on what properties the client request.  For example, durable, non-shared, shared etc.  Protocol managers use special queue naming conventions to identify which queues belong to which consumers and users need not worry about the details.
 
-However, there are scenarios where a user may want to use broker side configuration to pre-configure a subscription.  And later connect to that queue directly using a [Fully Qualified Queue name](#fully-qualified-queue-names).  The examples below show how to use broker side configuration to pre-configure a queue with publish subscribe behavior for shared, non-shared, durable and non-durable subscription behavior.
+However, there are scenarios where a user may want to use broker side configuration to statically configure a subscription and later connect to that queue directly using a [Fully Qualified Queue name](#fully-qualified-queue-names).  The examples below show how to use broker side configuration to statically configure a queue with publish subscribe behavior for shared, non-shared, durable and non-durable subscription behavior.
 
-#### Configuring a shared durable subscription queue with up to 10 concurrent consumers
+#### Shared, Durable Subscription Queue using max-consumers
 
 The default behavior for queues is to not limit the number connected queue consumers.  The **max-consumers** parameter of the queue element can be used to limit the number of connected consumers allowed at any one time.
 
-Open the file <broker-instance>/etc/broker.xml for editing.
+Open the file `<broker-instance>/etc/broker.xml` for editing.
 
 ```xml
 <configuration ...>
@@ -386,7 +384,7 @@ Open the file <broker-instance>/etc/broker.xml for editing.
 </configuration>
 ```
 
-#### Configuring a non-shared durable subscription
+#### Non-shared, Durable Subscription Queue
 
 The broker can be configured to prevent more than one consumer from connecting to a queue at any one time. The subscriptions to queues configured this way are therefore "non-shared".  To do this simply set the **max-consumers** parameter to "1"
 
@@ -406,13 +404,13 @@ The broker can be configured to prevent more than one consumer from connecting t
 </configuration>
 ```
 
-#### Pre-configuring a queue as a non-durable subscription queue
+#### Non-durable Subscription Queue
 
 Non-durable subscriptions are again usually managed by the relevant protocol manager, by creating and deleting temporary queues.
 
 If a user requires to pre-create a queue that behaves like a non-durable subscription queue the **purge-on-no-consumers** flag can be enabled on the queue.  When **purge-on-no-consumers** is set to **true**.  The queue will not start receiving messages until a consumer is attached.  When the last consumer is detached from the queue.  The queue is purged (it's messages are removed) and will not receive any more messages until a new consumer is attached.
 
-Open the file <broker-instance>/etc/broker.xml for editing.
+Open the file `<broker-instance>/etc/broker.xml` for editing.
 
 ```xml
 <configuration ...>
@@ -427,14 +425,15 @@ Open the file <broker-instance>/etc/broker.xml for editing.
 </configuration>
 ```
 
-#### Pre-configuring a queue as an exclusive consumer queue
+#### Exclusive Consumer Queue
 
-If a user requires to pre-create a queue that routes exclusively to one active consumer the **exclusive** flag can be enabled on the queue.  
-When **exclusive** is set to **true**.  The queue will route messages to the a single active consumer.  When the active consumer that is being routed to is detached from the queue, if another active consumer exist, one will be chosen and routing will now be exclusive to it. 
+If a user requires to statically configure a queue that routes exclusively to one active consumer the **exclusive** flag can be enabled on the queue.
+  
+When **exclusive** is set to **true** the queue will route messages to the a single active consumer.  When the active consumer that is being routed to is detached from the queue, if another active consumer exist, one will be chosen and routing will now be exclusive to it.
 
 See [Exclusive Queue](exclusive-queues.md) for further information.
 
-Open the file <broker-instance>/etc/broker.xml for editing.
+Open the file `<broker-instance>/etc/broker.xml` for editing.
 
 ```xml
 <configuration ...>
@@ -449,16 +448,16 @@ Open the file <broker-instance>/etc/broker.xml for editing.
 </configuration>
 ```
 
-## Additional Information: Protocol Managers, Address
+## Protocol Managers
 
-A protocol manager maps protocol specific concepts down to the Apache ActiveMQ Artemis core model of addresses, queues and routing types. For example, when a client sends a MQTT subscription packet with the addresses 
+A "protocol manager" maps protocol-specific concepts down to the core addressing model (using addresses, queues and routing types). For example, when a client sends a MQTT subscription packet with the addresses: 
 
 ```
 /house/room1/lights
 /house/room2/lights
 ```
 
-The MQTT protocol manager understands that the two addresses require multicast semantics. The protocol manager will therefore first look to ensure that multicast is enabled for both addresses. If not, it will attempt to dynamically create them. If successful, the protocol manager will then create special subscription queues with special names, for each subscription requested by the client.
+The MQTT protocol manager understands that the two addresses require `MULTICAST` semantics. The protocol manager will therefore first look to ensure that `MULTICAST` is enabled for both addresses. If not, it will attempt to dynamically create them. If successful, the protocol manager will then create special subscription queues with special names, for each subscription requested by the client.
 
 The special name allows the protocol manager to quickly identify the required client subscription queues should the client disconnect and reconnect at a later date.  If the subscription is temporary the protocol manager will delete the queue once the client disconnects.  
 
@@ -472,23 +471,25 @@ There are some attributes that are defined against an address wildcard
 rather than a specific address/queue. Here an example of an `address-setting`
 entry that would be found in the `broker.xml` file.
 
-    <address-settings>
-       <address-setting match="order.foo">
-          <dead-letter-address>DLA</dead-letter-address>
-          <max-delivery-attempts>3</max-delivery-attempts>
-          <redelivery-delay>5000</redelivery-delay>
-          <expiry-address>ExpiryQueue</expiry-address>
-          <last-value-queue>true</last-value-queue>
-          <max-size-bytes>100000</max-size-bytes>
-          <page-size-bytes>20000</page-size-bytes>
-          <redistribution-delay>0</redistribution-delay>
-          <send-to-dla-on-no-route>true</send-to-dla-on-no-route>
-          <address-full-policy>PAGE</address-full-policy>
-          <slow-consumer-threshold>-1</slow-consumer-threshold>
-          <slow-consumer-policy>NOTIFY</slow-consumer-policy>
-          <slow-consumer-check-period>5</slow-consumer-check-period>
-       </address-setting>
-    </address-settings>
+```xml
+<address-settings>
+   <address-setting match="order.foo">
+      <dead-letter-address>DLA</dead-letter-address>
+      <max-delivery-attempts>3</max-delivery-attempts>
+      <redelivery-delay>5000</redelivery-delay>
+      <expiry-address>ExpiryQueue</expiry-address>
+      <last-value-queue>true</last-value-queue>
+      <max-size-bytes>100000</max-size-bytes>
+      <page-size-bytes>20000</page-size-bytes>
+      <redistribution-delay>0</redistribution-delay>
+      <send-to-dla-on-no-route>true</send-to-dla-on-no-route>
+      <address-full-policy>PAGE</address-full-policy>
+      <slow-consumer-threshold>-1</slow-consumer-threshold>
+      <slow-consumer-policy>NOTIFY</slow-consumer-policy>
+      <slow-consumer-check-period>5</slow-consumer-check-period>
+   </address-setting>
+</address-settings>
+```
 
 The idea with address settings, is you can provide a block of settings
 which will be applied against any addresses that match the string in the
@@ -616,4 +617,3 @@ Default is `true`.
 on config reload, by delete policy: `OFF` or `FORCE`.
 See [config-reload](config-reload.md) for more details.
 Default is `OFF`.
-

@@ -35,16 +35,17 @@ consuming valuable CPU and network resources.
 
 Delayed redelivery is defined in the address-setting configuration:
 
-    <!-- delay redelivery of messages for 5s -->
-    <address-setting match="exampleQueue">
-    <!-- default is 1.0 -->
-    <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
-    <!-- default is 0 (no delay) -->
-    <redelivery-delay>5000</redelivery-delay>
-    <!-- default is redelivery-delay * 10 -->
-    <max-redelivery-delay>50000</max-redelivery-delay>
-
-    </address-setting>
+```xml
+<!-- delay redelivery of messages for 5s -->
+<address-setting match="exampleQueue">
+   <!-- default is 1.0 -->
+   <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
+   <!-- default is 0 (no delay) -->
+   <redelivery-delay>5000</redelivery-delay>
+   <!-- default is redelivery-delay * 10 -->
+   <max-redelivery-delay>50000</max-redelivery-delay>
+</address-setting>
+```
 
 If a `redelivery-delay` is specified, Apache ActiveMQ Artemis will wait this delay
 before redelivering the messages.
@@ -102,12 +103,14 @@ from the dead letter address for further inspection.
 
 Dead letter address is defined in the address-setting configuration:
 
-    <!-- undelivered messages in exampleQueue will be sent to the dead letter address
-    deadLetterQueue after 3 unsuccessful delivery attempts -->
-    <address-setting match="exampleQueue">
-    <dead-letter-address>deadLetterQueue</dead-letter-address>
-    <max-delivery-attempts>3</max-delivery-attempts>
-    </address-setting>
+```xml
+<!-- undelivered messages in exampleQueue will be sent to the dead letter address
+deadLetterQueue after 3 unsuccessful delivery attempts -->
+<address-setting match="exampleQueue">
+   <dead-letter-address>deadLetterQueue</dead-letter-address>
+   <max-delivery-attempts>3</max-delivery-attempts>
+</address-setting>
+```
 
 If a `dead-letter-address` is not specified, messages will removed after
 `max-delivery-attempts` unsuccessful attempts.
@@ -167,4 +170,6 @@ due to performance implications.
 To enable it, set `persist-delivery-count-before-delivery` to `true` in
 `broker.xml`:
 
-    <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
+```xml
+<persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
+```
