@@ -297,7 +297,7 @@ setting `jmx-management-enabled` to `false` in
     <!-- false to disable JMX management for Apache ActiveMQ Artemis -->
     <jmx-management-enabled>false</jmx-management-enabled>
     
-#### Role Based Authentication with JMX
+#### Role Based Authorisation for JMX
 
 Although by default Artemis uses the Java Virtual Machine's `Platform MBeanServer` 
 this is guarded using role based authentication that leverages Artemis's JAAS plugin support.
