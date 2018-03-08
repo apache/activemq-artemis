@@ -16,7 +16,7 @@ Here we advise that you look at message groups first.
 
 ## Configuring Exclusive Queues
 
-Exclusive queues can be pre configured at the address queue level
+Exclusive queues can be statically configured using the `exclusive` boolean property:
 
 ```xml
 <configuration ...>
@@ -35,17 +35,21 @@ Specified on creating a Queue by using the CORE api specifying the parameter `ex
 
 Or on auto-create when using the JMS Client by using address parameters when creating the destination used by the consumer.
 
-    Queue queue = session.createQueue("my.destination.name?exclusive=true");
-    Topic topic = session.createTopic("my.destination.name?exclusive=true");
+```java
+Queue queue = session.createQueue("my.destination.name?exclusive=true");
+Topic topic = session.createTopic("my.destination.name?exclusive=true");
+```
 
 Also the default for all queues under and address can be defaulted using the address-setting configuration:
 
-    <address-setting match="lastValueQueue">
-       <default-exclusive-queue>true</default-exclusive-queue>
-    </address-setting>
+```xml
+<address-setting match="lastValueQueue">
+   <default-exclusive-queue>true</default-exclusive-queue>
+</address-setting>
+```
 
-By default, `exclusive-queue` is false. Address wildcards can be used
-to configure Exclusive queues for a set of addresses (see [here](wildcard-syntax.md)).
+By default, `default-exclusive-queue` is `false`. Address wildcards can be used
+to configure exclusive queues for a set of addresses (see [here](wildcard-syntax.md)).
 
 
 ## Example

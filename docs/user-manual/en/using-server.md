@@ -12,44 +12,44 @@ with a JMS Service enabled.
 This document will refer to the full path of the directory where the ActiveMQ
 distribution has been extracted to as `${ARTEMIS_HOME}` directory.
 
-Installation
-============
+## Installation
 
 After downloading the distribution, the following highlights some important folders on the distribution:
 
              |___ bin
              |
-             |___ web
-             |      |___ user-manual
-             |      |___ api
-             |
              |___ examples
-             |      |___ core
-             |      |___ javaee
-             |      |___ jms
+             |      |___ common
+             |      |___ features
+             |      |___ perf
+             |      |___ protocols
              |
              |___ lib
+             |      |___ client
              |
              |___ schema
+             |
+             |___ web
+                    |___ api
+                    |___ hacking-guide
+                    |___ migration-guide
+                    |___ user-manual
 
 
--   `bin` -- binaries and scripts needed to run ActiveMQ Artemis.
+-   `bin` - binaries and scripts needed to run ActiveMQ Artemis.
 
--   `web` -- The folder where the web context is loaded when ActiveMQ Artemis runs.
+-   `examples` - All manner of examples. Please refer to the [examples](examples.md)
+    chapter for details on how to run them.
 
--   `user-manual` -- The user manual is placed under the web folder.
+-   `lib` - jars and libraries needed to run ActiveMQ Artemis
 
--   `api` -- The api documentation is placed under the web folder
+-   `schema` - XML Schemas used to validate ActiveMQ Artemis configuration files
 
--   `examples` -- JMS and Java EE examples. Please refer to the 'running
-    examples' chapter for details on how to run them.
+-   `web` - The folder where the web context is loaded when the broker runs.
 
--   `lib` -- jars and libraries needed to run ActiveMQ Artemis
+-   `api` - The api documentation is placed under the web folder.
 
--   `licenses` -- licenses for ActiveMQ Artemis
-
--   `schemas` -- XML Schemas used to validate ActiveMQ Artemis configuration
-    files
+-   `user-manual` - The user manual is placed under the web folder.
 
 
 ## Creating a Broker Instance
@@ -77,7 +77,7 @@ A broker instance directory will contain the following sub directories:
 At this point you may want to adjust the default configuration located in
 the `etc` directory.
 
-###Options
+### Options
 There are several options you can use when creating an instance.
 
 For a full list of updated properties always use:
@@ -320,7 +320,7 @@ Some of these properties may be mandatory in certain configurations and the syst
 ```
 
 
-### Starting and Stopping a Broker Instance
+## Starting and Stopping a Broker Instance
 
 Assuming you created the broker instance under `/var/lib/mybroker` all you need
 to do start running the broker instance is execute:
@@ -358,22 +358,6 @@ would for any Java program.
 
 If you wish to add any more JVM arguments or tune the existing ones, the
 run scripts are the place to do it.
-
-## Pre-configured Options
-
-The distribution contains several standard configuration sets for
-running:
-
--   Non clustered stand-alone.
-
--   Clustered stand-alone
-
--   Replicated stand-alone
-
--   Shared-store stand-alone
-
-You can of course create your own configuration and specify any
-configuration when running the run script.
 
 ## Library Path
 
@@ -419,27 +403,40 @@ respectively. It is also possible to not supply a default. i.e.
 `${activemq.remoting.netty.host}`, however the system property *must* be
 supplied in that case.
 
-## Bootstrap File
+### Bootstrap configuration file
 
 The stand-alone server is basically a set of POJOs which are
 instantiated by Airline commands.
 
 The bootstrap file is very simple. Let's take a look at an example:
 
-    <broker xmlns="http://activemq.org/schema">
+```xml
+<broker xmlns="http://activemq.org/schema">
 
-       <file:core configuration="${activemq.home}/config/stand-alone/non-clustered/broker.xml"></core>
+   <jaas-security domain="activemq"/>
 
-       <basic-security/>
+   <server configuration="file:/path/to/broker.xml"/>
 
-    </broker>
+   <web bind="http://localhost:8161" path="web">
+       <app url="activemq-branding" war="activemq-branding.war"/>
+       <app url="artemis-plugin" war="artemis-plugin.war"/>
+       <app url="console" war="console.war"/>
+   </web>
+</broker>
+```
 
--   core - Instantiates a core server using the configuration file from the
+
+-   `server` - Instantiates a core server using the configuration file from the
     `configuration` attribute. This is the main broker POJO necessary to
-    do all the real messaging work.  In addition all JMS objects such as:
-    Queues, Topics and ConnectionFactory instances are configured here.
+    do all the real messaging work.
 
-## The main configuration file.
+-   `jaas-security` - Configures security for the server. The `domain` attribute
+    refers to the relevant login module entry in `login.config`.
+
+-   `web` - Configures an embedded Jetty instance to serve web applications like
+    the admin console.
+
+### Broker configuration file
 
 The configuration for the Apache ActiveMQ Artemis core server is contained in
 `broker.xml`. This is what the FileConfiguration bean
@@ -452,8 +449,7 @@ is a valid configuration file. The different configuration will be
 explained throughout the manual or you can refer to the configuration
 reference [here](configuration-index.md).
 
-Windows Server
-==============
+## Windows Server
 
 On windows you will have the option to run ActiveMQ Artemis as a service.
 Just use the following command to install it:

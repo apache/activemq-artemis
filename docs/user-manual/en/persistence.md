@@ -1,16 +1,14 @@
 # Persistence
 
-In this chapter we will describe how persistence works with Apache ActiveMQ Artemis and
-how to configure it.
+Apache ActiveMQ Artemis ships with two persistence options.  The file journal which is 
+highly optimized for the messaging use case and gives great performance, and also the
+JDBC Store, which uses JDBC to connect to a database of your choice.  The JDBC Store is 
+still under development, but it is possible to use it's journal features, (essentially 
+everything except for paging and large messages).
 
-Apache ActiveMQ Artemis ships with two persistence options.  The Apache ActiveMQ Artemis File journal
-which is highly optimized for the messaging use case and gives great performance, and also Apache Artemis
-JDBC Store, which uses JDBC to connect to a database of your choice.  The JDBC Store is still under development,
-but it is possible to use it's journal features, (essentially everything except for paging and large messages).
+## File Journal (Default)
 
-## Apache ActiveMQ Artemis File Journal (Default)
-
-An Apache ActiveMQ Artemis file journal is an *append only* journal. It consists of a set of
+The file journal is an *append only* journal. It consists of a set of
 files on disk. Each file is pre-created to a fixed size and initially
 filled with padding. As operations are performed on the server, e.g. add
 message, update message, delete message, records are appended to the
@@ -45,49 +43,50 @@ The majority of the journal is written in Java, however we abstract out
 the interaction with the actual file system to allow different pluggable
 implementations. Apache ActiveMQ Artemis ships with two implementations:
 
--   Java [NIO](https://en.wikipedia.org/wiki/New_I/O).
+### Java [NIO](https://en.wikipedia.org/wiki/New_I/O)
 
-    The first implementation uses standard Java NIO to interface with
-    the file system. This provides extremely good performance and runs
-    on any platform where there's a Java 6+ runtime.
+The first implementation uses standard Java NIO to interface with
+the file system. This provides extremely good performance and runs
+on any platform where there's a Java 6+ runtime.
 
--   Linux Asynchronous IO
+### Linux Asynchronous IO
 
-    The second implementation uses a thin native code wrapper to talk to
-    the Linux asynchronous IO library (AIO). With AIO, Apache ActiveMQ Artemis will be
-    called back when the data has made it to disk, allowing us to avoid
-    explicit syncs altogether and simply send back confirmation of
-    completion when AIO informs us that the data has been persisted.
+The second implementation uses a thin native code wrapper to talk to
+the Linux asynchronous IO library (AIO). With AIO, Apache ActiveMQ Artemis will be
+called back when the data has made it to disk, allowing us to avoid
+explicit syncs altogether and simply send back confirmation of
+completion when AIO informs us that the data has been persisted.
 
-    Using AIO will typically provide even better performance than using
-    Java NIO.
+Using AIO will typically provide even better performance than using Java NIO.
 
-    The AIO journal is only available when running Linux kernel 2.6 or
-    later and after having installed libaio (if it's not already
-    installed). For instructions on how to install libaio please see Installing AIO section.
+The AIO journal is only available when running Linux kernel 2.6 or
+later and after having installed libaio (if it's not already
+installed). For instructions on how to install libaio please see Installing AIO section.
 
-    Also, please note that AIO will only work with the following file
-    systems: ext2, ext3, ext4, jfs, xfs and NFSV4.
+Also, please note that AIO will only work with the following file
+systems: ext2, ext3, ext4, jfs, xfs and NFSV4.
 
-    For more information on libaio please see [lib AIO](libaio.md).
+For more information on libaio please see [lib AIO](libaio.md).
 
-    libaio is part of the kernel project.
+libaio is part of the kernel project.
     
--   [Memory mapped](https://en.wikipedia.org/wiki/Memory-mapped_file).
+### [Memory mapped](https://en.wikipedia.org/wiki/Memory-mapped_file)
 
-    The third implementation uses a file-backed [READ_WRITE](https://docs.oracle.com/javase/8/docs/api/java/nio/channels/FileChannel.MapMode.html#READ_WRITE)
-    memory mapping against the OS page cache to interface with the file system.
+The third implementation uses a file-backed [READ_WRITE](https://docs.oracle.com/javase/8/docs/api/java/nio/channels/FileChannel.MapMode.html#READ_WRITE)
+memory mapping against the OS page cache to interface with the file system.
     
-    This provides extremely good performance (especially under strictly process failure durability requirements), 
-    almost zero copy (actually *is* the kernel page cache) and zero garbage (from the Java HEAP perspective) operations and runs 
-    on any platform where there's a Java 4+ runtime.
+This provides extremely good performance (especially under strictly process failure durability requirements), 
+almost zero copy (actually *is* the kernel page cache) and zero garbage (from the Java HEAP perspective) operations and runs 
+on any platform where there's a Java 4+ runtime.
     
-    Under power failure durability requirements it will perform at least on par with the NIO journal with the only 
-    exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/8/docs/api/java/nio/MappedByteBuffer.html#force%28%29)) implementation necessary to ensure 
-    durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/8/docs/api/java/nio/channels/FileChannel.html#force%28boolean%29) used is case of NIO journal.
+Under power failure durability requirements it will perform at least on par with the NIO journal with the only 
+exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/8/docs/api/java/nio/MappedByteBuffer.html#force%28%29)) implementation necessary to ensure 
+durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/8/docs/api/java/nio/channels/FileChannel.html#force%28boolean%29) used is case of NIO journal.
     
-    It benefits by the configuration of OS [huge pages](https://en.wikipedia.org/wiki/Page_%28computer_memory%29),
-    in particular when is used a big number of journal files and sizing them as multiple of the OS page size in bytes.    
+It benefits by the configuration of OS [huge pages](https://en.wikipedia.org/wiki/Page_%28computer_memory%29),
+in particular when is used a big number of journal files and sizing them as multiple of the OS page size in bytes.    
+
+### Standard Files
 
 The standard Apache ActiveMQ Artemis core server uses two instances of the journal:
 
@@ -128,7 +127,7 @@ If no persistence is required at all, Apache ActiveMQ Artemis can also be config
 not to persist any data at all to storage as discussed in the Configuring
 the broker for Zero Persistence section.
 
-### Configuring the bindings journal
+#### Configuring the bindings journal
 
 The bindings journal is configured using the following attributes in
 `broker.xml`
@@ -145,11 +144,11 @@ The bindings journal is configured using the following attributes in
     `bindings-directory` if it does not already exist. The default value
     is `true`
 
-### Configuring the jms journal
+#### Configuring the jms journal
 
 The jms config shares its configuration with the bindings journal.
 
-### Configuring the message journal
+#### Configuring the message journal
 
 The message journal is configured using the following attributes in
 `broker.xml`
@@ -308,7 +307,7 @@ The message journal is configured using the following attributes in
     This is particular effective for `NIO` and `MAPPED` journals, which rely on 
      *fsync*/*msync* to force write changes to disk.
 
-### An important note on disabling `journal-datasync`.
+#### Note on disabling `journal-datasync`
 
 > Any modern OS guarantees that on process failures (i.e. crash) all the uncommitted changes
 > to the page cache will be flushed to the file system, maintaining coherence between 
@@ -320,7 +319,7 @@ The message journal is configured using the following attributes in
 > effectiveness of the journal operations, capable of exploiting 
 > the read caching and write combining features provided by the OS's kernel page cache subsystem.
 
-### An important note on disabling disk write cache.
+### Note on disabling disk write cache
 
 > **Warning**
 >
@@ -379,7 +378,7 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 
     apt-get install libaio
 
-## Apache ActiveMQ Artemis JDBC Persistence
+## JDBC Persistence
 
 WARNING: The Apache ActiveMQ Artemis JDBC persistence store is under development and is included for evaluation purposes.
 
@@ -411,16 +410,16 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 2. Create a store element in your broker.xml config file under the ```<core>``` element.  For example:
 
 ```xml
-      <store>
-         <database-store>
-            <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
-            <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
-            <message-table-name>MESSAGE_TABLE</message-table-name>
-            <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
-            <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
-            <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
-         </database-store>
-      </store>
+<store>
+   <database-store>
+      <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
+      <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
+      <message-table-name>MESSAGE_TABLE</message-table-name>
+      <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
+      <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
+      <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
+   </database-store>
+</store>
 ```
 
 -   `jdbc-connection-url`
@@ -469,7 +468,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
 Note that some DBMS (e.g. Oracle, 30 chars) have restrictions on the size of table names, this should be taken into consideration when configuring table names for the Artemis database store, pay particular attention to the page store table name, which can be appended with a unique ID of up to 20 characters.  (for Oracle this would mean configuring a page-store-table-name of max size of 10 chars).
 
-## Configuring Apache ActiveMQ Artemis for Zero Persistence
+## Zero Persistence
 
 In some situations, zero persistence is sometimes required for a
 messaging system. Configuring Apache ActiveMQ Artemis to perform zero persistence is

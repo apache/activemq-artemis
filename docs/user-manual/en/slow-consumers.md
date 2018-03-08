@@ -12,7 +12,7 @@ non-durable JMS subscriber would allow the broker to remove the
 subscription and all of its messages freeing up valuable server
 resources.
 
-## Configuration required for detecting slow consumers
+## Required Configuration
 
 By default the server will not detect slow consumers. If slow consumer
 detection is desired then see [address model chapter](address-model.md)

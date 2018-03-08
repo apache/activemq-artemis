@@ -13,13 +13,13 @@ This chapter provides the information for each release:
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12342127).
 
 Highlights:
-- [Exclusive consumers](address-model.md).
+- [Exclusive consumers](exclusive-queues.md).
 - Equivalent ActiveMQ 5.x Virtual Topic naming abilities.
 - SSL Certificate revocation list.
 - [Last-value queue](last-value-queues.md) support for OpenWire.
 - Support [masked passwords](masking-passwords.md) in bootstrap.xm and login.config
-- Configurable [broker plugin](broker-plugins.md) implementation for logging various broker events (i.e. `LoggingActiveMQServerPlugin`).
-- Option to use OpenSSL provider for Netty.
+- Configurable [broker plugin](broker-plugins.md#using-the-loggingactivemqserverplugin) implementation for logging various broker events (i.e. `LoggingActiveMQServerPlugin`).
+- Option to use OpenSSL provider for Netty via the [`sslProvider`](configuring-transports.md#configuring-netty-ssl) URL parameter.
 - Enable [splitting of broker.xml into multiple files](configuration-index.md).
 - Enhanced message count and size metrics for queues.
 
@@ -28,8 +28,8 @@ Highlights:
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12341540).
 
 Highlights:
-- [JMX configuration via XML](management.md) rather than having to use system properties via command line or start script.
-- Configuration of [max frame payload length for STOMP web-socket](protocols-interoperability.md).
+- [JMX configuration via XML](management.md#role-based-authorisation-for-jmx) rather than having to use system properties via command line or start script.
+- Configuration of [max frame payload length for STOMP web-socket](protocols-interoperability.md#stomp-over-web-sockets).
 - Ability to configure HA using JDBC persistence.
 - Implement [role-based access control for management objects](management.md).
 
@@ -60,7 +60,7 @@ Highlights:
 Highlights:
 - [Web admin console](management-console.md)!
 - [Critical Analysis](critical-analysis.md) and deadlock detection on broker
-- Support [Netty native kqueue](configuring-transports.md) on Mac.
+- Support [Netty native kqueue](configuring-transports.md#macos-native-transport) on Mac.
 - [Last-value queue](last-value-queues.md) for AMQP
 
 #### Upgrading from 2.2.0
@@ -78,8 +78,8 @@ Highlights:
 Highlights:
 - Scheduled messages with the STOMP protocol.
 - Support for JNDIReferenceFactory and JNDIStorable.
-- Ability to delete queues and addresses when broker.xml changes.
-- Client authentication via Kerberos TLS Cipher Suites (RFC 2712).
+- Ability to delete queues and addresses when [broker.xml changes](config-reload.md).
+- [Client authentication via Kerberos TLS Cipher Suites (RFC 2712)](security.md#kerberos-authentication).
 
 
 ## 2.1.0
@@ -88,7 +88,7 @@ Highlights:
 
 Highlights:
 - [Broker plugin support](broker-plugins.md).
-- Support [Netty native epoll](configuring-transports.md) on Linux.
+- Support [Netty native epoll](configuring-transports.md#linux-native-transport) on Linux.
 - Ability to configure arbitrary security role mappings.
 - AMQP performance improvements.
 
@@ -103,7 +103,7 @@ Highlights:
   - Support for additional messaging use-cases.
   - Eliminates confusing JMS-specific queue naming conventions (i.e. "jms.queue." & "jms.topic." prefixes).
 - Pure encoding of messages so protocols like AMQP don't need to convert messages to "core" format unless absolutely necessary.
-- ["MAPPED" journal type](persistence.md) for increased performance in certain use-cases.
+- ["MAPPED" journal type](persistence.md#memory-mapped) for increased performance in certain use-cases.
 
 
 ## 1.5.6
