@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.dto.AppDTO;
+import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -125,6 +130,27 @@ public class ReplicatedFailoverTest extends FailoverTest {
       }
    }
 
+   @Test
+   public void testReplicatedFailbackBackupFromLiveBackToBackup() throws Exception {
+      WebServerDTO wdto = new WebServerDTO();
+      AppDTO appDTO = new AppDTO();
+      appDTO.war = "console.war";
+      appDTO.url = "console";
+      wdto.apps = new ArrayList<AppDTO>();
+      wdto.apps.add(appDTO);
+      wdto.bind = "http://localhost:0";
+      wdto.path = "console";
+      WebServerComponent webServerComponent = new WebServerComponent();
+      webServerComponent.configure(wdto, ".", ".");
+      webServerComponent.start();
+
+      backupServer.getServer().addExternalComponent(webServerComponent);
+      // this is called when backup servers go from live back to backup
+      backupServer.getServer().backToBackup(true);
+      assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
+      ((ServiceComponent)(backupServer.getServer().getExternalComponents().get(0))).stop(true);
+
+   }
    @Override
    protected void createConfigs() throws Exception {
       createReplicatedConfigs();

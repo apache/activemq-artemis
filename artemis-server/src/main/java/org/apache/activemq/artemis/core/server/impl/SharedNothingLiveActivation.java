@@ -187,7 +187,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
                      clusterConnection.addClusterTopologyListener(listener1);
                      if (listener1.waitForBackup()) {
                         //if we have to many backups kept or are not configured to restart just stop, otherwise restart as a backup
-                        activeMQServer.fail(true);
+                        activeMQServer.backToBackup(true);
                         ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
                         //                        activeMQServer.moveServerData(replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize());
                         activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
