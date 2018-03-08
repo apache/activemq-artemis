@@ -432,7 +432,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void fail(boolean failoverOnServerShutdown) throws Exception;
 
-   void backToBackup(boolean failoverOnServerShutdown) throws Exception;
+   void stop(boolean failoverOnServerShutdown, boolean isExit) throws Exception;
 
    Queue updateQueue(String name,
                      RoutingType routingType,
