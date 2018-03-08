@@ -13,7 +13,7 @@ This chapter provides the information for each release:
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12342127).
 
 Highlights:
-- [Exclusive consumers](address-model.md).
+- [Exclusive consumers](exclusive-queues.md).
 - Equivalent ActiveMQ 5.x Virtual Topic naming abilities.
 - SSL Certificate revocation list.
 - [Last-value queue](last-value-queues.md) support for OpenWire.
