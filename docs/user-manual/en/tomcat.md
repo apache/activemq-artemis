@@ -1,15 +1,15 @@
-# Apache ActiveMQ Artemis - Apache Tomcat Support
+# Apache Tomcat Support
 
 
-##Apache Tomcat resource context client configuration
+## Resource Context Client Configuration
 
 Apache ActiveMQ Artemis provides support for configuring the client, in the tomcat resource context.xml of Tomcat container.
 
 This is very similar to the way this is done in ActiveMQ 5.x so anyone migrating should find this familiar.
 Please note though the connection url and properties that can be set for ActiveMQ Artemis are different please see [Migration Documentation](https://activemq.apache.org/artemis/migration/)
 
-#### Example of Connection Factory
-````
+### Example of Connection Factory
+```xml
 <Context>
     ...
   <Resource name="jms/ConnectionFactory" auth="Container" type="org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory" description="JMS Connection Factory"
@@ -18,9 +18,9 @@ Please note though the connection url and properties that can be set for ActiveM
 </Context>
 ````
 
-#### Example of Destination (Queue and Topic)
+### Example of Destination (Queue and Topic)
 
-````
+```xml
 <Context>
   ...
   <Resource name="jms/ExampleQueue" auth="Container" type="org.apache.activemq.artemis.jms.client.ActiveMQQueue" description="JMS Queue"
@@ -32,8 +32,8 @@ Please note though the connection url and properties that can be set for ActiveM
 </Context>
 ````
 
-#### Example Tomcat App
+## Example Tomcat App
 
-A sample tomcat app with the container context configured as an example can be seen here: 
+A sample Tomcat app with the container context configured as an example can be seen here: 
 
 /examples/features/sub-modules/tomcat

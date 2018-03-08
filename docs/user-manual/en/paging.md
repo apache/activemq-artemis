@@ -35,7 +35,7 @@ Consumers with selectors will also navigate through the page-files and it will i
 
 
 
-## Configuration
+### Configuration
 
 You can configure the location of the paging folder
 
@@ -68,18 +68,20 @@ that address alone goes into page mode.
 > total overall size of all matching addresses is limited to
 > max-size-bytes.
 
-## Configuration
+### Configuration
 
 Configuration is done at the address settings, done at the main
 configuration file (`broker.xml`).
 
-    <address-settings>
-       <address-setting match="jms.someaddress">
-          <max-size-bytes>104857600</max-size-bytes>
-          <page-size-bytes>10485760</page-size-bytes>
-          <address-full-policy>PAGE</address-full-policy>
-       </address-setting>
-    </address-settings>
+```xml
+<address-settings>
+   <address-setting match="jms.someaddress">
+      <max-size-bytes>104857600</max-size-bytes>
+      <page-size-bytes>10485760</page-size-bytes>
+      <address-full-policy>PAGE</address-full-policy>
+   </address-setting>
+</address-settings>
+```
 
 This is the list of available parameters on the address settings.
 

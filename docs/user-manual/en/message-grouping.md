@@ -102,17 +102,19 @@ message should take.
 Here is a sample config for each type of handler. This should be 
 configured in `broker.xml`.
 
-    <grouping-handler name="my-grouping-handler">
-       <type>LOCAL</type>
-       <address>jms</address>
-       <timeout>5000</timeout>
-    </grouping-handler>
+```xml
+<grouping-handler name="my-grouping-handler">
+   <type>LOCAL</type>
+   <address>jms</address>
+   <timeout>5000</timeout>
+</grouping-handler>
 
-    <grouping-handler name="my-grouping-handler">
-       <type>REMOTE</type>
-       <address>jms</address>
-       <timeout>5000</timeout>
-    </grouping-handler>
+<grouping-handler name="my-grouping-handler">
+   <type>REMOTE</type>
+   <address>jms</address>
+   <timeout>5000</timeout>
+</grouping-handler>
+```
     
  - `type` two types of handlers are supported - `LOCAL` and `REMOTE`. 
    Each cluster should choose 1 node to have a `LOCAL` grouping handler

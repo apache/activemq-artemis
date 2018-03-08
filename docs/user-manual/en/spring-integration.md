@@ -13,21 +13,23 @@ automatically populate the Spring context with references to those beans
 so that you can use them. Below is an example Spring JMS bean file
 taking advantage of this feature:
 
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans
-            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-       <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start"/>
+   <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start"/>
 
-       <bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>
+   <bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>
 
-       <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-          <property name="connectionFactory" ref="ConnectionFactory"/>
-          <property name="destination" ref="/queue/exampleQueue"/>
-          <property name="messageListener" ref="listener"/>
-       </bean>
-    </beans>
+   <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+      <property name="connectionFactory" ref="ConnectionFactory"/>
+      <property name="destination" ref="/queue/exampleQueue"/>
+      <property name="messageListener" ref="listener"/>
+   </bean>
+</beans>
+```
 
 As you can see, the `listenerContainer` bean references the components
 defined in the `activemq-jms.xml` file. The `SpringJmsBootstrap` class

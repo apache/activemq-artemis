@@ -1,6 +1,6 @@
-# Guarantees of sends and commits
+# Guarantees of Sends and Commits
 
-## Guarantees of Transaction Completion
+## Transaction Completion
 
 When committing or rolling back a transaction with Apache ActiveMQ Artemis, the request
 to commit or rollback is sent to the server, and the call will block on
@@ -24,7 +24,7 @@ of some loss of transaction durability.
 
 This parameter is set in `broker.xml`
 
-## Guarantees of Non Transactional Message Sends
+## Non Transactional Message Sends
 
 If you are sending messages to a server using a non transacted session,
 Apache ActiveMQ Artemis can be configured to block the call to send until the message
@@ -61,7 +61,7 @@ send a response back to the client until the message has been persisted
 and the server has a guarantee that the data has been persisted to disk.
 The default value for this parameter is `true`.
 
-## Guarantees of Non Transactional Acknowledgements
+## Non Transactional Acknowledgements
 
 If you are acknowledging the delivery of a message at the client side
 using a non transacted session, Apache ActiveMQ Artemis can be configured to block the
@@ -113,8 +113,6 @@ successfully reached the server.
 The window size for send acknowledgements is determined by the
 confirmation-window-size parameter on the connection factory or client
 session factory. Please see [Client Reconnection and Session Reattachment](client-reconnection.md) for more info on this.
-
-# Asynchronous Send Acknowledgements
 
 To use the feature using the core API, you implement the interface
 `org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler` and set

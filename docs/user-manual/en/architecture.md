@@ -1,9 +1,4 @@
-# Architecture
-
-In this section we will give an overview of the Apache ActiveMQ Artemis high level
-architecture.
-
-## Core Architecture
+# Core Architecture
 
 Apache ActiveMQ Artemis core is designed simply as set of Plain Old Java Objects
 (POJOs) - we hope you like its clean-cut design.
@@ -35,8 +30,7 @@ Apache ActiveMQ Artemis also provides different protocol implementations on the 
 6. CORE (Artemis CORE protocol)
 
 
-JMS semantics are implemented by a JMS facade layer on the client
-side.
+JMS semantics are implemented by a JMS facade layer on the client side.
 
 The Apache ActiveMQ Artemis server does not speak JMS and in fact does not know
 anything about JMS, it is a protocol agnostic messaging server designed
@@ -59,32 +53,32 @@ server. User Application 1 is using the JMS API, while User Application
 You can see from the diagram that the JMS API is implemented by a thin
 facade layer on the client side.
 
-## Apache ActiveMQ Artemis stand-alone server
+## Stand-alone Broker
 
-The standard stand-alone messaging server configuration comprises a core
-messaging server and a number of protocol managers that provide support for
-the various protocol mentioned earlier.  Protocol managers are plugable
+The normal stand-alone messaging broker configuration comprises a core
+messaging broker and a number of protocol managers that provide support for
+the various protocol mentioned earlier.  Protocol managers are pluggable
 if you 
 
-The stand-alone server configuration uses [Airline](https://github.com/airlift/airline)
+The stand-alone broker configuration uses [Airline](https://github.com/airlift/airline)
 for bootstrapping the Broker.
 
-The stand-alone server architecture is shown in figure 3.3 below:
+The stand-alone broker architecture is shown in figure 3.3 below:
 
 ![ActiveMQ Artemis architecture3](images/architecture3.jpg)
 
 For more information on server configuration files see [Server Configuration](configuration-index.md)
 
-## Apache ActiveMQ Artemis embedded in your own application
+## Embedded Broker
 
 Apache ActiveMQ Artemis core is designed as a set of simple POJOs so if you have an
 application that requires messaging functionality internally but you
-don't want to expose that as an Apache ActiveMQ Artemis server you can directly
-instantiate and embed Apache ActiveMQ Artemis servers in your own application.
+don't want to expose that as an Apache ActiveMQ Artemis broker you can directly
+instantiate and embed Apache ActiveMQ Artemis brokers in your own application.
 
 For more information on embedding Apache ActiveMQ Artemis, see [Embedding Apache ActiveMQ Artemis](embedding-activemq.md).
 
-## Apache ActiveMQ Artemis integrated with a Java EE application server
+## Integrated with a Java EE application server
 
 Apache ActiveMQ Artemis provides its own fully functional Java Connector Architecture
 (JCA) adaptor which enables it to be integrated easily into any Java EE
