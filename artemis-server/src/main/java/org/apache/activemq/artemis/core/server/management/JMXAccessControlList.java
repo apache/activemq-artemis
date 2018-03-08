@@ -20,6 +20,7 @@ import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,7 +106,9 @@ public class JMXAccessControlList {
          domainAccess.put(id, access);
       }
 
-      if (method.endsWith("*")) {
+      if (method.equals("*")) {
+         access.addCatchAll(roles);
+      } else if (method.endsWith("*")) {
          String prefix = method.replace("*", "");
          access.addMethodsPrefixes(prefix, roles);
       } else {
@@ -130,7 +133,7 @@ public class JMXAccessControlList {
       private final String domain;
       List<String> catchAllRoles = new ArrayList<>();
       Map<String, List<String>> methodRoles = new HashMap<>();
-      Map<String, List<String>> methodPrefixRoles = new HashMap<>();
+      Map<String, List<String>> methodPrefixRoles = new LinkedHashMap<>();
 
       Access(String domain) {
          this.domain = domain;
