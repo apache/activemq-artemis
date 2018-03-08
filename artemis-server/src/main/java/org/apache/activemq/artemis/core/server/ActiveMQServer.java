@@ -432,6 +432,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void fail(boolean failoverOnServerShutdown) throws Exception;
 
+   void backToBackup(boolean failoverOnServerShutdown) throws Exception;
+
    Queue updateQueue(String name,
                      RoutingType routingType,
                      Integer maxConsumers,
@@ -471,6 +473,8 @@ public interface ActiveMQServer extends ServiceComponent {
    void setMBeanServer(MBeanServer mBeanServer);
 
    void addExternalComponent(ActiveMQComponent externalComponent);
+
+   List<ActiveMQComponent> getExternalComponents();
 
    boolean addClientConnection(String clientId, boolean unique);
 
