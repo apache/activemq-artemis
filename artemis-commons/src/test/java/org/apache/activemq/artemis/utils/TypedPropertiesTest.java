@@ -279,7 +279,7 @@ public class TypedPropertiesTest {
          }
       };
       t.start();
-      for (int i = 0; !error.get() && (i < 100 || copies.get() < 5000); i++) {
+      for (int i = 0; !error.get() && (i < 100 || copies.get() < 50); i++) {
          properties.putIntProperty(SimpleString.toSimpleString("key" + i), i);
       }
 
