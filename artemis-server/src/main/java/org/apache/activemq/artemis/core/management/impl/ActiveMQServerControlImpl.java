@@ -2611,7 +2611,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          @Override
          public void run() {
             try {
-               server.fail(true);
+               server.stop(true, true);
             } catch (Throwable e) {
                logger.warn(e.getMessage(), e);
             }
