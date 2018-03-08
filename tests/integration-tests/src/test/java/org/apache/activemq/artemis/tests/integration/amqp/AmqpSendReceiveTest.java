@@ -401,7 +401,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       sender.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(MSG_COUNT, queue.getMessageCount());
+      Wait.assertEquals(MSG_COUNT, queue::getMessageCount);
 
       AmqpReceiver receiver1 = session.createReceiver(getQueueName());
       receiver1.flow(MSG_COUNT);
