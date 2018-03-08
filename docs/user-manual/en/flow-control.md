@@ -137,7 +137,7 @@ The window size therefore determines the amount of bytes that can be
 in-flight at any one time before more need to be requested - this
 prevents the remoting connection from getting overloaded.
 
-#### Blocking producer window based flow control using CORE protocol
+#### Blocking CORE Producers
 
 When using the CORE protocol (used by both the Artemis Core Client and Artemis JMS Client)
 the server will always aim give the same number of credits as have been requested.
@@ -149,7 +149,9 @@ producer be associated with the same address and so it is theoretically possible
 that more credits are allocated across total producers than what is available.
 It is therefore possible to go over the address limit by approximately:
 
- '''total number of producers on address * producer window size'''
+```
+total number of producers on address * producer window size
+```
 
 For example, if I have a queue called "myqueue", I could set the
 maximum memory size to 10MiB, and the the server will control the number
@@ -180,12 +182,14 @@ memory of all subscriptions in the topic won't exceed max-size-bytes.
 
 Here's an example:
 
-    <address-settings>
-       <address-setting match="exampleQueue">
-          <max-size-bytes>100000</max-size-bytes>
-          <address-full-policy>BLOCK</address-full-policy>
-       </address-setting>
-    </address-settings>
+```xml
+<address-settings>
+   <address-setting match="exampleQueue">
+      <max-size-bytes>100000</max-size-bytes>
+      <address-full-policy>BLOCK</address-full-policy>
+   </address-setting>
+</address-settings>
+```
 
 The above example would set the max size of the queue "exampleQueue"
 to be 100000 bytes and would block any producers sending to that address
@@ -212,7 +216,7 @@ control.
 > a misbehaving client to ignore the flow control credits issued by the broker
 > and continue sending with out sufficient credit.
 
-#### Blocking producer window based flow control using AMQP
+#### Blocking AMQP Producers
 
 Apache ActiveMQ Artemis ships with out of the box with 2 protocols that support flow control. Artemis CORE protocol and
 AMQP. Both protocols implement flow control slightly differently and therefore address full BLOCK policy behaves slightly

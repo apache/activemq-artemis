@@ -68,15 +68,17 @@ address. Matching messages do not get routed to the old address.
 Here's some example xml configuration for an exclusive divert, it's
 taken from the divert example:
 
-    <divert name="prices-divert">
-       <address>priceUpdates</address>
-       <forwarding-address>priceForwarding</forwarding-address>
-       <filter string="office='New York'"/>
-       <transformer-class-name>
-          org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
-       </transformer-class-name>
-       <exclusive>true</exclusive>
-    </divert>
+```xml
+<divert name="prices-divert">
+   <address>priceUpdates</address>
+   <forwarding-address>priceForwarding</forwarding-address>
+   <filter string="office='New York'"/>
+   <transformer-class-name>
+      org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
+   </transformer-class-name>
+   <exclusive>true</exclusive>
+</divert>
+```
 
 We define a divert called `prices-divert` that will divert any
 messages sent to the address `priceUpdates` to another local address 
@@ -113,11 +115,13 @@ Non exclusive diverts can be configured in the same way as exclusive
 diverts with an optional filter and transformer, here's an example
 non-exclusive divert, again from the divert example:
 
-    <divert name="order-divert">
-        <address>orders</address>
-        <forwarding-address>spyTopic</forwarding-address>
-        <exclusive>false</exclusive>
-    </divert>
+```xml
+<divert name="order-divert">
+    <address>orders</address>
+    <forwarding-address>spyTopic</forwarding-address>
+    <exclusive>false</exclusive>
+</divert>
+```
 
 The above divert example takes a copy of every message sent to the
 address '`orders`' and sends it to a local address called

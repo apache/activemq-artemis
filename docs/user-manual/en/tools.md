@@ -1,11 +1,8 @@
 # Tools
 
-
 You can use the artemis cli interface to execute data maintenance tools:
 
-
 This is a list of sub-commands available
-
 
 Name | Description
 :--- | :---
@@ -14,9 +11,6 @@ imp  | Imports the journal to a running broker using the output from expt
 data     | Prints a report about journal records and summary of existent records, as well a report on paging
 encode | shows an internal format of the journal encoded to String
 decode | imports the internal journal format from encode
-
-
-
 
 You can use the help at the tool for more information on how to execute each of the tools. For example:
 
@@ -219,6 +213,4 @@ COMMANDS
 
             With --bindings option, The folder used for bindings (default from
             broker.xml)
-
-
 ```

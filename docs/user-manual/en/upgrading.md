@@ -17,9 +17,12 @@ To create an Artemis broker instance navigate into the Artemis home folder and r
 > downloaded. This separation allows you run multiple broker instances with the same
 > Artemis "home" for example. It also simplifies updating to newer versions of Artemis.
 
-Because of this separation it's very easy to upgrade Artemis in most cases. Upgrading
-may require some specific steps noted in the [versions](versions.md), but the general 
-process is as follows:
+Because of this separation it's very easy to upgrade Artemis in most cases. 
+
+## General Upgrade Procedure
+
+Upgrading may require some specific steps noted in the [versions](versions.md), but the 
+general process is as follows:
 
 1. Navigate to the `etc` folder of the broker instance that's being upgraded
 1. Open `artemis.profile` (`artemis.profile.cmd` on Windows). It contains a property 

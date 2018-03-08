@@ -811,7 +811,7 @@ For example, if a class full name is "org.apache.pkg1.Class1", some matching ent
 
 A `*` means 'match-all' in a black or white list.
 
-### Specifying black list and white list via Connection Factories
+### Config via Connection Factories
 
 To specify the white and black lists one can use the URL parameters
 `deserializationBlackList` and `deserializationWhiteList`. For example,
@@ -823,7 +823,7 @@ The above statement creates a factory that has a black list contains two
 forbidden packages, "org.apache.pkg1" and "org.some.pkg2", separated by a
 comma.
 
-### Specifying black list and white list via system properties
+### Config via system properties
 
 There are two system properties available for specifying black list and white list:
 
@@ -833,7 +833,7 @@ There are two system properties available for specifying black list and white li
 Once defined, all JMS object message deserialization in the VM is subject to checks against the two lists. However if you create a ConnectionFactory
 and set a new set of black/white lists on it, the new values will override the system properties.
 
-### Specifying black list and white list for resource adapters
+### Config for resource adapters
 
 Message beans using a JMS resource adapter to receive messages can also control their object deserialization via properly configuring relevant
 properties for their resource adapters. There are two properties that you can configure with connection factories in a resource adapter:
@@ -843,7 +843,7 @@ properties for their resource adapters. There are two properties that you can co
 
 These properties, once specified, are eventually set on the corresponding internal factories.
 
-### Specifying black list and white list for REST interface
+### Config for REST interface
 
 Apache Artemis REST interface ([Rest](rest.md)) allows interactions between jms client and rest clients.
 It uses JMS ObjectMessage to wrap the actual user data between the 2 types of clients and deserialization

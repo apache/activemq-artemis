@@ -1,4 +1,4 @@
-# Understanding the Apache ActiveMQ Artemis Wildcard Syntax
+# Wildcard Syntax
 
 Apache ActiveMQ Artemis uses a specific syntax for representing wildcards in security
 settings, address settings and when creating consumers.
@@ -26,16 +26,18 @@ The wildcard 'news.\*' would match 'news.europe', but not
 The wildcard 'news.\*.sport' would match 'news.europe.sport' and also
 'news.usa.sport', but not 'news.europe.politics'.
 
-## Configuring Wildcard syntax
+## Customizing the Syntax
 
 It's possible to further configure the syntax of the wildcard addresses using the broker configuration. 
 For that, the `<wildcard-addresses>` configuration tag is used.
 
-      <wildcard-addresses>
-        <routing-enabled>true</routing-enabled>
-        <delimiter>.</delimiter>
-        <any-words>#</any-words>
-        <single-word>*</single-word>
-      </wildcard-addresses>
+```xml
+<wildcard-addresses>
+   <routing-enabled>true</routing-enabled>
+   <delimiter>.</delimiter>
+   <any-words>#</any-words>
+   <single-word>*</single-word>
+</wildcard-addresses>
+```
 
 The example above shows the default configuration.
