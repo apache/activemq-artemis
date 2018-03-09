@@ -101,7 +101,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.failover</groupId>
-                  <artifactId>client-side-fileoverlistener</artifactId>
+                  <artifactId>client-side-failoverlistener</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>
