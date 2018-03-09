@@ -23,6 +23,14 @@ Highlights:
 - Enable [splitting of broker.xml into multiple files](configuration-index.md).
 - Enhanced message count and size metrics for queues.
 
+#### Upgrading from 2.4.0
+
+1. Due to changes from [ARTEMIS-1644](https://issues.apache.org/jira/browse/ARTEMIS-1644) any `acceptor` that needs to be
+   compatible with HornetQ and/or Artemis 1.x clients needs to have `anycastPrefix=jms.queue.;multicastPrefix=jms.topic.`
+   in the `acceptor` url. This prefix used to be configured automatically behind the scenes when the broker detected 
+   these old types of clients, but that broke certain use-cases with no possible work-around. See 
+   [ARTEMIS-1644](https://issues.apache.org/jira/browse/ARTEMIS-1644) for more details.
+
 ## 2.4.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12341540).
