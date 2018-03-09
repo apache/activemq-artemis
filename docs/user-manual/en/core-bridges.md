@@ -41,30 +41,32 @@ server. They do this by using duplicate detection (described in [Duplicate Detec
 Bridges are configured in `broker.xml`. Let's kick off
 with an example (this is actually from the bridge example):
 
-    <bridge name="my-bridge">
-       <queue-name>sausage-factory</queue-name>
-       <forwarding-address>mincing-machine</forwarding-address>
-       <filter string="name='aardvark'"/>
-       <transformer-class-name>
-          org.apache.activemq.artemis.jms.example.HatColourChangeTransformer
-       </transformer-class-name>
-       <retry-interval>1000</retry-interval>
-       <ha>true</ha>
-       <retry-interval-multiplier>1.0</retry-interval-multiplier>
-       <initial-connect-attempts>-1</initial-connect-attempts>
-       <reconnect-attempts>-1</reconnect-attempts>
-       <failover-on-server-shutdown>false</failover-on-server-shutdown>
-       <use-duplicate-detection>true</use-duplicate-detection>
-       <confirmation-window-size>10000000</confirmation-window-size>
-       <user>foouser</user>
-       <password>foopassword</password>
-       <static-connectors>
-          <connector-ref>remote-connector</connector-ref>
-       </static-connectors>
-       <!-- alternative to static-connectors
-       <discovery-group-ref discovery-group-name="bridge-discovery-group"/>
-       -->
-    </bridge>
+```xml
+<bridge name="my-bridge">
+   <queue-name>sausage-factory</queue-name>
+   <forwarding-address>mincing-machine</forwarding-address>
+   <filter string="name='aardvark'"/>
+   <transformer-class-name>
+      org.apache.activemq.artemis.jms.example.HatColourChangeTransformer
+   </transformer-class-name>
+   <retry-interval>1000</retry-interval>
+   <ha>true</ha>
+   <retry-interval-multiplier>1.0</retry-interval-multiplier>
+   <initial-connect-attempts>-1</initial-connect-attempts>
+   <reconnect-attempts>-1</reconnect-attempts>
+   <failover-on-server-shutdown>false</failover-on-server-shutdown>
+   <use-duplicate-detection>true</use-duplicate-detection>
+   <confirmation-window-size>10000000</confirmation-window-size>
+   <user>foouser</user>
+   <password>foopassword</password>
+   <static-connectors>
+      <connector-ref>remote-connector</connector-ref>
+   </static-connectors>
+   <!-- alternative to static-connectors
+   <discovery-group-ref discovery-group-name="bridge-discovery-group"/>
+   -->
+</bridge>
+```
 
 In the above example we have shown all the parameters its possible to
 configure for a bridge. In practice you might use many of the defaults

@@ -3,10 +3,12 @@
 ### Header 3     
 #### Header 4
 
-    <xml>somexml</xml>
+```xml
+<xml>somexml</xml>
+```
     
-``` java
- Somejava s = new SomeJava();
+```java
+Somejava s = new SomeJava();
 ```
  
 > **Note**

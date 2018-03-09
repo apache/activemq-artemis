@@ -26,20 +26,22 @@ protocol on a particular acceptor simply add a url parameter "protocol=AMQP,STOM
 of the parameter is a comma separated list of protocol names.  If the protocol parameter is omitted from the url all
 protocols are enabled.
 
-    <!-- The following example enables only MQTT on port 1883 -->
-    <acceptors>
-       <acceptor>tcp://localhost:1883?protocols=MQTT</acceptor>
-    </acceptors>
+```xml
+<!-- The following example enables only MQTT on port 1883 -->
+<acceptors>
+   <acceptor>tcp://localhost:1883?protocols=MQTT</acceptor>
+</acceptors>
 
-    <!-- The following example enables MQTT and AMQP on port 61617 -->
-    <acceptors>
-       <acceptor>tcp://localhost:1883?protocols=MQTT,AMQP</acceptor>
-    </acceptors>
+<!-- The following example enables MQTT and AMQP on port 61617 -->
+<acceptors>
+   <acceptor>tcp://localhost:1883?protocols=MQTT,AMQP</acceptor>
+</acceptors>
 
-    <!-- The following example enables all protocols on 61616 -->
-    <acceptors>
-       <acceptor>tcp://localhost:61616</acceptor>
-    </acceptors>
+<!-- The following example enables all protocols on 61616 -->
+<acceptors>
+   <acceptor>tcp://localhost:61616</acceptor>
+</acceptors>
+```
 
 ## AMQP
 
@@ -48,7 +50,9 @@ Apache ActiveMQ Artemis supports the [AMQP
 specification. To enable AMQP you must configure a Netty Acceptor to
 receive AMQP clients, like so:
 
-    <acceptor name="amqp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
+```xml
+<acceptor name="amqp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
+```
 
 
 Apache ActiveMQ Artemis will then accept AMQP 1.0 clients on port 5672 which is the
@@ -135,8 +139,9 @@ Apache ActiveMQ Artemis now supports the
 Apache ActiveMQ 5.x JMS client can talk directly to an Apache ActiveMQ Artemis server. To enable
 OpenWire support you must configure a Netty Acceptor, like so:
 
-    <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
-
+```xml
+<acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
+```
 
 The Apache ActiveMQ Artemis server will then listens on port 61616 for incoming
 openwire commands. Please note the "protocols" is not mandatory here.
@@ -219,7 +224,9 @@ For example, the default 5.x virtual topic with consumer prefix of ```Consumer.*
 the url significant characters ```>;``` are escaped with their hex code points. 
 In an acceptor url it would be:
 
-     <acceptor name="artemis">tcp://127.0.0.1:61616?protocols=OPENWIRE;virtualTopicConsumerWildcards=Consumer.*.%3E%3B2</acceptor>
+```xml
+<acceptor name="artemis">tcp://127.0.0.1:61616?protocols=OPENWIRE;virtualTopicConsumerWildcards=Consumer.*.%3E%3B2</acceptor>
+```
 
 This will translate ```Consumer.A.VirtualTopic.Orders``` into a FQQN of ```VirtualTopic.Orders::Consumer.A``` using the
 int component ```2``` of the configuration to identify the consumer queue as the first two paths of the destination.
@@ -339,7 +346,9 @@ Apache ActiveMQ Artemis provides native support for Stomp. To be able to send an
 receive Stomp messages, you must configure a `NettyAcceptor` with a
 `protocols` parameter set to have `stomp`:
 
-    <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP</acceptor>
+```xml
+<acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP</acceptor>
+```
 
 With this configuration, Apache ActiveMQ Artemis will accept Stomp connections on the
 port `61613` (which is the default port of the Stomp brokers).
@@ -425,7 +434,9 @@ configure your stomp acceptor with the "connectionTtl" property, which
 is used to set the ttl for connections that are created from that acceptor.
 For example:
 
-    <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;connectionTtl=20000</acceptor>
+```xml
+<acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;connectionTtl=20000</acceptor>
+```
 
 The above configuration will make sure that any Stomp connection that is
 created from that acceptor and does not include a `heart-beat` header
@@ -550,19 +561,19 @@ the queue used for the durable subscription in a deterministic way (i.e. using t
 subscription on the address `myAddress` with a client-id of `myclientid` and a subscription
 name of `mysubscription` then configure the durable subscription:
 
-~~~
-   <core xmlns="urn:activemq:core">
-      ...
-      <addresses>
-         <address name="myAddress">
-            <multicast>
-               <queue name="myclientid.mysubscription"/>
-            </multicast>
-         </address>
-      </addresses>
-      ...
-   </core>
-~~~
+```xml
+<core xmlns="urn:activemq:core">
+   ...
+   <addresses>
+      <address name="myAddress">
+         <multicast>
+            <queue name="myclientid.mysubscription"/>
+         </multicast>
+      </address>
+   </addresses>
+   ...
+</core>
+```
 
 ### Handling of Large Messages with Stomp
 
@@ -572,7 +583,9 @@ prevent this situation from happening, Apache ActiveMQ Artemis provides a stomp
 configuration attribute `stompMinLargeMessageSize`. This attribute
 can be configured inside a stomp acceptor, as a parameter. For example:
 
-       <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;stompMinLargeMessageSize=10240</acceptor>
+```xml
+<acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;stompMinLargeMessageSize=10240</acceptor>
+```
 
 The type of this attribute is integer. When this attributed is
 configured, Apache ActiveMQ Artemis server will check the size of the body of each
@@ -596,7 +609,9 @@ support Web Sockets can send and receive Stomp messages from Apache ActiveMQ Art
 
 Stomp over Web Sockets is supported via the normal Stomp acceptor:
 
-    <acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP</acceptor>
+```xml
+<acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP</acceptor>
+```
 
 With this configuration, Apache ActiveMQ Artemis will accept Stomp connections over Web
 Sockets on the port `61614`. Web browser can

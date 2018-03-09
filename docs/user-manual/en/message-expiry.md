@@ -11,18 +11,22 @@ messages are expired, they are removed from the queue and sent to the
 expiry address. Many different queues can be bound to an expiry address.
 These *expired* messages can later be consumed for further inspection.
 
-## Message Expiry
+## Core API
 
 Using Apache ActiveMQ Artemis Core API, you can set an expiration time directly on the
 message:
 
-    // message will expire in 5000ms from now
-    message.setExpiration(System.currentTimeMillis() + 5000);
+```java
+// message will expire in 5000ms from now
+message.setExpiration(System.currentTimeMillis() + 5000);
+```
 
 JMS MessageProducer allows to set a TimeToLive for the messages it sent:
 
-    // messages sent by this producer will be retained for 5s (5000ms) before expiration
-    producer.setTimeToLive(5000);
+```java
+// messages sent by this producer will be retained for 5s (5000ms) before expiration
+producer.setTimeToLive(5000);
+```
 
 Expired messages which are consumed from an expiry address have the
 following properties:
@@ -46,10 +50,12 @@ following properties:
 
 Expiry address are defined in the address-setting configuration:
 
-    <!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
-    <address-setting match="exampleQueue">
-       <expiry-address>expiryQueue</expiry-address>
-    </address-setting>
+```xml
+<!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
+<address-setting match="exampleQueue">
+   <expiry-address>expiryQueue</expiry-address>
+</address-setting>
+```
 
 If messages are expired and no expiry address is specified, messages are
 simply removed from the queue and dropped. Address wildcards can be used

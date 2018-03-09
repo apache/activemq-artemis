@@ -174,7 +174,7 @@ receive a message. Logically it's comprised of two sections: firstly
 setting up the producer to write a message to an *addresss*, and
 secondly, creating a *queue* for the consumer, creating the consumer and
 *starting* it.
-``` java
+```java
 ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
                                            InVMConnectorFactory.class.getName()));
 

@@ -32,17 +32,20 @@ Apache ActiveMQ Artemis supports two different strategies for backing up a serve
 *shared store* and *replication*. Which is configured via the
 `ha-policy` configuration element.
 
-    <ha-policy>
-      <replication/>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication/>
+</ha-policy>
+```
 
 
 or
 
-    <ha-policy>
-       <shared-store/>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <shared-store/>
+</ha-policy>
+```
 
 As well as these 2 strategies there is also a 3rd called `live-only`.
 This of course means there will be no Backup Strategy and is the default
@@ -67,30 +70,33 @@ element is configured how a server should behave within the cluster,
 either as a master (live), slave (backup) or colocated (both live and
 backup). This would look something like:
 
-    <ha-policy>
-       <replication>
-          <master/>
-       </replication>
-    </ha-policy>
-
-
-or
-
-    <ha-policy>
-       <shared-store/>
-          <slave/>
-       </shared-store/>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <replication>
+      <master/>
+   </replication>
+</ha-policy>
+```
 
 or
 
-    <ha-policy>
-       <replication>
-          <colocated/>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <slave/>
+   </shared-store>
+</ha-policy>
+```
 
+or
+
+```xml
+<ha-policy>
+   <replication>
+      <colocated/>
+   </replication>
+</ha-policy>
+```
 
 ### Data Replication
 
@@ -205,26 +211,29 @@ reconnecting with the live. This avoids a split brain situation.
 To configure the live and backup servers to be a replicating pair,
 configure the live server in ' `broker.xml` to have:
 
-    <ha-policy>
-       <replication>
-          <master/>
-       </replication>
-    </ha-policy>
-    .
-    <cluster-connections>
-       <cluster-connection name="my-cluster">
-          ...
-       </cluster-connection>
-    </cluster-connections>
-
+```xml
+<ha-policy>
+   <replication>
+      <master/>
+   </replication>
+</ha-policy>
+...
+<cluster-connections>
+   <cluster-connection name="my-cluster">
+      ...
+   </cluster-connection>
+</cluster-connections>
+```
 
 The backup server must be similarly configured but as a `slave`
 
-    <ha-policy>
-       <replication>
-          <slave/>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <slave/>
+   </replication>
+</ha-policy>
+```
 
 #### All Replication Configuration
 
@@ -365,27 +374,29 @@ on amount of data).
 To configure the live and backup servers to share their store, configure
 id via the `ha-policy` configuration in `broker.xml`:
 
-    <ha-policy>
-       <shared-store>
-          <master/>
-       </shared-store>
-    </ha-policy>
-    .
-    <cluster-connections>
-       <cluster-connection name="my-cluster">
-    ...
-       </cluster-connection>
-    </cluster-connections>
-
+```xml
+<ha-policy>
+   <shared-store>
+      <master/>
+   </shared-store>
+</ha-policy>
+...
+<cluster-connections>
+   <cluster-connection name="my-cluster">
+      ...
+   </cluster-connection>
+</cluster-connections>
+```
 
 The backup server must also be configured as a backup.
 
-    <ha-policy>
-       <shared-store>
-          <slave/>
-       </shared-store>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <shared-store>
+      <slave/>
+   </shared-store>
+</ha-policy>
+```
 
 In order for live - backup groups to operate properly with a shared
 store, both servers must have configured the location of journal
@@ -413,13 +424,15 @@ Alternatively you can set `allow-fail-back` to `true` on the slave
 config which will force the backup that has become live to automatically
 stop. This configuration would look like:
 
-    <ha-policy>
-       <shared-store>
-          <slave>
-             <allow-failback>true</allow-failback>
-          </slave>
-       </shared-store>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <slave>
+         <allow-failback>true</allow-failback>
+      </slave>
+   </shared-store>
+</ha-policy>
+```
 
 In replication HA mode you need to set an extra property
 `check-for-live-server` to `true` in the `master` configuration. If set
@@ -435,13 +448,15 @@ and if there was if the server that took its duties is still running or
 not. To configure this option at your `broker.xml`
 configuration file as follows:
 
-    <ha-policy>
-       <replication>
-          <master>
-             <check-for-live-server>true</check-for-live-server>
-          </master>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <master>
+         <check-for-live-server>true</check-for-live-server>
+      </master>
+   </replication>
+</ha-policy>
+```
 
 > **Warning**
 >
@@ -455,13 +470,15 @@ occur on normal server shutdown, to enable this set the following
 property to true in the `ha-policy` configuration on either the `master`
 or `slave` like so:
 
-    <ha-policy>
-       <shared-store>
-          <master>
-             <failover-on-shutdown>true</failover-on-shutdown>
-          </master>
-       </shared-store>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <master>
+         <failover-on-shutdown>true</failover-on-shutdown>
+      </master>
+   </shared-store>
+</ha-policy>
+```
 
 By default this is set to false, if by some chance you have set this to
 false but still want to stop the server normally and cause failover then
@@ -472,13 +489,15 @@ server comes back up allowing the original live server to take over
 automatically by setting the following property in the
 `broker.xml` configuration file as follows:
 
-    <ha-policy>
-       <shared-store>
-          <slave>
-             <allow-failback>true</allow-failback>
-          </slave>
-       </shared-store>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <slave>
+         <allow-failback>true</allow-failback>
+      </slave>
+   </shared-store>
+</ha-policy>
+```
 
 #### All Shared Store Configuration
 
@@ -563,18 +582,20 @@ can evenly distribute backups around the cluster. This is configured via
 the `ha-policy` element in the `broker.xml` file like
 so:
 
-    <ha-policy>
-       <replication>
-          <colocated>
-             <request-backup>true</request-backup>
-             <max-backups>1</max-backups>
-             <backup-request-retries>-1</backup-request-retries>
-             <backup-request-retry-interval>5000</backup-request-retry-interval>
-             <master/>
-             <slave/>
-          </colocated>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <colocated>
+         <request-backup>true</request-backup>
+         <max-backups>1</max-backups>
+         <backup-request-retries>-1</backup-request-retries>
+         <backup-request-retry-interval>5000</backup-request-retry-interval>
+         <master/>
+         <slave/>
+      </colocated>
+   </replication>
+</ha-policy>
+```
 
 
 the above example is configured to use replication, in this case the
@@ -605,14 +626,16 @@ Connector used by the cluster connection to do quorum voting for a
 replicated backup server, these can be omitted from being offset by
 adding them to the `ha-policy` configuration like so:
 
-    <ha-policy>
-       <replication>
-          <colocated>
-             <excludes>
-                <connector-ref>remote-connector</connector-ref>
-             </excludes>
-    .........
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <colocated>
+         <excludes>
+            <connector-ref>remote-connector</connector-ref>
+         </excludes>
+.........
+</ha-policy>
+```
 
 
 #### Configuring Directories
@@ -684,15 +707,17 @@ so server 1 could have messages 1,3,5,7,9 and server 2 would have
 The configuration for a live server to scale down would be something
 like:
 
-    <ha-policy>
-       <live-only>
-          <scale-down>
-             <connectors>
-                <connector-ref>server1-connector</connector-ref>
-             </connectors>
-          </scale-down>
-       </live-only>
-    </ha-policy>
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         <connectors>
+            <connector-ref>server1-connector</connector-ref>
+         </connectors>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 
 In this instance the server is configured to use a specific connector to
@@ -701,14 +726,15 @@ connector is chosen, this is to make scale down fromm a backup server
 easy to configure. It is also possible to use discovery to scale down,
 this would look like:
 
-    <ha-policy>
-       <live-only>
-          <scale-down>
-             <discovery-group-ref discovery-group-name="my-discovery-group"/>
-          </scale-down>
-       </live-only>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 #### Scale Down with groups
 
@@ -716,15 +742,16 @@ It is also possible to configure servers to only scale down to servers
 that belong in the same group. This is done by configuring the group
 like so:
 
-    <ha-policy>
-       <live-only>
-          <scale-down>
-             ...
-             <group-name>my-group</group-name>
-          </scale-down>
-       </live-only>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         ...
+         <group-name>my-group</group-name>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 In this scenario only servers that belong to the group `my-group` will
 be scaled down to
@@ -740,34 +767,36 @@ they will automatically be backed up by server and as live servers are
 shutdown, there messages are made available on another live server. A
 typical configuration would look like:
 
-    <ha-policy>
-       <replication>
-          <colocated>
-             <backup-request-retries>44</backup-request-retries>
-             <backup-request-retry-interval>33</backup-request-retry-interval>
-             <max-backups>3</max-backups>
-             <request-backup>false</request-backup>
-             <backup-port-offset>33</backup-port-offset>
-             <master>
-                <group-name>purple</group-name>
-                <check-for-live-server>true</check-for-live-server>
-                <cluster-name>abcdefg</cluster-name>
-             </master>
-             <slave>
-                <group-name>tiddles</group-name>
-                <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
-                <cluster-name>33rrrrr</cluster-name>
-                <restart-backup>false</restart-backup>
-                <scale-down>
-                   <!--a grouping of servers that can be scaled down to-->
-                   <group-name>boo!</group-name>
-                   <!--either a discovery group-->
-                   <discovery-group-ref discovery-group-name="wahey"/>
-                </scale-down>
-             </slave>
-          </colocated>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <colocated>
+         <backup-request-retries>44</backup-request-retries>
+         <backup-request-retry-interval>33</backup-request-retry-interval>
+         <max-backups>3</max-backups>
+         <request-backup>false</request-backup>
+         <backup-port-offset>33</backup-port-offset>
+         <master>
+            <group-name>purple</group-name>
+            <check-for-live-server>true</check-for-live-server>
+            <cluster-name>abcdefg</cluster-name>
+         </master>
+         <slave>
+            <group-name>tiddles</group-name>
+            <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
+            <cluster-name>33rrrrr</cluster-name>
+            <restart-backup>false</restart-backup>
+            <scale-down>
+               <!--a grouping of servers that can be scaled down to-->
+               <group-name>boo!</group-name>
+               <!--either a discovery group-->
+               <discovery-group-ref discovery-group-name="wahey"/>
+            </scale-down>
+         </slave>
+      </colocated>
+   </replication>
+</ha-policy>
+```
 
 
 #### Scale Down and Clients
