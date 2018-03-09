@@ -109,7 +109,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>interceptor-client-mqtt</artifactId>
+                  <artifactId>interceptor-mqtt</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>

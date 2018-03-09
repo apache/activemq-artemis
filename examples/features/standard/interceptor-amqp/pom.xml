@@ -110,7 +110,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>interceptor-client-amqp</artifactId>
+                  <artifactId>interceptor-amqp</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>
