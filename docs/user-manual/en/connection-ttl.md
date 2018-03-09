@@ -4,7 +4,7 @@ In this section we will discuss connection time-to-live (TTL) and
 explain how Apache ActiveMQ Artemis deals with crashed clients and clients which have
 exited without cleanly closing their resources.
 
-## Cleaning up Dead Connection Resources on the Server
+## Cleaning up Resources on the Server
 
 Before an Apache ActiveMQ Artemis client application exits it is considered good
 practice that it should close its resources in a controlled manner,
@@ -13,7 +13,7 @@ using a `finally` block.
 Here's an example of a well behaved core client application closing its
 session and session factory in a finally block:
 
-``` java
+```java
 ServerLocator locator = null;
 ClientSessionFactory sf = null;
 ClientSession session = null;
@@ -49,7 +49,7 @@ finally
 
 And here's an example of a well behaved JMS client application:
 
-``` java
+```java
 Connection jmsConnection = null;
 
 try
@@ -72,7 +72,7 @@ finally
 
 Or with using auto-closeable feature from Java, which can save a few lines of code:
 
-``` java
+```java
 
 
 try (
@@ -131,7 +131,7 @@ the broker. By default, the checks are done every 2,000 milliseconds.
 However, this can be changed if necessary by using the 
 `connection-ttl-check-interval` attribute.
 
-## Closing core sessions or JMS connections that you have failed to close
+## Closing Forgotten Resources
 
 As previously discussed, it's important that all core client sessions
 and JMS connections are always closed explicitly in a `finally` block
@@ -147,7 +147,7 @@ where you created the JMS connection / client session that you later did
 not close. This will enable you to pinpoint the error in your code and
 correct it appropriately.
 
-## Detecting failure from the client side.
+## Detecting Failure from the Client
 
 In the previous section we discussed how the client sends pings to the
 server and how "dead" connection resources are cleaned up by the server.

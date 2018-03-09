@@ -10,12 +10,14 @@ configure such limits.
 
 Here is an example of the XML used to set resource limits:
 
-    <resource-limit-settings>
-       <resource-limit-setting match="myUser">
-          <max-connections>5</max-connections>
-          <max-queues>3</max-queues>
-       </resource-limit-setting>
-    </resource-limit-settings>
+```xml
+<resource-limit-settings>
+   <resource-limit-setting match="myUser">
+      <max-connections>5</max-connections>
+      <max-queues>3</max-queues>
+   </resource-limit-setting>
+</resource-limit-settings>
+```
 
 Unlike the `match` from `address-setting`, this `match` does not use
 any wild-card syntax. It's a simple 1:1 mapping of the limits to a user.

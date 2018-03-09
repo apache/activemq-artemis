@@ -12,7 +12,7 @@ about in the messaging world.
 If you're already familiar with what a messaging system is and what it's
 capable of, then you can skip this chapter.
 
-## Messaging Concepts
+## General Concepts
 
 Messaging systems allow you to loosely couple heterogeneous systems
 together, whilst typically providing reliability, transactions and many
@@ -57,7 +57,7 @@ messaging (also known as *point-to-point messaging*) and [publish
 subscribe](https://en.wikipedia.org/wiki/Publish_subscribe) messaging.
 We'll summarise them briefly here:
 
-### The Message Queue Pattern
+### Point-to-Point
 
 With this type of messaging you send a message to a queue. The message
 is then typically persisted to provide a guarantee of delivery, then
@@ -97,7 +97,7 @@ forgotten about. Often the send to the warehouse system, update in
 database and acknowledgement will be completed in a single transaction
 to ensure [ACID](https://en.wikipedia.org/wiki/ACID) properties.
 
-### The Publish-Subscribe Pattern
+### Publish-Subscribe
 
 With publish-subscribe messaging many senders can send messages to an
 entity on the server, often called a *topic* (e.g. in the JMS world).

@@ -31,13 +31,15 @@ The configuration property `large-messages-directory` specifies where
 large messages are stored.  For JDBC persistence the `large-message-table`
 should be configured.
 
-    <configuration xmlns="urn:activemq"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-    ...
-    <large-messages-directory>/data/large-messages</large-messages-directory>
-    ...
-    </configuration
+```xml
+<configuration xmlns="urn:activemq"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+   ...
+   <large-messages-directory>/data/large-messages</large-messages-directory>
+   ...
+</configuration
+```
 
 By default the large message directory is `data/largemessages` and `large-message-table` is
 configured as "LARGE_MESSAGE_TABLE".
@@ -45,7 +47,7 @@ configured as "LARGE_MESSAGE_TABLE".
 For the best performance we recommend using file store with large messages directory stored
 on a different physical volume to the message journal or paging directory.
 
-## Configuring Parameters
+## Configuring the Client
 
 Any message larger than a certain size is considered a large message.
 Large messages will be split up and sent in fragments. This is
@@ -66,12 +68,10 @@ The default value is 100KiB.
 will provide more information on how to instantiate the core session factory
 or JMS connection factory.
 
-### Compressed Large Messages
+## Compressed Large Messages
 
 You can choose to send large messages in compressed form using
 `compressLargeMessages` URL parameter.
-
-#### `compressLargeMessages`
 
 If you specify the boolean URL parameter `compressLargeMessages` as true,
 The system will use the ZIP algorithm to compress the message body as
@@ -220,7 +220,7 @@ messageReceived.setObjectProperty("JMS_AMQ_OutputStream", bufferedOutput);
 > When using JMS, Streaming large messages are only supported on
 > `StreamMessage` and `BytesMessage`.
 
-## Streaming Alternative
+### Streaming Alternative
 
 If you choose not to use the `InputStream` or `OutputStream` capability
 of Apache ActiveMQ Artemis You could still access the data directly in an alternative
