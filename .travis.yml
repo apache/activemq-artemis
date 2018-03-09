@@ -12,3 +12,5 @@ script: mvn -Pfast-tests -Pextra-tests -B install
 cache:
   directories:
   - $HOME/.m2
+  before_cache:
+  - rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
