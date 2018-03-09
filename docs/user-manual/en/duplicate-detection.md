@@ -48,7 +48,7 @@ already received a message with that value of the header. If it has
 received a message with the same value before then it will ignore the
 message.
 
-> **Note**
+> **Note:**
 >
 > Using duplicate detection to move messages between nodes can give you
 > the same *once and only once* delivery guarantees as if you were using
@@ -118,7 +118,7 @@ configured by the parameter `persist-id-cache`, also in
 be persisted to permanent storage as they are received. The default
 value for this parameter is `true`.
 
-> **Note**
+> **Note:**
 >
 > When choosing a size of the duplicate id cache be sure to set it to a
 > larger enough size so if you resend messages all the previously sent

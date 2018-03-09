@@ -37,11 +37,11 @@ bytes).
 
 The value can be:
 
--   `-1` for an *unbounded* buffer
+- `-1` for an *unbounded* buffer
 
--   `0` to not buffer any messages.
+- `0` to not buffer any messages.
 
--   `>0` for a buffer with the given maximum size in bytes.
+- `>0` for a buffer with the given maximum size in bytes.
 
 Setting the consumer window size can considerably improve performance
 depending on the messaging use case. As an example, let's consider the
@@ -106,7 +106,7 @@ control. The default value is `-1`.
 Please see [the examples chapter](examples.md) for a working example of
 limiting consumer rate.
 
-> **Note**
+> **Note:**
 >
 > Rate limited flow control can be used in conjunction with window based
 > flow control. Rate limited flow control only effects how many messages
@@ -198,7 +198,7 @@ to prevent that max size being exceeded.
 Note the policy must be set to `BLOCK` to enable blocking producer flow
 control.
 
-> **Note**
+> **Note:**
 >
 > Note that in the default configuration all addresses are set to block
 > producers after 10 MiB of message data is in the address. This means
@@ -207,7 +207,7 @@ control.
 > want this behaviour increase the `max-size-bytes` parameter or change
 > the address full message policy.
 
-> **Note**
+> **Note:**
 >
 > Producer credits are allocated from the broker to the client.  Flow control
 > credit checking (i.e. checking a producer has enough credit) is done on the

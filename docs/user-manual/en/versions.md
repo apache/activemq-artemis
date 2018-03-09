@@ -4,9 +4,9 @@ This chapter provides the information for each release:
 - A link to the full release notes which includes all issues resolved in the release.
 - A brief list of "highlights."
 - If necessary, specific steps required when upgrading from the previous version. 
-  - _NOTE:_ If the upgrade spans multiple versions then the steps from each version need to be followed in order.
-  - _NOTE:_ Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
-    chapter in addition to any version-specific upgrade instructions. 
+  - **Note:** If the upgrade spans multiple versions then the steps from **each** version need to be followed in order.
+  - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
+    chapter in addition to any version-specific upgrade instructions outlined here. 
 
 ## 2.5.0
 
@@ -58,7 +58,7 @@ Highlights:
    ```xml
    <app url="console" war="console.war"/>
    ```   
-   _NOTE:_ the Jolokia REST interface URL will now be at `http://<host>:<port>/console/jolokia`
+   **Note:** the Jolokia REST interface URL will now be at `http://<host>:<port>/console/jolokia`
 
 
 ## 2.3.0

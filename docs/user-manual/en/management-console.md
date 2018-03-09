@@ -4,7 +4,6 @@ Apache ActiveMQ Artemis ships by default with a management console. It is powere
 
 Its purpose is to expose the [Management API](management.md "Management API") via a user friendly web ui. 
 
-
 ## Login
 
 To access the management console use a browser and go to the URL [http://localhost:8161/console]().
@@ -30,28 +29,26 @@ Once logged in you should be presented with a screen similar to.
 
 On the top right is small menu area you will see some icons.
 
--    `question mark` This will load the artemis documentation in the console main window
--    `person` will provide a drop down menu with
-- -  `about` this will load an about screen, here you will be able to see and validate versions
-- -  `log out` self descriptive.
+- `question mark` This will load the artemis documentation in the console main window
+- `person` will provide a drop down menu with
+- `about` this will load an about screen, here you will be able to see and validate versions
+- `log out` self descriptive.
 
 #### Navigation Tabs
 
 Running below the Navigation Menu you will see several default feature tabs.
  
--    `Artemis` This is the core tab for Apache ActiveMQ Artemis specific functionality. The rest of this document will focus on this.
+- `Artemis` This is the core tab for Apache ActiveMQ Artemis specific functionality. The rest of this document will focus on this.
 
--    `Connect` This allows you to connect to a remote broker from the same console.
+- `Connect` This allows you to connect to a remote broker from the same console.
 
--    `Dashboard` Here you can create and save graphs and tables of metrics available via JMX, a default jvm health dashboard is provided. 
+- `Dashboard` Here you can create and save graphs and tables of metrics available via JMX, a default jvm health dashboard is provided. 
 
--    `JMX` This exposes the raw Jolokia JMX so you can browse/access all the JMX endpoints exposed by the JVM.
+- `JMX` This exposes the raw Jolokia JMX so you can browse/access all the JMX endpoints exposed by the JVM.
 
--    `Threads` This allows you to monitor the thread usage and their state.
+- `Threads` This allows you to monitor the thread usage and their state.
 
 You can install further hawtio plugins if you wish to have further functionality.
-
-
 
 ## Artemis Tab
 
@@ -70,8 +67,6 @@ This expands to show and expose details of the current configured acceptors.
 This expands to show the current configured available `addresses`.
 
 Under the address you can expand to find the `queues` for the address exposing attributes
-
-
 
 ### Key Operations
 
