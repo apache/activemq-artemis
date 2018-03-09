@@ -1918,4 +1918,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224089, value = "Failed to calculate persistent size", format = Message.Format.MESSAGE_FORMAT)
    void errorCalculatePersistentSize(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224090, value = "This node is not configured for Quorum Voting, all nodes must be configured for HA", format = Message.Format.MESSAGE_FORMAT)
+   void noVoteHandlerConfigured();
+
 }
