@@ -378,6 +378,10 @@ public class ClusterController implements ActiveMQComponent {
             } else if (packet.getType() == PacketImpl.QUORUM_VOTE) {
                QuorumVoteMessage quorumVoteMessage = (QuorumVoteMessage) packet;
                QuorumVoteHandler voteHandler = quorumManager.getVoteHandler(quorumVoteMessage.getHandler());
+               if (voteHandler == null) {
+                  ActiveMQServerLogger.LOGGER.noVoteHandlerConfigured();
+                  return;
+               }
                quorumVoteMessage.decode(voteHandler);
                ActiveMQServerLogger.LOGGER.receivedQuorumVoteRequest(quorumVoteMessage.getVote().toString());
                Vote vote = quorumManager.vote(quorumVoteMessage.getHandler(), quorumVoteMessage.getVote());
