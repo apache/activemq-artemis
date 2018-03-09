@@ -14,26 +14,26 @@ Last-Value queues can be statically configured via the `last-value`
 boolean property:
 
 ```xml
-<configuration ...>
-  <core ...>
-    ...
-    <address name="foo.bar">
-      <multicast>
-        <queue name="orders1" last-value="true"/>
-      </multicast>
-    </address>
-  </core>
-</configuration>
+<address name="foo.bar">
+   <multicast>
+      <queue name="orders1" last-value="true"/>
+   </multicast>
+</address>
 ```
 
-Specified on creating a Queue by using the CORE api specifying the parameter `lastValue` to `true`. 
+Specified on creating a queue by using the CORE api specifying the parameter 
+`lastValue` to `true`. 
 
-Or on auto-create when using the JMS Client by using address parameters when creating the destination used by the consumer.
+Or on auto-create when using the JMS Client by using address parameters when 
+creating the destination used by the consumer.
 
-    Queue queue = session.createQueue("my.destination.name?last-value=true");
-    Topic topic = session.createTopic("my.destination.name?last-value=true");
+```java
+Queue queue = session.createQueue("my.destination.name?last-value=true");
+Topic topic = session.createTopic("my.destination.name?last-value=true");
+```
 
-Also the default for all queues under and address can be defaulted using the address-setting configuration:
+Also the default for all queues under and address can be defaulted using the 
+`address-setting` configuration:
 
 ```xml
 <address-setting match="lastValueQueue">
@@ -45,7 +45,8 @@ By default, `default-last-value-queue` is false.
 Address wildcards can be used to configure Last-Value queues 
 for a set of addresses (see [here](wildcard-syntax.md)).
 
-Note that address-setting `last-value-queue` config is deprecated, please use `default-last-value-queue` instead.
+Note that `address-setting` `last-value-queue` config is deprecated, please use
+`default-last-value-queue` instead.
 
 ## Last-Value Property
 
@@ -77,5 +78,5 @@ System.out.format("Received message: %s\n", messageReceived.getText());
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how last value queues are configured
-and used with JMS.
+See the [last-value queue example](examples.md#last-value-queue) which shows 
+how last value queues are configured and used with JMS.

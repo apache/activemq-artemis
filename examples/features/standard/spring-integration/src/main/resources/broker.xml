@@ -26,11 +26,10 @@ under the License.
          <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>
 
-      <!-- Other config -->
-
       <security-settings>
-         <!--security for example queue-->
          <security-setting match="#">
+            <permission roles="guest" type="createAddress"/>
+            <permission roles="guest" type="deleteAddress"/>
             <permission roles="guest" type="createDurableQueue"/>
             <permission roles="guest" type="deleteDurableQueue"/>
             <permission roles="guest" type="createNonDurableQueue"/>
@@ -39,13 +38,5 @@ under the License.
             <permission roles="guest" type="send"/>
          </security-setting>
       </security-settings>
-
-      <addresses>
-         <address name="exampleQueue">
-            <anycast>
-               <queue name="jms.queue.exampleQueue"/>
-            </anycast>
-         </address>
-      </addresses>
    </core>
 </configuration>

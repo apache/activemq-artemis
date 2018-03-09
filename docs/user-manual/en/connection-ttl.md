@@ -18,8 +18,7 @@ ServerLocator locator = null;
 ClientSessionFactory sf = null;
 ClientSession session = null;
 
-try
-{
+try {
    locator = ActiveMQClient.createServerLocatorWithoutHA(..);
 
    sf = locator.createClientSessionFactory();;
@@ -27,21 +26,16 @@ try
    session = sf.createSession(...);
 
    ... do some stuff with the session...
-}
-finally
-{
-   if (session != null)
-   {
+} finally {
+   if (session != null) {
       session.close();
    }
 
-   if (sf != null)
-   {
+   if (sf != null) {
       sf.close();
    }
 
-   if(locator != null)
-   {
+   if(locator != null) {
       locator.close();
    }
 }
@@ -52,18 +46,14 @@ And here's an example of a well behaved JMS client application:
 ```java
 Connection jmsConnection = null;
 
-try
-{
+try {
    ConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
    jmsConnection = jmsConnectionFactory.createConnection();
 
    ... do some stuff with the connection...
-}
-finally
-{
-   if (connection != null)
-   {
+} finally {
+   if (connection != null) {
       connection.close();
    }
 }
@@ -73,16 +63,12 @@ finally
 Or with using auto-closeable feature from Java, which can save a few lines of code:
 
 ```java
-
-
 try (
      ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-     Connection jmsConnection = jmsConnectionFactory.createConnection())
-{
+     Connection jmsConnection = jmsConnectionFactory.createConnection()) {
    ... do some stuff with the connection...
 }
 ```
-
 
 Unfortunately users don't always write well behaved applications, and
 sometimes clients just crash so they don't have a chance to clean up
@@ -186,17 +172,17 @@ from a thread pool so that the remoting thread is not tied up for too
 long. Please note that processing operations asynchronously on another
 thread adds a little more latency. These packets are:
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
 
 To disable asynchronous connection execution, set the parameter
 `async-connection-execution-enabled` in `broker.xml` to

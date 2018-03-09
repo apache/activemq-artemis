@@ -10,15 +10,17 @@ and receiving simple HTTP messages that contain the content you want to push aro
 here's a simple example of posting an order to an order processing queue
 express as an HTTP message:
 
-    POST /queue/orders/create HTTP/1.1
-    Host: example.com
-    Content-Type: application/xml
+```
+POST /queue/orders/create HTTP/1.1
+Host: example.com
+Content-Type: application/xml
 
-    <order>
-       <name>Bill</name>
-       <item>iPhone 4</item>
-       <cost>$199.99</cost>
-    </order>
+<order>
+   <name>Bill</name>
+   <item>iPhone 4</item>
+   <cost>$199.99</cost>
+</order>
+```
 
 As you can see, we're just posting some arbitrary XML document to a URL.
 When the XML is received on the server is it processed within Apache ActiveMQ Artemis
@@ -31,29 +33,29 @@ discuss the entire interface in detail later.
 Why would you want to use Apache ActiveMQ Artemis's REST interface? What are the goals
 of the REST interface?
 
--   Easily usable by machine-based (code) clients.
+- Easily usable by machine-based (code) clients.
 
--   Zero client footprint. We want Apache ActiveMQ Artemis to be usable by any
-    client/programming language that has an adequate HTTP client
-    library. You shouldn't have to download, install, and configure a
-    special library to interact with Apache ActiveMQ Artemis.
+- Zero client footprint. We want Apache ActiveMQ Artemis to be usable by any
+  client/programming language that has an adequate HTTP client
+  library. You shouldn't have to download, install, and configure a
+  special library to interact with Apache ActiveMQ Artemis.
 
--   Lightweight interoperability. The HTTP protocol is strong enough to
-    be our message exchange protocol. Since interactions are RESTful the
-    HTTP uniform interface provides all the interoperability you need to
-    communicate between different languages, platforms, and even
-    messaging implementations that choose to implement the same RESTful
-    interface as Apache ActiveMQ Artemis (i.e. the [REST-\*](http://www.jboss.org/reststar)
-    effort.)
+- Lightweight interoperability. The HTTP protocol is strong enough to
+  be our message exchange protocol. Since interactions are RESTful the
+  HTTP uniform interface provides all the interoperability you need to
+  communicate between different languages, platforms, and even
+  messaging implementations that choose to implement the same RESTful
+  interface as Apache ActiveMQ Artemis (i.e. the [REST-\*](http://www.jboss.org/reststar)
+  effort.)
 
--   No envelope (e.g. SOAP) or feed (e.g. Atom) format requirements. You
-    shouldn't have to learn, use, or parse a specific XML document
-    format in order to send and receive messages through Apache ActiveMQ Artemis's REST
-    interface.
+- No envelope (e.g. SOAP) or feed (e.g. Atom) format requirements. You
+  shouldn't have to learn, use, or parse a specific XML document
+  format in order to send and receive messages through Apache ActiveMQ Artemis's REST
+  interface.
 
--   Leverage the reliability, scalability, and clustering features of
-    Apache ActiveMQ Artemis on the back end without sacrificing the simplicity of a
-    REST interface.
+- Leverage the reliability, scalability, and clustering features of
+  Apache ActiveMQ Artemis on the back end without sacrificing the simplicity of a
+  REST interface.
 
 ## Installation and Configuration
 
@@ -63,68 +65,68 @@ Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It
 
 This section should be used when you want to use the Apache ActiveMQ Artemis REST interface in an environment that already has Apache ActiveMQ Artemis installed and running. You must create a Web archive (.WAR) file with the following web.xml settings:
 
-    <web-app>
-       <listener>
-          <listener-class>
-             org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
-          </listener-class>
-       </listener>
+```xml
+<web-app>
+   <listener>
+      <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+   </listener>
 
-       <listener>
-          <listener-class>
-             org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener
-          </listener-class>
-       </listener>
+   <listener>
+      <listener-class>org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener</listener-class>
+   </listener>
 
-       <filter>
-          <filter-name>Rest-Messaging</filter-name>
-          <filter-class>
-             org.jboss.resteasy.plugins.server.servlet.FilterDispatcher
-          </filter-class>
-       </filter>
+   <filter>
+      <filter-name>Rest-Messaging</filter-name>
+      <filter-class>org.jboss.resteasy.plugins.server.servlet.FilterDispatcher</filter-class>
+   </filter>
 
-       <filter-mapping>
-          <filter-name>Rest-Messaging</filter-name>
-          <url-pattern>/*</url-pattern>
-       </filter-mapping>
-    </web-app>
+   <filter-mapping>
+      <filter-name>Rest-Messaging</filter-name>
+      <url-pattern>/*</url-pattern>
+   </filter-mapping>
+</web-app>
+```
 
 Within your WEB-INF/lib directory you must have the artemis-rest.jar file. If RESTEasy is not installed within your environment, you must add the RESTEasy jar files within the lib directory as well. Here's a sample Maven pom.xml that can build a WAR with the Apache ActiveMQ Artemis REST library.
 
-    <project xmlns="http://maven.apache.org/POM/4.0.0"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-       <modelVersion>4.0.0</modelVersion>
-       <groupId>org.somebody</groupId>
-       <artifactId>artemis-rest</artifactId>
-       <packaging>war</packaging>
-       <name>My App</name>
-       <version>1.0-SNAPSHOT</version>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.somebody</groupId>
+   <artifactId>artemis-rest</artifactId>
+   <packaging>war</packaging>
+   <name>My App</name>
+   <version>1.0-SNAPSHOT</version>
 
-       <dependencies>
-          <dependency>
-             <groupId>org.apache.activemq.rest</groupId>
-             <artifactId>artemis-rest</artifactId>
-             <version>$VERSION</version>
-             <exclusions>
-                <exclusion>
-                   <groupId>*</groupId>
-                   <artifactId>*</artifactId>
-                </exclusion>
-             </exclusions>
-          </dependency>
-       </dependencies>
-    </project>
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.activemq.rest</groupId>
+         <artifactId>artemis-rest</artifactId>
+         <version>$VERSION</version>
+         <exclusions>
+            <exclusion>
+               <groupId>*</groupId>
+               <artifactId>*</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+   </dependencies>
+</project>
+```
 
 The project structure should look this like:
 
-    |-- pom.xml
-    `-- src
-       `-- main
-           `-- webapp
-               `-- WEB-INF
-                   `-- web.xml
+```
+|-- pom.xml
+`-- src
+   `-- main
+       `-- webapp
+           `-- WEB-INF
+               `-- web.xml
+```
 
 
 It is worth noting that when deploying a WAR in a Java EE application server like Wildfly the URL for the resulting application will include the name of the WAR by default. For example, if you've constructed a WAR as described above named "activemq-rest.war" then clients will access it at, e.g. http://localhost:8080/activemq-rest/[queues|topics]. We'll see more about this later.
@@ -133,70 +135,68 @@ It is worth noting that when deploying a WAR in a Java EE application server lik
 
 You can bootstrap Apache ActiveMQ Artemis within your WAR as well. To do this, you must have the Apache ActiveMQ Artemis core and JMS jars along with Netty, RESTEasy, and the Apache ActiveMQ Artemis REST jar within your WEB-INF/lib. You must also have a broker.xml config file within WEB-INF/classes. The examples that come with the Apache ActiveMQ Artemis REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
 
-    <web-app>
-       <listener>
-          <listener-class>
-             org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
-          </listener-class>
-       </listener>
+```xml
+<web-app>
+   <listener>
+      <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+   </listener>
 
-       <listener>
-          <listener-class>
-             org.apache.activemq.artemis.rest.integration.ActiveMQBootstrapListener
-          </listener-class>
-       </listener>
+   <listener>
+      <listener-class>org.apache.activemq.artemis.rest.integration.ActiveMQBootstrapListener</listener-class>
+   </listener>
 
-       <listener>
-          <listener-class>
-             org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener
-          </listener-class>
-       </listener>
+   <listener>
+      <listener-class>org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener</listener-class>
+   </listener>
 
-       <filter>
-          <filter-name>Rest-Messaging</filter-name>
-          <filter-class>
-             org.jboss.resteasy.plugins.server.servlet.FilterDispatcher
-          </filter-class>
-       </filter>
+   <filter>
+      <filter-name>Rest-Messaging</filter-name>
+      <filter-class>org.jboss.resteasy.plugins.server.servlet.FilterDispatcher</filter-class>
+   </filter>
 
-       <filter-mapping>
-          <filter-name>Rest-Messaging</filter-name>
-          <url-pattern>/*</url-pattern>
-       </filter-mapping>
-    </web-app>
+   <filter-mapping>
+      <filter-name>Rest-Messaging</filter-name>
+      <url-pattern>/*</url-pattern>
+   </filter-mapping>
+</web-app>
+```
 
 Here's a Maven pom.xml file for creating a WAR for this environment. Make sure your Apache ActiveMQ Artemis configuration file(s) are within the src/main/resources directory so that they are stuffed within the WAR's WEB-INF/classes directory!
 
-    <project xmlns="http://maven.apache.org/POM/4.0.0"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-       <modelVersion>4.0.0</modelVersion>
-       <groupId>org.somebody</groupId>
-       <artifactId>artemis-rest</artifactId>
-       <packaging>war</packaging>
-       <name>My App</name>
-       <version>1.0-SNAPSHOT</version>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.somebody</groupId>
+   <artifactId>artemis-rest</artifactId>
+   <packaging>war</packaging>
+   <name>My App</name>
+   <version>1.0-SNAPSHOT</version>
 
-       <dependencies>
-          <dependency>
-             <groupId>org.apache.activemq.rest</groupId>
-             <artifactId>artemis-rest</artifactId>
-             <version>$VERSION</version>
-          </dependency>
-       </dependencies>
-    </project>
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.activemq.rest</groupId>
+         <artifactId>artemis-rest</artifactId>
+         <version>$VERSION</version>
+      </dependency>
+   </dependencies>
+</project>
+```
 
 The project structure should look this like:
 
-    |-- pom.xml
-    `-- src
-       `-- main
-           `-- resources
-               `-- broker.xml
-           `-- webapp
-               `-- WEB-INF
-                   `-- web.xml
+```
+|-- pom.xml
+`-- src
+   `-- main
+       `-- resources
+           `-- broker.xml
+       `-- webapp
+           `-- WEB-INF
+               `-- web.xml
+```
 
 ### REST Configuration
 
@@ -207,72 +207,74 @@ WEB-INF/classes directory. You must set the web.xml context-param
 file. Below is the format of the XML configuration file and the default
 values for each.
 
-    <rest-messaging>
-       <server-in-vm-id>0</server-in-vm-id> <!-- deprecated, use "url" -->
-       <use-link-headers>false</use-link-headers>
-       <default-durable-send>false</default-durable-send>
-       <dups-ok>true</dups-ok>
-       <topic-push-store-dir>topic-push-store</topic-push-store-dir>
-       <queue-push-store-dir>queue-push-store</queue-push-store-dir>
-       <producer-time-to-live>0</producer-time-to-live>
-       <producer-session-pool-size>10</producer-session-pool-size>
-       <session-timeout-task-interval>1</session-timeout-task-interval>
-       <consumer-session-timeout-seconds>300</consumer-session-timeout-seconds>
-       <consumer-window-size>-1</consumer-window-size> <!-- deprecated, use "url" -->
-       <url>vm://0</url>
-    </rest-messaging>
+```xml
+<rest-messaging>
+   <server-in-vm-id>0</server-in-vm-id> <!-- deprecated, use "url" -->
+   <use-link-headers>false</use-link-headers>
+   <default-durable-send>false</default-durable-send>
+   <dups-ok>true</dups-ok>
+   <topic-push-store-dir>topic-push-store</topic-push-store-dir>
+   <queue-push-store-dir>queue-push-store</queue-push-store-dir>
+   <producer-time-to-live>0</producer-time-to-live>
+   <producer-session-pool-size>10</producer-session-pool-size>
+   <session-timeout-task-interval>1</session-timeout-task-interval>
+   <consumer-session-timeout-seconds>300</consumer-session-timeout-seconds>
+   <consumer-window-size>-1</consumer-window-size> <!-- deprecated, use "url" -->
+   <url>vm://0</url>
+</rest-messaging>
+```
 
 Let's give an explanation of each config option.
 
--   `server-in-vm-id`. The Apache ActiveMQ Artemis REST implementation was formerly hard-coded
-    to use the in-vm transport to communicate with the embedded Apache ActiveMQ Artemis instance.
-    This is the id of the embedded instance. It is "0" by default. Note: this is deprecated in
-    favor of `url` which can be used to connect to an arbitrary instance of Apache ActiveMQ
-    Artemis (including one over the network).
+- `server-in-vm-id`. The Apache ActiveMQ Artemis REST implementation was formerly hard-coded
+  to use the in-vm transport to communicate with the embedded Apache ActiveMQ Artemis instance.
+  This is the id of the embedded instance. It is "0" by default. **Note:** this is deprecated in
+  favor of `url` which can be used to connect to an arbitrary instance of Apache ActiveMQ
+  Artemis (including one over the network).
 
--   `use-link-headers`. By default, all links (URLs) are published using
-    custom headers. You can instead have the Apache ActiveMQ Artemis REST
-    implementation publish links using the [Link Header
-    specification](https://tools.ietf.org/html/draft-nottingham-http-link-header-10)
-    instead if you desire.
+- `use-link-headers`. By default, all links (URLs) are published using
+  custom headers. You can instead have the Apache ActiveMQ Artemis REST
+  implementation publish links using the [Link Header
+  specification](https://tools.ietf.org/html/draft-nottingham-http-link-header-10)
+  instead if you desire.
 
--   `default-durable-send`. Whether a posted message should be persisted
-    by default if the user does not specify a durable query parameter.
+- `default-durable-send`. Whether a posted message should be persisted
+  by default if the user does not specify a durable query parameter.
 
--   `dups-ok`. If this is true, no duplicate detection protocol will be
-    enforced for message posting.
+- `dups-ok`. If this is true, no duplicate detection protocol will be
+  enforced for message posting.
 
--   `topic-push-store-dir`. This must be a relative or absolute file
-    system path. This is a directory where push registrations for topics
-    are stored. See [Pushing Messages](#message-push).
+- `topic-push-store-dir`. This must be a relative or absolute file
+  system path. This is a directory where push registrations for topics
+  are stored. See [Pushing Messages](#message-push).
 
--   `queue-push-store-dir`. This must be a relative or absolute file
-    system path. This is a directory where push registrations for queues
-    are stored. See [Pushing Messages](#message-push).
+- `queue-push-store-dir`. This must be a relative or absolute file
+  system path. This is a directory where push registrations for queues
+  are stored. See [Pushing Messages](#message-push).
 
--   `producer-session-pool-size`. The REST implementation pools Apache ActiveMQ Artemis
-    sessions for sending messages. This is the size of the pool. That
-    number of sessions will be created at startup time.
+- `producer-session-pool-size`. The REST implementation pools Apache ActiveMQ Artemis
+  sessions for sending messages. This is the size of the pool. That
+  number of sessions will be created at startup time.
 
--   `producer-time-to-live`. Default time to live for posted messages.
-    Default is no ttl.
+- `producer-time-to-live`. Default time to live for posted messages.
+  Default is no ttl.
 
--   `session-timeout-task-interval`. Pull consumers and pull
-    subscriptions can time out. This is the interval the thread that
-    checks for timed-out sessions will run at. A value of 1 means it
-    will run every 1 second.
+- `session-timeout-task-interval`. Pull consumers and pull
+  subscriptions can time out. This is the interval the thread that
+  checks for timed-out sessions will run at. A value of 1 means it
+  will run every 1 second.
 
--   `consumer-session-timeout-seconds`. Timeout in seconds for pull
-    consumers/subscriptions that remain idle for that amount of time.
+- `consumer-session-timeout-seconds`. Timeout in seconds for pull
+  consumers/subscriptions that remain idle for that amount of time.
 
--   `consumer-window-size`. For consumers, this config option is the
-    same as the Apache ActiveMQ Artemis one of the same name. It will be used by
-    sessions created by the Apache ActiveMQ Artemis REST implementation.
-    This is deprecated in favor of `url` as it can be specified as a URL
-    parameter.
+- `consumer-window-size`. For consumers, this config option is the
+  same as the Apache ActiveMQ Artemis one of the same name. It will be used by
+  sessions created by the Apache ActiveMQ Artemis REST implementation.
+  This is deprecated in favor of `url` as it can be specified as a URL
+  parameter.
 
--   `url`. The URL the Apache ActiveMQ Artemis REST implementation should use
-    to connect to the Apache ActiveMQ Artemis instance. Default to "vm://0".
+- `url`. The URL the Apache ActiveMQ Artemis REST implementation should use
+  to connect to the Apache ActiveMQ Artemis instance. Default to "vm://0".
 
 ## Apache ActiveMQ Artemis REST Interface Basics
 
@@ -288,8 +290,10 @@ in published XML representations. Let's look at how this works.
 To interact with a queue or topic you do a HEAD or GET request on the
 following relative URI pattern:
 
-    /queues/{name}
-    /topics/{name}
+```
+/queues/{name}
+/topics/{name}
+```
 
 The base of the URI is the base URL of the WAR you deployed the Apache ActiveMQ Artemis
 REST server within as defined in the [Installation and
@@ -298,22 +302,24 @@ string within the above URI pattern with the name of the queue or topic
 you are interested in interacting with. Next, perform your HEAD or GET
 request on this URI. Here's what a request/response would look like.
 
-    HEAD /queues/bar HTTP/1.1
-    Host: example.com
+```
+HEAD /queues/bar HTTP/1.1
+Host: example.com
 
-    --- Response ---
-    HTTP/1.1 200 Ok
-    msg-create: http://example.com/queues/bar/create
-    msg-create-with-id: http://example.com/queues/bar/create/{id}
-    msg-pull-consumers: http://example.com/queues/bar/pull-consumers
-    msg-push-consumers: http://example.com/queues/bar/push-consumers
+--- Response ---
+HTTP/1.1 200 Ok
+msg-create: http://example.com/queues/bar/create
+msg-create-with-id: http://example.com/queues/bar/create/{id}
+msg-pull-consumers: http://example.com/queues/bar/pull-consumers
+msg-push-consumers: http://example.com/queues/bar/push-consumers
+```
 
-> **Note**
+> **Note:**
 >
 > You can use the "curl" utility to test this easily. Simply execute a
 > command like this:
 >
->     curl --head http://example.com/queues/bar
+>   curl --head http://example.com/queues/bar
 
 The HEAD or GET response contains a number of custom response headers
 that are URLs to additional REST resources that allow you to interact
@@ -329,40 +335,40 @@ changes as the Apache ActiveMQ Artemis REST interface evolves over time.
 Below is a list of response headers you should expect when interacting
 with a Queue resource.
 
--   `msg-create`. This is a URL you POST messages to. The semantics of
-    this link are described in [Posting Messages](#posting-messages).
+- `msg-create`. This is a URL you POST messages to. The semantics of
+  this link are described in [Posting Messages](#posting-messages).
 
--   `msg-create-with-id`. This is a URL *template* you can use to POST
-    messages. The semantics of this link are described in [Posting
-    Messages](#posting-messages).
+- `msg-create-with-id`. This is a URL *template* you can use to POST
+  messages. The semantics of this link are described in [Posting
+  Messages](#posting-messages).
 
--   `msg-pull-consumers`. This is a URL for creating consumers that will
-    pull from a queue. The semantics of this link are described in
-    [Consuming Messages via Pull](#consuming-messages-via-pull).
+- `msg-pull-consumers`. This is a URL for creating consumers that will
+  pull from a queue. The semantics of this link are described in
+  [Consuming Messages via Pull](#consuming-messages-via-pull).
 
--   `msg-push-consumers`. This is a URL for registering other URLs you
-    want the Apache ActiveMQ Artemis REST server to push messages to. The semantics of
-    this link are described in [Pushing Messages](#pushing-messages).
+- `msg-push-consumers`. This is a URL for registering other URLs you
+  want the Apache ActiveMQ Artemis REST server to push messages to. The semantics of
+  this link are described in [Pushing Messages](#pushing-messages).
 
 ### Topic Resource Response Headers
 
 Below is a list of response headers you should expect when interacting
 with a Topic resource.
 
--   `msg-create`. This is a URL you POST messages to. The semantics of
-    this link are described in [Posting Messages](#posting-messages).
+- `msg-create`. This is a URL you POST messages to. The semantics of
+  this link are described in [Posting Messages](#posting-messages).
 
--   `msg-create-with-id`. This is a URL *template* you can use to POST
-    messages. The semantics of this link are described in [Posting
-    Messages](#posting-messages).
+- `msg-create-with-id`. This is a URL *template* you can use to POST
+  messages. The semantics of this link are described in [Posting
+  Messages](#posting-messages).
 
--   `msg-pull-subscriptions`. This is a URL for creating subscribers
-    that will pull from a topic. The semantics of this link are
-    described in [Consuming Messages via Pull](#consuming-messages-via-pull).
+- `msg-pull-subscriptions`. This is a URL for creating subscribers
+  that will pull from a topic. The semantics of this link are
+  described in [Consuming Messages via Pull](#consuming-messages-via-pull).
 
--   `msg-push-subscriptions`. This is a URL for registering other URLs
-    you want the Apache ActiveMQ Artemis REST server to push messages to. The semantics
-    of this link are described in [Pushing Messages](#pushing-messages).
+- `msg-push-subscriptions`. This is a URL for registering other URLs
+  you want the Apache ActiveMQ Artemis REST server to push messages to. The semantics
+  of this link are described in [Pushing Messages](#pushing-messages).
 
 ## Posting Messages
 
@@ -375,7 +381,7 @@ a simple HTTP message to the URL published by the `msg-create` header.
 The HTTP message contains whatever content you want to publish to the
 Apache ActiveMQ Artemis destination. Here's an example scenario:
 
-> **Note**
+> **Note:**
 >
 > You can also post messages to the URL template found in
 > `msg-create-with-id`, but this is a more advanced use-case involving
@@ -384,31 +390,35 @@ Apache ActiveMQ Artemis destination. Here's an example scenario:
 1.  Obtain the starting `msg-create` header from the queue or topic
     resource.
 
-        HEAD /queues/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /queues/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/queues/bar/create
-        msg-create-with-id: http://example.com/queues/bar/create/{id}
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/queues/bar/create
+    msg-create-with-id: http://example.com/queues/bar/create/{id}
+    ```
 
 2.  Do a POST to the URL contained in the `msg-create` header.
 
-        POST /queues/bar/create
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /queues/bar/create
+    Host: example.com
+    Content-Type: application/xml
 
-        <order>
-           <name>Bill</name>
-           <item>iPhone4</name>
-           <cost>$199.99</cost>
-        </order>
+    <order>
+       <name>Bill</name>
+       <item>iPhone4</name>
+       <cost>$199.99</cost>
+    </order>
 
-        --- Response ---
-        HTTP/1.1 201 Created
-        msg-create-next: http://example.com/queues/bar/create
+    --- Response ---
+    HTTP/1.1 201 Created
+    msg-create-next: http://example.com/queues/bar/create
+    ```
 
-    > **Note**
+    > **Note:**
     >
     > You can use the "curl" utility to test this easily. Simply execute
     > a command like this:
@@ -422,19 +432,21 @@ Apache ActiveMQ Artemis destination. Here's an example scenario:
 3.  POST your next message to the queue using the URL returned in the
     `msg-create-next` header.
 
-        POST /queues/bar/create
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /queues/bar/create
+    Host: example.com
+    Content-Type: application/xml
 
-        <order>
-           <name>Monica</name>
-           <item>iPad</item>
-           <cost>$499.99</cost>
-        </order>
+    <order>
+       <name>Monica</name>
+       <item>iPad</item>
+       <cost>$499.99</cost>
+    </order>
 
-        --- Response --
-        HTTP/1.1 201 Created
-        msg-create-next: http://example.com/queues/bar/create
+    --- Response --
+    HTTP/1.1 201 Created
+    msg-create-next: http://example.com/queues/bar/create
+    ```
 
     Continue using the new `msg-create-next` header returned with each
     response.
@@ -467,29 +479,33 @@ discussed earlier. Here's an example:
 1.  Obtain the starting `msg-create` header from the queue or topic
     resource.
 
-        HEAD /queues/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /queues/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/queues/bar/create
-        msg-create-with-id: http://example.com/queues/bar/create/{id}
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/queues/bar/create
+    msg-create-with-id: http://example.com/queues/bar/create/{id}
+    ```
 
 2.  Do a POST to the URL contained in the `msg-create` header.
 
-        POST /queues/bar/create
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /queues/bar/create
+    Host: example.com
+    Content-Type: application/xml
 
-        <order>
-           <name>Bill</name>
-           <item>iPhone4</name>
-           <cost>$199.99</cost>
-        </order>
+    <order>
+       <name>Bill</name>
+       <item>iPhone4</name>
+       <cost>$199.99</cost>
+    </order>
 
-        --- Response ---
-        HTTP/1.1 307 Redirect
-        Location: http://example.com/queues/bar/create/13582001787372
+    --- Response ---
+    HTTP/1.1 307 Redirect
+    Location: http://example.com/queues/bar/create/13582001787372
+    ```
 
     A successful response will return a 307 response code. This is
     standard HTTP protocol. It is telling you that you must re-POST to
@@ -498,19 +514,21 @@ discussed earlier. Here's an example:
 3.  re-POST your message to the URL provided within the `Location`
     header.
 
-        POST /queues/bar/create/13582001787372
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /queues/bar/create/13582001787372
+    Host: example.com
+    Content-Type: application/xml
 
-        <order>
-           <name>Bill</name>
-           <item>iPhone4</name>
-           <cost>$199.99</cost>
-        </order>
+    <order>
+       <name>Bill</name>
+       <item>iPhone4</name>
+       <cost>$199.99</cost>
+    </order>
 
-        --- Response --
-        HTTP/1.1 201 Created
-        msg-create-next: http://example.com/queues/bar/create/13582001787373
+    --- Response --
+    HTTP/1.1 201 Created
+    msg-create-next: http://example.com/queues/bar/create/13582001787373
+    ```
 
     You should receive a 201 Created response. If there is a network
     failure, just re-POST to the Location header. For new messages, use
@@ -518,19 +536,21 @@ discussed earlier. Here's an example:
 
 4.  POST any new message to the returned `msg-create-next` header.
 
-        POST /queues/bar/create/13582001787373
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /queues/bar/create/13582001787373
+    Host: example.com
+    Content-Type: application/xml
 
-        <order>
-           <name>Monica</name>
-           <item>iPad</name>
-           <cost>$499.99</cost>
-        </order>
+    <order>
+       <name>Monica</name>
+       <item>iPad</name>
+       <cost>$499.99</cost>
+    </order>
 
-        --- Response --
-        HTTP/1.1 201 Created
-        msg-create-next: http://example.com/queues/bar/create/13582001787374
+    --- Response --
+    HTTP/1.1 201 Created
+    msg-create-next: http://example.com/queues/bar/create/13582001787374
+    ```
 
     If there ever is a network problem, just repost to the URL provided
     in the `msg-create-next` header.
@@ -546,8 +566,10 @@ posted to the system.
 If you happen to use the same ID more than once you'll see a message
 like this on the server:
 
-    WARN  [org.apache.activemq.artemis.core.server] (Thread-3 (Apache ActiveMQ Artemis-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) AMQ112098: Duplicate message detected - message will not be routed. Message information:
-    ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _AMQ_DUPL_ID=42}]]@12835058
+```
+WARN  [org.apache.activemq.artemis.core.server] (Thread-3 (Apache ActiveMQ Artemis-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) AMQ112098: Duplicate message detected - message will not be routed. Message information:
+ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _AMQ_DUPL_ID=42}]]@12835058
+```
 
 An alternative to this approach is to use the `msg-create-with-id`
 header. This is not an invokable URL, but a URL template. The idea is
@@ -555,7 +577,9 @@ that the client provides the `DUPLICATE_DETECTION_ID` and creates its
 own `create-next` URL. The `msg-create-with-id` header looks like this
 (you've see it in previous examples, but we haven't used it):
 
-    msg-create-with-id: http://example.com/queues/bar/create/{id}
+```
+msg-create-with-id: http://example.com/queues/bar/create/{id}
+```
 
 You see that it is a regular URL appended with a `{id}`. This `{id}` is
 a pattern matching substring. A client would generate its
@@ -580,15 +604,17 @@ called `durable` to true when you post your messages to the URLs
 returned in the `msg-create`, `msg-create-with-id`, or `msg-create-next`
 headers. here's an example of that.
 
-    POST /queues/bar/create?durable=true
-    Host: example.com
-    Content-Type: application/xml
+```
+POST /queues/bar/create?durable=true
+Host: example.com
+Content-Type: application/xml
 
-    <order>
-       <name>Bill</name>
-       <item>iPhone4</item>
-       <cost>$199.99</cost>
-    </order>
+<order>
+   <name>Bill</name>
+   <item>iPhone4</item>
+   <cost>$199.99</cost>
+</order>
+```
 
 ### TTL, Expiration and Priority
 
@@ -600,15 +626,17 @@ time in milliseconds you want the message active. The `priority` is
 another query parameter with an integer value between 0 and 9 expressing
 the priority of the message. i.e.:
 
-    POST /queues/bar/create?expiration=30000&priority=3
-    Host: example.com
-    Content-Type: application/xml
+```
+POST /queues/bar/create?expiration=30000&priority=3
+Host: example.com
+Content-Type: application/xml
 
-    <order>
-       <name>Bill</name>
-       <item>iPhone4</item>
-       <cost>$199.99</cost>
-    </order>
+<order>
+   <name>Bill</name>
+   <item>iPhone4</item>
+   <cost>$199.99</cost>
+</order>
+```
 
 ## Consuming Messages via Pull
 
@@ -635,31 +663,31 @@ topic. If you want to use the acknowledgement protocol and/or create a
 durable subscription (topics only), then you must use the form
 parameters (`application/x-www-form-urlencoded`) described below.
 
--   `autoAck`. A value of `true` or `false` can be given. This defaults
-    to `true` if you do not pass this parameter.
+- `autoAck`. A value of `true` or `false` can be given. This defaults
+  to `true` if you do not pass this parameter.
 
--   `durable`. A value of `true` or `false` can be given. This defaults
-    to `false` if you do not pass this parameter. Only available on
-    topics. This specifies whether you want a durable subscription or
-    not. A durable subscription persists through server restart.
+- `durable`. A value of `true` or `false` can be given. This defaults
+  to `false` if you do not pass this parameter. Only available on
+  topics. This specifies whether you want a durable subscription or
+  not. A durable subscription persists through server restart.
 
--   `name`. This is the name of the durable subscription. If you do not
-    provide this parameter, the name will be automatically generated by
-    the server. Only usable on topics.
+- `name`. This is the name of the durable subscription. If you do not
+  provide this parameter, the name will be automatically generated by
+  the server. Only usable on topics.
 
--   `selector`. This is an optional JMS selector string. The Apache ActiveMQ Artemis
-    REST interface adds HTTP headers to the JMS message for REST
-    produced messages. HTTP headers are prefixed with "http\_" and every
-    '-' character is converted to a '\$'.
+- `selector`. This is an optional JMS selector string. The Apache ActiveMQ Artemis
+  REST interface adds HTTP headers to the JMS message for REST
+  produced messages. HTTP headers are prefixed with "http\_" and every
+  '-' character is converted to a '\$'.
 
--   `idle-timeout`. For a topic subscription, idle time in milliseconds
-    in which the consumer connections will be closed if idle.
+- `idle-timeout`. For a topic subscription, idle time in milliseconds
+  in which the consumer connections will be closed if idle.
 
--   `delete-when-idle`. Boolean value, If true, a topic subscription
-    will be deleted (even if it is durable) when the idle timeout is
-    reached.
+- `delete-when-idle`. Boolean value, If true, a topic subscription
+  will be deleted (even if it is durable) when the idle timeout is
+  reached.
 
-> **Note**
+> **Note:**
 >
 > If you have multiple pull-consumers active at the same time on the
 > same destination be aware that unless the `consumer-window-size` is 0
@@ -672,19 +700,19 @@ This section focuses on the auto-acknowledge protocol for consuming
 messages via a pull. Here's a list of the response headers and URLs
 you'll be interested in.
 
--   `msg-pull-consumers`. The URL of a factory resource for creating
-    queue consumer resources. You will pull from these created
-    resources.
+- `msg-pull-consumers`. The URL of a factory resource for creating
+  queue consumer resources. You will pull from these created
+  resources.
 
--   `msg-pull-subscriptions`. The URL of a factory resource for creating
-    topic subscription resources. You will pull from the created
-    resources.
+- `msg-pull-subscriptions`. The URL of a factory resource for creating
+  topic subscription resources. You will pull from the created
+  resources.
 
--   `msg-consume-next`. The URL you will pull the next message from.
-    This is returned with every response.
+- `msg-consume-next`. The URL you will pull the next message from.
+  This is returned with every response.
 
--   `msg-consumer`. This is a URL pointing back to the consumer or
-    subscription resource created for the client.
+- `msg-consumer`. This is a URL pointing back to the consumer or
+  subscription resource created for the client.
 
 #### Creating an Auto-Ack Consumer or Subscription
 
@@ -693,25 +721,29 @@ Here is an example of creating an auto-acknowledged queue pull consumer.
 1.  Find the pull-consumers URL by doing a HEAD or GET request to the
     base queue resource.
 
-        HEAD /queues/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /queues/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/queues/bar/create
-        msg-pull-consumers: http://example.com/queues/bar/pull-consumers
-        msg-push-consumers: http://example.com/queues/bar/push-consumers
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/queues/bar/create
+    msg-pull-consumers: http://example.com/queues/bar/pull-consumers
+    msg-push-consumers: http://example.com/queues/bar/push-consumers
+    ```
 
 2.  Next do an empty POST to the URL returned in the
     `msg-pull-consumers` header.
 
-        POST /queues/bar/pull-consumers HTTP/1.1
-        Host: example.com
+    ```
+    POST /queues/bar/pull-consumers HTTP/1.1
+    Host: example.com
 
-        --- response ---
-        HTTP/1.1 201 Created
-        Location: http://example.com/queues/bar/pull-consumers/auto-ack/333
-        msg-consume-next: http://example.com/queues/bar/pull-consumers/auto-ack/333/consume-next-1
+    --- response ---
+    HTTP/1.1 201 Created
+    Location: http://example.com/queues/bar/pull-consumers/auto-ack/333
+    msg-consume-next: http://example.com/queues/bar/pull-consumers/auto-ack/333/consume-next-1
+    ```
 
     The `Location` header points to the JMS consumer resource that was
     created on the server. It is good to remember this URL, although, as
@@ -725,29 +757,33 @@ pull subscription.
 1.  Find the `pull-subscriptions` URL by doing a HEAD or GET request to
     the base topic resource
 
-        HEAD /topics/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /topics/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/topics/foo/create
-        msg-pull-subscriptions: http://example.com/topics/foo/pull-subscriptions
-        msg-push-subscriptions: http://example.com/topics/foo/push-subscriptions
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/topics/foo/create
+    msg-pull-subscriptions: http://example.com/topics/foo/pull-subscriptions
+    msg-push-subscriptions: http://example.com/topics/foo/push-subscriptions
+    ```
 
 2.  Next do a POST to the URL returned in the `msg-pull-subscriptions`
     header passing in a `true` value for the `durable` form parameter.
 
-        POST /topics/foo/pull-subscriptions HTTP/1.1
-        Host: example.com
-        Content-Type: application/x-www-form-urlencoded
+    ```
+    POST /topics/foo/pull-subscriptions HTTP/1.1
+    Host: example.com
+    Content-Type: application/x-www-form-urlencoded
 
-        durable=true
+    durable=true
 
-        --- Response ---
-        HTTP/1.1 201 Created
-        Location: http://example.com/topics/foo/pull-subscriptions/auto-ack/222
-        msg-consume-next:
-        http://example.com/topics/foo/pull-subscriptions/auto-ack/222/consume-next-1
+    --- Response ---
+    HTTP/1.1 201 Created
+    Location: http://example.com/topics/foo/pull-subscriptions/auto-ack/222
+    msg-consume-next:
+    http://example.com/topics/foo/pull-subscriptions/auto-ack/222/consume-next-1
+    ```
 
     The `Location` header points to the JMS subscription resource that
     was created on the server. It is good to remember this URL,
@@ -779,16 +815,18 @@ resource.
 1.  Do a POST on the msg-consume-next URL that was returned with the
     consumer or subscription resource discussed earlier.
 
-        POST /queues/bar/pull-consumers/consume-next-1
-        Host: example.com
+    ```
+    POST /queues/bar/pull-consumers/consume-next-1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        Content-Type: application/xml
-        msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-2
-        msg-consumer: http://example.com/queues/bar/pull-consumers/333
+    --- Response ---
+    HTTP/1.1 200 Ok
+    Content-Type: application/xml
+    msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-2
+    msg-consumer: http://example.com/queues/bar/pull-consumers/333
 
-        <order>...</order>
+    <order>...</order>
+    ```
 
     The POST returns the message consumed from the queue. It also
     returns a new msg-consume-next link. Use this new link to get the
@@ -801,13 +839,15 @@ resource.
     returns a new msg-consume-next link. Use this new link to get the
     next message.
 
-        POST /queues/bar/pull-consumers/consume-next-2
-        Host: example.com
+    ```
+    POST /queues/bar/pull-consumers/consume-next-2
+    Host: example.com
 
-        --- Response ---
-        Http/1.1 503 Service Unavailable
-        Retry-After: 5
-        msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-2
+    --- Response ---
+    Http/1.1 503 Service Unavailable
+    Retry-After: 5
+    msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-2
+    ```
 
     In this case, there are no messages in the queue, so we get a 503
     response back. As per the HTTP 1.1 spec, a 503 response may return a
@@ -821,15 +861,17 @@ resource.
 3.  POST to the URL within the last `msg-consume-next` to get the next
     message.
 
-        POST /queues/bar/pull-consumers/consume-next-2
-        Host: example.com
+    ```
+    POST /queues/bar/pull-consumers/consume-next-2
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        Content-Type: application/xml
-        msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-3
+    --- Response ---
+    HTTP/1.1 200 Ok
+    Content-Type: application/xml
+    msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-3
 
-        <order>...</order>
+    <order>...</order>
+    ```
 
 #### Recovering From Network Failures
 
@@ -874,21 +916,21 @@ you have received the message and that the server can internally ack the
 message. Here is a list of the response headers you will be interested
 in.
 
--   `msg-pull-consumers`. The URL of a factory resource for creating
-    queue consumer resources. You will pull from these created resources
+- `msg-pull-consumers`. The URL of a factory resource for creating
+  queue consumer resources. You will pull from these created resources
 
--   `msg-pull-subscriptions`. The URL of a factory resource for creating
-    topic subscription resources. You will pull from the created
-    resources.
+- `msg-pull-subscriptions`. The URL of a factory resource for creating
+  topic subscription resources. You will pull from the created
+  resources.
 
--   `msg-acknowledge-next`. URL used to obtain the next message in the
-    queue or topic subscription. It does not acknowledge the message
-    though.
+- `msg-acknowledge-next`. URL used to obtain the next message in the
+  queue or topic subscription. It does not acknowledge the message
+  though.
 
--   `msg-acknowledgement`. URL used to acknowledge a message.
+- `msg-acknowledgement`. URL used to acknowledge a message.
 
--   `msg-consumer`. This is a URL pointing back to the consumer or
-    subscription resource created for the client.
+- `msg-consumer`. This is a URL pointing back to the consumer or
+  subscription resource created for the client.
 
 #### Creating manually-acknowledged consumers or subscriptions
 
@@ -897,28 +939,32 @@ Here is an example of creating an auto-acknowledged queue pull consumer.
 1.  Find the pull-consumers URL by doing a HEAD or GET request to the
     base queue resource.
 
-        HEAD /queues/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /queues/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/queues/bar/create
-        msg-pull-consumers: http://example.com/queues/bar/pull-consumers
-        msg-push-consumers: http://example.com/queues/bar/push-consumers
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/queues/bar/create
+    msg-pull-consumers: http://example.com/queues/bar/pull-consumers
+    msg-push-consumers: http://example.com/queues/bar/push-consumers
+    ```
 
 2.  Next do a POST to the URL returned in the `msg-pull-consumers`
     header passing in a `false` value to the `autoAck` form parameter .
 
-        POST /queues/bar/pull-consumers HTTP/1.1
-        Host: example.com
-        Content-Type: application/x-www-form-urlencoded
+    ```
+    POST /queues/bar/pull-consumers HTTP/1.1
+    Host: example.com
+    Content-Type: application/x-www-form-urlencoded
 
-        autoAck=false
+    autoAck=false
 
-        --- response ---
-        HTTP/1.1 201 Created
-        Location: http://example.com/queues/bar/pull-consumers/acknowledged/333
-        msg-acknowledge-next: http://example.com/queues/bar/pull-consumers/acknowledged/333/acknowledge-next-1
+    --- response ---
+    HTTP/1.1 201 Created
+    Location: http://example.com/queues/bar/pull-consumers/acknowledged/333
+    msg-acknowledge-next: http://example.com/queues/bar/pull-consumers/acknowledged/333/acknowledge-next-1
+    ```
 
     The `Location` header points to the JMS consumer resource that was
     created on the server. It is good to remember this URL, although, as
@@ -932,30 +978,34 @@ topic pull subscription.
 1.  Find the `pull-subscriptions` URL by doing a HEAD or GET request to
     the base topic resource
 
-        HEAD /topics/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /topics/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/topics/foo/create
-        msg-pull-subscriptions: http://example.com/topics/foo/pull-subscriptions
-        msg-push-subscriptions: http://example.com/topics/foo/push-subscriptions
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/topics/foo/create
+    msg-pull-subscriptions: http://example.com/topics/foo/pull-subscriptions
+    msg-push-subscriptions: http://example.com/topics/foo/push-subscriptions
+    ```
 
 2.  Next do a POST to the URL returned in the `msg-pull-subscriptions`
     header passing in a `true` value for the `durable` form parameter
     and a `false` value to the `autoAck` form parameter.
 
-        POST /topics/foo/pull-subscriptions HTTP/1.1
-        Host: example.com
-        Content-Type: application/x-www-form-urlencoded
+    ```
+    POST /topics/foo/pull-subscriptions HTTP/1.1
+    Host: example.com
+    Content-Type: application/x-www-form-urlencoded
 
-        durable=true&autoAck=false
+    durable=true&autoAck=false
 
-        --- Response ---
-        HTTP/1.1 201 Created
-        Location: http://example.com/topics/foo/pull-subscriptions/acknowledged/222
-        msg-acknowledge-next:
-        http://example.com/topics/foo/pull-subscriptions/acknowledged/222/consume-next-1
+    --- Response ---
+    HTTP/1.1 201 Created
+    Location: http://example.com/topics/foo/pull-subscriptions/acknowledged/222
+    msg-acknowledge-next:
+    http://example.com/topics/foo/pull-subscriptions/acknowledged/222/consume-next-1
+    ```
 
     The `Location` header points to the JMS subscription resource that
     was created on the server. It is good to remember this URL,
@@ -982,17 +1032,19 @@ resource.
 1.  Do a POST on the msg-acknowledge-next URL that was returned with the
     consumer or subscription resource discussed earlier.
 
-        POST /queues/bar/pull-consumers/consume-next-1
-        Host: example.com
+    ```
+    POST /queues/bar/pull-consumers/consume-next-1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        Content-Type: application/xml
-        msg-acknowledgement:
-        http://example.com/queues/bar/pull-consumers/333/acknowledgement/2
-        msg-consumer: http://example.com/queues/bar/pull-consumers/333
+    --- Response ---
+    HTTP/1.1 200 Ok
+    Content-Type: application/xml
+    msg-acknowledgement:
+    http://example.com/queues/bar/pull-consumers/333/acknowledgement/2
+    msg-consumer: http://example.com/queues/bar/pull-consumers/333
 
-        <order>...</order>
+    <order>...</order>
+    ```
 
     The POST returns the message consumed from the queue. It also
     returns a`msg-acknowledgemen`t link. You will use this new link to
@@ -1007,16 +1059,18 @@ resource.
     whether you want to acknowledge or unacknowledge the message on the
     server.
 
-        POST /queues/bar/pull-consumers/acknowledgement/2
-        Host: example.com
-        Content-Type: application/x-www-form-urlencoded
+    ```
+    POST /queues/bar/pull-consumers/acknowledgement/2
+    Host: example.com
+    Content-Type: application/x-www-form-urlencoded
 
-        acknowledge=true
+    acknowledge=true
 
-        --- Response ---
-        Http/1.1 204 Ok
-        msg-acknowledge-next:
-        http://example.com/queues/bar/pull-consumers/333/acknowledge-next-2
+    --- Response ---
+    Http/1.1 204 Ok
+    msg-acknowledge-next:
+    http://example.com/queues/bar/pull-consumers/333/acknowledge-next-2
+    ```
 
     Whether you acknowledge or unacknowledge the message, the response
     will contain a new msg-acknowledge-next header that you must use to
@@ -1075,16 +1129,18 @@ response from the server. The value of this header is the time in
 seconds the client is willing to block for. You would send this request
 header with your pull requests. Here's an example:
 
-    POST /queues/bar/pull-consumers/consume-next-2
-    Host: example.com
-    Accept-Wait: 30
+```
+POST /queues/bar/pull-consumers/consume-next-2
+Host: example.com
+Accept-Wait: 30
 
-    --- Response ---
-    HTTP/1.1 200 Ok
-    Content-Type: application/xml
-    msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-3
+--- Response ---
+HTTP/1.1 200 Ok
+Content-Type: application/xml
+msg-consume-next: http://example.com/queues/bar/pull-consumers/333/consume-next-3
 
-    <order>...</order>
+<order>...</order>
+```
 
 In this example, we're posting to a msg-consume-next URL and telling the
 server that we would be willing to block for 30 seconds.
@@ -1117,17 +1173,19 @@ provide a URL to ship the forwarded message to. Finally, you have to
 provide authentication information if the final endpoint requires
 authentication. Here's a simple example:
 
-    <push-registration>
-       <durable>false</durable>
-       <selector><![CDATA[
-       SomeAttribute > 1
-       ]]>
-       </selector>
-       <link rel="push" href="http://somewhere.com" type="application/json" method="PUT"/>
-       <maxRetries>5</maxRetries>
-       <retryWaitMillis>1000</retryWaitMillis>
-       <disableOnFailure>true</disableOnFailure>
-    </push-registration>
+```xml
+<push-registration>
+   <durable>false</durable>
+   <selector><![CDATA[
+   SomeAttribute > 1
+   ]]>
+   </selector>
+   <link rel="push" href="http://somewhere.com" type="application/json" method="PUT"/>
+   <maxRetries>5</maxRetries>
+   <retryWaitMillis>1000</retryWaitMillis>
+   <disableOnFailure>true</disableOnFailure>
+</push-registration>
+```
 
 The `durable` element specifies whether the registration should be saved
 to disk so that if there is a server restart, the push subscription will
@@ -1162,36 +1220,42 @@ it is not provided it defaults to POST. The `rel` attribute is very
 important and the value of it triggers different behavior. Here's the
 values a rel attribute can have:
 
--   `destination`. The href URL is assumed to be a queue or topic
-    resource of another Apache ActiveMQ Artemis REST server. The push registration will
-    initially do a HEAD request to this URL to obtain a
-    msg-create-with-id header. It will use this header to push new
-    messages to the Apache ActiveMQ Artemis REST endpoint reliably. Here's an example:
+- `destination`. The href URL is assumed to be a queue or topic
+  resource of another Apache ActiveMQ Artemis REST server. The push registration will
+  initially do a HEAD request to this URL to obtain a
+  msg-create-with-id header. It will use this header to push new
+  messages to the Apache ActiveMQ Artemis REST endpoint reliably. Here's an example:
 
-        <push-registration>
-           <link rel="destination" href="http://somewhere.com/queues/foo"/>
-        </push-registration>
+  ```xml
+  <push-registration>
+     <link rel="destination" href="http://somewhere.com/queues/foo"/>
+  </push-registration>
+  ```
 
--   `template`. In this case, the server is expecting the link element's
-    href attribute to be a URL expression. The URL expression must have
-    one and only one URL parameter within it. The server will use a
-    unique value to create the endpoint URL. Here's an example:
+- `template`. In this case, the server is expecting the link element's
+  href attribute to be a URL expression. The URL expression must have
+  one and only one URL parameter within it. The server will use a
+  unique value to create the endpoint URL. Here's an example:
 
-        <push-registration>
-           <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="PUT"/>
-        </push-registration>
+  ```
+  <push-registration>
+     <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="PUT"/>
+  </push-registration>
+  ```
 
-    In this example, the {id} sub-string is the one and only one URL
-    parameter.
+  In this example, the {id} sub-string is the one and only one URL
+  parameter.
 
--   `user defined`. If the rel attributes is not destination or template
-    (or is empty or missing), then the server will send an HTTP message
-    to the href URL using the HTTP method defined in the method
-    attribute. Here's an example:
+- `user defined`. If the rel attributes is not destination or template
+  (or is empty or missing), then the server will send an HTTP message
+  to the href URL using the HTTP method defined in the method
+  attribute. Here's an example:
 
-        <push-registration>
-           <link href="http://somewhere.com" type="application/json" method="PUT"/>
-        </push-registration>
+  ```
+  <push-registration>
+     <link href="http://somewhere.com" type="application/json" method="PUT"/>
+  </push-registration>
+  ```
 
 ### The Topic Push Subscription XML
 
@@ -1200,14 +1264,16 @@ push-topic-registration. (Also remember the `selector` element is
 optional). The rest of the document is the same. Here's an example of a
 template registration:
 
-    <push-topic-registration>
-       <durable>true</durable>
-       <selector><![CDATA[
-       SomeAttribute > 1
-       ]]>
-       </selector>
-       <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
-    </push-topic registration>
+```xml
+<push-topic-registration>
+   <durable>true</durable>
+   <selector><![CDATA[
+   SomeAttribute > 1
+   ]]>
+   </selector>
+   <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
+</push-topic registration>
+```
 
 ### Creating a Push Subscription at Runtime
 
@@ -1218,29 +1284,33 @@ Here's an example of creating a push registration for a queue:
 
 1.  First do a HEAD request to the queue resource:
 
-        HEAD /queues/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /queues/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/queues/bar/create
-        msg-pull-consumers: http://example.com/queues/bar/pull-consumers
-        msg-push-consumers: http://example.com/queues/bar/push-consumers
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/queues/bar/create
+    msg-pull-consumers: http://example.com/queues/bar/pull-consumers
+    msg-push-consumers: http://example.com/queues/bar/push-consumers
+    ```
 
 2.  Next POST your subscription XML to the URL returned from
     msg-push-consumers header
 
-        POST /queues/bar/push-consumers
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /queues/bar/push-consumers
+    Host: example.com
+    Content-Type: application/xml
 
-        <push-registration>
-           <link rel="destination" href="http://somewhere.com/queues/foo"/>
-        </push-registration>
+    <push-registration>
+       <link rel="destination" href="http://somewhere.com/queues/foo"/>
+    </push-registration>
 
-        --- Response ---
-        HTTP/1.1 201 Created
-        Location: http://example.com/queues/bar/push-consumers/1-333-1212
+    --- Response ---
+    HTTP/1.1 201 Created
+    Location: http://example.com/queues/bar/push-consumers/1-333-1212
+    ```
 
     The Location header contains the URL for the created resource. If
     you want to unregister this, then do a HTTP DELETE on this URL.
@@ -1249,29 +1319,33 @@ Here's an example of creating a push registration for a topic:
 
 1.  First do a HEAD request to the topic resource:
 
-        HEAD /topics/bar HTTP/1.1
-        Host: example.com
+    ```
+    HEAD /topics/bar HTTP/1.1
+    Host: example.com
 
-        --- Response ---
-        HTTP/1.1 200 Ok
-        msg-create: http://example.com/topics/bar/create
-        msg-pull-subscriptions: http://example.com/topics/bar/pull-subscriptions
-        msg-push-subscriptions: http://example.com/topics/bar/push-subscriptions
+    --- Response ---
+    HTTP/1.1 200 Ok
+    msg-create: http://example.com/topics/bar/create
+    msg-pull-subscriptions: http://example.com/topics/bar/pull-subscriptions
+    msg-push-subscriptions: http://example.com/topics/bar/push-subscriptions
+    ```
 
 2.  Next POST your subscription XML to the URL returned from
     msg-push-subscriptions header
 
-        POST /topics/bar/push-subscriptions
-        Host: example.com
-        Content-Type: application/xml
+    ```
+    POST /topics/bar/push-subscriptions
+    Host: example.com
+    Content-Type: application/xml
 
-        <push-registration>
-           <link rel="template" href="http://somewhere.com/resources/{id}"/>
-        </push-registration>
+    <push-registration>
+       <link rel="template" href="http://somewhere.com/resources/{id}"/>
+    </push-registration>
 
-        --- Response ---
-        HTTP/1.1 201 Created
-        Location: http://example.com/topics/bar/push-subscriptions/1-333-1212
+    --- Response ---
+    HTTP/1.1 201 Created
+    Location: http://example.com/topics/bar/push-subscriptions/1-333-1212
+    ```
 
     The Location header contains the URL for the created resource. If
     you want to unregister this, then do a HTTP DELETE on this URL.
@@ -1291,38 +1365,44 @@ Here's an example of a hand-created queue registration. This file must
 go in the directory specified by the queue-push-store-dir config
 variable defined in Chapter 2:
 
-    <push-registration id="111">
-       <destination>bar</destination>
-       <durable>true</durable>
-       <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="PUT"/>
-    </push-registration>
+```xml
+<push-registration id="111">
+   <destination>bar</destination>
+   <durable>true</durable>
+   <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="PUT"/>
+</push-registration>
+```
 
 Here's an example of a hand-created topic registration. This file must
 go in the directory specified by the topic-push-store-dir config
 variable defined in Chapter 2:
 
-    <push-topic-registration id="112">
-       <destination>my-subscription-1</destination
-       <durable>true</durable>
-       <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="PUT"/>
-       <topic>foo</topic>
-    </push-topic-registration>
+```xml
+<push-topic-registration id="112">
+   <destination>my-subscription-1</destination
+   <durable>true</durable>
+   <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="PUT"/>
+   <topic>foo</topic>
+</push-topic-registration>
+```
 
 ### Pushing to Authenticated Servers
 
 Push subscriptions only support BASIC and DIGEST authentication out of
 the box. Here is an example of adding BASIC authentication:
 
-    <push-topic-registration>
-       <durable>true</durable>
-       <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
-       <authentication>
-          <basic-auth>
-             <username>guest</username>
-             <password>geheim</password>
-          </basic-auth>
-       </authentication>
-    </push-topic registration>
+```xml
+<push-topic-registration>
+   <durable>true</durable>
+   <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
+   <authentication>
+      <basic-auth>
+         <username>guest</username>
+         <password>geheim</password>
+      </basic-auth>
+   </authentication>
+</push-topic-registration>
+```
 
 For DIGEST, just replace basic-auth with digest-auth.
 
@@ -1331,11 +1411,13 @@ transmitted with each request. Use the header element with the name
 attribute representing the name of the header. Here's what custom
 headers might look like:
 
-    <push-topic-registration>
-       <durable>true</durable>
-       <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
-       <header name="secret-header">jfdiwe3321</header>
-    </push-topic registration>
+```xml
+<push-topic-registration>
+   <durable>true</durable>
+   <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
+   <header name="secret-header">jfdiwe3321</header>
+</push-topic-registration>
+```
 
 ## Creating Destinations
 
@@ -1344,32 +1426,36 @@ Currently you cannot create a temporary queue or topic. To create a
 queue you do a POST to the relative URL /queues with an XML
 representation of the queue. For example:
 
-    POST /queues
-    Host: example.com
-    Content-Type: application/activemq.xml
+```
+POST /queues
+Host: example.com
+Content-Type: application/activemq.xml
 
-    <queue name="testQueue">
-       <durable>true</durable>
-    </queue>
+<queue name="testQueue">
+   <durable>true</durable>
+</queue>
 
-    --- Response ---
-    HTTP/1.1 201 Created
-    Location: http://example.com/queues/testQueue
+--- Response ---
+HTTP/1.1 201 Created
+Location: http://example.com/queues/testQueue
+```
 
 Notice that the Content-Type is application/activemq.xml.
 
 Here's what creating a topic would look like:
 
-    POST /topics
-    Host: example.com
-    Content-Type: application/activemq.xml
+```
+POST /topics
+Host: example.com
+Content-Type: application/activemq.xml
 
-    <topic name="testTopic">
-    </topic>
+<topic name="testTopic">
+</topic>
 
-    --- Response ---
-    HTTP/1.1 201 Created
-    Location: http://example.com/topics/testTopic
+--- Response ---
+HTTP/1.1 201 Created
+Location: http://example.com/topics/testTopic
+```
 
 ## Securing the Apache ActiveMQ Artemis REST Interface
 
@@ -1389,16 +1475,16 @@ web.xml for every path of every queue and topic you have deployed. Here
 is a list of URI patterns:
 
 Post | Description
- --- | ---
- /queues | secure the POST operation to secure queue creation
- /queues/{queue-name}/create/ | secure this URL pattern for producing messages.
- /queues/{queue-name}/pull-consumers/ | secure this URL pattern for pushing messages.
- /queues/{queue-name}/push-consumers/ | secure the POST operation to secure topic creation
- /topics | secure the POST operation to secure topic creation
- /topics/{topic-name} | secure the GET HEAD operation to getting information about the topic.
- /topics/{topic-name}/create/ | secure this URL pattern for producing messages
- /topics/{topic-name}/pull-subscriptions/ | secure this URL pattern for pulling messages
- /topics/{topic-name}/push-subscriptions/ | secure this URL pattern for pushing messages
+--- | ---
+/queues | secure the POST operation to secure queue creation
+/queues/{queue-name}/create/ | secure this URL pattern for producing messages.
+/queues/{queue-name}/pull-consumers/ | secure this URL pattern for pushing messages.
+/queues/{queue-name}/push-consumers/ | secure the POST operation to secure topic creation
+/topics | secure the POST operation to secure topic creation
+/topics/{topic-name} | secure the GET HEAD operation to getting information about the topic.
+/topics/{topic-name}/create/ | secure this URL pattern for producing messages
+/topics/{topic-name}/pull-subscriptions/ | secure this URL pattern for pulling messages
+/topics/{topic-name}/push-subscriptions/ | secure this URL pattern for pushing messages
 
 ## Mixing JMS and REST
 
@@ -1419,8 +1505,10 @@ server will use RESTEasy content handlers (MessageBodyReader/Writers) to
 transform the Java object to the type desired. Here's an example of a
 JMS producer setting the content type of the message.
 
-    ObjectMessage message = session.createObjectMessage();
-    message.setStringProperty(org.apache.activemq.rest.HttpHeaderProperty.CONTENT_TYPE, "application/xml");
+```java
+ObjectMessage message = session.createObjectMessage();
+message.setStringProperty(org.apache.activemq.rest.HttpHeaderProperty.CONTENT_TYPE, "application/xml");
+```
 
 If the JMS producer does not set the content-type, then this information
 must be obtained from the REST consumer. If it is a pull consumer, then
@@ -1436,8 +1524,7 @@ Apache ActiveMQ Artemis REST has a simple helper class for you to transform the 
 body to a Java object. Here's some example code:
 
 ```java
-public void onMessage(Message message)
-{
+public void onMessage(Message message) {
    MyType obj = org.apache.activemq.rest.Jms.getEntity(message, MyType.class);
 }
 ```

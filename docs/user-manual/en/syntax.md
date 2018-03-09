@@ -11,7 +11,7 @@
 Somejava s = new SomeJava();
 ```
  
-> **Note**
+> **Note:**
 >
 > This is a Note
 
