@@ -912,9 +912,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public final void fail(boolean failoverOnServerShutdown) throws Exception {
-      stop(failoverOnServerShutdown, false, false, true);
+      stop(failoverOnServerShutdown, false, false, false);
    }
 
+   @Override
    public final void stop(boolean failoverOnServerShutdown, boolean isExit) throws Exception {
       stop(failoverOnServerShutdown, false, false, isExit);
    }
@@ -3123,5 +3124,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    public Set<ActivateCallback> getActivateCallbacks() {
       return activateCallbacks;
+   }
+
+   @Override
+   public List<ActiveMQComponent> getExternalComponents() {
+      return externalComponents;
    }
 }

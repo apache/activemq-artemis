@@ -275,6 +275,12 @@
          <artifactId>slf4j-api</artifactId>
          <version>1.7.5</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-web</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
 
       <!-- DB Test Deps -->
       <dependency>
