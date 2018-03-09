@@ -427,7 +427,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
@@ -440,7 +440,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
@@ -453,7 +453,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    whether the queue is durable or not
     * @param durable   if the queue is durable
@@ -466,7 +466,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    whether the queue is durable or not
     * @param durable   if the queue is durable
@@ -483,7 +483,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
@@ -494,7 +494,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
@@ -504,7 +504,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
@@ -514,7 +514,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @param durable   whether the queue is durable or not
@@ -527,7 +527,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em>queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @param durable   whether the queue is durable or not
@@ -539,7 +539,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address     the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName   the name of the queue
     * @param filter      only messages which match this filter will be put in the queue
     * @param durable     whether the queue is durable or not
@@ -553,7 +553,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address      the queue will be bound to this address
-    * @param routingType  the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType  the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName    the name of the queue
     * @param filter       only messages which match this filter will be put in the queue
     * @param durable      whether the queue is durable or not
@@ -569,7 +569,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address      the queue will be bound to this address
-    * @param routingType  the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType  the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName    the name of the queue
     * @param filter       only messages which match this filter will be put in the queue
     * @param durable      whether the queue is durable or not
@@ -587,7 +587,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em>queue.
     *
     * @param address     the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName   the name of the queue
     * @param filter      only messages which match this filter will be put in the queue
     * @param durable     whether the queue is durable or not
@@ -600,7 +600,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em>queue.
     *
     * @param address     the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName   the name of the queue
     * @param filter      only messages which match this filter will be put in the queue
     * @param durable     whether the queue is durable or not
@@ -616,7 +616,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>non-temporary</em>queue.
     *
     * @param address     the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName   the name of the queue
     * @param filter      only messages which match this filter will be put in the queue
     * @param durable     whether the queue is durable or not
@@ -634,7 +634,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
@@ -644,7 +644,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
@@ -654,7 +654,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>temporary</em> queue with a filter.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @param maxConsumers how many concurrent consumers will be allowed on this queue
@@ -670,7 +670,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>temporary</em> queue with a filter.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
@@ -681,7 +681,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Creates a <em>temporary</em> queue with a filter.
     *
     * @param address   the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue

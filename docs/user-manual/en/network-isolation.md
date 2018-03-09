@@ -1,15 +1,18 @@
 # Network Isolation (Split Brain)
 
-It is possible that if a replicated live or backup server becomes isolated in a network that failover will occur and you will end up
-with 2 live servers serving messages in a cluster, this we call split brain. There are different configurations you can choose
-from that will help mitigate this problem
+It is possible that if a replicated live or backup server becomes isolated in a
+network that failover will occur and you will end up with 2 live servers
+serving messages in a cluster, this we call split brain. There are different
+configurations you can choose from that will help mitigate this problem
 
 ## Quorum Voting
 
-Quorum voting is used by both the live and the backup to decide what to do if a replication connection is disconnected. 
-Basically the server will request each live server in the cluster to vote as to whether it thinks the server it is replicating 
-to or from is still alive. You can also configure the time for which the quorum manager will wait for the quorum vote response.
-The default time is 30 sec you can configure like so for master and also for the slave: 
+Quorum voting is used by both the live and the backup to decide what to do if a
+replication connection is disconnected.  Basically the server will request each
+live server in the cluster to vote as to whether it thinks the server it is
+replicating to or from is still alive. You can also configure the time for which
+the quorum manager will wait for the quorum vote response. The default time is 30
+seconds you can configure like so for master and also for the slave:
 
 ```xml
 <ha-policy>
@@ -21,18 +24,23 @@ The default time is 30 sec you can configure like so for master and also for the
 </ha-policy>
 ```
 
-This being the case the minimum number of live/backup pairs needed is 3. If less than 3 pairs 
-are used then the only option is to use a Network Pinger which is explained later in this chapter or choose how you want each server to 
-react which the following details:
- 
+This being the case the minimum number of live/backup pairs needed is 3. If less
+than 3 pairs are used then the only option is to use a Network Pinger which is
+explained later in this chapter or choose how you want each server to react which
+the following details:
+
 ### Backup Voting
 
-By default if a replica loses its replication connection to the live broker it makes a decision as to whether to start or not
-with a quorum vote. This of course requires that there be at least 3 pairs of live/backup nodes in the cluster. For a 3 node 
-cluster it will start if it gets 2 votes back saying that its live server is no longer available, for 4 nodes this would be 
-3 votes and so on. When a backup loses connection to the master it will keep voting for a quorum until it either receives a vote 
-allowing it to start or it detects that the master is still live. for the latter it will then restart as a backup. How many votes 
-and how long between each vote the backup should wait is configured like so:
+By default if a replica loses its replication connection to the live broker it
+makes a decision as to whether to start or not with a quorum vote. This of
+course requires that there be at least 3 pairs of live/backup nodes in the
+cluster. For a 3 node cluster it will start if it gets 2 votes back saying that
+its live server is no longer available, for 4 nodes this would be 3 votes and
+so on. When a backup loses connection to the master it will keep voting for a
+quorum until it either receives a vote allowing it to start or it detects that
+the master is still live. for the latter it will then restart as a backup. How
+many votes and how long between each vote the backup should wait is configured
+like so:
 
 ```xml
 <ha-policy>
@@ -45,8 +53,9 @@ and how long between each vote the backup should wait is configured like so:
 </ha-policy>
 ```
 
-It's also possible to statically set the quorum size that should be used for the case where the cluster size is known up front,
-this is done on the Replica Policy like so:
+It's also possible to statically set the quorum size that should be used for
+the case where the cluster size is known up front, this is done on the Replica
+Policy like so:
 
 ```xml
 <ha-policy>
@@ -58,16 +67,18 @@ this is done on the Replica Policy like so:
 </ha-policy>
 ```
 
-In this example the quorum size is set to 2 so if you were using a single pair and the backup lost connectivity it would 
-never start.
+In this example the quorum size is set to 2 so if you were using a single pair
+and the backup lost connectivity it would never start.
 
 ### Live Voting
 
-By default, if the live server loses its replication connection then it will just carry on and wait for a backup to reconnect 
-and start replicating again. In the event of a possible split brain scenario this may mean that the live stays live even though
-the backup has been activated. It is possible to configure the live server to vote for a quorum if this happens, in this way
-if the live server doesn't not receive a majority vote then it will shutdown. This is done by setting the _vote-on-replication-failure_ 
-to true.
+By default, if the live server loses its replication connection then it will
+just carry on and wait for a backup to reconnect and start replicating again.
+In the event of a possible split brain scenario this may mean that the live
+stays live even though the backup has been activated. It is possible to
+configure the live server to vote for a quorum if this happens, in this way if
+the live server doesn't not receive a majority vote then it will shutdown. This
+is done by setting the _vote-on-replication-failure_ to true.
 
 ```xml
 <ha-policy>
@@ -79,21 +90,23 @@ to true.
   </replication>
 </ha-policy>
 ```
-As in the backup policy it is also possible to statically configure the quorum size.
+As in the backup policy it is also possible to statically configure the quorum
+size.
 
 ## Pinging the network
 
-You may configure one more addresses on the broker.xml that are part of your network topology, that will be pinged through the life cycle of the server.
+You may configure one more addresses on the broker.xml that are part of your
+network topology, that will be pinged through the life cycle of the server.
 
 The server will stop itself until the network is back on such case.
 
-If you execute the create command passing a -ping argument, you will create a default xml that is ready to be used with network checks:
+If you execute the create command passing a -ping argument, you will create a
+default xml that is ready to be used with network checks:
 
 
 ```
 ./artemis create /myDir/myServer --ping 10.0.0.1
 ```
-
 
 This XML part will be added to your broker.xml:
 
@@ -126,10 +139,8 @@ Use this to use an HTTP server to validate the network
 
 ```
 
-
-Once you lose connectivity towards 10.0.0.1 on the given example
-, you will see see this output at the server:
-
+Once you lose connectivity towards 10.0.0.1 on the given example, you will see
+see this output at the server:
 
 ```
 09:49:24,562 WARN  [org.apache.activemq.artemis.core.server.NetworkHealthCheck] Ping Address /10.0.0.1 wasn't reacheable
@@ -178,8 +189,9 @@ Once you re establish your network connections towards the configured check list
 09:53:23,556 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 1.6.0 [0.0.0.0, nodeID=04fd5dd8-b18c-11e6-9efe-6a0001921ad0] 
 ```
 
-# Warning
-
-> Make sure you understand your network topology as this is meant to validate your network.
-> Using IPs that could eventually disappear or be partially visible may defeat the purpose.
-> You can use a list of multiple IPs. Any successful ping will make the server OK to continue running
+> ## Warning
+>
+> Make sure you understand your network topology as this is meant to validate
+> your network.  Using IPs that could eventually disappear or be partially
+> visible may defeat the purpose.  You can use a list of multiple IPs. Any
+> successful ping will make the server OK to continue running
