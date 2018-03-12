@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -576,31 +577,25 @@ public class AMQPSessionCallback implements SessionCallback {
                                    final int threshold,
                                    final Receiver receiver) {
       try {
-         if (address == null) {
+         PagingManager pagingManager = manager.getServer().getPagingManager();
+         Runnable creditRunnable = () -> {
             connection.lock();
             try {
-               receiver.flow(credits);
+               if (receiver.getRemoteCredit() <= threshold) {
+                  receiver.flow(credits);
+               }
             } finally {
                connection.unlock();
             }
             connection.flush();
+         };
+
+         if (address == null) {
+            pagingManager.checkMemory(creditRunnable);
             return;
          }
          final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
-         store.checkMemory(new Runnable() {
-            @Override
-            public void run() {
-               connection.lock();
-               try {
-                  if (receiver.getRemoteCredit() <= threshold) {
-                     receiver.flow(credits);
-                  }
-               } finally {
-                  connection.unlock();
-               }
-               connection.flush();
-            }
-         });
+         store.checkMemory(creditRunnable);
       } catch (Exception e) {
          throw new RuntimeException(e);
       }

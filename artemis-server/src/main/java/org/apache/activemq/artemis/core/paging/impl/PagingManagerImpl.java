@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -56,7 +57,7 @@ public final class PagingManagerImpl implements PagingManager {
     */
    private final ReentrantReadWriteLock syncLock = new ReentrantReadWriteLock();
 
-   private final Set<PagingStore> blockedStored = new ConcurrentHashSet<>();
+   private final Set<Blockable> blockedStored = new ConcurrentHashSet<>();
 
    private final ConcurrentMap<SimpleString, PagingStore> stores = new ConcurrentHashMap<>();
 
@@ -78,6 +79,9 @@ public final class PagingManagerImpl implements PagingManager {
 
    private ActiveMQScheduledComponent scheduledComponent = null;
 
+   private final PagingManager.MemoryFreedRunnablesExecutor memoryFreedRunnablesExecutor = new PagingManager.MemoryFreedRunnablesExecutor();
+
+   private final Executor executor;
    // Static
    // --------------------------------------------------------------------------------------------------------------------------
 
@@ -102,6 +106,7 @@ public final class PagingManagerImpl implements PagingManager {
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
+      executor = pagingStoreFactory.newExecutor();
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
@@ -110,7 +115,7 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    @Override
-   public void addBlockedStore(PagingStore store) {
+   public void addBlockedStore(Blockable store) {
       blockedStored.add(store);
    }
 
@@ -152,11 +157,42 @@ public final class PagingManagerImpl implements PagingManager {
       return globalSizeBytes.get();
    }
 
+   @Override
+   public boolean checkMemory(final Runnable runWhenAvailable) {
+      if (isGlobalFull()) {
+         OverSizedRunnable ourRunnable = new OverSizedRunnable(runWhenAvailable);
+
+         memoryFreedRunnablesExecutor.addRunnable(ourRunnable);
+         addBlockedStore(() -> {
+            if (!isGlobalFull()) {
+               if (!memoryFreedRunnablesExecutor.isEmpty()) {
+                  executor.execute(memoryFreedRunnablesExecutor);
+                  ActiveMQServerLogger.LOGGER.unblockingGlobalMessageProduction(getGlobalSize());
+                  return true;
+               }
+            }
+            return false;
+         });
+
+         if (isDiskFull()) {
+            ActiveMQServerLogger.LOGGER.blockingGlobalDiskFull();
+         } else {
+            ActiveMQServerLogger.LOGGER.blockingGlobalMessageProduction(getGlobalSize());
+         }
+
+         return true;
+      }
+
+      runWhenAvailable.run();
+
+      return true;
+   }
+
    protected void checkMemoryRelease() {
       if (!diskFull && (maxSize < 0 || globalSizeBytes.get() < maxSize) && !blockedStored.isEmpty()) {
-         Iterator<PagingStore> storeIterator = blockedStored.iterator();
+         Iterator<Blockable> storeIterator = blockedStored.iterator();
          while (storeIterator.hasNext()) {
-            PagingStore store = storeIterator.next();
+            Blockable store = storeIterator.next();
             if (store.checkReleasedMemory()) {
                storeIterator.remove();
             }
