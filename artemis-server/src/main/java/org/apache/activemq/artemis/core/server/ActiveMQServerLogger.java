@@ -1923,4 +1923,15 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224090, value = "This node is not configured for Quorum Voting, all nodes must be configured for HA", format = Message.Format.MESSAGE_FORMAT)
    void noVoteHandlerConfigured();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224091, value = "Disk Full! Blocking message production. Clients will report blocked.", format = Message.Format.MESSAGE_FORMAT)
+   void blockingGlobalDiskFull();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224092, value = "Blocking message production; size is currently: {0} bytes;", format = Message.Format.MESSAGE_FORMAT)
+   void blockingGlobalMessageProduction(long globalSize);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224093, value = "Unblocking message production; size is currently: {0} bytes;", format = Message.Format.MESSAGE_FORMAT)
+   void unblockingGlobalMessageProduction(long globalSize);
 }

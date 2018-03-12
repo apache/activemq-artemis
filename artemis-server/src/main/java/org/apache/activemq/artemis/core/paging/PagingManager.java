@@ -17,6 +17,9 @@
 package org.apache.activemq.artemis.core.paging;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -79,7 +82,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    void resumeCleanup();
 
-   void addBlockedStore(PagingStore store);
+   void addBlockedStore(Blockable store);
 
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
 
@@ -109,6 +112,56 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    default long getGlobalSize() {
       return 0;
+   }
+
+   boolean checkMemory(Runnable runnable);
+
+   // To be used when the memory is oversized either by local settings or global settings on blocking addresses
+   final class OverSizedRunnable implements Runnable {
+
+      private final AtomicBoolean ran = new AtomicBoolean(false);
+
+      private final Runnable runnable;
+
+      public OverSizedRunnable(final Runnable runnable) {
+         this.runnable = runnable;
+      }
+
+      @Override
+      public void run() {
+         if (ran.compareAndSet(false, true)) {
+            runnable.run();
+         }
+      }
+   }
+
+   interface Blockable {
+      /**
+       * It will return true if the destination is leaving blocking.
+       */
+      boolean checkReleasedMemory();
+   }
+
+   final class MemoryFreedRunnablesExecutor implements Runnable {
+
+      private final Queue<OverSizedRunnable> onMemoryFreedRunnables = new ConcurrentLinkedQueue<>();
+
+      public void addRunnable(PagingManager.OverSizedRunnable runnable) {
+         onMemoryFreedRunnables.add(runnable);
+      }
+
+      @Override
+      public void run() {
+         Runnable runnable;
+
+         while ((runnable = onMemoryFreedRunnables.poll()) != null) {
+            runnable.run();
+         }
+      }
+
+      public boolean isEmpty() {
+         return onMemoryFreedRunnables.isEmpty();
+      }
    }
 
 }
