@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  *
  * @see PagingManager
  */
-public interface PagingStore extends ActiveMQComponent, RefCountMessageListener {
+public interface PagingStore extends ActiveMQComponent, RefCountMessageListener, PagingManager.Blockable {
 
    SimpleString getAddress();
 
@@ -130,11 +130,6 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    boolean isFull();
 
    boolean isRejectingMessages();
-
-   /**
-    * It will return true if the destination is leaving blocking.
-    */
-   boolean checkReleasedMemory();
 
    /**
     * Write lock the PagingStore.

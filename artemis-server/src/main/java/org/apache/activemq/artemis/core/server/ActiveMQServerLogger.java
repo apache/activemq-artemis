@@ -1950,4 +1950,17 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224095, value = "Error updating Consumer Count: {0}", format = Message.Format.MESSAGE_FORMAT)
    void consumerCountError(String reason);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224096, value = "Disk Full! Blocking message production. Clients will report blocked.", format = Message.Format.MESSAGE_FORMAT)
+   void blockingGlobalDiskFull();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224097, value = "Blocking message production; size is currently: {0} bytes;", format = Message.Format.MESSAGE_FORMAT)
+   void blockingGlobalMessageProduction(long globalSize);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224098, value = "Unblocking message production; size is currently: {0} bytes;", format = Message.Format.MESSAGE_FORMAT)
+   void unblockingGlobalMessageProduction(long globalSize);
+
 }
