@@ -43,4 +43,27 @@ public abstract class AbstractAcceptor implements Acceptor {
       }
    }
 
+   /**
+    * To be called by acceptors implementation, so we can call protocolManager.start
+    * @throws Exception
+    */
+   @Override
+   public void start() throws Exception {
+      for (ProtocolManager protocol : protocolMap.values()) {
+         protocol.start();
+      }
+   }
+
+   /**
+    * To be called by acceptors implementation, so we can call protocolManager.stop
+    * @throws Exception
+    */
+   @Override
+   public void stop() throws Exception {
+      for (ProtocolManager protocol : protocolMap.values()) {
+         protocol.stop();
+      }
+   }
+
+
 }

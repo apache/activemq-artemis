@@ -74,4 +74,11 @@ public interface ProtocolManager<P extends BaseInterceptor> {
    void setMulticastPrefix(String multicastPrefix);
 
    Map<SimpleString, RoutingType> getPrefixes();
+
+
+   void start();
+
+   void stop();
+
+   boolean isActive();
 }

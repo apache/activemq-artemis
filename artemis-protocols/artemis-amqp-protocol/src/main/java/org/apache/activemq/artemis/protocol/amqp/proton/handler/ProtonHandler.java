@@ -27,12 +27,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.security.auth.Subject;
 
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonInitializable;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
@@ -88,11 +90,17 @@ public class ProtonHandler extends ProtonInitializable {
 
    boolean inDispatch = false;
 
-   public ProtonHandler(Executor flushExecutor, boolean isServer) {
+   private final Actor<ByteBuf> bufferActor;
+
+   final ProtonProtocolManager protonProtocolManager;
+
+   public ProtonHandler(ProtonProtocolManager protonProtocolManager, Executor flushExecutor, boolean isServer) {
+      this.protonProtocolManager = protonProtocolManager;
       this.flushExecutor = flushExecutor;
       this.readyListener = () -> flushExecutor.execute(() -> {
          flush();
       });
+      this.bufferActor = new Actor<>(flushExecutor, this::actBuffer);
       this.creationTime = System.currentTimeMillis();
       this.isServer = isServer;
 
@@ -218,6 +226,14 @@ public class ProtonHandler extends ProtonInitializable {
 
    public void inputBuffer(ByteBuf buffer) {
       dataReceived = true;
+
+      protonProtocolManager.pressureIn(buffer.writerIndex());
+
+      bufferActor.act(buffer.retain());
+   }
+
+   private void actBuffer(ByteBuf buffer) {
+      int credits = buffer.writerIndex();
       lock.lock();
       try {
          while (buffer.readableBytes() > 0) {
@@ -262,6 +278,8 @@ public class ProtonHandler extends ProtonInitializable {
          }
       } finally {
          lock.unlock();
+         buffer.release();
+         protonProtocolManager.pressureOut(credits);
       }
    }
 

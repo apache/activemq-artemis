@@ -89,7 +89,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       Queue queue = getProxyToQueue(getQueueName());
       assertNotNull(queue);
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -341,7 +341,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       receiver2.close();
 
-      assertEquals(MSG_COUNT - 2, queueView.getMessageCount());
+      Wait.assertEquals(MSG_COUNT - 2, queueView::getMessageCount);
 
       connection.close();
    }

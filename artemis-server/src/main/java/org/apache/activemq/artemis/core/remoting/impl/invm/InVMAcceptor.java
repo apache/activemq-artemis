@@ -132,6 +132,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
          return;
       }
 
+      super.start();
+
       InVMRegistry.instance.registerAcceptor(id, this);
 
       if (notificationService != null) {
@@ -148,7 +150,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
    }
 
    @Override
-   public synchronized void stop() {
+   public synchronized void stop() throws Exception {
       if (!started) {
          return;
       }
@@ -178,6 +180,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
       started = false;
 
       paused = false;
+
+      super.stop();
    }
 
    @Override
