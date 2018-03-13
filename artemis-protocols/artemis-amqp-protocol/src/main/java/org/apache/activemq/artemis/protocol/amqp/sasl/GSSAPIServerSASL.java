@@ -76,13 +76,13 @@ public class GSSAPIServerSASL implements ServerSASL {
 
          byte[] challenge = Subject.doAs(jaasId, (PrivilegedExceptionAction<byte[]>) () -> saslServer.evaluateResponse(bytes));
          if (saslServer.isComplete()) {
-            result = new GSSAPISASLResult(true, new KerberosPrincipal(saslServer.getAuthorizationID()));
+            result = new PrincipalSASLResult(true, new KerberosPrincipal(saslServer.getAuthorizationID()));
          }
          return challenge;
 
       } catch (Exception outOfHere) {
          log.info("Error on sasl input: " + outOfHere.toString(), outOfHere);
-         result = new GSSAPISASLResult(false, null);
+         result = new PrincipalSASLResult(false, null);
       }
       return null;
    }

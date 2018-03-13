@@ -741,6 +741,11 @@ SASL GSSAPI. However, for clients that don't support SASL (core client), using T
 over an *unsecure* channel.
 
 
+## SASL
+[AMQP](using-AMQP.md) supports SASL. The following mechanisms are supported; PLAIN, EXTERNAL, ANONYMOUS, GSSAPI.
+The published list can be constrained via the amqp acceptor `saslMechanisms` property. 
+Note: EXTERNAL will only be chosen if a subject is available from the TLS client certificate.
+
 ## Changing the username/password for clustering
 
 In order for cluster connections to work correctly, each node in the

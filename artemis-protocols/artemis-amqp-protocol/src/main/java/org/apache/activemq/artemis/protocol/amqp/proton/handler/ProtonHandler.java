@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
@@ -42,6 +41,7 @@ import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Sasl;
+import org.apache.qpid.proton.engine.SaslListener;
 import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.engine.impl.TransportInternal;
 import org.jboss.logging.Logger;
@@ -49,7 +49,7 @@ import org.jboss.logging.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
-public class ProtonHandler extends ProtonInitializable {
+public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    private static final Logger log = Logger.getLogger(ProtonHandler.class);
 
@@ -64,8 +64,6 @@ public class ProtonHandler extends ProtonInitializable {
    private final Collector collector = Proton.collector();
 
    private List<EventHandler> handlers = new ArrayList<>();
-
-   private Sasl sasl;
 
    private ServerSASL chosenMechanism;
    private ClientSASL clientSASLMechanism;
@@ -174,9 +172,10 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void createServerSASL(String[] mechanisms) {
-      this.sasl = transport.sasl();
-      this.sasl.server();
+      Sasl sasl = transport.sasl();
+      sasl.server();
       sasl.setMechanisms(mechanisms);
+      sasl.setListener(this);
    }
 
    public void flushBytes() {
@@ -281,7 +280,6 @@ public class ProtonHandler extends ProtonInitializable {
       lock.lock();
       try {
          transport.process();
-         checkSASL();
       } finally {
          lock.unlock();
       }
@@ -303,113 +301,127 @@ public class ProtonHandler extends ProtonInitializable {
       flush();
    }
 
-   protected void checkSASL() {
-      if (isServer) {
-         if (sasl != null && sasl.getRemoteMechanisms().length > 0) {
+   // server side SASL Listener
+   @Override
+   public void onSaslInit(Sasl sasl, Transport transport) {
+      log.debug("onSaslInit: " + sasl);
+      dispatchRemoteMechanismChosen(sasl.getRemoteMechanisms()[0]);
 
-            if (chosenMechanism == null) {
-               if (log.isTraceEnabled()) {
-                  log.trace("SASL chosenMechanism: " + sasl.getRemoteMechanisms()[0]);
-               }
-               dispatchRemoteMechanismChosen(sasl.getRemoteMechanisms()[0]);
-            }
-            if (chosenMechanism != null) {
+      if (chosenMechanism != null) {
 
-               byte[] dataSASL = new byte[sasl.pending()];
-               int received = sasl.recv(dataSASL, 0, dataSASL.length);
-               if (log.isTraceEnabled()) {
-                  log.trace("Working on sasl ::" + (received > 0 ? ByteUtil.bytesToHex(dataSASL, 2) : "recv:" + received));
-               }
+         processPending(sasl);
 
-               byte[] response = null;
-               if (received != -1) {
-                  response = chosenMechanism.processSASL(dataSASL);
-               }
-               if (response != null) {
-                  sasl.send(response, 0, response.length);
-               }
-               saslResult = chosenMechanism.result();
-
-               if (saslResult != null) {
-                  if (saslResult.isSuccess()) {
-                     saslComplete(Sasl.SaslOutcome.PN_SASL_OK);
-                  } else {
-                     saslComplete(Sasl.SaslOutcome.PN_SASL_AUTH);
-                  }
-               }
-            } else {
-               // no auth available, system error
-               saslComplete(Sasl.SaslOutcome.PN_SASL_SYS);
-            }
-         }
       } else {
-         if (sasl != null) {
-            switch (sasl.getState()) {
-               case PN_SASL_IDLE:
-                  if (sasl.getRemoteMechanisms().length != 0) {
-                     dispatchMechanismsOffered(sasl.getRemoteMechanisms());
+         // no auth available, system error
+         saslComplete(sasl, Sasl.SaslOutcome.PN_SASL_SYS);
+      }
+   }
 
-                     if (clientSASLMechanism == null) {
-                        log.infof("Outbound connection failed - unknown mechanism, offered mechanisms: %s",
-                                  Arrays.asList(sasl.getRemoteMechanisms()));
-                        sasl = null;
-                        dispatchAuthFailed();
-                     } else {
-                        sasl.setMechanisms(clientSASLMechanism.getName());
-                        byte[] initialResponse = clientSASLMechanism.getInitialResponse();
-                        if (initialResponse != null) {
-                           sasl.send(initialResponse, 0, initialResponse.length);
-                        }
-                     }
-                  }
-                  break;
-               case PN_SASL_STEP:
-                  int challengeSize = sasl.pending();
-                  byte[] challenge = new byte[challengeSize];
-                  sasl.recv(challenge, 0, challengeSize);
-                  byte[] response = clientSASLMechanism.getResponse(challenge);
-                  sasl.send(response, 0, response.length);
-                  break;
-               case PN_SASL_FAIL:
-                  log.info("Outbound connection failed, authentication failure");
-                  sasl = null;
-                  dispatchAuthFailed();
-                  break;
-               case PN_SASL_PASS:
-                  log.debug("Outbound connection succeeded");
-                  saslResult = new SASLResult() {
-                     @Override
-                     public String getUser() {
-                        return null;
-                     }
+   private void processPending(Sasl sasl) {
+      byte[] dataSASL = new byte[sasl.pending()];
 
-                     @Override
-                     public Subject getSubject() {
-                        return null;
-                     }
+      int received = sasl.recv(dataSASL, 0, dataSASL.length);
+      if (log.isTraceEnabled()) {
+         log.trace("Working on sasl, length:" + received);
+      }
 
-                     @Override
-                     public boolean isSuccess() {
-                        return true;
-                     }
-                  };
-                  sasl = null;
+      byte[] response = chosenMechanism.processSASL(received != -1 ? dataSASL : null);
+      if (response != null) {
+         sasl.send(response, 0, response.length);
+      }
 
-                  dispatchAuthSuccess();
-                  break;
-               case PN_SASL_CONF:
-                  // do nothing
-                  break;
-            }
+      saslResult = chosenMechanism.result();
+      if (saslResult != null) {
+         if (saslResult.isSuccess()) {
+            saslComplete(sasl, Sasl.SaslOutcome.PN_SASL_OK);
+         } else {
+            saslComplete(sasl, Sasl.SaslOutcome.PN_SASL_AUTH);
          }
       }
    }
 
-   private void saslComplete(Sasl.SaslOutcome saslOutcome) {
+   @Override
+   public void onSaslResponse(Sasl sasl, Transport transport) {
+      log.debug("onSaslResponse: " + sasl);
+      processPending(sasl);
+   }
+
+   // client SASL Listener
+   @Override
+   public void onSaslMechanisms(Sasl sasl, Transport transport) {
+
+      dispatchMechanismsOffered(sasl.getRemoteMechanisms());
+
+      if (clientSASLMechanism == null) {
+         log.infof("Outbound connection failed - unknown mechanism, offered mechanisms: %s",
+                   Arrays.asList(sasl.getRemoteMechanisms()));
+         dispatchAuthFailed();
+      } else {
+         sasl.setMechanisms(clientSASLMechanism.getName());
+         byte[] initialResponse = clientSASLMechanism.getInitialResponse();
+         if (initialResponse != null) {
+            sasl.send(initialResponse, 0, initialResponse.length);
+         }
+      }
+   }
+
+   @Override
+   public void onSaslChallenge(Sasl sasl, Transport transport) {
+      int challengeSize = sasl.pending();
+      byte[] challenge = new byte[challengeSize];
+      sasl.recv(challenge, 0, challengeSize);
+      byte[] response = clientSASLMechanism.getResponse(challenge);
+      sasl.send(response, 0, response.length);
+   }
+
+   @Override
+   public void onSaslOutcome(Sasl sasl, Transport transport) {
+      log.debug("onSaslOutcome: " + sasl);
+      switch (sasl.getState()) {
+         case PN_SASL_FAIL:
+            log.info("Outbound connection failed, authentication failure");
+            dispatchAuthFailed();
+            break;
+         case PN_SASL_PASS:
+            log.debug("Outbound connection succeeded");
+
+            if (sasl.pending() != 0) {
+               byte[] additionalData = new byte[sasl.pending()];
+               sasl.recv(additionalData, 0, additionalData.length);
+               clientSASLMechanism.getResponse(additionalData);
+            }
+
+            saslResult = new SASLResult() {
+               @Override
+               public String getUser() {
+                  return null;
+               }
+
+               @Override
+               public Subject getSubject() {
+                  return null;
+               }
+
+               @Override
+               public boolean isSuccess() {
+                  return true;
+               }
+            };
+
+            dispatchAuthSuccess();
+            break;
+
+         default:
+            break;
+      }
+   }
+
+   private void saslComplete(Sasl sasl, Sasl.SaslOutcome saslOutcome) {
+      log.debug("saslComplete: " + sasl);
       sasl.done(saslOutcome);
-      sasl = null;
       if (chosenMechanism != null) {
          chosenMechanism.done();
+         chosenMechanism = null;
       }
    }
 
@@ -501,7 +513,8 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void createClientSASL() {
-      this.sasl = transport.sasl();
-      this.sasl.client();
+      Sasl sasl = transport.sasl();
+      sasl.client();
+      sasl.setListener(this);
    }
 }
