@@ -105,9 +105,8 @@
                         </goals>
                         <configuration>
                            <libListWithDeps>
-                              <arg>org.apache.activemq.examples.broker:artemis-cdi-example:${project.version}</arg>
+                              <arg>org.apache.activemq.examples.broker:cdi:${project.version}</arg>
                            </libListWithDeps>
-
                            <instance>${basedir}/target/server0</instance>
                            <configuration>${basedir}/target/classes/activemq/server0</configuration>
                         </configuration>
@@ -186,7 +185,7 @@
                         </goals>
                         <configuration>
                            <libListWithDeps>
-                              <arg>org.apache.activemq.examples.broker:artemis-cdi-example:${project.version}</arg>
+                              <arg>org.apache.activemq.examples.broker:cdi:${project.version}</arg>
                            </libListWithDeps>
 
                            <instance>${basedir}/target/server0</instance>
@@ -222,7 +221,7 @@
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.broker</groupId>
-                        <artifactId>artemis-cdi-example</artifactId>
+                        <artifactId>cdi</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
