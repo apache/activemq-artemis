@@ -3107,17 +3107,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
             ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
             securityRepository.swap(config.getSecurityRoles().entrySet());
+            configuration.setSecurityRoles(config.getSecurityRoles());
+
             ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
             addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
+            configuration.setAddressesSettings(config.getAddressesSettings());
+
             ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
             for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
                if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
                   deployDivert(divertConfig);
                }
             }
+
             ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
             deployAddressesFromConfiguration(config);
             undeployAddressesAndQueueNotInConfiguration(config);
+            configuration.setAddressConfigurations(config.getAddressConfigurations());
+            configuration.setQueueConfigurations(config.getQueueConfigurations());
          }
       }
    }
