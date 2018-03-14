@@ -103,6 +103,15 @@
          <groupId>org.jboss.logmanager</groupId>
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.fusesource.mqtt-client</groupId>
+         <artifactId>mqtt-client</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.paho</groupId>
+         <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+         <version>RELEASE</version>
+      </dependency>
    </dependencies>
 
    <build>
@@ -151,6 +160,22 @@
                      <user>admin</user>
                      <password>admin</password>
                      <instance>${basedir}/target/expire</instance>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-mqtt</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/mqtt</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/mqtt</instance>
+                     <configuration>${basedir}/target/classes/servers/mqtt</configuration>
                   </configuration>
                </execution>
 

@@ -278,8 +278,9 @@ public class MQTTPublishManager {
                log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
             }
          default:
-            ActiveMQBuffer bufferDup = message.getReadOnlyBodyBuffer();
-            payload = bufferDup.readBytes(bufferDup.writerIndex()).byteBuf();
+            ActiveMQBuffer bodyBuffer = message.getReadOnlyBodyBuffer();
+            payload = ByteBufAllocator.DEFAULT.buffer(bodyBuffer.writerIndex());
+            payload.writeBytes(bodyBuffer.byteBuf());
             break;
       }
       session.getProtocolHandler().send(messageId, address, qos, isRetain, payload, deliveryCount);
