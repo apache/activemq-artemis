@@ -42,17 +42,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * testing connection where client and server are running OpenSSL TLS
+ * test connecting to a server running with OpenSSL TLS from a client that is running with JDK TLS
  */
 @RunWith(value = Parameterized.class)
-public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
+public class CoreClientOverTwoWayOpenSSLServerTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
    }
 
-   public CoreClientOverTwoWayOpenSSLTest(String storeType) {
+   public CoreClientOverTwoWayOpenSSLServerTest(String storeType) {
       this.storeType = storeType;
       SERVER_SIDE_KEYSTORE = "openssl-server-side-keystore." + storeType.toLowerCase();
       SERVER_SIDE_TRUSTSTORE = "openssl-server-side-truststore." + storeType.toLowerCase();
@@ -131,7 +131,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      //tc.getParams().put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
@@ -145,13 +144,13 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(CoreClientOverTwoWayOpenSSLTest.QUEUE, CoreClientOverTwoWayOpenSSLTest.QUEUE, false);
-      ClientProducer producer = session.createProducer(CoreClientOverTwoWayOpenSSLTest.QUEUE);
+      session.createQueue(CoreClientOverTwoWayOpenSSLServerTest.QUEUE, CoreClientOverTwoWayOpenSSLServerTest.QUEUE, false);
+      ClientProducer producer = session.createProducer(CoreClientOverTwoWayOpenSSLServerTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
       producer.send(message);
 
-      ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWayOpenSSLTest.QUEUE);
+      ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWayOpenSSLServerTest.QUEUE);
       session.start();
 
       ClientMessage m = consumer.receive(1000);
@@ -171,7 +170,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      tc.getParams().put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
@@ -184,13 +182,13 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(CoreClientOverTwoWayOpenSSLTest.QUEUE, CoreClientOverTwoWayOpenSSLTest.QUEUE, false);
-      ClientProducer producer = session.createProducer(CoreClientOverTwoWayOpenSSLTest.QUEUE);
+      session.createQueue(CoreClientOverTwoWayOpenSSLServerTest.QUEUE, CoreClientOverTwoWayOpenSSLServerTest.QUEUE, false);
+      ClientProducer producer = session.createProducer(CoreClientOverTwoWayOpenSSLServerTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
       producer.send(message);
 
-      ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWayOpenSSLTest.QUEUE);
+      ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWayOpenSSLServerTest.QUEUE);
       session.start();
 
       ClientMessage m = consumer.receive(1000);
@@ -207,7 +205,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       server.getRemotingService().startAcceptors();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      tc.getParams().put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
@@ -236,7 +233,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
 
       //Set trust all so this should work even with no trust store set
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      tc.getParams().put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
       tc.getParams().put(TransportConstants.TRUST_ALL_PROP_NAME, true);
       tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
@@ -262,7 +258,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
             + ":" + tc.getParams().get(TransportConstants.PORT_PROP_NAME).toString());
 
       uri.append("?").append(TransportConstants.SSL_ENABLED_PROP_NAME).append("=true");
-      uri.append("&").append(TransportConstants.SSL_PROVIDER).append("=").append(TransportConstants.OPENSSL_PROVIDER);
       uri.append("&").append(TransportConstants.TRUST_ALL_PROP_NAME).append("=true");
       uri.append("&").append(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME).append("=").append(storeType);
       uri.append("&").append(TransportConstants.KEYSTORE_PATH_PROP_NAME).append("=").append(CLIENT_SIDE_KEYSTORE);
