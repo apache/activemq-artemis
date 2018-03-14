@@ -131,7 +131,7 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      //tc.getParams().put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
+      tc.getParams().put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
