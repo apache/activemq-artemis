@@ -141,6 +141,10 @@ public class ProtonHandler extends ProtonInitializable {
       }
    }
 
+   public void execute(Runnable runnable) {
+      flushExecutor.execute(runnable);
+   }
+
    public int capacity() {
       lock.lock();
       try {

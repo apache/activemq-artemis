@@ -123,6 +123,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
+   /** Execute using the same ProtonHandler executor.
+    *  This is for situations where you would rather wait on an executor
+    *  instead of blocking a thread */
+   public void executeInHandler(Runnable run) {
+      handler.execute(run);
+   }
+
    public boolean isIncomingConnection() {
       return isIncomingConnection;
    }
