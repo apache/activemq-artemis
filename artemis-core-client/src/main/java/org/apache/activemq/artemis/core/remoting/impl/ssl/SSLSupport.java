@@ -112,10 +112,9 @@ public class SSLSupport {
                                                final String sslProvider) throws Exception {
 
       KeyStore keyStore = SSLSupport.loadKeystore(keystoreProvider, keystorePath, keystorePassword);
-      String alias = keyStore.aliases().nextElement();
-      PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
-      X509Certificate certificate = (X509Certificate) keyStore.getCertificate(alias);
-      return SslContextBuilder.forServer(privateKey, certificate).sslProvider(SslProvider.valueOf(sslProvider)).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, false, null)).build();
+      KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      keyManagerFactory.init(keyStore, keystorePassword.toCharArray());
+      return SslContextBuilder.forServer(keyManagerFactory).sslProvider(SslProvider.valueOf(sslProvider)).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, false, null)).build();
    }
 
    public static SslContext createNettyClientContext(final String keystoreProvider,
@@ -127,10 +126,9 @@ public class SSLSupport {
                                                final String sslProvider,
                                                final boolean trustAll  ) throws Exception {
       KeyStore keyStore = SSLSupport.loadKeystore(keystoreProvider, keystorePath, keystorePassword);
-      String alias = keyStore.aliases().nextElement();
-      PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
-      X509Certificate certificate = (X509Certificate) keyStore.getCertificate(alias);
-      return SslContextBuilder.forClient().sslProvider(SslProvider.valueOf(sslProvider)).keyManager(privateKey, certificate).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, trustAll, null)).build();
+      KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      keyManagerFactory.init(keyStore, keystorePassword.toCharArray());
+      return SslContextBuilder.forClient().sslProvider(SslProvider.valueOf(sslProvider)).keyManager(keyManagerFactory).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, trustAll, null)).build();
    }
 
 
