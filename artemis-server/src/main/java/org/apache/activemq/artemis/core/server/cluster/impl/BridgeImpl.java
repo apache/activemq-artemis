@@ -775,7 +775,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    protected void fail(final boolean permanently) {
       logger.debug(this + "\n\t::fail being called, permanently=" + permanently);
       //we need to make sure we remove the node from the topology so any incoming quorum requests are voted correctly
-      serverLocator.notifyNodeDown(System.currentTimeMillis(), targetNodeID);
+      if (targetNodeID != null) {
+         serverLocator.notifyNodeDown(System.currentTimeMillis(), targetNodeID);
+      }
       if (queue != null) {
          try {
             if (logger.isTraceEnabled()) {
