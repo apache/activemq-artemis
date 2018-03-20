@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.paging.cursor;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -33,19 +33,26 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private static final Logger logger = Logger.getLogger(PagedReferenceImpl.class);
 
+   private static final AtomicIntegerFieldUpdater<PagedReferenceImpl> DELIVERY_COUNT_UPDATER = AtomicIntegerFieldUpdater
+      .newUpdater(PagedReferenceImpl.class, "deliveryCount");
+
    private final PagePosition position;
 
    private WeakReference<PagedMessage> message;
 
-   private Long deliveryTime = null;
+   private static final long UNDEFINED_DELIVERY_TIME = Long.MIN_VALUE;
+   private long deliveryTime = UNDEFINED_DELIVERY_TIME;
 
    private int persistedCount;
 
    private int messageEstimate = -1;
 
-   private Long consumerId;
+   private long consumerID;
 
-   private final AtomicInteger deliveryCount = new AtomicInteger(0);
+   private boolean hasConsumerID = false;
+
+   @SuppressWarnings("unused")
+   private volatile int deliveryCount = 0;
 
    private final PageSubscription subscription;
 
@@ -53,7 +60,11 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private Object protocolData;
 
-   private Boolean largeMessage;
+   //0 is false, 1 is true, 2 not defined
+   private static final byte IS_NOT_LARGE_MESSAGE = 0;
+   private static final byte IS_LARGE_MESSAGE = 1;
+   private static final byte UNDEFINED_IS_LARGE_MESSAGE = 2;
+   private byte largeMessage;
 
    private long transactionID = -1;
 
@@ -104,14 +115,14 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
       this.message = new WeakReference<>(message);
       this.subscription = subscription;
       if (message != null) {
-         this.largeMessage = message.getMessage().isLargeMessage();
+         this.largeMessage = message.getMessage().isLargeMessage() ? IS_LARGE_MESSAGE : IS_NOT_LARGE_MESSAGE;
          this.transactionID = message.getTransactionID();
          this.messageID = message.getMessage().getMessageID();
 
          //pre-cache the message size so we don't have to reload the message later if it is GC'd
          getPersistentSize();
       } else {
-         this.largeMessage = null;
+         this.largeMessage = UNDEFINED_IS_LARGE_MESSAGE;
          this.transactionID = -1;
          this.messageID = -1;
          this.messageSize = -1;
@@ -152,7 +163,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public long getScheduledDeliveryTime() {
-      if (deliveryTime == null) {
+      if (deliveryTime == UNDEFINED_DELIVERY_TIME) {
          try {
             Message msg = getMessage();
             return msg.getScheduledDeliveryTime();
@@ -166,31 +177,31 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void setScheduledDeliveryTime(final long scheduledDeliveryTime) {
+      assert scheduledDeliveryTime != UNDEFINED_DELIVERY_TIME : "can't use a reserved value";
       deliveryTime = scheduledDeliveryTime;
    }
 
    @Override
    public int getDeliveryCount() {
-      return deliveryCount.get();
+      return DELIVERY_COUNT_UPDATER.get(this);
    }
 
    @Override
    public void setDeliveryCount(final int deliveryCount) {
-      this.deliveryCount.set(deliveryCount);
+      DELIVERY_COUNT_UPDATER.set(this, deliveryCount);
    }
 
    @Override
    public void incrementDeliveryCount() {
-      deliveryCount.incrementAndGet();
+      DELIVERY_COUNT_UPDATER.incrementAndGet(this);
       if (logger.isTraceEnabled()) {
          logger.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
-
    }
 
    @Override
    public void decrementDeliveryCount() {
-      deliveryCount.decrementAndGet();
+      DELIVERY_COUNT_UPDATER.decrementAndGet(this);
       if (logger.isTraceEnabled()) {
          logger.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
@@ -251,7 +262,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          ", message=" +
          msgToString +
          ", deliveryTime=" +
-         deliveryTime +
+         (deliveryTime == UNDEFINED_DELIVERY_TIME ? null : deliveryTime) +
          ", persistedCount=" +
          persistedCount +
          ", deliveryCount=" +
@@ -261,28 +272,41 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          "]";
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.server.MessageReference#setConsumerId(java.lang.Long)
-    */
    @Override
-   public void setConsumerId(Long consumerID) {
-      this.consumerId = consumerID;
+   public void emptyConsumerID() {
+      this.hasConsumerID = false;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.server.MessageReference#getConsumerId()
-    */
    @Override
-   public Long getConsumerId() {
-      return this.consumerId;
+   public void setConsumerId(long consumerID) {
+      this.hasConsumerID = true;
+      this.consumerID = consumerID;
+   }
+
+   @Override
+   public boolean hasConsumerId() {
+      return hasConsumerID;
+   }
+
+   @Override
+   public long getConsumerId() {
+      if (!this.hasConsumerID) {
+         throw new IllegalStateException("consumerID isn't specified: please check hasConsumerId first");
+      }
+      return this.consumerID;
    }
 
    @Override
    public boolean isLargeMessage() {
-      if (largeMessage == null && message != null) {
-         largeMessage = getMessage().isLargeMessage();
+      if (largeMessage == UNDEFINED_IS_LARGE_MESSAGE && message != null) {
+         initializeIsLargeMessage();
       }
-      return largeMessage;
+      return largeMessage == IS_LARGE_MESSAGE;
+   }
+
+   private void initializeIsLargeMessage() {
+      assert largeMessage == UNDEFINED_IS_LARGE_MESSAGE && message != null;
+      largeMessage = getMessage().isLargeMessage() ? IS_LARGE_MESSAGE : IS_NOT_LARGE_MESSAGE;
    }
 
    @Override
