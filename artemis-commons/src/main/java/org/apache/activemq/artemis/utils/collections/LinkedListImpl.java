@@ -30,7 +30,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private static final int INITIAL_ITERATOR_ARRAY_SIZE = 10;
 
-   private final Node<E> head = new Node<>(null);
+   private final Node<E> head = new NodeHolder<>(null);
 
    private Node<E> tail = null;
 
@@ -91,7 +91,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       if (ret != null) {
          removeAfter(head);
 
-         return ret.val;
+         return ret.val();
       } else {
          return null;
       }
@@ -218,29 +218,37 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       throw new IllegalStateException("Cannot find iter to remove");
    }
 
+   private static final class NodeHolder<T> extends Node<T> {
+
+      private final T val;
+
+      //only the head is allowed to hold a null
+      private NodeHolder(T e) {
+         val = e;
+      }
+
+      @Override
+      protected T val() {
+         return val;
+      }
+   }
+
    public static class Node<T> {
 
       private Node<T> next;
 
       private Node<T> prev;
 
-      private final T val;
-
       private int iterCount;
 
       @SuppressWarnings("unchecked")
-      protected Node() {
-         val = (T)this;
-      }
-
-      //only the head is allowed to hold a null
-      private Node(T e) {
-         val = e;
+      protected T val() {
+         return (T) this;
       }
 
       @Override
       public String toString() {
-         return val == this ? "Intrusive Node" : "Node, value = " + val;
+         return val() == this ? "Intrusive Node" : "Node, value = " + val();
       }
 
       private static <T> Node<T> with(final T o) {
@@ -254,7 +262,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
                return node;
             }
          }
-         return new Node(o);
+         return new NodeHolder<>(o);
       }
    }
 
@@ -298,14 +306,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
             repeat = false;
 
             if (e != null) {
-               return e.val;
+               return e.val();
             } else {
                if (canAdvance()) {
                   advance();
 
                   e = getNode();
 
-                  return e.val;
+                  return e.val();
                } else {
                   throw new NoSuchElementException();
                }
@@ -326,7 +334,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
          repeat = false;
 
-         return e.val;
+         return e.val();
       }
 
       @Override

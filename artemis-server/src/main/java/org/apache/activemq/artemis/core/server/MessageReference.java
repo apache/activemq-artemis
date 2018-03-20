@@ -91,9 +91,13 @@ public interface MessageReference {
 
    void acknowledge(Transaction tx, AckReason reason) throws Exception;
 
-   void setConsumerId(Long consumerID);
+   void emptyConsumerID();
 
-   Long getConsumerId();
+   void setConsumerId(long consumerID);
+
+   boolean hasConsumerId();
+
+   long getConsumerId();
 
    void handled();
 

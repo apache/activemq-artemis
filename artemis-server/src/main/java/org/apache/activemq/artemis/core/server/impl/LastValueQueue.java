@@ -175,7 +175,9 @@ public class LastValueQueue extends QueueImpl {
 
       private volatile MessageReference ref;
 
-      private Long consumerId;
+      private long consumerID;
+
+      private boolean hasConsumerID = false;
 
       HolderReference(final SimpleString prop, final MessageReference ref) {
          this.prop = prop;
@@ -309,20 +311,28 @@ public class LastValueQueue extends QueueImpl {
          return ref.getMessage().getMemoryEstimate();
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.server.MessageReference#setConsumerId(java.lang.Long)
-       */
       @Override
-      public void setConsumerId(Long consumerID) {
-         this.consumerId = consumerID;
+      public void emptyConsumerID() {
+         this.hasConsumerID = false;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.server.MessageReference#getConsumerId()
-       */
       @Override
-      public Long getConsumerId() {
-         return this.consumerId;
+      public void setConsumerId(long consumerID) {
+         this.hasConsumerID = true;
+         this.consumerID = consumerID;
+      }
+
+      @Override
+      public boolean hasConsumerId() {
+         return hasConsumerID;
+      }
+
+      @Override
+      public long getConsumerId() {
+         if (!this.hasConsumerID) {
+            throw new IllegalStateException("consumerID isn't specified: please check hasConsumerId first");
+         }
+         return this.consumerID;
       }
 
       @Override
