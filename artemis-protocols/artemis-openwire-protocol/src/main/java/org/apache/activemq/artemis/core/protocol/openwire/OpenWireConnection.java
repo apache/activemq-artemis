@@ -1269,11 +1269,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             for (ListIterator<MessageReference> referenceIterator = ackRefs.listIterator(ackRefs.size()); referenceIterator.hasPrevious(); ) {
                MessageReference ref = referenceIterator.previous();
 
-               Long consumerID = ref.getConsumerId();
-
                ServerConsumer consumer = null;
-               if (consumerID != null) {
-                  consumer = session.getCoreSession().locateConsumer(consumerID);
+               if (ref.hasConsumerId()) {
+                  consumer = session.getCoreSession().locateConsumer(ref.getConsumerId());
                }
 
                if (consumer != null) {

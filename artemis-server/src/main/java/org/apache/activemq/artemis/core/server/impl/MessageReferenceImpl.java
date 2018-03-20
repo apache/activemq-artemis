@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -30,7 +30,11 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
  */
 public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
 
-   private final AtomicInteger deliveryCount = new AtomicInteger();
+   private static final AtomicIntegerFieldUpdater<MessageReferenceImpl> DELIVERY_COUNT_UPDATER = AtomicIntegerFieldUpdater
+      .newUpdater(MessageReferenceImpl.class, "deliveryCount");
+
+   @SuppressWarnings("unused")
+   private volatile int deliveryCount = 0;
 
    private volatile int persistedCount;
 
@@ -40,7 +44,9 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    private final Queue queue;
 
-   private Long consumerID;
+   private long consumerID;
+
+   private boolean hasConsumerID = false;
 
    private boolean alreadyAcked;
 
@@ -59,7 +65,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    }
 
    public MessageReferenceImpl(final MessageReferenceImpl other, final Queue queue) {
-      deliveryCount.set(other.deliveryCount.get());
+      DELIVERY_COUNT_UPDATER.set(this, other.getDeliveryCount());
 
       scheduledDeliveryTime = other.scheduledDeliveryTime;
 
@@ -113,23 +119,23 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    @Override
    public int getDeliveryCount() {
-      return deliveryCount.get();
+      return DELIVERY_COUNT_UPDATER.get(this);
    }
 
    @Override
    public void setDeliveryCount(final int deliveryCount) {
-      this.deliveryCount.set(deliveryCount);
-      this.persistedCount = this.deliveryCount.get();
+      DELIVERY_COUNT_UPDATER.set(this, deliveryCount);
+      this.persistedCount = deliveryCount;
    }
 
    @Override
    public void incrementDeliveryCount() {
-      deliveryCount.incrementAndGet();
+      DELIVERY_COUNT_UPDATER.incrementAndGet(this);
    }
 
    @Override
    public void decrementDeliveryCount() {
-      deliveryCount.decrementAndGet();
+      DELIVERY_COUNT_UPDATER.decrementAndGet(this);
    }
 
    @Override
@@ -197,12 +203,26 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    }
 
    @Override
-   public void setConsumerId(Long consumerID) {
+   public void emptyConsumerID() {
+      this.hasConsumerID = false;
+   }
+
+   @Override
+   public void setConsumerId(long consumerID) {
+      this.hasConsumerID = true;
       this.consumerID = consumerID;
    }
 
    @Override
-   public Long getConsumerId() {
+   public boolean hasConsumerId() {
+      return hasConsumerID;
+   }
+
+   @Override
+   public long getConsumerId() {
+      if (!this.hasConsumerID) {
+         throw new IllegalStateException("consumerID isn't specified: please check hasConsumerId first");
+      }
       return this.consumerID;
    }
 
