@@ -51,5 +51,5 @@ public interface LargeBodyEncoder {
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
-   long getLargeBodySize();
+   long getLargeBodySize() throws ActiveMQException;
 }

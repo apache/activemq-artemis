@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
@@ -238,10 +239,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    public synchronized int getMemoryEstimate() {
       if (memoryEstimate == -1) {
          // The body won't be on memory (aways on-file), so we don't consider this for paging
-         memoryEstimate = getHeadersAndPropertiesEncodeSize() + DataConstants.SIZE_INT +
-            getEncodeSize() +
-            (16 + 4) * 2 +
-            1;
+         memoryEstimate = getHeadersAndPropertiesEncodeSize() + DataConstants.SIZE_INT + getEncodeSize() + (16 + 4) * 2 + 1;
       }
 
       return memoryEstimate;
@@ -345,13 +343,35 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       return file;
    }
 
+   private long getBodySize() throws ActiveMQException {
+
+      try {
+         if (bodySize < 0) {
+            if (file != null) {
+               bodySize = file.size();
+            } else {
+               SequentialFile tmpFile = createFile();
+               bodySize = tmpFile.size();
+               tmpFile.close();
+            }
+         }
+         return bodySize;
+      } catch (Exception e) {
+         ActiveMQIOErrorException errorException = new ActiveMQIOErrorException();
+         errorException.initCause(e);
+         throw errorException;
+      }
+   }
+
    @Override
    public long getPersistentSize() throws ActiveMQException {
       long size = super.getPersistentSize();
-      size += getBodyEncoder().getLargeBodySize();
+      size += getBodySize();
 
       return size;
+
    }
+
    @Override
    public String toString() {
       try {
@@ -463,15 +483,8 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
        * @see org.apache.activemq.artemis.core.message.LargeBodyEncoder#getLargeBodySize()
        */
       @Override
-      public long getLargeBodySize() {
-         if (bodySize < 0) {
-            try {
-               bodySize = file.size();
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.unableToCalculateFileSize(e);
-            }
-         }
-         return bodySize;
+      public long getLargeBodySize() throws ActiveMQException {
+         return getBodySize();
       }
    }
 }
