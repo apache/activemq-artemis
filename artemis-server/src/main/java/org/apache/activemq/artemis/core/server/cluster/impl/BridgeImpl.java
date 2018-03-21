@@ -927,9 +927,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                scheduleRetryConnectFixedTimeout(this.retryInterval);
                return;
             } else {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("Bridge " + this + " is unable to connect to destination. Retrying", e);
-               }
+               logger.warn("Bridge " + this + " is unable to connect to destination. Retrying...");
 
                scheduleRetryConnect();
             }
