@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.StompSubscription;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -73,17 +72,13 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
       String messageID = request.getHeader(Stomp.Headers.Ack.ID);
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
 
-      if (txID != null) {
-         ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
-      }
-
       if (messageID == null) {
          ActiveMQStompException error = BUNDLE.noIDInAck().setHandler(connection.getFrameHandler());
          return error.getFrame();
       }
 
       try {
-         connection.acknowledge(messageID, null);
+         connection.acknowledge(messageID, null, txID, request.getType());
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }

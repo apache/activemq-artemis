@@ -1387,7 +1387,7 @@ public class StompV11Test extends StompTestBase {
 
       frame = conn.receiveFrame(500);
 
-      assertNull(frame);
+      assertNotNull(frame);
 
       unsubscribe(conn, getName());
 
@@ -2288,5 +2288,4 @@ public class StompV11Test extends StompTestBase {
 
       conn.disconnect();
    }
-
 }

@@ -48,6 +48,8 @@ public class StompFrame {
 
    private boolean isPing;
 
+   private CommandType type;
+
    public StompFrame(String command) {
       this(command, false);
    }
@@ -56,6 +58,7 @@ public class StompFrame {
       this.command = command;
       this.headers = new LinkedHashMap<>();
       this.disconnect = disconnect;
+      type = CommandType.getType(command);
    }
 
    public StompFrame(String command, Map<String, String> headers, byte[] content) {
@@ -238,5 +241,9 @@ public class StompFrame {
 
    public void setNeedsDisconnect(boolean b) {
       disconnect = b;
+   }
+
+   public CommandType getType() {
+      return this.type;
    }
 }

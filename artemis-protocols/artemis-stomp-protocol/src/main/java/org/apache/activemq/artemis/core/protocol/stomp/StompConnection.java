@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -106,6 +108,10 @@ public final class StompConnection implements RemotingConnection {
    private final ScheduledExecutorService scheduledExecutorService;
 
    private final ExecutorFactory factory;
+
+   private StompSession stompSession;
+
+   private Map<String, StompTransaction> stompTransactions = new HashMap<>();
 
    @Override
    public boolean isSupportReconnect() {
@@ -559,11 +565,12 @@ public final class StompConnection implements RemotingConnection {
       manager.sendReply(this, frame, function);
    }
 
-   public boolean validateUser(final String login, final String pass, final RemotingConnection connection) {
+   public boolean validateUser(final String login, final String pass, final RemotingConnection connection) throws ActiveMQStompException {
       this.valid = manager.validateUser(login, pass, connection);
       if (valid) {
          this.login = login;
          this.passcode = pass;
+         stompSession = getSession();
       }
       return valid;
    }
@@ -573,22 +580,10 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public StompSession getSession() throws ActiveMQStompException {
-      return getSession(null);
-   }
-
-   public StompSession getSession(String txID) throws ActiveMQStompException {
-      StompSession session = null;
-      try {
-         if (txID == null) {
-            session = manager.getSession(this);
-         } else {
-            session = manager.getTransactedSession(this, txID);
-         }
-      } catch (Exception e) {
-         throw BUNDLE.errorGetSession(e).setHandler(frameHandler);
+      if (stompSession == null) {
+         stompSession = manager.createSession(this);
       }
-
-      return session;
+      return stompSession;
    }
 
    protected void validate() throws ActiveMQStompException {
@@ -598,7 +593,6 @@ public final class StompConnection implements RemotingConnection {
    }
 
    protected void sendServerMessage(ICoreMessage message, String txID) throws ActiveMQStompException {
-      StompSession stompSession = getSession(txID);
 
       if (stompSession.isNoLocal()) {
          message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
@@ -606,11 +600,18 @@ public final class StompConnection implements RemotingConnection {
       if (isEnableMessageID()) {
          message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
       }
+      StompTransaction tx = null;
+      if (txID != null) {
+         tx = stompTransactions.get(txID);
+         if (tx == null) {
+            throw new ActiveMQStompException("Transaction not exist: " + txID);
+         }
+      }
       try {
          if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize)) {
-            stompSession.sendInternal(message, false);
+            stompSession.sendInternal(message, tx);
          } else {
-            stompSession.sendInternalLarge((CoreMessage)message, false);
+            stompSession.sendInternalLarge((CoreMessage)message, tx);
          }
       } catch (Exception e) {
          throw BUNDLE.errorSendMessage(message, e).setHandler(frameHandler);
@@ -628,8 +629,15 @@ public final class StompConnection implements RemotingConnection {
    }
 
    protected void beginTransaction(String txID) throws ActiveMQStompException {
+      ActiveMQServerLogger.LOGGER.stompBeginTX(txID);
       try {
-         manager.beginTransaction(this, txID);
+         StompTransaction tx = stompTransactions.get(txID);
+         if (tx != null) {
+            ActiveMQServerLogger.LOGGER.stompErrorTXExists(txID);
+            throw new ActiveMQStompException(this, "Transaction already started: " + txID);
+         }
+         tx = new StompTransaction();
+         stompTransactions.put(txID, tx);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -639,7 +647,11 @@ public final class StompConnection implements RemotingConnection {
 
    public void commitTransaction(String txID) throws ActiveMQStompException {
       try {
-         manager.commitTransaction(this, txID);
+         StompTransaction tx = stompTransactions.remove(txID);
+         if (tx == null) {
+            throw new ActiveMQStompException(this, "No transaction started: " + txID);
+         }
+         tx.commit(this.stompSession);
       } catch (Exception e) {
          throw BUNDLE.errorCommitTx(txID, e).setHandler(frameHandler);
       }
@@ -647,7 +659,11 @@ public final class StompConnection implements RemotingConnection {
 
    public void abortTransaction(String txID) throws ActiveMQStompException {
       try {
-         manager.abortTransaction(this, txID);
+         StompTransaction tx = stompTransactions.remove(txID);
+         if (tx == null) {
+            throw new ActiveMQStompException(this, "No transaction started: " + txID);
+         }
+         tx.abort(this.stompSession);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -689,7 +705,13 @@ public final class StompConnection implements RemotingConnection {
       }
 
       try {
-         return manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
+         stompSession.setNoLocal(noLocal);
+         if (stompSession.containsSubscription(subscriptionID)) {
+            throw new ActiveMQStompException(this, "There already is a subscription for: " + subscriptionID +
+                    ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
+         }
+         long consumerID = manager.generateID();
+         return stompSession.addSubscription(consumerID, subscriptionID, getClientID(), durableSubscriptionName, destination, selector, ack);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -699,7 +721,10 @@ public final class StompConnection implements RemotingConnection {
 
    public void unsubscribe(String subscriptionID, String durableSubscriptionName) throws ActiveMQStompException {
       try {
-         manager.unsubscribe(this, subscriptionID, durableSubscriptionName);
+         boolean unsubscribed = stompSession.unsubscribe(subscriptionID, durableSubscriptionName, getClientID());
+         if (!unsubscribed) {
+            throw new ActiveMQStompException(this, "Cannot unsubscribe as no subscription exists for id: " + subscriptionID);
+         }
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -707,9 +732,16 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public void acknowledge(String messageID, String subscriptionID) throws ActiveMQStompException {
+   public void acknowledge(String messageID, String subscriptionID, String txID, CommandType type) throws ActiveMQStompException {
       try {
-         manager.acknowledge(this, messageID, subscriptionID);
+         StompTransaction tx = null;
+         if (txID != null) {
+            tx = stompTransactions.get(txID);
+            if (tx == null) {
+               throw new ActiveMQStompException("Transaction doesn't exist: " + txID);
+            }
+         }
+         stompSession.acknowledge(messageID, subscriptionID, tx, type);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -800,4 +832,16 @@ public final class StompConnection implements RemotingConnection {
       return getTransportConnection().getLocalAddress();
    }
 
+   public void cleanup() {
+      if (stompSession != null) {
+         ServerSession session = stompSession.getCoreSession();
+         try {
+            session.stop();
+            session.rollback(true);
+            session.close(false);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
+         }
+      }
+   }
 }
