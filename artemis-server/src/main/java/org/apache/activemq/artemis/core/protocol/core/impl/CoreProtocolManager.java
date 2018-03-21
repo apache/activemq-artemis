@@ -78,6 +78,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
+   boolean started;
+
    public CoreProtocolManager(final CoreProtocolManagerFactory factory,
                               final ActiveMQServer server,
                               final List<Interceptor> incomingInterceptors,
@@ -89,6 +91,21 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       this.incomingInterceptors = incomingInterceptors;
 
       this.outgoingInterceptors = outgoingInterceptors;
+   }
+
+   @Override
+   public void start() {
+      started = true;
+   }
+
+   @Override
+   public void stop() {
+      started = false;
+   }
+
+   @Override
+   public boolean isActive() {
+      return started;
    }
 
    @Override

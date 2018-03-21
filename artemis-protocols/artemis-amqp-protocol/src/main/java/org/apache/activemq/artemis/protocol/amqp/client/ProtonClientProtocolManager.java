@@ -45,11 +45,6 @@ public class ProtonClientProtocolManager extends ProtonProtocolManager implement
    }
 
    @Override
-   public void stop() {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors, TopologyResponseHandler topologyResponseHandler) {
       throw new UnsupportedOperationException();
    }

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -43,11 +44,14 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.jboss.logging.Logger;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection> implements NotificationListener {
+
+   Logger logger = Logger.getLogger(ProtonProtocolManager.class);
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
@@ -74,10 +78,14 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
    * the address. This can be changed on the acceptor.
    * */
-   // TODO fix this
    private String pubSubPrefix = ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
 
    private int maxFrameSize = AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
+
+   private int backPressure = 1024 * 1024;
+
+   /** To be intialized on start() */
+   private Semaphore backPressureSemaphore;
 
    public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server, List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors) {
       this.factory = factory;
@@ -160,8 +168,17 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return amqpCredits;
    }
 
+   /** this is set through properties on the acceptor */
+   @SuppressWarnings("unused")
    public ProtonProtocolManager setAmqpCredits(int amqpCredits) {
       this.amqpCredits = amqpCredits;
+      return this;
+   }
+
+   /** this is set through properties on the acceptor */
+   @SuppressWarnings("unused")
+   public ProtonProtocolManager setAmqpLowCredits(int amqpLowCredits) {
+      this.amqpLowCredits = amqpLowCredits;
       return this;
    }
 
@@ -169,9 +186,32 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return amqpLowCredits;
    }
 
-   public ProtonProtocolManager setAmqpLowCredits(int amqpLowCredits) {
-      this.amqpLowCredits = amqpLowCredits;
-      return this;
+   @Override
+   public void start() {
+      super.start();
+
+      if (backPressure > 0) {
+         this.backPressureSemaphore = new Semaphore(backPressure);
+      } else {
+         this.backPressureSemaphore = null;
+      }
+   }
+
+   public void pressureIn(int credits) {
+      if (backPressureSemaphore != null) {
+         // In case there's a huge package coming, We will wait for the entire credits to be available
+         try {
+            backPressureSemaphore.acquire(Math.min(credits, backPressure));
+         } catch (InterruptedException e) {
+            logger.warn(e.getMessage(), e);
+         }
+      }
+   }
+
+   public void pressureOut(int credits) {
+      if (backPressureSemaphore != null) {
+         backPressureSemaphore.release(Math.min(credits, backPressure));
+      }
    }
 
    @Override

@@ -694,14 +694,24 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       // Let the Message decide how to present the message bytes
       ByteBuf sendBuffer = message.getSendBuffer(deliveryCount);
 
-      try {
-         int size = sendBuffer.writerIndex();
+      int size = sendBuffer.writerIndex();
 
+      connection.executeInHandler(() -> actualSend(messageReference, message, preSettle, tag, sendBuffer));
+
+      return size;
+   }
+
+   private void actualSend(MessageReference messageReference,
+                              AMQPMessage message,
+                              boolean preSettle,
+                              byte[] tag,
+                              ByteBuf sendBuffer) {
+      try {
          while (!connection.tryLock(1, TimeUnit.SECONDS)) {
             if (closed || sender.getLocalState() == EndpointState.CLOSED) {
                // If we're waiting on the connection lock, the link might be in the process of closing.  If this happens
                // we return.
-               return 0;
+               return;
             } else {
                if (log.isDebugEnabled()) {
                   log.debug("Couldn't get lock on deliverMessage " + this);
@@ -724,7 +734,15 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
             if (preSettle) {
                // Presettled means the client implicitly accepts any delivery we send it.
-               sessionSPI.ack(null, brokerConsumer, messageReference.getMessage());
+               try {
+                  sessionSPI.ack(null, brokerConsumer, messageReference.getMessage());
+               } catch (Exception e) {
+                  log.warn(e.getMessage(), e);
+                  ErrorCondition errorCondition = new ErrorCondition();
+                  errorCondition.setDescription(e.getMessage());
+                  connection.close(errorCondition);
+                  connection.flush();
+               }
                delivery.settle();
             } else {
                sender.advance();
@@ -733,8 +751,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          } finally {
             connection.unlock();
          }
-
-         return size;
       } finally {
          sendBuffer.release();
       }

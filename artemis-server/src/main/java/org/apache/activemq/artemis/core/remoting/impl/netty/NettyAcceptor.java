@@ -319,6 +319,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          return;
       }
 
+      super.start();
+
       String acceptorType;
 
       if (useInvm) {
@@ -613,7 +615,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    @Override
-   public synchronized void stop() {
+   public synchronized void stop() throws Exception {
       if (channelClazz == null) {
          return;
       }
@@ -676,6 +678,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          }
       }
 
+      super.stop();
       paused = false;
    }
 

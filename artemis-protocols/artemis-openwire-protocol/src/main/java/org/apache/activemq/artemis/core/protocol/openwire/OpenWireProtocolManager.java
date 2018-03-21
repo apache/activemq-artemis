@@ -132,6 +132,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    private final OpenWireFormat wireFormat;
 
+   private boolean active = false;
+
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
    private final Map<DestinationFilter, Integer> vtConsumerDestinationMatchers = new HashMap<>();
@@ -154,6 +156,21 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       if (cc != null) {
          cc.addClusterTopologyListener(this);
       }
+   }
+
+   @Override
+   public void start() {
+      active = true;
+   }
+
+   @Override
+   public void stop() {
+      active = false;
+   }
+
+   @Override
+   public boolean isActive() {
+      return active;
    }
 
    @Override

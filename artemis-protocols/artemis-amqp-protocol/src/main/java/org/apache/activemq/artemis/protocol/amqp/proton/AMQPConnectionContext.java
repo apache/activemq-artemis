@@ -108,7 +108,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      this.handler = new ProtonHandler(protocolManager.getServer().getExecutorFactory().getExecutor(), isIncomingConnection);
+      this.handler = new ProtonHandler(protocolManager, protocolManager.getServer().getExecutorFactory().getExecutor(), isIncomingConnection);
       handler.addEventHandler(this);
       Transport transport = handler.getTransport();
       transport.setEmitFlowEventOnSend(false);
@@ -121,6 +121,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       if (!isIncomingConnection && saslClientFactory != null) {
          handler.createClientSASL();
       }
+   }
+
+   /** Execute using the same ProtonHandler executor.
+    *  This is for situations where you would rather wait on an executor
+    *  instead of blocking a thread */
+   public void executeInHandler(Runnable run) {
+      handler.execute(run);
    }
 
    public boolean isIncomingConnection() {

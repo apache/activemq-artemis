@@ -46,6 +46,23 @@ public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C
       }
    }
 
+   volatile boolean started;
+
+   @Override
+   public void start() {
+      started = true;
+   }
+
+   @Override
+   public void stop() {
+      started = false;
+   }
+
+   @Override
+   public boolean isActive() {
+      return started;
+   }
+
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
       for (String prefix : anycastPrefix.split(",")) {
