@@ -1963,6 +1963,13 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="jdbc-max-allowed-millis-from-db-time" type="xsd:int" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The absolute time in milliseconds the system clock is allowed to be distant from the DB time
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
