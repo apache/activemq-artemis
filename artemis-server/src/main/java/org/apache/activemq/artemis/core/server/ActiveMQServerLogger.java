@@ -1573,4 +1573,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224078, value = "The size of duplicate cache detection (<id_cache-size/>) appears to be too large {0}. It should be no greater than the number of messages that can be squeezed into conformation buffer (<confirmation-window-size/>) {1}.", format = Message.Format.MESSAGE_FORMAT)
    void duplicateCacheSizeWarning(int idCacheSize, int confirmationWindowSize);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224091, value = "Bridge {0} is unable to connect to destination. Retrying", format = Message.Format.MESSAGE_FORMAT)
+   void errorConnectingBridgeRetry(Bridge bridge);
 }
