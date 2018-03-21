@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompDecoder;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.StompVersions;
 import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandler;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements FrameEventListener {
@@ -131,12 +130,8 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       String messageID = request.getHeader(Stomp.Headers.Ack.MESSAGE_ID);
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
 
-      if (txID != null) {
-         ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
-      }
-
       try {
-         connection.acknowledge(messageID, null);
+         connection.acknowledge(messageID, null, txID, request.getType());
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }

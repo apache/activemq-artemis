@@ -186,17 +186,13 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
       String subscriptionID = request.getHeader(Stomp.Headers.Ack.SUBSCRIPTION);
 
-      if (txID != null) {
-         ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
-      }
-
       if (subscriptionID == null) {
          response = BUNDLE.needSubscriptionID().setHandler(this).getFrame();
          return response;
       }
 
       try {
-         connection.acknowledge(messageID, subscriptionID);
+         connection.acknowledge(messageID, subscriptionID, txID, request.getType());
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }

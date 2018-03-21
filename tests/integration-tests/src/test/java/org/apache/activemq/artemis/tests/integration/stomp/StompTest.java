@@ -1396,7 +1396,7 @@ public class StompTest extends StompTestBase {
       abortTransaction(conn, "tx1");
 
       frame = conn.receiveFrame(1000);
-      Assert.assertNull("No message should have been received as the message was acked even though the transaction has been aborted", frame);
+      Assert.assertNotNull("Message should have been received as the message was acked within the transaction", frame);
 
       unsubscribe(conn, null, getQueuePrefix() + getQueueName(), false, false);
 

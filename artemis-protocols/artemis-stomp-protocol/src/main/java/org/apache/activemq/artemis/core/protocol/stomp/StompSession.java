@@ -132,7 +132,7 @@ public class StompSession implements SessionCallback {
                           final ServerConsumer consumer,
                           int deliveryCount) {
 
-      ICoreMessage  coreMessage = serverMessage.toCore();
+      ICoreMessage coreMessage = serverMessage.toCore();
 
       LargeServerMessageImpl largeMessage = null;
       ICoreMessage newServerMessage = serverMessage.toCore();
@@ -154,12 +154,16 @@ public class StompSession implements SessionCallback {
             encoder.encode(buffer, bodySize);
             encoder.close();
          } else {
-            buffer = coreMessage.getReadOnlyBodyBuffer();
+            if (Boolean.TRUE.equals(serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
+               buffer = coreMessage.getBodyBuffer();
+            } else {
+               buffer = coreMessage.getReadOnlyBodyBuffer();
+            }
          }
 
          if (Boolean.TRUE.equals(serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
             ActiveMQBuffer qbuff = buffer;
-            int bytesToRead = qbuff.readerIndex();
+            int bytesToRead = qbuff.readableBytes();
             Inflater inflater = new Inflater();
             inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
 
@@ -169,6 +173,7 @@ public class StompSession implements SessionCallback {
             byte[] data = new byte[(int) sizeBody];
             inflater.inflate(data);
             inflater.end();
+
             qbuff.resetReaderIndex();
             qbuff.resetWriterIndex();
             qbuff.writeBytes(data);
@@ -236,6 +241,7 @@ public class StompSession implements SessionCallback {
 
    @Override
    public void closed() {
+      messagesToAck.clear();
    }
 
    @Override
@@ -249,7 +255,7 @@ public class StompSession implements SessionCallback {
       }
    }
 
-   public void acknowledge(String messageID, String subscriptionID) throws Exception {
+   public void acknowledge(String messageID, String subscriptionID, StompTransaction tx, CommandType type) throws Exception {
       long id = Long.parseLong(messageID);
       Pair<Long, Integer> pair = messagesToAck.remove(id);
 
@@ -272,13 +278,16 @@ public class StompSession implements SessionCallback {
          session.receiveConsumerCredits(consumerID, credits);
       }
 
-      if (sub.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL)) {
-         session.individualAcknowledge(consumerID, id);
+      if (tx == null) {
+         if (sub.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL)) {
+            session.individualAcknowledge(consumerID, id);
+         } else {
+            session.acknowledge(consumerID, id);
+         }
+         session.commit();
       } else {
-         session.acknowledge(consumerID, id);
+         tx.addAck(id, consumerID, type == CommandType.ACK, sub.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL));
       }
-
-      session.commit();
    }
 
    public StompPostReceiptFunction addSubscription(long consumerID,
@@ -373,11 +382,15 @@ public class StompSession implements SessionCallback {
       this.noLocal = noLocal;
    }
 
-   public void sendInternal(Message message, boolean direct) throws Exception {
-      session.send(message, direct);
+   public void sendInternal(Message message, StompTransaction tx) throws Exception {
+      if (tx != null) {
+         tx.addSend(message);
+      } else {
+         session.send(message, false);
+      }
    }
 
-   public void sendInternalLarge(CoreMessage message, boolean direct) throws Exception {
+   public void sendInternalLarge(CoreMessage message, StompTransaction tx) throws Exception {
       int headerSize = message.getHeadersAndPropertiesEncodeSize();
       if (headerSize >= connection.getMinLargeMessageSize()) {
          throw BUNDLE.headerTooBig();
@@ -397,9 +410,9 @@ public class StompSession implements SessionCallback {
 
       largeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
 
-      session.send(largeMessage, direct);
-
-      largeMessage = null;
+      if (tx != null) {
+         tx.addSend(largeMessage);
+      }
+      session.send(largeMessage, false);
    }
-
 }

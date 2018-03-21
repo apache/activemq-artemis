@@ -703,10 +703,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorCleaningStompConn(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222070, value = "Stomp Transactional acknowledgement is not supported", format = Message.Format.MESSAGE_FORMAT)
-   void stompTXAckNorSupported();
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222071, value = "Interrupted while waiting for stomp heartbeat to die", format = Message.Format.MESSAGE_FORMAT)
    void errorOnStompHeartBeat(@Cause InterruptedException e);
 
@@ -1689,8 +1685,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224030, value = "Could not cancel reference {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorCancellingRefOnBridge(@Cause Exception e, MessageReference ref2);
 
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224031, value = "-------------------------------Stomp begin tx: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 224031, value = "Stomp begin tx: {0}", format = Message.Format.MESSAGE_FORMAT)
    void stompBeginTX(String txID);
 
    @LogMessage(level = Logger.Level.ERROR)

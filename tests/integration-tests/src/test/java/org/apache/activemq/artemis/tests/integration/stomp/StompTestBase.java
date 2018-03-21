@@ -249,6 +249,19 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       sendJmsMessage(msg, queue);
    }
 
+   public void sendJmsMessage(String msg, int num) throws Exception {
+      sendJmsMessage(msg, queue, num);
+   }
+
+   public void sendJmsMessage(String msg, Destination destination, int num) throws Exception {
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage(msg);
+      for (int i = 0; i < num; i++) {
+         message.setText("Hello" + i);
+         producer.send(message);
+      }
+   }
+
    public void sendJmsMessage(String msg, Destination destination) throws Exception {
       MessageProducer producer = session.createProducer(destination);
       TextMessage message = session.createTextMessage(msg);
@@ -329,22 +342,43 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                    String subscriptionId,
                    String mid,
                    String txID) throws IOException, InterruptedException {
+      ack(conn, subscriptionId, mid, txID, false);
+   }
+
+   public static ClientStompFrame ack(StompClientConnection conn,
+                   String subscriptionId,
+                   String mid,
+                   String txID,
+                   boolean getResponse) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.ACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
                                       .addHeader(Stomp.Headers.Message.MESSAGE_ID, mid);
+      if (getResponse) {
+         frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, "response");
+      }
       if (txID != null) {
          frame.addHeader(Stomp.Headers.TRANSACTION, txID);
       }
 
-      conn.sendFrame(frame);
+      return conn.sendFrame(frame);
    }
 
-   public static void nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
+   public static ClientStompFrame nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
+      return nack(conn, subscriptionId, messageId, null, false);
+   }
+
+   public static ClientStompFrame nack(StompClientConnection conn, String subscriptionId, String messageId, String txID, boolean getResponse) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.NACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
                                       .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageId);
+      if (getResponse) {
+         frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, "response");
+      }
+      if (txID != null) {
+         frame.addHeader(Stomp.Headers.TRANSACTION, txID);
+      }
 
-      conn.sendFrame(frame);
+      return conn.sendFrame(frame);
    }
 
    public static ClientStompFrame subscribe(StompClientConnection conn,

@@ -1377,7 +1377,7 @@ public class StompV12Test extends StompTestBase {
 
       frame = conn.receiveFrame(500);
 
-      Assert.assertNull(frame);
+      Assert.assertNotNull(frame);
 
       unsubscribe(conn, getName());
 
