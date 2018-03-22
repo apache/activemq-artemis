@@ -86,7 +86,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
          public void onIOException(Throwable code, String message, SequentialFile file) {
 
          }
-      });
+      },5);
       journal.start();
    }
 
