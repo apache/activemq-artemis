@@ -290,9 +290,6 @@ public class Create extends InputAbstract {
    @Option(name = "--jdbc-network-timeout", description = "Network timeout")
    long jdbcNetworkTimeout = ActiveMQDefaultConfiguration.getDefaultJdbcNetworkTimeout();
 
-   @Option(name = "--jdbc-lock-acquisition-timeout", description = "Lock acquisition timeout")
-   long jdbcLockAcquisitionTimeout = ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
-
    @Option(name = "--jdbc-lock-renew-period", description = "Lock Renew Period")
    long jdbcLockRenewPeriod = ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis();
 
@@ -623,7 +620,6 @@ public class Create extends InputAbstract {
          filters.put("${jdbcURL}", jdbcURL);
          filters.put("${jdbcClassName}", jdbcClassName);
          filters.put("${jdbcNetworkTimeout}", "" + jdbcNetworkTimeout);
-         filters.put("${jdbcLockAcquisitionTimeout}", "" + jdbcLockAcquisitionTimeout);
          filters.put("${jdbcLockRenewPeriod}", "" + jdbcLockRenewPeriod);
          filters.put("${jdbcLockExpiration}", "" + jdbcLockExpiration);
          filters.put("${jdbc}", readTextFile(ETC_DATABASE_STORE_TXT, filters));
