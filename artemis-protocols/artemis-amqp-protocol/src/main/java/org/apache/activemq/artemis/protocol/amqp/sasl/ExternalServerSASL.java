@@ -16,36 +16,47 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import javax.security.auth.Subject;
 import java.security.Principal;
 
-public class GSSAPISASLResult implements SASLResult {
+public class ExternalServerSASL implements ServerSASL {
 
-   private final boolean success;
-   private final Subject identity = new Subject();
-   private String user;
+   public static final String NAME = "EXTERNAL";
+   private static final byte[] EMPTY = new byte[0];
+   private Principal principal;
+   private SASLResult result;
 
+   public ExternalServerSASL() {
+   }
 
-   public GSSAPISASLResult(boolean success, Principal peer) {
-      this.success = success;
-      if (success) {
-         this.identity.getPrivateCredentials().add(peer);
-         this.user = peer.getName();
+   @Override
+   public String getName() {
+      return NAME;
+   }
+
+   @Override
+   public byte[] processSASL(byte[] bytes) {
+      if (bytes != null) {
+         if (bytes.length == 0) {
+            result = new PrincipalSASLResult(true, principal);
+         } else {
+            // we don't accept any client identity
+            result = new PrincipalSASLResult(false, null);
+         }
       }
+      return EMPTY;
    }
 
    @Override
-   public String getUser() {
-      return user;
+   public SASLResult result() {
+      return result;
    }
 
    @Override
-   public Subject getSubject() {
-      return identity;
+   public void done() {
    }
 
-   @Override
-   public boolean isSuccess() {
-      return success;
+   public void setPrincipal(Principal principal) {
+      this.principal = principal;
    }
 }
+
