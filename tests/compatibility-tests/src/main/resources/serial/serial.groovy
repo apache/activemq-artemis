@@ -25,8 +25,6 @@ import org.apache.activemq.artemis.jms.client.*
 file = arg[0]
 method = arg[1]
 version = arg[2]
-System.out.println("File::" + file)
-
 
 if (method.equals("write")) {
     cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false");

@@ -23,17 +23,13 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.zip.Inflater;
 
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -47,7 +43,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -142,38 +137,7 @@ public class StompSession implements SessionCallback {
          if (subscription == null)
             return 0;
          StompFrame frame;
-         ActiveMQBuffer buffer;
-
-         if (coreMessage.isLargeMessage()) {
-            LargeBodyEncoder encoder = coreMessage.getBodyEncoder();
-            encoder.open();
-            int bodySize = (int) encoder.getLargeBodySize();
-
-            buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
-
-            encoder.encode(buffer, bodySize);
-            encoder.close();
-         } else {
-            buffer = coreMessage.getReadOnlyBodyBuffer();
-         }
-
-         if (Boolean.TRUE.equals(serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
-            ActiveMQBuffer qbuff = buffer;
-            int bytesToRead = qbuff.readerIndex();
-            Inflater inflater = new Inflater();
-            inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
-
-            //get the real size of large message
-            long sizeBody = newServerMessage.getLongProperty(Message.HDR_LARGE_BODY_SIZE);
-
-            byte[] data = new byte[(int) sizeBody];
-            inflater.inflate(data);
-            inflater.end();
-            qbuff.resetReaderIndex();
-            qbuff.resetWriterIndex();
-            qbuff.writeBytes(data);
-            buffer = qbuff;
-         }
+         ActiveMQBuffer buffer = coreMessage.getDataBuffer();
 
          frame = connection.createStompMessage(newServerMessage, buffer, subscription, deliveryCount);
 

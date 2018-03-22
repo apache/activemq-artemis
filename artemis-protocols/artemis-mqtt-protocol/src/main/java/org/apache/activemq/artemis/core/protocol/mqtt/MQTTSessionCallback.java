@@ -64,7 +64,6 @@ public class MQTTSessionCallback implements SessionCallback {
                                            byte[] body,
                                            boolean continues,
                                            boolean requiresResponse) {
-      log.warn("Sending LARGE MESSAGE");
       return 1;
    }
 
