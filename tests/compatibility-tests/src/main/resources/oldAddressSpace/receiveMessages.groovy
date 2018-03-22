@@ -1,4 +1,4 @@
-package meshTest
+package oldAddressSpace
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun
@@ -45,6 +45,8 @@ System.out.println("Receiving...");
 
 MessageConsumer topicConsumer = session.createDurableSubscriber(topic, "myDurableSub")
 MessageConsumer queueConsumer = session.createConsumer(queue)
+
+subscriptionCreated.countDown();
 
 connection.start()
 for (int i = 0; i < 500; i++) {

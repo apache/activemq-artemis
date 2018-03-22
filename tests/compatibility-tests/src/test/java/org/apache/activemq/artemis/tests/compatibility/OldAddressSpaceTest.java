@@ -63,10 +63,12 @@ public class OldAddressSpaceTest extends VersionedBaseTest {
    public void testClientSenderServerAddressSettings() throws Throwable {
       evaluate(serverClassloader, "oldAddressSpace/artemisServer.groovy", serverFolder.getRoot().getAbsolutePath(), server);
 
+      CountDownLatch subscriptionCreated = new CountDownLatch(1);
       CountDownLatch receiverLatch = new CountDownLatch(1);
       CountDownLatch senderLatch = new CountDownLatch(1);
 
       setVariable(receiverClassloader, "latch", receiverLatch);
+      setVariable(receiverClassloader, "subscriptionCreated", subscriptionCreated);
 
       AtomicInteger errors = new AtomicInteger(0);
       Thread t1 = new Thread() {
@@ -75,11 +77,14 @@ public class OldAddressSpaceTest extends VersionedBaseTest {
             try {
                evaluate(receiverClassloader, "oldAddressSpace/receiveMessages.groovy", receiver);
             } catch (Throwable e) {
+               e.printStackTrace();
                errors.incrementAndGet();
             }
          }
       };
       t1.start();
+
+      Assert.assertTrue(subscriptionCreated.await(10, TimeUnit.SECONDS));
 
       setVariable(senderClassloader, "senderLatch", senderLatch);
       Thread t2 = new Thread() {
@@ -88,6 +93,7 @@ public class OldAddressSpaceTest extends VersionedBaseTest {
             try {
                evaluate(senderClassloader, "oldAddressSpace/sendMessagesAddress.groovy", sender);
             } catch (Throwable e) {
+               e.printStackTrace();
                errors.incrementAndGet();
             }
          }
@@ -96,8 +102,8 @@ public class OldAddressSpaceTest extends VersionedBaseTest {
 
 
       try {
-         Assert.assertTrue("Sender is blocking by mistake", senderLatch.await(100, TimeUnit.SECONDS));
-         Assert.assertTrue("Receiver did not receive messages", receiverLatch.await(100, TimeUnit.SECONDS));
+         Assert.assertTrue("Sender is blocking by mistake", senderLatch.await(10, TimeUnit.SECONDS));
+         Assert.assertTrue("Receiver did not receive messages", receiverLatch.await(10, TimeUnit.SECONDS));
       } finally {
 
          t1.join(TimeUnit.SECONDS.toMillis(1));
