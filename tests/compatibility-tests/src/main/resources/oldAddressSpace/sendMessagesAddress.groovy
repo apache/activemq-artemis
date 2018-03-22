@@ -38,11 +38,8 @@ if (clientType.startsWith("ARTEMIS-1") || clientType.startsWith("HORNETQ")) {
     topic = session.createTopic("jms.topic.myTopic");
 }
 
-System.out.println("Receiving ");
 MessageProducer queueProducer = session.createProducer(queue)
 MessageProducer topicProducer = session.createProducer(topic);
-
-println("sending...")
 
 queueProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
 for (int i = 0; i < 500; i++) {
@@ -56,7 +53,6 @@ for (int i = 0; i < 500; i++) {
     }
 }
 session.commit();
-println("Sent Queue Messages.")
 
 queueProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
 for (int i = 0; i < 500; i++) {
@@ -70,10 +66,8 @@ for (int i = 0; i < 500; i++) {
     }
 }
 session.commit();
-println("Sent Topic Messages.")
 
 connection.close();
-System.out.println("All Messages sent");
 senderLatch.countDown();
 
 

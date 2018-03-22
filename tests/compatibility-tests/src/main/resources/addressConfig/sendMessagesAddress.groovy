@@ -26,7 +26,6 @@ Connection connection = cf.createConnection();
 Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 Queue queue = session.createQueue("myQueue");
 
-println("sending...")
 MessageProducer producer = session.createProducer(queue);
 producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
@@ -44,7 +43,6 @@ for (int i = 0; i < 500; i++) {
 session.commit();
 
 connection.close();
-System.out.println("Message sent");
 
 
 

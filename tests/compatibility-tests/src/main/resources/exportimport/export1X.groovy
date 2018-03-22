@@ -18,7 +18,6 @@
 import org.apache.activemq.artemis.cli.commands.ActionContext
 import  org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter
 
-System.out.println("Arg::" + arg[0]);
 File pagingfile = new File(arg[0] + "/sender/data/paging")
 pagingfile.mkdirs()
 XmlDataExporter exporter = new XmlDataExporter();

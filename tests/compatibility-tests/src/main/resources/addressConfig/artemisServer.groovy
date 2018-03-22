@@ -32,7 +32,6 @@ String id = "server"
 
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
-System.out.println("folder:: " + folder);
 configuration.setBrokerInstance(new File(folder + "/" + id));
 configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616?anycastPrefix=jms.queue.&multicastPrefix=jms.topic.");
 configuration.setSecurityEnabled(false);
