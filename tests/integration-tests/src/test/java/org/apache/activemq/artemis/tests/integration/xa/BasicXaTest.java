@@ -214,6 +214,37 @@ public class BasicXaTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testRestartWithTXPrepareDeletedQueue() throws Exception {
+
+      ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
+      ClientProducer clientProducer = clientSession2.createProducer(atestq);
+      ClientMessage m1 = createTextMessage(clientSession2, "m1");
+      clientProducer.send(m1);
+
+      Xid xid = newXID();
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientSession.start();
+
+      ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
+
+      ClientMessage message = clientConsumer.receive(5000);
+      message.acknowledge();
+      clientSession.end(xid, XAResource.TMSUCCESS);
+      clientSession.prepare(xid);
+
+      clientSession.getSessionFactory().getConnection().destroy();
+
+      messagingService.destroyQueue(atestq);
+
+      messagingService.stop();
+      messagingService.start();
+
+      messagingService.waitForActivation(10, TimeUnit.SECONDS);
+
+      assertTrue(messagingService.isStarted());
+   }
+
+   @Test
    public void testXAInterleaveResourceRollbackAfterPrepare() throws Exception {
       Xid xid = newXID();
       Xid xid2 = newXID();
