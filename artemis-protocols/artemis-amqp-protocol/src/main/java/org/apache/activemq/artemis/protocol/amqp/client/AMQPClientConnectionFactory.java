@@ -59,6 +59,8 @@ public class AMQPClientConnectionFactory {
       eventHandler.ifPresent(amqpConnection::addEventHandler);
 
       ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(protocolManager, amqpConnection, connection, executor);
+      delegate.addFailureListener(connectionCallback);
+      delegate.addCloseListener(connectionCallback);
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 

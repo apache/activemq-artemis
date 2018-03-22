@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.client;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
@@ -63,7 +64,7 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       RemotingConnection connection = connectionMap.remove(connectionID);
       if (connection != null) {
          log.info("Connection " + connection.getRemoteAddress() + " destroyed");
-         connection.disconnect(false);
+         connection.fail(new ActiveMQRemoteDisconnectException());
       } else {
          log.error("Connection with id " + connectionID + " not found in connectionDestroyed");
       }
@@ -93,7 +94,7 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
 
    public void stop() {
       for (RemotingConnection connection : connectionMap.values()) {
-         connection.disconnect(false);
+         connection.destroy();
       }
    }
 
@@ -105,5 +106,9 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       } else {
          log.error("Connection with id " + connectionID + " not found in bufferReceived()!");
       }
+   }
+
+   public RemotingConnection getConnection(Object connectionId) {
+      return connectionMap.get(connectionId);
    }
 }
