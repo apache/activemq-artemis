@@ -513,7 +513,7 @@ public final class OpenWireMessageConverter {
       final Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
       final boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       final byte[] bytes;
-      final ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      final ActiveMQBuffer buffer = coreMessage.getDataBuffer();
       buffer.resetReaderIndex();
 
       switch (coreType) {
