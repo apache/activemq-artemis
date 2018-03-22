@@ -48,6 +48,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public boolean exclusive;
 
+   public boolean lastValue;
+
    public byte routingType;
 
    public PersistentQueueBindingEncoding() {
@@ -70,8 +72,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          maxConsumers +
          ", purgeOnNoConsumers=" +
          purgeOnNoConsumers +
-          ", exclusive=" +
-          exclusive +
+         ", exclusive=" +
+         exclusive +
+         ", lastValue=" +
+         lastValue +
          ", routingType=" +
          routingType +
          "]";
@@ -85,6 +89,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final int maxConsumers,
                                          final boolean purgeOnNoConsumers,
                                          final boolean exclusive,
+                                         final boolean lastValue,
                                          final byte routingType) {
       this.name = name;
       this.address = address;
@@ -94,6 +99,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.maxConsumers = maxConsumers;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
+      this.lastValue = lastValue;
       this.routingType = routingType;
    }
 
@@ -180,6 +186,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public boolean isLastValue() {
+      return lastValue;
+   }
+
+   @Override
+   public void setLastValue(boolean lastValue) {
+      this.lastValue = lastValue;
+   }
+
+   @Override
    public byte getRoutingType() {
       return routingType;
    }
@@ -225,6 +241,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          exclusive = ActiveMQDefaultConfiguration.getDefaultExclusive();
       }
+      if (buffer.readableBytes() > 0) {
+         lastValue = buffer.readBoolean();
+      } else {
+         lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
+      }
    }
 
    @Override
@@ -238,6 +259,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeBoolean(purgeOnNoConsumers);
       buffer.writeByte(routingType);
       buffer.writeBoolean(exclusive);
+      buffer.writeBoolean(lastValue);
    }
 
    @Override
@@ -248,6 +270,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_INT +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BYTE +
+         DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN;
    }
 
