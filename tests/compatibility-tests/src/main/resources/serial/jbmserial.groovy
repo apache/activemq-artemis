@@ -32,9 +32,6 @@ import org.apache.activemq.artemis.jms.client.*
 file = arg[0]
 method = arg[1]
 version = arg[2]
-System.out.println("File::" + file);
-
-
 
 // Get the factory for the "river" marshalling protocol
 final MarshallerFactory factory = Marshalling.getProvidedMarshallerFactory("river");

@@ -31,11 +31,8 @@ String type = arg[2];
 String producer = arg[3];
 String consumer = arg[4];
 
-println("type = " + type);
-
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
-System.out.println("folder:: " + folder);
 configuration.setBrokerInstance(new File(folder + "/" + id));
 configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616");
 configuration.setSecurityEnabled(false);
