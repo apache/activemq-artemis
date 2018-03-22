@@ -17,27 +17,30 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
-import javax.jms.JMSSecurityException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.protocol.amqp.client.AMQPClientConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientConnectionManager;
@@ -47,39 +50,34 @@ import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.hadoop.minikdc.MiniKdc;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.apache.qpid.jms.sasl.GssapiMechanism;
+import org.apache.qpid.jms.sasl.ExternalMechanism;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSSaslGssapiTest extends JMSClientTestSupport {
+public class JMSSaslExternalTest extends ActiveMQTestBase {
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
       if (path == null) {
-         URL resource = JMSSaslGssapiTest.class.getClassLoader().getResource("login.config");
+         URL resource = JMSSaslExternalTest.class.getClassLoader().getResource("login.config");
          if (resource != null) {
             path = resource.getFile();
             System.setProperty("java.security.auth.login.config", path);
          }
       }
    }
-   MiniKdc kdc = null;
+
+   private ActiveMQServer server;
    private final boolean debug = false;
 
    @Before
-   public void setUpKerberos() throws Exception {
-      kdc = new MiniKdc(MiniKdc.createConf(), temporaryFolder.newFolder("kdc"));
-      kdc.start();
-
-      // hard coded match, default_keytab_name in minikdc-krb5.conf template
-      File userKeyTab = new File("target/test.krb5.keytab");
-      kdc.createPrincipal(userKeyTab, "client", "amqp/localhost");
+   public void setUpDebug() throws Exception {
 
       if (debug) {
          for (java.util.logging.Logger logger : new java.util.logging.Logger[] {java.util.logging.Logger.getLogger("javax.security.sasl"), java.util.logging.Logger.getLogger("org.apache.qpid.proton")}) {
@@ -92,71 +90,60 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @After
-   public void stopKerberos() throws Exception {
-      if (kdc != null) {
-         kdc.stop();
-      }
-   }
+   @Before
+   public void startServer() throws Exception {
+      ConfigurationImpl configuration = createBasicConfig(0).setJMXManagementEnabled(false);
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
+      server = addServer(ActiveMQServers.newActiveMQServer(configuration.setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
-   @Override
-   protected boolean isSecurityEnabled() {
-      return true;
-   }
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "keystore1.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "changeit");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "changeit");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
-   @Override
-   protected void configureBrokerSecurity(ActiveMQServer server) {
-      server.getConfiguration().setSecurityEnabled(isSecurityEnabled());
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.setConfigurationName("Krb5Plus");
-      securityManager.setConfiguration(null);
+      Map<String, Object> extraParams = new HashMap<>();
+      extraParams.put("saslMechanisms", "EXTERNAL");
 
-      final String roleName = "ALLOW_ALL";
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getCanonicalName(), params, "netty", extraParams));
+
+      // role mapping via CertLogin - TextFileCertificateLoginModule
+      final String roleName = "widgets";
       Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
-      server.getSecurityRepository().addMatch(getQueueName().toString(), roles);
+      server.getSecurityRepository().addMatch("TEST", roles);
 
+      server.start();
    }
 
-   @Override
-   protected String getJmsConnectionURIOptions() {
-      return "amqp.saslMechanisms=GSSAPI";
-   }
-
-   @Override
-   protected URI getBrokerQpidJMSConnectionURI() {
-
-      try {
-         int port = AMQP_PORT;
-
-         // match the sasl.service <the host name>
-         String uri = "amqp://localhost:" + port;
-
-         if (!getJmsConnectionURIOptions().isEmpty()) {
-            uri = uri + "?" + getJmsConnectionURIOptions();
-         }
-
-         return new URI(uri);
-      } catch (Exception e) {
-         throw new RuntimeException();
-      }
-   }
-
-   @Override
-   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
-      params.put("saslMechanisms", "GSSAPI");
-      params.put("saslLoginConfigScope", "amqp-sasl-gssapi");
+   @After
+   public void stopServer() throws Exception {
+      server.stop();
    }
 
    @Test(timeout = 600000)
    public void testConnection() throws Exception {
-      Connection connection = createConnection("client", null);
+
+      final String keystore = this.getClass().getClassLoader().getResource("client_not_revoked.jks").getFile();
+      final String truststore = this.getClass().getClassLoader().getResource("truststore.jks").getFile();
+
+      String connOptions = "?amqp.saslMechanisms=EXTERNAL" + "&" +
+         "transport.trustStoreLocation=" + truststore + "&" +
+         "transport.trustStorePassword=changeit" + "&" +
+         "transport.keyStoreLocation=" + keystore + "&" +
+         "transport.keyStorePassword=changeit" + "&" +
+         "transport.verifyHost=false";
+
+      JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqps://localhost:" + 61616 + connOptions));
+      Connection connection = factory.createConnection("client", null);
       connection.start();
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         javax.jms.Queue queue = session.createQueue(getQueueName());
+         javax.jms.Queue queue = session.createQueue("TEST");
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
 
@@ -172,62 +159,18 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 600000)
-   public void testSaslPlainConnectionDenied() throws Exception {
-
-      JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT + "?amqp.saslMechanisms=PLAIN"));
-      try {
-         factory.createConnection("plain", "secret");
-         fail("Expect sasl failure");
-      } catch (JMSSecurityException expected) {
-         assertTrue(expected.getMessage().contains("SASL"));
-      }
-   }
-
    @Test
-   public void testOutboundWithSlowMech() throws Exception {
+   public void testOutbound() throws Exception {
+
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
-      config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT));
-      final ClientSASLFactory clientSASLFactory = new ClientSASLFactory() {
-         @Override
-         public ClientSASL chooseMechanism(String[] availableMechanims) {
-            GssapiMechanism gssapiMechanism = new GssapiMechanism();
-            return new ClientSASL() {
-               @Override
-               public String getName() {
-                  return gssapiMechanism.getName();
-               }
+      config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(61616));
+      config.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client_not_revoked.jks");
+      config.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "changeit");
+      config.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "truststore.jks");
+      config.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "changeit");
+      config.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      config.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
 
-               @Override
-               public byte[] getInitialResponse() {
-                  gssapiMechanism.setUsername("client");
-                  gssapiMechanism.setServerName("localhost");
-                  try {
-                     return gssapiMechanism.getInitialResponse();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
-                  return new byte[0];
-               }
-
-               @Override
-               public byte[] getResponse(byte[] challenge) {
-                  try {
-                     // simulate a slow client
-                     TimeUnit.SECONDS.sleep(4);
-                  } catch (InterruptedException e) {
-                     e.printStackTrace();
-                  }
-                  try {
-                     return gssapiMechanism.getChallengeResponse(challenge);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
-                  return new byte[0];
-               }
-            };
-         }
-      };
 
       final AtomicBoolean connectionOpened = new AtomicBoolean();
       final AtomicBoolean authFailed = new AtomicBoolean();
@@ -243,6 +186,30 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
             authFailed.set(true);
          }
       };
+
+      final ClientSASLFactory clientSASLFactory = new ClientSASLFactory() {
+         @Override
+         public ClientSASL chooseMechanism(String[] availableMechanims) {
+            ExternalMechanism externalMechanism = new ExternalMechanism();
+            return new ClientSASL() {
+               @Override
+               public String getName() {
+                  return externalMechanism.getName();
+               }
+
+               @Override
+               public byte[] getInitialResponse() {
+                  return externalMechanism.getInitialResponse();
+               }
+
+               @Override
+               public byte[] getResponse(byte[] challenge) {
+                  return new byte[0];
+               }
+            };
+         }
+      };
+
 
       ProtonClientConnectionManager lifeCycleListener = new ProtonClientConnectionManager(new AMQPClientConnectionFactory(server, "myid", Collections.singletonMap(Symbol.getSymbol("myprop"), "propvalue"), 5000), Optional.of(eventHandler), clientSASLFactory);
       ProtonClientProtocolManager protocolManager = new ProtonClientProtocolManager(new ProtonProtocolManagerFactory(), server);
@@ -261,5 +228,8 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       } finally {
          lifeCycleListener.stop();
       }
+
+
    }
+
 }
