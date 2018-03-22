@@ -150,11 +150,14 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
    public interface Callback {
 
-      void tick(FileStore store, double usage);
+      default void tick(FileStore store, double usage) {
+      }
 
-      void over(FileStore store, double usage);
+      default void over(FileStore store, double usage) {
+      }
 
-      void under(FileStore store, double usage);
+      default void under(FileStore store, double usage) {
+      }
    }
 
 }
