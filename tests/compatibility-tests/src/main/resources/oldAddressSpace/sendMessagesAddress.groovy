@@ -1,4 +1,4 @@
-package meshTest
+package oldAddressSpace
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
 
