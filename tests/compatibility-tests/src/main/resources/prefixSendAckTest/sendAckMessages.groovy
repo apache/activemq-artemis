@@ -39,8 +39,6 @@ if (clientType.equals(GroovyRun.SNAPSHOT) || clientType.equals(GroovyRun.TWO_FOU
 
 String textBody = "a rapadura e doce mas nao e mole nao";
 
-println("serverType " + serverType);
-
 if (clientType.startsWith("ARTEMIS")) {
     // Can't depend directly on artemis, otherwise it wouldn't compile in hornetq
     GroovyRun.evaluate("clients/artemisClient.groovy", "serverArg", serverType);
@@ -78,14 +76,10 @@ if (operation.equals("sendAckMessages")) {
 
     GroovyRun.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-    System.out.println("Sending messages");
     connection.close();
-    System.out.println("Message sent");
 } else if (operation.equals("receiveMessages")) {
     MessageConsumer consumer = session.createConsumer(queue);
     connection.start();
-
-    System.out.println("Receiving messages");
 
     for (int i = 0; i < 10; i++) {
         TextMessage message = consumer.receive(1000);
@@ -95,7 +89,6 @@ if (operation.equals("sendAckMessages")) {
 
     GroovyRun.assertNull(consumer.receiveNoWait());
     connection.close();
-    System.out.println("Message received");
 } else {
     throw new RuntimeException("Invalid operation " + operation);
 }

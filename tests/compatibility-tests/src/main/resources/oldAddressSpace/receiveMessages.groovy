@@ -41,8 +41,6 @@ if (clientType.startsWith("ARTEMIS-1") || clientType.startsWith("HORNETQ")) {
     topic = session.createTopic("jms.topic.myTopic");
 }
 
-System.out.println("Receiving...");
-
 MessageConsumer topicConsumer = session.createDurableSubscriber(topic, "myDurableSub")
 MessageConsumer queueConsumer = session.createConsumer(queue)
 
@@ -57,7 +55,6 @@ for (int i = 0; i < 500; i++) {
     }
 }
 session.commit();
-System.out.println("Consumed all messages from Queue");
 
 for (int i = 0; i < 500; i++) {
     BytesMessage bytesMessage = (BytesMessage) topicConsumer.receive(5000);
@@ -67,7 +64,6 @@ for (int i = 0; i < 500; i++) {
     }
 }
 session.commit();
-System.out.println("Consumed all messages from Topic");
 
 // Defined on AddressConfigTest.java at the test with setVariable
 
