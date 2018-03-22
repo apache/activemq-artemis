@@ -1942,13 +1942,6 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-lock-acquisition-timeout" type="xsd:int" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The max allowed time in milliseconds while trying to acquire a JDBC lock.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
          <xsd:element name="jdbc-lock-renew-period" type="xsd:int" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
