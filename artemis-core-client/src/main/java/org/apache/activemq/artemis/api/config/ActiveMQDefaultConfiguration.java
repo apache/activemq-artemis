@@ -447,7 +447,7 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final long DEFAULT_JDBC_LOCK_EXPIRATION_MILLIS = TimeUnit.SECONDS.toMillis(20);
 
-   private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(60);
+   private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = -1;
 
    // Default JMS Bingings table name, used with Database storage type
    private static final String DEFAULT_JMS_BINDINGS_TABLE_NAME = "JMS_BINDINGS";
