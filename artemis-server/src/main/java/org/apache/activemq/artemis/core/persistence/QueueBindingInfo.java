@@ -58,6 +58,10 @@ public interface QueueBindingInfo {
 
    void setExclusive(boolean exclusive);
 
+   boolean isLastValue();
+
+   void setLastValue(boolean lastValue);
+
    byte getRoutingType();
 
    void setRoutingType(byte routingType);
