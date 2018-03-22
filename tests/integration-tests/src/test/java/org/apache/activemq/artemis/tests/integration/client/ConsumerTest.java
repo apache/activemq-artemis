@@ -421,7 +421,10 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    private ConnectionFactory createFactory(int protocol) {
       switch (protocol) {
-         case 1: return new ActiveMQConnectionFactory();// core protocol
+         case 1: ActiveMQConnectionFactory coreCF = new ActiveMQConnectionFactory();// core protocol
+            coreCF.setCompressLargeMessage(true);
+            coreCF.setMinLargeMessageSize(10 * 1024);
+            return coreCF;
          case 2: return new JmsConnectionFactory("amqp://localhost:61616"); // amqp
          case 3: return new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
          default: return null;
@@ -446,7 +449,15 @@ public class ConsumerTest extends ActiveMQTestBase {
          TextMessage msg = session.createTextMessage("hello");
          msg.setIntProperty("mycount", 0);
          producer.send(msg);
-         connection.close();
+
+         StringBuffer bufferLarge = new StringBuffer();
+         while (bufferLarge.length() < 100 * 1024) {
+            bufferLarge.append("          ");
+         }
+
+         msg = session.createTextMessage(bufferLarge.toString());
+         msg.setIntProperty("mycount", 1);
+         producer.send(msg);
 
          connection = factoryConsume.createConnection();
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -460,6 +471,11 @@ public class ConsumerTest extends ActiveMQTestBase {
          Assert.assertNotNull(message);
          Assert.assertEquals(0, message.getIntProperty("mycount"));
          Assert.assertEquals("hello", message.getText());
+
+         message = (TextMessage) consumer.receive(1000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals(1, message.getIntProperty("mycount"));
+         Assert.assertEquals(bufferLarge.toString(), message.getText());
 
          Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
          Assert.assertEquals(0, server.getPagingManager().getGlobalSize());

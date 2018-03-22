@@ -269,7 +269,7 @@ public class MQTTPublishManager {
       switch (message.getType()) {
          case Message.TEXT_TYPE:
             try {
-               SimpleString text = message.getReadOnlyBodyBuffer().readNullableSimpleString();
+               SimpleString text = message.getDataBuffer().readNullableSimpleString();
                byte[] stringPayload = text.toString().getBytes("UTF-8");
                payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
                payload.writeBytes(stringPayload);
@@ -278,7 +278,7 @@ public class MQTTPublishManager {
                log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
             }
          default:
-            ActiveMQBuffer bodyBuffer = message.getReadOnlyBodyBuffer();
+            ActiveMQBuffer bodyBuffer = message.getDataBuffer();
             payload = ByteBufAllocator.DEFAULT.buffer(bodyBuffer.writerIndex());
             payload.writeBytes(bodyBuffer.byteBuf());
             break;

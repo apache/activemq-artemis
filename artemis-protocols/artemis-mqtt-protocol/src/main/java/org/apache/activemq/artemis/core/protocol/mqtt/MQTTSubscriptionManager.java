@@ -154,7 +154,7 @@ public class MQTTSubscriptionManager {
     */
    private void createConsumerForSubscriptionQueue(Queue queue, String topic, int qos) throws Exception {
       long cid = session.getServer().getStorageManager().generateID();
-      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), null, false, true, -1);
+      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), null, false, false, -1);
       consumer.setStarted(true);
 
       consumers.put(topic, consumer);

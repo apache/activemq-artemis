@@ -21,8 +21,11 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -38,6 +41,7 @@ import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -211,6 +215,67 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       checkEncode();
       internalWritableBuffer();
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
+   }
+
+   /**
+    * This will return the proper buffer to represent the data of the Message. If compressed it will decompress.
+    * If large, it will read from the file or streaming.
+    * @return
+    * @throws ActiveMQException
+    */
+   @Override
+   public ActiveMQBuffer getDataBuffer() {
+
+      ActiveMQBuffer buffer;
+
+      try {
+         if (isLargeMessage()) {
+            buffer = getLargeMessageBuffer();
+         } else {
+            buffer = getReadOnlyBodyBuffer();
+         }
+
+         if (Boolean.TRUE.equals(getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
+            buffer = inflate(buffer);
+         }
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         return getReadOnlyBodyBuffer();
+      }
+
+      return buffer;
+   }
+
+   private ActiveMQBuffer getLargeMessageBuffer() throws ActiveMQException {
+      ActiveMQBuffer buffer;
+      LargeBodyEncoder encoder = getBodyEncoder();
+      encoder.open();
+      int bodySize = (int) encoder.getLargeBodySize();
+
+      buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
+
+      encoder.encode(buffer, bodySize);
+      encoder.close();
+      return buffer;
+   }
+
+   private ActiveMQBuffer inflate(ActiveMQBuffer buffer) throws DataFormatException {
+      int bytesToRead = buffer.readableBytes();
+      Inflater inflater = new Inflater();
+      inflater.setInput(ByteUtil.getActiveArray(buffer.readBytes(bytesToRead).toByteBuffer()));
+
+      //get the real size of large message
+      long sizeBody = getLongProperty(Message.HDR_LARGE_BODY_SIZE);
+
+      byte[] data = new byte[(int) sizeBody];
+      inflater.inflate(data);
+      inflater.end();
+      ActiveMQBuffer qbuff = ActiveMQBuffers.wrappedBuffer(data);
+      qbuff.resetReaderIndex();
+      qbuff.resetWriterIndex();
+      qbuff.writeBytes(data);
+      buffer = qbuff;
+      return buffer;
    }
 
    @Override
