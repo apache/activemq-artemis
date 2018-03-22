@@ -304,15 +304,14 @@ public class PostOfficeJournalLoader implements JournalLoader {
       Queue queue = queues.get(queueID);
 
       if (queue == null) {
-         throw new IllegalStateException("Cannot find queue with id " + queueID);
-      }
-
-      MessageReference removed = queue.removeReferenceWithID(messageID);
-
-      if (removed == null) {
-         ActiveMQServerLogger.LOGGER.journalErrorRemovingRef(messageID);
+         ActiveMQServerLogger.LOGGER.journalMessageAckMissingQueueInPreparedTX(queueID);
       } else {
-         referencesToAck.add(removed);
+         MessageReference removed = queue.removeReferenceWithID(messageID);
+         if (removed == null) {
+            ActiveMQServerLogger.LOGGER.journalErrorRemovingRef(messageID);
+         } else {
+            referencesToAck.add(removed);
+         }
       }
    }
 
