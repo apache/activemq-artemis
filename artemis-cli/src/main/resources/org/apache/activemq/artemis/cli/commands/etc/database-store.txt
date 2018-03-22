@@ -10,7 +10,6 @@
             <bindings-table-name>${jdbcBindings}</bindings-table-name>
             <large-message-table-name>${jdbcLargeMessages}</large-message-table-name>
             <page-store-table-name>${jdbcPageStore}</page-store-table-name>
-            <jdbc-lock-acquisition-timeout>${jdbcLockAcquisitionTimeout}</jdbc-lock-acquisition-timeout>
             <jdbc-lock-expiration>${jdbcLockExpiration}</jdbc-lock-expiration>
             <jdbc-lock-renew-period>${jdbcLockRenewPeriod}</jdbc-lock-renew-period>
             <jdbc-network-timeout>${jdbcNetworkTimeout}</jdbc-network-timeout>
