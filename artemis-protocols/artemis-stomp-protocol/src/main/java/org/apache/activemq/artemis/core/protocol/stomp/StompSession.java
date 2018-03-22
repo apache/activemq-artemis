@@ -132,7 +132,7 @@ public class StompSession implements SessionCallback {
                           final ServerConsumer consumer,
                           int deliveryCount) {
 
-      ICoreMessage  coreMessage = serverMessage.toCore();
+      ICoreMessage coreMessage = serverMessage.toCore();
 
       LargeServerMessageImpl largeMessage = null;
       ICoreMessage newServerMessage = serverMessage.toCore();
@@ -154,12 +154,16 @@ public class StompSession implements SessionCallback {
             encoder.encode(buffer, bodySize);
             encoder.close();
          } else {
-            buffer = coreMessage.getReadOnlyBodyBuffer();
+            if (Boolean.TRUE.equals(serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
+               buffer = coreMessage.getBodyBuffer();
+            } else {
+               buffer = coreMessage.getReadOnlyBodyBuffer();
+            }
          }
 
          if (Boolean.TRUE.equals(serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
             ActiveMQBuffer qbuff = buffer;
-            int bytesToRead = qbuff.readerIndex();
+            int bytesToRead = qbuff.readableBytes();
             Inflater inflater = new Inflater();
             inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
 
