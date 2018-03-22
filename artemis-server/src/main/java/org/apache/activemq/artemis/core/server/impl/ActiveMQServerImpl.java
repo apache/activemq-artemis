@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
@@ -438,11 +439,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (!configuration.isPersistenceEnabled()) {
          manager = new InVMNodeManager(replicatingBackup);
       } else if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
-         if (replicatingBackup) {
-            throw new IllegalArgumentException("replicatingBackup is not supported yet while using JDBC persistence");
+         final HAPolicyConfiguration.TYPE haType = configuration.getHAPolicyConfiguration() == null ? null : configuration.getHAPolicyConfiguration().getType();
+         if (haType == HAPolicyConfiguration.TYPE.SHARED_STORE_MASTER || haType == HAPolicyConfiguration.TYPE.SHARED_STORE_SLAVE) {
+            if (replicatingBackup) {
+               throw new IllegalArgumentException("replicatingBackup is not supported yet while using JDBC persistence");
+            }
+            final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
+            manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory, shutdownOnCriticalIO);
+         } else if (haType == null || haType == HAPolicyConfiguration.TYPE.LIVE_ONLY) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Detected no Shared Store HA options on JDBC store: will use InVMNodeManager");
+            }
+            //LIVE_ONLY should be the default HA option when HA isn't configured
+            manager = new InVMNodeManager(replicatingBackup);
+         } else {
+            throw new IllegalArgumentException("JDBC persistence allows only Shared Store HA options");
          }
-         final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
-         manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory, shutdownOnCriticalIO);
       } else {
          manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout());
       }
