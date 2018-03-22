@@ -69,29 +69,33 @@ public class StompWithLargeMessagesTest extends StompTestBase {
    public void testSendReceiveLargeMessage() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
 
-      String address = "testLargeMessageAddress";
-      server.getActiveMQServer().createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
+      try {
+         String address = "testLargeMessageAddress";
+         server.getActiveMQServer().createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
 
-      // STOMP default is UTF-8 == 1 byte per char.
-      int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
-      StringBuilder b = new StringBuilder(largeMessageStringSize);
-      for (int i = 0; i < largeMessageStringSize; i++) {
-         b.append('t');
+         // STOMP default is UTF-8 == 1 byte per char.
+         int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
+         StringBuilder b = new StringBuilder(largeMessageStringSize);
+         for (int i = 0; i < largeMessageStringSize; i++) {
+            b.append('t');
+         }
+         String payload = b.toString();
+
+         // Set up STOMP subscription
+         conn.connect(defUser, defPass);
+         subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null, address, true);
+
+         // Send Large Message
+         System.out.println("Sending Message Size: " + largeMessageStringSize);
+         send(conn, address, null, payload);
+
+         // Receive STOMP Message
+         ClientStompFrame frame = conn.receiveFrame();
+         System.out.println(frame.getBody().length());
+         assertTrue(frame.getBody().equals(payload));
+      } finally {
+         conn.disconnect();
       }
-      String payload =  b.toString();
-
-      // Set up STOMP subscription
-      conn.connect(defUser, defPass);
-      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null, address, true);
-
-      // Send Large Message
-      System.out.println("Sending Message Size: " + largeMessageStringSize);
-      send(conn, address, null, payload);
-
-      // Receive STOMP Message
-      ClientStompFrame frame = conn.receiveFrame();
-      System.out.println(frame.getBody().length());
-      assertTrue(frame.getBody().equals(payload));
    }
 
    //stomp sender -> large -> stomp receiver
