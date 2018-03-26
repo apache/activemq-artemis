@@ -543,7 +543,9 @@ public class ActiveMQMessage implements javax.jms.Message {
       if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
          return message.getDeliveryCount();
       }
-
+      if (MessageUtil.JMSXGROUPSEQUENCE.equals(name)) {
+         return message.getGroupSequence();
+      }
       try {
          return message.getIntProperty(name);
       } catch (ActiveMQPropertyConversionException e) {
@@ -555,6 +557,9 @@ public class ActiveMQMessage implements javax.jms.Message {
    public long getLongProperty(final String name) throws JMSException {
       if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
          return message.getDeliveryCount();
+      }
+      if (MessageUtil.JMSXGROUPSEQUENCE.equals(name)) {
+         return message.getGroupSequence();
       }
 
       try {
@@ -641,12 +646,18 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
       checkProperty(name);
+      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPSEQUENCE, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
+         return;
+      }
       message.putIntProperty(name, value);
    }
 
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
       checkProperty(name);
+      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPSEQUENCE, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
+         return;
+      }
       message.putLongProperty(name, value);
    }
 
@@ -678,6 +689,10 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
       if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
+         return;
+      }
+
+      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPSEQUENCE, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
          return;
       }
 
