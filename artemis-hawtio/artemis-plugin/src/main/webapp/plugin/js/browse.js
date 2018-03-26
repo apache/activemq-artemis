@@ -117,7 +117,8 @@ var ARTEMIS = (function(ARTEMIS) {
              loadTable();
           }
           if (parseInt(newVal.pageSize) && newVal !== oldVal && newVal.pageSize !== oldVal.pageSize) {
-            $scope.pagingOptions.currentPage = 1;
+             $scope.pagingOptions.currentPage = 1;
+             loadTable();
           }
        }, true);
        $scope.openMessageDialog = function (message) {
