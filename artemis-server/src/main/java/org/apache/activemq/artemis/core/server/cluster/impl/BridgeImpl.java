@@ -927,7 +927,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                scheduleRetryConnectFixedTimeout(this.retryInterval);
                return;
             } else {
-               ActiveMQServerLogger.LOGGER.errorStartingBridge(name);
+               ActiveMQServerLogger.LOGGER.errorConnectingBridgeRetry(this);
 
                scheduleRetryConnect();
             }
