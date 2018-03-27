@@ -82,7 +82,7 @@ public class JDBCUtils {
             errorMessage.append(' ');
          }
          formatSqlException(errorMessage, nextEx);
-         nextEx = exception.getNextException();
+         nextEx = nextEx.getNextException();
          level++;
       }
       while (nextEx != null);
