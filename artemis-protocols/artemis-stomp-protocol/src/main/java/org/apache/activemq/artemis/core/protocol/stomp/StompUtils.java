@@ -56,7 +56,11 @@ public class StompUtils {
 
       String groupID = headers.remove(MessageUtil.JMSXGROUPID);
       if (groupID != null) {
-         msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.toSimpleString(groupID));
+         msg.setGroupID(SimpleString.toSimpleString(groupID));
+      }
+      String groupSequence = headers.remove(MessageUtil.JMSXGROUPSEQUENCE);
+      if (groupSequence != null) {
+         msg.setGroupSequence(Integer.valueOf(groupSequence));
       }
       String contentType = headers.remove(Stomp.Headers.CONTENT_TYPE);
       if (contentType != null) {

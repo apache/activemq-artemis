@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.SimpleString.StringSimpleStringPool;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -47,10 +46,12 @@ public class OpenWireMessage extends RefCountMessage {
 
    private org.apache.activemq.command.ActiveMQMessage message;
    private WireFormat wireFormat;
+   private CoreMessageObjectPools coreMessageObjectPools;
 
-   public OpenWireMessage(org.apache.activemq.command.ActiveMQMessage message, WireFormat wireFormat) {
+   public OpenWireMessage(org.apache.activemq.command.ActiveMQMessage message, WireFormat wireFormat, CoreMessageObjectPools coreMessageObjectPools) {
       this.message = message;
       this.wireFormat = wireFormat;
+      this.coreMessageObjectPools = coreMessageObjectPools;
    }
 
    public OpenWireMessage() {
@@ -78,7 +79,7 @@ public class OpenWireMessage extends RefCountMessage {
 
    @Override
    public SimpleString getReplyTo() {
-      return SimpleString.toSimpleString(message.getReplyTo().getPhysicalName());
+      return SimpleString.toSimpleString(message.getReplyTo().getPhysicalName(), getPropertyValuesPool());
    }
 
    @Override
@@ -109,12 +110,12 @@ public class OpenWireMessage extends RefCountMessage {
 
    @Override
    public Message copy() {
-      return new OpenWireMessage((ActiveMQMessage) message.copy(), wireFormat);
+      return new OpenWireMessage((ActiveMQMessage) message.copy(), wireFormat, coreMessageObjectPools);
    }
 
    @Override
    public Message copy(long newID) {
-      OpenWireMessage copy = new OpenWireMessage((ActiveMQMessage) message.copy(), wireFormat);
+      OpenWireMessage copy = new OpenWireMessage((ActiveMQMessage) message.copy(), wireFormat, coreMessageObjectPools);
       copy.setMessageID(newID);
       return copy;
    }
@@ -181,7 +182,7 @@ public class OpenWireMessage extends RefCountMessage {
 
    @Override
    public SimpleString getAddressSimpleString() {
-      return new StringSimpleStringPool().getOrCreate(message.getDestination().getPhysicalName());
+      return SimpleString.toSimpleString(message.getDestination().getPhysicalName(), coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressStringSimpleStringPool());
    }
 
    @Override
@@ -198,6 +199,28 @@ public class OpenWireMessage extends RefCountMessage {
    @Override
    public Message setTimestamp(long timestamp) {
       message.setTimestamp(timestamp);
+      return this;
+   }
+
+   @Override
+   public SimpleString getGroupID() {
+      return SimpleString.toSimpleString(message.getGroupID(), coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool());
+   }
+
+   @Override
+   public Message setGroupID(SimpleString simpleString) {
+      message.setGroupID(simpleString.toString());
+      return this;
+   }
+
+   @Override
+   public Integer getGroupSequence() {
+      return message.getGroupSequence();
+   }
+
+   @Override
+   public Message setGroupSequence(Integer integer) {
+      message.setGroupSequence(integer == null ? 0 : integer);
       return this;
    }
 
@@ -505,7 +528,7 @@ public class OpenWireMessage extends RefCountMessage {
    @Override
    public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException {
       try {
-         return SimpleString.toSimpleString(message.getStringProperty(key));
+         return SimpleString.toSimpleString(message.getStringProperty(key), getPropertyKeysPool());
       } catch (JMSException e) {
          throw new ActiveMQPropertyConversionException(e.getMessage());
       }
@@ -582,7 +605,7 @@ public class OpenWireMessage extends RefCountMessage {
 
    @Override
    public SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException {
-      return SimpleString.toSimpleString(getStringProperty(key));
+      return SimpleString.toSimpleString(getStringProperty(key), getPropertyKeysPool());
    }
 
    @Override
@@ -611,7 +634,7 @@ public class OpenWireMessage extends RefCountMessage {
          Set<SimpleString> simpleStrings = new HashSet<>();
          Enumeration propertyNames = message.getPropertyNames();
          while (propertyNames.hasMoreElements()) {
-            simpleStrings.add(SimpleString.toSimpleString((String) propertyNames.nextElement()));
+            simpleStrings.add(SimpleString.toSimpleString((String) propertyNames.nextElement(), getPropertyKeysPool()));
          }
          return simpleStrings;
       } catch (JMSException e) {
@@ -641,5 +664,13 @@ public class OpenWireMessage extends RefCountMessage {
    @Override
    public long getPersistentSize() throws ActiveMQException {
       return getEncodeSize();
+   }
+
+   private SimpleString.StringSimpleStringPool getPropertyKeysPool() {
+      return coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesStringSimpleStringPools().getPropertyKeysPool();
+   }
+
+   private SimpleString.StringSimpleStringPool getPropertyValuesPool() {
+      return coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesStringSimpleStringPools().getPropertyValuesPool();
    }
 }

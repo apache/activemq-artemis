@@ -319,6 +319,39 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
+   public org.apache.activemq.artemis.api.core.Message setGroupID(SimpleString groupId) {
+      Properties properties = getProperties();
+      if (properties != null) {
+         properties.setGroupId(groupId.toString());
+      }
+      return this;
+   }
+
+   @Override
+   public Integer getGroupSequence() {
+      parseHeaders();
+
+      if (_properties != null && _properties.getGroupSequence() != null) {
+         return _properties.getGroupSequence().intValue();
+      } else {
+         return 0;
+      }
+   }
+
+   @Override
+   public org.apache.activemq.artemis.api.core.Message setGroupSequence(Integer groupSequence) {
+      Properties properties = getProperties();
+      if (properties != null) {
+         if (groupSequence != null) {
+            properties.setGroupSequence(UnsignedInteger.valueOf(groupSequence));
+         } else {
+            properties.setGroupSequence(null);
+         }
+      }
+      return this;
+   }
+
+   @Override
    public Long getScheduledDeliveryTime() {
 
       if (scheduledTime < 0) {
@@ -992,6 +1025,8 @@ public class AMQPMessage extends RefCountMessage {
          return getConnectionID();
       } else if (key.equals(MessageUtil.JMSXGROUPID)) {
          return getGroupID();
+      } else if (key.equals(MessageUtil.JMSXGROUPSEQUENCE)) {
+         return getGroupSequence();
       } else if (key.equals(MessageUtil.JMSXUSERID)) {
          return getAMQPUserID();
       } else if (key.equals(MessageUtil.CORRELATIONID_HEADER_NAME.toString())) {
