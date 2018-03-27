@@ -18,19 +18,25 @@ package org.apache.activemq.artemis.protocol.amqp.util;
 
 import java.nio.ByteBuffer;
 
-import io.netty.buffer.ByteBuf;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-/**
- * This is to use NettyBuffer within Proton
- */
+import io.netty.buffer.ByteBuf;
 
+/**
+ * {@link WritableBuffer} implementation that wraps a Netty {@link ByteBuf} to
+ * allow use of Netty buffers to be used when encoding AMQP messages.
+ */
 public class NettyWritable implements WritableBuffer {
 
    final ByteBuf nettyBuffer;
 
    public NettyWritable(ByteBuf nettyBuffer) {
       this.nettyBuffer = nettyBuffer;
+   }
+
+   public ByteBuf getByteBuf() {
+      return nettyBuffer;
    }
 
    @Override
@@ -75,7 +81,7 @@ public class NettyWritable implements WritableBuffer {
 
    @Override
    public int remaining() {
-      return nettyBuffer.capacity() - nettyBuffer.writerIndex();
+      return nettyBuffer.maxCapacity() - nettyBuffer.writerIndex();
    }
 
    @Override
@@ -93,8 +99,23 @@ public class NettyWritable implements WritableBuffer {
       nettyBuffer.writeBytes(payload);
    }
 
+   public void put(ByteBuf payload) {
+      nettyBuffer.writeBytes(payload);
+   }
+
    @Override
    public int limit() {
       return nettyBuffer.capacity();
+   }
+
+   @Override
+   public void put(ReadableBuffer buffer) {
+      if (buffer.hasArray()) {
+         nettyBuffer.writeBytes(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+      } else {
+         while (buffer.hasRemaining()) {
+            nettyBuffer.writeByte(buffer.get());
+         }
+      }
    }
 }

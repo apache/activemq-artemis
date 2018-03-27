@@ -71,6 +71,7 @@ import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
@@ -441,7 +442,7 @@ public class AMQPSessionCallback implements SessionCallback {
                           final Delivery delivery,
                           SimpleString address,
                           int messageFormat,
-                          byte[] data) throws Exception {
+                          ReadableBuffer data) throws Exception {
       AMQPMessage message = new AMQPMessage(messageFormat, data, coreMessageObjectPools);
       if (address != null) {
          message.setAddress(address);
