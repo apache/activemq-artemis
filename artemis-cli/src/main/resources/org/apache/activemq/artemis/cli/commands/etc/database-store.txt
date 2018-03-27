@@ -12,6 +12,7 @@
             <page-store-table-name>${jdbcPageStore}</page-store-table-name>
             <jdbc-lock-expiration>${jdbcLockExpiration}</jdbc-lock-expiration>
             <jdbc-lock-renew-period>${jdbcLockRenewPeriod}</jdbc-lock-renew-period>
+            <jdbc-max-allowed-millis-from-db-time>${jdbcMaxAllowedMillisFromDbTime}</jdbc-max-allowed-millis-from-db-time>
             <jdbc-network-timeout>${jdbcNetworkTimeout}</jdbc-network-timeout>
          </database-store>
       </store>
