@@ -18,6 +18,8 @@
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,12 +35,30 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
 
+@RunWith(Parameterized.class)
 public class JdbcLeaseLockTest extends ActiveMQTestBase {
 
    private JdbcSharedStateManager jdbcSharedStateManager;
    private DatabaseStorageConfiguration dbConf;
    private SQLProvider sqlProvider;
+
+   @Parameterized.Parameters(name = "create_tables_prior_test")
+   public static List<Object[]> data() {
+      return Arrays.asList(new Object[][] {
+         {true, null},
+         {false, null}
+      });
+   }
+
+   @Parameter(0)
+   public boolean withExistingTable;
+   @Parameter(1)
+   public Object result;
+
 
    private LeaseLock lock() {
       return lock(dbConf.getJdbcLockExpirationMillis());
@@ -59,12 +79,23 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
    }
 
    @Before
-   public void createLockTable() {
+   public void createLockTable() throws Exception {
       dbConf = createDefaultDatabaseStorageConfiguration();
       sqlProvider = JDBCUtils.getSQLProvider(
          dbConf.getJdbcDriverClassName(),
          dbConf.getNodeManagerStoreTableName(),
          SQLProvider.DatabaseStoreType.NODE_MANAGER);
+
+      if (withExistingTable) {
+         TestJDBCDriver testDriver = TestJDBCDriver
+            .usingConnectionUrl(
+                dbConf.getJdbcConnectionUrl(),
+                dbConf.getJdbcDriverClassName(),
+                sqlProvider);
+         testDriver.start();
+         testDriver.stop();
+      }
+
       jdbcSharedStateManager = JdbcSharedStateManager
          .usingConnectionUrl(
             UUID.randomUUID().toString(),
