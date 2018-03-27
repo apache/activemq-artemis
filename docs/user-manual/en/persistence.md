@@ -447,6 +447,10 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
     The time in milliseconds a JDBC lock is considered valid without keeping it alive. The default value
     is 20000 milliseconds (ie 20 seconds).
 
+-   `jdbc-max-allowed-millis-from-db-time`
+
+    The absolute time in milliseconds the system clock is allowed to be distant from the DB time, otherwise a critical error will be raised. The default value is 60000 milliseconds (ie 60 seconds).
+
 ## Configuring Apache ActiveMQ Artemis for Zero Persistence
 
 In some situations, zero persistence is sometimes required for a
