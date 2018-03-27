@@ -72,7 +72,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
                jdbcSharedStateManager.getConnection(),
                sqlProvider,
                acquireMillis,
-               0);
+               jdbcSharedStateManager.timeDifferenceMillisFromDb());
       } catch (SQLException e) {
          throw new IllegalStateException(e);
       }
@@ -100,6 +100,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
          .usingConnectionUrl(
             UUID.randomUUID().toString(),
             dbConf.getJdbcLockExpirationMillis(),
+            dbConf.getJdbcMaxAllowedMillisFromDbTime(),
             dbConf.getJdbcConnectionUrl(),
             dbConf.getJdbcDriverClassName(),
             sqlProvider);
