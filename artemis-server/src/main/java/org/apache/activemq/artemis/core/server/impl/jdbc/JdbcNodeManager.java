@@ -68,11 +68,30 @@ public final class JdbcNodeManager extends NodeManager {
             sqlProviderFactory = new PropertySQLProvider.Factory(configuration.getDataSource());
          }
          final String brokerId = java.util.UUID.randomUUID().toString();
-         return usingDataSource(brokerId, configuration.getJdbcLockExpirationMillis(), configuration.getJdbcLockRenewPeriodMillis(), configuration.getJdbcLockAcquisitionTimeoutMillis(), configuration.getDataSource(), sqlProviderFactory.create(configuration.getNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER), scheduledExecutorService, executorFactory, ioCriticalErrorListener);
+         return usingDataSource(brokerId,
+                                configuration.getJdbcLockExpirationMillis(),
+                                configuration.getJdbcLockRenewPeriodMillis(),
+                                configuration.getJdbcLockAcquisitionTimeoutMillis(),
+                                configuration.getJdbcMaxAllowedMillisFromDbTime(),
+                                configuration.getDataSource(),
+                                sqlProviderFactory.create(configuration.getNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER),
+                                scheduledExecutorService,
+                                executorFactory,
+                                ioCriticalErrorListener);
       } else {
          final SQLProvider sqlProvider = JDBCUtils.getSQLProvider(configuration.getJdbcDriverClassName(), configuration.getNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER);
          final String brokerId = java.util.UUID.randomUUID().toString();
-         return usingConnectionUrl(brokerId, configuration.getJdbcLockExpirationMillis(), configuration.getJdbcLockRenewPeriodMillis(), configuration.getJdbcLockAcquisitionTimeoutMillis(), configuration.getJdbcConnectionUrl(), configuration.getJdbcDriverClassName(), sqlProvider, scheduledExecutorService, executorFactory, ioCriticalErrorListener);
+         return usingConnectionUrl(brokerId,
+                                   configuration.getJdbcLockExpirationMillis(),
+                                   configuration.getJdbcLockRenewPeriodMillis(),
+                                   configuration.getJdbcLockAcquisitionTimeoutMillis(),
+                                   configuration.getJdbcMaxAllowedMillisFromDbTime(),
+                                   configuration.getJdbcConnectionUrl(),
+                                   configuration.getJdbcDriverClassName(),
+                                   sqlProvider,
+                                   scheduledExecutorService,
+                                   executorFactory,
+                                   ioCriticalErrorListener);
       }
    }
 
@@ -80,13 +99,14 @@ public final class JdbcNodeManager extends NodeManager {
                                           long lockExpirationMillis,
                                           long lockRenewPeriodMillis,
                                           long lockAcquisitionTimeoutMillis,
+                                          long maxAllowedMillisFromDbTime,
                                           DataSource dataSource,
                                           SQLProvider provider,
                                           ScheduledExecutorService scheduledExecutorService,
                                           ExecutorFactory executorFactory,
                                           IOCriticalErrorListener ioCriticalErrorListener) {
       return new JdbcNodeManager(
-         () -> JdbcSharedStateManager.usingDataSource(brokerId, lockExpirationMillis, dataSource, provider),
+         () -> JdbcSharedStateManager.usingDataSource(brokerId, lockExpirationMillis, maxAllowedMillisFromDbTime, dataSource, provider),
          false,
          lockRenewPeriodMillis,
          lockAcquisitionTimeoutMillis,
@@ -99,6 +119,7 @@ public final class JdbcNodeManager extends NodeManager {
                                                     long lockExpirationMillis,
                                                     long lockRenewPeriodMillis,
                                                     long lockAcquisitionTimeoutMillis,
+                                                    long maxAllowedMillisFromDbTime,
                                                     String jdbcUrl,
                                                     String driverClass,
                                                     SQLProvider provider,
@@ -106,7 +127,7 @@ public final class JdbcNodeManager extends NodeManager {
                                                     ExecutorFactory executorFactory,
                                                     IOCriticalErrorListener ioCriticalErrorListener) {
       return new JdbcNodeManager(
-         () -> JdbcSharedStateManager.usingConnectionUrl(brokerId, lockExpirationMillis, jdbcUrl, driverClass, provider),
+         () -> JdbcSharedStateManager.usingConnectionUrl(brokerId, lockExpirationMillis, maxAllowedMillisFromDbTime, jdbcUrl, driverClass, provider),
          false,
          lockRenewPeriodMillis,
          lockAcquisitionTimeoutMillis,
