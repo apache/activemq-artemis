@@ -20,6 +20,10 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstantsV2;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is a utility class to house any HornetQ client specific backwards compatibility methods.
@@ -31,16 +35,31 @@ public class BackwardsCompatibilityUtils {
    public static Pair<TransportConfiguration, TransportConfiguration> getTCPair(int clientIncrementingVersion,
                                                                                 TopologyMember member) {
       if (clientIncrementingVersion < INITIAL_ACTIVEMQ_INCREMENTING_VERSION) {
-         return new Pair<>(replaceClassName(member.getLive()), replaceClassName(member.getBackup()));
+         return new Pair<>(convertTransport(member.getLive()), convertTransport(member.getBackup()));
       }
       return new Pair<>(member.getLive(), member.getBackup());
    }
 
-   private static TransportConfiguration replaceClassName(TransportConfiguration tc) {
+   /**
+    * Replaces class name and parameter names to HornetQ values.
+    */
+   private static TransportConfiguration convertTransport(TransportConfiguration tc) {
       if (tc != null) {
          String className = tc.getFactoryClassName().replace("org.apache.activemq.artemis", "org.hornetq").replace("ActiveMQ", "HornetQ");
-         return new TransportConfiguration(className, tc.getParams(), tc.getName());
+         return new TransportConfiguration(className, convertParameters(tc.getParams()), tc.getName());
       }
       return tc;
    }
+
+   private static Map<String, Object> convertParameters(Map<String, Object> params) {
+      if (params == null) {
+         return null;
+      }
+      Map<String, Object> convertedParams = new HashMap<>(params.size());
+      for (Map.Entry<String, Object> entry: params.entrySet()) {
+         convertedParams.put(TransportConstantsV2.fromV3(entry.getKey()), entry.getValue());
+      }
+      return convertedParams;
+   }
+
 }
