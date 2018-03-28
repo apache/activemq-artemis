@@ -399,6 +399,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
             <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
             <message-table-name>MESSAGE_TABLE</message-table-name>
             <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
+            <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
             <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
          </database-store>
       </store>
@@ -427,6 +428,11 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 -   `jms-bindings-table-name`
 
     The name of the table in which JMS bindings data will be  persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+
+-   `node-manager-store-table-name`
+
+    The name of the table in which the HA Shared Store locks (ie live and backup) and HA related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+    Each Shared Store live/backup pairs must use the same table name and isn't supported to share the same table between multiple (and unrelated) live/backup pairs.
 
 -   `jdbc-driver-class-name`
 
