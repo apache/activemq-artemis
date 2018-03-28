@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -225,7 +225,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public void linkFlowControl(SimpleString address, ClientProducerCreditsImpl clientProducerCredits) {
+   public void linkFlowControl(SimpleString address, ClientProducerCredits clientProducerCredits) {
       // nothing to be done here... Flow control here is done on the core side
    }
 
