@@ -74,8 +74,11 @@ public class DBOption extends OptionalLocking {
    @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table")
    private String jdbcLargeMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
 
-   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page sotre messages table")
+   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page store messages table")
    private String jdbcPageStore = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
+
+   @Option(name = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table")
+   private String jdbcNodeManager = ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName();
 
    @Option(name = "--jdbc-connection-url", description = "The connection used for the database")
    private String jdbcURL = null;
@@ -128,6 +131,16 @@ public class DBOption extends OptionalLocking {
       return this;
    }
 
+   public String getJdbcNodeManager() throws Exception {
+      parseDBConfig();
+      return jdbcNodeManager;
+   }
+
+   public DBOption setJdbcNodeManager(String jdbcNodeManager) {
+      this.jdbcNodeManager = jdbcNodeManager;
+      return this;
+   }
+
    public String getJdbcURL() throws Exception {
       parseDBConfig();
       return jdbcURL;
@@ -173,6 +186,7 @@ public class DBOption extends OptionalLocking {
             jdbcMessages = storageConfiguration.getMessageTableName();
             jdbcLargeMessages = storageConfiguration.getLargeMessageTableName();
             jdbcPageStore = storageConfiguration.getPageStoreTableName();
+            jdbcNodeManager = storageConfiguration.getNodeManagerStoreTableName();
             jdbcURL = storageConfiguration.getJdbcConnectionUrl();
             jdbcClassName = storageConfiguration.getJdbcDriverClassName();
          }
@@ -190,6 +204,7 @@ public class DBOption extends OptionalLocking {
          storageConfiguration.setMessageTableName(getJdbcMessages());
          storageConfiguration.setLargeMessageTableName(getJdbcLargeMessages());
          storageConfiguration.setPageStoreTableName(getJdbcPageStore());
+         storageConfiguration.setNodeManagerStoreTableName(getJdbcNodeManager());
          configuration.setStoreConfiguration(storageConfiguration);
       } else {
          configuration.setBindingsDirectory(getBinding());
