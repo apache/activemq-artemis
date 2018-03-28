@@ -278,8 +278,11 @@ public class Create extends InputAbstract {
    @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table")
    private String jdbcLargeMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
 
-   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page sotre messages table")
+   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page store messages table")
    private String jdbcPageStore = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
+
+   @Option(name = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table")
+   private String jdbcNodeManager = ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName();
 
    @Option(name = "--jdbc-connection-url", description = "The connection used for the database")
    private String jdbcURL = null;
@@ -620,6 +623,7 @@ public class Create extends InputAbstract {
          filters.put("${jdbcMessages}", jdbcMessages);
          filters.put("${jdbcLargeMessages}", jdbcLargeMessages);
          filters.put("${jdbcPageStore}", jdbcPageStore);
+         filters.put("${jdbcNodeManager}", jdbcNodeManager);
          filters.put("${jdbcURL}", jdbcURL);
          filters.put("${jdbcClassName}", jdbcClassName);
          filters.put("${jdbcNetworkTimeout}", "" + jdbcNetworkTimeout);
