@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
@@ -31,6 +33,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
@@ -39,7 +42,23 @@ import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
 public class HAPolicyConfigurationTest extends ActiveMQTestBase {
+
+   @Test
+   public void shouldNotUseJdbcNodeManagerWithoutHAPolicy() throws Exception {
+      Configuration configuration = createConfiguration("database-store-no-hapolicy-config.xml");
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
+      assertEquals(StoreConfiguration.StoreType.DATABASE, server.getConfiguration().getStoreConfiguration().getStoreType());
+      assertEquals(HAPolicyConfiguration.TYPE.LIVE_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
+      try {
+         server.start();
+         assertThat(server.getNodeManager(), instanceOf(InVMNodeManager.class));
+      } finally {
+         server.stop();
+      }
+   }
 
    @Test
    public void liveOnlyTest() throws Exception {

@@ -127,7 +127,7 @@ public abstract class NodeManager implements ActiveMQComponent {
       isStarted = false;
    }
 
-   public final void stopBackup() throws Exception {
+   public void stopBackup() throws Exception {
       if (replicatedBackup && getNodeId() != null) {
          setUpServerLockFile();
       }

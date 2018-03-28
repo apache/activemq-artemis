@@ -21,8 +21,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+
+import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.POSTGRESQL;
 
 class JDBCFileUtils {
 
@@ -30,7 +32,7 @@ class JDBCFileUtils {
                                                           String jdbcConnectionUrl,
                                                           SQLProvider provider) throws SQLException {
       final JDBCSequentialFileFactoryDriver dbDriver;
-      if (provider instanceof PostgresSQLProvider) {
+      if (POSTGRESQL.equals(PropertySQLProvider.Factory.identifyDialect(driverClass))) {
          dbDriver = new PostgresSequentialSequentialFileDriver();
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver();
@@ -43,7 +45,7 @@ class JDBCFileUtils {
 
    static JDBCSequentialFileFactoryDriver getDBFileDriver(DataSource dataSource, SQLProvider provider) throws SQLException {
       JDBCSequentialFileFactoryDriver dbDriver;
-      if (provider instanceof PostgresSQLProvider) {
+      if (POSTGRESQL.equals(PropertySQLProvider.Factory.investigateDialect(dataSource.getConnection()))) {
          dbDriver = new PostgresSequentialSequentialFileDriver(dataSource, provider);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(dataSource, provider);
@@ -53,7 +55,7 @@ class JDBCFileUtils {
 
    static JDBCSequentialFileFactoryDriver getDBFileDriver(Connection connection, SQLProvider provider) throws SQLException {
       JDBCSequentialFileFactoryDriver dbDriver;
-      if (provider instanceof PostgresSQLProvider) {
+      if (POSTGRESQL.equals(PropertySQLProvider.Factory.investigateDialect(connection))) {
          dbDriver = new PostgresSequentialSequentialFileDriver(connection, provider);
          dbDriver.setConnection(connection);
       } else {
