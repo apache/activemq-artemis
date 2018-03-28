@@ -14,33 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.core.client.impl;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+public interface ClientProducerFlowCallback {
+   void onCreditsFlow(boolean blocked, ClientProducerCredits producerCredits);
 
-public interface ClientProducerCredits {
-
-   void acquireCredits(int credits) throws ActiveMQException;
-
-   void receiveCredits(int credits);
-
-   void receiveFailCredits(int credits);
-
-   boolean isBlocked();
-
-   void init(SessionContext sessionContext);
-
-   void reset();
-
-   void close();
-
-   void incrementRefCount();
-
-   int decrementRefCount();
-
-   void releaseOutstanding();
-
-   SimpleString getAddress();
+   void onCreditsFail(ClientProducerCredits credits);
 }
