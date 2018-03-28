@@ -1935,6 +1935,13 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="node-manager-store-table-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The table name used to hold shared store data
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
          <xsd:element name="jdbc-network-timeout" type="xsd:int" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
