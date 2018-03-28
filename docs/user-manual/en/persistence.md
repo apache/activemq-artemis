@@ -417,6 +417,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
       <message-table-name>MESSAGE_TABLE</message-table-name>
       <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
       <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
+      <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
       <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
    </database-store>
 </store>
@@ -441,6 +442,11 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 -   `page-store-table-name`
 
     The name of the table to house the page store directory information.  Note that each address will have it's own page table which will use this name appended with a unique id of up to 20 characters.
+
+-   `node-manager-store-table-name`
+
+    The name of the table in which the HA Shared Store locks (ie live and backup) and HA related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+    Each Shared Store live/backup pairs must use the same table name and isn't supported to share the same table between multiple (and unrelated) live/backup pairs.
 
 -   `jdbc-driver-class-name`
 
