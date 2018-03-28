@@ -165,6 +165,10 @@
       <directory-version>1.5.7</directory-version>
       <cdi-api.version>1.2</cdi-api.version>
       <geronimo-annotation_1.2_spec.version>1.0</geronimo-annotation_1.2_spec.version>
+
+      <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
+           This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
+      <testFailureIgnore>true</testFailureIgnore>
    </properties>
 
    <scm>
@@ -930,6 +934,7 @@
             <skipExtraTests>true</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
+            <testFailureIgnore>false</testFailureIgnore>
          </properties>
       </profile>
       <profile>
@@ -1317,7 +1322,7 @@
                <version>2.18.1</version>
                <configuration>
                   <forkMode>once</forkMode>
-                  <testFailureIgnore>true</testFailureIgnore>
+                  <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
                   <redirectTestOutputToFile>false</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
@@ -1489,6 +1494,7 @@
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <skip>${skipLicenseCheck}</skip>
                <excludes>
+                  <exclude>.travis.yml</exclude>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>etc/ide-settings/**</exclude>

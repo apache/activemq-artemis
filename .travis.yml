@@ -1,0 +1,16 @@
+sudo: false
+language: java
+install: true
+
+# clean out Artemis artifacts from the cache
+before_install: rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
+
+# use 'install' so smoke-tests will work
+# use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
+script: mvn -Pfast-tests -Pextra-tests -B install
+
+cache:
+  directories:
+  - $HOME/.m2
+  before_cache:
+  - rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
