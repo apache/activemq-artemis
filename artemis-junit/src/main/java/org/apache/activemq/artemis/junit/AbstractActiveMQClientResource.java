@@ -37,7 +37,15 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
    ServerLocator serverLocator;
    ClientSessionFactory sessionFactory;
    ClientSession session;
+   String username;
+   String password;
 
+   public AbstractActiveMQClientResource(String url, String username, String password) {
+      this(url);
+      this.username = username;
+      this.password = password;
+   }
+   
    public AbstractActiveMQClientResource(String url) {
       if (url == null) {
          throw new IllegalArgumentException(String.format("Error creating %s - url cannot be null", this.getClass().getSimpleName()));
@@ -50,6 +58,12 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       }
    }
 
+   public AbstractActiveMQClientResource(ServerLocator serverLocator, String username, String password) {
+      this(serverLocator);
+      this.username = username;
+      this.password = password;
+   }
+   
    public AbstractActiveMQClientResource(ServerLocator serverLocator) {
       if (serverLocator == null) {
          throw new IllegalArgumentException(String.format("Error creating %s - ServerLocator cannot be null", this.getClass().getSimpleName()));
