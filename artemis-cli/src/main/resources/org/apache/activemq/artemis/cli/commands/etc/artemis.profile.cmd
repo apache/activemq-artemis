@@ -18,6 +18,7 @@ rem under the License.
 
 set ARTEMIS_HOME="${artemis.home}"
 set ARTEMIS_INSTANCE="${artemis.instance}"
+set ARTEMIS_ETC_INSTANCE='${artemis.instance.etc}'
 set ARTEMIS_DATA_DIR='${artemis.instance.data}'
 
 
