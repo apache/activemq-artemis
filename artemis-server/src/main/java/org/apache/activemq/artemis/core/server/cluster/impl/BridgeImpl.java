@@ -41,6 +41,8 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerFlowCallback;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
@@ -70,7 +72,7 @@ import org.jboss.logging.Logger;
  * A Core BridgeImpl
  */
 
-public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener {
+public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener, ClientProducerFlowCallback {
    // Constants -----------------------------------------------------
 
    private static final Logger logger = Logger.getLogger(BridgeImpl.class);
@@ -118,6 +120,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    private final double retryMultiplier;
 
    private final long maxRetryInterval;
+
+   private boolean blockedOnFlowControl;
 
    /**
     * Used when there's a scheduled reconnection
@@ -251,6 +255,20 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    @Override
    public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
+   }
+
+   @Override
+   public void onCreditsFlow(boolean blocked, ClientProducerCredits producerCredits) {
+      this.blockedOnFlowControl = blocked;
+      if (!blocked) {
+         queue.deliverAsync();
+      }
+   }
+
+   @Override
+   public void onCreditsFail(ClientProducerCredits producerCredits) {
+      ActiveMQServerLogger.LOGGER.bridgeAddressFull("" + producerCredits.getAddress(), "" + this.getName());
+      disconnect();
    }
 
    @Override
@@ -541,6 +559,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       queue.deliverAsync();
    }
 
+
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (filter != null && !filter.match(ref.getMessage())) {
@@ -552,6 +571,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             if (logger.isDebugEnabled()) {
                logger.debug(this + "::Ignoring reference on bridge as it is set to inactive ref=" + ref);
             }
+            return HandleStatus.BUSY;
+         }
+
+         if (blockedOnFlowControl) {
             return HandleStatus.BUSY;
          }
 
@@ -876,6 +899,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
                // Session is pre-acknowledge
                session = (ClientSessionInternal) csf.createSession(user, password, false, true, true, true, 1);
+               session.getProducerCreditManager().setCallback(this);
                sessionConsumer = (ClientSessionInternal) csf.createSession(user, password, false, true, true, true, 1);
             }
 

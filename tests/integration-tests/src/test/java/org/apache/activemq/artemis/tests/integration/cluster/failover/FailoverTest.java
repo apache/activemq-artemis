@@ -624,8 +624,6 @@ public class FailoverTest extends FailoverTestBase {
       }
 
       simpleFailover(haPolicy instanceof ReplicaPolicy, doFailBack);
-      tearDown();
-      setUp();
    }
 
    @Test(timeout = 120000)
