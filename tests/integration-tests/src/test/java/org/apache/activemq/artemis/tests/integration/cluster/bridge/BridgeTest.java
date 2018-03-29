@@ -1187,7 +1187,7 @@ public class BridgeTest extends ActiveMQTestBase {
       ArrayList<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
 
-      BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(0).setStaticConnectors(staticConnectors);
+      BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(0).setStaticConnectors(staticConnectors).setProducerWindowSize(1);
 
       List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
