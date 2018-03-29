@@ -18,14 +18,13 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Session;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 @Command(name = "consumer", description = "It will consume messages from an instance")
 public class Consumer extends DestAbstract {
@@ -48,9 +47,8 @@ public class Consumer extends DestAbstract {
 
       System.out.println("Consumer:: filter = " + filter);
 
-      ActiveMQConnectionFactory factory = createConnectionFactory();
+      ConnectionFactory factory = createConnectionFactory();
 
-      Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.TYPE.QUEUE);
       try (Connection connection = factory.createConnection()) {
          ConsumerThread[] threadsArray = new ConsumerThread[threads];
          for (int i = 0; i < threads; i++) {
@@ -60,6 +58,7 @@ public class Consumer extends DestAbstract {
             } else {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
+            Destination dest = lookupDestination(session);
             threadsArray[i] = new ConsumerThread(session, dest, i);
 
             threadsArray[i].setVerbose(verbose).setSleep(sleep).setDurable(durable).setBatchSize(txBatchSize).setBreakOnNull(breakOnNull).setMessageCount(messageCount).setReceiveTimeOut(receiveTimeout).setFilter(filter).setBrowse(false);
@@ -81,5 +80,6 @@ public class Consumer extends DestAbstract {
          return received;
       }
    }
+
 
 }
