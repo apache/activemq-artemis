@@ -17,7 +17,11 @@
 
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import javax.jms.Destination;
+import javax.jms.Session;
+
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 public class DestAbstract extends ConnectionAbstract {
 
@@ -35,5 +39,13 @@ public class DestAbstract extends ConnectionAbstract {
 
    @Option(name = "--threads", description = "Number of Threads to be used (Default: 1)")
    int threads = 1;
+
+   protected Destination lookupDestination(Session session) throws Exception {
+      if (protocol.equals("AMQP")) {
+         return session.createQueue(destination);
+      } else {
+         return ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.TYPE.QUEUE);
+      }
+   }
 
 }
