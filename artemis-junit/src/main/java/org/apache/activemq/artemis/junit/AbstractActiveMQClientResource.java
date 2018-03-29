@@ -102,7 +102,7 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       log.info("Starting {}", this.getClass().getSimpleName());
       try {
          sessionFactory = serverLocator.createSessionFactory();
-         session = sessionFactory.createSession();
+         session = sessionFactory.createSession(username, password, false, true, true, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
       } catch (RuntimeException runtimeEx) {
          throw runtimeEx;
       } catch (Exception ex) {
