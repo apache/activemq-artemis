@@ -146,12 +146,16 @@ public class ConsumerThread extends Thread {
                consumer = session.createConsumer(destination);
             }
          }
+         int count = 0;
          while (running && received < messageCount) {
             Message msg = consumer.receive(receiveTimeOut);
             if (msg != null) {
-               System.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
                if (verbose) {
-                  System.out.println("..." + msg);
+                  System.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
+               } else {
+                  if (++count % 1000 == 0) {
+                     System.out.println("Received " + count);
+                  }
                }
                if (bytesAsText && (msg instanceof BytesMessage)) {
                   long length = ((BytesMessage) msg).getBodyLength();

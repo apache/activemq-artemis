@@ -94,6 +94,12 @@
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-json_1.0_spec</artifactId>
       </dependency>
+      <!-- artemis producer and consumer can use amqp as the protocol -->
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>qpid-jms-client</artifactId>
+         <version>${qpid.jms.version}</version>
+      </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-annotations</artifactId>
