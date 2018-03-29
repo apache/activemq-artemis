@@ -417,6 +417,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
       <message-table-name>MESSAGE_TABLE</message-table-name>
       <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
       <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
+      <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
       <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
    </database-store>
 </store>
@@ -442,6 +443,11 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
     The name of the table to house the page store directory information.  Note that each address will have it's own page table which will use this name appended with a unique id of up to 20 characters.
 
+-   `node-manager-store-table-name`
+
+    The name of the table in which the HA Shared Store locks (ie live and backup) and HA related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+    Each Shared Store live/backup pairs must use the same table name and isn't supported to share the same table between multiple (and unrelated) live/backup pairs.
+
 -   `jdbc-driver-class-name`
 
     The fully qualified class name of the desired database Driver.
@@ -460,6 +466,10 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
     The time in milliseconds a JDBC lock is considered valid without keeping it alive. The default value
     is 20000 milliseconds (ie 20 seconds).
+
+-   `jdbc-max-allowed-millis-from-db-time`
+
+    The absolute time in milliseconds the system clock is allowed to be distant from the DB time, otherwise a critical error will be raised. The default value is 60000 milliseconds (ie 60 seconds).
 
 Note that some DBMS (e.g. Oracle, 30 chars) have restrictions on the size of table names, this should be taken into consideration when configuring table names for the Artemis database store, pay particular attention to the page store table name, which can be appended with a unique ID of up to 20 characters.  (for Oracle this would mean configuring a page-store-table-name of max size of 10 chars).
 

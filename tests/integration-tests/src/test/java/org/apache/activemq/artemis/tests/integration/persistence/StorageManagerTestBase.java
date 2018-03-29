@@ -111,7 +111,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
       scheduledExecutorService.shutdown();
 
-      destroyTables(Arrays.asList(new String[]{"MESSAGE", "BINDINGS", "LARGE_MESSAGE"}));
+      destroyTables(Arrays.asList(new String[]{"MESSAGE", "BINDINGS", "LARGE_MESSAGE", "NODE_MANAGER_STORE"}));
       super.tearDown();
       if (exception != null)
          throw exception;
