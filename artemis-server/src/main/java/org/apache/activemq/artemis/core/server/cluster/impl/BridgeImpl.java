@@ -1159,6 +1159,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       // ClusterListener
       @Override
       public void nodeUP(TopologyMember member, boolean last) {
+         if (BridgeImpl.this.queue.isInternalQueue() && member != null && BridgeImpl.this.targetNodeID != null && !BridgeImpl.this.targetNodeID.equals(member.getNodeId())) {
+            //A ClusterConnectionBridge (identified by holding an internal queue)
+            //never re-connects to another node here. It only connects to its original
+            //target node (from the ClusterConnection) or its backups. That's why
+            //we put a return here.
+            return;
+         }
          ClientSessionInternal sessionToUse = session;
          RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
 
