@@ -17,13 +17,16 @@
 
 package org.apache.activemq.artemis.api.core;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 public abstract class RefCountMessage implements Message {
 
-   private final AtomicInteger durableRefCount = new AtomicInteger();
+   private static final AtomicIntegerFieldUpdater<RefCountMessage> DURABLE_REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "durableRefCount");
+   private static final AtomicIntegerFieldUpdater<RefCountMessage> REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "refCount");
 
-   private final AtomicInteger refCount = new AtomicInteger();
+   private volatile int durableRefCount = 0;
+
+   private volatile int refCount = 0;
 
    private RefCountMessageListener context;
 
@@ -40,12 +43,12 @@ public abstract class RefCountMessage implements Message {
 
    @Override
    public int getRefCount() {
-      return refCount.get();
+      return refCount;
    }
 
    @Override
    public int incrementRefCount() throws Exception {
-      int count = refCount.incrementAndGet();
+      int count = REF_COUNT_UPDATER.incrementAndGet(this);
       if (context != null) {
          context.nonDurableUp(this, count);
       }
@@ -54,7 +57,7 @@ public abstract class RefCountMessage implements Message {
 
    @Override
    public int incrementDurableRefCount() {
-      int count = durableRefCount.incrementAndGet();
+      int count = DURABLE_REF_COUNT_UPDATER.incrementAndGet(this);
       if (context != null) {
          context.durableUp(this, count);
       }
@@ -63,7 +66,7 @@ public abstract class RefCountMessage implements Message {
 
    @Override
    public int decrementDurableRefCount() {
-      int count = durableRefCount.decrementAndGet();
+      int count = DURABLE_REF_COUNT_UPDATER.decrementAndGet(this);
       if (context != null) {
          context.durableDown(this, count);
       }
@@ -72,7 +75,7 @@ public abstract class RefCountMessage implements Message {
 
    @Override
    public int decrementRefCount() throws Exception {
-      int count = refCount.decrementAndGet();
+      int count = REF_COUNT_UPDATER.decrementAndGet(this);
       if (context != null) {
          context.nonDurableDown(this, count);
       }
