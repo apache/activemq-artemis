@@ -191,9 +191,18 @@ public abstract class AbstractJDBCDriver {
             } else {
                try (Statement statement = connection.createStatement();
                      ResultSet cntRs = statement.executeQuery(sqlProvider.getCountJournalRecordsSQL())) {
-                  if (rs.next() && rs.getInt(1) > 0) {
+                  int rows;
+                  if (cntRs.next() && (rows = cntRs.getInt(1)) > 0) {
                      logger.tracef("Table %s did exist but is not empty. Skipping initialization.", tableName);
+                     if (logger.isDebugEnabled()) {
+                        final long expectedRows = Stream.of(sqls).map(String::toUpperCase).filter(sql -> sql.contains("INSERT INTO")).count();
+                        if (rows < expectedRows) {
+                           logger.debug("Table " + tableName + " was expected to contain " + expectedRows + " rows while it has " + rows + " rows.");
+                        }
+                     }
+                     return;
                   } else {
+                     assert sqls[0].toUpperCase().contains("CREATE TABLE") : "The first SQL statement must be a CREATE TABLE";
                      sqls = Arrays.copyOfRange(sqls, 1, sqls.length);
                   }
                }
