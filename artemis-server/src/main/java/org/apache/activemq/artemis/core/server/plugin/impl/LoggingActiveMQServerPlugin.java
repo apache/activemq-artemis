@@ -629,7 +629,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
             // info level logging
             LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledged((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
-                                                                         (ref == null ? UNAVAILABLE : Long.toString(ref.getConsumerId())),
+                                                                         (ref == null ? UNAVAILABLE : ref.hasConsumerId() ? Long.toString(ref.getConsumerId()) : null),
                                                                          (queue == null ? UNAVAILABLE : queue.getName().toString()),
                                                                          reason);
          }
