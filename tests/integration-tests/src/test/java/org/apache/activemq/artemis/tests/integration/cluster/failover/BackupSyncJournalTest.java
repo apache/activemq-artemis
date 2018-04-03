@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -32,6 +33,8 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -73,16 +76,18 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       return n_msgs;
    }
 
+   protected final FailoverWaiter failoverWaiter = new FailoverWaiter();
+
    @Override
    @Before
    public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
       setNumberOfMessages(defaultNMsgs);
-      locator = (ServerLocatorInternal) getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
+      locator = (ServerLocatorInternal) getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15).setRetryInterval(200);
       sessionFactory = createSessionFactoryAndWaitForTopology(locator, 1);
+      sessionFactory.addFailoverListener(failoverWaiter);
       syncDelay = new BackupSyncDelay(backupServer, liveServer);
-
    }
 
    @Test
@@ -326,8 +331,13 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       liveServer.removeInterceptor(syncDelay);
       backupServer.start();
       waitForBackup(sessionFactory, BACKUP_WAIT_TIME);
+      failoverWaiter.reset();
       crash(session);
       backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+      //for some system the retryAttempts and retryInterval may be too small
+      //so that during failover all attempts have failed before the backup
+      //server is fully activated.
+      assertTrue("Session didn't failover, the maxRetryAttempts and retryInterval may be too small", failoverWaiter.waitFailoverComplete());
    }
 
    protected void createProducerSendSomeMessages() throws ActiveMQException {
@@ -384,4 +394,25 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    protected TransportConfiguration getConnectorTransportConfiguration(boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
+
+   private class FailoverWaiter implements FailoverEventListener {
+
+      private CountDownLatch latch;
+
+      public void reset() {
+         latch = new CountDownLatch(1);
+      }
+
+      @Override
+      public void failoverEvent(FailoverEventType eventType) {
+         if (eventType == FailoverEventType.FAILOVER_COMPLETED) {
+            latch.countDown();
+         }
+      }
+
+      public boolean waitFailoverComplete() throws InterruptedException {
+         return latch.await(10, TimeUnit.SECONDS);
+      }
+   }
+
 }
