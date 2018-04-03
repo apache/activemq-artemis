@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -351,6 +352,20 @@ public class ClusterConnectionBridge extends BridgeImpl {
       filterString += ",!" + managementNotificationAddress;
       return filterString;
    }
+
+
+   @Override
+   protected void nodeUP(TopologyMember member, boolean last) {
+      if (member != null && targetNodeID != null && !this.targetNodeID.equals(member.getNodeId())) {
+         //A ClusterConnectionBridge (identified by holding an internal queue)
+         //never re-connects to another node here. It only connects to its original
+         //target node (from the ClusterConnection) or its backups. That's why
+         //we put a return here.
+         return;
+      }
+      super.nodeUP(member, last);
+   }
+
 
    @Override
    protected void afterConnect() throws Exception {

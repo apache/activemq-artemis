@@ -93,7 +93,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final SimpleString name;
 
-   private final Queue queue;
+   protected final Queue queue;
 
    private final Filter filter;
 
@@ -1010,6 +1010,27 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       scheduleRetryConnectFixedTimeout(timeout);
    }
 
+
+   // To be called by the topology update
+   // This logic will be updated on the cluster connection
+   protected void nodeUP(TopologyMember member, boolean last) {
+      ClientSessionInternal sessionToUse = session;
+      RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
+
+      if (member != null && this.targetNodeID != null && this.targetNodeID.equals(member.getNodeId())) {
+         // this could be an update of the topology say after a backup started
+         BridgeImpl.this.targetNode = member;
+      } else {
+         // we don't need synchronization here, but we need to make sure we won't get a NPE on races
+         if (connectionToUse != null && member.isMember(connectionToUse)) {
+            this.targetNode = member;
+            this.targetNodeID = member.getNodeId();
+         }
+      }
+
+   }
+
+
    // Inner classes -------------------------------------------------
 
    protected void scheduleRetryConnectFixedTimeout(final long milliseconds) {
@@ -1159,27 +1180,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       // ClusterListener
       @Override
       public void nodeUP(TopologyMember member, boolean last) {
-         if (BridgeImpl.this.queue.isInternalQueue() && member != null && BridgeImpl.this.targetNodeID != null && !BridgeImpl.this.targetNodeID.equals(member.getNodeId())) {
-            //A ClusterConnectionBridge (identified by holding an internal queue)
-            //never re-connects to another node here. It only connects to its original
-            //target node (from the ClusterConnection) or its backups. That's why
-            //we put a return here.
-            return;
-         }
-         ClientSessionInternal sessionToUse = session;
-         RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
-
-         if (member != null && BridgeImpl.this.targetNodeID != null && BridgeImpl.this.targetNodeID.equals(member.getNodeId())) {
-            // this could be an update of the topology say after a backup started
-            BridgeImpl.this.targetNode = member;
-         } else {
-            // we don't need synchronization here, but we need to make sure we won't get a NPE on races
-            if (connectionToUse != null && member.isMember(connectionToUse)) {
-               BridgeImpl.this.targetNode = member;
-               BridgeImpl.this.targetNodeID = member.getNodeId();
-            }
-         }
-
+         BridgeImpl.this.nodeUP(member, last);
       }
 
       @Override
