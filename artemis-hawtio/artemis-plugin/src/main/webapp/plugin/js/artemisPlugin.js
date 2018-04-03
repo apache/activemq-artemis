@@ -218,20 +218,51 @@ var ARTEMIS = (function(ARTEMIS) {
          }
       });
 
-      workspace.subLevelTabs.push({
+      subLevelTabs = [];
+
+      subLevelTabs.push({
+         content: '<i class="icon-list"></i> Attributes',
+         title: "View the attribute values on your selection",
+         isValid: function () {
+           return true;
+         },
+           href: function () { if (workspace.isTopTabActive("artemis")) return "#/jmx/attributes"; else return  "#/jmx/attributes";}
+      });
+
+      subLevelTabs.push({
+         content: '<i class="icon-leaf"></i> Operations',
+         title: "Execute operations on your selection",
+         isValid: function () {
+           return true;
+         },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/jmx/operations"; else return  "#/jmx/operations";}
+      });
+
+      subLevelTabs.push({
+         content: '<i class="icon-bar-chart"></i> Chart',
+         title: "View a chart of the metrics on your selection",
+         isValid: function () {
+           return true;
+         },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/jmx/charts"; else return  "#/jmx/charts";}
+      });
+
+
+      subLevelTabs.push({
          content: '<i class="icon-plus"></i> Create',
          title: "Create a new address",
          isValid: function (workspace) {
             return isBroker(workspace, artemisJmxDomain) || isAddressFolder(workspace, artemisJmxDomain);
          },
          href: function () {
-            return "#/artemis/createAddress";
+         return "#/artemis/createAddress";
          }
       });
 
-      workspace.subLevelTabs.push({
+      subLevelTabs.push({
          content: '<i class="icon-remove"></i> Delete',
          title: "Delete an address",
+         index: 4,
          isValid: function (workspace) {
             return isAddress(workspace, artemisJmxDomain);
          },
@@ -240,7 +271,7 @@ var ARTEMIS = (function(ARTEMIS) {
          }
       });
 
-      workspace.subLevelTabs.push({
+      subLevelTabs.push({
          content: '<i class="icon-plus"></i> Create',
          title: "Create a new queue",
          isValid: function (workspace) {
@@ -251,79 +282,85 @@ var ARTEMIS = (function(ARTEMIS) {
          }
       });
 
-      workspace.subLevelTabs.push({
+      subLevelTabs.push({
          content: '<i class="icon-remove"></i> Delete',
          title: "Delete or purge this queue",
          isValid: function (workspace) {
-            return isQueue(workspace, artemisJmxDomain)
+            return isQueue(workspace, artemisJmxDomain);
          },
          href: function () {
             return "#/artemis/deleteQueue"
          }
       });
 
-      workspace.subLevelTabs.push({
-          content: '<i class="icon-envelope"></i> Browse',
-          title: "Browse the messages on the queue",
-          isValid: function (workspace) { return isQueue(workspace, artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/browseQueue"; else return  "#/jmx/browseQueue";}
+      subLevelTabs.push({
+         content: '<i class="icon-envelope"></i> Browse',
+         title: "Browse the messages on the queue",
+         isValid: function (workspace) {
+            return isQueue(workspace, artemisJmxDomain);
+         },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/browseQueue"; else return  "#/jmx/browseQueue";}
       });
 
-      workspace.subLevelTabs.push({
-          content: '<i class="icon-pencil"></i> Send',
-          title: "Send a message to this address",
-          isValid: function (workspace) { return isAddress(workspace, artemisJmxDomain) || isQueue(workspace, artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/sendMessage"; else return  "#/jmx/sendMessage";}
+      subLevelTabs.push({
+         content: '<i class="icon-pencil"></i> Send',
+         title: "Send a message to this address",
+         isValid: function (workspace) {
+            return isAddress(workspace, artemisJmxDomain) || isQueue(workspace, artemisJmxDomain);
+         },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/sendMessage"; else return  "#/jmx/sendMessage";}
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-picture"></i> Diagram&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|',
-          title: "View a diagram of the producers, destinations and consumers",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis"))return "#/artemis/diagram"; else return  "#/jmx/diagram";}
+      subLevelTabs.unshift({
+         content: '<i class="icon-picture"></i> Diagram&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|',
+         title: "View a diagram of the producers, destinations and consumers",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis"))return "#/artemis/diagram"; else return  "#/jmx/diagram";}
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-th-list"></i> Queues',
-          title: "Manage Queues",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/queues"; else return  "#/jmx/queues"; }
+      subLevelTabs.unshift({
+         content: '<i class="icon-th-list"></i> Queues',
+         title: "Manage Queues",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/queues"; else return  "#/jmx/queues"; }
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-book"></i> Addresses',
-          title: "Manage Addresses",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/addresses"; else return  "#/jmx/addresses"; }
+      subLevelTabs.unshift({
+         content: '<i class="icon-book"></i> Addresses',
+         title: "Manage Addresses",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/addresses"; else return  "#/jmx/addresses"; }
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-upload-alt"></i> Producers',
-          title: "Manage Producers",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/producers"; else return  "#/jmx/producers"; }
+      subLevelTabs.unshift({
+         content: '<i class="icon-upload-alt"></i> Producers',
+         title: "Manage Producers",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/producers"; else return  "#/jmx/producers"; }
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-download-alt"></i> Consumers',
-          title: "Manage Consumers",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/consumers"; else return  "#/jmx/consumers"; }
+      subLevelTabs.unshift({
+         content: '<i class="icon-download-alt"></i> Consumers',
+         title: "Manage Consumers",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/consumers"; else return  "#/jmx/consumers"; }
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-tasks"></i> Sessions',
-          title: "Manage Sessions",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/sessions"; else return  "#/jmx/sessions"; }
+      subLevelTabs.unshift({
+         content: '<i class="icon-tasks"></i> Sessions',
+         title: "Manage Sessions",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/sessions"; else return  "#/jmx/sessions"; }
       });
 
-      workspace.subLevelTabs.unshift({
-          content: '<i class="icon-signal"></i> Connections',
-          title: "Manage Connections",
-          isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
-          href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/connections"; else return  "#/jmx/connections"; }
+      subLevelTabs.unshift({
+         content: '<i class="icon-signal"></i> Connections',
+         title: "Manage Connections",
+         isValid: function (workspace) { return workspace.isTopTabActive("artemis") || workspace.selectionHasDomain(artemisJmxDomain); },
+         href: function () { if (workspace.isTopTabActive("artemis")) return "#/artemis/connections"; else return  "#/jmx/connections"; }
       });
+
+      workspace.subLevelTabs = subLevelTabs;
 
       preLogoutTasks.addTask("clearArtemisCredentials", () => {
           localStorage.removeItem('artemisUserName');
