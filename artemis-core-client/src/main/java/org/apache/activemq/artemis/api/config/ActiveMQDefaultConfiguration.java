@@ -451,8 +451,6 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = -1;
 
-   private static final long DEFAULT_JDBC_MAX_ALLOWED_MILLIS_FROM_DB_TIME = TimeUnit.SECONDS.toMillis(60);
-
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
 
@@ -1256,10 +1254,6 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultJdbcLockAcquisitionTimeoutMillis() {
       return DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS;
-   }
-
-   public static long getDefaultJdbcMaxAllowedMillisFromDbTime() {
-      return DEFAULT_JDBC_MAX_ALLOWED_MILLIS_FROM_DB_TIME;
    }
 
    public static long getDefaultConnectionTtlCheckInterval() {

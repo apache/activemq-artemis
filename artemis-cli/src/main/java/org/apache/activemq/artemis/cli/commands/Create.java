@@ -299,9 +299,6 @@ public class Create extends InputAbstract {
    @Option(name = "--jdbc-lock-expiration", description = "Lock expiration")
    long jdbcLockExpiration = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
 
-   @Option(name = "--jdbc-max-allowed-millis-from-db-time", description = "Db time allowed difference")
-   long jdbcMaxAllowedMillisFromDbTime = ActiveMQDefaultConfiguration.getDefaultJdbcMaxAllowedMillisFromDbTime();
-
    private boolean IS_WINDOWS;
    private boolean IS_CYGWIN;
 
@@ -629,7 +626,6 @@ public class Create extends InputAbstract {
          filters.put("${jdbcNetworkTimeout}", "" + jdbcNetworkTimeout);
          filters.put("${jdbcLockRenewPeriod}", "" + jdbcLockRenewPeriod);
          filters.put("${jdbcLockExpiration}", "" + jdbcLockExpiration);
-         filters.put("${jdbcMaxAllowedMillisFromDbTime}", "" + jdbcMaxAllowedMillisFromDbTime);
          filters.put("${jdbc}", readTextFile(ETC_DATABASE_STORE_TXT, filters));
       } else {
          filters.put("${jdbc}", "");
