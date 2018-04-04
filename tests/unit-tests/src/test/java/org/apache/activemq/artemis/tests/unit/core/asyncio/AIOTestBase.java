@@ -114,6 +114,7 @@ public abstract class AIOTestBase extends ActiveMQTestBase {
 
       @Override
       public void onError(final int errorCode, final String errorMessage) {
+         new Exception("Error called:: " + errorCode + " message::" + errorMessage).printStackTrace();
          errorCalled++;
          if (outputList != null) {
             outputList.add(order);
