@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
 import java.io.Serializable;
 
+import javax.jms.JMSException;
+import javax.jms.ObjectMessage;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.qpid.proton.amqp.Binary;
@@ -62,9 +64,10 @@ public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMe
    @Override
    public void decode() throws Exception {
       super.decode();
-      int size = getInnerMessage().getBodyBuffer().readInt();
+      ActiveMQBuffer buffer = getInnerMessage().getDataBuffer();
+      int size = buffer.readInt();
       byte[] bytes = new byte[size];
-      getInnerMessage().getBodyBuffer().readBytes(bytes);
+      buffer.readBytes(bytes);
       payload = new Binary(bytes);
    }
 }
