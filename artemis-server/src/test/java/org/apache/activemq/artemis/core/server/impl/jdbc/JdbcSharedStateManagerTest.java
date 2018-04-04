@@ -52,7 +52,6 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       return JdbcSharedStateManager.usingConnectionUrl(
          UUID.randomUUID().toString(),
          dbConf.getJdbcLockExpirationMillis(),
-         dbConf.getJdbcMaxAllowedMillisFromDbTime(),
          dbConf.getJdbcConnectionUrl(),
          dbConf.getJdbcDriverClassName(),
          sqlProvider);
