@@ -16,14 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
 import javax.jms.Session;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -35,6 +42,7 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
@@ -56,13 +64,10 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
    }
 
-
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
-      //server.getConfiguration().addAcceptorConfiguration("tcp", "tcp://localhost:5445");
       server.getConfiguration().addAcceptorConfiguration("tcp", "tcp://localhost:61616");
    }
-
 
    @Test(timeout = 60000)
    public void testSendAMQPReceiveCore() throws Exception {
@@ -84,7 +89,6 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          connection.close();
       }
    }
-
 
    @Test(timeout = 60000)
    public void testSendAMQPReceiveOpenWire() throws Exception {
@@ -174,6 +178,120 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       } finally {
          connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAMQPReceiveAMQPViaJMSObjectMessage() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      String testQueueName = "ConnectionFrameSize";
+      int nMsgs = 1;
+
+      ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
+
+      sendObjectMessages(nMsgs, new JmsConnectionFactory("amqp://localhost:61616"));
+
+      int count = getMessageCount(server.getPostOffice(), testQueueName);
+      assertEquals(nMsgs, count);
+
+      receiveJMS(nMsgs, factory);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAMQPReceiveAMQPViaJMSText() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      String testQueueName = "ConnectionFrameSize";
+      int nMsgs = 1;
+
+      ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
+
+      sendTextMessages(nMsgs, new JmsConnectionFactory("amqp://localhost:61616"));
+
+      int count = getMessageCount(server.getPostOffice(), testQueueName);
+      assertEquals(nMsgs, count);
+
+      receiveJMS(nMsgs, factory);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAMQPReceiveAMQPViaJMSBytes() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      String testQueueName = "ConnectionFrameSize";
+      int nMsgs = 1;
+
+      ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
+
+      sendBytesMessages(nMsgs, new JmsConnectionFactory("amqp://localhost:61616"));
+
+      int count = getMessageCount(server.getPostOffice(), testQueueName);
+      assertEquals(nMsgs, count);
+
+      receiveJMS(nMsgs, factory);
+   }
+
+   private void sendObjectMessages(int nMsgs, ConnectionFactory factory) throws Exception {
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession();
+         Queue queue = session.createQueue(testQueueName);
+         MessageProducer producer = session.createProducer(queue);
+         ObjectMessage msg = session.createObjectMessage();
+
+         StringBuilder builder = new StringBuilder();
+         for (int i = 0; i < PAYLOAD; ++i) {
+            builder.append("A");
+         }
+
+         msg.setObject(builder.toString());
+
+         for (int i = 0; i < nMsgs; ++i) {
+            msg.setIntProperty("i", (Integer) i);
+            producer.send(msg);
+         }
+      }
+   }
+
+   private void sendTextMessages(int nMsgs, ConnectionFactory factory) throws Exception {
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession();
+         Queue queue = session.createQueue(testQueueName);
+         MessageProducer producer = session.createProducer(queue);
+         TextMessage msg = session.createTextMessage();
+
+         StringBuilder builder = new StringBuilder();
+         for (int i = 0; i < PAYLOAD; ++i) {
+            builder.append("A");
+         }
+
+         msg.setText(builder.toString());
+
+         for (int i = 0; i < nMsgs; ++i) {
+            msg.setIntProperty("i", (Integer) i);
+            producer.send(msg);
+         }
+      }
+   }
+
+   private void sendBytesMessages(int nMsgs, ConnectionFactory factory) throws Exception {
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession();
+         Queue queue = session.createQueue(testQueueName);
+         MessageProducer producer = session.createProducer(queue);
+         BytesMessage msg = session.createBytesMessage();
+
+         StringBuilder builder = new StringBuilder();
+         for (int i = 0; i < PAYLOAD; ++i) {
+            builder.append("A");
+         }
+
+         msg.writeBytes(builder.toString().getBytes(StandardCharsets.UTF_8));
+
+         for (int i = 0; i < nMsgs; ++i) {
+            msg.setIntProperty("i", (Integer) i);
+            producer.send(msg);
+         }
       }
    }
 
