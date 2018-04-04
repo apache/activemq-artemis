@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
  */
 public final class JdbcNodeManager extends NodeManager {
 
-   private static final Logger logger = Logger.getLogger(JdbcNodeManager.class);
+   private static final Logger LOGGER = Logger.getLogger(JdbcNodeManager.class);
    private static final long MAX_PAUSE_MILLIS = 2000L;
 
    private final Supplier<? extends SharedStateManager> sharedStateManagerFactory;
@@ -50,7 +50,6 @@ public final class JdbcNodeManager extends NodeManager {
    private SharedStateManager sharedStateManager;
    private ScheduledLeaseLock scheduledLiveLock;
    private ScheduledLeaseLock scheduledBackupLock;
-   private final long lockRenewPeriodMillis;
    private final long lockAcquisitionTimeoutMillis;
    private volatile boolean interrupted = false;
    private final LeaseLock.Pauser pauser;
@@ -74,7 +73,6 @@ public final class JdbcNodeManager extends NodeManager {
                                 configuration.getJdbcLockExpirationMillis(),
                                 configuration.getJdbcLockRenewPeriodMillis(),
                                 configuration.getJdbcLockAcquisitionTimeoutMillis(),
-                                configuration.getJdbcMaxAllowedMillisFromDbTime(),
                                 configuration.getDataSource(),
                                 sqlProviderFactory.create(configuration.getNodeManagerStoreTableName(), SQLProvider.DatabaseStoreType.NODE_MANAGER),
                                 scheduledExecutorService,
@@ -88,7 +86,6 @@ public final class JdbcNodeManager extends NodeManager {
                                    configuration.getJdbcLockExpirationMillis(),
                                    configuration.getJdbcLockRenewPeriodMillis(),
                                    configuration.getJdbcLockAcquisitionTimeoutMillis(),
-                                   configuration.getJdbcMaxAllowedMillisFromDbTime(),
                                    configuration.getJdbcConnectionUrl(),
                                    configuration.getJdbcDriverClassName(),
                                    sqlProvider,
@@ -103,7 +100,6 @@ public final class JdbcNodeManager extends NodeManager {
                                                   long lockExpirationMillis,
                                                   long lockRenewPeriodMillis,
                                                   long lockAcquisitionTimeoutMillis,
-                                                  long maxAllowedMillisFromDbTime,
                                                   DataSource dataSource,
                                                   SQLProvider provider,
                                                   ScheduledExecutorService scheduledExecutorService,
@@ -114,10 +110,8 @@ public final class JdbcNodeManager extends NodeManager {
                                                       networkTimeoutMillis,
                                                       executorFactory == null ? null : executorFactory.getExecutor(),
                                                       lockExpirationMillis,
-                                                      maxAllowedMillisFromDbTime,
                                                       dataSource,
                                                       provider),
-         false,
          lockRenewPeriodMillis,
          lockAcquisitionTimeoutMillis,
          scheduledExecutorService,
@@ -130,7 +124,6 @@ public final class JdbcNodeManager extends NodeManager {
                                                      long lockExpirationMillis,
                                                      long lockRenewPeriodMillis,
                                                      long lockAcquisitionTimeoutMillis,
-                                                     long maxAllowedMillisFromDbTime,
                                                      String jdbcUrl,
                                                      String driverClass,
                                                      SQLProvider provider,
@@ -142,11 +135,9 @@ public final class JdbcNodeManager extends NodeManager {
                                                          networkTimeoutMillis,
                                                          executorFactory == null ? null : executorFactory.getExecutor(),
                                                          lockExpirationMillis,
-                                                         maxAllowedMillisFromDbTime,
                                                          jdbcUrl,
                                                          driverClass,
                                                          provider),
-         false,
          lockRenewPeriodMillis,
          lockAcquisitionTimeoutMillis,
          scheduledExecutorService,
@@ -169,24 +160,22 @@ public final class JdbcNodeManager extends NodeManager {
       final int networkTimeout = configuration.getJdbcNetworkTimeout();
       if (networkTimeout >= 0) {
          if (networkTimeout > lockExpiration) {
-            logger.warn("jdbc-network-timeout isn't properly configured: the recommended value is <= jdbc-lock-expiration");
+            LOGGER.warn("jdbc-network-timeout isn't properly configured: the recommended value is <= jdbc-lock-expiration");
          }
       } else {
-         logger.warn("jdbc-network-timeout isn't properly configured: the recommended value is <= jdbc-lock-expiration");
+         LOGGER.warn("jdbc-network-timeout isn't properly configured: the recommended value is <= jdbc-lock-expiration");
       }
    }
 
    private JdbcNodeManager(Supplier<? extends SharedStateManager> sharedStateManagerFactory,
-                           boolean replicatedBackup,
                            long lockRenewPeriodMillis,
                            long lockAcquisitionTimeoutMillis,
                            ScheduledExecutorService scheduledExecutorService,
                            ExecutorFactory executorFactory,
                            IOCriticalErrorListener ioCriticalErrorListener) {
-      super(replicatedBackup, null);
+      super(false, null);
       this.lockAcquisitionTimeoutMillis = lockAcquisitionTimeoutMillis;
-      this.lockRenewPeriodMillis = lockRenewPeriodMillis;
-      this.pauser = LeaseLock.Pauser.sleep(Math.min(this.lockRenewPeriodMillis, MAX_PAUSE_MILLIS), TimeUnit.MILLISECONDS);
+      this.pauser = LeaseLock.Pauser.sleep(Math.min(lockRenewPeriodMillis, MAX_PAUSE_MILLIS), TimeUnit.MILLISECONDS);
       this.sharedStateManagerFactory = sharedStateManagerFactory;
       this.scheduledLiveLockFactory = () -> ScheduledLeaseLock.of(
          scheduledExecutorService,
@@ -217,10 +206,9 @@ public final class JdbcNodeManager extends NodeManager {
                return;
             }
             this.sharedStateManager = sharedStateManagerFactory.get();
-            if (!replicatedBackup) {
-               final UUID nodeId = sharedStateManager.setup(UUIDGenerator.getInstance()::generateUUID);
-               setUUID(nodeId);
-            }
+            LOGGER.debug("setup sharedStateManager on start");
+            final UUID nodeId = sharedStateManager.setup(UUIDGenerator.getInstance()::generateUUID);
+            setUUID(nodeId);
             this.scheduledLiveLock = scheduledLiveLockFactory.get();
             this.scheduledBackupLock = scheduledBackupLockFactory.get();
             super.start();
@@ -259,35 +247,62 @@ public final class JdbcNodeManager extends NodeManager {
 
    @Override
    public boolean isAwaitingFailback() throws Exception {
-      return readSharedState() == SharedStateManager.State.FAILING_BACK;
+      LOGGER.debug("ENTER isAwaitingFailback");
+      try {
+         return readSharedState() == SharedStateManager.State.FAILING_BACK;
+      } finally {
+         LOGGER.debug("EXIT isAwaitingFailback");
+      }
    }
 
    @Override
    public boolean isBackupLive() throws Exception {
-      //is anyone holding the live lock?
-      return this.scheduledLiveLock.lock().isHeld();
+      LOGGER.debug("ENTER isBackupLive");
+      try {
+         //is anyone holding the live lock?
+         return this.scheduledLiveLock.lock().isHeld();
+      } finally {
+         LOGGER.debug("EXIT isBackupLive");
+      }
    }
 
    @Override
    public void stopBackup() throws Exception {
-      if (replicatedBackup) {
-         final UUID nodeId = getUUID();
-         sharedStateManager.writeNodeId(nodeId);
+      LOGGER.debug("ENTER stopBackup");
+      try {
+         if (this.scheduledBackupLock.isStarted()) {
+            LOGGER.debug("scheduledBackupLock is running: stop it and release backup lock");
+            this.scheduledBackupLock.stop();
+            this.scheduledBackupLock.lock().release();
+         } else {
+            LOGGER.debug("scheduledBackupLock is not running");
+         }
+      } finally {
+         LOGGER.debug("EXIT stopBackup");
       }
-      releaseBackup();
    }
 
    @Override
    public void interrupt() {
+      LOGGER.debug("ENTER interrupted");
       //need to be volatile: must be called concurrently to work as expected
       interrupted = true;
+      LOGGER.debug("EXIT interrupted");
    }
 
    @Override
    public void releaseBackup() throws Exception {
-      if (this.scheduledBackupLock.lock().isHeldByCaller()) {
-         this.scheduledBackupLock.stop();
-         this.scheduledBackupLock.lock().release();
+      LOGGER.debug("ENTER releaseBackup");
+      try {
+         if (this.scheduledBackupLock.isStarted()) {
+            LOGGER.debug("scheduledBackupLock is running: stop it and release backup lock");
+            this.scheduledBackupLock.stop();
+            this.scheduledBackupLock.lock().release();
+         } else {
+            LOGGER.debug("scheduledBackupLock is not running");
+         }
+      } finally {
+         LOGGER.debug("EXIT releaseBackup");
       }
    }
 
@@ -322,11 +337,8 @@ public final class JdbcNodeManager extends NodeManager {
       if (acquiredMillis > this.scheduledLiveLock.renewPeriodMillis()) {
          if (!this.scheduledLiveLock.lock().renew()) {
             final IllegalStateException e = new IllegalStateException("live lock can't be renewed");
-            try {
-               ioCriticalErrorListener.onIOException(e, "live lock can't be renewed", null);
-            } finally {
-               throw e;
-            }
+            ioCriticalErrorListener.onIOException(e, "live lock can't be renewed", null);
+            throw e;
          }
       }
    }
@@ -343,7 +355,7 @@ public final class JdbcNodeManager extends NodeManager {
       try {
          stateWhileLocked = readSharedState();
       } catch (Throwable t) {
-         logger.error("error while holding the live node lock and tried to read the shared state", t);
+         LOGGER.error("error while holding the live node lock and tried to read the shared state", t);
          this.scheduledLiveLock.lock().release();
          throw t;
       }
@@ -351,9 +363,7 @@ public final class JdbcNodeManager extends NodeManager {
          renewLiveLockIfNeeded(acquiredOn);
          liveWhileLocked = true;
       } else {
-         if (logger.isDebugEnabled()) {
-            logger.debug("state is " + stateWhileLocked + " while holding the live lock");
-         }
+         LOGGER.debugf("state is %s while holding the live lock: releasing live lock", stateWhileLocked);
          //state is not live: can (try to) release the lock
          this.scheduledLiveLock.lock().release();
       }
@@ -362,98 +372,133 @@ public final class JdbcNodeManager extends NodeManager {
 
    @Override
    public void awaitLiveNode() throws Exception {
-      boolean liveWhileLocked = false;
-      while (!liveWhileLocked) {
-         //check first without holding any lock
-         final SharedStateManager.State state = readSharedState();
-         if (state == SharedStateManager.State.LIVE) {
-            //verify if the state is live while holding the live node lock too
-            liveWhileLocked = lockLiveAndCheckLiveState();
-         } else {
-            if (logger.isDebugEnabled()) {
-               logger.debug("awaiting live node...state: " + state);
+      LOGGER.debug("ENTER awaitLiveNode");
+      try {
+         boolean liveWhileLocked = false;
+         while (!liveWhileLocked) {
+            //check first without holding any lock
+            final SharedStateManager.State state = readSharedState();
+            if (state == SharedStateManager.State.LIVE) {
+               //verify if the state is live while holding the live node lock too
+               liveWhileLocked = lockLiveAndCheckLiveState();
+            } else {
+               LOGGER.debugf("state while awaiting live node: %s", state);
+            }
+            if (!liveWhileLocked) {
+               checkInterrupted(() -> "awaitLiveNode got interrupted!");
+               pauser.idle();
             }
          }
-         if (!liveWhileLocked) {
-            checkInterrupted(() -> "awaitLiveNode got interrupted!");
-            pauser.idle();
-         }
+         //state is LIVE and live lock is acquired and valid
+         LOGGER.debugf("acquired live node lock while state is %s: starting scheduledLiveLock", SharedStateManager.State.LIVE);
+         this.scheduledLiveLock.start();
+      } finally {
+         LOGGER.debug("EXIT awaitLiveNode");
       }
-      //state is LIVE and live lock is acquired and valid
-      logger.debug("acquired live node lock");
-      this.scheduledLiveLock.start();
    }
 
    @Override
    public void startBackup() throws Exception {
-      assert !replicatedBackup; // should not be called if this is a replicating backup
-      ActiveMQServerLogger.LOGGER.waitingToBecomeBackup();
+      LOGGER.debug("ENTER startBackup");
+      try {
+         ActiveMQServerLogger.LOGGER.waitingToBecomeBackup();
 
-      lock(scheduledBackupLock.lock());
-      scheduledBackupLock.start();
-      ActiveMQServerLogger.LOGGER.gotBackupLock();
-      if (getUUID() == null)
-         readNodeId();
+         lock(scheduledBackupLock.lock());
+         scheduledBackupLock.start();
+         ActiveMQServerLogger.LOGGER.gotBackupLock();
+         if (getUUID() == null)
+            readNodeId();
+      } finally {
+         LOGGER.debug("EXIT startBackup");
+      }
    }
 
    @Override
    public ActivateCallback startLiveNode() throws Exception {
-      setFailingBack();
+      LOGGER.debug("ENTER startLiveNode");
+      try {
+         setFailingBack();
 
-      final String timeoutMessage = lockAcquisitionTimeoutMillis == -1 ? "indefinitely" : lockAcquisitionTimeoutMillis + " milliseconds";
+         final String timeoutMessage = lockAcquisitionTimeoutMillis == -1 ? "indefinitely" : lockAcquisitionTimeoutMillis + " milliseconds";
 
-      ActiveMQServerLogger.LOGGER.waitingToObtainLiveLock(timeoutMessage);
+         ActiveMQServerLogger.LOGGER.waitingToObtainLiveLock(timeoutMessage);
 
-      lock(this.scheduledLiveLock.lock());
+         lock(this.scheduledLiveLock.lock());
 
-      this.scheduledLiveLock.start();
+         this.scheduledLiveLock.start();
 
-      ActiveMQServerLogger.LOGGER.obtainedLiveLock();
+         ActiveMQServerLogger.LOGGER.obtainedLiveLock();
 
-      return new ActivateCallback() {
-         @Override
-         public void activationComplete() {
-            try {
-               //state can be written only if the live renew task is running
-               setLive();
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         return new ActivateCallback() {
+            @Override
+            public void activationComplete() {
+               LOGGER.debug("ENTER activationComplete");
+               try {
+                  //state can be written only if the live renew task is running
+                  setLive();
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               } finally {
+                  LOGGER.debug("EXIT activationComplete");
+               }
             }
-         }
-      };
+         };
+      } finally {
+         LOGGER.debug("EXIT startLiveNode");
+      }
    }
 
    @Override
    public void pauseLiveServer() throws Exception {
-      if (scheduledLiveLock.isStarted()) {
-         setPaused();
-         scheduledLiveLock.stop();
-         scheduledLiveLock.lock().release();
-      } else if (scheduledLiveLock.lock().renew()) {
-         setPaused();
-         scheduledLiveLock.lock().release();
-      } else {
-         final IllegalStateException e = new IllegalStateException("live lock can't be renewed");
-         try {
-            ioCriticalErrorListener.onIOException(e, "live lock can't be renewed on pauseLiveServer", null);
-         } finally {
-            throw e;
+      LOGGER.debug("ENTER pauseLiveServer");
+      try {
+         if (scheduledLiveLock.isStarted()) {
+            LOGGER.debug("scheduledLiveLock is running: set paused shared state, stop it and release live lock");
+            setPaused();
+            scheduledLiveLock.stop();
+            scheduledLiveLock.lock().release();
+         } else {
+            LOGGER.debug("scheduledLiveLock is not running: try renew live lock");
+            if (scheduledLiveLock.lock().renew()) {
+               LOGGER.debug("live lock renewed: set paused shared state and release live lock");
+               setPaused();
+               scheduledLiveLock.lock().release();
+            } else {
+               final IllegalStateException e = new IllegalStateException("live lock can't be renewed");
+               ioCriticalErrorListener.onIOException(e, "live lock can't be renewed on pauseLiveServer", null);
+               throw e;
+            }
          }
+      } finally {
+         LOGGER.debug("EXIT pauseLiveServer");
       }
    }
 
    @Override
    public void crashLiveServer() throws Exception {
-      if (this.scheduledLiveLock.lock().isHeldByCaller()) {
-         scheduledLiveLock.stop();
-         this.scheduledLiveLock.lock().release();
+      LOGGER.debug("ENTER crashLiveServer");
+      try {
+         if (this.scheduledLiveLock.isStarted()) {
+            LOGGER.debug("scheduledLiveLock is running: request stop it and release live lock");
+            this.scheduledLiveLock.stop();
+            this.scheduledLiveLock.lock().release();
+         } else {
+            LOGGER.debug("scheduledLiveLock is not running");
+         }
+      } finally {
+         LOGGER.debug("EXIT crashLiveServer");
       }
    }
 
    @Override
    public void awaitLiveStatus() {
-      while (readSharedState() != SharedStateManager.State.LIVE) {
-         pauser.idle();
+      LOGGER.debug("ENTER awaitLiveStatus");
+      try {
+         while (readSharedState() != SharedStateManager.State.LIVE) {
+            pauser.idle();
+         }
+      } finally {
+         LOGGER.debug("EXIT awaitLiveStatus");
       }
    }
 
@@ -470,17 +515,20 @@ public final class JdbcNodeManager extends NodeManager {
    }
 
    private void writeSharedState(SharedStateManager.State state) {
-      assert !this.replicatedBackup : "the replicated backup can't write the shared state!";
+      LOGGER.debugf("writeSharedState state = %s", state);
       this.sharedStateManager.writeState(state);
    }
 
    private SharedStateManager.State readSharedState() {
-      return this.sharedStateManager.readState();
+      final SharedStateManager.State state = this.sharedStateManager.readState();
+      LOGGER.debugf("readSharedState state = %s", state);
+      return state;
    }
 
    @Override
    public SimpleString readNodeId() {
       final UUID nodeId = this.sharedStateManager.readNodeId();
+      LOGGER.debugf("readNodeId nodeId = %s", nodeId);
       setUUID(nodeId);
       return getNodeId();
    }
