@@ -20,6 +20,7 @@ package org.apache.activemq.cli.test;
 import java.io.InputStream;
 
 import org.apache.activemq.artemis.cli.commands.Create;
+import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,43 +31,43 @@ public class StreamClassPathTest {
     */
    @Test
    public void testFindStreams() throws Exception {
-      openStream(Create.BIN_ARTEMIS_CMD);
-      openStream(Create.BIN_ARTEMIS_SERVICE_EXE);
-      openStream(Create.BIN_ARTEMIS_SERVICE_XML);
-      openStream("etc/" + Create.ETC_ARTEMIS_PROFILE_CMD);
-      openStream(Create.BIN_ARTEMIS);
-      openStream(Create.BIN_ARTEMIS_SERVICE);
-      openStream("etc/" + Create.ETC_ARTEMIS_PROFILE);
-      openStream("etc/" + Create.ETC_LOGGING_PROPERTIES);
-      openStream("etc/" + Create.ETC_BOOTSTRAP_XML);
-      openStream("etc/" + Create.ETC_MANAGEMENT_XML);
-      openStream("etc/" + Create.ETC_BROKER_XML);
-      openStream("etc/" + Create.ETC_ARTEMIS_ROLES_PROPERTIES);
-      openStream("etc/" + Create.ETC_ARTEMIS_USERS_PROPERTIES);
-      openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
-      openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
-      openStream(Create.ETC_SHARED_STORE_SETTINGS_TXT);
-      openStream(Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
-      openStream(Create.ETC_CLUSTER_SETTINGS_TXT);
-      openStream(Create.ETC_CONNECTOR_SETTINGS_TXT);
-      openStream(Create.ETC_BOOTSTRAP_WEB_SETTINGS_TXT);
-      openStream(Create.ETC_JOURNAL_BUFFER_SETTINGS);
-      openStream(Create.ETC_AMQP_ACCEPTOR_TXT);
-      openStream(Create.ETC_MQTT_ACCEPTOR_TXT);
-      openStream(Create.ETC_HORNETQ_ACCEPTOR_TXT);
-      openStream(Create.ETC_STOMP_ACCEPTOR_TXT);
-      openStream(Create.ETC_PING_TXT);
-      openStream(Create.ETC_COMMENTED_PING_TXT);
-      openStream(Create.ETC_GLOBAL_MAX_SPECIFIED_TXT);
-      openStream(Create.ETC_GLOBAL_MAX_DEFAULT_TXT);
-      openStream("etc/" + Create.ETC_JOLOKIA_ACCESS_XML);
-      openStream(Create.ETC_DATABASE_STORE_TXT);
+      testStream(Create.class, Create.BIN_ARTEMIS_CMD);
+      testStream(Create.class, Create.BIN_ARTEMIS_SERVICE_EXE);
+      testStream(Create.class, Create.BIN_ARTEMIS_SERVICE_XML);
+      testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_PROFILE_CMD);
+      testStream(Create.class, Create.BIN_ARTEMIS);
+      testStream(Create.class, Create.BIN_ARTEMIS_SERVICE);
+      testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_PROFILE);
+      testStream(Create.class, "etc/" + Create.ETC_LOGGING_PROPERTIES);
+      testStream(Create.class, "etc/" + Create.ETC_BOOTSTRAP_XML);
+      testStream(Create.class, "etc/" + Create.ETC_MANAGEMENT_XML);
+      testStream(Create.class, "etc/" + Create.ETC_BROKER_XML);
+      testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_ROLES_PROPERTIES);
+      testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_USERS_PROPERTIES);
+      testStream(Create.class, Create.ETC_REPLICATED_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_REPLICATED_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_SHARED_STORE_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_CLUSTER_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_CONNECTOR_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_BOOTSTRAP_WEB_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_JOURNAL_BUFFER_SETTINGS);
+      testStream(Create.class, Create.ETC_AMQP_ACCEPTOR_TXT);
+      testStream(Create.class, Create.ETC_MQTT_ACCEPTOR_TXT);
+      testStream(Create.class, Create.ETC_HORNETQ_ACCEPTOR_TXT);
+      testStream(Create.class, Create.ETC_STOMP_ACCEPTOR_TXT);
+      testStream(Create.class, Create.ETC_PING_TXT);
+      testStream(Create.class, Create.ETC_COMMENTED_PING_TXT);
+      testStream(Create.class, Create.ETC_GLOBAL_MAX_SPECIFIED_TXT);
+      testStream(Create.class, Create.ETC_GLOBAL_MAX_DEFAULT_TXT);
+      testStream(Create.class, "etc/" + Create.ETC_JOLOKIA_ACCESS_XML);
+      testStream(Create.class, Create.ETC_DATABASE_STORE_TXT);
+      testStream(Producer.class, Producer.DEMO_TEXT);
 
    }
 
-   private void openStream(String source) throws Exception {
-      Create create = new Create();
-      InputStream in = create.openStream(source);
+   private void testStream(Class clazz, String source) throws Exception {
+      InputStream in = clazz.getResourceAsStream(source);
       Assert.assertNotNull(source + " not found", in);
       in.close();
    }
