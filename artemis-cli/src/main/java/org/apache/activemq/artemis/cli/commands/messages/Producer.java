@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 @Command(name = "producer", description = "It will send messages to an instance")
 public class Producer extends DestAbstract {
 
+   public static final String DEMO_TEXT = "demo.txt";
+
    @Option(name = "--non-persistent", description = "It will send messages non persistently")
    boolean nonpersistent = false;
 
@@ -37,6 +39,9 @@ public class Producer extends DestAbstract {
 
    @Option(name = "--text-size", description = "Size of each textMessage (The producer will use text message on this case)")
    int textMessageSize;
+
+   @Option(name = "--object-size", description = "Size of each ObjectMessage (The producer will use object mesasge on this case)")
+   int objectSize;
 
    @Option(name = "--msgttl", description = "TTL for each message")
    long msgTTL = 0L;
@@ -63,7 +68,7 @@ public class Producer extends DestAbstract {
             threadsArray[i] = new ProducerThread(session, dest, i);
 
             threadsArray[i].setVerbose(verbose).setSleep(sleep).setPersistent(!nonpersistent).
-               setMessageSize(messageSize).setTextMessageSize(textMessageSize).
+               setMessageSize(messageSize).setTextMessageSize(textMessageSize).setObjectSize(objectSize).
                setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize).
                setMessageCount(messageCount);
          }

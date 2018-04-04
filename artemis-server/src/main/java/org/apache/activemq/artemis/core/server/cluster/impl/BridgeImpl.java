@@ -1014,17 +1014,18 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    // To be called by the topology update
    // This logic will be updated on the cluster connection
    protected void nodeUP(TopologyMember member, boolean last) {
-      ClientSessionInternal sessionToUse = session;
-      RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
-
-      if (member != null && this.targetNodeID != null && this.targetNodeID.equals(member.getNodeId())) {
-         // this could be an update of the topology say after a backup started
-         BridgeImpl.this.targetNode = member;
-      } else {
-         // we don't need synchronization here, but we need to make sure we won't get a NPE on races
-         if (connectionToUse != null && member.isMember(connectionToUse)) {
-            this.targetNode = member;
-            this.targetNodeID = member.getNodeId();
+      if (member != null) {
+         ClientSessionInternal sessionToUse = session;
+         RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
+         if (this.targetNodeID != null && this.targetNodeID.equals(member.getNodeId())) {
+            // this could be an update of the topology say after a backup started
+            BridgeImpl.this.targetNode = member;
+         } else {
+            // we don't need synchronization here, but we need to make sure we won't get a NPE on races
+            if (connectionToUse != null && member.isMember(connectionToUse)) {
+               this.targetNode = member;
+               this.targetNodeID = member.getNodeId();
+            }
          }
       }
 
