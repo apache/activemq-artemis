@@ -20,7 +20,7 @@
 
    <jaas-security domain="activemq" certificate-domain="activemq-cert"/>
 
-   <server configuration="file:${artemis.URI.instance}/etc/broker.xml"/>
+   <server configuration="file:${artemis.instance}/etc/broker.xml"/>
 
 </broker>
 
