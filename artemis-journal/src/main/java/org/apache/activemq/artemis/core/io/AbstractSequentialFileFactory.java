@@ -187,7 +187,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       if (critialErrorListener != null) {
          critialErrorListener.onIOException(exception, message, file);
       } else {
-         logger.warn("Critical IO Error Called.  No Critical IO Error Handler Registered");
+         logger.warn("Critical IO Error Called.  No Critical IO Error Handler Registered::" + message + " at file " + file, exception);
       }
    }
 
