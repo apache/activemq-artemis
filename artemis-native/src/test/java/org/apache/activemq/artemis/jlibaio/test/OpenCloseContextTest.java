@@ -62,7 +62,7 @@ public class OpenCloseContextTest {
          };
          t.start();
          LibaioFile file = control.openFile(folder.newFile(), true);
-         file.fill(4 * 1024);
+         file.fill(file.getBlockSize(),4 * 1024);
          final CountDownLatch insideMethod = new CountDownLatch(1);
          final CountDownLatch awaitInside = new CountDownLatch(1);
          file.write(0, 512, buffer, new SubmitInfo() {
@@ -120,7 +120,7 @@ public class OpenCloseContextTest {
          };
          t.start();
          LibaioFile file = control.openFile(folder.newFile(), true);
-         file.fill(4 * 1024);
+         file.fill(file.getBlockSize(), 4 * 1024);
          final CountDownLatch insideMethod = new CountDownLatch(1);
          final CountDownLatch awaitInside = new CountDownLatch(1);
          file.write(0, 512, buffer, new SubmitInfo() {
