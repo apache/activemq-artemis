@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -1171,6 +1172,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             startCall();
             try {
                sessionContext.xaEnd(xid, flags);
+            } catch (ActiveMQNotConnectedException ex) {
+               ActiveMQClientLogger.LOGGER.connectionClosedWarn(ex.getType(), ex.getMessage());
+               if (logger.isDebugEnabled()) {
+                  logger.debug(ex.getMessage(), ex);
+               }
             } finally {
                endCall();
             }
@@ -1375,6 +1381,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
          try {
             sessionContext.xaRollback(xid, wasStarted);
+         } catch (ActiveMQNotConnectedException ex) {
+            ActiveMQClientLogger.LOGGER.connectionClosedWarn(ex.getType(), ex.getMessage());
+            if (logger.isDebugEnabled()) {
+               logger.debug(ex.getMessage(), ex);
+            }
          } finally {
             if (wasStarted) {
                start();
