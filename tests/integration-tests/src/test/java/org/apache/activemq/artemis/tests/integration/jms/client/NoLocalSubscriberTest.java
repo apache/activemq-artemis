@@ -171,8 +171,6 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          connection.start();
 
          // now drain the subscription
-         // we should not receive message M3, but we should receive message M4
-         // However for some reason Artemis doesn't receive either
          TextMessage textMessage = (TextMessage) topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 

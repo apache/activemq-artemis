@@ -1748,6 +1748,30 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       assertNull(transaction);
    }
 
+   @Test
+   public void testMessageDoesNotContainProps() throws Exception {
+      try (Connection connection = factory.createConnection()) {
+
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(queueName);
+         System.out.println("Queue:" + queue);
+         MessageProducer producer = session.createProducer(queue);
+         MessageConsumer consumer = session.createConsumer(queue);
+         TextMessage msg = session.createTextMessage("test");
+         producer.send(msg);
+         session.commit();
+
+         connection.start();
+
+         TextMessage message = (TextMessage) consumer.receive(5000);
+         Assert.assertEquals("test", message.getText());
+
+         Assert.assertNotNull(message);
+         Assert.assertFalse(message.getPropertyNames().hasMoreElements());
+         message.acknowledge();
+      }
+   }
+
    private void checkQueueEmpty(String qName) {
       PostOffice po = server.getPostOffice();
       LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.toSimpleString(qName));
