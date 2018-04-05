@@ -151,7 +151,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       }
 
       checkOpened();
-      aioFile.fill(size);
+      aioFile.fill(aioFactory.getAlignment(), size);
 
       fileSize = aioFile.getSize();
    }

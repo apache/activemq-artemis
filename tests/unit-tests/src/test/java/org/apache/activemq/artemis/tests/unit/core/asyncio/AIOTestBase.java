@@ -68,7 +68,7 @@ public abstract class AIOTestBase extends ActiveMQTestBase {
    }
 
    protected void preAlloc(final LibaioFile controller, final long size) throws ActiveMQException {
-      controller.fill(size);
+      controller.fill(controller.getBlockSize(), size);
    }
 
    protected static class CountDownCallback implements IOCallback {
