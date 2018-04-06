@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -709,19 +708,7 @@ public class NettyConnector extends AbstractConnector {
          return null;
       }
 
-      // HORNETQ-907 - strip off IPv6 scope-id (if necessary)
-      SocketAddress remoteDestination = new InetSocketAddress(host, port);
-      InetAddress inetAddress = ((InetSocketAddress) remoteDestination).getAddress();
-      if (inetAddress instanceof Inet6Address) {
-         Inet6Address inet6Address = (Inet6Address) inetAddress;
-         if (inet6Address.getScopeId() != 0) {
-            try {
-               remoteDestination = new InetSocketAddress(InetAddress.getByAddress(inet6Address.getAddress()), ((InetSocketAddress) remoteDestination).getPort());
-            } catch (UnknownHostException e) {
-               throw new IllegalArgumentException(e.getMessage());
-            }
-         }
-      }
+      InetSocketAddress remoteDestination = new InetSocketAddress(IPV6Util.stripBracketsAndZoneID(host), port);
 
       logger.debug("Remote destination: " + remoteDestination);
 
