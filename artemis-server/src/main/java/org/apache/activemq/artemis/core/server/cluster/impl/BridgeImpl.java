@@ -220,6 +220,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       this.server = server;
    }
 
+   /** For tests mainly */
+   public boolean isBlockedOnFlowControl() {
+      return blockedOnFlowControl;
+   }
+
    public static final byte[] getDuplicateBytes(final UUID nodeUUID, final long messageID) {
       byte[] bytes = new byte[24];
 
@@ -924,6 +929,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
             }
 
+            // need to reset blockedOnFlowControl after creating a new producer
+            // otherwise in case the bridge was blocked before a previous failure
+            // this would never resume
+            blockedOnFlowControl = false;
             producer = session.createProducer();
             session.addFailureListener(BridgeImpl.this);
 
