@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
@@ -52,11 +53,14 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    private long timeDifferenceMillisFromDb = 0;
 
    public static JdbcSharedStateManager usingDataSource(String holderId,
+                                                        int networkTimeout,
+                                                        Executor networkTimeoutExecutor,
                                                         long locksExpirationMillis,
                                                         long maxAllowedMillisFromDbTime,
                                                         DataSource dataSource,
                                                         SQLProvider provider) {
       final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis, maxAllowedMillisFromDbTime);
+      sharedStateManager.setNetworkTimeout(networkTimeoutExecutor, networkTimeout);
       sharedStateManager.setDataSource(dataSource);
       sharedStateManager.setSqlProvider(provider);
       try {
@@ -73,7 +77,26 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
                                                            String jdbcConnectionUrl,
                                                            String jdbcDriverClass,
                                                            SQLProvider provider) {
+      return JdbcSharedStateManager.usingConnectionUrl(holderId,
+                                                       -1,
+                                                       null,
+                                                       locksExpirationMillis,
+                                                       maxAllowedMillisFromDbTime,
+                                                       jdbcConnectionUrl,
+                                                       jdbcDriverClass,
+                                                       provider);
+   }
+
+   public static JdbcSharedStateManager usingConnectionUrl(String holderId,
+                                                           int networkTimeout,
+                                                           Executor networkTimeoutExecutor,
+                                                           long locksExpirationMillis,
+                                                           long maxAllowedMillisFromDbTime,
+                                                           String jdbcConnectionUrl,
+                                                           String jdbcDriverClass,
+                                                           SQLProvider provider) {
       final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis, maxAllowedMillisFromDbTime);
+      sharedStateManager.setNetworkTimeout(networkTimeoutExecutor, networkTimeout);
       sharedStateManager.setJdbcConnectionUrl(jdbcConnectionUrl);
       sharedStateManager.setJdbcDriverClass(jdbcDriverClass);
       sharedStateManager.setSqlProvider(provider);

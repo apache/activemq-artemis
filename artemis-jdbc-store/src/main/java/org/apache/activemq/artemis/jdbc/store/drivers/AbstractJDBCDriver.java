@@ -141,6 +141,9 @@ public abstract class AbstractJDBCDriver {
                throw e;
             }
          }
+         if (this.networkTimeoutMillis >= 0 && this.networkTimeoutExecutor == null) {
+            logger.warn("Unable to set a network timeout on the JDBC connection: networkTimeoutExecutor is null");
+         }
          if (this.networkTimeoutMillis >= 0 && this.networkTimeoutExecutor != null) {
             try {
                connection.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeoutMillis);
