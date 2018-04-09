@@ -123,6 +123,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
+
+   public void scheduledFlush() {
+      handler.scheduledFlush();
+   }
+
    public boolean isIncomingConnection() {
       return isIncomingConnection;
    }

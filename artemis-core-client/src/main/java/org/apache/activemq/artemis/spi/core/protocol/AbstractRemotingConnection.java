@@ -53,6 +53,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    }
 
    @Override
+   public void scheduledFlush() {
+      flush();
+   }
+
+   @Override
    public List<FailureListener> getFailureListeners() {
       return new ArrayList<>(failureListeners);
    }
