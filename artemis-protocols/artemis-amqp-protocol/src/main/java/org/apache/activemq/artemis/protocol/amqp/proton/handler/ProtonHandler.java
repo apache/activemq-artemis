@@ -131,6 +131,17 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       }
    }
 
+   /**
+    * We cannot flush until the initial handshake was finished.
+    * If this happens before the handshake, the connection response will happen without SASL
+    * and the client will respond and fail with an invalid code.
+    * */
+   public void scheduledFlush() {
+      if (receivedFirstPacket) {
+         flush();
+      }
+   }
+
    public int capacity() {
       lock.lock();
       try {

@@ -57,6 +57,8 @@ public interface RemotingConnection extends BufferHandler {
     */
    String getRemoteAddress();
 
+   void scheduledFlush();
+
    /**
     * add a failure listener.
     * <p>
