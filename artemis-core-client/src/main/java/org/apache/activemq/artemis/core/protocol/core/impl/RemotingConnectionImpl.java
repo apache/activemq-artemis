@@ -78,6 +78,12 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    private String clientID;
 
+
+   @Override
+   public void scheduledFlush() {
+      flush();
+   }
+
    // Constructors
    // ---------------------------------------------------------------------------------
 
