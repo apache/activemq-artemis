@@ -456,6 +456,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
     The JDBC network connection timeout in milliseconds. The default value
     is 20000 milliseconds (ie 20 seconds).
+    When using a shared store it is recommended to set it less then or equal to `jdbc-lock-expiration`.
     
 -   `jdbc-lock-renew-period`
 
