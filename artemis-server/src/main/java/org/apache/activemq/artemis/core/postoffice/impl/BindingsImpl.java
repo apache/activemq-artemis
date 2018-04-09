@@ -155,6 +155,11 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
+   public boolean allowRedistribute() {
+      return messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND);
+   }
+
+   @Override
    public boolean redistribute(final Message message,
                                final Queue originatingQueue,
                                final RoutingContext context) throws Exception {
