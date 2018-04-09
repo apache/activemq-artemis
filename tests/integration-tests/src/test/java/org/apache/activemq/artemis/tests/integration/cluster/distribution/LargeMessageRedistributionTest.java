@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import java.io.File;
-import java.util.Arrays;
-
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
