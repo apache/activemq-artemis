@@ -116,6 +116,12 @@ public final class StompConnection implements RemotingConnection {
       return frameHandler;
    }
 
+
+   @Override
+   public void scheduledFlush() {
+      flush();
+   }
+
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
       StompFrame frame = null;
       try {
