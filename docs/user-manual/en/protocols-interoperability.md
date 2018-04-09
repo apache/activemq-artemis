@@ -400,6 +400,12 @@ If no indication of routing type is supplied then anycast semantics are used.
 The `destination` header maps to an address of the same name. If the `destination` header
 used a prefix then the prefix is stripped.
 
+#### Receiving
+
+When a client receives a message from the broker the message will have the `destination-type`
+header set to either `MULTICAST` or `ANYCAST` as determined when the message was originally
+sent/routed.
+
 #### Subscribing
 
 When a Stomp client subscribes to a destination (using a `SUBSCRIBE` frame), the protocol
