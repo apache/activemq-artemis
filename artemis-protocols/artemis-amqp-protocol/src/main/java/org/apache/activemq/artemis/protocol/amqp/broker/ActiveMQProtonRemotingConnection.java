@@ -60,6 +60,12 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       return manager;
    }
 
+
+   @Override
+   public void scheduledFlush() {
+      amqpConnection.scheduledFlush();
+   }
+
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
