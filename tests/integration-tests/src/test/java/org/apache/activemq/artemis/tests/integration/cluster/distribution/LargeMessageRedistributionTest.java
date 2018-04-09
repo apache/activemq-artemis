@@ -16,11 +16,56 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import java.io.File;
+import java.util.Arrays;
+
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.junit.Test;
+
 public class LargeMessageRedistributionTest extends MessageRedistributionTest {
+
+   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    public boolean isLargeMessage() {
       return true;
    }
 
+   @Test
+   public void testRedistributionLargeMessageDirCleanup() throws Exception {
+      final long delay = 1000;
+      final int numMessages = 5;
+
+      setRedistributionDelay(delay);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(1, "queues.testaddress", "queue0", null, false);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 0, true);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, false);
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      send(0, "queues.testaddress", numMessages, false, null);
+      addConsumer(0, 0, "queue0", null);
+
+      verifyReceiveAll(numMessages, 0);
+      removeConsumer(0);
+
+      addConsumer(1, 1, "queue0", null);
+      verifyReceiveAll(numMessages, 1);
+      removeConsumer(1);
+
+      Wait.assertEquals(0, () -> getServer(0).getConfiguration().getLargeMessagesLocation().listFiles().length);
+      Wait.assertEquals(numMessages, () -> getServer(1).getConfiguration().getLargeMessagesLocation().listFiles().length);
+   }
 }
