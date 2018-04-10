@@ -115,8 +115,9 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       return refs;
    }
 
+
    @Override
-   public List<MessageReference> cancel(final Filter filter) throws ActiveMQException {
+   public List<MessageReference> cancel(Filter filter, boolean updateMetrics) throws ActiveMQException {
       List<MessageReference> refs = new ArrayList<>();
 
       synchronized (scheduledReferences) {
@@ -127,11 +128,18 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             if (filter == null || filter.match(ref.getMessage())) {
                iter.remove();
                refs.add(ref);
-               metrics.decrementMetrics(ref);
+               if (updateMetrics) {
+                  metrics.decrementMetrics(ref);
+               }
             }
          }
       }
       return refs;
+   }
+
+   @Override
+   public List<MessageReference> cancel(final Filter filter) throws ActiveMQException {
+      return cancel(filter, true);
    }
 
    @Override

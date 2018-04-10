@@ -37,5 +37,7 @@ public interface ScheduledDeliveryHandler {
 
    List<MessageReference> cancel(Filter filter) throws ActiveMQException;
 
+   List<MessageReference> cancel(Filter filter, boolean updateMetrics) throws ActiveMQException;
+
    MessageReference removeReferenceWithID(long id) throws ActiveMQException;
 }
