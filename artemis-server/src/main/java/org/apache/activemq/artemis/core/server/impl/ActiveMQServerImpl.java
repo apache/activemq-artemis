@@ -1959,16 +1959,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void registerBrokerPlugins(final List<ActiveMQServerPlugin> plugins) {
       configuration.registerBrokerPlugins(plugins);
+      plugins.forEach(plugin -> plugin.registered(this));
    }
 
    @Override
    public void registerBrokerPlugin(final ActiveMQServerPlugin plugin) {
       configuration.registerBrokerPlugin(plugin);
+      plugin.registered(this);
    }
 
    @Override
    public void unRegisterBrokerPlugin(final ActiveMQServerPlugin plugin) {
       configuration.unRegisterBrokerPlugin(plugin);
+      plugin.unregistered(this);
    }
 
    @Override
@@ -2338,6 +2341,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
          reloadManager.addCallback(configuration.getConfigurationUrl(), new ConfigurationFileReloader());
+      }
+
+      if (hasBrokerPlugins()) {
+         callBrokerPlugins(plugin -> plugin.registered(this));
       }
 
       return true;
