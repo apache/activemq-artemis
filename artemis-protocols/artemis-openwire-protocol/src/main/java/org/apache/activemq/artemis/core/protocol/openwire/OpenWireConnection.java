@@ -1295,7 +1295,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          outWireFormat.renegotiateWireFormat(command);
          //throw back a brokerInfo here
          protocolManager.sendBrokerInfo(OpenWireConnection.this);
-         protocolManager.setUpInactivityParams(OpenWireConnection.this, command);
+         protocolManager.configureInactivityParams(OpenWireConnection.this, command);
          return null;
       }
 
