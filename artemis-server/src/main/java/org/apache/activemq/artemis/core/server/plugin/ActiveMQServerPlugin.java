@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
@@ -49,6 +50,23 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponent;
  */
 public interface ActiveMQServerPlugin {
 
+   /**
+    * The plugin has been registered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been registered to
+    */
+   default void registered(ActiveMQServer server) {
+
+   }
+
+   /**
+    * The plugin has been unregistered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been unregistered to
+    */
+   default void unregistered(ActiveMQServer server) {
+
+   }
 
    /**
     * A connection has been created.

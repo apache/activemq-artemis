@@ -39,7 +39,15 @@ public enum CoreNotificationType implements NotificationType {
    PROPOSAL(18),
    PROPOSAL_RESPONSE(19),
    UNPROPOSAL(20),
-   CONSUMER_SLOW(21);
+   CONSUMER_SLOW(21),
+   ADDRESS_ADDED(22),
+   ADDRESS_REMOVED(23),
+   CONNECTION_CREATED(24),
+   CONNECTION_DESTROYED(25),
+   SESSION_CREATED(26),
+   SESSION_CLOSED(27),
+   MESSAGE_DELIVERED(28),
+   MESSAGE_EXPIRED(29);
 
    private final int value;
 

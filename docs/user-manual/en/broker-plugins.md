@@ -131,3 +131,66 @@ Most events in the LoggingActiveMQServerPlugin follow a `beforeX` and `afterX` n
 At Log Level `INFO`, the LoggingActiveMQServerPlugin logs an entry when an `afterX` notification occurs. By setting the Logger
 "org.apache.activemq.artemis.core.server.plugin.impl" to `DEBUG` Level, log entries are generated for both `beforeX` and `afterX` notifications.
 Log Level `DEBUG` will also log more information for a notification when available.
+
+## Using the NotificationActiveMQServerPlugin
+
+The NotificationActiveMQServerPlugin can be configured to send extra notifications for specific broker events.
+
+You can select which notifications are sent by setting the following configuration properties to `true`.
+
+<table summary="NotificationActiveMQServerPlugin configuration" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Property</th>
+        <th>Property Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>SEND_CONNECTION_NOTIFICATIONS</td>
+        <td>Sends a notification when a Connection is created/destroy. Default `false`.</td>
+    </tr>
+    <tr>
+        <td>SEND_SESSION_NOTIFICATIONS</td>
+        <td>Sends a notification when a Session is created/closed. Default `false`.</td>
+    </tr>
+    <tr>
+        <td>SEND_ADDRESS_NOTIFICATIONS</td>
+        <td>Sends a notification when an Address is added/removed. Default `false`.</td>
+    </tr>
+    <tr>
+        <td>SEND_DELIVERED_NOTIFICATIONS</td>
+        <td>Sends a notification when message is delivered to a consumer. Default `false`</td>
+    </tr>
+    <tr>
+        <td>SEND_EXPIRED_NOTIFICATIONS</td>
+        <td>Sends a notification when message has been expired by the broker. Default `false`</td>
+    </tr>
+    </tbody>
+</table>
+
+By default the NotificationActiveMQServerPlugin will not send any notifications. The plugin is activated by setting one (or a selection)
+of the above configuration properties to `true`.
+
+To configure the plugin, you can add the following configuration to the broker. In the example below both SEND_CONNECTION_NOTIFICATIONS
+and SEND_SESSION_NOTIFICATIONS will be sent by the broker.
+
+```xml
+<configuration ...>
+
+...
+    <broker-plugins>
+        <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.NotificationActiveMQServerPlugin">
+            <property key="SEND_CONNECTION_NOTIFICATIONS" value="true" />
+            <property key="SEND_SESSION_NOTIFICATIONS" value="true" />
+        </broker-plugin>
+    </broker-plugins>
+...
+
+</configuration>
+```
+
