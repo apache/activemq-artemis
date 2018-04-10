@@ -2510,6 +2510,39 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(new String(body), "theBody");
    }
 
+   @Test
+   public void testGetScheduledCountOnRemove() throws Exception {
+      long delay = Integer.MAX_VALUE;
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getScheduledCount());
+
+      Field queueMemorySizeField = QueueImpl.class.getDeclaredField("queueMemorySize");
+      queueMemorySizeField.setAccessible(true);
+      final LocalQueueBinding binding = (LocalQueueBinding) server.getPostOffice().getBinding(queue);
+      Queue q = binding.getQueue();
+      AtomicInteger queueMemorySize1 = (AtomicInteger) queueMemorySizeField.get(q);
+      assertTrue(queueMemorySize1.get() == 0);
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(durable);
+      message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
+      producer.send(message);
+
+      queueControl.removeAllMessages();
+
+      Assert.assertEquals(0, queueControl.getMessageCount());
+
+      //Verify that original queue has a memory size of 0
+      assertTrue(queueMemorySize1.get() == 0);
+
+      session.deleteQueue(queue);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
