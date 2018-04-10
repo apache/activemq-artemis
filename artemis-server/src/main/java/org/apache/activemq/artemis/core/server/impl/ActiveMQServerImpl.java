@@ -2752,7 +2752,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       RoutingType routingType = addrInfo == null ? null : addrInfo.getRoutingType();
       RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
-      if (autoCreateAddress) {
+      if (autoCreateAddress || temporary) {
          if (info == null) {
             final AddressInfo addressInfo = new AddressInfo(addressToUse, rt);
             addressInfo.setAutoCreated(true);
