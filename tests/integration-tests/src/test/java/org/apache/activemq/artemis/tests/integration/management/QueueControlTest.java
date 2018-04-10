@@ -2510,6 +2510,29 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(new String(body), "theBody");
    }
 
+   @Test
+   public void testGetScheduledCountOnRemove() throws Exception {
+      long delay = Integer.MAX_VALUE;
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getScheduledCount());
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(durable);
+      message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
+      producer.send(message);
+
+      queueControl.removeAllMessages();
+
+      Assert.assertEquals(0, queueControl.getMessageCount());
+
+      session.deleteQueue(queue);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

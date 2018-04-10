@@ -1544,7 +1544,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             txCount = 0;
          }
 
-         List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
+         List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1, false);
          for (MessageReference messageReference : cancelled) {
             messageAction.actMessage(tx, messageReference);
             count++;
