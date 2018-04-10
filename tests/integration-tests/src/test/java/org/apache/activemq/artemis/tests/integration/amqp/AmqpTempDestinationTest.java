@@ -17,10 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
-import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_QUEUE_CAPABILITY;
-import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_TOPIC_CAPABILITY;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -281,49 +278,5 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       receiver.close();
 
       connection.close();
-   }
-
-   protected Source createDynamicSource(boolean topic) {
-
-      Source source = new Source();
-      source.setDynamic(true);
-      source.setDurable(TerminusDurability.NONE);
-      source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-
-      // Set the dynamic node lifetime-policy
-      Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
-      dynamicNodeProperties.put(LIFETIME_POLICY, DeleteOnClose.getInstance());
-      source.setDynamicNodeProperties(dynamicNodeProperties);
-
-      // Set the capability to indicate the node type being created
-      if (!topic) {
-         source.setCapabilities(TEMP_QUEUE_CAPABILITY);
-      } else {
-         source.setCapabilities(TEMP_TOPIC_CAPABILITY);
-      }
-
-      return source;
-   }
-
-   protected Target createDynamicTarget(boolean topic) {
-
-      Target target = new Target();
-      target.setDynamic(true);
-      target.setDurable(TerminusDurability.NONE);
-      target.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-
-      // Set the dynamic node lifetime-policy
-      Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
-      dynamicNodeProperties.put(LIFETIME_POLICY, DeleteOnClose.getInstance());
-      target.setDynamicNodeProperties(dynamicNodeProperties);
-
-      // Set the capability to indicate the node type being created
-      if (!topic) {
-         target.setCapabilities(TEMP_QUEUE_CAPABILITY);
-      } else {
-         target.setCapabilities(TEMP_TOPIC_CAPABILITY);
-      }
-
-      return target;
    }
 }

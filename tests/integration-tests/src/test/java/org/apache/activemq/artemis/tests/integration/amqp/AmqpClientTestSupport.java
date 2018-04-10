@@ -44,8 +44,17 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.DeleteOnClose;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.Target;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
+import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.junit.After;
 import org.junit.Before;
+
+import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
+import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_QUEUE_CAPABILITY;
+import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_TOPIC_CAPABILITY;
 
 /**
  * Test support class for tests that will be using the AMQP Proton wrapper client. This is to
@@ -201,7 +210,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
-      addressSettings.setAutoCreateAddresses(isAutoCreateQueues());
+      addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
       addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
       addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
 
@@ -344,5 +353,49 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       } finally {
          connection.close();
       }
+   }
+
+   protected Source createDynamicSource(boolean topic) {
+
+      Source source = new Source();
+      source.setDynamic(true);
+      source.setDurable(TerminusDurability.NONE);
+      source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+
+      // Set the dynamic node lifetime-policy
+      Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
+      dynamicNodeProperties.put(LIFETIME_POLICY, DeleteOnClose.getInstance());
+      source.setDynamicNodeProperties(dynamicNodeProperties);
+
+      // Set the capability to indicate the node type being created
+      if (!topic) {
+         source.setCapabilities(TEMP_QUEUE_CAPABILITY);
+      } else {
+         source.setCapabilities(TEMP_TOPIC_CAPABILITY);
+      }
+
+      return source;
+   }
+
+   protected Target createDynamicTarget(boolean topic) {
+
+      Target target = new Target();
+      target.setDynamic(true);
+      target.setDurable(TerminusDurability.NONE);
+      target.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+
+      // Set the dynamic node lifetime-policy
+      Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
+      dynamicNodeProperties.put(LIFETIME_POLICY, DeleteOnClose.getInstance());
+      target.setDynamicNodeProperties(dynamicNodeProperties);
+
+      // Set the capability to indicate the node type being created
+      if (!topic) {
+         target.setCapabilities(TEMP_QUEUE_CAPABILITY);
+      } else {
+         target.setCapabilities(TEMP_TOPIC_CAPABILITY);
+      }
+
+      return target;
    }
 }
