@@ -512,6 +512,45 @@ public class NettyConnection implements Connection {
    }
 
    @Override
+   public boolean isSameTarget(TransportConfiguration... configs) {
+      boolean result = false;
+      for (TransportConfiguration cfg : configs) {
+         if (cfg == null) {
+            continue;
+         }
+         if (NettyConnectorFactory.class.getName().equals(cfg.getFactoryClassName())) {
+            if (configuration.get(TransportConstants.PORT_PROP_NAME).equals(cfg.getParams().get(TransportConstants.PORT_PROP_NAME))) {
+               //port same, check host
+               Object hostParam = configuration.get(TransportConstants.HOST_PROP_NAME);
+               if (hostParam != null) {
+                  if (hostParam.equals(cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
+                     result = true;
+                     break;
+                  } else {
+                     //check special 'localhost' case
+                     if (isLocalhost((String) configuration.get(TransportConstants.HOST_PROP_NAME)) && isLocalhost((String) cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
+                        result = true;
+                        break;
+                     }
+                  }
+               } else if (cfg.getParams().get(TransportConstants.HOST_PROP_NAME) == null) {
+                  result = true;
+                  break;
+               }
+            }
+         }
+      }
+      return result;
+   }
+
+   //here we consider 'localhost' is equivalent to '127.0.0.1'
+   //other values of 127.0.0.x is not and the user makes sure
+   //not to mix use of 'localhost' and '127.0.0.x'
+   private boolean isLocalhost(String hostname) {
+      return "127.0.0.1".equals(hostname) || "localhost".equals(hostname);
+   }
+
+   @Override
    public final String toString() {
       return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
    }
