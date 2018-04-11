@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQNullRefException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -97,6 +98,8 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.NULL_REF;
 
 /**
  * Implementation of a Queue
@@ -2743,6 +2746,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private Message makeCopy(final MessageReference ref,
                             final boolean expiry,
                             final boolean copyOriginalHeaders) throws Exception {
+      if (ref == null) {
+         ActiveMQServerLogger.LOGGER.nullRefMessage();
+         throw new ActiveMQNullRefException("Reference to message is null");
+      }
+
       Message message = ref.getMessage();
       /*
        We copy the message and send that to the dla/expiry queue - this is
@@ -2758,7 +2766,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       Message copy = message.copy(newID);
 
       if (copyOriginalHeaders) {
-         copy.referenceOriginalMessage(message, ref != null ? ref.getQueue().getName().toString() : null);
+         copy.referenceOriginalMessage(message, ref.getQueue().getName().toString());
       }
 
       copy.setExpiration(0);

@@ -233,7 +233,11 @@ public class EmbeddedJMSResource extends ExternalResource {
     * be stopped manually to support advanced testing scenarios.
     */
    public void stop() {
-      log.info("Stopping {}: {}", this.getClass().getSimpleName(), this.getServerName());
+      String name = "null";
+      if (jmsServer != null) {
+         name = this.getServerName();
+      }
+      log.info("Stopping {}: {}", this.getClass().getSimpleName(), name);
       if (internalClient != null) {
          internalClient.stop();
          internalClient = null;
