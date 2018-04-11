@@ -615,12 +615,15 @@ login module. The options supported by this login module are as follows:
 -   `reload` - boolean flag; whether or not to reload the properties files when a modification occurs; default is `false`
 
 In the context of the certificate login module, the `users.properties` file consists of a list of properties of the form,
-`UserName=StringifiedSubjectDN`. For example, to define the users, system, user, and guest, you could create a file like
-the following:
+`UserName=StringifiedSubjectDN` or `UserName=/SubjectDNRegExp/`. For example, to define the users, `system`, `user` and
+`guest` as well as a `hosts` user matching several DNs, you could create a file like the following:
 
     system=CN=system,O=Progress,C=US
     user=CN=humble user,O=Progress,C=US
     guest=CN=anon,O=Progress,C=DE
+    hosts=/CN=host\\d+\\.acme\\.com,O=Acme,C=UK/
+
+Note that the backslash character has to be escaped because it has a special treatment in properties files.
 
 Each username is mapped to a subject DN, encoded as a string (where the string encoding is specified by RFC 2253). For
 example, the system username is mapped to the `CN=system,O=Progress,C=US` subject DN. When performing authentication,
