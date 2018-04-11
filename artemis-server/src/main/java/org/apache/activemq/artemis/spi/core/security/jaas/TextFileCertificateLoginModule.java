@@ -23,6 +23,7 @@ import javax.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * A LoginModule allowing for SSL certificate based authentication based on
@@ -39,9 +40,11 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
    private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.user";
    private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.role";
+   private static final String REGEXP_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.regexp";
 
    private Map<String, Set<String>> rolesByUser;
    private Map<String, String> usersByDn;
+   private Map<String, Pattern> regexpByUser;
 
    /**
     * Performs initialization of file paths. A standard JAAS override.
@@ -54,6 +57,11 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
       super.initialize(subject, callbackHandler, sharedState, options);
       usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
       rolesByUser = load(ROLE_FILE_PROP_NAME, "", options).invertedPropertiesValuesMap();
+      if (options.get(REGEXP_FILE_PROP_NAME) != null) {
+         regexpByUser = load(REGEXP_FILE_PROP_NAME, "", options).regexpPropertiesMap();
+      } else {
+         regexpByUser = null;
+      }
    }
 
    /**
@@ -71,8 +79,12 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
       if (certs == null) {
          throw new LoginException("Client certificates not found. Cannot authenticate.");
       }
-
-      return usersByDn.get(getDistinguishedName(certs));
+      String dn = getDistinguishedName(certs);
+      String name = usersByDn.get(dn);
+      if (name == null && regexpByUser != null) {
+         name = getUserByRegexp(dn);
+      }
+      return name;
    }
 
    /**
@@ -92,4 +104,19 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
       return userRoles;
    }
+
+   private synchronized String getUserByRegexp(String dn) {
+      String name = null;
+      for (Map.Entry<String, Pattern> val : regexpByUser.entrySet()) {
+         if (val.getValue().matcher(dn).matches()) {
+            name = val.getKey();
+            break;
+         }
+      }
+      if (name != null) {
+         usersByDn.put(dn, name);
+      }
+      return name;
+   }
+
 }
