@@ -209,7 +209,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          return false;
       }
       // if the current page is complete, we must move it out of the way
-      if (pageStore != null && pageStore.getCurrentPage() != null &&
+      if (pageStore.getCurrentPage() != null &&
           pageStore.getCurrentPage().getPageId() == position.getPageNr()) {
          pageStore.forceAnotherPage();
       }
