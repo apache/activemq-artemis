@@ -105,12 +105,16 @@ public final class TopologyMemberImpl implements TopologyMember {
       return connector;
    }
 
+   /**
+    * We only need to check if the connection point to the same node,
+    * don't need to compare the whole params map.
+    * @param connection The connection to the target node
+    * @return true if the connection point to the same node
+    * as this member represents.
+    */
    @Override
    public boolean isMember(RemotingConnection connection) {
-      TransportConfiguration connectorConfig = connection.getTransportConnection() != null ? connection.getTransportConnection().getConnectorConfig() : null;
-
-      return isMember(connectorConfig);
-
+      return connection.isSameTarget(getConnector().getA(), getConnector().getB());
    }
 
    @Override
