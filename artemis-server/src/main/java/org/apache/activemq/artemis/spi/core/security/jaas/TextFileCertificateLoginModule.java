@@ -40,11 +40,10 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
    private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.user";
    private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.role";
-   private static final String REGEXP_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.regexp";
 
    private Map<String, Set<String>> rolesByUser;
-   private Map<String, String> usersByDn;
    private Map<String, Pattern> regexpByUser;
+   private Map<String, String> usersByDn;
 
    /**
     * Performs initialization of file paths. A standard JAAS override.
@@ -56,12 +55,8 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
                           Map<String, ?> options) {
       super.initialize(subject, callbackHandler, sharedState, options);
       usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      regexpByUser = load(USER_FILE_PROP_NAME, "", options).regexpPropertiesMap();
       rolesByUser = load(ROLE_FILE_PROP_NAME, "", options).invertedPropertiesValuesMap();
-      if (options.get(REGEXP_FILE_PROP_NAME) != null) {
-         regexpByUser = load(REGEXP_FILE_PROP_NAME, "", options).regexpPropertiesMap();
-      } else {
-         regexpByUser = null;
-      }
    }
 
    /**
@@ -80,11 +75,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
          throw new LoginException("Client certificates not found. Cannot authenticate.");
       }
       String dn = getDistinguishedName(certs);
-      String name = usersByDn.get(dn);
-      if (name == null && regexpByUser != null) {
-         name = getUserByRegexp(dn);
-      }
-      return name;
+      return usersByDn.containsKey(dn) ? usersByDn.get(dn) : getUserByRegexp(dn);
    }
 
    /**
@@ -113,9 +104,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
             break;
          }
       }
-      if (name != null) {
-         usersByDn.put(dn, name);
-      }
+      usersByDn.put(dn, name);
       return name;
    }
 

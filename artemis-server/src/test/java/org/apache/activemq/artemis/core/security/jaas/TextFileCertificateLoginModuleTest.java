@@ -44,10 +44,10 @@ public class TextFileCertificateLoginModuleTest {
 
    private static final Logger logger = Logger.getLogger(TextFileCertificateLoginModuleTest.class);
 
-   private static final String CERT_EMPTY_FILE = "cert-empty.properties";
    private static final String CERT_USERS_FILE_SMALL = "cert-users-SMALL.properties";
    private static final String CERT_USERS_FILE_LARGE = "cert-users-LARGE.properties";
-   private static final String CERT_REGEXPS_FILE = "cert-regexps.properties";
+   private static final String CERT_USERS_FILE_REGEXP = "cert-users-REGEXP.properties";
+   private static final String CERT_GROUPS_FILE = "cert-roles.properties";
 
    private static final int NUMBER_SUBJECTS = 10;
 
@@ -81,27 +81,24 @@ public class TextFileCertificateLoginModuleTest {
 
    @Test
    public void testLoginWithSMALLUsersFile() throws Exception {
-      loginTest(CERT_USERS_FILE_SMALL, CERT_EMPTY_FILE, null);
+      loginTest(CERT_USERS_FILE_SMALL, CERT_GROUPS_FILE);
    }
 
    @Test
    public void testLoginWithLARGEUsersFile() throws Exception {
-      loginTest(CERT_USERS_FILE_LARGE, CERT_EMPTY_FILE, null);
+      loginTest(CERT_USERS_FILE_LARGE, CERT_GROUPS_FILE);
    }
 
    @Test
-   public void testLoginWithRegexpsFile() throws Exception {
-      loginTest(CERT_EMPTY_FILE, CERT_EMPTY_FILE, CERT_REGEXPS_FILE);
+   public void testLoginWithREGEXPUsersFile() throws Exception {
+      loginTest(CERT_USERS_FILE_REGEXP, CERT_GROUPS_FILE);
    }
 
-   private void loginTest(String usersFiles, String groupsFile, String regexpsFile) throws LoginException {
+   private void loginTest(String usersFiles, String groupsFile) throws LoginException {
 
       HashMap<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", usersFiles);
       options.put("org.apache.activemq.jaas.textfiledn.role", groupsFile);
-      if (regexpsFile != null) {
-         options.put("org.apache.activemq.jaas.textfiledn.regexp", regexpsFile);
-      }
       options.put("reload", "true");
 
       JaasCallbackHandler[] callbackHandlers = new JaasCallbackHandler[NUMBER_SUBJECTS];

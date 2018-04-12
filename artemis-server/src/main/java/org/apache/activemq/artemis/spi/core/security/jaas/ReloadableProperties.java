@@ -75,7 +75,10 @@ public class ReloadableProperties {
       if (invertedProps == null) {
          invertedProps = new HashMap<>(props.size());
          for (Map.Entry<Object, Object> val : props.entrySet()) {
-            invertedProps.put((String) val.getValue(), (String) val.getKey());
+            String str = (String) val.getValue();
+            if (!looksLikeRegexp(str)) {
+               invertedProps.put(str, (String) val.getKey());
+            }
          }
       }
       return invertedProps;
@@ -103,11 +106,14 @@ public class ReloadableProperties {
       if (regexpProps == null) {
          regexpProps = new HashMap<>(props.size());
          for (Map.Entry<Object, Object> val : props.entrySet()) {
-            try {
-               Pattern p = Pattern.compile((String) val.getValue());
-               regexpProps.put((String) val.getKey(), p);
-            } catch (PatternSyntaxException e) {
-               ActiveMQServerLogger.LOGGER.warn("Ignoring invalid regexp: " + val.getValue());
+            String str = (String) val.getValue();
+            if (looksLikeRegexp(str)) {
+               try {
+                  Pattern p = Pattern.compile(str.substring(1, str.length() - 1));
+                  regexpProps.put((String) val.getKey(), p);
+               } catch (PatternSyntaxException e) {
+                  ActiveMQServerLogger.LOGGER.warn("Ignoring invalid regexp: " + str);
+               }
             }
          }
       }
@@ -132,6 +138,11 @@ public class ReloadableProperties {
 
    private boolean hasModificationAfter(long reloadTime) {
       return key.file.lastModified() > reloadTime;
+   }
+
+   private boolean looksLikeRegexp(String str) {
+      int len = str.length();
+      return len > 2 && str.charAt(0) == '/' && str.charAt(len - 1) == '/';
    }
 
 }

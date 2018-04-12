@@ -150,16 +150,26 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthenticationWithCerts() throws Exception {
-      testJAASSecurityManagerAuthenticationWithCerts(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
+      testJAASSecurityManagerAuthenticationWithCerts("CertLogin", TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
    }
 
    @Test
    public void testJAASSecurityManagerAuthenticationWithCertsWantClientAuth() throws Exception {
-      testJAASSecurityManagerAuthenticationWithCerts(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
+      testJAASSecurityManagerAuthenticationWithCerts("CertLogin", TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
    }
 
-   protected void testJAASSecurityManagerAuthenticationWithCerts(String clientAuthPropName) throws Exception {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithRegexps() throws Exception {
+      testJAASSecurityManagerAuthenticationWithCerts("CertLoginWithRegexp", TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithRegexpsWantClientAuth() throws Exception {
+      testJAASSecurityManagerAuthenticationWithCerts("CertLoginWithRegexp", TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
+   }
+
+   protected void testJAASSecurityManagerAuthenticationWithCerts(String secManager, String clientAuthPropName) throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(secManager);
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       Map<String, Object> params = new HashMap<>();
