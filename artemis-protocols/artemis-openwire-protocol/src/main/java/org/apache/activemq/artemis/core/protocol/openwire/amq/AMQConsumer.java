@@ -54,15 +54,15 @@ import org.apache.activemq.command.RemoveInfo;
 
 public class AMQConsumer {
    private static final String AMQ_NOTIFICATIONS_DESTINATION = "activemq.notifications";
-   private AMQSession session;
+   private final AMQSession session;
    private final org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private final boolean hasNotificationDestination;
-   private ConsumerInfo info;
+   private final ConsumerInfo info;
    private final ScheduledExecutorService scheduledPool;
    private ServerConsumer serverConsumer;
 
    private int prefetchSize;
-   private AtomicInteger currentWindow;
+   private final AtomicInteger currentWindow;
    private long messagePullSequence = 0;
    private MessagePullHandler messagePullHandler;
    //internal means we don't expose
@@ -284,7 +284,7 @@ public class AMQConsumer {
 
          if (ack.isIndividualAck() || ack.isStandardAck()) {
             for (MessageReference ref : ackList) {
-               ref.acknowledge(transaction);
+               ref.acknowledge(transaction, serverConsumer);
             }
          } else if (ack.isPoisonAck()) {
             for (MessageReference ref : ackList) {
@@ -302,7 +302,7 @@ public class AMQConsumer {
       }
       if (ack.isExpiredAck()) {
          for (MessageReference ref : ackList) {
-            ref.getQueue().expire(ref);
+            ref.getQueue().expire(ref, serverConsumer);
          }
       }
    }

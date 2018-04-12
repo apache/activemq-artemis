@@ -272,13 +272,13 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
-   public void messageExpired(MessageReference message, SimpleString messageExpiryAddress) {
+   public void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) {
       Preconditions.checkNotNull(message);
       methodCalled(MESSAGE_EXPIRED);
    }
 
    @Override
-   public void messageAcknowledged(MessageReference ref, AckReason reason) {
+   public void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) {
       Preconditions.checkNotNull(ref);
       Preconditions.checkNotNull(reason);
       methodCalled(MESSAGE_ACKED);
