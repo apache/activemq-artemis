@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -276,8 +277,13 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
-      public void acknowledge(Transaction tx, AckReason reason) throws Exception {
-         ref.acknowledge(tx, reason);
+      public void acknowledge(Transaction tx, ServerConsumer consumer) throws Exception {
+         ref.acknowledge(tx, consumer);
+      }
+
+      @Override
+      public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
+         ref.acknowledge(tx, reason, consumer);
       }
 
       @Override

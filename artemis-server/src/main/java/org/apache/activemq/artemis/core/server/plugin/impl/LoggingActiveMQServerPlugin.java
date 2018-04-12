@@ -617,7 +617,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * @throws ActiveMQException
     */
    @Override
-   public void messageAcknowledged(MessageReference ref, AckReason reason) throws ActiveMQException {
+   public void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
       if (logAll || logDeliveringEvents) {
 
          //details - debug logging
@@ -629,7 +629,8 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
             // info level logging
             LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledged((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
-                                                                         (ref == null ? UNAVAILABLE : ref.hasConsumerId() ? Long.toString(ref.getConsumerId()) : null),
+                                                                         (consumer == null ? UNAVAILABLE : consumer.getSessionID() != null ? consumer.getSessionID() : null),
+                                                                         (consumer == null ? UNAVAILABLE : Long.toString(consumer.getID())),
                                                                          (queue == null ? UNAVAILABLE : queue.getName().toString()),
                                                                          reason);
          }
