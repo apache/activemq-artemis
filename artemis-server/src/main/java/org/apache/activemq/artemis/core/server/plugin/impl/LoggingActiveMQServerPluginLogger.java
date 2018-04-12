@@ -129,9 +129,9 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
    void messageExpired(MessageReference message, SimpleString messageExpiryAddress);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 841014, value = "acknowledged message ID: {0}, with messageRef consumerID: {1}, messageRef QueueName: {2}," +
-      "  with ackReason: {3}", format = Message.Format.MESSAGE_FORMAT)
-   void messageAcknowledged(String messageID, String consumerID, String queueName, AckReason reason);
+   @Message(id = 841014, value = "acknowledged message ID: {0}, messageRef sessionID: {1}, with messageRef consumerID: {2}, messageRef QueueName: {3}," +
+      "  with ackReason: {4}", format = Message.Format.MESSAGE_FORMAT)
+   void messageAcknowledged(String messageID, String sessionID, String consumerID, String queueName, AckReason reason);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 841015, value = "deployed bridge: {0}", format = Message.Format.MESSAGE_FORMAT)

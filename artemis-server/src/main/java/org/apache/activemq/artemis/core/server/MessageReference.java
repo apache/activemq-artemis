@@ -89,7 +89,9 @@ public interface MessageReference {
 
    void acknowledge(Transaction tx) throws Exception;
 
-   void acknowledge(Transaction tx, AckReason reason) throws Exception;
+   void acknowledge(Transaction tx, ServerConsumer consumer) throws Exception;
+
+   void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception;
 
    void emptyConsumerID();
 

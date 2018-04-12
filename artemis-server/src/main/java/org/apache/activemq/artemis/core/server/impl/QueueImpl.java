@@ -72,6 +72,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.Redistributor;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -1223,11 +1224,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref) throws Exception {
-      acknowledge(ref, AckReason.NORMAL);
+      acknowledge(ref, null);
    }
 
    @Override
-   public void acknowledge(final MessageReference ref, AckReason reason) throws Exception {
+   public void acknowledge(final MessageReference ref, final ServerConsumer consumer) throws Exception {
+      acknowledge(ref, AckReason.NORMAL, consumer);
+   }
+
+   @Override
+   public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
       if (ref.isPaged()) {
          pageSubscription.ack((PagedReference) ref);
          postAcknowledge(ref);
@@ -1251,17 +1257,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (server != null && server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.messageAcknowledged(ref, reason));
+         server.callBrokerPlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
       }
    }
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception {
-      acknowledge(tx, ref, AckReason.NORMAL);
+      acknowledge(tx, ref, AckReason.NORMAL, null);
    }
 
    @Override
-   public void acknowledge(final Transaction tx, final MessageReference ref, AckReason reason) throws Exception {
+   public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
       if (ref.isPaged()) {
          pageSubscription.ackTx(tx, (PagedReference) ref);
 
@@ -1289,7 +1295,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (server != null && server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.messageAcknowledged(ref, reason));
+         server.callBrokerPlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
       }
    }
 
@@ -1358,6 +1364,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void expire(final MessageReference ref) throws Exception {
+      expire(ref, null);
+   }
+
+   @Override
+   public void expire(final MessageReference ref, final ServerConsumer consumer) throws Exception {
       SimpleString messageExpiryAddress = expiryAddressFromMessageAddress(ref);
       if (messageExpiryAddress == null) {
          messageExpiryAddress = expiryAddressFromAddressSettings(ref);
@@ -1367,17 +1378,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("moving expired reference " + ref + " to address = " + messageExpiryAddress + " from queue=" + this.getName());
          }
-         move(null, messageExpiryAddress, null, ref, false, AckReason.EXPIRED);
+         move(null, messageExpiryAddress, null, ref, false, AckReason.EXPIRED, consumer);
       } else {
          if (logger.isTraceEnabled()) {
             logger.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
          }
-         acknowledge(ref, AckReason.EXPIRED);
+         acknowledge(ref, AckReason.EXPIRED, consumer);
       }
 
       if (server != null && server.hasBrokerPlugins()) {
          final SimpleString expiryAddress = messageExpiryAddress;
-         server.callBrokerPlugins(plugin -> plugin.messageExpired(ref, expiryAddress));
+         server.callBrokerPlugins(plugin -> plugin.messageExpired(ref, expiryAddress, consumer));
       }
    }
 
@@ -1490,7 +1501,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          @Override
          public void actMessage(Transaction tx, MessageReference ref, boolean fromMessageReferences) throws Exception {
             incDelivering(ref);
-            acknowledge(tx, ref, ackReason);
+            acknowledge(tx, ref, ackReason, null);
             if (fromMessageReferences) {
                refRemoved(ref);
             }
@@ -1878,7 +1889,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refRemoved(ref);
                incDelivering(ref);
                try {
-                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL);
+                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL, null);
                } catch (Exception e) {
                   decDelivering(ref);
                   throw e;
@@ -1922,7 +1933,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (!ignored) {
-               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL);
+               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null);
                refRemoved(ref);
                //move(toAddress, tx, ref, false, rejectDuplicates);
             }
@@ -2586,7 +2597,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       postOffice.route(copyMessage, tx, false, rejectDuplicate);
 
       if (expiry) {
-         acknowledge(tx, ref, AckReason.EXPIRED);
+         acknowledge(tx, ref, AckReason.EXPIRED, null);
       } else {
          acknowledge(tx, ref);
       }
@@ -2749,7 +2760,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
-            acknowledge(tx, ref, AckReason.EXPIRED);
+            acknowledge(tx, ref, AckReason.EXPIRED, null);
          } else {
             move(expiryAddress, tx, ref, true, true);
          }
@@ -2760,7 +2771,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
          }
 
-         acknowledge(tx, ref, AckReason.EXPIRED);
+         acknowledge(tx, ref, AckReason.EXPIRED, null);
       }
    }
 
@@ -2777,15 +2788,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
-            ref.acknowledge(tx, AckReason.KILLED);
+            ref.acknowledge(tx, AckReason.KILLED, null);
          } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED);
+            move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null);
          }
       } else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
 
-         ref.acknowledge(tx, AckReason.KILLED);
+         ref.acknowledge(tx, AckReason.KILLED, null);
       }
    }
 
@@ -2794,7 +2805,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final Binding binding,
                      final MessageReference ref,
                      final boolean rejectDuplicate,
-                     final AckReason reason) throws Exception {
+                     final AckReason reason,
+                     final ServerConsumer consumer) throws Exception {
       Transaction tx;
 
       if (originalTX != null) {
@@ -2810,7 +2822,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       postOffice.route(copyMessage, tx, false, rejectDuplicate, binding);
 
-      acknowledge(tx, ref, reason);
+      acknowledge(tx, ref, reason, consumer);
 
       if (originalTX == null) {
          tx.commit();
@@ -3046,7 +3058,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          Transaction transaction = new TransactionImpl(storageManager);
          for (MessageReference reference : refs) {
             incDelivering(reference); // post ack will decrement this, so need to inc
-            acknowledge(transaction, reference, AckReason.KILLED);
+            acknowledge(transaction, reference, AckReason.KILLED, null);
          }
          transaction.commit();
       } catch (Exception e) {

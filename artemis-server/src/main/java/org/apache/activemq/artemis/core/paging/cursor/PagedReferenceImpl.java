@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
@@ -234,15 +235,20 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void acknowledge(Transaction tx) throws Exception {
-      acknowledge(tx, AckReason.NORMAL);
+      acknowledge(tx, null);
    }
 
    @Override
-   public void acknowledge(Transaction tx, AckReason reason) throws Exception {
+   public void acknowledge(Transaction tx, ServerConsumer consumer) throws Exception {
+      acknowledge(tx, AckReason.NORMAL, consumer);
+   }
+
+   @Override
+   public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
       if (tx == null) {
-         getQueue().acknowledge(this, reason);
+         getQueue().acknowledge(this, reason, consumer);
       } else {
-         getQueue().acknowledge(tx, this, reason);
+         getQueue().acknowledge(tx, this, reason, consumer);
       }
    }
 
