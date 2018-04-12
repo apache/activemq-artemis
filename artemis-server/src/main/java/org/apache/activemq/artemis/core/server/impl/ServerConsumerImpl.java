@@ -423,7 +423,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                }
 
                // With pre-ack, we ack *before* sending to the client
-               ref.getQueue().acknowledge(ref);
+               ref.getQueue().acknowledge(ref, this);
                acks++;
             }
 
@@ -633,7 +633,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          if (!deliveringRefs.isEmpty()) {
             for (MessageReference ref : deliveringRefs) {
                if (performACK) {
-                  ref.acknowledge(tx);
+                  ref.acknowledge(tx, this);
 
                   performACK = false;
                } else {
@@ -863,7 +863,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                throw ils;
             }
 
-            ref.acknowledge(tx);
+            ref.acknowledge(tx, this);
 
             acks++;
          }
@@ -926,7 +926,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             throw ils;
          }
 
-         ref.acknowledge(tx);
+         ref.acknowledge(tx, this);
 
          acks++;
 
