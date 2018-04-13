@@ -2262,7 +2262,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       storageManager.deleteAddressSetting(new SimpleString(addressMatch));
    }
 
-   @Override
    public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
       checkStarted();
 
@@ -2620,7 +2619,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       t.start();
    }
 
-   @Override
    public void updateDuplicateIdCache(String address, Object[] ids) throws Exception {
       clearIO();
       try {

@@ -29,49 +29,49 @@ public interface ActiveMQServerControl {
    /**
     * Returns this server's version.
     */
-   @Attribute(desc = "server's version")
+   @Attribute(desc = "Server's version")
    String getVersion();
 
    /**
     * Returns the number of clients connected to this server.
     */
-   @Attribute(desc = "number of clients connected to this server")
+   @Attribute(desc = "Number of clients connected to this server")
    int getConnectionCount();
 
    /**
     * Returns the number of clients which have connected to this server since it was started.
     */
-   @Attribute(desc = "number of clients which have connected to this server since it was started")
+   @Attribute(desc = "Number of clients which have connected to this server since it was started")
    long getTotalConnectionCount();
 
    /**
     * Returns the number of messages in all queues on the server.
     */
-   @Attribute(desc = "number of messages in all queues on the server")
+   @Attribute(desc = "Number of messages in all queues on the server")
    long getTotalMessageCount();
 
    /**
     * Returns the number of messages sent to this server since it was started.
     */
-   @Attribute(desc = "number of messages sent to this server since it was started")
+   @Attribute(desc = "Number of messages sent to this server since it was started")
    long getTotalMessagesAdded();
 
    /**
     * Returns the number of messages sent to this server since it was started.
     */
-   @Attribute(desc = "number of messages acknowledged from all the queues on this server since it was started")
+   @Attribute(desc = "Number of messages acknowledged from all the queues on this server since it was started")
    long getTotalMessagesAcknowledged();
 
    /**
     * Returns the number of messages sent to this server since it was started.
     */
-   @Attribute(desc = "number of consumers consuming messages from all the queues on this server")
+   @Attribute(desc = "Number of consumers consuming messages from all the queues on this server")
    long getTotalConsumerCount();
 
    /**
     * Return whether this server is started.
     */
-   @Attribute(desc = "whether this server is started")
+   @Attribute(desc = "Whether this server is started")
    boolean isStarted();
 
    /**
@@ -79,7 +79,7 @@ public interface ActiveMQServerControl {
     *
     * @see org.apache.activemq.artemis.api.core.Interceptor
     */
-   @Attribute(desc = "list of interceptors used by this server for incoming messages")
+   @Attribute(desc = "List of interceptors used by this server for incoming messages")
    String[] getIncomingInterceptorClassNames();
 
    /**
@@ -87,151 +87,151 @@ public interface ActiveMQServerControl {
     *
     * @see org.apache.activemq.artemis.api.core.Interceptor
     */
-   @Attribute(desc = "list of interceptors used by this server for outgoing messages")
+   @Attribute(desc = "List of interceptors used by this server for outgoing messages")
    String[] getOutgoingInterceptorClassNames();
 
    /**
     * Returns whether this server is clustered.
     */
-   @Attribute(desc = "whether this server is clustered")
+   @Attribute(desc = "Whether this server is clustered")
    boolean isClustered();
 
    /**
     * Returns the maximum number of threads in the <em>scheduled</em> thread pool.
     */
-   @Attribute(desc = "maximum number of threads in the scheduled thread pool")
+   @Attribute(desc = "Maximum number of threads in the scheduled thread pool")
    int getScheduledThreadPoolMaxSize();
 
    /**
     * Returns the maximum number of threads in the thread pool.
     */
-   @Attribute(desc = "maximum number of threads in the thread pool")
+   @Attribute(desc = "Maximum number of threads in the thread pool")
    int getThreadPoolMaxSize();
 
    /**
     * Returns the interval time (in milliseconds) to invalidate security credentials.
     */
-   @Attribute(desc = "interval time (in milliseconds) to invalidate security credentials")
+   @Attribute(desc = "Interval time (in milliseconds) to invalidate security credentials")
    long getSecurityInvalidationInterval();
 
    /**
     * Returns whether security is enabled for this server.
     */
-   @Attribute(desc = "whether security is enabled for this server")
+   @Attribute(desc = "Whether security is enabled for this server")
    boolean isSecurityEnabled();
 
    /**
     * Returns the file system directory used to store bindings.
     */
-   @Attribute(desc = "file system directory used to store bindings")
+   @Attribute(desc = "File system directory used to store bindings")
    String getBindingsDirectory();
 
    /**
     * Returns the file system directory used to store journal log.
     */
-   @Attribute(desc = "file system directory used to store journal log")
+   @Attribute(desc = "File system directory used to store journal log")
    String getJournalDirectory();
 
    /**
     * Returns the type of journal used by this server (either {@code NIO} or {@code ASYNCIO}).
     */
-   @Attribute(desc = "type of journal used by this server")
+   @Attribute(desc = "Type of journal used by this server")
    String getJournalType();
 
    /**
     * Returns whether the journal is synchronized when receiving transactional data.
     */
-   @Attribute(desc = "whether the journal is synchronized when receiving transactional data")
+   @Attribute(desc = "Whether the journal is synchronized when receiving transactional data")
    boolean isJournalSyncTransactional();
 
    /**
     * Returns whether the journal is synchronized when receiving non-transactional data.
     */
-   @Attribute(desc = "whether the journal is synchronized when receiving non-transactional datar")
+   @Attribute(desc = "Whether the journal is synchronized when receiving non-transactional datar")
    boolean isJournalSyncNonTransactional();
 
    /**
     * Returns the size (in bytes) of each journal files.
     */
-   @Attribute(desc = "size (in bytes) of each journal files")
+   @Attribute(desc = "Size (in bytes) of each journal files")
    int getJournalFileSize();
 
    /**
     * Returns the number of journal files to pre-create.
     */
-   @Attribute(desc = "number of journal files to pre-create")
+   @Attribute(desc = "Number of journal files to pre-create")
    int getJournalMinFiles();
 
    /**
     * Returns the maximum number of write requests that can be in the AIO queue at any given time.
     */
-   @Attribute(desc = "maximum number of write requests that can be in the AIO queue at any given time")
+   @Attribute(desc = "Maximum number of write requests that can be in the AIO queue at any given time")
    int getJournalMaxIO();
 
    /**
     * Returns the size of the internal buffer on the journal.
     */
-   @Attribute(desc = "size of the internal buffer on the journal")
+   @Attribute(desc = "Size of the internal buffer on the journal")
    int getJournalBufferSize();
 
    /**
     * Returns the timeout (in nanoseconds) used to flush internal buffers on the journal.
     */
-   @Attribute(desc = "timeout (in nanoseconds) used to flush internal buffers on the journal")
+   @Attribute(desc = "Timeout (in nanoseconds) used to flush internal buffers on the journal")
    int getJournalBufferTimeout();
 
    /**
     * do any clients failover on a server shutdown
     */
-   @Attribute(desc = "if clients failover on a server shutdown")
+   @Attribute(desc = "If clients failover on a server shutdown")
    void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception;
 
    /**
     * returns if clients failover on a server shutdown
     */
-   @Attribute(desc = "if clients failover on a server shutdown")
+   @Attribute(desc = "If clients failover on a server shutdown")
    boolean isFailoverOnServerShutdown();
 
    /**
     * Returns the minimal number of journal files before compacting.
     */
-   @Attribute(desc = "minimal number of journal files before compacting")
+   @Attribute(desc = "Minimal number of journal files before compacting")
    int getJournalCompactMinFiles();
 
    /**
     * Return the percentage of live data before compacting the journal.
     */
-   @Attribute(desc = "percentage of live data before compacting the journal")
+   @Attribute(desc = "Percentage of live data before compacting the journal")
    int getJournalCompactPercentage();
 
    /**
     * Returns whether this server is using persistence and store data.
     */
-   @Attribute(desc = "whether this server is using persistence and store data")
+   @Attribute(desc = "Whether this server is using persistence and store data")
    boolean isPersistenceEnabled();
 
    /**
     * Returns whether the bindings directory is created on this server startup.
     */
-   @Attribute(desc = "whether the bindings directory is created on this server startup")
+   @Attribute(desc = "Whether the bindings directory is created on this server startup")
    boolean isCreateBindingsDir();
 
    /**
     * Returns whether the journal directory is created on this server startup.
     */
-   @Attribute(desc = "whether the journal directory is created on this server startup")
+   @Attribute(desc = "Whether the journal directory is created on this server startup")
    boolean isCreateJournalDir();
 
    /**
     * Returns whether message counter is enabled for this server.
     */
-   @Attribute(desc = "whether message counter is enabled for this server")
+   @Attribute(desc = "Whether message counter is enabled for this server")
    boolean isMessageCounterEnabled();
 
    /**
     * Returns the maximum number of days kept in memory for message counter.
     */
-   @Attribute(desc = "maximum number of days kept in memory for message counter")
+   @Attribute(desc = "Maximum number of days kept in memory for message counter")
    int getMessageCounterMaxDayCount();
 
    /**
@@ -239,13 +239,13 @@ public interface ActiveMQServerControl {
     *
     * @param count value must be greater than 0
     */
-   @Attribute(desc = "maximum number of days kept in memory for message counter")
+   @Attribute(desc = "Maximum number of days kept in memory for message counter")
    void setMessageCounterMaxDayCount(int count) throws Exception;
 
    /**
     * Returns the sample period (in milliseconds) to take message counter snapshot.
     */
-   @Attribute(desc = "sample period (in milliseconds) to take message counter snapshot")
+   @Attribute(desc = "Sample period (in milliseconds) to take message counter snapshot")
    long getMessageCounterSamplePeriod();
 
    /**
@@ -253,7 +253,7 @@ public interface ActiveMQServerControl {
     *
     * @param newPeriod value must be greater than 1000ms
     */
-   @Attribute(desc = "sample period to take message counter snapshot")
+   @Attribute(desc = "Sample period to take message counter snapshot")
    void setMessageCounterSamplePeriod(long newPeriod) throws Exception;
 
    /**
@@ -261,25 +261,25 @@ public interface ActiveMQServerControl {
     * <br>
     * If a backup server has been activated, returns {@code false}.
     */
-   @Attribute(desc = "whether this server is a backup")
+   @Attribute(desc = "Whether this server is a backup")
    boolean isBackup();
 
    /**
     * Returns whether this server shares its data store with a corresponding live or backup server.
     */
-   @Attribute(desc = "whether this server shares its data store with a corresponding live or backup serve")
+   @Attribute(desc = "Whether this server shares its data store with a corresponding live or backup serve")
    boolean isSharedStore();
 
    /**
     * Returns the file system directory used to store paging files.
     */
-   @Attribute(desc = "file system directory used to store paging files")
+   @Attribute(desc = "File system directory used to store paging files")
    String getPagingDirectory();
 
    /**
     * Returns whether delivery count is persisted before messages are delivered to the consumers.
     */
-   @Attribute(desc = "whether delivery count is persisted before messages are delivered to the consumers")
+   @Attribute(desc = "Whether delivery count is persisted before messages are delivered to the consumers")
    boolean isPersistDeliveryCountBeforeDelivery();
 
    /**
@@ -287,7 +287,7 @@ public interface ActiveMQServerControl {
     * <br>
     * This value overrides the connection time to live <em>sent by the client</em>.
     */
-   @Attribute(desc = "connection time to live")
+   @Attribute(desc = "Connection time to live")
    long getConnectionTTLOverride();
 
    /**
@@ -295,7 +295,7 @@ public interface ActiveMQServerControl {
     * <br>
     * Clients can send management messages to this address to manage this server.
     */
-   @Attribute(desc = "management address of this server")
+   @Attribute(desc = "Management address of this server")
    String getManagementAddress();
 
    /**
@@ -311,161 +311,161 @@ public interface ActiveMQServerControl {
     * <br>
     * Clients can bind queues to this address to receive management notifications emitted by this server.
     */
-   @Attribute(desc = "management notification address of this server")
+   @Attribute(desc = "Management notification address of this server")
    String getManagementNotificationAddress();
 
    /**
     * Returns the size of the cache for pre-creating message IDs.
     */
-   @Attribute(desc = "size of the cache for pre-creating message IDs")
+   @Attribute(desc = "Size of the cache for pre-creating message IDs")
    int getIDCacheSize();
 
    /**
     * Returns whether message ID cache is persisted.
     */
-   @Attribute(desc = "whether message ID cache is persisted")
+   @Attribute(desc = "Whether message ID cache is persisted")
    boolean isPersistIDCache();
 
    /**
     * Returns the file system directory used to store large messages.
     */
-   @Attribute(desc = "file system directory used to store large messages")
+   @Attribute(desc = "File system directory used to store large messages")
    String getLargeMessagesDirectory();
 
    /**
     * Returns whether wildcard routing is supported by this server.
     */
-   @Attribute(desc = "whether wildcard routing is supported by this server")
+   @Attribute(desc = "Whether wildcard routing is supported by this server")
    boolean isWildcardRoutingEnabled();
 
    /**
     * Returns the timeout (in milliseconds) after which transactions is removed
     * from the resource manager after it was created.
     */
-   @Attribute(desc = "timeout (in milliseconds) after which transactions is removed from the resource manager after it was created")
+   @Attribute(desc = "Timeout (in milliseconds) after which transactions is removed from the resource manager after it was created")
    long getTransactionTimeout();
 
    /**
     * Returns the frequency (in milliseconds)  to scan transactions to detect which transactions
     * have timed out.
     */
-   @Attribute(desc = "frequency (in milliseconds)  to scan transactions to detect which transactions have timed out")
+   @Attribute(desc = "Frequency (in milliseconds)  to scan transactions to detect which transactions have timed out")
    long getTransactionTimeoutScanPeriod();
 
    /**
     * Returns the frequency (in milliseconds)  to scan messages to detect which messages
     * have expired.
     */
-   @Attribute(desc = "frequency (in milliseconds)  to scan messages to detect which messages have expired")
+   @Attribute(desc = "Frequency (in milliseconds)  to scan messages to detect which messages have expired")
    long getMessageExpiryScanPeriod();
 
    /**
     * Returns the priority of the thread used to scan message expiration.
     */
-   @Attribute(desc = "priority of the thread used to scan message expiration")
+   @Attribute(desc = "Priority of the thread used to scan message expiration")
    long getMessageExpiryThreadPriority();
 
    /**
     * Returns whether code coming from connection is executed asynchronously or not.
     */
-   @Attribute(desc = "whether code coming from connection is executed asynchronously or not")
+   @Attribute(desc = "Whether code coming from connection is executed asynchronously or not")
    boolean isAsyncConnectionExecutionEnabled();
 
    /**
     * Returns the connectors configured for this server.
     */
-   @Attribute(desc = "connectors configured for this server")
+   @Attribute(desc = "Connectors configured for this server")
    Object[] getConnectors() throws Exception;
 
    /**
     * Returns the connectors configured for this server using JSON serialization.
     */
-   @Attribute(desc = "connectors configured for this server using JSON serialization")
+   @Attribute(desc = "Connectors configured for this server using JSON serialization")
    String getConnectorsAsJSON() throws Exception;
 
    /**
     * Returns the addresses created on this server.
     */
-   @Attribute(desc = "addresses created on this server")
+   @Attribute(desc = "Addresses created on this server")
    String[] getAddressNames();
 
    /**
     * Returns the names of the queues created on this server.
     */
-   @Attribute(desc = "names of the queues created on this server")
+   @Attribute(desc = "Names of the queues created on this server")
    String[] getQueueNames();
 
    /**
     * Returns the names of the queues created on this server with the given routing-type.
     */
-   @Attribute(desc = "names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)")
+   @Attribute(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)")
    String[] getQueueNames(String routingType);
 
    /**
     * Returns the uptime of this server.
     */
-   @Attribute(desc = "uptime of this server")
+   @Attribute(desc = "Uptime of this server")
    String getUptime();
 
    /**
     * Returns the uptime of this server.
     */
-   @Attribute(desc = "uptime of this server in milliseconds")
+   @Attribute(desc = "Uptime of this server in milliseconds")
    long getUptimeMillis();
 
    /**
     * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
     * either the live or backup server.
     */
-   @Attribute(desc = "whether the initial replication synchronization process with the backup server is complete")
+   @Attribute(desc = "Whether the initial replication synchronization process with the backup server is complete")
    boolean isReplicaSync();
 
    /**
     * Returns how often the server checks for disk space usage.
     */
-   @Attribute(desc = "how often to check for disk space usage, in milliseconds")
+   @Attribute(desc = "How often to check for disk space usage, in milliseconds")
    int getDiskScanPeriod();
 
    /**
     * Returns the disk use max limit.
     */
-   @Attribute(desc = "maximum limit for disk use, in percentage")
+   @Attribute(desc = "Maximum limit for disk use, in percentage")
    int getMaxDiskUsage();
 
    /**
     * Returns the global max bytes limit for in-memory messages.
     */
-   @Attribute(desc = "global maximum limit for in-memory messages, in bytes")
+   @Attribute(desc = "Global maximum limit for in-memory messages, in bytes")
    long getGlobalMaxSize();
 
    /**
     * Returns the  memory used by all the addresses on broker for in-memory messages
     */
-   @Attribute(desc = "memory used by all the addresses on broker for in-memory messages")
+   @Attribute(desc = "Memory used by all the addresses on broker for in-memory messages")
    long getAddressMemoryUsage();
 
    /**
     * Returns the memory used by all the addresses on broker as a percentage of global maximum limit
     */
-   @Attribute(desc = "memory used by all the addresses on broker as a percentage of global maximum limit")
+   @Attribute(desc = "Memory used by all the addresses on broker as a percentage of global maximum limit")
    int getAddressMemoryUsagePercentage();
 
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
    boolean freezeReplication();
 
-   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Create an address", impact = MBeanOperationInfo.ACTION)
    String createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
                         @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
-   @Operation(desc = "update an address", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Update an address", impact = MBeanOperationInfo.ACTION)
    String updateAddress(@Parameter(name = "name", desc = "The name of the address") String name,
                         @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
-   @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
 
-   @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name,
                       @Parameter(name = "force", desc = "Force consumers and queues out") boolean force) throws Exception;
 
@@ -611,6 +611,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
@@ -626,6 +627,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
@@ -933,11 +935,6 @@ public interface ActiveMQServerControl {
    @Operation(desc = "List the sessions for the given connectionID", impact = MBeanOperationInfo.INFO)
    String[] listSessions(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
-   /**
-    * This method is used by ActiveMQ Artemis clustering and must not be called by ActiveMQ Artemis clients.
-    */
-   void sendQueueInfoToQueue(String queueName, String address) throws Exception;
-
    @Operation(desc = "Add security settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                             @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
@@ -975,10 +972,10 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Remove security settings for an address", impact = MBeanOperationInfo.ACTION)
    void removeSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
-   @Operation(desc = "get roles for a specific address match", impact = MBeanOperationInfo.INFO)
+   @Operation(desc = "Get roles for a specific address match", impact = MBeanOperationInfo.INFO)
    Object[] getRoles(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
-   @Operation(desc = "get roles (as a JSON string) for a specific address match", impact = MBeanOperationInfo.INFO)
+   @Operation(desc = "Get roles (as a JSON string) for a specific address match", impact = MBeanOperationInfo.INFO)
    String getRolesAsJSON(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
    /**
@@ -1045,10 +1042,10 @@ public interface ActiveMQServerControl {
    /**
     * returns the address settings as a JSON string
     */
-   @Operation(desc = "returns the address settings as a JSON string for an address match", impact = MBeanOperationInfo.INFO)
+   @Operation(desc = "Returns the address settings as a JSON string for an address match", impact = MBeanOperationInfo.INFO)
    String getAddressSettingsAsJSON(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
-   @Attribute(desc = "names of the diverts deployed on this server")
+   @Attribute(desc = "Names of the diverts deployed on this server")
    String[] getDivertNames();
 
    /**
@@ -1104,7 +1101,7 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;
 
-   @Attribute(desc = "names of the bridges deployed on this server")
+   @Attribute(desc = "Names of the bridges deployed on this server")
    String[] getBridgeNames();
 
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
@@ -1199,15 +1196,13 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a connector service", impact = MBeanOperationInfo.ACTION)
    void destroyConnectorService(@Parameter(name = "name", desc = "Name of the connector service") String name) throws Exception;
 
-   @Attribute(desc = "names of the connector services on this server")
+   @Attribute(desc = "Names of the connector services on this server")
    String[] getConnectorServices();
 
-   @Operation(desc = "force the server to stop and notify clients to failover", impact = MBeanOperationInfo.UNKNOWN)
+   @Operation(desc = "Force the server to stop and notify clients to failover", impact = MBeanOperationInfo.UNKNOWN)
    void forceFailover() throws Exception;
 
-   void updateDuplicateIdCache(String address, Object[] ids) throws Exception;
-
-   @Operation(desc = "force the server to stop and to scale down to another server", impact = MBeanOperationInfo.UNKNOWN)
+   @Operation(desc = "Force the server to stop and to scale down to another server", impact = MBeanOperationInfo.UNKNOWN)
    void scaleDown(@Parameter(name = "name", desc = "The connector to use to scale down, if not provided the first appropriate connector will be used") String connector) throws Exception;
 
    @Operation(desc = "List the Network Topology", impact = MBeanOperationInfo.INFO)
