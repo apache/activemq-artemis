@@ -44,8 +44,12 @@ class JDBCFileUtils {
    }
 
    static JDBCSequentialFileFactoryDriver getDBFileDriver(DataSource dataSource, SQLProvider provider) throws SQLException {
-      JDBCSequentialFileFactoryDriver dbDriver;
-      if (POSTGRESQL.equals(PropertySQLProvider.Factory.investigateDialect(dataSource.getConnection()))) {
+      final JDBCSequentialFileFactoryDriver dbDriver;
+      final PropertySQLProvider.Factory.SQLDialect sqlDialect;
+      try (Connection connection = dataSource.getConnection()) {
+         sqlDialect = PropertySQLProvider.Factory.investigateDialect(connection);
+      }
+      if (POSTGRESQL.equals(sqlDialect)) {
          dbDriver = new PostgresSequentialSequentialFileDriver(dataSource, provider);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(dataSource, provider);
