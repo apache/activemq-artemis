@@ -926,10 +926,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void expire(final long consumerID, final long messageID) throws Exception {
-      MessageReference ref = locateConsumer(consumerID).removeReferenceByID(messageID);
+      final ServerConsumer consumer = locateConsumer(consumerID);
+      MessageReference ref = consumer.removeReferenceByID(messageID);
 
       if (ref != null) {
-         ref.getQueue().expire(ref);
+         ref.getQueue().expire(ref, consumer);
       }
    }
 
