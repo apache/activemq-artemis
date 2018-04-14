@@ -548,8 +548,24 @@ public interface ActiveMQServerPlugin {
     * @param message The expired message
     * @param messageExpiryAddress The message expiry address if exists
     * @throws ActiveMQException
+    *
+    * @deprecated use {@link #messageExpired(MessageReference, SimpleString, ServerConsumer)}
     */
+   @Deprecated
    default void messageExpired(MessageReference message, SimpleString messageExpiryAddress) throws ActiveMQException {
+
+   }
+
+   /**
+    * A message has been expired
+    *
+    * @param message The expired message
+    * @param messageExpiryAddress The message expiry address if exists
+    * @param consumer the Consumer that acknowledged the message - this field is optional
+    * and can be null
+    * @throws ActiveMQException
+    */
+   default void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) throws ActiveMQException {
 
    }
 
@@ -559,10 +575,29 @@ public interface ActiveMQServerPlugin {
     * @param ref The acked message
     * @param reason The ack reason
     * @throws ActiveMQException
+    *
+    * @deprecated use {@link #messageAcknowledged(MessageReference, AckReason, ServerConsumer)}
     */
+   @Deprecated
    default void messageAcknowledged(MessageReference ref, AckReason reason) throws ActiveMQException {
 
    }
+
+   /**
+    * A message has been acknowledged
+    *
+    * @param ref The acked message
+    * @param reason The ack reason
+    * @param consumer the Consumer that acknowledged the message - this field is optional
+    * and can be null
+    * @throws ActiveMQException
+    *
+    */
+   default void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
+      //by default call the old method for backwards compatibility
+      this.messageAcknowledged(ref, reason);
+   }
+
 
    /**
     * Before a bridge is deployed

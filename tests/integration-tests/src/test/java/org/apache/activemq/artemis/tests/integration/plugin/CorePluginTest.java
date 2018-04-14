@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -76,6 +77,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
@@ -114,6 +116,13 @@ public class CorePluginTest extends JMSTestBase {
 
    @Test
    public void testSendReceive() throws Exception {
+      final AckPluginVerifier ackVerifier = new AckPluginVerifier((consumer, reason) -> {
+         assertEquals(AckReason.NORMAL, reason);
+         assertNotNull(consumer);
+      });
+
+      server.registerBrokerPlugin(ackVerifier);
+
       conn = cf.createConnection();
       conn.start();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -139,6 +148,8 @@ public class CorePluginTest extends JMSTestBase {
       assertEquals("configurationVerifier is invoked", 1, configurationVerifier.afterSendCounter.get());
       assertEquals("configurationVerifier is invoked", 1, configurationVerifier.successRoutedCounter.get());
       assertEquals("configurationVerifier config set", "val_1", configurationVerifier.value1);
+
+      assertFalse(ackVerifier.getErrorMsg(), ackVerifier.hasError());
    }
 
    @Test
@@ -199,7 +210,8 @@ public class CorePluginTest extends JMSTestBase {
 
    @Test
    public void testMessageExpireServer() throws Exception {
-      server.registerBrokerPlugin(new ExpiredPluginVerifier());
+      final AckPluginVerifier expiredVerifier = new AckPluginVerifier((ref, reason) -> assertEquals(AckReason.EXPIRED, reason));
+      server.registerBrokerPlugin(expiredVerifier);
 
       conn = cf.createConnection();
       conn.setClientID("test");
@@ -227,11 +239,13 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
 
+      assertFalse(expiredVerifier.getErrorMsg(), expiredVerifier.hasError());
    }
 
    @Test
    public void testMessageExpireClient() throws Exception {
-      server.registerBrokerPlugin(new ExpiredPluginVerifier());
+      final AckPluginVerifier expiredVerifier = new AckPluginVerifier((ref, reason) -> assertEquals(AckReason.EXPIRED, reason));
+      server.registerBrokerPlugin(expiredVerifier);
 
       conn = cf.createConnection();
       conn.start();
@@ -260,6 +274,7 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
 
+      assertFalse(expiredVerifier.getErrorMsg(), expiredVerifier.hasError());
    }
 
    @Test
@@ -324,11 +339,31 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(1, BEFORE_UPDATE_ADDRESS, AFTER_UPDATE_ADDRESS);
    }
 
-   private class ExpiredPluginVerifier implements ActiveMQServerPlugin {
+   private class AckPluginVerifier implements ActiveMQServerPlugin {
+
+      private BiConsumer<ServerConsumer, AckReason> assertion;
+      private Throwable error;
+
+      AckPluginVerifier(BiConsumer<ServerConsumer, AckReason> assertion) {
+         this.assertion = assertion;
+      }
 
       @Override
-      public void messageAcknowledged(MessageReference ref, AckReason reason) {
-         assertEquals(AckReason.EXPIRED, reason);
+      public void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) {
+         try {
+            assertion.accept(consumer, reason);
+         } catch (Throwable e) {
+            error = e;
+            throw e;
+         }
+      }
+
+      private boolean hasError() {
+         return error != null;
+      }
+
+      private String getErrorMsg() {
+         return hasError() ? error.getMessage() : "";
       }
    }
 
