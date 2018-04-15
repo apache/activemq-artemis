@@ -230,7 +230,9 @@ In an acceptor url it would be:
 
 This will translate ```Consumer.A.VirtualTopic.Orders``` into a FQQN of ```VirtualTopic.Orders::Consumer.A``` using the
 int component ```2``` of the configuration to identify the consumer queue as the first two paths of the destination.
-```virtualTopicConsumerWildcards``` is multi valued using a ```,``` separator. 
+```virtualTopicConsumerWildcards``` is multi valued using a ```,``` separator.
+
+Please see Virtual Topic Mapping example contained in the OpenWire [examples](examples.md).
   
 ## MQTT
 
