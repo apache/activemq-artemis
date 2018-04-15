@@ -16,9 +16,14 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -170,6 +175,10 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    @Override
    public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
       validateFile();
+      assert file != null && bodySize != -1;
+      if (file.getJavaFile() != null && bodySize < Integer.MAX_VALUE) {
+         return new MappedViewDecodingContext(file.getJavaFile(), bodySize);
+      }
       return new DecodingContext();
    }
 
@@ -485,6 +494,73 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       @Override
       public long getLargeBodySize() throws ActiveMQException {
          return getBodySize();
+      }
+   }
+
+   private static final class MappedViewDecodingContext implements LargeBodyEncoder {
+
+      private ByteBuffer mappedBuffer;
+      private final Path filePath;
+      private final long bodySize;
+
+      private MappedViewDecodingContext(File filePath, long bodySize) {
+         assert bodySize < Integer.MAX_VALUE;
+         this.filePath = filePath.toPath();
+         this.bodySize = bodySize;
+      }
+
+      @Override
+      public void open() throws ActiveMQException {
+         try {
+            if (mappedBuffer != null) {
+               close();
+            }
+            try (FileChannel channel = FileChannel.open(filePath, StandardOpenOption.READ)) {
+               final long size = channel.size();
+               this.mappedBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+            }
+         } catch (Exception e) {
+            throw new ActiveMQException(ActiveMQExceptionType.INTERNAL_ERROR, e.getMessage(), e);
+         }
+      }
+
+      @Override
+      public void close() {
+         if (mappedBuffer != null) {
+            try {
+               PlatformDependent.freeDirectBuffer(mappedBuffer);
+            } finally {
+               mappedBuffer = null;
+            }
+         }
+      }
+
+      @Override
+      public int encode(final ByteBuffer bufferRead) {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public int encode(final ActiveMQBuffer bufferOut, final int size) {
+         final int remaining = mappedBuffer.remaining();
+         if (remaining == 0) {
+            //SequentialFile::read contract
+            return -1;
+         }
+         final int effectiveBytesToRead = Math.min(size, remaining);
+         final int originalLimit = mappedBuffer.limit();
+         try {
+            mappedBuffer.limit(mappedBuffer.position() + effectiveBytesToRead);
+            bufferOut.writeBytes(mappedBuffer);
+            return effectiveBytesToRead;
+         } finally {
+            mappedBuffer.limit(originalLimit);
+         }
+      }
+
+      @Override
+      public long getLargeBodySize() {
+         return bodySize;
       }
    }
 }
