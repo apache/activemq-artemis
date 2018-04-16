@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolic
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -1639,6 +1640,55 @@ public class FailoverTest extends FailoverTestBase {
       // Should get the same ones after failover since we didn't ack
 
       receiveDurableMessages(consumer);
+   }
+
+   @Test(timeout = 120000)
+   public void testLiveKilledBackupReceivesCoreMessage() throws Exception {
+      createSessionFactory();
+      SimpleString lalaQ = new SimpleString("lalaQ");
+
+      ClientSession session = createSession(sf, true, true);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoDeleteQueues(true).setAutoCreateQueues(true);
+      backupServer.getServer().getConfiguration().addAddressesSetting(lalaQ.toString(), addressSettings);
+
+      session.createQueue(lalaQ, RoutingType.MULTICAST, lalaQ, null, true);
+
+      ClientProducer producer = session.createProducer(lalaQ);
+
+      producer.send(createMessage(session, 0, true));
+      producer.send(createMessage(session, 1, true));
+
+      ClientConsumer consumer = session.createConsumer(lalaQ, true);
+
+      session.start();
+
+      ClientMessage message = consumer.receive(1000);
+      Assert.assertNotNull(message);
+
+      crash(session);
+
+      message = consumer.receive(1000);
+      Assert.assertNotNull(message);
+      message.acknowledge();
+
+      message = consumer.receive(1000);
+      Assert.assertNotNull(message);
+      message.acknowledge();
+
+      message = consumer.receive(1000);
+      Assert.assertNull(message);
+
+
+      //queue should be destroyed after consuming all messages
+      backupServer.getServer().getActiveMQServerControl().destroyQueue(lalaQ.toString(), true);
+
+      assertNull(backupServer.getServer().locateQueue(lalaQ));
+
+      producer.send(createMessage(session, 0, true));
+
+      assertNotNull(backupServer.getServer().locateQueue(lalaQ));
    }
 
    protected void receiveDurableMessages(ClientConsumer consumer) throws ActiveMQException {
