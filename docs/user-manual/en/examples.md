@@ -641,7 +641,8 @@ OpenWire
 The `Openwire` example shows how to configure an Apache ActiveMQ Artemis server to
 communicate with an Apache ActiveMQ Artemis JMS client that uses open-wire protocol.
 
-You will find the queue example for open wire, and the chat example.
+You will find the queue example for open wire, and the chat example. The virtual-topic-mapping examples shows how to
+map the ActiveMQ 5.x Virtual Topic naming convention to work with the Artemis Address model.
 
 Paging
 ------
