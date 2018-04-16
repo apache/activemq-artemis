@@ -342,6 +342,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+
    public int getConsumerCount() {
       // no-op
       return 0;
@@ -356,6 +357,26 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    public Set<Consumer> getConsumers() {
       // no-op
       return null;
+   }
+
+   @Override
+   public Map<SimpleString, Consumer> getGroups() {
+      return null;
+   }
+
+   @Override
+   public void resetGroup(SimpleString groupID) {
+
+   }
+
+   @Override
+   public void resetAllGroups() {
+
+   }
+
+   @Override
+   public int getGroupCount() {
+      return 0;
    }
 
    @Override
