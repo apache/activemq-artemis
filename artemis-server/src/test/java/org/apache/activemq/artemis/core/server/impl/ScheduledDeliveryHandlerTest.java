@@ -1243,6 +1243,26 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public Map<SimpleString, Consumer> getGroups() {
+         return null;
+      }
+
+      @Override
+      public void resetGroup(SimpleString groupID) {
+
+      }
+
+      @Override
+      public void resetAllGroups() {
+
+      }
+
+      @Override
+      public int getGroupCount() {
+         return 0;
+      }
+
+      @Override
       public boolean checkRedelivery(MessageReference ref,
                                      long timeBase,
                                      boolean ignoreRedeliveryDelay) throws Exception {
