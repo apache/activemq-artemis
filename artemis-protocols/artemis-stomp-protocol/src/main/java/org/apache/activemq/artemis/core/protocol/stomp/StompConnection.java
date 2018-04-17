@@ -25,6 +25,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -706,6 +707,8 @@ public final class StompConnection implements RemotingConnection {
    public void unsubscribe(String subscriptionID, String durableSubscriptionName) throws ActiveMQStompException {
       try {
          manager.unsubscribe(this, subscriptionID, durableSubscriptionName);
+      } catch (ActiveMQAddressDoesNotExistException e) {
+         // this could happen if multiple clients unsubscribe simultaneously and auto-delete-addresses = true
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
