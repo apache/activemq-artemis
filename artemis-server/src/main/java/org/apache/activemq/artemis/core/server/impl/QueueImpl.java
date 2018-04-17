@@ -1039,6 +1039,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public synchronized Map<SimpleString, Consumer> getGroups() {
+      return new HashMap<>(groups);
+   }
+
+   @Override
+   public synchronized void resetGroup(SimpleString groupId) {
+      groups.remove(groupId);
+   }
+
+   @Override
+   public synchronized void resetAllGroups() {
+      groups.clear();
+   }
+
+   @Override
+   public synchronized int getGroupCount() {
+      return groups.size();
+   }
+
+   @Override
    public boolean hasMatchingConsumer(final Message message) {
       for (ConsumerHolder holder : consumerList) {
          Consumer consumer = holder.consumer;

@@ -255,6 +255,14 @@ public interface Queue extends Bindable,CriticalComponent {
 
    Collection<Consumer> getConsumers();
 
+   Map<SimpleString, Consumer> getGroups();
+
+   void resetGroup(SimpleString groupID);
+
+   void resetAllGroups();
+
+   int getGroupCount();
+
    boolean checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
    /**
