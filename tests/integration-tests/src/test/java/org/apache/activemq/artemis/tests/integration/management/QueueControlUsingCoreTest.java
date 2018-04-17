@@ -50,6 +50,38 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public void resetAllGroups() {
+            try {
+               proxy.invokeOperation("resetAllGroups");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public void resetGroup(String groupID) {
+            try {
+               proxy.invokeOperation("resetGroup");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public int getGroupCount() {
+            try {
+               return (Integer) proxy.invokeOperation("groupCount");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public String listGroupsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listGroupsAsJSON");
+         }
+
+         @Override
          public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
             return (Boolean) proxy.invokeOperation("changeMessagePriority", messageID, newPriority);
          }
