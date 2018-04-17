@@ -20,19 +20,31 @@ import java.sql.SQLException;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.junit.Assert;
 
 public class TestJDBCDriver extends AbstractJDBCDriver {
 
+   public static TestJDBCDriver usingConnectionUrl(String jdbcConnectionUrl,
+                                                   String jdbcDriverClass,
+                                                   SQLProvider provider) {
+      return usingConnectionUrl(jdbcConnectionUrl, jdbcDriverClass, provider, false);
+   }
 
-   public static TestJDBCDriver usingConnectionUrl(
-         String jdbcConnectionUrl,
-         String jdbcDriverClass,
-         SQLProvider provider) {
-      TestJDBCDriver driver = new TestJDBCDriver();
+   public static TestJDBCDriver usingConnectionUrl(String jdbcConnectionUrl,
+                                                   String jdbcDriverClass,
+                                                   SQLProvider provider,
+                                                   boolean initialize) {
+      TestJDBCDriver driver = new TestJDBCDriver(initialize);
       driver.setSqlProvider(provider);
       driver.setJdbcConnectionUrl(jdbcConnectionUrl);
       driver.setJdbcDriverClass(jdbcDriverClass);
       return driver;
+   }
+
+   private boolean initialize;
+
+   private TestJDBCDriver(boolean initialize) {
+      this.initialize = initialize;
    }
 
    @Override
@@ -43,7 +55,14 @@ public class TestJDBCDriver extends AbstractJDBCDriver {
    protected void createSchema() throws SQLException {
       try {
          connection.createStatement().execute(sqlProvider.createNodeManagerStoreTableSQL());
+         if (initialize) {
+            connection.createStatement().execute(sqlProvider.createNodeIdSQL());
+            connection.createStatement().execute(sqlProvider.createStateSQL());
+            connection.createStatement().execute(sqlProvider.createLiveLockSQL());
+            connection.createStatement().execute(sqlProvider.createBackupLockSQL());
+         }
       } catch (SQLException e) {
+         Assert.fail(e.getMessage());
       }
    }
 
