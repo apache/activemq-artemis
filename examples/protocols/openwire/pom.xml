@@ -44,6 +44,7 @@ under the License.
             <module>queue</module>
             <module>message-listener</module>
             <module>message-recovery</module>
+            <module>virtual-topic-mapping</module>
          </modules>
       </profile>
       <profile>
@@ -55,6 +56,7 @@ under the License.
             <module>queue</module>
             <module>message-listener</module>
             <module>message-recovery</module>
+            <module>virtual-topic-mapping</module>
          </modules>
       </profile>
    </profiles>
