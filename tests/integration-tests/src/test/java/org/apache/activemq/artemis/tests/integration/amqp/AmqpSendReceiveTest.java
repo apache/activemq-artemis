@@ -16,6 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -36,19 +50,6 @@ import org.jgroups.util.UUID;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.Topic;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
 
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
@@ -89,7 +90,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       Queue queue = getProxyToQueue(getQueueName());
       assertNotNull(queue);
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -288,7 +289,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.close();
       receiver2.close();
 
-      assertEquals(0, queueView.getMessageCount());
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       connection.close();
    }
@@ -341,7 +342,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       receiver2.close();
 
-      assertEquals(MSG_COUNT - 2, queueView.getMessageCount());
+      Wait.assertEquals(MSG_COUNT - 2, queueView::getMessageCount);
 
       connection.close();
    }
