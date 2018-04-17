@@ -7,7 +7,11 @@ before_install: rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
 
 # use 'install' so smoke-tests will work
 # use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
-script: mvn -Pfast-tests -Pextra-tests -B install
+script: 
+- set -e
+- mvn -Pfast-tests -Pextra-tests -B install -q
+- cd examples
+- mvn install -Prelease install -B -q
 
 cache:
   directories:
