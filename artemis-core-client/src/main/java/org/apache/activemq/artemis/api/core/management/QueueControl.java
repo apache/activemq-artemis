@@ -576,4 +576,28 @@ public interface QueueControl {
    @Operation(desc = "Flush internal executors", impact = MBeanOperationInfo.ACTION)
    void flushExecutor();
 
+   /**
+    * Will reset the all the groups.
+    * This is useful if you want a complete rebalance of the groups to consumers
+    */
+   @Operation(desc = "Resets all groups", impact = MBeanOperationInfo.ACTION)
+   void resetAllGroups();
+
+   /**
+    * Will reset the group matching the given groupID.
+    * This is useful if you want the given group to be rebalanced to the consumers
+    */
+   @Operation(desc = "Reset the specified group", impact = MBeanOperationInfo.ACTION)
+   void resetGroup(@Parameter(name = "groupID", desc = "ID of group to reset") String groupID);
+
+   /**
+    * Will return the current number of active groups.
+    */
+   @Attribute(desc = "Get the current number of active groups")
+   int getGroupCount();
+
+
+   @Operation(desc = "List all the existent group to consumers mappings on the Queue")
+   String listGroupsAsJSON() throws Exception;
+
 }

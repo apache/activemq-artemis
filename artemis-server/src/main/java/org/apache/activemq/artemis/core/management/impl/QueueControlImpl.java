@@ -1190,6 +1190,70 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public void resetAllGroups() {
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.resetAllGroups();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void resetGroup(String groupID) {
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.resetGroup(SimpleString.toSimpleString(groupID));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getGroupCount() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getGroupCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listGroupsAsJSON() throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         Map<SimpleString, Consumer> groups = queue.getGroups();
+
+         JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
+
+         for (Map.Entry<SimpleString, Consumer> group : groups.entrySet()) {
+
+            if (group.getValue() instanceof ServerConsumer) {
+               ServerConsumer serverConsumer = (ServerConsumer) group.getValue();
+
+               JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("groupID", group.getKey().toString()).add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
+
+               jsonArray.add(obj);
+            }
+
+         }
+
+         return jsonArray.build().toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String listConsumersAsJSON() throws Exception {
       checkStarted();
 

@@ -2511,6 +2511,48 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testResetGroups() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      Assert.assertEquals(1, queueControl.getConsumerCount());
+      consumer.setMessageHandler(new MessageHandler() {
+         @Override
+         public void onMessage(ClientMessage message) {
+            System.out.println(message);
+         }
+      });
+      session.start();
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group1"));
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group2"));
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group3"));
+
+      Wait.assertEquals(3, () -> getGroupCount(queueControl));
+
+      queueControl.resetGroup("group1");
+
+      Wait.assertEquals(2, () -> getGroupCount(queueControl));
+
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group1"));
+
+      Wait.assertEquals(3, () -> getGroupCount(queueControl));
+
+      queueControl.resetAllGroups();
+
+      Wait.assertEquals(0, () -> getGroupCount(queueControl));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testGetScheduledCountOnRemove() throws Exception {
       long delay = Integer.MAX_VALUE;
       SimpleString address = RandomUtil.randomSimpleString();
