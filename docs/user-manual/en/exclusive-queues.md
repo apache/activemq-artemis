@@ -54,4 +54,6 @@ to configure exclusive queues for a set of addresses (see [here](wildcard-syntax
 
 ## Example
 
-See `org.apache.activemq.artemis.tests.integration.jms.client.ExclusiveTest`
+See `Exclusive Queue` in [examples](examples.md).
+
+For additional examples see `org.apache.activemq.artemis.tests.integration.jms.client.ExclusiveTest`

@@ -57,6 +57,7 @@ under the License.
             <module>durable-subscription</module>
             <module>embedded</module>
             <module>embedded-simple</module>
+            <module>exclusive-queue</module>
             <module>expiry</module>
             <module>http-transport</module>
             <module>interceptor</module>
