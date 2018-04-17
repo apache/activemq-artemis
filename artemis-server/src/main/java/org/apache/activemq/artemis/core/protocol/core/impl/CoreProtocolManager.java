@@ -260,7 +260,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                @Override
                public void nodeUP(final TopologyMember topologyMember, final boolean last) {
                   try {
-                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair = BackwardsCompatibilityUtils.getTCPair(channel0.getConnection().getChannelVersion(), topologyMember);
+                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair = BackwardsCompatibilityUtils.checkTCPPairConversion(channel0.getConnection().getChannelVersion(), topologyMember);
 
                      final String nodeID = topologyMember.getNodeId();
                      // Using an executor as most of the notifications on the Topology
