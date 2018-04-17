@@ -1314,7 +1314,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @param backup
     */
    public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup) {
-      waitForRemoteBackup(null, 10, true, backup);
+      waitForRemoteBackup(null, 20, true, backup);
    }
 
    /**
@@ -1332,6 +1332,10 @@ public abstract class ActiveMQTestBase extends Assert {
       final long toWait = seconds * 1000;
       final long time = System.currentTimeMillis();
       int loop = 0;
+      //Note: if maxLoop is too small there won't be
+      //enough time for quorum vote to complete and
+      //will cause test to fail.
+      final int maxLoop = 40;
       while (true) {
          Activation activation = actualServer.getActivation();
          boolean isReplicated = !backup.getHAPolicy().isSharedStore();
@@ -1343,7 +1347,7 @@ public abstract class ActiveMQTestBase extends Assert {
                //we may have already failed over and changed the Activation
                if (actualServer.isStarted()) {
                   //let it fail a few time to have time to start stopping in the case of waiting to failback
-                  isRemoteUpToDate = loop++ > 10;
+                  isRemoteUpToDate = loop++ > maxLoop;
                } else {
                   //we could be waiting to failback or restart if the server is stopping
                   isRemoteUpToDate = false;
