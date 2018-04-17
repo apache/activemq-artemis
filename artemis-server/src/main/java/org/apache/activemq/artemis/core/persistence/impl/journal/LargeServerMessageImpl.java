@@ -210,7 +210,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          validateFile();
          file.open();
          int fileSize = (int) file.size();
-         ByteBuffer buffer = this.storageManager.largeMessagesFactory.newBuffer(fileSize);
+         ByteBuffer buffer = ByteBuffer.allocate(fileSize);
          file.read(buffer);
          return new ChannelBufferWrapper(Unpooled.wrappedBuffer(buffer));
       } catch (Exception e) {
