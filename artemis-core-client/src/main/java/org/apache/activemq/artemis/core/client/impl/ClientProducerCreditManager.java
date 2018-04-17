@@ -36,4 +36,8 @@ public interface ClientProducerCreditManager {
    int creditsMapSize();
 
    int unReferencedCreditsSize();
+
+   /** This will determine the flow control as asynchronous,
+    *  no actual block should happen instead a callback will be sent whenever blockages change  */
+   void setCallback(ClientProducerFlowCallback callback);
 }

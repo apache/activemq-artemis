@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1688,6 +1689,17 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                          final boolean netty,
                                          final int nodeFrom,
                                          final int... nodesTo) {
+      setupClusterConnection(name, address, messageLoadBalancingType, maxHops, netty, null, nodeFrom, nodesTo);
+   }
+
+   protected void setupClusterConnection(final String name,
+                                         final String address,
+                                         final MessageLoadBalancingType messageLoadBalancingType,
+                                         final int maxHops,
+                                         final boolean netty,
+                                         final ClusterConfigCallback cb,
+                                         final int nodeFrom,
+                                         final int... nodesTo) {
       ActiveMQServer serverFrom = servers[nodeFrom];
 
       if (serverFrom == null) {
@@ -1706,6 +1718,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       Configuration config = serverFrom.getConfiguration();
       ClusterConnectionConfiguration clusterConf = createClusterConfig(name, address, messageLoadBalancingType, maxHops, connectorFrom, pairs);
 
+      if (cb != null) {
+         cb.configure(clusterConf);
+      }
       config.getClusterConfigurations().add(clusterConf);
    }
 
@@ -1856,5 +1871,18 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected boolean isFileStorage() {
       return true;
+   }
+
+   protected String getServerUri(int node) throws URISyntaxException {
+      ActiveMQServer server = servers[node];
+      if (server == null) {
+         throw new IllegalStateException("No server at node " + server);
+      }
+      int port = TransportConstants.DEFAULT_PORT + node;
+      return "tcp://localhost:" + port;
+   }
+
+   public interface ClusterConfigCallback {
+      void configure(ClusterConnectionConfiguration config);
    }
 }
