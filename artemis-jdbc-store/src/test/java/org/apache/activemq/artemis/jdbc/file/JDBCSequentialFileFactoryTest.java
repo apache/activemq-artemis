@@ -97,6 +97,66 @@ public class JDBCSequentialFileFactoryTest {
    }
 
    @Test
+   public void testReadZeroBytesOnEmptyFile() throws Exception {
+      JDBCSequentialFile file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
+      file.open();
+      try {
+         final ByteBuffer readBuffer = ByteBuffer.allocate(0);
+         final int bytes = file.read(readBuffer);
+         assertEquals(0, bytes);
+      } finally {
+         file.close();
+      }
+   }
+
+   @Test
+   public void testReadZeroBytesOnNotEmptyFile() throws Exception {
+      final int fileLength = 8;
+      JDBCSequentialFile file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
+      file.open();
+      try {
+         file.writeDirect(ByteBuffer.allocate(fileLength), true);
+         assertEquals(fileLength, file.size());
+         final ByteBuffer readBuffer = ByteBuffer.allocate(0);
+         final int bytes = file.read(readBuffer);
+         assertEquals(0, bytes);
+      } finally {
+         file.close();
+      }
+   }
+
+   @Test
+   public void testReadOutOfBoundsOnEmptyFile() throws Exception {
+      JDBCSequentialFile file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
+      file.open();
+      try {
+         final ByteBuffer readBuffer = ByteBuffer.allocate(1);
+         file.position(1);
+         final int bytes = file.read(readBuffer);
+         assertTrue("bytes read should be < 0", bytes < 0);
+      } finally {
+         file.close();
+      }
+   }
+
+   @Test
+   public void testReadOutOfBoundsOnNotEmptyFile() throws Exception {
+      final int fileLength = 8;
+      JDBCSequentialFile file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
+      file.open();
+      try {
+         file.writeDirect(ByteBuffer.allocate(fileLength), true);
+         assertEquals(fileLength, file.size());
+         file.position(fileLength + 1);
+         final ByteBuffer readBuffer = ByteBuffer.allocate(fileLength);
+         final int bytes = file.read(readBuffer);
+         assertTrue("bytes read should be < 0", bytes < 0);
+      } finally {
+         file.close();
+      }
+   }
+
+   @Test
    public void testCreateFiles() throws Exception {
       int noFiles = 100;
       List<SequentialFile> files = new LinkedList<>();
