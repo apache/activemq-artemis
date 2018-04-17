@@ -35,42 +35,41 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public class VirtualTopicMappingExample {
 
-    public static void main(final String[] args) throws Exception {
-        Connection connection = null;
-        try {
+   public static void main(final String[] args) throws Exception {
+      Connection connection = null;
+      try {
 
-            ConnectionFactory cf = new ActiveMQConnectionFactory();
+         ConnectionFactory cf = new ActiveMQConnectionFactory();
 
-            connection = cf.createConnection();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         connection = cf.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            //create consumer on queue that is used by the Virtual Topic
-            Queue queue = session.createQueue("Consumer.A.VirtualTopic.Orders");
-            MessageConsumer messageConsumer = session.createConsumer(queue);
-            connection.start();
+         //create consumer on queue that is used by the Virtual Topic
+         Queue queue = session.createQueue("Consumer.A.VirtualTopic.Orders");
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+         connection.start();
 
+         //send message to virtual topic
+         Topic topic = session.createTopic("VirtualTopic.Orders");
+         MessageProducer producer = session.createProducer(topic);
+         TextMessage message = session.createTextMessage("This is a text message");
+         producer.send(message);
 
-            //send message to virtual topic
-            Topic topic = session.createTopic("VirtualTopic.Orders");
-            MessageProducer producer = session.createProducer(topic);
-            TextMessage message = session.createTextMessage("This is a text message");
-            producer.send(message);
+         System.out.println("Sent message with ID: " + message.getJMSMessageID() + " to Topic: " + topic.getTopicName());
 
-            System.out.println("Sent message with ID: " + message.getJMSMessageID() + " to Topic: " + topic.getTopicName());
+         //consume the message from the backing queue
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
-            //consume the message from the backing queue
-            TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
-
-            if (messageReceived != null) {
-                System.out.println("Received message with ID: " + messageReceived.getJMSMessageID() + " from Queue: " + queue.getQueueName());
-            } else {
-                //unexpected outcome
-                throw new RuntimeException("EXAMPLE FAILED - No message received from Queue: " + queue.getQueueName());
-            }
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
+         if (messageReceived != null) {
+            System.out.println("Received message with ID: " + messageReceived.getJMSMessageID() + " from Queue: " + queue.getQueueName());
+         } else {
+            //unexpected outcome
+            throw new RuntimeException("EXAMPLE FAILED - No message received from Queue: " + queue.getQueueName());
+         }
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
 }
