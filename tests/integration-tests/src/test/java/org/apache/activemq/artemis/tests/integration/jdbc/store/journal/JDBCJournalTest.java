@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -26,39 +27,37 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
-import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.DERBY;
 
 public class JDBCJournalTest extends ActiveMQTestBase {
 
    @Rule
    public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
 
-   private static final String JOURNAL_TABLE_NAME = "MESSAGE_JOURNAL";
-
-   private static final String DRIVER_CLASS = "org.apache.derby.jdbc.EmbeddedDriver";
-
    private JDBCJournalImpl journal;
-
-   private String jdbcUrl;
 
    private ScheduledExecutorService scheduledExecutorService;
 
    private ExecutorService executorService;
+
+   private SQLProvider sqlProvider;
+
+   private DatabaseStorageConfiguration dbConf;
 
    @After
    @Override
@@ -77,17 +76,47 @@ public class JDBCJournalTest extends ActiveMQTestBase {
 
    @Before
    public void setup() throws Exception {
+      dbConf = createDefaultDatabaseStorageConfiguration();
+      sqlProvider = JDBCUtils.getSQLProvider(
+         dbConf.getJdbcDriverClassName(),
+         dbConf.getMessageTableName(),
+         SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL);
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
       executorService = Executors.newSingleThreadExecutor();
-      jdbcUrl = "jdbc:derby:target/data;create=true";
-      SQLProvider.Factory factory = new PropertySQLProvider.Factory(DERBY);
-      journal = new JDBCJournalImpl(jdbcUrl, DRIVER_CLASS, factory.create(JOURNAL_TABLE_NAME, SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL), scheduledExecutorService, executorService, new IOCriticalErrorListener() {
+      journal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getJdbcDriverClassName(), sqlProvider, scheduledExecutorService, executorService, new IOCriticalErrorListener() {
          @Override
          public void onIOException(Throwable code, String message, SequentialFile file) {
 
          }
-      },5);
+      }, 5);
       journal.start();
+   }
+
+   @Test
+   public void testRestartEmptyJournal() throws SQLException {
+      Assert.assertTrue(journal.isStarted());
+      Assert.assertEquals(0, journal.getNumberOfRecords());
+      journal.stop();
+      journal.start();
+      Assert.assertTrue(journal.isStarted());
+   }
+
+   @Test
+   public void testConcurrentEmptyJournal() throws SQLException {
+      Assert.assertTrue(journal.isStarted());
+      Assert.assertEquals(0, journal.getNumberOfRecords());
+      final JDBCJournalImpl secondJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(),
+                                                                          dbConf.getJdbcDriverClassName(),
+                                                                          sqlProvider, scheduledExecutorService,
+                                                                          executorService, (code, message, file) -> {
+         Assert.fail(message);
+      }, 5);
+      secondJournal.start();
+      try {
+         Assert.assertTrue(secondJournal.isStarted());
+      } finally {
+         secondJournal.stop();
+      }
    }
 
    @Test
