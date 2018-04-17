@@ -157,6 +157,7 @@ cd $ARTEMIS_HOME/examples/protocols/openwire/
 cd queue; mvn verify; cd ..
 cd message-listener; mvn verify; cd ..
 cd message-recovery; mvn verify; cd ..
+cd virtual-topic-mapping; mvn verify; cd ..
 
 
 cd $ARTEMIS_HOME/examples/protocols/stomp/
