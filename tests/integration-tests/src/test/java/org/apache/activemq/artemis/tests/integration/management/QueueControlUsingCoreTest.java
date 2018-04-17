@@ -61,7 +61,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public void resetGroup(String groupID) {
             try {
-               proxy.invokeOperation("resetGroup");
+               proxy.invokeOperation("resetGroup", groupID);
             } catch (Exception e) {
                throw new RuntimeException(e.getMessage(), e);
             }
@@ -70,7 +70,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public int getGroupCount() {
             try {
-               return (Integer) proxy.invokeOperation("groupCount");
+               return (Integer) proxy.invokeOperation(Integer.TYPE, "getGroupCount");
             } catch (Exception e) {
                throw new RuntimeException(e.getMessage(), e);
             }
