@@ -374,7 +374,7 @@ public class PropertySQLProvider implements SQLProvider {
             if (dialect == null) {
                logger.warnf("Unable to detect database dialect from connection metadata or JDBC driver name.");
             } else {
-               logger.debugf("Detect database dialect as '%s'.");
+               logger.debugf("Detect database dialect as '%s'.", dialect);
             }
          } catch (Exception e) {
             logger.debug("Unable to read JDBC metadata.", e);
