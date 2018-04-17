@@ -90,6 +90,7 @@ var ARTEMIS = (function(ARTEMIS) {
                     {
                         name = name.substr(1,name.length -2);
                     }
+                    name = ARTEMISService.artemisConsole.ownUnescape(name);
                     ARTEMIS.log.info(name);
                     var operation;
                     $scope.message = "Deleted address " + name;
@@ -100,7 +101,7 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.name = function () {
             var selection = workspace.selection;
             if (selection) {
-                return selection.title;
+                return ARTEMISService.artemisConsole.ownUnescape(selection.title);
             }
             return null;
         };

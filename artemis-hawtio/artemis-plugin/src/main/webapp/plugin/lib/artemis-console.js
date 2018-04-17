@@ -70,6 +70,11 @@ function ArtemisConsole() {
    this.getRemoteBrokers = function (mbean, jolokia, method) {
       jolokia.request({ type: 'exec', mbean: mbean, operation: 'listNetworkTopology()' }, method);
    };
+
+   this.ownUnescape = function (name) {
+      //simple return unescape(name); does not work for this :(
+      return name.replace(/\\\\/g, "\\").replace(/\\\*/g, "*").replace(/\\\?/g, "?");
+   };
 }
 
 function getServerAttributes() {
