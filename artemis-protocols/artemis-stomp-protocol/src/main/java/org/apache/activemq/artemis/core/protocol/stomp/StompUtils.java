@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
@@ -123,6 +124,9 @@ public class StompUtils {
       if (message.getValidatedUserID() != null) {
          command.addHeader(Stomp.Headers.Message.VALIDATED_USER, message.getValidatedUserID());
       }
+      if (message.getByteProperty(Message.HDR_ROUTING_TYPE.toString()) != null) {
+         command.addHeader(Stomp.Headers.Send.DESTINATION_TYPE, RoutingType.getType(message.getByteProperty(Message.HDR_ROUTING_TYPE.toString())).toString());
+      }
 
       // now let's add all the rest of the message headers
       Set<SimpleString> names = message.getPropertyNames();
@@ -130,6 +134,7 @@ public class StompUtils {
          if (name.equals(ClientMessageImpl.REPLYTO_HEADER_NAME) ||
             name.equals(Message.HDR_CONTENT_TYPE) ||
             name.equals(Message.HDR_VALIDATED_USER) ||
+            name.equals(Message.HDR_ROUTING_TYPE) ||
             name.equals(MessageUtil.TYPE_HEADER_NAME) ||
             name.equals(MessageUtil.CORRELATIONID_HEADER_NAME) ||
             name.toString().equals(Stomp.Headers.Message.DESTINATION)) {
