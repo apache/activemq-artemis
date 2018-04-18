@@ -705,6 +705,42 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testAnycastDestinationTypeMessageProperty() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
+
+      send(conn, getQueuePrefix() + getQueueName(), null, getName(), true, RoutingType.ANYCAST);
+
+      ClientStompFrame frame = conn.receiveFrame(10000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertTrue(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()) == null);
+      Assert.assertEquals(getName(), frame.getBody());
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testMulticastDestinationTypeMessageProperty() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribeTopic(conn, null, null, null);
+
+      send(conn, getTopicPrefix() + getTopicName(), null, getName(), true, RoutingType.MULTICAST);
+
+      ClientStompFrame frame = conn.receiveFrame(10000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertTrue(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()) == null);
+      Assert.assertEquals(getName(), frame.getBody());
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testSubscribeWithAutoAckAndBytesMessage() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
