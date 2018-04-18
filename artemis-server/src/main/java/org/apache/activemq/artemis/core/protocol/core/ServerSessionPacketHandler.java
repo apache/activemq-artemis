@@ -658,6 +658,9 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          try {
             final SessionSendMessage message = (SessionSendMessage) packet;
             requiresResponse = message.isRequiresResponse();
+            if (this.session.getMatchingQueue(message.getMessage().getAddressSimpleString(), RoutingType.ANYCAST) == null || this.session.getMatchingQueue(message.getMessage().getAddressSimpleString(), RoutingType.MULTICAST) == null) {
+               this.session.createQueue(message.getMessage().getAddressSimpleString(), message.getMessage().getAddressSimpleString(), RoutingType.ANYCAST, new SimpleString(""), false, true);
+            }
             this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage()), this.direct);
             if (requiresResponse) {
                response = new NullResponseMessage();
