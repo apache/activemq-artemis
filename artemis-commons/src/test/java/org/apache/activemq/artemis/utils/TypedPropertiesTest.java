@@ -117,6 +117,33 @@ public class TypedPropertiesTest {
    }
 
    @Test
+   public void testGetNonExistentProperties() {
+      // try getting properties that don't exist that should return null
+      SimpleString uuid = RandomUtil.randomSimpleString();
+      Assert.assertNull(props.getProperty(uuid));
+      Assert.assertNull(props.getByteProperty(uuid));
+      Assert.assertNull(props.getBytesProperty(uuid));
+      Assert.assertNull(props.getLongProperty(uuid));
+      Assert.assertNull(props.getFloatProperty(uuid));
+      Assert.assertNull(props.getDoubleProperty(uuid));
+      Assert.assertNull(props.getIntProperty(uuid));
+      Assert.assertNull(props.getShortProperty(uuid));
+      Assert.assertNull(props.getSimpleStringProperty(uuid));
+
+      // a boolean property which doesn't exist returns false instead of null
+      Assert.assertFalse(props.getBooleanProperty(uuid));
+
+      // a char property which doesn't exist return an NPE instead of null
+      try {
+         props.getCharProperty(uuid);
+      } catch (NullPointerException npe) {
+         // ignore
+      } catch (Exception e) {
+         Assert.fail("Should have received an NPE, but instead got: " + e.getMessage());
+      }
+   }
+
+   @Test
    public void testRemovePropertyOnEmptyProperties() throws Exception {
       Assert.assertFalse(props.containsProperty(key));
       Assert.assertNull(props.removeProperty(key));

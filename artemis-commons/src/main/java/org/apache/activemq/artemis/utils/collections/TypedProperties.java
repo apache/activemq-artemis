@@ -176,7 +176,7 @@ public class TypedProperties {
    public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null) {
-         return Byte.valueOf(null);
+         return null;
       } else if (value instanceof Byte) {
          return (Byte) value;
       } else if (value instanceof SimpleString) {
@@ -210,7 +210,7 @@ public class TypedProperties {
    public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null) {
-         return Double.valueOf(null);
+         return null;
       } else if (value instanceof Float) {
          return ((Float) value).doubleValue();
       } else if (value instanceof Double) {
@@ -224,7 +224,7 @@ public class TypedProperties {
    public Integer getIntProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null) {
-         return Integer.valueOf(null);
+         return null;
       } else if (value instanceof Integer) {
          return (Integer) value;
       } else if (value instanceof Byte) {
@@ -240,7 +240,7 @@ public class TypedProperties {
    public Long getLongProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null) {
-         return Long.valueOf(null);
+         return null;
       } else if (value instanceof Long) {
          return (Long) value;
       } else if (value instanceof Byte) {
@@ -258,7 +258,7 @@ public class TypedProperties {
    public Short getShortProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null) {
-         return Short.valueOf(null);
+         return null;
       } else if (value instanceof Byte) {
          return ((Byte) value).shortValue();
       } else if (value instanceof Short) {
@@ -272,7 +272,7 @@ public class TypedProperties {
    public Float getFloatProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null)
-         return Float.valueOf(null);
+         return null;
       if (value instanceof Float) {
          return ((Float) value);
       }
