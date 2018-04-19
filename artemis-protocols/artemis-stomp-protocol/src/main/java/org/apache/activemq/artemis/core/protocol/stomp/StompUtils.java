@@ -124,7 +124,7 @@ public class StompUtils {
       if (message.getValidatedUserID() != null) {
          command.addHeader(Stomp.Headers.Message.VALIDATED_USER, message.getValidatedUserID());
       }
-      if (message.getByteProperty(Message.HDR_ROUTING_TYPE.toString()) != null) {
+      if (message.containsProperty(Message.HDR_ROUTING_TYPE)) {
          command.addHeader(Stomp.Headers.Send.DESTINATION_TYPE, RoutingType.getType(message.getByteProperty(Message.HDR_ROUTING_TYPE.toString())).toString());
       }
 
