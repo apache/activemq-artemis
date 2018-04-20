@@ -21,6 +21,7 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -28,10 +29,14 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 
+import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
+import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -43,6 +48,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -141,5 +147,19 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
          return;
       }
       fail("Should have failed authenticating");
+   }
+
+   @Test
+   public void testCommitOnFailedLogin() throws LoginException {
+      LoginModule loginModule = new LDAPLoginModule();
+      JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
+
+      loginModule.initialize(new Subject(), callbackHandler, null, new HashMap<String, Object>());
+
+      // login should return false due to null username
+      assertFalse(loginModule.login());
+
+      // since login failed commit should return false as well
+      assertFalse(loginModule.commit());
    }
 }
