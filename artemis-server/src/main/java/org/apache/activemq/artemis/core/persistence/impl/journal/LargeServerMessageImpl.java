@@ -16,9 +16,14 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -170,6 +175,10 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    @Override
    public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
       validateFile();
+      assert file != null && bodySize != -1;
+      if (file.getJavaFile() != null) {
+         return new MappedViewDecodingContext(file.getJavaFile(), bodySize);
+      }
       return new DecodingContext();
    }
 
@@ -475,7 +484,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          if (bytesRead > 0) {
             bufferOut.writeBytes(bufferRead.array(), 0, bytesRead);
          }
-
          return bytesRead;
       }
 
@@ -485,6 +493,112 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       @Override
       public long getLargeBodySize() throws ActiveMQException {
          return getBodySize();
+      }
+   }
+
+   private static final class MappedViewDecodingContext implements LargeBodyEncoder {
+
+      private static final int MIN_CHUNK_SIZE = 64 * 1024 * 1024;
+      private long readerIndex;
+      private long chunkLimit;
+      private ByteBuffer mappedChunk;
+      private FileChannel fileChannel;
+      private final Path filePath;
+      private final long bodySize;
+
+      private MappedViewDecodingContext(File filePath, long bodySize) {
+         this.filePath = filePath.toPath();
+         this.bodySize = bodySize;
+         this.fileChannel = null;
+         this.mappedChunk = null;
+         this.readerIndex = -1;
+         this.chunkLimit = -1;
+      }
+
+      @Override
+      public void open() throws ActiveMQException {
+         try {
+            close();
+            this.fileChannel = FileChannel.open(filePath, StandardOpenOption.READ);
+            this.readerIndex = 0;
+            this.chunkLimit = 0;
+            assert this.fileChannel.size() == this.bodySize : "bodySize should be equals to the file size";
+         } catch (Throwable e) {
+            throw new ActiveMQException(ActiveMQExceptionType.INTERNAL_ERROR, e.getMessage(), e);
+         }
+      }
+
+      @Override
+      public void close() throws ActiveMQException {
+         try {
+            if (fileChannel != null) {
+               try {
+                  fileChannel.close();
+               } catch (Throwable e) {
+                  throw new ActiveMQInternalErrorException(e.getMessage(), e);
+               } finally {
+                  if (mappedChunk != null) {
+                     PlatformDependent.freeDirectBuffer(mappedChunk);
+                  }
+               }
+            }
+         } finally {
+            readerIndex = -1;
+            chunkLimit = -1;
+            fileChannel = null;
+            mappedChunk = null;
+         }
+      }
+
+      @Override
+      public int encode(final ByteBuffer bufferRead) {
+         throw new UnsupportedOperationException();
+      }
+
+      private void mapNewChunk(int bytesToRead, long remaining) throws ActiveMQException {
+         try {
+            //release the old chunk, if any
+            if (mappedChunk != null) {
+               PlatformDependent.freeDirectBuffer(mappedChunk);
+               mappedChunk = null;
+            }
+            final int chunkSize = (int) Math.min(Math.max(MIN_CHUNK_SIZE, bytesToRead), remaining);
+            mappedChunk = fileChannel.map(FileChannel.MapMode.READ_ONLY, readerIndex, chunkSize);
+            chunkLimit = readerIndex + chunkSize;
+         } catch (Throwable t) {
+            throw new ActiveMQInternalErrorException(t.getMessage(), t);
+         }
+      }
+
+      @Override
+      public int encode(final ActiveMQBuffer bufferOut, final int size) throws ActiveMQException {
+         if (readerIndex < 0) {
+            throw new IllegalStateException("It must be opened to encode anything");
+         }
+         final long remaining = bodySize - readerIndex;
+         if (remaining == 0) {
+            //SequentialFile::read contract
+            return -1;
+         }
+         final int effectiveBytesToRead = (int) Math.min(size, remaining);
+         final long remainingOnChunk = chunkLimit - readerIndex;
+         if (remainingOnChunk < effectiveBytesToRead) {
+            mapNewChunk(effectiveBytesToRead, remaining);
+         }
+         final int originalLimit = mappedChunk.limit();
+         try {
+            mappedChunk.limit(mappedChunk.position() + effectiveBytesToRead);
+            bufferOut.writeBytes(mappedChunk);
+            return effectiveBytesToRead;
+         } finally {
+            mappedChunk.limit(originalLimit);
+            readerIndex += effectiveBytesToRead;
+         }
+      }
+
+      @Override
+      public long getLargeBodySize() {
+         return bodySize;
       }
    }
 }
