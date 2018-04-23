@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -557,7 +558,7 @@ public class ArtemisTest extends CliTestBase {
       File instanceFolder = temporaryFolder.newFolder(folderName);
 
       setupAuth(instanceFolder);
-      String queues = "q1,q2";
+      String queues = "q1,q2:multicast";
       String addresses = "a1,a2";
 
 
@@ -575,8 +576,11 @@ public class ArtemisTest extends CliTestBase {
               ClientSessionFactory factory = locator.createSessionFactory();
               ClientSession coreSession = factory.createSession("admin", "admin", false, true, true, false, 0)) {
             for (String str : queues.split(",")) {
-               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(str));
-               assertTrue("Couldn't find queue " + str, queryResult.isExists());
+               String[] seg = str.split(":");
+               RoutingType routingType = RoutingType.valueOf((seg.length == 2 ? seg[1] : "anycast").toUpperCase());
+               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(seg[0]));
+               assertTrue("Couldn't find queue " + seg[0], queryResult.isExists());
+               assertEquals(routingType, queryResult.getRoutingType());
             }
             for (String str : addresses.split(",")) {
                ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.toSimpleString(str));

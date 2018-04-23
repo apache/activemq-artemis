@@ -39,6 +39,7 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
@@ -226,7 +227,7 @@ public class Create extends InputAbstract {
    @Option(name = "--no-web", description = "Remove the web-server definition from bootstrap.xml")
    private boolean noWeb;
 
-   @Option(name = "--queues", description = "Comma separated list of queues.")
+   @Option(name = "--queues", description = "Comma separated list of queues with the option to specify a routing type. (ex: --queues myqueue,mytopic:multicast)")
    private String queues;
 
    @Option(name = "--addresses", description = "Comma separated list of addresses ")
@@ -890,10 +891,20 @@ public class Create extends InputAbstract {
       printWriter.println();
 
       for (String str : getQueueList()) {
-         printWriter.println("         <address name=\"" + str + "\">");
-         printWriter.println("            <anycast>");
-         printWriter.println("               <queue name=\"" + str + "\" />");
-         printWriter.println("            </anycast>");
+         String[] seg = str.split(":");
+         String name = seg[0].trim();
+         // default routing type to anycast if not specified
+         String routingType = (seg.length == 2 ? seg[1].trim() : "anycast");
+         try {
+            RoutingType.valueOf(routingType.toUpperCase());
+         } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Invalid routing type: " + routingType);
+         }
+         printWriter.println("         <address name=\"" + name + "\">");
+         printWriter.println("            <" + routingType + ">");
+         printWriter.println("               <queue name=\"" + name + "\" />");
+         printWriter.println("            </" + routingType + ">");
          printWriter.println("         </address>");
       }
       for (String str : getAddressList()) {
