@@ -181,15 +181,16 @@ public class LDAPLoginModule implements LoginModule {
 
    @Override
    public boolean logout() throws LoginException {
-      username = null;
+      clear();
       return true;
    }
 
    @Override
    public boolean commit() throws LoginException {
+      boolean result = userAuthenticated;
       Set<UserPrincipal> authenticatedUsers = subject.getPrincipals(UserPrincipal.class);
       Set<Principal> principals = subject.getPrincipals();
-      if (userAuthenticated) {
+      if (result) {
          principals.add(new UserPrincipal(username));
       }
 
@@ -210,12 +211,18 @@ public class LDAPLoginModule implements LoginModule {
       for (RolePrincipal gp : groups) {
          principals.add(gp);
       }
-      return true;
+      clear();
+      return result;
+   }
+
+   private void clear() {
+      username = null;
+      userAuthenticated = false;
    }
 
    @Override
    public boolean abort() throws LoginException {
-      username = null;
+      clear();
       return true;
    }
 
