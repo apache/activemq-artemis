@@ -58,7 +58,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (String) proxy.invokeOperation("updateAddress", name, routingTypes);
          }
 
-         @Override
          public void updateDuplicateIdCache(String address, Object[] ids) {
 
          }
@@ -572,7 +571,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (Boolean) proxy.invokeOperation("rollbackPreparedTransaction", transactionAsBase64);
          }
 
-         @Override
          public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
             proxy.invokeOperation("sendQueueInfoToQueue", queueName, address);
          }
