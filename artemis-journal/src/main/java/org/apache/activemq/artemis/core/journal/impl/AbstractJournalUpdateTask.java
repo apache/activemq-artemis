@@ -222,7 +222,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       writingChannel = null;
    }
 
-   public boolean lookupRecord(final long id) {
+   public boolean containsRecord(final long id) {
       return recordsSnapshot.contains(id);
    }
 

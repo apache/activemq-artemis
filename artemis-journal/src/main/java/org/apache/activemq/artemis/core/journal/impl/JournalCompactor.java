@@ -221,7 +221,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (logger.isTraceEnabled()) {
          logger.trace("Read Record " + info);
       }
-      if (lookupRecord(info.id)) {
+      if (containsRecord(info.id)) {
          JournalInternalRecord addRecord = new JournalAddRecord(true, info.id, info.getUserRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
          addRecord.setCompactCount((short) (info.compactCount + 1));
 
@@ -238,7 +238,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (logger.isTraceEnabled()) {
          logger.trace("Read Add Recprd TX " + transactionID + " info " + info);
       }
-      if (pendingTransactions.get(transactionID) != null || lookupRecord(info.id)) {
+      if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
 
          JournalInternalRecord record = new JournalAddRecordTX(true, transactionID, info.id, info.getUserRecordType(), EncoderPersister.getInstance(),new ByteArrayEncoding(info.data));
@@ -370,7 +370,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          logger.trace("onReadUpdateRecord " + info);
       }
 
-      if (lookupRecord(info.id)) {
+      if (containsRecord(info.id)) {
          JournalInternalRecord updateRecord = new JournalAddRecord(false, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
 
          updateRecord.setCompactCount((short) (info.compactCount + 1));
@@ -395,7 +395,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          logger.trace("onReadUpdateRecordTX " + info);
       }
 
-      if (pendingTransactions.get(transactionID) != null || lookupRecord(info.id)) {
+      if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
 
          JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, transactionID, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
