@@ -993,7 +993,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    private void checkKnownRecordID(final long id) throws Exception {
-      if (records.containsKey(id) || pendingRecords.contains(id) || (compactor != null && compactor.lookupRecord(id))) {
+      if (records.containsKey(id) || pendingRecords.contains(id) || (compactor != null && compactor.containsRecord(id))) {
          return;
       }
 
@@ -1008,7 +1008,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                known.set(records.containsKey(id)
                   || pendingRecords.contains(id)
-                  || (compactor != null && compactor.lookupRecord(id)));
+                  || (compactor != null && compactor.containsRecord(id)));
             } finally {
                journalLock.readLock().unlock();
             }
