@@ -1312,11 +1312,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(first.getString("clientAddress").length() > 0);
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber("sessionCount").longValue());
+      Assert.assertEquals("", first.getString("clientID"));
 
       Assert.assertTrue(second.getString("connectionID").length() > 0);
       Assert.assertTrue(second.getString("clientAddress").length() > 0);
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("sessionCount").longValue());
+      Assert.assertEquals("", second.getString("clientID"));
    }
 
    @Test
@@ -1359,6 +1361,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), first.getString("destinationName"));
+      Assert.assertEquals("queue", first.getString("destinationType"));
+      Assert.assertFalse(first.getBoolean("durable"));
 
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
       Assert.assertTrue(second.getString("connectionID").length() > 0);
@@ -1372,6 +1377,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
       Assert.assertTrue(second.getString("filter").length() > 0);
       Assert.assertEquals(filter, second.getString("filter"));
+      Assert.assertEquals(queueName.toString(), second.getString("destinationName"));
+      Assert.assertEquals("queue", second.getString("destinationType"));
+      Assert.assertFalse(second.getBoolean("durable"));
    }
 
    @Test
@@ -1436,6 +1444,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), first.getString("queueName"));
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), first.getString("destinationName"));
+      Assert.assertEquals("queue", first.getString("destinationType"));
+      Assert.assertFalse(first.getBoolean("durable"));
 
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
@@ -1447,6 +1458,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), second.getString("queueName"));
       Assert.assertEquals(false, second.getBoolean("browseOnly"));
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), second.getString("destinationName"));
+      Assert.assertEquals("queue", second.getString("destinationType"));
+      Assert.assertFalse(second.getBoolean("durable"));
    }
 
    @Test
