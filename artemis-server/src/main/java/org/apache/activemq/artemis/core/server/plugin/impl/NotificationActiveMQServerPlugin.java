@@ -139,7 +139,9 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
    }
 
    @Override
-   public void messageExpired(MessageReference message, SimpleString messageExpiryAddress) throws ActiveMQException {
+   public void messageExpired(MessageReference message,
+                              SimpleString messageExpiryAddress,
+                              ServerConsumer consumer) {
       final ManagementService managementService = getManagementService();
 
       if (managementService != null && sendExpiredNotifications) {
