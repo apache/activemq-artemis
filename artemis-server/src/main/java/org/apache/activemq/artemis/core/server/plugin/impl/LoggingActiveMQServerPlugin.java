@@ -595,15 +595,10 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
       }
    }
 
-   /**
-    * A message has been expired
-    *
-    * @param message              The expired message
-    * @param messageExpiryAddress The message expiry address if exists
-    * @throws ActiveMQException
-    */
    @Override
-   public void messageExpired(MessageReference message, SimpleString messageExpiryAddress) throws ActiveMQException {
+   public void messageExpired(MessageReference message,
+                              SimpleString messageExpiryAddress,
+                              ServerConsumer consumer) {
       if (logAll || logInternalEvents) {
          LoggingActiveMQServerPluginLogger.LOGGER.messageExpired(message, messageExpiryAddress);
       }

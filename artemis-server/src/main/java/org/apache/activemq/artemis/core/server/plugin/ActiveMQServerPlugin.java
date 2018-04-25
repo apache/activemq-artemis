@@ -566,7 +566,7 @@ public interface ActiveMQServerPlugin {
     * @throws ActiveMQException
     */
    default void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) throws ActiveMQException {
-
+      messageExpired(message, messageExpiryAddress);
    }
 
    /**
