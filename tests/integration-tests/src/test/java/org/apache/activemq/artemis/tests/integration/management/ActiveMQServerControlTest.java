@@ -914,12 +914,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
+      // add another TX, but don't prepare it
+      ClientMessage m5 = createTextMessage(clientSession, "");
+      ClientMessage m6 = createTextMessage(clientSession, "");
+      ClientMessage m7 = createTextMessage(clientSession, "");
+      ClientMessage m8 = createTextMessage(clientSession, "");
+      m5.putStringProperty("m5", "m5");
+      m6.putStringProperty("m6", "m6");
+      m7.putStringProperty("m7", "m7");
+      m8.putStringProperty("m8", "m8");
+      Xid xid2 = newXID();
+      clientSession.start(xid2, XAResource.TMNOFLAGS);
+      clientProducer.send(m5);
+      clientProducer.send(m6);
+      clientProducer.send(m7);
+      clientProducer.send(m8);
+      clientSession.end(xid2, XAResource.TMSUCCESS);
+
       ActiveMQServerControl serverControl = createManagementControl();
 
       JsonArray jsonArray = JsonUtil.readJsonArray(serverControl.listProducersInfoAsJSON());
 
       assertEquals(1, jsonArray.size());
-      assertEquals(4, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
+      assertEquals(8, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
 
       clientSession.close();
       locator.close();
@@ -930,6 +947,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(txDetails.matches(".*m2.*"));
       Assert.assertTrue(txDetails.matches(".*m3.*"));
       Assert.assertTrue(txDetails.matches(".*m4.*"));
+      Assert.assertFalse(txDetails.matches(".*m5.*"));
+      Assert.assertFalse(txDetails.matches(".*m6.*"));
+      Assert.assertFalse(txDetails.matches(".*m7.*"));
+      Assert.assertFalse(txDetails.matches(".*m8.*"));
    }
 
    @Test
