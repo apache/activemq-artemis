@@ -47,11 +47,13 @@ public class HAAutomaticBackupSharedStoreTest extends ClusterTestBase {
 
    @Test
    public void basicDiscovery() throws Exception {
-      startServers(0, 1, 2, 3, 4, 5);
-
-      createQueue(3, "queues.testaddress", "queue0", null, false);
-      createQueue(4, "queues.testaddress", "queue0", null, false);
-      createQueue(5, "queues.testaddress", "queue0", null, false);
+      startServers(0, 1, 2);
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
+      createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(1, "queues.testaddress", "queue0", null, false);
+      createQueue(2, "queues.testaddress", "queue0", null, false);
 
    }
 
