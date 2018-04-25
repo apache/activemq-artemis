@@ -323,7 +323,7 @@ public final class XMLUtil {
    public static void validate(final Node node, final String schemaFile) throws Exception {
       SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-      Schema schema = factory.newSchema(findResource(schemaFile));
+      Schema schema = factory.newSchema(new URL(findResource(schemaFile).toURI().toASCIIString()));
       Validator validator = schema.newValidator();
 
       // validate the DOM tree
