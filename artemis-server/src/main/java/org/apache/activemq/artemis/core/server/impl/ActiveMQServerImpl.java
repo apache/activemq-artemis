@@ -154,6 +154,7 @@ import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
@@ -2321,6 +2322,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (!scalingDown) {
          deployAddressSettingsFromConfiguration();
+      }
+
+      //fix of ARTEMIS-1823
+      if (!configuration.isPersistenceEnabled()) {
+         for (AddressSettings addressSettings : addressSettingsRepository.values()) {
+            if (addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE) {
+               ActiveMQServerLogger.LOGGER.pageWillBePersisted();
+               break;
+            }
+         }
       }
 
       storageManager.start();
