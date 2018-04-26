@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
+import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -81,12 +82,16 @@ public class WebServerComponent implements ExternalComponent {
 
          HttpConfiguration https = new HttpConfiguration();
          https.addCustomizer(new SecureRequestCustomizer());
+         https.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(https);
 
          connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
 
       } else {
-         connector = new ServerConnector(server);
+         HttpConfiguration configuration = new HttpConfiguration();
+         configuration.setSendServerVersion(false);
+         ConnectionFactory connectionFactory = new HttpConnectionFactory(configuration);
+         connector = new ServerConnector(server, connectionFactory);
       }
       connector.setPort(uri.getPort());
       connector.setHost(uri.getHost());

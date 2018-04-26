@@ -41,6 +41,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.CharsetUtil;
@@ -110,6 +111,7 @@ public class WebServerComponentTest extends Assert {
       ch.writeAndFlush(request);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       assertEquals(clientHandler.body, "12345");
+      assertNull(clientHandler.serverHeader);
       // Wait for the server to close the connection.
       ch.close();
       Assert.assertTrue(webServerComponent.isStarted());
@@ -205,6 +207,7 @@ public class WebServerComponentTest extends Assert {
       ch.writeAndFlush(request);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       assertEquals(clientHandler.body, "12345");
+      assertNull(clientHandler.serverHeader);
       // Wait for the server to close the connection.
       ch.close();
       Assert.assertTrue(webServerComponent.isStarted());
@@ -309,6 +312,7 @@ public class WebServerComponentTest extends Assert {
 
       private CountDownLatch latch;
       private String body;
+      private String serverHeader;
 
       ClientHandler(CountDownLatch latch) {
          this.latch = latch;
@@ -316,7 +320,10 @@ public class WebServerComponentTest extends Assert {
 
       @Override
       public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
-         if (msg instanceof HttpContent) {
+         if (msg instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse) msg;
+            serverHeader = response.headers().get("Server");
+         } else if (msg instanceof HttpContent) {
             HttpContent content = (HttpContent) msg;
             body = content.content().toString(CharsetUtil.UTF_8);
             latch.countDown();
