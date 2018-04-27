@@ -250,7 +250,7 @@ public class JournalTransaction {
             for (JournalUpdate trUpdate : pos) {
                JournalRecord posFiles = journal.getRecords().get(trUpdate.id);
 
-               if (compactor != null && compactor.lookupRecord(trUpdate.id)) {
+               if (compactor != null && compactor.containsRecord(trUpdate.id)) {
                   // This is a case where the transaction was opened after compacting was started,
                   // but the commit arrived while compacting was working
                   // We need to cache the counter update, so compacting will take the correct files when it is done
