@@ -197,7 +197,7 @@ public class AMQPMessage extends RefCountMessage {
       return applicationProperties;
    }
 
-   private void parseHeaders() {
+   private synchronized void parseHeaders() {
       if (!parsedHeaders) {
          if (data == null) {
             initalizeObjects();
@@ -388,6 +388,7 @@ public class AMQPMessage extends RefCountMessage {
             _header = (Header) section;
             headerEnds = buffer.position();
             messagePaylodStart = headerEnds;
+            this.durable = _header.getDurable();
 
             if (_header.getTtl() != null) {
                this.expiration = System.currentTimeMillis() + _header.getTtl().intValue();
@@ -577,6 +578,8 @@ public class AMQPMessage extends RefCountMessage {
       if (durable != null) {
          return durable;
       }
+
+      parseHeaders();
 
       if (getHeader() != null && getHeader().getDurable() != null) {
          durable = getHeader().getDurable();
