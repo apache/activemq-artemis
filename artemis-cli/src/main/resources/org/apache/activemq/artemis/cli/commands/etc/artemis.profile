@@ -18,6 +18,7 @@
 ARTEMIS_HOME='${artemis.home}'
 ARTEMIS_INSTANCE='${artemis.instance}'
 ARTEMIS_DATA_DIR='${artemis.instance.data}'
+ARTEMIS_ETC_DIR='${artemis.instance.etc}'
 
 # The logging config will need an URI
 # this will be encoded in case you use spaces or special characters
