@@ -38,6 +38,7 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -244,32 +245,13 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          objMessage.setObject(bigObject);
          producer.send(objMessage);
 
-         final AtomicReference<Message> msg1 = new AtomicReference<>();
-         final AtomicReference<Message> msg2 = new AtomicReference<>();
+         ObjectMessage msg1 = (ObjectMessage)consumer1.receive(5000);
+         Assert.assertNotNull(msg1);
+         assertTrue("Should be an instance of TextMessage", msg1 instanceof ObjectMessage);
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               msg1.set(consumer1.receiveNoWait());
-               return msg1.get() != null;
-            }
-         }, TimeUnit.SECONDS.toMillis(25), TimeUnit.MILLISECONDS.toMillis(200)));
-
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               msg2.set(consumer2.receiveNoWait());
-               return msg2.get() != null;
-            }
-         }, TimeUnit.SECONDS.toMillis(25), TimeUnit.MILLISECONDS.toMillis(200)));
-
-         assertNotNull("Should have received a message by now.", msg1.get());
-         assertTrue("Should be an instance of TextMessage", msg1.get() instanceof ObjectMessage);
-
-         assertNotNull("Should have received a message by now.", msg2.get());
-         assertTrue("Should be an instance of TextMessage", msg2.get() instanceof ObjectMessage);
+         ObjectMessage msg2 = (ObjectMessage)consumer2.receive(5000);
+         assertNotNull("Should have received a message by now.", msg2);
+         assertTrue("Should be an instance of TextMessage", msg2 instanceof ObjectMessage);
       } finally {
          connection.close();
       }
