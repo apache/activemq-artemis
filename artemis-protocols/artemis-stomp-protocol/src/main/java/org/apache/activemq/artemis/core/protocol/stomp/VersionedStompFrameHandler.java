@@ -279,8 +279,16 @@ public abstract class VersionedStompFrameHandler {
       return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
    }
 
-   public String getDestination(StompFrame request) {
-      return request.getHeader(Headers.Subscribe.DESTINATION);
+   public String getDestination(StompFrame request) throws ActiveMQStompException {
+      return getDestination(request, Headers.Subscribe.DESTINATION);
+   }
+
+   public String getDestination(StompFrame request, String header) throws ActiveMQStompException {
+      String destination = request.getHeader(header);
+      if (destination == null) {
+         return null;
+      }
+      return connection.getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString();
    }
 
    public StompFrame postprocess(StompFrame request) {
