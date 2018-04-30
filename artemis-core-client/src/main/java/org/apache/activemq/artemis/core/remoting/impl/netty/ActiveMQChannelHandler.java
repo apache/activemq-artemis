@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import java.util.concurrent.Executor;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
@@ -41,12 +43,16 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    volatile boolean active;
 
+   private final Executor listenerExecutor;
+
    protected ActiveMQChannelHandler(final ChannelGroup group,
                                     final BufferHandler handler,
-                                    final BaseConnectionLifeCycleListener<?> listener) {
+                                    final BaseConnectionLifeCycleListener<?> listener,
+                                    final Executor listenerExecutor) {
       this.group = group;
       this.handler = handler;
       this.listener = listener;
+      this.listenerExecutor = listenerExecutor;
    }
 
    @Override
@@ -75,7 +81,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
       synchronized (this) {
          if (active) {
-            listener.connectionDestroyed(channelId(ctx.channel()));
+            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel())));
 
             active = false;
          }
@@ -98,7 +104,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
       synchronized (listener) {
          try {
-            listener.connectionException(channelId(ctx.channel()), me);
+            listenerExecutor.execute(() -> listener.connectionException(channelId(ctx.channel()), me));
             active = false;
          } catch (Exception ex) {
             ActiveMQClientLogger.LOGGER.errorCallingLifeCycleListener(ex);
