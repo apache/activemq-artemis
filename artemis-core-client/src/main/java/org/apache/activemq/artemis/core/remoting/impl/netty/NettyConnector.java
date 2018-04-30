@@ -588,7 +588,7 @@ public class NettyConnector extends AbstractConnector {
 
             protocolManager.addChannelHandlers(pipeline);
 
-            pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener()));
+            pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener(), closeExecutor));
          }
       });
 
@@ -830,8 +830,9 @@ public class NettyConnector extends AbstractConnector {
 
       ActiveMQClientChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ClientConnectionLifeCycleListener listener) {
-         super(group, handler, listener);
+                                   final ClientConnectionLifeCycleListener listener,
+                                   final Executor executor) {
+         super(group, handler, listener, executor);
       }
    }
 
