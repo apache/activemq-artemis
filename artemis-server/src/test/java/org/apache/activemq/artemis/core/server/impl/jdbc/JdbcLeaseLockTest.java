@@ -46,18 +46,16 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
    private DatabaseStorageConfiguration dbConf;
    private SQLProvider sqlProvider;
 
-   @Parameterized.Parameters(name = "create_tables_prior_test")
+   @Parameterized.Parameters(name = "create_tables_prior_test={0}")
    public static List<Object[]> data() {
       return Arrays.asList(new Object[][] {
-         {true, null},
-         {false, null}
+         {true},
+         {false}
       });
    }
 
    @Parameter(0)
    public boolean withExistingTable;
-   @Parameter(1)
-   public Object result;
 
 
    private LeaseLock lock() {
