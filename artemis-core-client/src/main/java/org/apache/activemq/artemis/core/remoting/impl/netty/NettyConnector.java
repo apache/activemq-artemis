@@ -625,7 +625,7 @@ public class NettyConnector extends AbstractConnector {
          @Override
          public SSLEngine run() {
             if (verifyHost) {
-               return context.createSSLEngine(host, port);
+               return context.createSSLEngine(sniHost != null ? sniHost : host, port);
             } else {
                return context.createSSLEngine();
             }
