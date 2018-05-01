@@ -36,7 +36,6 @@
    <argument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</argument>
    <argument>-XX:+UseParallelGC</argument>
    <argument>-XX:+AggressiveOpts</argument>
-   <argument>-XX:+UseFastAccessorMethods</argument>
    <argument>-Xms512M</argument>
    <argument>-Xmx1024M</argument>
 
