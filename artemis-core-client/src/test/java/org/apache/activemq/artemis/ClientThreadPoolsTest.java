@@ -229,9 +229,7 @@ public class ClientThreadPoolsTest {
       Field threadPoolField = ServerLocatorImpl.class.getDeclaredField("threadPool");
       Field scheduledThreadPoolField = ServerLocatorImpl.class.getDeclaredField("scheduledThreadPool");
 
-      Method initialise = ServerLocatorImpl.class.getDeclaredMethod("initialise");
-      initialise.setAccessible(true);
-      initialise.invoke(serverLocator);
+      serverLocator.initialize();
 
       threadPoolField.setAccessible(true);
       scheduledThreadPoolField.setAccessible(true);
