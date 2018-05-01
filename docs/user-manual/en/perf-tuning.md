@@ -224,7 +224,7 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     tuning parameters, for the Sun Hotspot JVM the full list of options
     is available
     [here](http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html).
-    We recommend at least using `-XX:+AggressiveOpts` and `-XX:+UseFastAccessorMethods`.
+    We recommend at least using `-XX:+AggressiveOpts`.
     You may get some mileage with the other tuning parameters depending
     on your OS platform and application usage patterns.
 

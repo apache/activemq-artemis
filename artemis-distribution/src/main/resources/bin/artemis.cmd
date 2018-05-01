@@ -45,7 +45,7 @@ echo.
 :RUN_JAVA
 
 rem "Set Defaults."
-set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M
+set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -Xms512M -Xmx1024M
 
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
