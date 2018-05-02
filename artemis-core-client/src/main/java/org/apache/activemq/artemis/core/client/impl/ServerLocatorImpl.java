@@ -214,10 +214,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private final Exception traceException = new Exception();
 
-   // To be called when there are ServerLocator being finalized.
-   // To be used on test assertions
-   public static Runnable finalizeCallback = null;
-
    public static synchronized void clearThreadPools() {
       ActiveMQClient.clearThreadPools();
    }
@@ -1783,10 +1779,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       protected void finalize() throws Throwable {
          if (!isClosed() && finalizeCheck) {
             ActiveMQClientLogger.LOGGER.serverLocatorNotClosed(traceException, System.identityHashCode(this));
-
-            if (ServerLocatorImpl.finalizeCallback != null) {
-               ServerLocatorImpl.finalizeCallback.run();
-            }
 
             close();
          }
