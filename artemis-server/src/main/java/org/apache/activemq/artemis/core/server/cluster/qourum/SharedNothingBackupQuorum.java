@@ -64,6 +64,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private final NetworkHealthCheck networkHealthCheck;
 
+   private boolean stopped = false;
+
    /**
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
     * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
@@ -266,6 +268,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     * @param explicitSignal the state we want to set the quorum manager to return
     */
    public synchronized void causeExit(BACKUP_ACTIVATION explicitSignal) {
+      stopped = true;
       removeListener();
       this.signal = explicitSignal;
       latch.countDown();
@@ -287,7 +290,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       int size = quorumSize == -1 ? quorumManager.getMaxClusterSize() : quorumSize;
 
       synchronized (voteGuard) {
-         while (!decision && voteAttempts++ < voteRetries) {
+         while (!stopped && voteAttempts++ < voteRetries) {
             //the live is dead so lets vote for quorum
             QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, targetServerID);
 
