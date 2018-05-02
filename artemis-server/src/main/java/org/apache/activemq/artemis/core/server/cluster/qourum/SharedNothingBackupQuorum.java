@@ -64,7 +64,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private final NetworkHealthCheck networkHealthCheck;
 
-   private boolean stopped = false;
+   private volatile boolean stopped = false;
 
    /**
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
