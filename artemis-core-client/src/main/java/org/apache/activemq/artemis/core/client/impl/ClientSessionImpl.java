@@ -1545,6 +1545,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                if (logger.isDebugEnabled()) {
                   logger.debug(ex.getMessage(), ex);
                }
+               throw ex;
             } finally {
                endCall();
             }
@@ -1754,6 +1755,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             if (logger.isDebugEnabled()) {
                logger.debug(ex.getMessage(), ex);
             }
+            throw ex;
          } finally {
             if (wasStarted) {
                start();
