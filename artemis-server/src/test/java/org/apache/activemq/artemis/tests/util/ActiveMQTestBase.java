@@ -311,6 +311,7 @@ public abstract class ActiveMQTestBase extends Assert {
             for (Exception exception : exceptions) {
                exception.printStackTrace(System.out);
             }
+            System.out.println(threadDump("Thread dump with reconnects happening"));
             fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
          Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
