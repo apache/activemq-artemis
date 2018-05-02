@@ -390,24 +390,8 @@ public class ActiveMQActivation {
          }
       }
 
-      Thread threadTearDown = new Thread("TearDown/ActiveMQActivation") {
-         @Override
-         public void run() {
-            for (ActiveMQMessageHandler handler : handlersCopy) {
-               handler.teardown();
-            }
-         }
-      };
-
-      // We will first start a new thread that will call tearDown on all the instances, trying to graciously shutdown everything.
-      // We will then use the call-timeout to determine a timeout.
-      // if that failed we will then close the connection factory, and interrupt the thread
-      threadTearDown.start();
-
-      try {
-         threadTearDown.join(timeout);
-      } catch (InterruptedException e) {
-         // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
+      for (ActiveMQMessageHandler handler : handlersCopy) {
+         handler.teardown();
       }
 
       if (factory != null) {
@@ -419,20 +403,6 @@ public class ActiveMQActivation {
          }
 
          factory = null;
-      }
-
-      if (threadTearDown.isAlive()) {
-         threadTearDown.interrupt();
-
-         try {
-            threadTearDown.join(5000);
-         } catch (InterruptedException e) {
-            // nothing to be done here.. we are going down anyways
-         }
-
-         if (threadTearDown.isAlive()) {
-            ActiveMQRALogger.LOGGER.threadCouldNotFinish(threadTearDown.toString());
-         }
       }
 
       nodes.clear();
@@ -548,9 +518,7 @@ public class ActiveMQActivation {
                   calculatedDestinationName = spec.getQueuePrefix() + calculatedDestinationName;
                }
 
-               logger.debug("Unable to retrieve " + destinationName +
-                                                " from JNDI. Creating a new " + destinationType.getName() +
-                                                " named " + calculatedDestinationName + " to be used by the MDB.");
+               logger.debug("Unable to retrieve " + destinationName + " from JNDI. Creating a new " + destinationType.getName() + " named " + calculatedDestinationName + " to be used by the MDB.");
 
                // If there is no binding on naming, we will just create a new instance
                if (isTopic) {
