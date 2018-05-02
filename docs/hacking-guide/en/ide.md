@@ -8,21 +8,22 @@ There a few files useful for IDE integration under ./etc/ide-settings on a check
 
 ### Importing the Project
 
-The following steps show how to import ActiveMQ Artemis source into IntelliJ IDEA and setup the correct maven profile to allow
-running of JUnit tests from within the IDE.  (Steps are based on version: 2017.1.2)
+The following steps show how to open the ActiveMQ Artemis maven project in IntelliJ IDEA and setup the correct maven profile to allow running of JUnit tests from within the IDE.  (Steps are based on version: 2018.2)
 
-* File --> Import Project --> Select the root directory of the ActiveMQ Artemis source folder. --> Click OK
+* Starting from a clean clone
+* Build the activemq-artemis source using the maven 'dev' profile:
 
-This should open the import project wizard.  From here:
+$ mvn -Pdev install -DskipTests=true
 
-* Select "Import project from external model" toggle box, then select Maven from the list box below.  Click Next.
-* Leave the defaults set on this page and click next.
-* On the "Select profiles page", select the checkbox next to "dev" and click next.
-* From here the default settings should suffice.  Continue through the wizard, clicking next until the wizard is complete.
+* Await and ensure the outcome is BUILD SUCCESS
+* Launch IntelliJ
+* From the 'Welcome to IntelliJ IDEA' screen select 'Open'
+* From the 'Open File or Project' screen select the pom.xml file in the cloned activemq-artemis directory 
+* From the 'Open Project' screen select 'Open as Project'
 
-Once the project has been imported and IDEA has caught up importing all the relevant dependencies, you should be able to
-run JUnit tests from with the IDE.  Select any test class in the tests -> integration tests folder.  Right click on the
-class in the project tab and click "Run <classname>".  If the "Run <classname>" option is present then you're all set to go.
+This should open the main IntelliJ IDEA window where you will notice some background tasks running via the bottom status bar. These background tasks should successfully import and index the project automatically.
+
+Once the project has been imported and IntelliJ IDEA has caught up importing all the relevant dependencies, you should be able to run JUnit tests from with the IDE.  Select any test class in the tests -> integration tests folder.  Right click on the class in the project tab and click "Run <classname>".  If the "Run <classname>" option is present then you're all set to go.
 
 ### Note about IBM JDK on Idea
 
