@@ -36,7 +36,6 @@ import java.util.TreeMap;
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -48,7 +47,6 @@ import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
@@ -66,12 +64,10 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.Persisten
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends DBOption {
 
-   private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
    private XMLStreamWriter xmlWriter;
 
    // an inner map of message refs hashed by the queue ID to which they belong and then hashed by their record ID
@@ -91,6 +87,8 @@ public final class XmlDataExporter extends DBOption {
    long messagesPrinted = 0L;
 
    long bindingsPrinted = 0L;
+
+   XMLMessageExporter exporter;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -141,7 +139,7 @@ public final class XmlDataExporter extends DBOption {
       XMLStreamWriter rawXmlWriter = factory.createXMLStreamWriter(out, "UTF-8");
       PrettyPrintHandler handler = new PrettyPrintHandler(rawXmlWriter);
       xmlWriter = (XMLStreamWriter) Proxy.newProxyInstance(XMLStreamWriter.class.getClassLoader(), new Class[]{XMLStreamWriter.class}, handler);
-
+      exporter = new XMLMessageExporter(xmlWriter);
       writeXMLData();
    }
 
@@ -317,7 +315,7 @@ public final class XmlDataExporter extends DBOption {
 
    private void printDataAsXML() {
       try {
-         xmlWriter.writeStartDocument(XmlDataConstants.XML_VERSION);
+
          xmlWriter.writeStartElement(XmlDataConstants.DOCUMENT_PARENT);
          printBindingsAsXML();
          printAllMessagesAsXML();
@@ -375,6 +373,10 @@ public final class XmlDataExporter extends DBOption {
       xmlWriter.writeEndElement(); // end "messages"
    }
 
+   private void printSingleMessageAsXML(ICoreMessage message, List<String> queues) throws Exception {
+      exporter.printSingleMessageAsXML(message, queues, false);
+      messagesPrinted++;
+   }
    /**
     * Reads from the page files and prints messages as it finds them (making sure to check acks and transactions
     * from the journal).
@@ -444,104 +446,9 @@ public final class XmlDataExporter extends DBOption {
       }
    }
 
-   private void printSingleMessageAsXML(ICoreMessage message, List<String> queues) throws Exception {
-      xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_CHILD);
-      printMessageAttributes(message);
-      printMessageProperties(message);
-      printMessageQueues(queues);
-      printMessageBody(message.toCore());
-      xmlWriter.writeEndElement(); // end MESSAGES_CHILD
-      messagesPrinted++;
-   }
-
-   private void printMessageBody(Message message) throws Exception {
-      xmlWriter.writeStartElement(XmlDataConstants.MESSAGE_BODY);
-
-      if (message.toCore().isLargeMessage()) {
-         printLargeMessageBody((LargeServerMessage) message);
-      } else {
-         xmlWriter.writeCData(XmlDataExporterUtil.encodeMessageBody(message));
-      }
-      xmlWriter.writeEndElement(); // end MESSAGE_BODY
-   }
-
-   private void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException {
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_IS_LARGE, Boolean.TRUE.toString());
-      LargeBodyEncoder encoder = null;
-
-      try {
-         encoder = message.toCore().getBodyEncoder();
-         encoder.open();
-         long totalBytesWritten = 0;
-         Long bufferSize;
-         long bodySize = encoder.getLargeBodySize();
-         for (long i = 0; i < bodySize; i += LARGE_MESSAGE_CHUNK_SIZE) {
-            Long remainder = bodySize - totalBytesWritten;
-            if (remainder >= LARGE_MESSAGE_CHUNK_SIZE) {
-               bufferSize = LARGE_MESSAGE_CHUNK_SIZE;
-            } else {
-               bufferSize = remainder;
-            }
-            ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
-            encoder.encode(buffer, bufferSize.intValue());
-            xmlWriter.writeCData(XmlDataExporterUtil.encode(buffer.toByteBuffer().array()));
-            totalBytesWritten += bufferSize;
-         }
-         encoder.close();
-      } catch (ActiveMQException e) {
-         e.printStackTrace();
-      } finally {
-         if (encoder != null) {
-            try {
-               encoder.close();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-            }
-         }
-      }
-   }
-
-   private void printMessageQueues(List<String> queues) throws XMLStreamException {
-      xmlWriter.writeStartElement(XmlDataConstants.QUEUES_PARENT);
-      for (String queueName : queues) {
-         xmlWriter.writeEmptyElement(XmlDataConstants.QUEUES_CHILD);
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_NAME, queueName);
-      }
-      xmlWriter.writeEndElement(); // end QUEUES_PARENT
-   }
-
-   private void printMessageProperties(Message message) throws XMLStreamException {
-      xmlWriter.writeStartElement(XmlDataConstants.PROPERTIES_PARENT);
-      for (SimpleString key : message.getPropertyNames()) {
-         Object value = message.getObjectProperty(key);
-         xmlWriter.writeEmptyElement(XmlDataConstants.PROPERTIES_CHILD);
-         xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_NAME, key.toString());
-         xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, XmlDataExporterUtil.convertProperty(value));
-
-         // Write the property type as an attribute
-         String propertyType = XmlDataExporterUtil.getPropertyType(value);
-         if (propertyType != null) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, propertyType);
-         }
-      }
-      xmlWriter.writeEndElement(); // end PROPERTIES_PARENT
-   }
-
-   private void printMessageAttributes(ICoreMessage message) throws XMLStreamException {
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_ID, Long.toString(message.getMessageID()));
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_PRIORITY, Byte.toString(message.getPriority()));
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_EXPIRATION, Long.toString(message.getExpiration()));
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TIMESTAMP, Long.toString(message.getTimestamp()));
-      String prettyType = XmlDataExporterUtil.getMessagePrettyType(message.getType());
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TYPE, prettyType);
-      if (message.getUserID() != null) {
-         xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_USER_ID, message.getUserID().toString());
-      }
-   }
-
-   private List<String> extractQueueNames(HashMap<Long, ReferenceDescribe> refMap) {
+   private List<String> extractQueueNames(HashMap<Long, DescribeJournal.ReferenceDescribe> refMap) {
       List<String> queues = new ArrayList<>();
-      for (ReferenceDescribe ref : refMap.values()) {
+      for (DescribeJournal.ReferenceDescribe ref : refMap.values()) {
          queues.add(queueBindings.get(ref.refEncoding.queueID).getQueueName().toString());
       }
       return queues;
@@ -552,7 +459,7 @@ public final class XmlDataExporter extends DBOption {
    /**
     * Proxy to handle indenting the XML since <code>javax.xml.stream.XMLStreamWriter</code> doesn't support that.
     */
-   static class PrettyPrintHandler implements InvocationHandler {
+   public static class PrettyPrintHandler implements InvocationHandler {
 
       private final XMLStreamWriter target;
 
@@ -564,7 +471,7 @@ public final class XmlDataExporter extends DBOption {
 
       boolean wrap = true;
 
-      PrettyPrintHandler(XMLStreamWriter target) {
+      public PrettyPrintHandler(XMLStreamWriter target) {
          this.target = target;
       }
 
