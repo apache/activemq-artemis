@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public class ProducerThread extends Thread {
@@ -48,6 +49,7 @@ public class ProducerThread extends Thread {
    long msgTTL = 0L;
    String msgGroupID = null;
    int transactionBatchSize;
+   byte[] queueId = null;
 
    int transactions = 0;
    final AtomicInteger sentCount = new AtomicInteger(0);
@@ -121,6 +123,11 @@ public class ProducerThread extends Thread {
 
    private void sendMessage(MessageProducer producer, String threadName) throws Exception {
       Message message = createMessage(sentCount.get(), threadName);
+
+      if (queueId != null) {
+         ((ActiveMQMessage) message).getCoreMessage().putBytesProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTE_TO_IDS, queueId);
+      }
+
       producer.send(message);
       if (verbose) {
          System.out.println(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
@@ -369,5 +376,9 @@ public class ProducerThread extends Thread {
    public ProducerThread setObjectSize(int objectSize) {
       this.objectSize = objectSize;
       return this;
+   }
+
+   public void setQueueId(byte[] queueId) {
+      this.queueId = queueId;
    }
 }
