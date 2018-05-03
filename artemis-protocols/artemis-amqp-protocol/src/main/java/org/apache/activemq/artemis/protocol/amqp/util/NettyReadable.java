@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,15 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.protocol.amqp.util;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+
+import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.apache.qpid.proton.codec.WritableBuffer;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.qpid.proton.codec.ReadableBuffer;
 
+/**
+ * {@link ReadableBuffer} implementation that wraps a Netty {@link ByteBuf} to
+ * allow use of Netty buffers to be used when decoding AMQP messages.
+ */
 public class NettyReadable implements ReadableBuffer {
 
    private static final Charset Charset_UTF8 = Charset.forName("UTF-8");
@@ -33,9 +40,8 @@ public class NettyReadable implements ReadableBuffer {
       this.buffer = buffer;
    }
 
-   @Override
-   public void put(ReadableBuffer other) {
-      buffer.writeBytes(other.byteBuffer());
+   public ByteBuf getByteBuf() {
+      return this.buffer;
    }
 
    @Override
@@ -93,7 +99,8 @@ public class NettyReadable implements ReadableBuffer {
 
    @Override
    public ReadableBuffer flip() {
-      return new NettyReadable(buffer.duplicate().setIndex(0, buffer.readerIndex()));
+      buffer.setIndex(0, buffer.readerIndex());
+      return this;
    }
 
    @Override
@@ -135,5 +142,109 @@ public class NettyReadable implements ReadableBuffer {
    @Override
    public String readUTF8() {
       return buffer.toString(Charset_UTF8);
+   }
+
+   @Override
+   public byte[] array() {
+      return buffer.array();
+   }
+
+   @Override
+   public int arrayOffset() {
+      return buffer.arrayOffset() + buffer.readerIndex();
+   }
+
+   @Override
+   public int capacity() {
+      return buffer.capacity();
+   }
+
+   @Override
+   public ReadableBuffer clear() {
+      buffer.setIndex(0, buffer.capacity());
+      return this;
+   }
+
+   @Override
+   public ReadableBuffer reclaimRead() {
+      return this;
+   }
+
+   @Override
+   public byte get(int index) {
+      return buffer.getByte(index);
+   }
+
+   @Override
+   public boolean hasArray() {
+      return buffer.hasArray();
+   }
+
+   @Override
+   public ReadableBuffer mark() {
+      buffer.markReaderIndex();
+      return this;
+   }
+
+   @Override
+   public String readString(CharsetDecoder decoder) throws CharacterCodingException {
+      return buffer.toString(decoder.charset());
+   }
+
+   @Override
+   public ReadableBuffer reset() {
+      buffer.resetReaderIndex();
+      return this;
+   }
+
+   @Override
+   public ReadableBuffer rewind() {
+      buffer.setIndex(0, buffer.writerIndex());
+      return this;
+   }
+
+   @Override
+   public ReadableBuffer get(WritableBuffer target) {
+      int start = target.position();
+
+      if (buffer.hasArray()) {
+         target.put(buffer.array(), buffer.arrayOffset() + buffer.readerIndex(), buffer.readableBytes());
+      } else {
+         target.put(buffer.nioBuffer());
+      }
+
+      int written = target.position() - start;
+
+      buffer.readerIndex(buffer.readerIndex() + written);
+
+      return this;
+   }
+
+   @Override
+   public String toString() {
+      return buffer.toString();
+   }
+
+   @Override
+   public int hashCode() {
+      return buffer.hashCode();
+   }
+
+   @Override
+   public boolean equals(Object other) {
+      if (this == other) {
+         return true;
+      }
+
+      if (!(other instanceof ReadableBuffer)) {
+         return false;
+      }
+
+      ReadableBuffer readable = (ReadableBuffer) other;
+      if (this.remaining() != readable.remaining()) {
+         return false;
+      }
+
+      return buffer.nioBuffer().equals(readable.byteBuffer());
    }
 }

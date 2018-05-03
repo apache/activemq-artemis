@@ -40,6 +40,7 @@ import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.jboss.logging.Logger;
@@ -221,10 +222,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          receiver = ((Receiver) delivery.getLink());
 
          Transaction tx = null;
-         byte[] data;
 
-         data = new byte[delivery.available()];
-         receiver.recv(data, 0, data.length);
+         ReadableBuffer data = receiver.recv();
          receiver.advance();
 
          if (delivery.getRemoteState() instanceof TransactionalState) {
