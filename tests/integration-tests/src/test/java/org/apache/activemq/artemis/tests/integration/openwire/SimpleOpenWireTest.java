@@ -1606,11 +1606,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testTempQueueSendAfterConnectionClose() throws Exception {
 
       Connection connection1 = null;
-      Connection connection2 = null;
+      final Connection connection2 = factory.createConnection();
 
       try {
          connection1 = factory.createConnection();
-         connection2 = factory.createConnection();
          connection1.start();
          connection2.start();
 
@@ -1619,6 +1618,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session2.createProducer(tempQueue);
+
+         // need to wait here because the ActiveMQ client's temp destination map is updated asynchronously, not waiting can introduce a race
+         assertTrue(Wait.waitFor(() -> ((ActiveMQConnection)connection2).activeTempDestinations.size() == 1, 2000, 100));
+
          producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
          TextMessage m = session2.createTextMessage("Hello temp queue");
          producer.send(m);
@@ -1630,6 +1633,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          //close first connection, let temp queue die
          connection1.close();
+
+         // need to wait here because the ActiveMQ client's temp destination map is updated asynchronously, not waiting can introduce a race
+         assertTrue(Wait.waitFor(() -> ((ActiveMQConnection)connection2).activeTempDestinations.size() == 0, 2000, 100));
 
          waitForBindings(this.server, tempQueue.getQueueName(), true, 0, 0, 5000);
          //send again
