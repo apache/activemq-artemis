@@ -35,12 +35,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CriticalCrashTest extends ActiveMQTestBase {
+public class CriticalCrashTest extends SpawnedTestBase {
 
    @Test
    public void testCrash() throws Exception {
