@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -52,11 +57,7 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
 
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
+import io.netty.buffer.ByteBuf;
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
@@ -118,11 +119,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       transport.setChannelMax(channelMax);
       transport.setInitialRemoteMaxFrameSize(protocolManager.getInitialRemoteMaxFrameSize());
       transport.setMaxFrameSize(maxFrameSize);
+      transport.setOutboundFrameSizeLimit(maxFrameSize);
       if (!isIncomingConnection && saslClientFactory != null) {
          handler.createClientSASL();
       }
    }
-
 
    public void scheduledFlush() {
       handler.scheduledFlush();
