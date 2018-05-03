@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientRequestor;
@@ -43,7 +44,7 @@ public class DestAbstract extends ConnectionAbstract {
 
    private static final String FQQN_SEPERATOR = "::";
 
-   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// (Default: queue://TEST)")
+   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// or fqqn:// (Default: queue://TEST)")
    String destination = "queue://TEST";
 
    @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
@@ -111,11 +112,15 @@ public class DestAbstract extends ConnectionAbstract {
    }
 
    public byte[] getQueueIdFromName(String queueName) throws Exception {
-      ClientMessage message = getQueueAttribute(queueName, "ID");
-      Number idObject = (Number) ManagementHelper.getResult(message);
-      ByteBuffer byteBuffer = ByteBuffer.allocate(8);
-      byteBuffer.putLong(idObject.longValue());
-      return byteBuffer.array();
+      try {
+         ClientMessage message = getQueueAttribute(queueName, "ID");
+         Number idObject = (Number) ManagementHelper.getResult(message);
+         ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+         byteBuffer.putLong(idObject.longValue());
+         return byteBuffer.array();
+      } catch (Exception e) {
+         throw new ActiveMQException("Error occured when looking up FQQN.  Please ensure the FQQN exists.", e, ActiveMQExceptionType.ILLEGAL_STATE);
+      }
    }
 
    protected ClientMessage getQueueAttribute(String queueName, String attribute) throws Exception {
