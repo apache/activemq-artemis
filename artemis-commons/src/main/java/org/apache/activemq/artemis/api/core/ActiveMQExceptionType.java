@@ -243,6 +243,10 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQDeleteAddressException(msg);
       }
+   },
+   NULL_REF(218) {
+      @Override
+      public ActiveMQException createException(String msg) { return new ActiveMQNullRefException(msg); }
    };
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;

@@ -1938,4 +1938,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224092, value = "Despite disabled persistence, page files will be persisted.", format = Message.Format.MESSAGE_FORMAT)
    void pageWillBePersisted();
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224093, value = "Reference to message is null", format = Message.Format.MESSAGE_FORMAT)
+   void nullRefMessage();
 }
