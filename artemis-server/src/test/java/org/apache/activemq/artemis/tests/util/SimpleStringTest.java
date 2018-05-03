@@ -419,6 +419,7 @@ public class SimpleStringTest extends Assert {
          final SimpleString expectedPooled = pool.getOrCreate(bb);
          bb.resetReaderIndex();
          Assert.assertSame(expectedPooled, pool.getOrCreate(bb));
+         bb.resetReaderIndex();
       }
    }
 
