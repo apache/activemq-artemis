@@ -249,7 +249,7 @@ public class AMQSession implements SessionCallback {
                         routingTypeToUse = as.getDefaultAddressRoutingType();
                      }
                   }
-                  coreSession.createQueue(addressToUse, queueNameToUse, routingTypeToUse, null, isTemporary, true);
+                  coreSession.createQueue(addressToUse, queueNameToUse, routingTypeToUse, null, isTemporary, true, true);
                   connection.addKnownDestination(queueName);
                } else {
                   hasQueue = false;
