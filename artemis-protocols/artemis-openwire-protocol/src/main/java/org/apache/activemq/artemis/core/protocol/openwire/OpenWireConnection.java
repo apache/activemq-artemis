@@ -82,7 +82,6 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -609,6 +608,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       // is it necessary? even, do we need state at all?
       state.shutdown();
 
+      try {
+         internalSession.close(false);
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+      }
+
       // Then call the listeners
       // this should closes underlying sessions
       callFailureListeners(me);
@@ -719,13 +724,15 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          info.setClientIp(getRemoteAddress());
       }
 
-      createInternalSession(info);
+      createInternalSession();
 
       return context;
    }
 
-   private void createInternalSession(ConnectionInfo info) throws Exception {
-      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes());
+   private void createInternalSession() throws Exception {
+      SessionInfo sessionInfo = getState().getSessionStates().iterator().next().getInfo();
+      AMQSession session = addSession(sessionInfo, true);
+      internalSession = session.getCoreSession();
    }
 
    //raise the refCount of context
