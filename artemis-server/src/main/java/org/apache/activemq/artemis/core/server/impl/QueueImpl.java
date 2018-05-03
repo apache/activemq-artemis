@@ -99,8 +99,6 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
 
-import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.NULL_REF;
-
 /**
  * Implementation of a Queue
  * <p>
