@@ -162,7 +162,13 @@ public class ConfigurationHelper {
       }
 
       String value = prop.toString();
-      Boolean useMask = (Boolean) props.get(defaultMaskPassword);
+      Object useMaskObject = props.get(defaultMaskPassword);
+      Boolean useMask;
+      if (useMaskObject instanceof String) {
+         useMask = Boolean.parseBoolean((String)useMaskObject);
+      } else {
+         useMask = (Boolean) useMaskObject;
+      }
       final String classImpl = (String) props.get(defaultPasswordCodec);
       try {
          return PasswordMaskingUtil.resolveMask(useMask, value, classImpl);
