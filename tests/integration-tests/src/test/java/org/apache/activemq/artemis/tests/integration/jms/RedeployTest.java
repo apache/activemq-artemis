@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
@@ -97,6 +98,88 @@ public class RedeployTest extends ActiveMQTestBase {
 
       } finally {
          embeddedJMS.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployWithFailover() throws Exception {
+      EmbeddedJMS live = new EmbeddedJMS();
+      EmbeddedJMS backup = new EmbeddedJMS();
+
+      try {
+         // set these system properties to use in the relevant broker.xml files
+         System.setProperty("live-data-dir", getTestDirfile().toPath() + "/redeploy-live-data");
+         System.setProperty("backup-data-dir", getTestDirfile().toPath() + "/redeploy-backup-data");
+
+         Path liveBrokerXML = getTestDirfile().toPath().resolve("live.xml");
+         Path backupBrokerXML = getTestDirfile().toPath().resolve("backup.xml");
+         URL url1 = RedeployTest.class.getClassLoader().getResource("reload-live-original.xml");
+         URL url2 = RedeployTest.class.getClassLoader().getResource("reload-live-changed.xml");
+         URL url3 = RedeployTest.class.getClassLoader().getResource("reload-backup-original.xml");
+         URL url4 = RedeployTest.class.getClassLoader().getResource("reload-backup-changed.xml");
+         Files.copy(url1.openStream(), liveBrokerXML);
+         Files.copy(url3.openStream(), backupBrokerXML);
+
+         live.setConfigResourcePath(liveBrokerXML.toUri().toString());
+         live.start();
+
+         waitForServerToStart(live.getActiveMQServer());
+
+         backup.setConfigResourcePath(backupBrokerXML.toUri().toString());
+         backup.start();
+
+         Wait.waitFor(() -> backup.getActiveMQServer().isReplicaSync(), 10000, 200);
+
+         final ReusableLatch liveReloadLatch = new ReusableLatch(1);
+         Runnable liveTick = () -> liveReloadLatch.countDown();
+         live.getActiveMQServer().getReloadManager().setTick(liveTick);
+
+         final ReusableLatch backupReloadTickLatch = new ReusableLatch(1);
+         Runnable backupTick = () -> backupReloadTickLatch.countDown();
+         backup.getActiveMQServer().getReloadManager().setTick(backupTick);
+
+         liveReloadLatch.await(10, TimeUnit.SECONDS);
+         Files.copy(url2.openStream(), liveBrokerXML, StandardCopyOption.REPLACE_EXISTING);
+         liveBrokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         liveReloadLatch.countUp();
+         live.getActiveMQServer().getReloadManager().setTick(liveTick);
+         liveReloadLatch.await(10, TimeUnit.SECONDS);
+
+         backupReloadTickLatch.await(10, TimeUnit.SECONDS);
+         Files.copy(url4.openStream(), backupBrokerXML, StandardCopyOption.REPLACE_EXISTING);
+         backupBrokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         backupReloadTickLatch.countUp();
+         backup.getActiveMQServer().getReloadManager().setTick(backupTick);
+         backupReloadTickLatch.await(10, TimeUnit.SECONDS);
+
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession();
+            Queue queue = session.createQueue("myQueue2");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createTextMessage("text"));
+         }
+
+         live.stop();
+
+         Wait.waitFor(() -> (backup.getActiveMQServer().isActive()), 5000, 100);
+
+         factory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61617");
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession();
+            Queue queue = session.createQueue("myQueue2");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createTextMessage("text"));
+            connection.start();
+            MessageConsumer consumer = session.createConsumer(session.createQueue("myQueue2"));
+            Assert.assertNotNull("Queue wasn't deployed accordingly", consumer.receive(5000));
+            Assert.assertNotNull(consumer.receive(5000));
+         }
+      } finally {
+         live.stop();
+         backup.stop();
+         System.clearProperty("live-data-dir");
+         System.clearProperty("backup-data-dir");
       }
    }
 
