@@ -320,6 +320,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
                oldConnection.disconnect(true);
                connections.remove(oldConnection);
                connection.reconnect(context, info);
+
+               // init the conn after reconnect
+               context.getConnection().addSessions(context.getConnectionState().getSessionIds());
             } else {
                throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + context.getConnection().getRemoteAddress());
             }
@@ -336,9 +339,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          ConnectionInfo copy = info.copy();
          copy.setPassword("");
          fireAdvisory(context, topic, copy);
-
-         // init the conn
-         context.getConnection().addSessions(context.getConnectionState().getSessionIds());
       }
    }
 
