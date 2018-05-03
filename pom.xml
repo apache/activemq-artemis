@@ -841,6 +841,15 @@
                   <version>3.1</version>
                   <configuration combine.self="override" />
                </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
+                     </systemPropertyVariables>
+                  </configuration>
+               </plugin>
             </plugins>
          </build>
       </profile>
