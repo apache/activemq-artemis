@@ -238,12 +238,10 @@ public class NettyConnection implements Connection {
       boolean inEventLoop = eventLoop.inEventLoop();
       //if we are in an event loop we need to close the channel after the writes have finished
       if (!inEventLoop) {
-         final SslHandler sslHandler = (SslHandler) channel.pipeline().get("ssl");
-         closeSSLAndChannel(sslHandler, channel, false);
+         closeSSLAndChannel(channel, false);
       } else {
          eventLoop.execute(() -> {
-            final SslHandler sslHandler = (SslHandler) channel.pipeline().get("ssl");
-            closeSSLAndChannel(sslHandler, channel, true);
+            closeSSLAndChannel(channel, true);
          });
       }
 
@@ -555,26 +553,12 @@ public class NettyConnection implements Connection {
       return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
    }
 
-   private void closeSSLAndChannel(SslHandler sslHandler, final Channel channel, boolean inEventLoop) {
+   private void closeSSLAndChannel(final Channel channel, boolean inEventLoop) {
       checkFlushBatchBuffer();
-      if (sslHandler != null) {
-         try {
-            ChannelFuture sslCloseFuture = sslHandler.close();
-            sslCloseFuture.addListener(future -> channel.close());
-            if (!inEventLoop && !sslCloseFuture.awaitUninterruptibly(DEFAULT_WAIT_MILLIS)) {
-               ActiveMQClientLogger.LOGGER.timeoutClosingSSL();
-            }
-         } catch (Throwable t) {
-            // ignore
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace(t.getMessage(), t);
-            }
-         }
-      } else {
-         ChannelFuture closeFuture = channel.close();
-         if (!inEventLoop && !closeFuture.awaitUninterruptibly(DEFAULT_WAIT_MILLIS)) {
-            ActiveMQClientLogger.LOGGER.timeoutClosingNettyChannel();
-         }
+      // closing the channel results in closing any sslHandler first; SslHandler#close() was deprecated by netty
+      ChannelFuture closeFuture = channel.close();
+      if (!inEventLoop && !closeFuture.awaitUninterruptibly(DEFAULT_WAIT_MILLIS)) {
+         ActiveMQClientLogger.LOGGER.timeoutClosingNettyChannel();
       }
    }
 
