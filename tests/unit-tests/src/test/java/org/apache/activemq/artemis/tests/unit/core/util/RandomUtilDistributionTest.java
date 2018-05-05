@@ -19,15 +19,20 @@ package org.apache.activemq.artemis.tests.unit.core.util;
 
 import java.util.HashSet;
 
+import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * This test will start many parallel VMs, to make sure each VM would generate a good distribution of random numbers
  */
 public class RandomUtilDistributionTest {
+
+   @Rule
+   public SpawnedVMCheck check = new SpawnedVMCheck();
 
    public static void main(String[] arg) {
 
