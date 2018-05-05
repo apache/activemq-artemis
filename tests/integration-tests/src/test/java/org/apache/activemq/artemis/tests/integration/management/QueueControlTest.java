@@ -2409,6 +2409,7 @@ public class QueueControlTest extends ManagementTestBase {
       ClientMessage message = session.createMessage(durable);
       producer.send(message);
 
+      Wait.assertEquals(1, queueControl::getMessageCount);
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
       Assert.assertEquals(1, messages.length);
