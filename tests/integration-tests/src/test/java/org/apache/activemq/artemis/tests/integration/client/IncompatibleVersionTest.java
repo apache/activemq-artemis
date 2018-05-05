@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
@@ -51,7 +51,7 @@ import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
-public class IncompatibleVersionTest extends ActiveMQTestBase {
+public class IncompatibleVersionTest extends SpawnedTestBase {
 
    private static final String WORD_START = "&*STARTED&*";
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -91,6 +91,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
 
       closeServerLocator(locator);
       stopComponent(server);
+      SpawnedVMSupport.forceKill();
       super.tearDown();
    }
 
@@ -105,32 +106,32 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testCompatibleClientVersionWithRealConnection1() throws Exception {
+   public void testCompatibleClientVersionWithRealConnection1() throws Throwable {
       assertTrue(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 1));
    }
 
    @Test
-   public void testCompatibleClientVersionWithRealConnection2() throws Exception {
+   public void testCompatibleClientVersionWithRealConnection2() throws Throwable {
       assertTrue(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 5));
    }
 
    @Test
-   public void testCompatibleClientVersionWithRealConnection3() throws Exception {
+   public void testCompatibleClientVersionWithRealConnection3() throws Throwable {
       assertTrue(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 10));
    }
 
    @Test
-   public void testIncompatibleClientVersionWithRealConnection1() throws Exception {
+   public void testIncompatibleClientVersionWithRealConnection1() throws Throwable {
       assertFalse(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 0));
    }
 
    @Test
-   public void testIncompatibleClientVersionWithRealConnection2() throws Exception {
+   public void testIncompatibleClientVersionWithRealConnection2() throws Throwable {
       assertFalse(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 4));
    }
 
    @Test
-   public void testIncompatibleClientVersionWithRealConnection3() throws Exception {
+   public void testIncompatibleClientVersionWithRealConnection3() throws Throwable {
       assertFalse(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 100));
    }
 
@@ -168,7 +169,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
       }
    }
 
-   private boolean doTestClientVersionCompatibilityWithRealConnection(String verList, int ver) throws Exception {
+   private boolean doTestClientVersionCompatibilityWithRealConnection(String verList, int ver) throws Throwable {
       String propFileName = "compatibility-test-activemq-version.properties";
       String serverStartedString = "IncompatibleVersionTest---server---started";
 
@@ -180,6 +181,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
       prop.store(new FileOutputStream("target/test-classes/" + propFileName), null);
 
       Process serverProcess = null;
+      Process client = null;
       boolean result = false;
       try {
          final CountDownLatch latch = new CountDownLatch(1);
@@ -192,7 +194,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
 
          serverProcess = SpawnedVMSupport.spawnVMWithLogMacher(WORD_START, runnable, "org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, true, "server", serverStartedString);
          Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
-         Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
+         client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
 
          if (client.waitFor() == 0) {
             result = true;
@@ -201,6 +203,13 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
          if (serverProcess != null) {
             try {
                serverProcess.destroy();
+            } catch (Throwable t) {
+               /* ignore */
+            }
+         }
+         if (client != null) {
+            try {
+               client.destroy();
             } catch (Throwable t) {
                /* ignore */
             }
@@ -216,6 +225,11 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
          Configuration config = new ConfigurationImpl().setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
          server.start();
+
+         while (!server.isStarted()) {
+            System.out.println("Still starting");
+            Thread.sleep(100);
+         }
 
          System.out.println(WORD_START);
 
