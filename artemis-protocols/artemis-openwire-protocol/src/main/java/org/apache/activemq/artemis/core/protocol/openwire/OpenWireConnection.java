@@ -82,6 +82,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -177,10 +178,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private final ActiveMQServer server;
 
    /**
-    * This is to be used with connection operations that don't have  a session.
+    * This is to be used with connection operations that don't have a session.
     * Such as TM operations.
     */
    private ServerSession internalSession;
+
+   /**
+    * Used for proper closing of internal sessions like OpenWire advisory
+    * session at disconnect.
+    */
+   private final Set<SessionId> internalSessionIds = new ConcurrentHashSet<>();
 
    private final OperationContext operationContext;
 
@@ -609,6 +616,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       state.shutdown();
 
       try {
+         for (SessionId sessionId : internalSessionIds) {
+            sessions.get(sessionId).close();
+         }
          internalSession.close(false);
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
@@ -724,15 +734,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          info.setClientIp(getRemoteAddress());
       }
 
-      createInternalSession();
+      createInternalSession(info);
 
       return context;
    }
 
-   private void createInternalSession() throws Exception {
-      SessionInfo sessionInfo = getState().getSessionStates().iterator().next().getInfo();
-      AMQSession session = addSession(sessionInfo, true);
-      internalSession = session.getCoreSession();
+   private void createInternalSession(ConnectionInfo info) throws Exception {
+      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes());
    }
 
    //raise the refCount of context
@@ -983,6 +991,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void addSessions(Set<SessionId> sessionSet) {
       for (SessionId sid : sessionSet) {
          addSession(getState().getSessionState(sid).getInfo(), true);
+         internalSessionIds.add(sid);
       }
    }
 
