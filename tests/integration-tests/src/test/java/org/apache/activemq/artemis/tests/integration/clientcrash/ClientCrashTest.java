@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,6 +63,20 @@ public class ClientCrashTest extends ClientTestBase {
 
    private ServerLocator locator;
 
+   Process p;
+
+   @After
+   @Override
+   public void tearDown() throws Exception {
+      super.tearDown();
+      if (p != null) {
+         long timeout = System.currentTimeMillis() + 5000;
+         while (timeout > System.currentTimeMillis() && p.isAlive()) {
+            p.destroy();
+         }
+      }
+   }
+
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
@@ -76,7 +91,7 @@ public class ClientCrashTest extends ClientTestBase {
       // spawn a JVM that creates a Core client, which sends a message
       // It has to be spawned after the queue was created.
       // if the client is too fast you race the send before the queue was created, missing a message
-      Process p = SpawnedVMSupport.spawnVM(CrashClient.class.getName());
+      p = SpawnedVMSupport.spawnVM(CrashClient.class.getName());
 
       ClientConsumer consumer = session.createConsumer(ClientCrashTest.QUEUE);
       ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
@@ -127,7 +142,7 @@ public class ClientCrashTest extends ClientTestBase {
       session.createQueue(ClientCrashTest.QUEUE2, ClientCrashTest.QUEUE2, null, false);
 
       // spawn a JVM that creates a Core client, which sends a message
-      Process p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());
+      p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());
 
       ClientCrashTest.log.debug("waiting for the client VM to crash ...");
       p.waitFor();
