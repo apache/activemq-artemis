@@ -1356,10 +1356,12 @@ public abstract class ActiveMQTestBase extends Assert {
             break;
          }
          if (System.currentTimeMillis() > (time + toWait)) {
+            String threadDump = threadDump("can't get synchronization finished " + backup.isReplicaSync());
+            System.err.println(threadDump);
             fail("backup started? (" + actualServer.isStarted() + "). Finished synchronizing (" +
                     (activation) + "). SessionFactory!=null ? " + (sessionFactory != null) +
                     " || sessionFactory.getBackupConnector()==" +
-                    (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable"));
+                    (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable") + "\n" + threadDump);
          }
          try {
             Thread.sleep(100);
