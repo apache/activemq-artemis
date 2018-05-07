@@ -239,8 +239,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       for (PageSubscription cursor : activeCursors.values()) {
          cursor.stop();
       }
-
-      executor.shutdownNow();
+      final int pendingCleanupTasks = scheduledCleanup.get();
+      if (pendingCleanupTasks > 0) {
+         logger.tracef("Stopping with %d cleanup tasks to be completed yet", pendingCleanupTasks);
+      }
    }
 
    private void waitForFuture() {
