@@ -29,10 +29,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.junit.Wait;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,12 +49,28 @@ public class ReplicatedFailoverTest extends FailoverTest {
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
-         isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback");
+         isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback") || description.getMethodName().equals("testLoop");
       }
 
    };
 
+
+   /* @Test
+   public void testLoop() throws Throwable {
+
+      for (int i = 0; i < 100; i++) {
+         System.err.println("#Test " + i);
+         testReplicatedFailback();
+         tearDown();
+         setUp();
+      }
+   } */
+
    protected void beforeWaitForRemoteBackupSynchronization() {
+   }
+
+   private void waitForSync(ActiveMQServer server) throws Exception {
+      Wait.waitFor(server::isReplicaSync);
    }
 
    @Test(timeout = 120000)
@@ -64,7 +82,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
       try {
          beforeWaitForRemoteBackupSynchronization();
 
-         waitForRemoteBackupSynchronization(backupServer.getServer());
+         waitForSync(backupServer.getServer());
 
          createSessionFactory();
 
@@ -80,9 +98,9 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
-         waitForRemoteBackupSynchronization(backupServer.getServer());
+         waitForSync(backupServer.getServer());
 
          waitForServerToStart(liveServer.getServer());
 
@@ -96,9 +114,9 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
-         waitForRemoteBackupSynchronization(backupServer.getServer());
+         waitForSync(backupServer.getServer());
 
          waitForServerToStart(liveServer.getServer());
 
@@ -112,11 +130,11 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForServerToStart(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
          backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
          waitForServerToStart(backupServer.getServer());
 
@@ -180,6 +198,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
       }
 
    }
+
    @Override
    protected void createConfigs() throws Exception {
       createReplicatedConfigs();
