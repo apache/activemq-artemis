@@ -729,6 +729,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          TopicSession newTopicSession = newConn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
          TopicPublisher publisher = newTopicSession.createPublisher(tempTopic);
 
+         // need to wait here because the ActiveMQ client's temp destination map is updated asynchronously, not waiting can introduce a race
+         assertTrue(Wait.waitFor(() -> newConn.activeTempDestinations.size() == 1, 2000, 100));
+
          TextMessage msg = newTopicSession.createTextMessage("Test Message");
 
          publisher.publish(msg);
