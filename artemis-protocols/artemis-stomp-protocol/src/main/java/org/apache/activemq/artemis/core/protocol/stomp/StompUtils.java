@@ -38,7 +38,7 @@ public class StompUtils {
 
    // Static --------------------------------------------------------
 
-   public static void copyStandardHeadersFromFrameToMessage(StompFrame frame, Message msg) throws Exception {
+   public static void copyStandardHeadersFromFrameToMessage(StompFrame frame, Message msg, String prefix) throws Exception {
       Map<String, String> headers = new HashMap<>(frame.getHeadersMap());
 
       String priority = headers.remove(Stomp.Headers.Send.PRIORITY);
@@ -89,6 +89,10 @@ public class StompUtils {
          }
       }
 
+      if (prefix != null) {
+         msg.putStringProperty(Message.HDR_PREFIX, prefix);
+      }
+
       // now the general headers
       for (Entry<String, String> entry : headers.entrySet()) {
          String name = entry.getKey();
@@ -101,7 +105,8 @@ public class StompUtils {
                                                             StompFrame command,
                                                             int deliveryCount) throws Exception {
       command.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(message.getMessageID()));
-      command.addHeader(Stomp.Headers.Message.DESTINATION, message.getAddress().toString());
+      SimpleString prefix = message.getSimpleStringProperty(Message.HDR_PREFIX);
+      command.addHeader(Stomp.Headers.Message.DESTINATION,  (prefix == null ? "" : prefix) + message.getAddress());
 
       if (message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME) != null) {
          command.addHeader(Stomp.Headers.Message.CORRELATION_ID, message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME).toString());
@@ -135,6 +140,7 @@ public class StompUtils {
             name.equals(Message.HDR_CONTENT_TYPE) ||
             name.equals(Message.HDR_VALIDATED_USER) ||
             name.equals(Message.HDR_ROUTING_TYPE) ||
+            name.equals(Message.HDR_PREFIX) ||
             name.equals(MessageUtil.TYPE_HEADER_NAME) ||
             name.equals(MessageUtil.CORRELATIONID_HEADER_NAME) ||
             name.toString().equals(Stomp.Headers.Message.DESTINATION)) {
