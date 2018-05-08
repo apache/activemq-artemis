@@ -1835,6 +1835,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
+   public SimpleString getPrefix(SimpleString address) {
+      if (prefixEnabled && address != null) {
+         return PrefixUtil.getPrefix(address, prefixes);
+      }
+      return null;
+   }
+
+   @Override
    public AddressInfo getAddressAndRoutingType(AddressInfo addressInfo) {
       if (prefixEnabled) {
          return addressInfo.getAddressAndRoutingType(prefixes);
