@@ -316,6 +316,14 @@ public interface ServerSession extends SecurityAuth {
    SimpleString removePrefix(SimpleString address);
 
    /**
+    * Get the prefix (if it exists) from the address based on the prefixes provided to the ServerSession constructor.
+    *
+    * @param address the address to inspect
+    * @return the canonical (i.e. non-prefixed) address name
+    */
+   SimpleString getPrefix(SimpleString address);
+
+   /**
     * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
     *
     * @param addressInfo the address to inspect

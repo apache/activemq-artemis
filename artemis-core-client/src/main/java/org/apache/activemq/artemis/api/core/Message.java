@@ -153,6 +153,12 @@ public interface Message {
     */
    SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
 
+   /**
+    * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and restore
+    * the prefix when the message is consumed.
+    */
+   SimpleString HDR_PREFIX = new SimpleString("_AMQ_PREFIX");
+
    byte DEFAULT_TYPE = 0;
 
    byte OBJECT_TYPE = 2;
