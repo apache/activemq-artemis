@@ -1621,6 +1621,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertEquals("Hello World 2", frame.getBody());
       Assert.assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/queue/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
       frame = conn.receiveFrame(1000);
       Assert.assertNull(frame);
 
@@ -1643,6 +1644,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertEquals("Hello World 3", frame.getBody());
       Assert.assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/topic/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
       frame = conn.receiveFrame(1000);
       Assert.assertNull(frame);
 
@@ -1699,6 +1701,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertEquals("Hello World 2", frame.getBody());
       Assert.assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/topic/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
       frame = conn.receiveFrame(1000);
       Assert.assertNull(frame);
 
@@ -1718,6 +1721,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertEquals("Hello World 1", frame.getBody());
       Assert.assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/queue/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
       frame = conn.receiveFrame(2000);
       Assert.assertNull(frame);
 
