@@ -18,18 +18,28 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest {
+
+   private void waitForSync(ActiveMQServer server) throws Exception {
+      Wait.waitFor(server::isReplicaSync);
+   }
 
    @Override
    @Test
@@ -40,8 +50,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       startServers(liveServers);
       backupServers.get(0).start();
       backupServers.get(1).start();
-      waitForRemoteBackupSynchronization(backupServers.get(0).getServer());
-      waitForRemoteBackupSynchronization(backupServers.get(1).getServer());
+      waitForSync(backupServers.get(0).getServer());
+      waitForSync(backupServers.get(1).getServer());
 
       // wait to start the other 2 backups so the first 2 can sync with the 2 live servers
       backupServers.get(2).start();
@@ -112,9 +122,15 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
          }
       }
 
+      CountDownLatch failoverHappened = new CountDownLatch(1);
+
+      session0.addFailoverListener((FailoverEventType type) -> failoverHappened.countDown());
+
       for (TestableServer testableServer : toCrash) {
-         testableServer.crash();
+         testableServer.crash().await(10, TimeUnit.SECONDS);
       }
+
+      Assert.assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
 
       ClientConsumer consumer0 = session0.createConsumer(ADDRESS);
       ClientConsumer consumer1 = session1.createConsumer(ADDRESS);
@@ -125,7 +141,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
          ClientMessage message = consumer0.receive(1000);
          assertNotNull("expecting durable msg " + i, message);
          message.acknowledge();
-         consumer1.receive(1000);
+         message = consumer1.receive(1000);
          assertNotNull("expecting durable msg " + i, message);
          message.acknowledge();
 
