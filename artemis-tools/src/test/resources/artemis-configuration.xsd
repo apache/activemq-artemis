@@ -2627,9 +2627,7 @@
             <xsd:element name="auto-delete-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     What to do when an address is no longer in broker.xml.
-                     OFF = will do nothing addresses will remain,
-                     FORCE = delete address and its queues even if messages remaining.
+                     whether or not to delete auto-created addresses when it no longer has any queues
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2637,7 +2635,9 @@
             <xsd:element name="config-delete-addresses" default="OFF" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     What to do when an address is no longer in broker.xml. OFF = will do nothing addresses will remain, FORCE = delete queues, and address even if messages remaining.
+                     What to do when an address is no longer in broker.xml.
+                     OFF = will do nothing addresses will remain,
+                     FORCE = delete queues, and address even if messages remaining.
                   </xsd:documentation>
                </xsd:annotation>
                <xsd:simpleType>
