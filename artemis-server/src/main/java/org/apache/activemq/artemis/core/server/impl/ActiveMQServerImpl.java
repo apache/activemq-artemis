@@ -946,7 +946,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       } else if (activation instanceof SharedNothingBackupActivation) {
          return ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
       } else {
-         throw ActiveMQMessageBundle.BUNDLE.methodNotApplicable();
+         return false;
       }
    }
 
