@@ -118,6 +118,10 @@
          <groupId>io.netty</groupId>
          <artifactId>netty-common</artifactId>
       </dependency>
+      <dependency>
+         <groupId>com.google.guava</groupId>
+         <artifactId>guava</artifactId>
+      </dependency>
    </dependencies>
 
    <profiles>
