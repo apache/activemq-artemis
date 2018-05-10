@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,6 +31,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -93,6 +96,10 @@ public class ClientCrashTest extends ClientTestBase {
       // if the client is too fast you race the send before the queue was created, missing a message
       p = SpawnedVMSupport.spawnVM(CrashClient.class.getName());
 
+      Assert.assertTrue(p.waitFor(1, TimeUnit.MINUTES));
+
+      Assert.assertEquals(CrashClient.OK, p.exitValue());
+
       ClientConsumer consumer = session.createConsumer(ClientCrashTest.QUEUE);
       ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
 
@@ -103,15 +110,12 @@ public class ClientCrashTest extends ClientTestBase {
       assertNotNull("no message received", messageFromClient);
       assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
-      assertActiveConnections(1 + 1); // One local and one from the other vm
-      assertActiveSession(1 + 1);
+      assertActiveConnections( 1); // One local and one from the other vm
+      assertActiveSession(1);
 
       ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(ClientCrashTest.MESSAGE_TEXT_FROM_SERVER);
       producer.send(message);
-
-      ClientCrashTest.log.debug("waiting for the client VM to crash ...");
-      p.waitFor();
 
       assertEquals(9, p.exitValue());
 
@@ -145,16 +149,16 @@ public class ClientCrashTest extends ClientTestBase {
       p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());
 
       ClientCrashTest.log.debug("waiting for the client VM to crash ...");
-      p.waitFor();
+      Assert.assertTrue(p.waitFor(1, TimeUnit.MINUTES));
 
-      assertEquals(9, p.exitValue());
+      assertEquals(CrashClient2.OK, p.exitValue());
 
       System.out.println("VM Exited");
 
       long timeout = ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD + 10000;
 
       assertActiveConnections(1, timeout);
-      assertActiveSession(1, timeout);
+      assertActiveSession(2, timeout);
 
       ClientConsumer consumer = session.createConsumer(ClientCrashTest.QUEUE2);
 

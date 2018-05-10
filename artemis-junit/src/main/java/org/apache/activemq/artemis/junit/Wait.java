@@ -46,8 +46,13 @@ public class Wait {
       return waitFor(condition, MAX_WAIT_MILLIS);
    }
 
+
    public static void assertEquals(long size, LongCondition condition) throws Exception {
-      boolean result = waitFor(() -> condition.getCount() == size);
+      assertEquals(size, condition, MAX_WAIT_MILLIS);
+   }
+
+   public static void assertEquals(long size, LongCondition condition, long timeout) throws Exception {
+      boolean result = waitFor(() -> condition.getCount() == size, timeout);
 
       if (!result) {
          Assert.fail(size + " != " + condition.getCount());
@@ -56,7 +61,11 @@ public class Wait {
 
 
    public static void assertEquals(int size, IntCondition condition) throws Exception {
-      boolean result = waitFor(() -> condition.getCount() == size);
+      assertEquals(size, condition, MAX_WAIT_MILLIS);
+   }
+
+   public static void assertEquals(int size, IntCondition condition, long timeout) throws Exception {
+      boolean result = waitFor(() -> condition.getCount() == size, timeout);
 
       if (!result) {
          Assert.fail(size + " != " + condition.getCount());

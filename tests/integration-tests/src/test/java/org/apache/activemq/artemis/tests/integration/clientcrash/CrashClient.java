@@ -33,6 +33,9 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
  * Code to be run in an external VM, via main()
  */
 public class CrashClient {
+
+   public static int OK = 9;
+   public static int NOT_OK = 1;
    // Constants ------------------------------------------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -58,10 +61,10 @@ public class CrashClient {
          producer.send(message);
 
          // exit without closing the session properly
-         System.exit(9);
+         System.exit(OK);
       } catch (Throwable t) {
          CrashClient.log.error(t.getMessage(), t);
-         System.exit(1);
+         System.exit(NOT_OK);
       }
    }
 
