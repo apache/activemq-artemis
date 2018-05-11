@@ -97,6 +97,31 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testDefaultMaxFrameSize() throws Exception {
+      AmqpClient client = createAmqpClient();
+      assertNotNull(client);
+
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Connection connection) {
+            int brokerMaxFrameSize = connection.getTransport().getRemoteMaxFrameSize();
+            if (brokerMaxFrameSize != AmqpSupport.MAX_FRAME_SIZE_DEFAULT) {
+               markAsInvalid("Broker did not send the expected max Frame Size");
+            }
+         }
+      });
+
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         assertNotNull(connection);
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
    public void testBrokerConnectionProperties() throws Exception {
       AmqpClient client = createAmqpClient();
 
