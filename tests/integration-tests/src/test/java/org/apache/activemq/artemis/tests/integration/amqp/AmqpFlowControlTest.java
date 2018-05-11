@@ -58,7 +58,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
-      server.getConfiguration().addAcceptorConfiguration("flow", singleCreditAcceptorURI + "?protocols=AMQP;useEpoll=false;amqpCredits=1;amqpMinCredits=1");
+      server.getConfiguration().addAcceptorConfiguration("flow", singleCreditAcceptorURI + "?protocols=AMQP;useEpoll=false;amqpCredits=1;amqpLowCredits=1");
    }
 
    @Override

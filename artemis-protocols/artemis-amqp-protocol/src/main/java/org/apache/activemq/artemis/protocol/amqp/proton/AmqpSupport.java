@@ -28,6 +28,10 @@ import org.apache.qpid.proton.amqp.UnsignedLong;
  */
 public class AmqpSupport {
 
+   // Default thresholds/values used for granting credit to producers
+   public static final int AMQP_CREDITS_DEFAULT = 1000;
+   public static final int AMQP_LOW_CREDITS_DEFAULT = 300;
+
    // Identification values used to locating JMS selector types.
    public static final UnsignedLong JMS_SELECTOR_CODE = UnsignedLong.valueOf(0x0000468C00000004L);
    public static final Symbol JMS_SELECTOR_NAME = Symbol.valueOf("apache.org:selector-filter:string");
