@@ -49,7 +49,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     * <br>
     * Or else the native module won't be loaded because of version mismatches
     */
-   private static final int EXPECTED_NATIVE_VERSION = 7;
+   private static final int EXPECTED_NATIVE_VERSION = 8;
 
    private static boolean loaded = false;
 
@@ -460,7 +460,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
 
    static native void fallocate(int fd, long size);
 
-   static native void fill(int fd, long size);
+   static native void fill(int fd, int alignment, long size);
 
    static native void writeInternal(int fd, long position, long size, ByteBuffer bufferWrite) throws IOException;
 }

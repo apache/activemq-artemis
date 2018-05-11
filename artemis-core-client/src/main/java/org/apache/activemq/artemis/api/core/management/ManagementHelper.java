@@ -48,6 +48,8 @@ public final class ManagementHelper {
 
    public static final SimpleString HDR_ADDRESS = new SimpleString("_AMQ_Address");
 
+   public static final SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_Routing_Type");
+
    public static final SimpleString HDR_BINDING_ID = new SimpleString("_AMQ_Binding_ID");
 
    public static final SimpleString HDR_BINDING_TYPE = new SimpleString("_AMQ_Binding_Type");
@@ -75,6 +77,8 @@ public final class ManagementHelper {
    public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_AMQ_ConsumerName");
 
    public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_AMQ_ConnectionName");
+
+   public static final SimpleString HDR_MESSAGE_ID = new SimpleString("_AMQ_Message_ID");
 
    // Attributes ----------------------------------------------------
 

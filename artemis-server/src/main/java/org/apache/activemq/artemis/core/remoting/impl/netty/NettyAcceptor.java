@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -216,14 +217,19 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
+   final Executor failureExecutor;
+
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
                         final BufferHandler handler,
                         final ServerConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
+                        final Executor failureExecutor,
                         final Map<String, ProtocolManager> protocolMap) {
       super(protocolMap);
+
+      this.failureExecutor = failureExecutor;
 
       this.name = name;
 
@@ -740,7 +746,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    public ConnectionCreator createConnectionCreator() {
-      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener());
+      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener(), failureExecutor);
    }
 
    private static String getProtocols(Map<String, ProtocolManager> protocolManager) {
@@ -763,8 +769,9 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       ActiveMQServerChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ServerConnectionLifeCycleListener listener) {
-         super(group, handler, listener);
+                                   final ServerConnectionLifeCycleListener listener,
+                                   final Executor failureExecutor) {
+         super(group, handler, listener, failureExecutor);
       }
 
       @Override

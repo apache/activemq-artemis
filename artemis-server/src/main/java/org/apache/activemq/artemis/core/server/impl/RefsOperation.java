@@ -81,7 +81,7 @@ public class RefsOperation extends TransactionOperationAbstract {
       List<MessageReference> ackedRefs = new ArrayList<>();
 
       for (MessageReference ref : refsToAck) {
-         ref.setConsumerId(null);
+         ref.emptyConsumerID();
 
          if (logger.isTraceEnabled()) {
             logger.trace("rolling back " + ref);
@@ -189,7 +189,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    public synchronized List<MessageReference> getListOnConsumer(long consumerID) {
       List<MessageReference> list = new LinkedList<>();
       for (MessageReference ref : refsToAck) {
-         if (ref.getConsumerId() != null && ref.getConsumerId().equals(consumerID)) {
+         if (ref.hasConsumerId() && ref.getConsumerId() == consumerID) {
             list.add(ref);
          }
       }

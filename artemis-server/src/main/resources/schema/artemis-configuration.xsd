@@ -1935,17 +1935,17 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="node-manager-store-table-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The table name used to hold shared store data
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
          <xsd:element name="jdbc-network-timeout" type="xsd:int" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC network connection timeout in milliseconds.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="jdbc-lock-acquisition-timeout" type="xsd:int" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The max allowed time in milliseconds while trying to acquire a JDBC lock.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1960,6 +1960,13 @@
             <xsd:annotation>
                <xsd:documentation>
                   The time in milliseconds a JDBC lock is considered valid without keeping it alive.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-journal-sync-period" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC jouranl sync period in milliseconds.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

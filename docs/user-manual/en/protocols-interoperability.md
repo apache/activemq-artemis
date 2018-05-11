@@ -230,7 +230,9 @@ In an acceptor url it would be:
 
 This will translate ```Consumer.A.VirtualTopic.Orders``` into a FQQN of ```VirtualTopic.Orders::Consumer.A``` using the
 int component ```2``` of the configuration to identify the consumer queue as the first two paths of the destination.
-```virtualTopicConsumerWildcards``` is multi valued using a ```,``` separator. 
+```virtualTopicConsumerWildcards``` is multi valued using a ```,``` separator.
+
+Please see Virtual Topic Mapping example contained in the OpenWire [examples](examples.md).
   
 ## MQTT
 
@@ -397,6 +399,12 @@ If no indication of routing type is supplied then anycast semantics are used.
 
 The `destination` header maps to an address of the same name. If the `destination` header
 used a prefix then the prefix is stripped.
+
+#### Receiving
+
+When a client receives a message from the broker the message will have the `destination-type`
+header set to either `MULTICAST` or `ANYCAST` as determined when the message was originally
+sent/routed.
 
 #### Subscribing
 

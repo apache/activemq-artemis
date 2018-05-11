@@ -68,13 +68,12 @@ import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
 
 /**
  * TODO: Merge {@link ProtonServerSenderContext} and {@link org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
@@ -692,10 +691,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       byte[] tag = preSettle ? new byte[0] : protonSession.getTag();
 
       // Let the Message decide how to present the message bytes
-      ByteBuf sendBuffer = message.getSendBuffer(deliveryCount);
+      ReadableBuffer sendBuffer = message.getSendBuffer(deliveryCount);
 
       try {
-         int size = sendBuffer.writerIndex();
+         int size = sendBuffer.remaining();
 
          while (!connection.tryLock(1, TimeUnit.SECONDS)) {
             if (closed || sender.getLocalState() == EndpointState.CLOSED) {
@@ -715,12 +714,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             delivery.setMessageFormat((int) message.getMessageFormat());
             delivery.setContext(messageReference);
 
-            if (sendBuffer.hasArray()) {
-               // this will avoid a copy.. patch provided by Norman using buffer.array()
-               sender.send(sendBuffer.array(), sendBuffer.arrayOffset() + sendBuffer.readerIndex(), sendBuffer.readableBytes());
-            } else {
-               sender.send(new NettyReadable(sendBuffer));
-            }
+            sender.sendNoCopy(sendBuffer);
 
             if (preSettle) {
                // Presettled means the client implicitly accepts any delivery we send it.
@@ -736,7 +730,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          return size;
       } finally {
-         sendBuffer.release();
+         if (sendBuffer instanceof NettyReadable) {
+            ((NettyReadable) sendBuffer).getByteBuf().release();
+         }
       }
    }
 

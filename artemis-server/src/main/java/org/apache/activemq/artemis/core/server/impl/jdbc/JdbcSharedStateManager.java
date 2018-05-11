@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
@@ -36,7 +37,7 @@ import org.jboss.logging.Logger;
 final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedStateManager {
 
    private static final Logger logger = Logger.getLogger(JdbcSharedStateManager.class);
-   public static final int MAX_SETUP_ATTEMPTS = 20;
+   private static final int MAX_SETUP_ATTEMPTS = 20;
    private final String holderId;
    private final long lockExpirationMillis;
    private JdbcLeaseLock liveLock;
@@ -48,10 +49,13 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    private PreparedStatement writeState;
 
    public static JdbcSharedStateManager usingDataSource(String holderId,
+                                                        int networkTimeout,
+                                                        Executor networkTimeoutExecutor,
                                                         long locksExpirationMillis,
                                                         DataSource dataSource,
                                                         SQLProvider provider) {
       final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis);
+      sharedStateManager.setNetworkTimeout(networkTimeoutExecutor, networkTimeout);
       sharedStateManager.setDataSource(dataSource);
       sharedStateManager.setSqlProvider(provider);
       try {
@@ -67,7 +71,24 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
                                                            String jdbcConnectionUrl,
                                                            String jdbcDriverClass,
                                                            SQLProvider provider) {
+      return JdbcSharedStateManager.usingConnectionUrl(holderId,
+                                                       -1,
+                                                       null,
+                                                       locksExpirationMillis,
+                                                       jdbcConnectionUrl,
+                                                       jdbcDriverClass,
+                                                       provider);
+   }
+
+   public static JdbcSharedStateManager usingConnectionUrl(String holderId,
+                                                           int networkTimeout,
+                                                           Executor networkTimeoutExecutor,
+                                                           long locksExpirationMillis,
+                                                           String jdbcConnectionUrl,
+                                                           String jdbcDriverClass,
+                                                           SQLProvider provider) {
       final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis);
+      sharedStateManager.setNetworkTimeout(networkTimeoutExecutor, networkTimeout);
       sharedStateManager.setJdbcConnectionUrl(jdbcConnectionUrl);
       sharedStateManager.setJdbcDriverClass(jdbcDriverClass);
       sharedStateManager.setSqlProvider(provider);
@@ -80,37 +101,33 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    }
 
    @Override
-   protected void createSchema() throws SQLException {
+   protected void createSchema() {
       try {
          createTable(sqlProvider.createNodeManagerStoreTableSQL(), sqlProvider.createNodeIdSQL(), sqlProvider.createStateSQL(), sqlProvider.createLiveLockSQL(), sqlProvider.createBackupLockSQL());
       } catch (SQLException e) {
          //no op: if a table already exists is not a problem in this case, the prepareStatements() call will fail right after it if the table is not correctly initialized
-         if (logger.isDebugEnabled()) {
-            logger.debug("Error while creating the schema of the JDBC shared state manager", e);
-         }
+         logger.debug("Error while creating the schema of the JDBC shared state manager", e);
       }
    }
 
    static JdbcLeaseLock createLiveLock(String holderId,
                                        Connection connection,
                                        SQLProvider sqlProvider,
-                                       long expirationMillis,
-                                       long maxAllowableMillisDiffFromDBtime) throws SQLException {
-      return new JdbcLeaseLock(holderId, connection, connection.prepareStatement(sqlProvider.tryAcquireLiveLockSQL()), connection.prepareStatement(sqlProvider.tryReleaseLiveLockSQL()), connection.prepareStatement(sqlProvider.renewLiveLockSQL()), connection.prepareStatement(sqlProvider.isLiveLockedSQL()), connection.prepareStatement(sqlProvider.currentTimestampSQL()), expirationMillis, maxAllowableMillisDiffFromDBtime);
+                                       long expirationMillis) throws SQLException {
+      return new JdbcLeaseLock(holderId, connection, connection.prepareStatement(sqlProvider.tryAcquireLiveLockSQL()), connection.prepareStatement(sqlProvider.tryReleaseLiveLockSQL()), connection.prepareStatement(sqlProvider.renewLiveLockSQL()), connection.prepareStatement(sqlProvider.isLiveLockedSQL()), connection.prepareStatement(sqlProvider.currentTimestampSQL()), expirationMillis, "LIVE");
    }
 
    static JdbcLeaseLock createBackupLock(String holderId,
                                          Connection connection,
                                          SQLProvider sqlProvider,
-                                         long expirationMillis,
-                                         long maxAllowableMillisDiffFromDBtime) throws SQLException {
-      return new JdbcLeaseLock(holderId, connection, connection.prepareStatement(sqlProvider.tryAcquireBackupLockSQL()), connection.prepareStatement(sqlProvider.tryReleaseBackupLockSQL()), connection.prepareStatement(sqlProvider.renewBackupLockSQL()), connection.prepareStatement(sqlProvider.isBackupLockedSQL()), connection.prepareStatement(sqlProvider.currentTimestampSQL()), expirationMillis, maxAllowableMillisDiffFromDBtime);
+                                         long expirationMillis) throws SQLException {
+      return new JdbcLeaseLock(holderId, connection, connection.prepareStatement(sqlProvider.tryAcquireBackupLockSQL()), connection.prepareStatement(sqlProvider.tryReleaseBackupLockSQL()), connection.prepareStatement(sqlProvider.renewBackupLockSQL()), connection.prepareStatement(sqlProvider.isBackupLockedSQL()), connection.prepareStatement(sqlProvider.currentTimestampSQL()), expirationMillis, "BACKUP");
    }
 
    @Override
    protected void prepareStatements() throws SQLException {
-      this.liveLock = createLiveLock(this.holderId, this.connection, sqlProvider, lockExpirationMillis, 0);
-      this.backupLock = createBackupLock(this.holderId, this.connection, sqlProvider, lockExpirationMillis, 0);
+      this.liveLock = createLiveLock(this.holderId, this.connection, sqlProvider, lockExpirationMillis);
+      this.backupLock = createBackupLock(this.holderId, this.connection, sqlProvider, lockExpirationMillis);
       this.readNodeId = connection.prepareStatement(sqlProvider.readNodeIdSQL());
       this.writeNodeId = connection.prepareStatement(sqlProvider.writeNodeIdSQL());
       this.initializeNodeId = connection.prepareStatement(sqlProvider.initializeNodeIdSQL());
@@ -154,9 +171,13 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       synchronized (connection) {
          try {
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            final boolean autoCommit = connection.getAutoCommit();
             connection.setAutoCommit(true);
-            final UUID nodeId = rawReadNodeId();
-            return nodeId;
+            try {
+               return rawReadNodeId();
+            } finally {
+               connection.setAutoCommit(autoCommit);
+            }
          } catch (SQLException e) {
             throw new IllegalStateException(e);
          }
@@ -168,8 +189,13 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       synchronized (connection) {
          try {
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            final boolean autoCommit = connection.getAutoCommit();
             connection.setAutoCommit(true);
-            rawWriteNodeId(nodeId);
+            try {
+               rawWriteNodeId(nodeId);
+            } finally {
+               connection.setAutoCommit(autoCommit);
+            }
          } catch (SQLException e) {
             throw new IllegalStateException(e);
          }
@@ -180,7 +206,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       final PreparedStatement preparedStatement = this.writeNodeId;
       preparedStatement.setString(1, nodeId.toString());
       if (preparedStatement.executeUpdate() != 1) {
-         throw new IllegalStateException("can't write NODE_ID on the JDBC Node Manager Store!");
+         throw new IllegalStateException("can't write NodeId on the JDBC Node Manager Store!");
       }
    }
 
@@ -205,9 +231,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
                   return nodeId;
                }
             } catch (SQLException e) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("Error while attempting to setup the NodeId", e);
-               }
+               logger.debug("Error while attempting to setup the NodeId", e);
                lastError = e;
             }
          }
@@ -221,36 +245,34 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    }
 
    private UUID initializeOrReadNodeId(final UUID newNodeId) throws SQLException {
-      final UUID nodeId;
-      connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-      connection.setAutoCommit(false);
-      try {
-         //optimistic try to initialize nodeId
-         if (rawInitializeNodeId(newNodeId)) {
-            nodeId = newNodeId;
-         } else {
-            nodeId = rawReadNodeId();
+      synchronized (connection) {
+         connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+         final boolean autoCommit = connection.getAutoCommit();
+         connection.setAutoCommit(false);
+         try {
+            final UUID nodeId;
+            //optimistic try to initialize nodeId
+            if (rawInitializeNodeId(newNodeId)) {
+               nodeId = newNodeId;
+            } else {
+               nodeId = rawReadNodeId();
+            }
+            if (nodeId != null) {
+               connection.commit();
+               return nodeId;
+            } else {
+               //rawInitializeNodeId has failed just due to contention or nodeId wasn't committed yet
+               connection.rollback();
+               logger.debugf("Rollback after failed to update NodeId to %s and haven't found any NodeId", newNodeId);
+               return null;
+            }
+         } catch (SQLException e) {
+            connection.rollback();
+            logger.debugf(e, "Rollback while trying to update NodeId to %s", newNodeId);
+            return null;
+         } finally {
+            connection.setAutoCommit(autoCommit);
          }
-      } catch (SQLException e) {
-         connection.rollback();
-         connection.setAutoCommit(true);
-         if (logger.isDebugEnabled()) {
-            logger.debug("Rollback while trying to update NodeId to " + newNodeId, e);
-         }
-         return null;
-      }
-      if (nodeId != null) {
-         connection.commit();
-         connection.setAutoCommit(true);
-         return nodeId;
-      } else {
-         //that means that the rawInitializeNodeId has failed just due to contention or the nodeId wasn't committed yet
-         connection.rollback();
-         connection.setAutoCommit(true);
-         if (logger.isDebugEnabled()) {
-            logger.debug("Rollback after failed to update NodeId to " + newNodeId + " and haven't found any NodeId");
-         }
-         return null;
       }
    }
 
@@ -292,17 +314,26 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       synchronized (connection) {
          try {
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            connection.setAutoCommit(true);
+            final boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
             final State state;
-            final PreparedStatement preparedStatement = this.readState;
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-               if (!resultSet.next()) {
-                  state = State.FIRST_TIME_START;
-               } else {
-                  state = decodeState(resultSet.getString(1));
+            try {
+               final PreparedStatement preparedStatement = this.readState;
+               try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                  if (!resultSet.next()) {
+                     state = State.FIRST_TIME_START;
+                  } else {
+                     state = decodeState(resultSet.getString(1));
+                  }
                }
+               connection.commit();
+               return state;
+            } catch (SQLException ie) {
+               connection.rollback();
+               throw new IllegalStateException(ie);
+            } finally {
+               connection.setAutoCommit(autoCommit);
             }
-            return state;
          } catch (SQLException e) {
             throw new IllegalStateException(e);
          }
@@ -315,11 +346,21 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       synchronized (connection) {
          try {
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            connection.setAutoCommit(true);
-            final PreparedStatement preparedStatement = this.writeState;
-            preparedStatement.setString(1, encodedState);
-            if (preparedStatement.executeUpdate() != 1) {
-               throw new IllegalStateException("can't write STATE to the JDBC Node Manager Store!");
+            final boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+               final PreparedStatement preparedStatement = this.writeState;
+               preparedStatement.setString(1, encodedState);
+               if (preparedStatement.executeUpdate() != 1) {
+                  throw new IllegalStateException("can't write state to the JDBC Node Manager Store!");
+               }
+               connection.commit();
+            } catch (SQLException ie) {
+               connection.rollback();
+               connection.setAutoCommit(true);
+               throw new IllegalStateException(ie);
+            } finally {
+               connection.setAutoCommit(autoCommit);
             }
          } catch (SQLException e) {
             throw new IllegalStateException(e);
@@ -330,17 +371,15 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    @Override
    public void stop() throws SQLException {
       //release all the managed resources inside the connection lock
-      if (sqlProvider.closeConnectionOnShutdown()) {
-         synchronized (connection) {
-            this.readNodeId.close();
-            this.writeNodeId.close();
-            this.initializeNodeId.close();
-            this.readState.close();
-            this.writeState.close();
-            this.liveLock.close();
-            this.backupLock.close();
-            super.stop();
-         }
+      synchronized (connection) {
+         this.readNodeId.close();
+         this.writeNodeId.close();
+         this.initializeNodeId.close();
+         this.readState.close();
+         this.writeState.close();
+         this.liveLock.close();
+         this.backupLock.close();
+         super.stop();
       }
    }
 

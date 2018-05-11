@@ -280,4 +280,21 @@ public class InVMConnection implements Connection {
       return "InVMConnection [serverID=" + serverID + ", id=" + id + "]";
    }
 
+   @Override
+   public boolean isSameTarget(TransportConfiguration... configs) {
+      boolean result = false;
+      for (TransportConfiguration cfg : configs) {
+         if (cfg == null) {
+            continue;
+         }
+         if (InVMConnectorFactory.class.getName().equals(cfg.getFactoryClassName())) {
+            //factory same, get id
+            if (serverID == (int) cfg.getParams().get(TransportConstants.SERVER_ID_PROP_NAME)) {
+               result = true;
+               break;
+            }
+         }
+      }
+      return result;
+   }
 }

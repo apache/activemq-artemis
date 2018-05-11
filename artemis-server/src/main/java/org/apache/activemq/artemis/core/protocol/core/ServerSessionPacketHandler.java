@@ -389,7 +389,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
 
-                  if (remotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+                  if (result.isExists() && remotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
                      result.setAddress(SessionQueueQueryMessage.getOldPrefixedAddress(result.getAddress(), result.getRoutingType()));
                   }
 
@@ -412,7 +412,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                    * names otherwise the older client won't realize the queue exists and will try to create it and receive
                    * an error
                    */
-                  if (clientVersion < PacketImpl.ADDRESSING_CHANGE_VERSION && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+                  if (result.isExists() && clientVersion < PacketImpl.ADDRESSING_CHANGE_VERSION && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
                      final List<SimpleString> queueNames = result.getQueueNames();
                      if (!queueNames.isEmpty()) {
                         final List<SimpleString> convertedQueueNames = request.convertQueueNames(clientVersion, queueNames);

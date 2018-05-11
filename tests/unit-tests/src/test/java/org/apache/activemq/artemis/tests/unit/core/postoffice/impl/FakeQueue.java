@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -213,7 +214,13 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void acknowledge(MessageReference ref, AckReason reason) throws Exception {
+   public void acknowledge(final MessageReference ref, ServerConsumer consumer) throws Exception {
+      // no-op
+
+   }
+
+   @Override
+   public void acknowledge(MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception {
       // no-op
 
    }
@@ -225,7 +232,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void acknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception {
+   public void acknowledge(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception {
       // no-op
 
    }
@@ -311,6 +318,12 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void expire(final MessageReference ref, final ServerConsumer consumer) throws Exception {
+      // no-op
+
+   }
+
+   @Override
    public boolean expireReference(final long messageID) throws Exception {
       // no-op
       return false;
@@ -329,6 +342,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+
    public int getConsumerCount() {
       // no-op
       return 0;
@@ -343,6 +357,26 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    public Set<Consumer> getConsumers() {
       // no-op
       return null;
+   }
+
+   @Override
+   public Map<SimpleString, Consumer> getGroups() {
+      return null;
+   }
+
+   @Override
+   public void resetGroup(SimpleString groupID) {
+
+   }
+
+   @Override
+   public void resetAllGroups() {
+
+   }
+
+   @Override
+   public int getGroupCount() {
+      return 0;
    }
 
    @Override

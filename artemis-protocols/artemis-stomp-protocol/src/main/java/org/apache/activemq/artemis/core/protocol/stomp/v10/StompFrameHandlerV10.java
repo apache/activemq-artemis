@@ -94,32 +94,36 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
    @Override
    public StompFrame onUnsubscribe(StompFrame request) {
       StompFrame response = null;
-      String destination = request.getHeader(Stomp.Headers.Unsubscribe.DESTINATION);
-      String id = request.getHeader(Stomp.Headers.Unsubscribe.ID);
-      String durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
-      if (durableSubscriptionName == null) {
-         durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME);
-      }
-      if (durableSubscriptionName == null) {
-         durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME);
-      }
-
-      String subscriptionID = null;
-      if (id != null) {
-         subscriptionID = id;
-      } else {
-         if (destination == null) {
-            ActiveMQStompException error = BUNDLE.needIDorDestination().setHandler(this);
-            response = error.getFrame();
-            return response;
-         }
-         subscriptionID = "subscription/" + destination;
-      }
-
       try {
+         String destination = getDestination(request, Stomp.Headers.Unsubscribe.DESTINATION);
+         String id = request.getHeader(Stomp.Headers.Unsubscribe.ID);
+         String durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
+         if (durableSubscriptionName == null) {
+            durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME);
+         }
+         if (durableSubscriptionName == null) {
+            durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME);
+         }
+
+         String subscriptionID = null;
+         if (id != null) {
+            subscriptionID = id;
+         } else {
+            if (destination == null) {
+               ActiveMQStompException error = BUNDLE.needIDorDestination().setHandler(this);
+               response = error.getFrame();
+               return response;
+            }
+            subscriptionID = "subscription/" + destination;
+         }
+
          connection.unsubscribe(subscriptionID, durableSubscriptionName);
+
       } catch (ActiveMQStompException e) {
-         return e.getFrame();
+         response = e.getFrame();
+      } catch (Exception e) {
+         ActiveMQStompException error = BUNDLE.errorHandleSend(e).setHandler(this);
+         response = error.getFrame();
       }
       return response;
    }

@@ -14,38 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import javax.security.auth.Subject;
-import java.security.Principal;
+package org.apache.activemq.artemis.core.client.impl;
 
-public class GSSAPISASLResult implements SASLResult {
+public interface ClientProducerFlowCallback {
+   void onCreditsFlow(boolean blocked, ClientProducerCredits producerCredits);
 
-   private final boolean success;
-   private final Subject identity = new Subject();
-   private String user;
-
-
-   public GSSAPISASLResult(boolean success, Principal peer) {
-      this.success = success;
-      if (success) {
-         this.identity.getPrivateCredentials().add(peer);
-         this.user = peer.getName();
-      }
-   }
-
-   @Override
-   public String getUser() {
-      return user;
-   }
-
-   @Override
-   public Subject getSubject() {
-      return identity;
-   }
-
-   @Override
-   public boolean isSuccess() {
-      return success;
-   }
+   void onCreditsFail(ClientProducerCredits credits);
 }

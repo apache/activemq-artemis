@@ -66,7 +66,7 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
-                     <libList><arg>org.apache.activemq.examples.broker:interceptor-client-amqp:${project.version}</arg></libList>
+                     <libList><arg>org.apache.activemq.examples.broker:interceptor-amqp:${project.version}</arg></libList>
                      <ignore>${noServer}</ignore>
                      <configuration>${basedir}/target/classes/activemq/server0</configuration>
                   </configuration>

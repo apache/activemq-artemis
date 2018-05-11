@@ -107,11 +107,13 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void acknowledge(MessageReference ref) throws Exception;
 
-   void acknowledge(MessageReference ref, AckReason reason) throws Exception;
+   void acknowledge(MessageReference ref, ServerConsumer consumer) throws Exception;
+
+   void acknowledge(MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception;
 
    void acknowledge(Transaction tx, MessageReference ref) throws Exception;
 
-   void acknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception;
+   void acknowledge(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception;
 
    void reacknowledge(Transaction tx, MessageReference ref) throws Exception;
 
@@ -221,6 +223,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void expire(MessageReference ref) throws Exception;
 
+   void expire(MessageReference ref, ServerConsumer consumer) throws Exception;
+
    boolean sendMessageToDeadLetterAddress(long messageID) throws Exception;
 
    int sendMessagesToDeadLetterAddress(Filter filter) throws Exception;
@@ -250,6 +254,14 @@ public interface Queue extends Bindable,CriticalComponent {
    boolean hasMatchingConsumer(Message message);
 
    Collection<Consumer> getConsumers();
+
+   Map<SimpleString, Consumer> getGroups();
+
+   void resetGroup(SimpleString groupID);
+
+   void resetAllGroups();
+
+   int getGroupCount();
 
    boolean checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 

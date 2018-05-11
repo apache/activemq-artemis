@@ -149,4 +149,8 @@ public interface Connection {
     * @return
     */
    boolean isUsingProtocolHandling();
+
+   //returns true if one of the configs points to the same
+   //node as this connection does.
+   boolean isSameTarget(TransportConfiguration... configs);
 }

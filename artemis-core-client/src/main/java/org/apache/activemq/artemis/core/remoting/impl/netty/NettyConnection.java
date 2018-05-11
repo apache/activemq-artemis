@@ -30,7 +30,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
-import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -238,12 +237,10 @@ public class NettyConnection implements Connection {
       boolean inEventLoop = eventLoop.inEventLoop();
       //if we are in an event loop we need to close the channel after the writes have finished
       if (!inEventLoop) {
-         final SslHandler sslHandler = (SslHandler) channel.pipeline().get("ssl");
-         closeSSLAndChannel(sslHandler, channel, false);
+         closeChannel(channel, false);
       } else {
          eventLoop.execute(() -> {
-            final SslHandler sslHandler = (SslHandler) channel.pipeline().get("ssl");
-            closeSSLAndChannel(sslHandler, channel, true);
+            closeChannel(channel, true);
          });
       }
 
@@ -512,30 +509,55 @@ public class NettyConnection implements Connection {
    }
 
    @Override
+   public boolean isSameTarget(TransportConfiguration... configs) {
+      boolean result = false;
+      for (TransportConfiguration cfg : configs) {
+         if (cfg == null) {
+            continue;
+         }
+         if (NettyConnectorFactory.class.getName().equals(cfg.getFactoryClassName())) {
+            if (configuration.get(TransportConstants.PORT_PROP_NAME).equals(cfg.getParams().get(TransportConstants.PORT_PROP_NAME))) {
+               //port same, check host
+               Object hostParam = configuration.get(TransportConstants.HOST_PROP_NAME);
+               if (hostParam != null) {
+                  if (hostParam.equals(cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
+                     result = true;
+                     break;
+                  } else {
+                     //check special 'localhost' case
+                     if (isLocalhost((String) configuration.get(TransportConstants.HOST_PROP_NAME)) && isLocalhost((String) cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
+                        result = true;
+                        break;
+                     }
+                  }
+               } else if (cfg.getParams().get(TransportConstants.HOST_PROP_NAME) == null) {
+                  result = true;
+                  break;
+               }
+            }
+         }
+      }
+      return result;
+   }
+
+   //here we consider 'localhost' is equivalent to '127.0.0.1'
+   //other values of 127.0.0.x is not and the user makes sure
+   //not to mix use of 'localhost' and '127.0.0.x'
+   private boolean isLocalhost(String hostname) {
+      return "127.0.0.1".equals(hostname) || "localhost".equals(hostname);
+   }
+
+   @Override
    public final String toString() {
       return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
    }
 
-   private void closeSSLAndChannel(SslHandler sslHandler, final Channel channel, boolean inEventLoop) {
+   private void closeChannel(final Channel channel, boolean inEventLoop) {
       checkFlushBatchBuffer();
-      if (sslHandler != null) {
-         try {
-            ChannelFuture sslCloseFuture = sslHandler.close();
-            sslCloseFuture.addListener(future -> channel.close());
-            if (!inEventLoop && !sslCloseFuture.awaitUninterruptibly(DEFAULT_WAIT_MILLIS)) {
-               ActiveMQClientLogger.LOGGER.timeoutClosingSSL();
-            }
-         } catch (Throwable t) {
-            // ignore
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace(t.getMessage(), t);
-            }
-         }
-      } else {
-         ChannelFuture closeFuture = channel.close();
-         if (!inEventLoop && !closeFuture.awaitUninterruptibly(DEFAULT_WAIT_MILLIS)) {
-            ActiveMQClientLogger.LOGGER.timeoutClosingNettyChannel();
-         }
+      // closing the channel results in closing any sslHandler first; SslHandler#close() was deprecated by netty
+      ChannelFuture closeFuture = channel.close();
+      if (!inEventLoop && !closeFuture.awaitUninterruptibly(DEFAULT_WAIT_MILLIS)) {
+         ActiveMQClientLogger.LOGGER.timeoutClosingNettyChannel();
       }
    }
 

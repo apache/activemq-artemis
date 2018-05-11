@@ -50,6 +50,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private long jdbcLockAcquisitionTimeoutMillis = ActiveMQDefaultConfiguration.getDefaultJdbcLockAcquisitionTimeoutMillis();
 
+   private long jdbcJournalSyncPeriodMillis = ActiveMQDefaultConfiguration.getDefaultJdbcJournalSyncPeriodMillis();
+
    @Override
    public StoreType getStoreType() {
       return StoreType.DATABASE;
@@ -174,5 +176,13 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setJdbcLockAcquisitionTimeoutMillis(long jdbcLockAcquisitionTimeoutMillis) {
       this.jdbcLockAcquisitionTimeoutMillis = jdbcLockAcquisitionTimeoutMillis;
+   }
+
+   public long getJdbcJournalSyncPeriodMillis() {
+      return jdbcJournalSyncPeriodMillis;
+   }
+
+   public void setJdbcJournalSyncPeriodMillis(long jdbcJournalSyncPeriodMillis) {
+      this.jdbcJournalSyncPeriodMillis = jdbcJournalSyncPeriodMillis;
    }
 }

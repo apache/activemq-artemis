@@ -311,6 +311,7 @@ public abstract class ActiveMQTestBase extends Assert {
             for (Exception exception : exceptions) {
                exception.printStackTrace(System.out);
             }
+            System.out.println(threadDump("Thread dump with reconnects happening"));
             fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
          Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
@@ -511,6 +512,7 @@ public abstract class ActiveMQTestBase extends Assert {
                connection.rollback();
             }
          }
+         connection.setAutoCommit(true);
       } catch (Throwable e) {
          e.printStackTrace();
       } finally {
@@ -1135,7 +1137,6 @@ public abstract class ActiveMQTestBase extends Assert {
          for (TopologyMemberImpl member : topology.getMembers()) {
             if (member.getLive() != null) {
                liveNodesCount++;
-               ActiveMQServerLogger.LOGGER.info("Found live server connected to " + server.getNodeID());
             }
             if (member.getBackup() != null) {
                backupNodesCount++;
@@ -1308,7 +1309,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @param backup
     */
    public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup) {
-      waitForRemoteBackup(null, 10, true, backup);
+      waitForRemoteBackup(null, 20, true, backup);
    }
 
    /**
@@ -1326,6 +1327,10 @@ public abstract class ActiveMQTestBase extends Assert {
       final long toWait = seconds * 1000;
       final long time = System.currentTimeMillis();
       int loop = 0;
+      //Note: if maxLoop is too small there won't be
+      //enough time for quorum vote to complete and
+      //will cause test to fail.
+      final int maxLoop = 40;
       while (true) {
          Activation activation = actualServer.getActivation();
          boolean isReplicated = !backup.getHAPolicy().isSharedStore();
@@ -1337,7 +1342,7 @@ public abstract class ActiveMQTestBase extends Assert {
                //we may have already failed over and changed the Activation
                if (actualServer.isStarted()) {
                   //let it fail a few time to have time to start stopping in the case of waiting to failback
-                  isRemoteUpToDate = loop++ > 10;
+                  isRemoteUpToDate = loop++ > maxLoop;
                } else {
                   //we could be waiting to failback or restart if the server is stopping
                   isRemoteUpToDate = false;
@@ -1350,10 +1355,12 @@ public abstract class ActiveMQTestBase extends Assert {
             break;
          }
          if (System.currentTimeMillis() > (time + toWait)) {
+            String threadDump = threadDump("can't get synchronization finished " + backup.isReplicaSync());
+            System.err.println(threadDump);
             fail("backup started? (" + actualServer.isStarted() + "). Finished synchronizing (" +
                     (activation) + "). SessionFactory!=null ? " + (sessionFactory != null) +
                     " || sessionFactory.getBackupConnector()==" +
-                    (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable"));
+                    (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable") + "\n" + threadDump);
          }
          try {
             Thread.sleep(100);

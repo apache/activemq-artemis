@@ -46,6 +46,7 @@ cd divert; mvn verify; cd ..
 cd durable-subscription; mvn verify; cd ..
 cd embedded; mvn verify; cd ..
 cd embedded-simple; mvn verify; cd ..
+cd exclusive-queue; mvn verify; cd ..
 cd expiry; mvn verify; cd ..
 cd http-transport; mvn verify; cd ..
 cd instantiate-connection-factory; mvn verify; cd ..
@@ -157,6 +158,7 @@ cd $ARTEMIS_HOME/examples/protocols/openwire/
 cd queue; mvn verify; cd ..
 cd message-listener; mvn verify; cd ..
 cd message-recovery; mvn verify; cd ..
+cd virtual-topic-mapping; mvn verify; cd ..
 
 
 cd $ARTEMIS_HOME/examples/protocols/stomp/

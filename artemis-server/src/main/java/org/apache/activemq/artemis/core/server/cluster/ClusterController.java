@@ -189,6 +189,12 @@ public class ClusterController implements ActiveMQComponent {
       serverLocator.setInitialConnectAttempts(-1);
       //this is used for replication so need to use the server packet decoder
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
+      serverLocator.setThreadPools(server.getThreadPool(), server.getScheduledPool());
+      try {
+         serverLocator.initialize();
+      } catch (Exception e) {
+         throw new IllegalStateException(e.getMessage(), e);
+      }
       locators.put(name, serverLocator);
    }
 

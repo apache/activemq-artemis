@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -959,7 +960,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void acknowledge(MessageReference ref, AckReason reason) throws Exception {
+      public void acknowledge(MessageReference ref, ServerConsumer consumer) throws Exception {
+
+      }
+
+      @Override
+      public void acknowledge(MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception {
 
       }
 
@@ -969,7 +975,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void acknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception {
+      public void acknowledge(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception {
 
       }
 
@@ -1169,6 +1175,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void expire(MessageReference ref, ServerConsumer consumer) throws Exception {
+
+      }
+
+      @Override
       public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
       }
 
@@ -1229,6 +1240,26 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public Collection<Consumer> getConsumers() {
          return null;
+      }
+
+      @Override
+      public Map<SimpleString, Consumer> getGroups() {
+         return null;
+      }
+
+      @Override
+      public void resetGroup(SimpleString groupID) {
+
+      }
+
+      @Override
+      public void resetAllGroups() {
+
+      }
+
+      @Override
+      public int getGroupCount() {
+         return 0;
       }
 
       @Override

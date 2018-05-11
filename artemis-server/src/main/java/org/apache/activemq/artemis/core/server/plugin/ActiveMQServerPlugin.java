@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
@@ -49,6 +50,23 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponent;
  */
 public interface ActiveMQServerPlugin {
 
+   /**
+    * The plugin has been registered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been registered to
+    */
+   default void registered(ActiveMQServer server) {
+
+   }
+
+   /**
+    * The plugin has been unregistered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been unregistered to
+    */
+   default void unregistered(ActiveMQServer server) {
+
+   }
 
    /**
     * A connection has been created.
@@ -530,9 +548,25 @@ public interface ActiveMQServerPlugin {
     * @param message The expired message
     * @param messageExpiryAddress The message expiry address if exists
     * @throws ActiveMQException
+    *
+    * @deprecated use {@link #messageExpired(MessageReference, SimpleString, ServerConsumer)}
     */
+   @Deprecated
    default void messageExpired(MessageReference message, SimpleString messageExpiryAddress) throws ActiveMQException {
 
+   }
+
+   /**
+    * A message has been expired
+    *
+    * @param message The expired message
+    * @param messageExpiryAddress The message expiry address if exists
+    * @param consumer the Consumer that acknowledged the message - this field is optional
+    * and can be null
+    * @throws ActiveMQException
+    */
+   default void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) throws ActiveMQException {
+      messageExpired(message, messageExpiryAddress);
    }
 
    /**
@@ -541,10 +575,29 @@ public interface ActiveMQServerPlugin {
     * @param ref The acked message
     * @param reason The ack reason
     * @throws ActiveMQException
+    *
+    * @deprecated use {@link #messageAcknowledged(MessageReference, AckReason, ServerConsumer)}
     */
+   @Deprecated
    default void messageAcknowledged(MessageReference ref, AckReason reason) throws ActiveMQException {
 
    }
+
+   /**
+    * A message has been acknowledged
+    *
+    * @param ref The acked message
+    * @param reason The ack reason
+    * @param consumer the Consumer that acknowledged the message - this field is optional
+    * and can be null
+    * @throws ActiveMQException
+    *
+    */
+   default void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
+      //by default call the old method for backwards compatibility
+      this.messageAcknowledged(ref, reason);
+   }
+
 
    /**
     * Before a bridge is deployed

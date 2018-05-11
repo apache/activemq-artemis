@@ -294,17 +294,27 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             if (rs.next()) {
                final Blob blob = rs.getBlob(1);
                if (blob != null) {
-                  readLength = (int) calculateReadLength(blob.length(), bytes.remaining(), file.position());
-                  byte[] data = blob.getBytes(file.position() + 1, readLength);
-                  bytes.put(data);
+                  final long blobLength = blob.length();
+                  final int bytesRemaining = bytes.remaining();
+                  final long filePosition = file.position();
+                  readLength = (int) calculateReadLength(blobLength, bytesRemaining, filePosition);
+                  if (logger.isDebugEnabled()) {
+                     logger.debugf("trying read %d bytes: blobLength = %d bytesRemaining = %d filePosition = %d",
+                                   readLength, blobLength, bytesRemaining, filePosition);
+                  }
+                  if (readLength < 0) {
+                     readLength = -1;
+                  } else if (readLength > 0) {
+                     byte[] data = blob.getBytes(file.position() + 1, readLength);
+                     bytes.put(data);
+                  }
                }
             }
             connection.commit();
             return readLength;
-         } catch (Throwable e) {
-            throw e;
-         } finally {
+         } catch (SQLException e) {
             connection.rollback();
+            throw e;
          }
       }
    }

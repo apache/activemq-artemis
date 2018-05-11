@@ -178,10 +178,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private final ActiveMQServer server;
 
    /**
-    * This is to be used with connection operations that don't have  a session.
+    * This is to be used with connection operations that don't have a session.
     * Such as TM operations.
     */
    private ServerSession internalSession;
+
+   /**
+    * Used for proper closing of internal sessions like OpenWire advisory
+    * session at disconnect.
+    */
+   private final Set<SessionId> internalSessionIds = new ConcurrentHashSet<>();
 
    private final OperationContext operationContext;
 
@@ -609,6 +615,15 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       // is it necessary? even, do we need state at all?
       state.shutdown();
 
+      try {
+         for (SessionId sessionId : internalSessionIds) {
+            sessions.get(sessionId).close();
+         }
+         internalSession.close(false);
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+      }
+
       // Then call the listeners
       // this should closes underlying sessions
       callFailureListeners(me);
@@ -976,6 +991,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void addSessions(Set<SessionId> sessionSet) {
       for (SessionId sid : sessionSet) {
          addSession(getState().getSessionState(sid).getInfo(), true);
+         internalSessionIds.add(sid);
       }
    }
 
@@ -1269,11 +1285,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             for (ListIterator<MessageReference> referenceIterator = ackRefs.listIterator(ackRefs.size()); referenceIterator.hasPrevious(); ) {
                MessageReference ref = referenceIterator.previous();
 
-               Long consumerID = ref.getConsumerId();
-
                ServerConsumer consumer = null;
-               if (consumerID != null) {
-                  consumer = session.getCoreSession().locateConsumer(consumerID);
+               if (ref.hasConsumerId()) {
+                  consumer = session.getCoreSession().locateConsumer(ref.getConsumerId());
                }
 
                if (consumer != null) {
@@ -1297,7 +1311,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          outWireFormat.renegotiateWireFormat(command);
          //throw back a brokerInfo here
          protocolManager.sendBrokerInfo(OpenWireConnection.this);
-         protocolManager.setUpInactivityParams(OpenWireConnection.this, command);
+         protocolManager.configureInactivityParams(OpenWireConnection.this, command);
          return null;
       }
 

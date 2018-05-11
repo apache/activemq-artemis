@@ -91,11 +91,11 @@
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.8.47</mockito.version>
-      <netty.version>4.1.22.Final</netty.version>
-      <proton.version>0.26.0</proton.version>
+      <netty.version>4.1.24.Final</netty.version>
+      <proton.version>0.27.1</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.30.0</qpid.jms.version>
+      <qpid.jms.version>0.32.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
@@ -840,6 +840,15 @@
                     java.lang.IllegalStateException: endPosTable already set  -->
                   <version>3.1</version>
                   <configuration combine.self="override" />
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
+                     </systemPropertyVariables>
+                  </configuration>
                </plugin>
             </plugins>
          </build>

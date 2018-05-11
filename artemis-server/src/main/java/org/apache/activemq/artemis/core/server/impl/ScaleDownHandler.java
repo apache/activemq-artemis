@@ -307,7 +307,7 @@ public class ScaleDownHandler {
    }
 
    private String getTargetNodeId(ClientSessionFactory sessionFactory) {
-      return sessionFactory.getServerLocator().getTopology().getMember(sessionFactory.getConnectorConfiguration()).getNodeId();
+      return sessionFactory.getServerLocator().getTopology().getMember(sessionFactory.getConnection()).getNodeId();
    }
 
    public void scaleDownTransactions(ClientSessionFactory sessionFactory,

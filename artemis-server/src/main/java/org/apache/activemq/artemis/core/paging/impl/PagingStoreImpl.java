@@ -348,11 +348,23 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public synchronized void stop() throws Exception {
       if (running) {
+         cursorProvider.flushExecutors();
          cursorProvider.stop();
 
-         running = false;
+         final List<Runnable> pendingTasks = new ArrayList<>();
+         final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add);
+         if (pendingTasksWhileShuttingDown > 0) {
+            logger.tracef("Try executing %d pending tasks on stop", pendingTasksWhileShuttingDown);
+            for (Runnable pendingTask : pendingTasks) {
+               try {
+                  pendingTask.run();
+               } catch (Throwable t) {
+                  logger.warn("Error while executing a pending task on shutdown", t);
+               }
+            }
+         }
 
-         executor.shutdownNow();
+         running = false;
 
          if (currentPage != null) {
             currentPage.close(false);

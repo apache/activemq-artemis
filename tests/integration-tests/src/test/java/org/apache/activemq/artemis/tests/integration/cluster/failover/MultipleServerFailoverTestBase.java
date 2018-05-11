@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -226,22 +227,9 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    protected void waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception {
       ActiveMQServerLogger.LOGGER.debug("waiting for distribution of messages on server " + server);
 
-      long start = System.currentTimeMillis();
-
-      long timeout = 5000;
-
       Queue q = (Queue) server.getPostOffice().getBinding(address).getBindable();
 
-      do {
+      Wait.waitFor(() -> getMessageCount(q) >= messageCount);
 
-         if (getMessageCount(q) >= messageCount) {
-            return;
-         }
-
-         Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < timeout);
-
-      throw new Exception();
    }
 }

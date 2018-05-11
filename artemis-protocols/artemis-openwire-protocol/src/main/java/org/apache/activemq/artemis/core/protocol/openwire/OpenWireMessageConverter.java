@@ -504,6 +504,15 @@ public final class OpenWireMessageConverter {
       return md;
    }
 
+   private static final class EagerActiveMQBytesMessage extends ActiveMQBytesMessage {
+
+      EagerActiveMQBytesMessage(int size) {
+         this.bytesOut = new org.apache.activemq.util.ByteArrayOutputStream(size);
+         OutputStream os = bytesOut;
+         this.dataOut = new DataOutputStream(os);
+      }
+   }
+
    private static ActiveMQMessage toAMQMessage(MessageReference reference,
                                                ICoreMessage coreMessage,
                                                WireFormat marshaller,
@@ -513,12 +522,12 @@ public final class OpenWireMessageConverter {
       final Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
       final boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       final byte[] bytes;
-      final ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      final ActiveMQBuffer buffer = coreMessage.getDataBuffer();
       buffer.resetReaderIndex();
 
       switch (coreType) {
          case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
-            amqMsg = new ActiveMQBytesMessage();
+            amqMsg = new EagerActiveMQBytesMessage(0);
             bytes = toAMQMessageBytesType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:

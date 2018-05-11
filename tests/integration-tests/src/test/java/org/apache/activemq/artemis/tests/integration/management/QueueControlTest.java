@@ -2380,6 +2380,10 @@ public class QueueControlTest extends ManagementTestBase {
       message = session.createMessage(durable);
       producer.send(message);
 
+      Queue serverqueue = server.locateQueue(queue);
+
+      Wait.assertEquals(1, serverqueue::getMessageCount);
+
       // the message IDs are set on the server
       messages = queueControl.listMessages(null);
       Assert.assertEquals(1, messages.length);
@@ -2409,6 +2413,7 @@ public class QueueControlTest extends ManagementTestBase {
       ClientMessage message = session.createMessage(durable);
       producer.send(message);
 
+      Wait.assertEquals(1, queueControl::getMessageCount);
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
       Assert.assertEquals(1, messages.length);
@@ -2508,6 +2513,81 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertNotNull(body);
 
       Assert.assertEquals(new String(body), "theBody");
+   }
+
+   @Test
+   public void testResetGroups() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      Assert.assertEquals(1, queueControl.getConsumerCount());
+      consumer.setMessageHandler(new MessageHandler() {
+         @Override
+         public void onMessage(ClientMessage message) {
+            System.out.println(message);
+         }
+      });
+      session.start();
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group1"));
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group2"));
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group3"));
+
+      Wait.assertEquals(3, () -> getGroupCount(queueControl));
+
+      queueControl.resetGroup("group1");
+
+      Wait.assertEquals(2, () -> getGroupCount(queueControl));
+
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group1"));
+
+      Wait.assertEquals(3, () -> getGroupCount(queueControl));
+
+      queueControl.resetAllGroups();
+
+      Wait.assertEquals(0, () -> getGroupCount(queueControl));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetScheduledCountOnRemove() throws Exception {
+      long delay = Integer.MAX_VALUE;
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getScheduledCount());
+
+      Field queueMemorySizeField = QueueImpl.class.getDeclaredField("queueMemorySize");
+      queueMemorySizeField.setAccessible(true);
+      final LocalQueueBinding binding = (LocalQueueBinding) server.getPostOffice().getBinding(queue);
+      Queue q = binding.getQueue();
+      AtomicInteger queueMemorySize1 = (AtomicInteger) queueMemorySizeField.get(q);
+      assertTrue(queueMemorySize1.get() == 0);
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(durable);
+      message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
+      producer.send(message);
+
+      queueControl.removeAllMessages();
+
+      Assert.assertEquals(0, queueControl.getMessageCount());
+
+      //Verify that original queue has a memory size of 0
+      assertTrue(queueMemorySize1.get() == 0);
+
+      session.deleteQueue(queue);
    }
 
    // Package protected ---------------------------------------------

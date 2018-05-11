@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -240,6 +241,28 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       //      assertNotNull(server.getManagementService().getResource("jms.topic.test"));
 
       assertNull(server.locateQueue(topicAddress));
+   }
+
+   @Test
+   public void testAutoCreateOnReconnect() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      javax.jms.Queue queue = ActiveMQJMSClient.createQueue(QUEUE_NAME);
+
+      MessageConsumer consumer = session.createConsumer(queue);
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createMessage());
+      assertNotNull(consumer.receive(500));
+      server.stop();
+      server.start();
+      waitForServerToStart(server);
+      // wait for client to reconnect
+      assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 1, 3000, 100));
+      producer.send(session.createMessage());
+      assertNotNull(consumer.receive(500));
+      connection.close();
    }
 
    @Before

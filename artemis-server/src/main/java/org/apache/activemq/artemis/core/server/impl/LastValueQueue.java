@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -175,7 +176,9 @@ public class LastValueQueue extends QueueImpl {
 
       private volatile MessageReference ref;
 
-      private Long consumerId;
+      private long consumerID;
+
+      private boolean hasConsumerID = false;
 
       HolderReference(final SimpleString prop, final MessageReference ref) {
          this.prop = prop;
@@ -274,8 +277,13 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
-      public void acknowledge(Transaction tx, AckReason reason) throws Exception {
-         ref.acknowledge(tx, reason);
+      public void acknowledge(Transaction tx, ServerConsumer consumer) throws Exception {
+         ref.acknowledge(tx, consumer);
+      }
+
+      @Override
+      public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
+         ref.acknowledge(tx, reason, consumer);
       }
 
       @Override
@@ -309,20 +317,28 @@ public class LastValueQueue extends QueueImpl {
          return ref.getMessage().getMemoryEstimate();
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.server.MessageReference#setConsumerId(java.lang.Long)
-       */
       @Override
-      public void setConsumerId(Long consumerID) {
-         this.consumerId = consumerID;
+      public void emptyConsumerID() {
+         this.hasConsumerID = false;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.server.MessageReference#getConsumerId()
-       */
       @Override
-      public Long getConsumerId() {
-         return this.consumerId;
+      public void setConsumerId(long consumerID) {
+         this.hasConsumerID = true;
+         this.consumerID = consumerID;
+      }
+
+      @Override
+      public boolean hasConsumerId() {
+         return hasConsumerID;
+      }
+
+      @Override
+      public long getConsumerId() {
+         if (!this.hasConsumerID) {
+            throw new IllegalStateException("consumerID isn't specified: please check hasConsumerId first");
+         }
+         return this.consumerID;
       }
 
       @Override

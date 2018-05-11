@@ -137,15 +137,21 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       switch (config.getJournalType()) {
 
          case NIO:
-            ActiveMQServerLogger.LOGGER.journalUseNIO();
+            if (criticalErrorListener != null) {
+               ActiveMQServerLogger.LOGGER.journalUseNIO();
+            }
             journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener, getCriticalAnalyzer());
             break;
          case ASYNCIO:
-            ActiveMQServerLogger.LOGGER.journalUseAIO();
+            if (criticalErrorListener != null) {
+               ActiveMQServerLogger.LOGGER.journalUseAIO();
+            }
             journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener, getCriticalAnalyzer());
             break;
          case MAPPED:
-            ActiveMQServerLogger.LOGGER.journalUseMAPPED();
+            if (criticalErrorListener != null) {
+               ActiveMQServerLogger.LOGGER.journalUseMAPPED();
+            }
             journalFF = new MappedSequentialFileFactory(config.getJournalLocation(), config.getJournalFileSize(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), criticalErrorListener);
             break;
          default:

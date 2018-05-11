@@ -60,8 +60,6 @@ BYTES_BODY[2] = (byte) 0x77;
 String textBody = "a rapadura e doce mas nao e mole nao";
 
 
-println("serverType " + serverType);
-
 if (clientType.startsWith("ARTEMIS")) {
     // Can't depend directly on artemis, otherwise it wouldn't compile in hornetq
     GroovyRun.evaluate("clients/artemisClient.groovy", "serverArg", serverType);
@@ -84,11 +82,8 @@ if (operation.equals("sendTopic") || operation.equals("receiveNonDurableSubscrip
 
 
 if (operation.equals("sendAckMessages") || operation.equals("sendTopic")) {
-    println("sending...")
     MessageProducer producer = session.createProducer(destination);
     producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-
-    System.out.println("Sending messages");
 
     TextMessage message = session.createTextMessage(textBody);
     message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, "some-duplicate");
@@ -136,7 +131,6 @@ if (operation.equals("sendAckMessages") || operation.equals("sendTopic")) {
     session.commit();
 
     connection.close();
-    System.out.println("Message sent");
 }
 
 if (operation.equals("receiveMessages") || operation.equals("receiveNonDurableSubscription")) {
@@ -148,8 +142,6 @@ if (operation.equals("receiveMessages") || operation.equals("receiveNonDurableSu
     if (latch != null) {
         latch.countDown();
     }
-
-    System.out.println("Receiving messages");
 
     TextMessage message = (TextMessage) consumer.receive(5000);
     GroovyRun.assertNotNull(message);
@@ -173,8 +165,6 @@ if (operation.equals("receiveMessages") || operation.equals("receiveNonDurableSu
         GroovyRun.assertEquals(m, rm.getIntProperty("count"));
 
         byte[] data = new byte[1024];
-
-        System.out.println("Message = " + rm);
 
         for (int i = 0; i < LARGE_MESSAGE_SIZE; i += 1024) {
             int numberOfBytes = rm.readBytes(data);
@@ -206,7 +196,6 @@ if (operation.equals("receiveMessages") || operation.equals("receiveNonDurableSu
 
     session.commit();
     connection.close();
-    System.out.println("Message received");
 }
 
 

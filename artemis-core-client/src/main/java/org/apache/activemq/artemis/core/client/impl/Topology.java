@@ -29,6 +29,7 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.jboss.logging.Logger;
 
@@ -38,7 +39,7 @@ public final class Topology {
 
    private final Set<ClusterTopologyListener> topologyListeners;
 
-   private final Executor executor;
+   private Executor executor;
 
    /**
     * Used to debug operations.
@@ -82,6 +83,11 @@ public final class Topology {
       if (logger.isTraceEnabled()) {
          logger.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
       }
+   }
+
+   public Topology setExecutor(Executor executor) {
+      this.executor = executor;
+      return this;
    }
 
    /**
@@ -372,9 +378,9 @@ public final class Topology {
       return topology.get(nodeID);
    }
 
-   public synchronized TopologyMemberImpl getMember(final TransportConfiguration configuration) {
+   public synchronized TopologyMemberImpl getMember(final RemotingConnection rc) {
       for (TopologyMemberImpl member : topology.values()) {
-         if (member.isMember(configuration)) {
+         if (member.isMember(rc)) {
             return member;
          }
       }

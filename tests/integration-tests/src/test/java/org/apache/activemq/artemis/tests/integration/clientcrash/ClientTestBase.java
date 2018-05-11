@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.tests.integration.clientcrash;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
+import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.junit.Before;
 
-public abstract class ClientTestBase extends ActiveMQTestBase {
+public abstract class ClientTestBase extends SpawnedTestBase {
 
    protected ActiveMQServer server;
 
@@ -41,11 +41,7 @@ public abstract class ClientTestBase extends ActiveMQTestBase {
    }
 
    protected void assertActiveConnections(final int expectedActiveConnections, long timeout) throws Exception {
-      timeout += System.currentTimeMillis();
-      while (timeout > System.currentTimeMillis() && server.getActiveMQServerControl().getConnectionCount() != expectedActiveConnections) {
-         Thread.sleep(100);
-      }
-      Assert.assertEquals(expectedActiveConnections, server.getActiveMQServerControl().getConnectionCount());
+      Wait.assertEquals(expectedActiveConnections, server.getActiveMQServerControl()::getConnectionCount, timeout);
    }
 
    protected void assertActiveSession(final int expectedActiveSession) throws Exception {
@@ -53,11 +49,7 @@ public abstract class ClientTestBase extends ActiveMQTestBase {
    }
 
    protected void assertActiveSession(final int expectedActiveSession, long timeout) throws Exception {
-      timeout += System.currentTimeMillis();
-      while (timeout > System.currentTimeMillis() && server.getSessions().size() != expectedActiveSession) {
-         Thread.sleep(100);
-      }
-      Assert.assertEquals(expectedActiveSession, server.getSessions().size());
+      Wait.assertEquals(expectedActiveSession, server.getSessions()::size, timeout);
    }
 
 }

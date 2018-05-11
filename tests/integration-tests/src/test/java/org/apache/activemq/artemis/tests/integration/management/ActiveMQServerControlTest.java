@@ -914,12 +914,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
+      // add another TX, but don't prepare it
+      ClientMessage m5 = createTextMessage(clientSession, "");
+      ClientMessage m6 = createTextMessage(clientSession, "");
+      ClientMessage m7 = createTextMessage(clientSession, "");
+      ClientMessage m8 = createTextMessage(clientSession, "");
+      m5.putStringProperty("m5", "m5");
+      m6.putStringProperty("m6", "m6");
+      m7.putStringProperty("m7", "m7");
+      m8.putStringProperty("m8", "m8");
+      Xid xid2 = newXID();
+      clientSession.start(xid2, XAResource.TMNOFLAGS);
+      clientProducer.send(m5);
+      clientProducer.send(m6);
+      clientProducer.send(m7);
+      clientProducer.send(m8);
+      clientSession.end(xid2, XAResource.TMSUCCESS);
+
       ActiveMQServerControl serverControl = createManagementControl();
 
       JsonArray jsonArray = JsonUtil.readJsonArray(serverControl.listProducersInfoAsJSON());
 
       assertEquals(1, jsonArray.size());
-      assertEquals(4, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
+      assertEquals(8, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
 
       clientSession.close();
       locator.close();
@@ -930,6 +947,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(txDetails.matches(".*m2.*"));
       Assert.assertTrue(txDetails.matches(".*m3.*"));
       Assert.assertTrue(txDetails.matches(".*m4.*"));
+      Assert.assertFalse(txDetails.matches(".*m5.*"));
+      Assert.assertFalse(txDetails.matches(".*m6.*"));
+      Assert.assertFalse(txDetails.matches(".*m7.*"));
+      Assert.assertFalse(txDetails.matches(".*m8.*"));
    }
 
    @Test
@@ -1291,11 +1312,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(first.getString("clientAddress").length() > 0);
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber("sessionCount").longValue());
+      Assert.assertEquals("", first.getString("clientID"));
 
       Assert.assertTrue(second.getString("connectionID").length() > 0);
       Assert.assertTrue(second.getString("clientAddress").length() > 0);
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("sessionCount").longValue());
+      Assert.assertEquals("", second.getString("clientID"));
    }
 
    @Test
@@ -1338,6 +1361,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), first.getString("destinationName"));
+      Assert.assertEquals("queue", first.getString("destinationType"));
+      Assert.assertFalse(first.getBoolean("durable"));
 
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
       Assert.assertTrue(second.getString("connectionID").length() > 0);
@@ -1351,6 +1377,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
       Assert.assertTrue(second.getString("filter").length() > 0);
       Assert.assertEquals(filter, second.getString("filter"));
+      Assert.assertEquals(queueName.toString(), second.getString("destinationName"));
+      Assert.assertEquals("queue", second.getString("destinationType"));
+      Assert.assertFalse(second.getBoolean("durable"));
    }
 
    @Test
@@ -1415,6 +1444,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), first.getString("queueName"));
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), first.getString("destinationName"));
+      Assert.assertEquals("queue", first.getString("destinationType"));
+      Assert.assertFalse(first.getBoolean("durable"));
 
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
@@ -1426,6 +1458,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), second.getString("queueName"));
       Assert.assertEquals(false, second.getBoolean("browseOnly"));
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), second.getString("destinationName"));
+      Assert.assertEquals("queue", second.getString("destinationType"));
+      Assert.assertFalse(second.getBoolean("durable"));
    }
 
    @Test
