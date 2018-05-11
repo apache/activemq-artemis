@@ -29,8 +29,6 @@ public class AMQPConstants {
 
       public static final int DEFAULT_IDLE_TIMEOUT = -1;
 
-      public static final int DEFAULT_MAX_FRAME_SIZE = -1;//it should be according to the spec 4294967295l;
-
       public static final int DEFAULT_CHANNEL_MAX = 65535;
    }
 }
