@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -36,6 +35,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.sasl.MechanismFinder;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
@@ -43,6 +43,8 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+
+import io.netty.channel.ChannelPipeline;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
@@ -77,7 +79,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    // TODO fix this
    private String pubSubPrefix = ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
 
-   private int maxFrameSize = AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
+   private int maxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
 
    public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server, List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors) {
       this.factory = factory;
@@ -219,7 +221,6 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    public void setSaslLoginConfigScope(String saslLoginConfigScope) {
       this.saslLoginConfigScope = saslLoginConfigScope;
    }
-
 
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
