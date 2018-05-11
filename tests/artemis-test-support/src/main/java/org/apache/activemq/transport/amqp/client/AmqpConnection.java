@@ -166,6 +166,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                }
                protonTransport.setMaxFrameSize(getMaxFrameSize());
                protonTransport.setChannelMax(getChannelMax());
+               protonTransport.setEmitFlowEventOnSend(false);
                protonTransport.bind(getEndpoint());
                Sasl sasl = protonTransport.sasl();
                if (sasl != null) {

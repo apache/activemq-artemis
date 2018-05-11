@@ -282,7 +282,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          return protocolManager.getAmqpLowCredits();
       } else {
          // this is for tests only...
-         return 30;
+         return AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
       }
    }
 
@@ -291,7 +291,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          return protocolManager.getAmqpCredits();
       } else {
          // this is for tests only...
-         return 100;
+         return AmqpSupport.AMQP_CREDITS_DEFAULT;
       }
    }
 

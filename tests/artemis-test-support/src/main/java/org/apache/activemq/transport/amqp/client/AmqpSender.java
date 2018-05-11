@@ -403,6 +403,14 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
       }
    }
 
+   private void doCreditInspection() {
+      try {
+         getStateInspector().inspectCredit(getSender());
+      } catch (Throwable error) {
+         getStateInspector().markAsInvalid(error.getMessage());
+      }
+   }
+
    @Override
    protected Exception getOpenAbortException() {
       // Verify the attach response contained a non-null target
@@ -477,6 +485,13 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
             LOG.warn("{} failed to send any data from current Message.", this);
          }
       }
+   }
+
+   @Override
+   public void processFlowUpdates(AmqpConnection connection) throws IOException {
+      LOG.trace("Sender {} flow update, credit = {}", getEndpoint().getCredit());
+
+      doCreditInspection();
    }
 
    @Override
