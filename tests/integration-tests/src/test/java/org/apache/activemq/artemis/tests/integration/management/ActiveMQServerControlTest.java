@@ -180,6 +180,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testIsReplicaSync() throws Exception {
+      Assert.assertFalse(createManagementControl().isReplicaSync());
+   }
+
+   @Test
    public void testGetConnectorsAsJSON() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
