@@ -70,10 +70,30 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 30000)
-   public void testAnonymousProducerWithAutoCreation() throws Exception {
-      Connection connection = createConnection();
+   public void testAnonymousProducerWithQueueAutoCreation() throws Exception {
+      try (Connection connection = createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(UUID.randomUUID().toString());
+         MessageProducer p = session.createProducer(null);
 
-      try {
+         TextMessage message = session.createTextMessage();
+         message.setText("hello");
+         // this will auto-create the address
+         p.send(queue, message);
+
+         {
+            MessageConsumer consumer = session.createConsumer(queue);
+            Message msg = consumer.receive(2000);
+            assertNotNull(msg);
+            assertTrue(msg instanceof TextMessage);
+            consumer.close();
+         }
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testAnonymousProducerWithTopicAutoCreation() throws Exception {
+      try (Connection connection = createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(UUID.randomUUID().toString());
          MessageProducer p = session.createProducer(null);
@@ -91,8 +111,6 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
             assertTrue(msg instanceof TextMessage);
             consumer.close();
          }
-      } finally {
-         connection.close();
       }
    }
 
