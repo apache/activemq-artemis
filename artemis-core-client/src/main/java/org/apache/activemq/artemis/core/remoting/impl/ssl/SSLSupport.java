@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.KeyStore;
-import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -39,7 +38,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.X509CertSelector;
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import io.netty.handler.ssl.SslContext;
