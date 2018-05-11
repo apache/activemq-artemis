@@ -36,13 +36,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.Console;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * test connecting to a server running with OpenSSL TLS from a client that is running with JDK TLS
+ * Test connecting to a server running with OpenSSL TLS from a client that is running with JDK TLS
  */
 @RunWith(value = Parameterized.class)
 public class CoreClientOverTwoWayOpenSSLServerTest extends ActiveMQTestBase {
@@ -218,7 +219,8 @@ public class CoreClientOverTwoWayOpenSSLServerTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
          fail("Creating a session here should fail due to a certificate with a CN that doesn't match the host name.");
-      } catch (Exception e) {
+      } catch (ActiveMQNotConnectedException se) {
+
          // ignore
       }
    }
@@ -290,7 +292,7 @@ public class CoreClientOverTwoWayOpenSSLServerTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
          fail("Creating a session here should fail due to no trust store being set");
-      } catch (Exception e) {
+      } catch (ActiveMQNotConnectedException se) {
          // ignore
       }
    }
@@ -312,8 +314,6 @@ public class CoreClientOverTwoWayOpenSSLServerTest extends ActiveMQTestBase {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
    }
-
-   // Package protected ---------------------------------------------
 
    @Override
    @Before

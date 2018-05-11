@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * testing connection where client and server are running OpenSSL TLS
+ * Testing connection where client and server are running OpenSSL TLS
  */
 @RunWith(value = Parameterized.class)
 public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
@@ -221,7 +221,7 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
          fail("Creating a session here should fail due to a certificate with a CN that doesn't match the host name.");
-      } catch (Exception e) {
+      } catch (ActiveMQNotConnectedException se) {
          // ignore
       }
    }
@@ -295,7 +295,7 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
          fail("Creating a session here should fail due to no trust store being set");
-      } catch (Exception e) {
+      } catch (ActiveMQNotConnectedException se) {
          // ignore
       }
    }
@@ -317,8 +317,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
    }
-
-   // Package protected ---------------------------------------------
 
    @Override
    @Before
