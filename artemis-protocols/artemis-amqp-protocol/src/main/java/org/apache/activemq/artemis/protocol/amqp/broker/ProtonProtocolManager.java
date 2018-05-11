@@ -62,9 +62,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
-   private int amqpCredits = 100;
+   private int amqpCredits = AmqpSupport.AMQP_CREDITS_DEFAULT;
 
-   private int amqpLowCredits = 30;
+   private int amqpLowCredits = AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
 
    private int initialRemoteMaxFrameSize = 4 * 1024;
 
