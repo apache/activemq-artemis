@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.server.impl;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
-import com.google.common.base.Preconditions;
+import org.apache.activemq.artemis.utils.Preconditions;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;

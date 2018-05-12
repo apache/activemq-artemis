@@ -20,16 +20,15 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.LongFunction;
 
-import com.google.common.collect.Lists;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
+import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * Map from long to an Object.
@@ -178,7 +177,7 @@ public class ConcurrentLongHashMap<V> {
     * @return a new list of all keys (makes a copy)
     */
    public List<Long> keys() {
-      List<Long> keys = Lists.newArrayListWithExpectedSize((int) size());
+      List<Long> keys = new ArrayList<>(size());
       forEach((key, value) -> keys.add(key));
       return keys;
    }
@@ -190,7 +189,7 @@ public class ConcurrentLongHashMap<V> {
    }
 
    public List<V> values() {
-      List<V> values = Lists.newArrayListWithExpectedSize((int) size());
+      List<V> values = new ArrayList<>(size());
       forEach((key, value) -> values.add(value));
       return values;
    }

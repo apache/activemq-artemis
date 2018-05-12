@@ -35,7 +35,7 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo>
    }
 
    @Override
-   public boolean apply(AddressInfo address) {
+   public boolean test(AddressInfo address) {
       if (f == null)
          return true;
       try {

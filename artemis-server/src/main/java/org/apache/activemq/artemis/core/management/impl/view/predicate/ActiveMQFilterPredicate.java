@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 
-import com.google.common.base.Predicate;
 
 public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
@@ -40,7 +40,7 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
    }
 
    @Override
-   public boolean apply(T input) {
+   public boolean test(T input) {
       return true;
    }
 
