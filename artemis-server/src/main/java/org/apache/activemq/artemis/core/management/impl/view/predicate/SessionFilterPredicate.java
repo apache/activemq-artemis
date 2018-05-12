@@ -31,7 +31,7 @@ public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSessio
    }
 
    @Override
-   public boolean apply(ServerSession session) {
+   public boolean test(ServerSession session) {
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;
