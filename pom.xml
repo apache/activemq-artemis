@@ -389,12 +389,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
             <version>${jboss.logging.version}</version>

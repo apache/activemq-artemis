@@ -21,15 +21,15 @@
 package org.apache.activemq.artemis.utils.collections;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -194,7 +194,7 @@ public class ConcurrentLongHashSetTest {
 
       set.add(0L);
 
-      assertEquals(set.items(), Sets.newHashSet(0L));
+      assertEquals(set.items(), new HashSet<>(Arrays.asList(0L)));
 
       set.remove(0L);
 
@@ -204,9 +204,9 @@ public class ConcurrentLongHashSetTest {
       set.add(1L);
       set.add(2L);
 
-      List<Long> values = Lists.newArrayList(set.items());
+      List<Long> values = new ArrayList<>(set.items());
       Collections.sort(values);
-      assertEquals(values, Lists.newArrayList(0L, 1L, 2L));
+      assertEquals(values, Arrays.asList(0L, 1L, 2L));
 
       set.clear();
       assertTrue(set.isEmpty());
