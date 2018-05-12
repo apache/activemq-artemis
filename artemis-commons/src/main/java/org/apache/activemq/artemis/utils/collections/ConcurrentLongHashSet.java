@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.StampedLock;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
 
 /**
  * Concurrent hash set for primitive longs

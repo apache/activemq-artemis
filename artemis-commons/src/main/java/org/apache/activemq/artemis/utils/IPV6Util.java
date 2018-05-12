@@ -17,8 +17,6 @@
 
 package org.apache.activemq.artemis.utils;
 
-import com.google.common.net.InetAddresses;
-
 public class IPV6Util {
 
    /**
