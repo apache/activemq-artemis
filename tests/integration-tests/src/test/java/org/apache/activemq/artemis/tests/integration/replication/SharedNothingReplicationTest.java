@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.HAConfigUtils;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -247,7 +248,7 @@ public class SharedNothingReplicationTest {
       conf.setClusterUser("mycluster");
       conf.setClusterPassword("mypassword");
 
-      ReplicatedPolicyConfiguration haPolicy = new ReplicatedPolicyConfiguration();
+      ReplicatedPolicyConfiguration haPolicy = new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
       haPolicy.setVoteOnReplicationFailure(false);
       haPolicy.setCheckForLiveServer(false);
       conf.setHAPolicyConfiguration(haPolicy);
@@ -270,7 +271,7 @@ public class SharedNothingReplicationTest {
       File backupDir = brokersFolder.newFolder("backup");
       conf.setBrokerInstance(backupDir);
 
-      ReplicaPolicyConfiguration haPolicy = new ReplicaPolicyConfiguration();
+      ReplicaPolicyConfiguration haPolicy = new ReplicaPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
       haPolicy.setClusterName("cluster");
       conf.setHAPolicyConfiguration(haPolicy);
 

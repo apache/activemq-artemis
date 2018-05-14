@@ -8,7 +8,20 @@ from that will help mitigate this problem
 
 Quorum voting is used by both the live and the backup to decide what to do if a replication connection is disconnected. 
 Basically the server will request each live server in the cluster to vote as to whether it thinks the server it is replicating 
-to or from is still alive. This being the case the minimum number of live/backup pairs needed is 3. If less than 3 pairs 
+to or from is still alive. You can also configure the time for which the quorum manager will wait for the quorum vote response.
+The default time is 30 sec you can configure like so for master and also for the slave: 
+
+```xml
+<ha-policy>
+  <replication>
+    <master>
+       <quorum-vote-wait>12</quorum-vote-wait>
+    </master>
+  </replication>
+</ha-policy>
+```
+
+This being the case the minimum number of live/backup pairs needed is 3. If less than 3 pairs 
 are used then the only option is to use a Network Pinger which is explained later in this chapter or choose how you want each server to 
 react which the following details:
  
