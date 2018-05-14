@@ -19,13 +19,14 @@ package org.apache.activemq.artemis.core.management.impl.view;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ActiveMQFilterPredicate;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -64,7 +65,7 @@ public abstract class ActiveMQAbstractView<T> {
    public String getResultsAsJson(int page, int pageSize) {
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
       JsonArrayBuilder array = JsonLoader.createArrayBuilder();
-      collection = Collections2.filter(collection, getPredicate());
+      collection = collection.stream().filter(getPredicate()).collect(Collectors.toList());
       for (T element : getPagedResult(page, pageSize)) {
          JsonObjectBuilder jsonObjectBuilder = toJson(element);
          //toJson() may return a null
@@ -78,42 +79,39 @@ public abstract class ActiveMQAbstractView<T> {
    }
 
    public List<T> getPagedResult(int page, int pageSize) {
-      ImmutableList.Builder<T> builder = ImmutableList.builder();
+      List<T> builder = new ArrayList<>();
       int start = (page - 1) * pageSize;
       int end = Math.min(page * pageSize, collection.size());
       int i = 0;
-      for (T e : getOrdering().sortedCopy(collection)) {
+      for (T e : collection.stream().sorted(getComparator()).collect(Collectors.toList())) {
          if (i >= start && i < end) {
             builder.add(e);
          }
          i++;
       }
-      return builder.build();
+      return Collections.unmodifiableList(builder);
    }
 
-   public Predicate getPredicate() {
+   public Predicate<T> getPredicate() {
       return predicate;
    }
 
-   public Ordering<T> getOrdering() {
-      return new Ordering<T>() {
-         @Override
-         public int compare(T left, T right) {
-            try {
-               Object leftValue = getField(left, sortColumn);
-               Object rightValue = getField(right, sortColumn);
-               if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
-                  if (sortOrder.equals("desc")) {
-                     return ((Comparable) rightValue).compareTo(leftValue);
-                  } else {
-                     return ((Comparable) leftValue).compareTo(rightValue);
-                  }
+   public Comparator<T> getComparator() {
+      return (left, right) -> {
+         try {
+            Object leftValue = getField(left, sortColumn);
+            Object rightValue = getField(right, sortColumn);
+            if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
+               if (sortOrder.equals("desc")) {
+                  return ((Comparable) rightValue).compareTo(leftValue);
+               } else {
+                  return ((Comparable) leftValue).compareTo(rightValue);
                }
-               return 0;
-            } catch (Exception e) {
-               //LOG.info("Exception sorting destinations", e);
-               return 0;
             }
+            return 0;
+         } catch (Exception e) {
+            //LOG.info("Exception sorting destinations", e);
+            return 0;
          }
       };
    }

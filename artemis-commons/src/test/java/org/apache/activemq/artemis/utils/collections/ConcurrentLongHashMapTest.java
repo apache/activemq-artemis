@@ -21,6 +21,7 @@
 package org.apache.activemq.artemis.utils.collections;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongFunction;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -218,8 +218,8 @@ public class ConcurrentLongHashMapTest {
 
       map.put(0, "zero");
 
-      assertEquals(map.keys(), Lists.newArrayList(0L));
-      assertEquals(map.values(), Lists.newArrayList("zero"));
+      assertEquals(map.keys(), Arrays.asList(0L));
+      assertEquals(map.values(), Arrays.asList("zero"));
 
       map.remove(0);
 
@@ -232,21 +232,21 @@ public class ConcurrentLongHashMapTest {
 
       List<Long> keys = map.keys();
       Collections.sort(keys);
-      assertEquals(keys, Lists.newArrayList(0L, 1L, 2L));
+      assertEquals(keys, Arrays.asList(0L, 1L, 2L));
 
       List<String> values = map.values();
       Collections.sort(values);
-      assertEquals(values, Lists.newArrayList("one", "two", "zero"));
+      assertEquals(values, Arrays.asList("one", "two", "zero"));
 
       map.put(1, "uno");
 
       keys = map.keys();
       Collections.sort(keys);
-      assertEquals(keys, Lists.newArrayList(0L, 1L, 2L));
+      assertEquals(keys, Arrays.asList(0L, 1L, 2L));
 
       values = map.values();
       Collections.sort(values);
-      assertEquals(values, Lists.newArrayList("two", "uno", "zero"));
+      assertEquals(values, Arrays.asList("two", "uno", "zero"));
 
       map.clear();
       assertTrue(map.isEmpty());
