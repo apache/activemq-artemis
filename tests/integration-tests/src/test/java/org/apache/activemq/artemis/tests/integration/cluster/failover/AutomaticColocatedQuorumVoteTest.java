@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfigur
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.HAConfigUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -311,8 +312,8 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
             sssc.setScaleDownConfiguration(new ScaleDownConfiguration());
          }
       } else {
-         ReplicatedPolicyConfiguration rpc = new ReplicatedPolicyConfiguration();
-         ReplicaPolicyConfiguration rpc2 = new ReplicaPolicyConfiguration();
+         ReplicatedPolicyConfiguration rpc = new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
+         ReplicaPolicyConfiguration rpc2 = new ReplicaPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
          haPolicy.setLiveConfig(rpc);
          haPolicy.setBackupConfig(rpc2);
          if (scaleDown) {

@@ -65,6 +65,7 @@ import org.junit.Before;
 public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
 
    private static int index = 0;
+   private static final int QUORUM_VOTE_WAIT_TIME_SEC = 30;
 
    protected Map<String, ServerGroup> groups = new HashMap<>();
 
@@ -146,7 +147,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
          backupConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params, "in-vm-backup");
 
          //live
-         Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(id, false)).setBindingsDirectory(getBindingsDir(id, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0)).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
+         Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(id, false)).setBindingsDirectory(getBindingsDir(id, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0)).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration(QUORUM_VOTE_WAIT_TIME_SEC)).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
 
          ActiveMQServer server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, true));
 
@@ -155,7 +156,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
          liveNode.setRegistry(new JndiBindingRegistry(liveContext));
 
          //backup
-         Configuration config = createBasicConfig().setJournalDirectory(getJournalDir(id, true)).setBindingsDirectory(getBindingsDir(id, true)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addConnectorConfiguration(backupConnector.getName(), backupConnector).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicaPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+         Configuration config = createBasicConfig().setJournalDirectory(getJournalDir(id, true)).setBindingsDirectory(getBindingsDir(id, true)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addConnectorConfiguration(backupConnector.getName(), backupConnector).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicaPolicyConfiguration(QUORUM_VOTE_WAIT_TIME_SEC)).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
          ActiveMQServer backup = addServer(ActiveMQServers.newActiveMQServer(config, true));
 

@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.HAConfigUtils;
 import org.junit.Before;
 
 public class MultiServerTestBase extends ActiveMQTestBase {
@@ -156,7 +157,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
          nodeManager = new InVMNodeManager(false);
       }
 
-      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
 
       List<String> targetServersOnConnection = new ArrayList<>();
 
@@ -202,7 +203,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
       TransportConfiguration serverConfigAcceptor = createTransportConfiguration(useNetty(), true, generateParams(node, useNetty()));
       TransportConfiguration thisConnector = createTransportConfiguration(useNetty(), false, generateParams(node, useNetty()));
 
-      Configuration configuration = createBasicConfig(useSharedStorage() ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(useSharedStorage() ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
+      Configuration configuration = createBasicConfig(useSharedStorage() ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(useSharedStorage() ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
 
       List<String> targetServersOnConnection = new ArrayList<>();
 
