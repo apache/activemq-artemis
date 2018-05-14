@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.HAConfigUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 
@@ -86,7 +87,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
          } else {
-            haPolicyConfiguration = new ReplicatedPolicyConfiguration();
+            haPolicyConfiguration = new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
             if (getNodeGroupName() != null) {
                ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
             }
@@ -129,7 +130,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
          } else {
-            haPolicyConfiguration = new ReplicaPolicyConfiguration();
+            haPolicyConfiguration = new ReplicaPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
             if (getNodeGroupName() != null) {
                ((ReplicaPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
             }

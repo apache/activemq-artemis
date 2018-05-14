@@ -84,6 +84,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.HAConfigUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1483,7 +1484,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          if (sharedStorage)
             haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
          else
-            haPolicyConfiguration = new ReplicatedPolicyConfiguration();
+            haPolicyConfiguration = new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC);
       }
 
       Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty))).setHAPolicyConfiguration(haPolicyConfiguration).setResolveProtocols(isResolveProtocols());
@@ -1538,7 +1539,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration backupConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       TransportConfiguration acceptorConfig = createTransportConfiguration(netty, true, generateParams(node, netty));
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(liveConfig.getName(), liveConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
+      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(liveConfig.getName(), liveConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
 
       ActiveMQServer server;
 
@@ -1575,7 +1576,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(1000).setDiscoveryInitialWaitTimeout(1000).setBroadcastEndpointFactory(endpoint);
 
-      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
 
       ActiveMQServer server;
       if (fileStorage) {
@@ -1620,7 +1621,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(5000).setDiscoveryInitialWaitTimeout(5000).setBroadcastEndpointFactory(endpoint);
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
 
       ActiveMQServer server;
       if (sharedStorage) {
