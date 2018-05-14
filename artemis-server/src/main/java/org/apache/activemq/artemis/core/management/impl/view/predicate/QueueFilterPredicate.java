@@ -40,7 +40,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
    }
 
    @Override
-   public boolean apply(QueueControl queue) {
+   public boolean test(QueueControl queue) {
       // Using switch over enum vs string comparison is better for perf.
       try {
          if (f == null)

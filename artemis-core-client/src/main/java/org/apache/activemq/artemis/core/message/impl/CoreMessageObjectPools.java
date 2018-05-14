@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.core.message.impl;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.Suppliers;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+
+import java.util.function.Supplier;
 
 public class CoreMessageObjectPools {
 
