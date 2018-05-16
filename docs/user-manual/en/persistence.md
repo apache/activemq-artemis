@@ -468,6 +468,10 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
     The time in milliseconds a JDBC lock is considered valid without keeping it alive. The default value
     is 20000 milliseconds (ie 20 seconds).
 
+-   `jdbc-journal-sync-period`
+
+    The time in milliseconds the journal will be synced with JDBC. The default value is 5 milliseconds.
+
 Note that some DBMS (e.g. Oracle, 30 chars) have restrictions on the size of table names, this should be taken into consideration when configuring table names for the Artemis database store, pay particular attention to the page store table name, which can be appended with a unique ID of up to 20 characters.  (for Oracle this would mean configuring a page-store-table-name of max size of 10 chars).
 
 ## Zero Persistence
