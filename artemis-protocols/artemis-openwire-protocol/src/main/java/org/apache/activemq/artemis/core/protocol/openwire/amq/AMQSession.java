@@ -20,6 +20,7 @@ import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUt
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,6 +53,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerInfo;
@@ -94,6 +96,8 @@ public class AMQSession implements SessionCallback {
    private String[] existingQueuesCache;
 
    private final SimpleString clientId;
+
+   private final Set<Long> rollbackedIds = new ConcurrentHashSet<>();
 
    public AMQSession(ConnectionInfo connInfo,
                      SessionInfo sessInfo,
@@ -308,6 +312,8 @@ public class AMQSession implements SessionCallback {
                           ServerConsumer consumer,
                           int deliveryCount) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
+      //clear up possible rolledback ids.
+      rollbackedIds.remove(message.getMessageID());
       // TODO: use encoders and proper conversions here
       return theConsumer.handleDeliver(reference, message.toCore(), deliveryCount);
    }
@@ -541,5 +547,13 @@ public class AMQSession implements SessionCallback {
 
    public boolean isInternal() {
       return sessInfo.getSessionId().getValue() == -1;
+   }
+
+   public void addRolledback(long messageID) {
+      this.rollbackedIds.add(messageID);
+   }
+
+   public boolean isRolledBack(long mid) {
+      return rollbackedIds.remove(mid);
    }
 }

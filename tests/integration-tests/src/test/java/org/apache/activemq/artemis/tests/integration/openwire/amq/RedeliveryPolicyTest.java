@@ -21,9 +21,11 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
@@ -631,6 +633,56 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertNotNull(m);
       assertEquals("2nd", m.getText());
       session.commit();
+   }
+
+   @Test
+   public void testClientRedlivery() throws Exception {
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         this.makeSureCoreQueueExist("TEST");
+
+         Queue queue = session.createQueue("TEST");
+
+         MessageProducer producer = session.createProducer(queue);
+
+         producer.send(session.createTextMessage("test"));
+
+      } finally {
+         connection.close();
+      }
+
+      for (int i = 0; i < 10; ++i) {
+
+         connection = (ActiveMQConnection) factory.createConnection();
+
+         connection.start();
+
+         try {
+
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+            Queue queue = session.createQueue("TEST");
+
+            MessageConsumer consumer = session.createConsumer(queue);
+
+            Message message = consumer.receive(1000);
+
+            assertNotNull("Message null on iteration " + i, message);
+
+            System.out.println("received message: " + i);
+            System.out.println("is redelivered: " + message.getJMSRedelivered());
+            if (i > 0) {
+               assertTrue(message.getJMSRedelivered());
+            }
+
+         } finally {
+            connection.close();
+         }
+      }
+
    }
 
 }
