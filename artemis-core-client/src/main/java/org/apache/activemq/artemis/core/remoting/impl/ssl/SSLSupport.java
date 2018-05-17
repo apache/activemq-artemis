@@ -125,7 +125,7 @@ public class SSLSupport {
                                                final boolean trustAll  ) throws Exception {
       KeyStore keyStore = SSLSupport.loadKeystore(keystoreProvider, keystorePath, keystorePassword);
       KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-      keyManagerFactory.init(keyStore, keystorePassword.toCharArray());
+      keyManagerFactory.init(keyStore, keystorePassword == null ? null : keystorePassword.toCharArray());
       return SslContextBuilder.forClient().sslProvider(SslProvider.valueOf(sslProvider)).keyManager(keyManagerFactory).trustManager(SSLSupport.loadTrustManagerFactory(trustStoreProvider, trustStorePath, trustStorePassword, trustAll, null)).build();
    }
 
