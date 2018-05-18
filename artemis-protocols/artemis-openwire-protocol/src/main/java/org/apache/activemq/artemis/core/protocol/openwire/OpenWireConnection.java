@@ -812,8 +812,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
          } else if (dest.isTopic() && (addressSettings.isAutoCreateAddresses() || dest.isTemporary())) {
             try {
-               internalSession.createAddress(addressInfo, !dest.isTemporary());
-               created = true;
+               if (internalSession.getAddress(addressInfo.getName()) == null) {
+                  internalSession.createAddress(addressInfo, !dest.isTemporary());
+                  created = true;
+               }
             } catch (ActiveMQAddressExistsException exists) {
                // The address may have been created by another thread in the mean time.  Catch and do nothing.
             }
