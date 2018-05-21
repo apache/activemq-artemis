@@ -308,7 +308,8 @@ public class AMQSession implements SessionCallback {
                           ServerConsumer consumer,
                           int deliveryCount) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
-      // TODO: use encoders and proper conversions here
+      //clear up possible rolledback ids.
+      theConsumer.removeRolledback(reference);
       return theConsumer.handleDeliver(reference, message.toCore(), deliveryCount);
    }
 
