@@ -1294,6 +1294,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   referenceIterator.remove();
                   ref.incrementDeliveryCount();
                   consumer.backToDelivering(ref);
+                  final AMQConsumer amqConsumer = (AMQConsumer) consumer.getProtocolData();
+                  amqConsumer.addRolledback(ref);
                }
             }
          }
