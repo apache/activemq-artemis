@@ -965,7 +965,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       boolean result = false;
 
       if (jmsPropertyName.equals(name)) {
-         message.putStringProperty(corePropertyName, value.toString());
+         message.putStringProperty(corePropertyName, value == null ? null : value.toString());
 
          result = true;
       }
