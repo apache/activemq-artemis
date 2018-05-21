@@ -970,7 +970,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public Pair<RoutingContext, Message> redistribute(final Message message,
                                                      final Queue originatingQueue,
                                                      final Transaction tx) throws Exception {
-
       Bindings bindings = addressManager.getBindingsForRoutingAddress(originatingQueue.getAddress());
 
       if (bindings != null && bindings.allowRedistribute()) {
@@ -978,6 +977,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // arrived the target node
          // as described on https://issues.jboss.org/browse/JBPAPP-6130
          Message copyRedistribute = message.copy(storageManager.generateID());
+         if (copyRedistribute.getAddress() == null) {
+            copyRedistribute.setAddress(originatingQueue.getAddress());
+         }
+
          if (tx != null) {
             tx.addOperation(new TransactionOperationAbstract() {
                @Override
