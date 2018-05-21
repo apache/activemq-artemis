@@ -153,6 +153,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final Object connectionReadyLock = new Object();
 
+   //when server is acting as backup, this varialbe contains configuration of live server
+   private TransportConfiguration backUpFor;
+
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                                    final TransportConfiguration connectorConfig,
                                    final long callTimeout,
@@ -266,12 +269,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (localConnector == null) {
          localConnector = connectorFactory.createConnector(currentConnectorConfig.getParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
       }
-
+      backUpFor = null;
       if (localConnector.isEquivalent(live.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())) {
          if (logger.isDebugEnabled()) {
             logger.debug("Setting up backup config = " + backUp + " for live = " + live);
          }
          backupConfig = backUp;
+         backUpFor = live;
       } else {
          if (logger.isDebugEnabled()) {
             logger.debug("ClientSessionFactoryImpl received backup update for live/backup pair = " + live +
@@ -994,12 +998,16 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // can cause reconnect loop
       @Override
       public void run() {
+         boolean showAsInfo = false;
+         if(backUpFor != null && backUpFor.isSameParams(conn.getTransportConnection().getConnectorConfig())) {
+            showAsInfo = true;
+         }
          try {
             CLOSE_RUNNABLES.add(this);
             if (scaleDownTargetNodeID == null) {
-               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected());
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected(), showAsInfo);
             } else {
-               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected(), scaleDownTargetNodeID);
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected(), scaleDownTargetNodeID, showAsInfo);
             }
          } finally {
             CLOSE_RUNNABLES.remove(this);

@@ -192,6 +192,16 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    @Override
    public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
+      fail(me, scaleDownTargetNodeID, false);
+   }
+
+   @Override
+   public void fail(ActiveMQException me, boolean showAsInfo) {
+      fail(me, null, showAsInfo);
+   }
+
+   @Override
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID, boolean showAsInfo) {
       synchronized (failLock) {
          if (destroyed) {
             return;
@@ -199,9 +209,12 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
          destroyed = true;
       }
-
       if (!(me instanceof ActiveMQRemoteDisconnectException)) {
-         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         if(showAsInfo) {
+            ActiveMQClientLogger.LOGGER.connectionFailureDetectedInfo(me.getMessage(), me.getType());
+         } else {
+            ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         }
       }
 
       try {
