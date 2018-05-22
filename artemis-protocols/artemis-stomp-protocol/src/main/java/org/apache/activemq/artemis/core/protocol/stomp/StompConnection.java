@@ -335,15 +335,11 @@ public final class StompConnection implements RemotingConnection {
          if (destroyed) {
             return;
          }
-      }
 
-      destroyed = true;
+         destroyed = true;
+      }
 
       internalClose();
-
-      synchronized (sendLock) {
-         callClosingListeners();
-      }
    }
 
    public Acceptor getAcceptorUsed() {
@@ -351,9 +347,17 @@ public final class StompConnection implements RemotingConnection {
    }
 
    private void internalClose() {
+      if (frameHandler != null) {
+         frameHandler.disconnect();
+      }
+
       transportConnection.close();
 
       manager.cleanup(this);
+
+      synchronized (sendLock) {
+         callClosingListeners();
+      }
    }
 
    @Override
@@ -372,14 +376,8 @@ public final class StompConnection implements RemotingConnection {
 
       ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
-      if (frameHandler != null) {
-         frameHandler.disconnect();
-      }
-
       // Then call the listeners
       callFailureListeners(me);
-
-      callClosingListeners();
 
       internalClose();
    }
