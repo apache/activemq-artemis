@@ -449,10 +449,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory, shutdownOnCriticalIO);
          } else if (haType == null || haType == HAPolicyConfiguration.TYPE.LIVE_ONLY) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Detected no Shared Store HA options on JDBC store: will use InVMNodeManager");
+               logger.debug("Detected no Shared Store HA options on JDBC store");
             }
             //LIVE_ONLY should be the default HA option when HA isn't configured
-            manager = new InVMNodeManager(replicatingBackup);
+            manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout());
          } else {
             throw new IllegalArgumentException("JDBC persistence allows only Shared Store HA options");
          }
