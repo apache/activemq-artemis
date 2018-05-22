@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
-import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
@@ -54,7 +54,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       assertEquals(HAPolicyConfiguration.TYPE.LIVE_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
       try {
          server.start();
-         assertThat(server.getNodeManager(), instanceOf(InVMNodeManager.class));
+         assertThat(server.getNodeManager(), instanceOf(FileLockNodeManager.class));
       } finally {
          server.stop();
       }
