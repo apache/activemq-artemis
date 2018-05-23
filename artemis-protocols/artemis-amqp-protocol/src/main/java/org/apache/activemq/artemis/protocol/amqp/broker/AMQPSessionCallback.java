@@ -248,7 +248,7 @@ public class AMQPSessionCallback implements SessionCallback {
       try {
          serverSession.createQueue(address, queueName, routingType, filter, true, false);
       } catch (ActiveMQSecurityException se) {
-         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
       }
    }
 

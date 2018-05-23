@@ -85,13 +85,13 @@ under the License.
 
       <security-settings>
          <security-setting match="#">
-            <permission type="createNonDurableQueue" roles="a,b"/>
-            <permission type="deleteNonDurableQueue" roles="a,b"/>
-            <permission type="createDurableQueue" roles="a,b"/>
-            <permission type="deleteDurableQueue" roles="a,b"/>
+            <permission type="createNonDurableQueue" roles="a"/>
+            <permission type="deleteNonDurableQueue" roles="a"/>
+            <permission type="createDurableQueue" roles="a"/>
+            <permission type="deleteDurableQueue" roles="a"/>
             <permission type="browse" roles="a"/>
-            <permission type="send" roles="a,b"/>
-            <permission type="consume" roles="a,b" />
+            <permission type="send" roles="a"/>
+            <permission type="consume" roles="a" />
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
             <permission type="manage" roles="a"/>
          </security-setting>
