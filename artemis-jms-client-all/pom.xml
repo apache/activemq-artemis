@@ -117,10 +117,6 @@
                            <shadedPattern>org.apache.activemq.artemis.shaded.org.apache.commons</shadedPattern>
                         </relocation>
                         <relocation>
-                           <pattern>io.netty</pattern>
-                           <shadedPattern>org.apache.activemq.artemis.shaded.io.netty</shadedPattern>
-                        </relocation>
-                        <relocation>
                            <pattern>org.jboss</pattern>
                            <shadedPattern>org.apache.activemq.artemis.shaded.org.jboss</shadedPattern>
                         </relocation>
