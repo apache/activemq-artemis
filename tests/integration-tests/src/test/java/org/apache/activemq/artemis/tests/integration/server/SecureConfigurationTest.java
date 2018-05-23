@@ -25,10 +25,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -58,24 +61,30 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
    @Parameterized.Parameter(0)
    public String protocol;
 
+   ActiveMQServer server;
+
+   @Before
+   public void startSever() throws Exception {
+      server = getActiveMQServer("multicast_topic.xml");
+      server.start();
+   }
+
+   @After
+   public void stopServer() throws Exception {
+      try {
+         if (server != null) {
+            server.stop();
+         }
+      } catch (Throwable e) {
+         e.printStackTrace();
+      }
+   }
+
    @Test
    public void testSecureSharedDurableSubscriber() throws Exception {
       //This is because OpenWire does not support JMS 2.0
       Assume.assumeFalse(protocol.equals("OPENWIRE"));
-
-      ActiveMQServer server = getActiveMQServer("multicast_topic.xml");
-      try {
-         server.start();
-         internal_testSecureSharedDurableSubscriber(getConnectionFactory("b", "b"));
-      } finally {
-         try {
-            server.stop();
-         } catch (Exception e) {
-         }
-      }
-   }
-
-   private void internal_testSecureSharedDurableSubscriber(ConnectionFactory connectionFactory) throws JMSException {
+      ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
@@ -101,20 +110,7 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
    public void testSecureSharedSubscriber() throws Exception {
       //This is because OpenWire does not support JMS 2.0
       Assume.assumeFalse(protocol.equals("OPENWIRE"));
-
-      ActiveMQServer server = getActiveMQServer("multicast_topic.xml");
-      try {
-         server.start();
-         internal_testSecureSharedSubscriber(getConnectionFactory("b", "b"));
-      } finally {
-         try {
-            server.stop();
-         } catch (Exception e) {
-         }
-      }
-   }
-
-   private void internal_testSecureSharedSubscriber(ConnectionFactory connectionFactory) throws JMSException {
+      ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
@@ -138,19 +134,7 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
 
    @Test
    public void testSecureDurableSubscriber() throws Exception {
-      ActiveMQServer server = getActiveMQServer("multicast_topic.xml");
-      try {
-         server.start();
-         internal_testSecureDurableSubscriber(getConnectionFactory("b", "b"));
-      } finally {
-         try {
-            server.stop();
-         } catch (Exception e) {
-         }
-      }
-   }
-
-   private void internal_testSecureDurableSubscriber(ConnectionFactory connectionFactory) throws JMSException {
+      ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
@@ -177,7 +161,30 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       } catch (JMSSecurityException j) {
          //Expected exception
       }
+
+      Connection connection = null;
+
+      try {
+         connection = connectionFactory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         try {
+            session.createTemporaryQueue();
+            Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to create a temporary queue");
+         } catch (JMSSecurityException jmsse) {
+            IntegrationTestLogger.LOGGER.info("Client should have thrown a JMSSecurityException but only threw JMSException");
+         } catch (JMSException e) {
+            e.printStackTrace();
+            Assert.fail("thrown a JMSEXception instead of a JMSSEcurityException");
+         }
+
+         // Should not be fatal
+         assertNotNull(connection.createSession(false, Session.AUTO_ACKNOWLEDGE));
+      } finally {
+         connection.close();
+      }
    }
+
 
    private ConnectionFactory getConnectionFactory(String user, String password) {
       switch (protocol) {
