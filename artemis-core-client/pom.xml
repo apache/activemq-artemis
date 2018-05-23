@@ -118,6 +118,11 @@
          <groupId>io.netty</groupId>
          <artifactId>netty-common</artifactId>
       </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-tcnative-boringssl-static</artifactId>
+      </dependency>
+
    </dependencies>
 
    <profiles>
