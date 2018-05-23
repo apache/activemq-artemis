@@ -31,6 +31,8 @@ public class PacketImpl implements Packet {
 
    // 2.0.0
    public static final int ADDRESSING_CHANGE_VERSION = 129;
+   public static final int SHARED_QUEUE_SECURITY_FIX_CHANGE_VERSION = 130;
+
 
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
    public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
