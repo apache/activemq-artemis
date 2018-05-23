@@ -363,12 +363,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_SHARED_QUEUE: {
                   CreateSharedQueueMessage request = (CreateSharedQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  if (remotingConnection.getChannelVersion() < PacketImpl.SHARED_QUEUE_SECURITY_FIX_CHANGE_VERSION) {
-                     QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
-                     if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
-                        session.createSharedQueue(request.getAddress(), request.getQueueName(), request.isDurable(), request.getFilterString());
-                     }
-                  } else {
+                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
+                  if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
                      session.createSharedQueue(request.getAddress(), request.getQueueName(), request.isDurable(), request.getFilterString());
                   }
                   if (requiresResponse) {
@@ -379,12 +375,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_SHARED_QUEUE_V2: {
                   CreateSharedQueueMessage_V2 request = (CreateSharedQueueMessage_V2) packet;
                   requiresResponse = request.isRequiresResponse();
-                  if (remotingConnection.getChannelVersion() < PacketImpl.SHARED_QUEUE_SECURITY_FIX_CHANGE_VERSION) {
-                     QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
-                     if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
-                        session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(), request.isExclusive(), request.isLastValue());
-                     }
-                  } else {
+                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
+                  if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
                      session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(), request.isExclusive(), request.isLastValue());
                   }
                   if (requiresResponse) {
