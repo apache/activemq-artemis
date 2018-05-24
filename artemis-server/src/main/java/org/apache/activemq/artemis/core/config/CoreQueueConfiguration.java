@@ -45,6 +45,8 @@ public class CoreQueueConfiguration implements Serializable {
 
    private RoutingType routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
 
+   private boolean maxConsumerConfigured = false;
+
    public CoreQueueConfiguration() {
    }
 
@@ -74,6 +76,15 @@ public class CoreQueueConfiguration implements Serializable {
 
    public Boolean isLastValue() {
       return lastValue;
+   }
+
+   public boolean isMaxConsumerConfigured() {
+      return maxConsumerConfigured;
+   }
+
+   public CoreQueueConfiguration setMaxConsumerConfigured(boolean maxConsumerConfigured) {
+      this.maxConsumerConfigured = maxConsumerConfigured;
+      return this;
    }
 
    /**
@@ -171,6 +182,7 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
       result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
+      result = prime * result + (maxConsumerConfigured ? 1331 : 1337);
       return result;
    }
 
@@ -189,6 +201,8 @@ public class CoreQueueConfiguration implements Serializable {
       } else if (!address.equals(other.address))
          return false;
       if (durable != other.durable)
+         return false;
+      if (maxConsumerConfigured != other.maxConsumerConfigured)
          return false;
       if (filterString == null) {
          if (other.filterString != null)
