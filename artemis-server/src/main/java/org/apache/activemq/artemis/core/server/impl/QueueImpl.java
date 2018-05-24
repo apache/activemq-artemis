@@ -266,8 +266,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final AddressInfo addressInfo;
 
-   private final AtomicInteger noConsumers = new AtomicInteger(0);
-
    private volatile RoutingType routingType;
 
    private final QueueFactory factory;
@@ -881,7 +879,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          synchronized (this) {
 
-            if (maxConsumers != MAX_CONSUMERS_UNLIMITED && noConsumers.get() >= maxConsumers) {
+            if (maxConsumers != MAX_CONSUMERS_UNLIMITED && consumersCount.get() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
 
@@ -903,7 +901,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refCountForConsumers.increment();
             }
 
-            noConsumers.incrementAndGet();
          }
       } finally {
          leaveCritical(CRITICAL_CONSUMER);
@@ -964,7 +961,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refCountForConsumers.decrement();
             }
 
-            noConsumers.decrementAndGet();
          }
       } finally {
          leaveCritical(CRITICAL_CONSUMER);
