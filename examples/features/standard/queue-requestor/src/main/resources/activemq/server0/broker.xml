@@ -38,15 +38,9 @@ under the License.
       <security-settings>
          <!--security for example queues -->
          <security-setting match="#">
+            <permission roles="guest" type="createAddress"/>
             <permission roles="guest" type="createDurableQueue"/>
             <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
-         </security-setting>
-         <!-- security settings for JMS temporary queue -->
-         <security-setting match="#">
             <permission roles="guest" type="createNonDurableQueue"/>
             <permission roles="guest" type="deleteNonDurableQueue"/>
             <permission roles="guest" type="consume"/>
