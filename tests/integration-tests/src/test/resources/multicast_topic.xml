@@ -91,6 +91,7 @@ under the License.
 
       <security-settings>
          <security-setting match="#">
+            <permission type="createAddress" roles="a" />
             <permission type="createNonDurableQueue" roles="a,b"/>
             <permission type="deleteNonDurableQueue" roles="a,b"/>
             <permission type="createDurableQueue" roles="a,b"/>
@@ -139,7 +140,6 @@ under the License.
       <address-settings>
          <!--default for catch all-->
          <address-setting match="#">
-            <auto-create-queues>false</auto-create-queues>
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
