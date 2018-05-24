@@ -2541,15 +2541,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.deployQueue(config.getName(), config.getAddress());
          AddressSettings as = addressSettingsRepository.getMatch(config.getAddress());
          // determine if there is an address::queue match; update it if so
+         int maxConsumerAddressSetting = as.getDefaultMaxConsumers();
+         int maxConsumerQueueConfig = config.getMaxConsumers();
+         int maxConsumer = (config.isMaxConsumerConfigured()) ? maxConsumerQueueConfig : maxConsumerAddressSetting;
          if (locateQueue(queueName) != null && locateQueue(queueName).getAddress().toString().equals(config.getAddress())) {
-            updateQueue(config.getName(), config.getRoutingType(), config.getMaxConsumers(), config.getPurgeOnNoConsumers(),
+            updateQueue(config.getName(), config.getRoutingType(), maxConsumer, config.getPurgeOnNoConsumers(),
                         config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive());
          } else {
             // if the address::queue doesn't exist then create it
             try {
                createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(),
                            queueName, SimpleString.toSimpleString(config.getFilterString()), SimpleString.toSimpleString(config.getUser()),
-                           config.isDurable(),false,false,false,false,config.getMaxConsumers(),config.getPurgeOnNoConsumers(),
+                           config.isDurable(),false,false,false,false,maxConsumer,config.getPurgeOnNoConsumers(),
                            config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive(),
                            config.isLastValue() == null ? as.isDefaultLastValueQueue() : config.isLastValue(), true);
             } catch (ActiveMQQueueExistsException e) {
