@@ -55,6 +55,7 @@ under the License.
 
          <!-- security settings for JMS temporary queue -->
          <security-setting match="#">
+            <permission roles="guest" type="createAddress"/>
             <permission roles="guest" type="createNonDurableQueue"/>
             <permission roles="guest" type="deleteNonDurableQueue"/>
             <permission roles="guest" type="consume"/>
