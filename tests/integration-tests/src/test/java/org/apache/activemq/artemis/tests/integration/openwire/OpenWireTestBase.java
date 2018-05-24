@@ -94,7 +94,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole("openwireDestinationManager", "manager");
          securityManager.getConfiguration().addUser("openwireDestinationManager", "DeStInAtIoN");
 
-         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, false, false);
+         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, true, false);
 
          Set<Role> roles = new HashSet<>();
          roles.add(senderRole);
