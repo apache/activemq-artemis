@@ -58,13 +58,18 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
+      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}, {"PKCS12"}});
    }
 
    public CoreClientOverOneWaySSLTest(String storeType) {
       this.storeType = storeType;
-      SERVER_SIDE_KEYSTORE = "server-side-keystore." + storeType.toLowerCase();
-      CLIENT_SIDE_TRUSTSTORE = "client-side-truststore." + storeType.toLowerCase();
+      String suffix = storeType.toLowerCase();
+      // keytool expects PKCS12 stores to use the extension "p12"
+      if (storeType.equals("PKCS12")) {
+         suffix = "p12";
+      }
+      SERVER_SIDE_KEYSTORE = "server-side-keystore." + suffix;
+      CLIENT_SIDE_TRUSTSTORE = "client-side-truststore." + suffix;
    }
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
@@ -97,6 +102,19 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
     * keytool -genkey -keystore verified-server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
     * keytool -export -keystore verified-server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore verified-client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * Commands to create the PKCS12 artifacts:
+    * keytool -genkey -keystore server-side-keystore.p12 -storetype PKCS12 -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -export -keystore server-side-keystore.p12 -file activemq-p12.cer -storetype PKCS12 -storepass secureexample
+    * keytool -import -keystore client-side-truststore.p12 -storetype PKCS12 -file activemq-p12.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * keytool -genkey -keystore other-server-side-keystore.p12 -storetype PKCS12 -storepass secureexample -keypass secureexample -dname "CN=Other ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -export -keystore other-server-side-keystore.p12 -file activemq-p12.cer -storetype PKCS12 -storepass secureexample
+    * keytool -import -keystore other-client-side-truststore.p12 -storetype PKCS12 -file activemq-p12.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * keytool -genkey -keystore verified-server-side-keystore.p12 -storetype PKCS12 -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -export -keystore verified-server-side-keystore.p12 -file activemq-p12.cer -storetype PKCS12 -storepass secureexample
+    * keytool -import -keystore verified-client-side-truststore.p12 -storetype PKCS12 -file activemq-p12.cer -storepass secureexample -keypass secureexample -noprompt
     */
    private String storeType;
    private String SERVER_SIDE_KEYSTORE;
