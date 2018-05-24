@@ -16,6 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.JMSRuntimeException;
+import javax.jms.JMSSecurityException;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -25,7 +37,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
@@ -36,25 +47,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.JMSSecurityException;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import java.util.Arrays;
-import java.util.Collection;
-
 @RunWith(Parameterized.class)
 public class SecureConfigurationTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "{index}: protocol={0}")
    public static Collection<Object[]> parameters() {
-      return Arrays.asList(new Object[][] {
-         {"CORE"}, {"AMQP"}, {"OPENWIRE"}
-      });
+      return Arrays.asList(new Object[][]{{"CORE"}, {"AMQP"}, {"OPENWIRE"}});
    }
 
    /* NOT private @see https://github.com/junit-team/junit4/wiki/parameterized-tests */
@@ -161,6 +159,11 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       } catch (JMSSecurityException j) {
          //Expected exception
       }
+   }
+
+   @Test
+   public void testTemporaryQueue() throws Exception {
+      ConnectionFactory connectionFactory = getConnectionFactory("c", "c");
 
       Connection connection = null;
 
@@ -172,7 +175,6 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
             session.createTemporaryQueue();
             Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to create a temporary queue");
          } catch (JMSSecurityException jmsse) {
-            IntegrationTestLogger.LOGGER.info("Client should have thrown a JMSSecurityException but only threw JMSException");
          } catch (JMSException e) {
             e.printStackTrace();
             Assert.fail("thrown a JMSEXception instead of a JMSSEcurityException");
@@ -185,13 +187,16 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       }
    }
 
-
    private ConnectionFactory getConnectionFactory(String user, String password) {
       switch (protocol) {
-         case "CORE": return getActiveMQConnectionFactory(user, password);
-         case "AMQP" : return getAMQPConnectionFactory(user, password);
-         case "OPENWIRE": return getOpenWireConnectionFactory(user, password);
-         default: throw new IllegalStateException("Unsupported Protocol");
+         case "CORE":
+            return getActiveMQConnectionFactory(user, password);
+         case "AMQP":
+            return getAMQPConnectionFactory(user, password);
+         case "OPENWIRE":
+            return getOpenWireConnectionFactory(user, password);
+         default:
+            throw new IllegalStateException("Unsupported Protocol");
       }
    }
 
@@ -216,9 +221,15 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       return activeMQConnectionFactory;
    }
 
-   private String sendAndReceiveText(ConnectionFactory connectionFactory, String clientId, String message, String topicName, ConsumerSupplier consumerSupplier) throws JMSException {
+   private String sendAndReceiveText(ConnectionFactory connectionFactory,
+                                     String clientId,
+                                     String message,
+                                     String topicName,
+                                     ConsumerSupplier consumerSupplier) throws JMSException {
       String messageRecieved;
-      try (Connection connection = connectionFactory.createConnection()) {
+      Connection connection = null;
+      try {
+         connection = connectionFactory.createConnection();
          if (clientId != null && !clientId.isEmpty()) {
             connection.setClientID(clientId);
          }
@@ -234,6 +245,12 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
             TextMessage received = (TextMessage) messageConsumer.receive(1000);
             messageRecieved = received != null ? received.getText() : null;
          }
+      } catch (JMSException | JMSRuntimeException e) {
+         // Exception Should not be fatal
+         assertNotNull(connection.createSession(false, Session.AUTO_ACKNOWLEDGE));
+         throw e;
+      } finally {
+         connection.close();
       }
       return messageRecieved;
    }
@@ -246,7 +263,6 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       deploymentManager.addDeployable(fileConfiguration);
       deploymentManager.readConfiguration();
 
-
       SecurityConfiguration securityConfiguration = new SecurityConfiguration();
       securityConfiguration.addUser("a", "a");
       securityConfiguration.addRole("a", "a");
@@ -254,6 +270,8 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       securityConfiguration.addUser("b", "b");
       securityConfiguration.addRole("b", "b");
 
+      securityConfiguration.addUser("c", "c");
+      securityConfiguration.addRole("c", "c");
 
       ActiveMQJAASSecurityManager sm = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
 
@@ -261,6 +279,7 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
    }
 
    private interface ConsumerSupplier {
+
       MessageConsumer create(Topic topic, Session session) throws JMSException;
    }
 
