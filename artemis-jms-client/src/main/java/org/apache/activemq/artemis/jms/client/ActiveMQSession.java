@@ -387,7 +387,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             queue = queueCache.get(queueName);
          }
          if (queue == null) {
-            queue = internalCreateQueue(queueName, false);
+            queue = internalCreateQueue(queueName);
          }
          if (cacheDestination) {
             queueCache.put(queueName, queue);
@@ -397,8 +397,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
-
-   protected Queue internalCreateQueue(String queueName, final boolean retry) throws ActiveMQException, JMSException {
+   protected Queue internalCreateQueue(String queueName) throws ActiveMQException, JMSException {
       ActiveMQQueue queue = lookupQueue(queueName, false);
 
       if (queue == null) {
@@ -406,13 +405,23 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       if (queue == null) {
-         if (!retry) {
-            return internalCreateQueue("jms.queue." + queueName, true);
-         }
+         queue = internalCreateQueueCompatibility("jms.queue." + queueName);
+      }
+      if (queue == null) {
          throw new JMSException("There is no queue with name " + queueName);
       } else {
          return queue;
       }
+   }
+
+   protected ActiveMQQueue internalCreateQueueCompatibility(String queueName) throws ActiveMQException, JMSException {
+      ActiveMQQueue queue = lookupQueue(queueName, false);
+
+      if (queue == null) {
+         queue = lookupQueue(queueName, true);
+      }
+
+      return queue;
    }
 
    @Override
