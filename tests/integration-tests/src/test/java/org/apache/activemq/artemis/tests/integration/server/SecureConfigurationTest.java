@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import java.lang.IllegalStateException;
 import java.util.Arrays;
 import java.util.Collection;
 import javax.jms.Connection;
@@ -45,7 +44,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,7 +54,7 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
    @Parameterized.Parameters(name = "{index}: protocol={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
-              {"CORE"}, {"AMQP"}, {"OPENWIRE"}
+         {"CORE"}, {"AMQP"}, {"OPENWIRE"}
       });
    }
 
