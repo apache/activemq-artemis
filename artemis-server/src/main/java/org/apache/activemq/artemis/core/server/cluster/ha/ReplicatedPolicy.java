@@ -61,9 +61,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    private final NetworkHealthCheck networkHealthCheck;
 
-   public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck) {
-      replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
+   private final int quorumVoteWait;
+
+   public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck, int quorumVoteWait) {
+      replicaPolicy = new ReplicaPolicy(networkHealthCheck, this, quorumVoteWait);
       this.networkHealthCheck = networkHealthCheck;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -74,7 +77,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            boolean voteOnReplicationFailure,
                            int quorumSize,
                            int voteRetries,
-                           long voteRetryWait) {
+                           long voteRetryWait,
+                           int quorumVoteWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
@@ -84,6 +88,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.quorumSize = quorumSize;
       this.voteRetries = voteRetries;
       this.voteRetryWait = voteRetryWait;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -96,7 +101,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            boolean voteOnReplicationFailure,
                            int quorumSize,
                            int voteRetries,
-                           long voteRetryWait) {
+                           long voteRetryWait,
+                           int quorumVoteWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
@@ -106,6 +112,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
       this.quorumSize = quorumSize;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public boolean isCheckForLiveServer() {
@@ -147,7 +154,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public ReplicaPolicy getReplicaPolicy() {
       if (replicaPolicy == null) {
-         replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
+         replicaPolicy = new ReplicaPolicy(networkHealthCheck, this, quorumVoteWait);
          replicaPolicy.setQuorumSize(quorumSize);
          replicaPolicy.setVoteOnReplicationFailure(voteOnReplicationFailure);
          replicaPolicy.setVoteRetries(voteRetries);
@@ -229,5 +236,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public void setQuorumSize(int quorumSize) {
       this.quorumSize = quorumSize;
+   }
+
+   public int getQuorumVoteWait() {
+      return quorumVoteWait;
    }
 }
