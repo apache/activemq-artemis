@@ -443,6 +443,14 @@ following additional properties:
     primarily for testing purposes only and should not be used in production.
 
     Valid values are `true` or `false`. Default is `false`.    
+    
+-   `forceSSLParameters`
+
+    When used on a `connector` any SSL settings that are set as parameters on the connector will 
+    be used instead of JVM system properties including both javax.net.ssl and ActiveMQ system properties
+    to configure the SSL context for this connector.
+
+    Valid values are `true` or `false`. Default is `false`.  
 
 -   `useDefaultSslContext`
 
