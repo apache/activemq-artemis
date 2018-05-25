@@ -66,6 +66,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private volatile boolean stopped = false;
 
+   private final int quorumVoteWait;
    /**
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
     * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
@@ -81,7 +82,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                                     NetworkHealthCheck networkHealthCheck,
                                     int quorumSize,
                                     int voteRetries,
-                                    long voteRetryWait) {
+                                    long voteRetryWait,
+                                    int quorumVoteWait) {
       this.storageManager = storageManager;
       this.scheduledPool = scheduledPool;
       this.quorumSize = quorumSize;
@@ -90,6 +92,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       this.networkHealthCheck = networkHealthCheck;
       this.voteRetries = voteRetries;
       this.voteRetryWait = voteRetryWait;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    private volatile BACKUP_ACTIVATION signal;
@@ -297,9 +300,10 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             quorumManager.vote(quorumVote);
 
             try {
-               quorumVote.await(LATCH_TIMEOUT, TimeUnit.SECONDS);
+               quorumVote.await(quorumVoteWait, TimeUnit.SECONDS);
             } catch (InterruptedException interruption) {
                // No-op. The best the quorum can do now is to return the latest number it has
+               ActiveMQServerLogger.LOGGER.quorumVoteAwaitInterrupted();
             }
 
             quorumManager.voteComplete(quorumVote);
