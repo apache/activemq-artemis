@@ -109,6 +109,8 @@ public class TransportConstants {
 
    public static final String TRUST_ALL_PROP_NAME = "trustAll";
 
+   public static final String FORCE_SSL_PARAMETERS = "forceSSLParameters";
+
    public static final String SNIHOST_PROP_NAME = "sniHost";
 
    public static final String BACKLOG_PROP_NAME = "backlog";
@@ -212,6 +214,8 @@ public class TransportConstants {
    public static final String OPENSSL_PROVIDER = "OPENSSL";
 
    public static final boolean DEFAULT_TRUST_ALL = false;
+
+   public static final boolean DEFAULT_FORCE_SSL_PARAMETERS = false;
 
    public static final boolean DEFAULT_USE_DEFAULT_SSL_CONTEXT = false;
 
@@ -361,6 +365,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.VERIFY_HOST_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUST_ALL_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.FORCE_SSL_PARAMETERS);
       allowableConnectorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
