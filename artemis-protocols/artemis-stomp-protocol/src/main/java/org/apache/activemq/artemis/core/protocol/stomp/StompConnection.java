@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -114,6 +116,12 @@ public final class StompConnection implements RemotingConnection {
 
    public VersionedStompFrameHandler getStompVersionHandler() {
       return frameHandler;
+   }
+
+
+   @Override
+   public void scheduledFlush() {
+      flush();
    }
 
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
@@ -255,7 +263,7 @@ public final class StompConnection implements RemotingConnection {
 
    // TODO this should take a type - send or receive so it knows whether to check the address or the queue
    public void checkDestination(String destination) throws ActiveMQStompException {
-      if (!manager.destinationExists(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString())) {
+      if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
@@ -265,28 +273,47 @@ public final class StompConnection implements RemotingConnection {
 
       try {
          SimpleString simpleQueue = SimpleString.toSimpleString(queue);
-         if (manager.getServer().getAddressInfo(simpleQueue) == null) {
-            AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
-
-            RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
+         AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleQueue);
+         AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
+         RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
+         boolean checkAnycast = false;
+         /**
+          * If the address doesn't exist then it is created if possible.
+          * If the address does exist but doesn't support the routing-type then the address is updated if possible.
+          */
+         if (addressInfo == null) {
             if (addressSettings.isAutoCreateAddresses()) {
                session.createAddress(simpleQueue, effectiveAddressRoutingType, true);
             }
 
-            // only auto create the queue if the address is ANYCAST
-            if (effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues()) {
-               session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, true, true);
+            checkAnycast = true;
+         } else if (!addressInfo.getRoutingTypes().contains(effectiveAddressRoutingType)) {
+            if (addressSettings.isAutoCreateAddresses()) {
+               EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
+               for (RoutingType existingRoutingType : addressInfo.getRoutingTypes()) {
+                  routingTypes.add(existingRoutingType);
+               }
+               routingTypes.add(effectiveAddressRoutingType);
+               manager.getServer().updateAddressInfo(simpleQueue, routingTypes);
             }
+
+            checkAnycast = true;
+         }
+
+         // only auto create the queue if the address is ANYCAST
+         if (checkAnycast && effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues()) {
+            session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, true, true);
          }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
       } catch (Exception e) {
+         ActiveMQStompProtocolLogger.LOGGER.debug("Exception while auto-creating destination", e);
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
       }
    }
 
    public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
-      AddressInfo addressInfo = manager.getServer().getAddressInfo(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)));
+      AddressInfo addressInfo = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination));
 
       // may be null here if, for example, the management address is being checked
       if (addressInfo != null) {
@@ -308,15 +335,11 @@ public final class StompConnection implements RemotingConnection {
          if (destroyed) {
             return;
          }
-      }
 
-      destroyed = true;
+         destroyed = true;
+      }
 
       internalClose();
-
-      synchronized (sendLock) {
-         callClosingListeners();
-      }
    }
 
    public Acceptor getAcceptorUsed() {
@@ -324,9 +347,17 @@ public final class StompConnection implements RemotingConnection {
    }
 
    private void internalClose() {
+      if (frameHandler != null) {
+         frameHandler.disconnect();
+      }
+
       transportConnection.close();
 
       manager.cleanup(this);
+
+      synchronized (sendLock) {
+         callClosingListeners();
+      }
    }
 
    @Override
@@ -345,14 +376,8 @@ public final class StompConnection implements RemotingConnection {
 
       ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
-      if (frameHandler != null) {
-         frameHandler.disconnect();
-      }
-
       // Then call the listeners
       callFailureListeners(me);
-
-      callClosingListeners();
 
       internalClose();
    }
@@ -700,6 +725,8 @@ public final class StompConnection implements RemotingConnection {
    public void unsubscribe(String subscriptionID, String durableSubscriptionName) throws ActiveMQStompException {
       try {
          manager.unsubscribe(this, subscriptionID, durableSubscriptionName);
+      } catch (ActiveMQAddressDoesNotExistException e) {
+         // this could happen if multiple clients unsubscribe simultaneously and auto-delete-addresses = true
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {

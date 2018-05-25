@@ -61,7 +61,6 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.utils.FutureLatch;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -512,8 +511,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void problemUndeployingNode(@Cause Exception e, Node node);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222022, value = "Timed out waiting for paging cursor to stop {0} {1}", format = Message.Format.MESSAGE_FORMAT)
-   void timedOutStoppingPagingCursor(FutureLatch future, Executor executor);
+   @Message(id = 222022, value = "Timed out waiting for paging cursor to stop {0}", format = Message.Format.MESSAGE_FORMAT)
+   void timedOutStoppingPagingCursor(Executor executor);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222023, value = "problem cleaning page address {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -1582,6 +1581,14 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222270, value = "Unable to create management notification address: {0}", format = Message.Format.MESSAGE_FORMAT)
    void unableToCreateManagementNotificationAddress(SimpleString addressName, @Cause Exception e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 22272, value = "Message ack in prepared tx for queue {0} which does not exist. This ack will be ignored.", format = Message.Format.MESSAGE_FORMAT)
+   void journalMessageAckMissingQueueInPreparedTX(Long queueID);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 22273,  value = "Address \"{0}\" is full. Bridge {1} will disconnect", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeAddressFull(String addressName, String bridgeName);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
@@ -1919,4 +1926,20 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224089, value = "Failed to calculate persistent size", format = Message.Format.MESSAGE_FORMAT)
    void errorCalculatePersistentSize(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224090, value = "This node is not configured for Quorum Voting, all nodes must be configured for HA", format = Message.Format.MESSAGE_FORMAT)
+   void noVoteHandlerConfigured();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224091, value = "Bridge {0} is unable to connect to destination. Retrying", format = Message.Format.MESSAGE_FORMAT)
+   void errorConnectingBridgeRetry(Bridge bridge);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224092, value = "Despite disabled persistence, page files will be persisted.", format = Message.Format.MESSAGE_FORMAT)
+   void pageWillBePersisted();
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224093, value = "Reference to message is null", format = Message.Format.MESSAGE_FORMAT)
+   void nullRefMessage();
 }

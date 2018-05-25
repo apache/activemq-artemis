@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.management;
 import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.BODY;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import javax.json.JsonObject;
 import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
@@ -57,6 +59,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -946,8 +949,8 @@ public class QueueControlTest extends ManagementTestBase {
       session.createAddress(myTopic, RoutingType.MULTICAST, false);
 
       DivertConfiguration divert = new DivertConfiguration().setName("local-divert")
-                                                            .setRoutingName("some-name").setAddress(myTopic.toString())
-                                                            .setForwardingAddress(forwardingAddress.toString()).setExclusive(false);
+            .setRoutingName("some-name").setAddress(myTopic.toString())
+            .setForwardingAddress(forwardingAddress.toString()).setExclusive(false);
       server.deployDivert(divert);
 
       // Send message to topic.
@@ -1158,31 +1161,31 @@ public class QueueControlTest extends ManagementTestBase {
       queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
       queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody2".getBytes()), true, "myUser", "myPassword");
 
-      Assert.assertEquals(2, getMessageCount(queueControlA));
-      Assert.assertEquals(0, getMessageCount(queueControlB));
-      Assert.assertEquals(0, getMessageCount(queueControlC));
+      Wait.assertEquals(2, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlB));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlC));
 
       // move 2 messages from queueA to queueB
       queueControlA.moveMessages(null, queueB.toString());
       Thread.sleep(500);
-      Assert.assertEquals(0, getMessageCount(queueControlA));
-      Assert.assertEquals(2, getMessageCount(queueControlB));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(2, () -> getMessageCount(queueControlB));
 
       // move 1 message to queueC
       queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody3".getBytes()), true, "myUser", "myPassword");
-      Assert.assertEquals(1, getMessageCount(queueControlA));
+      Wait.assertEquals(1, () -> getMessageCount(queueControlA));
       queueControlA.moveMessages(null, queueC.toString());
-      Assert.assertEquals(1, getMessageCount(queueControlC));
-      Assert.assertEquals(0, getMessageCount(queueControlA));
+      Wait.assertEquals(1, () -> getMessageCount(queueControlC));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlA));
 
       //move all messages back to A
       queueControlB.moveMessages(null, queueA.toString());
-      Assert.assertEquals(2, getMessageCount(queueControlA));
-      Assert.assertEquals(0, getMessageCount(queueControlB));
+      Wait.assertEquals(2, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlB));
 
       queueControlC.moveMessages(null, queueA.toString());
-      Assert.assertEquals(3, getMessageCount(queueControlA));
-      Assert.assertEquals(0, getMessageCount(queueControlC));
+      Wait.assertEquals(3, () -> getMessageCount(queueControlA));
+      Wait.assertEquals(0, () -> getMessageCount(queueControlC));
 
       // consume the message from queueA
       ClientConsumer consumer = session.createConsumer(queueA);
@@ -1503,6 +1506,63 @@ public class QueueControlTest extends ManagementTestBase {
       assertMessageMetrics(queueControl, 0, durable);
 
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testRemoveAllWithPagingMode() throws Exception {
+
+      final int MESSAGE_SIZE = 1024 * 3; // 3k
+
+      // reset maxSize for Paging mode
+      Field maxSizField = PagingManagerImpl.class.getDeclaredField("maxSize");
+      maxSizField.setAccessible(true);
+      maxSizField.setLong(server.getPagingManager(), 10240);
+      clearDataRecreateServerDirs();
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queueName = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queueName, null, durable);
+
+      Queue queue = server.locateQueue(queueName);
+      Assert.assertEquals(false, queue.getPageSubscription().isPaging());
+
+      ClientProducer producer = session.createProducer(address);
+
+      byte[] body = new byte[MESSAGE_SIZE];
+
+      ByteBuffer bb = ByteBuffer.wrap(body);
+
+      for (int j = 1; j <= MESSAGE_SIZE; j++) {
+         bb.put(getSamplebyte(j));
+      }
+
+      final int numberOfMessages = 8000;
+      ClientMessage message;
+      for (int i = 0; i < numberOfMessages; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(body);
+
+         producer.send(message);
+      }
+
+      Assert.assertEquals(true, queue.getPageSubscription().isPaging());
+
+      QueueControl queueControl = createManagementControl(address, queueName);
+      assertMessageMetrics(queueControl, numberOfMessages, durable);
+      int removedMatchedMessagesCount = queueControl.removeAllMessages();
+      Assert.assertEquals(numberOfMessages, removedMatchedMessagesCount);
+      assertMessageMetrics(queueControl, 0, durable);
+
+      Field queueMemoprySizeField = QueueImpl.class.getDeclaredField("queueMemorySize");
+      queueMemoprySizeField.setAccessible(true);
+      AtomicInteger queueMemorySize = (AtomicInteger) queueMemoprySizeField.get(queue);
+      Assert.assertEquals(0, queueMemorySize.get());
+
+      session.deleteQueue(queueName);
    }
 
    @Test
@@ -2320,6 +2380,10 @@ public class QueueControlTest extends ManagementTestBase {
       message = session.createMessage(durable);
       producer.send(message);
 
+      Queue serverqueue = server.locateQueue(queue);
+
+      Wait.assertEquals(1, serverqueue::getMessageCount);
+
       // the message IDs are set on the server
       messages = queueControl.listMessages(null);
       Assert.assertEquals(1, messages.length);
@@ -2349,6 +2413,7 @@ public class QueueControlTest extends ManagementTestBase {
       ClientMessage message = session.createMessage(durable);
       producer.send(message);
 
+      Wait.assertEquals(1, queueControl::getMessageCount);
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
       Assert.assertEquals(1, messages.length);
@@ -2430,7 +2495,7 @@ public class QueueControlTest extends ManagementTestBase {
       queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
       queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
 
-      Assert.assertEquals(2, getMessageCount(queueControl));
+      Wait.assertEquals(2, () -> getMessageCount(queueControl));
 
       // the message IDs are set on the server
       CompositeData[] browse = queueControl.browse(null);
@@ -2448,6 +2513,81 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertNotNull(body);
 
       Assert.assertEquals(new String(body), "theBody");
+   }
+
+   @Test
+   public void testResetGroups() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      Assert.assertEquals(1, queueControl.getConsumerCount());
+      consumer.setMessageHandler(new MessageHandler() {
+         @Override
+         public void onMessage(ClientMessage message) {
+            System.out.println(message);
+         }
+      });
+      session.start();
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group1"));
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group2"));
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group3"));
+
+      Wait.assertEquals(3, () -> getGroupCount(queueControl));
+
+      queueControl.resetGroup("group1");
+
+      Wait.assertEquals(2, () -> getGroupCount(queueControl));
+
+      producer.send(session.createMessage(durable).putStringProperty(Message.HDR_GROUP_ID, "group1"));
+
+      Wait.assertEquals(3, () -> getGroupCount(queueControl));
+
+      queueControl.resetAllGroups();
+
+      Wait.assertEquals(0, () -> getGroupCount(queueControl));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetScheduledCountOnRemove() throws Exception {
+      long delay = Integer.MAX_VALUE;
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getScheduledCount());
+
+      Field queueMemorySizeField = QueueImpl.class.getDeclaredField("queueMemorySize");
+      queueMemorySizeField.setAccessible(true);
+      final LocalQueueBinding binding = (LocalQueueBinding) server.getPostOffice().getBinding(queue);
+      Queue q = binding.getQueue();
+      AtomicInteger queueMemorySize1 = (AtomicInteger) queueMemorySizeField.get(q);
+      assertTrue(queueMemorySize1.get() == 0);
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(durable);
+      message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
+      producer.send(message);
+
+      queueControl.removeAllMessages();
+
+      Assert.assertEquals(0, queueControl.getMessageCount());
+
+      //Verify that original queue has a memory size of 0
+      assertTrue(queueMemorySize1.get() == 0);
+
+      session.deleteQueue(queue);
    }
 
    // Package protected ---------------------------------------------
@@ -2491,8 +2631,8 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    protected void assertMetrics(final QueueControl queueControl, long messageCount, boolean durable,
-         Supplier<Number> count, Supplier<Number> size,
-         Supplier<Number>durableCount, Supplier<Number> durableSize) throws Exception {
+                                Supplier<Number> count, Supplier<Number> size,
+                                Supplier<Number> durableCount, Supplier<Number> durableSize) throws Exception {
 
       //make sure count stat equals message count
       Assert.assertTrue(Wait.waitFor(() -> count.get().longValue() == messageCount, 3, 100));

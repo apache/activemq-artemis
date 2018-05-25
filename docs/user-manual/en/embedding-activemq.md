@@ -29,7 +29,7 @@ For instantiating a core Apache ActiveMQ Artemis Server, the steps are pretty
 simple. The example requires that you have defined a configuration file
 `broker.xml` in your classpath:
 
-``` java
+```java
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 
 ...
@@ -83,7 +83,7 @@ The acceptors are configured through `ConfigurationImpl`. Just add the
 `NettyAcceptorFactory` on the transports the same way you would through
 the main configuration file.
 
-``` java
+```java
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 
@@ -102,7 +102,7 @@ You need to instantiate an instance of
 `org.apache.activemq.artemis.api.core.server.embedded.EmbeddedActiveMQ` and add
 the configuration object to it.
 
-``` java
+```java
 import org.apache.activemq.artemis.api.core.server.ActiveMQ;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 
@@ -116,7 +116,7 @@ server.start();
 
 You also have the option of instantiating `ActiveMQServerImpl` directly:
 
-``` java
+```java
 ActiveMQServer server = new ActiveMQServerImpl(config);
 server.start();
 ```

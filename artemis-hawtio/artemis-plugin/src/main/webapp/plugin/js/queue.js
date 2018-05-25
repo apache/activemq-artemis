@@ -103,6 +103,7 @@ var ARTEMIS = (function(ARTEMIS) {
                     var domain = selection.domain;
                     var name = entries["Destination"] || entries["destinationName"] || selection.title;
                     name = name.replace(/['"]+/g, '');
+                    name = ARTEMISService.artemisConsole.ownUnescape(name);
                     ARTEMIS.log.info(name);
                     var operation;
                     if (isQueue) {
@@ -133,7 +134,7 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.name = function () {
             var selection = workspace.selection;
             if (selection) {
-                return selection.title;
+                return ARTEMISService.artemisConsole.ownUnescape(selection.title);
             }
             return null;
         };

@@ -58,7 +58,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (String) proxy.invokeOperation("updateAddress", name, routingTypes);
          }
 
-         @Override
          public void updateDuplicateIdCache(String address, Object[] ids) {
 
          }
@@ -148,6 +147,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
             proxy.invokeOperation("deleteAddress", name);
+         }
+
+         @Override
+         public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name, @Parameter(name = "force", desc = "Force everything out!") boolean force) throws Exception {
+            proxy.invokeOperation("deleteAddress", name, force);
          }
 
          @Override
@@ -567,7 +571,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (Boolean) proxy.invokeOperation("rollbackPreparedTransaction", transactionAsBase64);
          }
 
-         @Override
          public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
             proxy.invokeOperation("sendQueueInfoToQueue", queueName, address);
          }
@@ -995,6 +998,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception {
             return (String) proxy.invokeOperation("listSessionsAsJSON", connectionID);
+         }
+
+         @Override
+         public String listAllSessionsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listAllSessionsAsJSON");
          }
 
          @Override

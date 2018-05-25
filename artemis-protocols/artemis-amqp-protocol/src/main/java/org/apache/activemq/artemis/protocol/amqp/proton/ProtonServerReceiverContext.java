@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
@@ -40,6 +41,7 @@ import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.jboss.logging.Logger;
@@ -107,6 +109,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
             try {
                sessionSPI.createTemporaryQueue(address, defRoutingType);
+            } catch (ActiveMQAMQPSecurityException e) {
+               throw e;
             } catch (ActiveMQSecurityException e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(e.getMessage());
             } catch (Exception e) {
@@ -221,10 +225,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          receiver = ((Receiver) delivery.getLink());
 
          Transaction tx = null;
-         byte[] data;
 
-         data = new byte[delivery.available()];
-         receiver.recv(data, 0, data.length);
+         ReadableBuffer data = receiver.recv();
          receiver.advance();
 
          if (delivery.getRemoteState() instanceof TransactionalState) {

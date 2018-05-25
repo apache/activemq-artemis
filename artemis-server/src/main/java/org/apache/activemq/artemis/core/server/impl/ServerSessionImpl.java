@@ -583,9 +583,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          securityCheck(addressInfo.getName(), name, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(art.getName().toString());
+
+      if (as.isAutoCreateAddresses() && server.getAddressInfo(art.getName()) == null) {
+         securityCheck(addressInfo.getName(), name, CheckType.CREATE_ADDRESS, this);
+      }
+
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, server.getAddressSettingsRepository().getMatch(art.getName().toString()).isAutoCreateAddresses());
+      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, as.isAutoCreateAddresses());
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -926,10 +932,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void expire(final long consumerID, final long messageID) throws Exception {
-      MessageReference ref = locateConsumer(consumerID).removeReferenceByID(messageID);
+      final ServerConsumer consumer = locateConsumer(consumerID);
+      MessageReference ref = consumer.removeReferenceByID(messageID);
 
       if (ref != null) {
-         ref.getQueue().expire(ref);
+         ref.getQueue().expire(ref, consumer);
       }
    }
 
@@ -1831,6 +1838,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          return PrefixUtil.getAddress(address, prefixes);
       }
       return address;
+   }
+
+   @Override
+   public SimpleString getPrefix(SimpleString address) {
+      if (prefixEnabled && address != null) {
+         return PrefixUtil.getPrefix(address, prefixes);
+      }
+      return null;
    }
 
    @Override

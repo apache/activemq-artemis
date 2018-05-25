@@ -27,7 +27,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Test;
 
@@ -38,6 +40,31 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    @Override
    protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
       params.put("maxFrameSize", FRAME_SIZE);
+   }
+
+   @Test(timeout = 60000)
+   public void testBrokerHonorsSetMaxFrameSize() throws Exception {
+      AmqpClient client = createAmqpClient();
+      assertNotNull(client);
+
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Connection connection) {
+            int brokerMaxFrameSize = connection.getTransport().getRemoteMaxFrameSize();
+            if (brokerMaxFrameSize != FRAME_SIZE) {
+               markAsInvalid("Broker did not send the expected max Frame Size");
+            }
+         }
+      });
+
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         assertNotNull(connection);
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
    }
 
    @Test(timeout = 60000)

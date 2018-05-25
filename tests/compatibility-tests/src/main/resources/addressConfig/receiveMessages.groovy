@@ -28,7 +28,6 @@ Connection connection = cf.createConnection();
 Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 Queue queue = session.createQueue("myQueue");
 
-System.out.println("Receiving ");
 MessageConsumer consumer = session.createConsumer(queue)
 connection.start()
 for (int i = 0; i < 500; i++) {

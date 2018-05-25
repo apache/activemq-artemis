@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -362,7 +363,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_SHARED_QUEUE: {
                   CreateSharedQueueMessage request = (CreateSharedQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createSharedQueue(request.getAddress(), request.getQueueName(), request.isDurable(), request.getFilterString());
+                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
+                  if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
+                     session.createSharedQueue(request.getAddress(), request.getQueueName(), request.isDurable(), request.getFilterString());
+                  }
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -371,7 +375,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_SHARED_QUEUE_V2: {
                   CreateSharedQueueMessage_V2 request = (CreateSharedQueueMessage_V2) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(), request.isExclusive(), request.isLastValue());
+                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
+                  if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
+                     session.createSharedQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(), request.isExclusive(), request.isLastValue());
+                  }
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -389,7 +396,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
 
-                  if (remotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+                  if (result.isExists() && remotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
                      result.setAddress(SessionQueueQueryMessage.getOldPrefixedAddress(result.getAddress(), result.getRoutingType()));
                   }
 
@@ -412,7 +419,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                    * names otherwise the older client won't realize the queue exists and will try to create it and receive
                    * an error
                    */
-                  if (clientVersion < PacketImpl.ADDRESSING_CHANGE_VERSION && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+                  if (result.isExists() && clientVersion < PacketImpl.ADDRESSING_CHANGE_VERSION && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
                      final List<SimpleString> queueNames = result.getQueueNames();
                      if (!queueNames.isEmpty()) {
                         final List<SimpleString> convertedQueueNames = request.convertQueueNames(clientVersion, queueNames);

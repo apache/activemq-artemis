@@ -75,7 +75,6 @@ public abstract class ActionAbstract implements Action {
          } else {
             brokerEtc = getBrokerInstance() + "/etc";
          }
-         System.setProperty("artemis.instance.etc", brokerEtc);
       }
       return brokerEtc;
    }

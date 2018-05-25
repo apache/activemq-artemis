@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
+import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.DB2;
 import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.POSTGRESQL;
 
 class JDBCFileUtils {
@@ -32,8 +33,11 @@ class JDBCFileUtils {
                                                           String jdbcConnectionUrl,
                                                           SQLProvider provider) throws SQLException {
       final JDBCSequentialFileFactoryDriver dbDriver;
-      if (POSTGRESQL.equals(PropertySQLProvider.Factory.identifyDialect(driverClass))) {
+      final PropertySQLProvider.Factory.SQLDialect sqlDialect = PropertySQLProvider.Factory.identifyDialect(driverClass);
+      if (POSTGRESQL.equals(sqlDialect)) {
          dbDriver = new PostgresSequentialSequentialFileDriver();
+      } else if (DB2.equals(sqlDialect)) {
+         dbDriver = new Db2SequentialFileDriver();
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver();
       }
@@ -44,9 +48,15 @@ class JDBCFileUtils {
    }
 
    static JDBCSequentialFileFactoryDriver getDBFileDriver(DataSource dataSource, SQLProvider provider) throws SQLException {
-      JDBCSequentialFileFactoryDriver dbDriver;
-      if (POSTGRESQL.equals(PropertySQLProvider.Factory.investigateDialect(dataSource.getConnection()))) {
+      final JDBCSequentialFileFactoryDriver dbDriver;
+      final PropertySQLProvider.Factory.SQLDialect sqlDialect;
+      try (Connection connection = dataSource.getConnection()) {
+         sqlDialect = PropertySQLProvider.Factory.investigateDialect(connection);
+      }
+      if (POSTGRESQL.equals(sqlDialect)) {
          dbDriver = new PostgresSequentialSequentialFileDriver(dataSource, provider);
+      } else if (DB2.equals(sqlDialect)) {
+         dbDriver = new Db2SequentialFileDriver(dataSource, provider);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(dataSource, provider);
       }
@@ -55,9 +65,12 @@ class JDBCFileUtils {
 
    static JDBCSequentialFileFactoryDriver getDBFileDriver(Connection connection, SQLProvider provider) throws SQLException {
       JDBCSequentialFileFactoryDriver dbDriver;
-      if (POSTGRESQL.equals(PropertySQLProvider.Factory.investigateDialect(connection))) {
+      final PropertySQLProvider.Factory.SQLDialect sqlDialect = PropertySQLProvider.Factory.investigateDialect(connection);
+      if (POSTGRESQL.equals(sqlDialect)) {
          dbDriver = new PostgresSequentialSequentialFileDriver(connection, provider);
          dbDriver.setConnection(connection);
+      } else if (DB2.equals(sqlDialect)) {
+         dbDriver = new Db2SequentialFileDriver(connection, provider);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(connection, provider);
       }

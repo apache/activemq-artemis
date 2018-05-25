@@ -65,6 +65,7 @@ char dumbPath[PATH_MAX];
 
 #define ONE_MEGA 1048576l
 void * oneMegaBuffer = 0;
+pthread_mutex_t oneMegaMutex;
 
 
 jclass submitClass = NULL;
@@ -119,18 +120,39 @@ char* exceptionMessage(char* msg, int error) {
     return result;
 }
 
+static inline short verifyBuffer(int alignment) {
+    pthread_mutex_lock(&oneMegaMutex);
+
+    if (oneMegaBuffer == 0) {
+       #ifdef DEBUG
+          fprintf (stdout, "oneMegaBuffer %ld\n", (long) oneMegaBuffer);
+       #endif
+       if (posix_memalign(&oneMegaBuffer, alignment, ONE_MEGA) != 0) {
+            fprintf(stderr, "Could not allocate the 1 Mega Buffer for initializing files\n");
+            pthread_mutex_unlock(&oneMegaMutex);
+            return -1;
+       }
+        memset(oneMegaBuffer, 0, ONE_MEGA);
+    }
+
+    pthread_mutex_unlock(&oneMegaMutex);
+
+    return 0;
+
+}
+
+
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     JNIEnv* env;
     if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     } else {
-        if (posix_memalign(&oneMegaBuffer, 512, ONE_MEGA) != 0)
-        {
-            fprintf(stderr, "Could not allocate the 1 Mega Buffer for initializing files\n");
-            return JNI_ERR;
-        }
-        memset(oneMegaBuffer, 0, ONE_MEGA);
 
+        int res = pthread_mutex_init(&oneMegaMutex, 0);
+        if (res) {
+             fprintf(stderr, "could not initialize mutex on on_load, %d", res);
+             return JNI_ERR;
+        }
         sprintf (dumbPath, "%s/artemisJLHandler_XXXXXX", P_tmpdir);
         dumbWriteHandler = mkstemp (dumbPath);
 
@@ -228,7 +250,12 @@ void JNI_OnUnload(JavaVM* vm, void* reserved) {
     } else {
         closeDumbHandlers();
 
-        free(oneMegaBuffer);
+        if (oneMegaBuffer != 0) {
+           free(oneMegaBuffer);
+           oneMegaBuffer = 0;
+        }
+
+        pthread_mutex_destroy(&oneMegaMutex);
 
         // delete global references so the GC can collect them
         if (runtimeExceptionClass != NULL) {
@@ -782,7 +809,7 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fa
 }
 
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fill
-  (JNIEnv * env, jclass clazz, jint fd, jlong size)
+  (JNIEnv * env, jclass clazz, jint fd, jint alignment, jlong size)
 {
 
     int i;
@@ -790,14 +817,20 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fi
     int rest = size % ONE_MEGA;
 
     #ifdef DEBUG
-        fprintf (stderr, "blocks = %d, rest=%d\n", blocks, rest);
+        fprintf (stdout, "calling fill ... blocks = %d, rest=%d, alignment=%d\n", blocks, rest, alignment);
     #endif
+
+
+    verifyBuffer(alignment);
 
     lseek (fd, 0, SEEK_SET);
     for (i = 0; i < blocks; i++)
     {
         if (write(fd, oneMegaBuffer, ONE_MEGA) < 0)
         {
+            #ifdef DEBUG
+               fprintf (stdout, "Errno is %d\n", errno);
+            #endif
             throwIOException(env, "Cannot initialize file");
             return;
         }
@@ -807,7 +840,10 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fi
     {
        if (write(fd, oneMegaBuffer, rest) < 0)
        {
-           throwIOException(env, "Cannot initialize file");
+            #ifdef DEBUG
+               fprintf (stdout, "Errno is %d\n", errno);
+            #endif
+           throwIOException(env, "Cannot initialize file with final rest");
            return;
        }
     }

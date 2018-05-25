@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -166,6 +167,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean needClientAuth;
 
+   private final boolean wantClientAuth;
+
    private final String sslProvider;
 
    private final boolean verifyHost;
@@ -214,14 +217,19 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
+   final Executor failureExecutor;
+
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
                         final BufferHandler handler,
                         final ServerConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
+                        final Executor failureExecutor,
                         final Map<String, ProtocolManager> protocolMap) {
       super(protocolMap);
+
+      this.failureExecutor = failureExecutor;
 
       this.name = name;
 
@@ -273,6 +281,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_NEED_CLIENT_AUTH, configuration);
 
+         wantClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_WANT_CLIENT_AUTH, configuration);
+
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
 
          sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
@@ -287,6 +297,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
+         wantClientAuth = TransportConstants.DEFAULT_WANT_CLIENT_AUTH;
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
          sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
       }
@@ -468,8 +479,11 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       engine.setUseClientMode(false);
 
-      if (needClientAuth)
+      if (needClientAuth) {
          engine.setNeedClientAuth(true);
+      } else if (wantClientAuth) {
+         engine.setWantClientAuth(true);
+      }
 
       // setting the enabled cipher suites resets the enabled protocols so we need
       // to save the enabled protocols so that after the customer cipher suite is enabled
@@ -732,7 +746,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    public ConnectionCreator createConnectionCreator() {
-      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener());
+      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener(), failureExecutor);
    }
 
    private static String getProtocols(Map<String, ProtocolManager> protocolManager) {
@@ -755,8 +769,9 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       ActiveMQServerChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ServerConnectionLifeCycleListener listener) {
-         super(group, handler, listener);
+                                   final ServerConnectionLifeCycleListener listener,
+                                   final Executor failureExecutor) {
+         super(group, handler, listener, failureExecutor);
       }
 
       @Override

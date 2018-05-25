@@ -27,7 +27,7 @@ By default both settings are OFF as such address & queues won't be removed upon 
 
 When OFF You may execute explicit CLI or Management operations to remove address & queues.
 
-## Configuration Parameters that are reloaded at runtime
+## Reloadable Parameters
 
 The broker configuration file has 2 main parts, `<core>` and `<jms>`. Some of the parameters in the 2 parts are monitored and, 
 if modified, reloaded into the broker at runtime.
@@ -39,9 +39,9 @@ Please note that elements under `<jms>` are deprecated. Users are encouraged to 
 > that won’t take any effect unless you restarting the broker.
 > Such parameters are specifically indicated in the following text.
 
-### Parameters in `<core>` that can be reloaded at runtime
+### `<core>` 
 
-#### Parameters under `<security-settings>`
+#### `<security-settings>`
 
 * `<security-setting>` element
 
@@ -77,7 +77,7 @@ attribute `roles` | N/A* | X* | Changing the ‘roles’ value means updating th
 > * `N/A` means this operation is not applicable.
 > * `X` means this operation is not allowed.
 
-#### Parameters under `<address-settings>`
+#### `<address-settings>`
 
 * `<address-settings>` element
 
@@ -130,7 +130,7 @@ attribute `match` | N/A | X | Changing this value is same as deleting the whole 
 `<default-address-routing-type>` | X (no more than one can be present) | The configured default-address-routing-type will be removed from running broker after reloading. | The default-address-routing-type will be updated after reloading.
 
 
-#### Parameters under `<diverts>`
+#### `<diverts>`
 
 All `<divert>` elements will be reloaded. Each `<divert>` element 
 has a ‘name’ and several sub-elements that defines the properties of a divert.
@@ -157,7 +157,7 @@ attribute `name` | N/A | X | A new divert with the name will be deployed. (if it
 `<filter>` | X (no more than one can be present) | No effect on the deployed divert.(unless restarting broker) | No effect on the deployed divert.(unless restarting broker)
 `<routing-type>` | X (no more than one can be present) | No effect on the deployed divert.(unless restarting broker) | No effect on the deployed divert.(unless restarting broker)
 
-#### Parameters under `<addresses>`
+#### `<addresses>`
 
 The `<addresses>` element contains a list `<address>` elements. Once changed, all `<address>` elements
  in `<addresses>` will be reloaded.
@@ -184,7 +184,7 @@ attribute `name` | N/A | X | After reloading the address of the old name will be
 `<multicast>` | X(no more than one is present) | The multicast routing type will be undeployed from this address, as well as its containing queues after reloading | N/A
 `<queue>`(under `<multicast>`) | A multicast queue will be deployed after reloading | The multicast queue will be undeployed | For updating queues please see next section `<queues>`
 
-#### Parameters under `<queues>`
+#### `<queues>`
 
 The `<queues>` element contains a list `<queue>` elements. Once changed, all `<queue>` elements in `<queues>` will be reloaded.
 
@@ -210,9 +210,9 @@ attribute `address` | N/A | No effect unless starting broker | No effect unless 
 attribute `filter` | N/A | No effect unless starting broker | No effect unless starting broker
 attribute `durable` | N/A | No effect unless starting broker | No effect unless starting broker
 
-### Parameters in `<jms>` that can be reloaded at runtime *(Deprecated)*
+### `<jms>` *(Deprecated)*
 
-#### The `<queue>` elements
+#### `<queue>`
 
 Changes to any `<queue>` elements will be reloaded to the running broker. 
 
@@ -228,7 +228,7 @@ attribute `<name>` | N/A | X | A jms queue of the new name will be deployed afte
 `<selector>` | X(no more than one is present) | No effect unless starting broker | No effect unless starting broker
 `<durable>` | X(no more than one is present) | No effect unless starting broker | No effect unless starting broker
 
-#### The `<topic>` elements
+#### `<topic>`
 
 Changes to any `<topic>` elements will be reloaded to the running broker. 
 

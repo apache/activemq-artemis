@@ -1,6 +1,6 @@
 # Clusters
 
-## Clusters Overview
+## Overview
 
 Apache ActiveMQ Artemis clusters allow groups of Apache ActiveMQ Artemis servers to be grouped
 together in order to share message processing load. Each active node in
@@ -91,16 +91,18 @@ Apache ActiveMQ Artemis server. All broadcast groups must be defined in a
 Let's take a look at an example broadcast group from
 `broker.xml` that defines a UDP broadcast group:
 
-    <broadcast-groups>
-       <broadcast-group name="my-broadcast-group">
-          <local-bind-address>172.16.9.3</local-bind-address>
-          <local-bind-port>5432</local-bind-port>
-          <group-address>231.7.7.7</group-address>
-          <group-port>9876</group-port>
-          <broadcast-period>2000</broadcast-period>
-          <connector-ref>netty-connector</connector-ref>
-       </broadcast-group>
-    </broadcast-groups>
+```xml
+<broadcast-groups>
+   <broadcast-group name="my-broadcast-group">
+      <local-bind-address>172.16.9.3</local-bind-address>
+      <local-bind-port>5432</local-bind-port>
+      <group-address>231.7.7.7</group-address>
+      <group-port>9876</group-port>
+      <broadcast-period>2000</broadcast-period>
+      <connector-ref>netty-connector</connector-ref>
+   </broadcast-group>
+</broadcast-groups>
+```
 
 Some of the broadcast group parameters are optional and you'll normally
 use the defaults, but we specify them all in the above example for
@@ -479,12 +481,12 @@ In the above cluster connection all parameters have been explicitly
 specified. The following shows all the available configuration options
 
 -   `address` Each cluster connection only applies to addresses that
-    match the specified address field. An address is matched on the
+    match the specified `address` field. An address is matched on the
     cluster connection when it begins with the string specified in this
-    field. The address field on a cluster connection also supports comma
-    separated lists and an exclude syntax '!'. To prevent an address
+    field. The `address` field on a cluster connection also supports comma
+    separated lists and an exclude syntax `!`. To prevent an address
     from being matched on this cluster connection, prepend a cluster
-    connection address string with '!'.
+    connection address string with `!`.
 
     In the case shown above the cluster connection will load balance
     messages sent to all addresses (since it's empty).
@@ -521,8 +523,6 @@ specified. The following shows all the available configuration options
         inclusion.
     -   Address matching on cluster connections does not support
         wild-card matching.
-
-    This parameter is mandatory.
 
 -   `connector-ref`. This is the connector which will be sent to other
     nodes in the cluster so they have the correct cluster topology.

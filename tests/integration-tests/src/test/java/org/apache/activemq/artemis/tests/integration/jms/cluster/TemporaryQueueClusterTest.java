@@ -61,8 +61,12 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
-         // sleep a little bit to have the temp queue propagated to server #2
-         Thread.sleep(3000);
+         this.waitForBindings(jmsServer1.getActiveMQServer(), QUEUE_NAME, true, 1, 0, 2000);
+         this.waitForBindings(jmsServer1.getActiveMQServer(), QUEUE_NAME, true, 1, 0, 2000);
+         this.waitForBindings(jmsServer2.getActiveMQServer(), QUEUE_NAME, false, 1, 0, 2000);
+         this.waitForBindings(jmsServer1.getActiveMQServer(), QUEUE_NAME, false, 1, 0, 2000);
+
+
          MessageProducer prod1 = session1.createProducer(targetQueue1);
          MessageConsumer cons2 = session2.createConsumer(targetQueue2);
 
@@ -102,11 +106,18 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
+         this.waitForBindings(jmsServer1.getActiveMQServer(), QUEUE_NAME, true, 1, 0, 2000);
+         this.waitForBindings(jmsServer1.getActiveMQServer(), QUEUE_NAME, true, 1, 0, 2000);
+         this.waitForBindings(jmsServer2.getActiveMQServer(), QUEUE_NAME, false, 1, 0, 2000);
+         this.waitForBindings(jmsServer1.getActiveMQServer(), QUEUE_NAME, false, 1, 0, 2000);
+
+         MessageConsumer tempCons1 = session1.createConsumer(tempQueue);
+
+         this.waitForBindings(jmsServer1.getActiveMQServer(), tempQueue.getQueueName(), true, 1, 1, 2000);
+         this.waitForBindings(jmsServer2.getActiveMQServer(), tempQueue.getQueueName(), false, 1, 0, 2000);
+
          MessageProducer prod1 = session1.createProducer(targetQueue1);
          MessageConsumer cons2 = session2.createConsumer(targetQueue2);
-         MessageConsumer tempCons1 = session1.createConsumer(tempQueue);
-         // sleep a little bit to have the temp queue propagated to server #2
-         Thread.sleep(3000);
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = session1.createTextMessage("" + i);

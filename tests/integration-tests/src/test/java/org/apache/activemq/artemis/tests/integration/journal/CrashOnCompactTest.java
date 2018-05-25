@@ -32,13 +32,13 @@ import org.apache.activemq.artemis.core.journal.impl.AbstractJournalUpdateTask;
 import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CrashOnCompactTest extends ActiveMQTestBase {
+public class CrashOnCompactTest extends SpawnedTestBase {
 
    static int OK = 2;
    static int NOT_OK = 3;

@@ -80,6 +80,10 @@ public class AmqpValidator {
 
    }
 
+   public void inspectCredit(Sender sender) {
+
+   }
+
    public boolean isValid() {
       return this.errorMessage.get() == null;
    }

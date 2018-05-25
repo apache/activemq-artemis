@@ -130,7 +130,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    //to management service
    private boolean suppressInternalManagementObjects = true;
 
-   private final OpenWireMessageConverter internalConverter;
+   private final OpenWireFormat wireFormat;
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
@@ -145,7 +145,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       wireFactory.setCacheEnabled(false);
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       scheduledPool = server.getScheduledPool();
-      this.internalConverter = new OpenWireMessageConverter(wireFactory.createWireFormat());
+      this.wireFormat = (OpenWireFormat) wireFactory.createWireFormat();
 
       final ClusterManager clusterManager = this.server.getClusterManager();
 
@@ -488,7 +488,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       connection.dispatch(brokerInfo);
    }
 
-   public void setUpInactivityParams(OpenWireConnection connection, WireFormatInfo command) throws IOException {
+   public void configureInactivityParams(OpenWireConnection connection, WireFormatInfo command) throws IOException {
       long inactivityDurationToUse = command.getMaxInactivityDuration() > this.maxInactivityDuration ? this.maxInactivityDuration : command.getMaxInactivityDuration();
       long inactivityDurationInitialDelayToUse = command.getMaxInactivityDurationInitalDelay() > this.maxInactivityDurationInitalDelay ? this.maxInactivityDurationInitalDelay : command.getMaxInactivityDurationInitalDelay();
       boolean useKeepAliveToUse = this.maxInactivityDuration == 0L ? false : this.useKeepAlive;
@@ -597,8 +597,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       return total;
    }
 
-   public OpenWireMessageConverter getInternalConverter() {
-      return internalConverter;
+   public OpenWireFormat wireFormat() {
+      return wireFormat;
    }
 
    public boolean isSupportAdvisory() {

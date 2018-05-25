@@ -88,7 +88,7 @@ public class XmlDataExporterUtil {
    /**
     * Base64 encode a ServerMessage body into the proper XML format
     */
-   static String encodeMessageBody(final Message message) throws Exception {
+   static String encodeMessageBodyBase64(final Message message) throws Exception {
       Preconditions.checkNotNull(message, "ServerMessage can not be null");
 
       ActiveMQBuffer byteBuffer = message.toCore().getReadOnlyBodyBuffer();

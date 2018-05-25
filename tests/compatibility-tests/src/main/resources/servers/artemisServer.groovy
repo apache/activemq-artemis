@@ -34,12 +34,8 @@ String producer = arg[3];
 String consumer = arg[4];
 String globalMaxSize = arg[5];
 
-println("type = " + type);
-println("globalMaxSize = " + globalMaxSize);
-
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
-System.out.println("folder:: " + folder);
 configuration.setBrokerInstance(new File(folder + "/" + id));
 configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616?anycastPrefix=jms.queue.&multicastPrefix=jms.topic.");
 configuration.setSecurityEnabled(false);
@@ -48,7 +44,7 @@ try {
     if (!type.startsWith("ARTEMIS-1")) {
         configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
         if (globalMaxSize != null) {
-            configuration.getAddressesSettings().get("#").setPageSizeBytes(globalMaxSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+            configuration.getAddressesSettings().get("#").setPageSizeBytes(Long.parseLong(globalMaxSize)).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
             configuration.setGlobalMaxSize(Long.parseLong(globalMaxSize));
         }
     }

@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -178,5 +180,63 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       sender.close();
       connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testSenderCreditReplenishment() throws Exception {
+      AtomicInteger counter = new AtomicInteger();
+      CountDownLatch initialCredit = new CountDownLatch(1);
+      CountDownLatch refreshedCredit = new CountDownLatch(1);
+
+      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      client.setValidator(new AmqpValidator() {
+         @Override
+         public void inspectCredit(Sender sender) {
+            int count = counter.incrementAndGet();
+            switch (count) {
+               case 1:
+                  assertEquals("Unexpected initial credit", AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit());
+                  initialCredit.countDown();
+                  break;
+               case 2:
+                  assertEquals("Unexpected replenished credit", AmqpSupport.AMQP_LOW_CREDITS_DEFAULT + AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit());
+                  refreshedCredit.countDown();
+                  break;
+               default:
+                  throw new IllegalStateException("Unexpected additional flow: " + count);
+            }
+         }
+      });
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getQueueName());
+
+         // Wait for initial credit to arrive and be checked
+         assertTrue("Expected credit did not arrive", initialCredit.await(3000, TimeUnit.MILLISECONDS));
+
+         // Send just enough messages not to cause credit replenishment
+         final int msgCount = AmqpSupport.AMQP_CREDITS_DEFAULT - AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
+         for (int i = 1; i <= msgCount - 1; ++i) {
+            AmqpMessage message = new AmqpMessage();
+            message.setText("Test-Message: " + i);
+            sender.send(message);
+         }
+
+         // Wait and check more credit hasn't flowed yet
+         assertFalse("Expected credit not to have been refreshed yet", refreshedCredit.await(50, TimeUnit.MILLISECONDS));
+
+         // Send a final message needed to provoke the replenishment flow, wait for to arrive
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message: " + msgCount);
+         sender.send(message);
+
+         assertTrue("Expected credit refresh did not occur", refreshedCredit.await(3000, TimeUnit.MILLISECONDS));
+
+         connection.close();
+      } finally {
+         connection.getStateInspector().assertValid();
+      }
    }
 }

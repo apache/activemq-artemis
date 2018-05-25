@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.IDGenerator;
@@ -342,7 +342,7 @@ public abstract class SessionContext {
 
    public abstract void cleanup();
 
-   public abstract void linkFlowControl(SimpleString address, ClientProducerCreditsImpl clientProducerCredits);
+   public abstract void linkFlowControl(SimpleString address, ClientProducerCredits clientProducerCredits);
 
    public abstract boolean isWritable(ReadyListener callback);
 }

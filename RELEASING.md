@@ -8,7 +8,8 @@ Things to do before issuing a new release:
 
 * Ensure all public API classes have a proper Javadoc.
 
-* Update the README to include appropriate release notes.
+* Update docs/user-manual/en/versions.md to include appropriate release notes and upgrade instructions. See previous
+  entries for guidance.
 
 * Bump the version numbers in example and test poms to the next release version. e.g. 2.0.0
 

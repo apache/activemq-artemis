@@ -155,16 +155,13 @@ public abstract class VersionedBaseTest {
          boolean ok = value != null && !value.trim().isEmpty();
          if (!ok) {
             System.out.println("Add \"-D" + name + "=\'CLASSPATH\'\" into your VM settings");
-         } else {
-            printed.add(name);
-            System.out.println("****************************************************************************");
-            System.out.println("* If you want to debug this test, add this parameter to your IDE run settings...");
-            System.out.println("****************************************************************************");
-            System.out.println("-D" + name + "=\"" + value + "\"");
-            System.out.println("****************************************************************************");
+            System.out.println("You will see it in the output from mvn install at the compatibility-tests");
+            System.out.println("... look for output from dependency-scan");
 
+            // our dependency scan used at the pom under compatibility-tests/pom.xml will generate these, example:
+            // [INFO] dependency-scan setting: -DARTEMIS-140="/Users/someuser/....."
+            // copy that into your IDE setting and you should be able to debug it
          }
-
          Assume.assumeTrue("Cannot run these tests, no classpath found", ok);
       }
 
@@ -194,8 +191,6 @@ public abstract class VersionedBaseTest {
 
    public void startServer(File folder, ClassLoader loader, String serverName, String globalMaxSize) throws Throwable {
       folder.mkdirs();
-
-      System.out.println("Folder::" + folder);
 
       String scriptToUse;
       if (getServerScriptToUse() != null && getServerScriptToUse().length() != 0) {

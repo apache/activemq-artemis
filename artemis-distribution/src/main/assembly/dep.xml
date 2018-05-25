@@ -69,6 +69,7 @@
             <include>org.apache.activemq:artemis-service-extensions</include>
             <include>org.apache.activemq:artemis-web</include>
             <include>org.apache.activemq.rest:artemis-rest</include>
+            <include>org.apache.qpid:qpid-jms-client</include>
 
             <!-- dependencies -->
             <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>
@@ -80,6 +81,7 @@
             <include>org.jboss.logging:jboss-logging</include>
             <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>
             <include>io.netty:netty-all</include>
+            <include>io.netty:netty-tcnative-boringssl-static</include>
             <include>org.apache.qpid:proton-j</include>
             <include>org.apache.activemq:activemq-client</include>
             <include>org.slf4j:slf4j-api</include>
@@ -98,6 +100,10 @@
             <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
             <include>org.apache.johnzon:johnzon-core</include>
             <include>org.hdrhistogram:HdrHistogram</include>
+            <include>javax.xml.bind:jaxb-api</include>
+            <include>com.sun.xml.bind:jaxb-impl</include>
+            <include>com.sun.xml.bind:jaxb-core</include>
+            <include>javax.activation:activation</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
@@ -181,6 +187,11 @@
       </fileSet>
       <fileSet>
          <directory>${activemq.basedir}/artemis-jms-server/src/main/resources/schema/</directory>
+         <outputDirectory>schema</outputDirectory>
+         <lineEnding>keep</lineEnding>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/artemis-dto/target/schema/org.apache.activemq/dto/</directory>
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
       </fileSet>

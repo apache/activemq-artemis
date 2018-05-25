@@ -210,8 +210,8 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
                addData(libaio, buffer, callback);
                if (sync) {
                   waitForLatch(latchFinishThread);
+                  assertEquals(0, callback.errorCalled);
                   assertTrue(callback.doneCalled);
-                  assertFalse(callback.errorCalled != 0);
                }
             }
             if (!sync) {

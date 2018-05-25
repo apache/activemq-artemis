@@ -208,6 +208,9 @@ public final class JsonUtil {
          jsonObjectBuilder.add(key, param.toString());
       } else if (param == null) {
          jsonObjectBuilder.addNull(key);
+      } else if (param instanceof byte[]) {
+         JsonArrayBuilder byteArrayObject = toJsonArrayBuilder((byte[]) param);
+         jsonObjectBuilder.add(key, byteArrayObject);
       } else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
       }
@@ -233,6 +236,9 @@ public final class JsonUtil {
          jsonArrayBuilder.add(((Byte) param).shortValue());
       } else if (param == null) {
          jsonArrayBuilder.addNull();
+      } else if (param instanceof byte[]) {
+         JsonArrayBuilder byteArrayObject = toJsonArrayBuilder((byte[]) param);
+         jsonArrayBuilder.add(byteArrayObject);
       } else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
       }
@@ -256,6 +262,16 @@ public final class JsonUtil {
          }
       }
       return jsonObjectBuilder.build();
+   }
+
+   public static JsonArrayBuilder toJsonArrayBuilder(byte[] byteArray) {
+      JsonArrayBuilder jsonArrayBuilder = JsonLoader.createArrayBuilder();
+      if (byteArray != null) {
+         for (int i = 0; i < byteArray.length; i++) {
+            jsonArrayBuilder.add(((Byte) byteArray[i]).shortValue());
+         }
+      }
+      return jsonArrayBuilder;
    }
 
    public static JsonArray readJsonArray(String jsonString) {

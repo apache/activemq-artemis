@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LiveToLiveFailoverTest extends FailoverTest {
@@ -268,125 +269,99 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       session = sendAndConsume(sf, false);
    }
 
-
    @Override
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
    }
 
+   @Override
+   @Ignore
+   public void testFailBothRestartLive() throws Exception {
+   }
 
-      //invalid tests for Live to Live failover
+   //invalid tests for Live to Live failover
    //all the timeout ones aren't as we don't migrate timeouts, any failback or server restart
    //or replicating tests aren't either
    @Override
+   @Ignore
    public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testLiveAndBackupLiveComesBackNewFactory() {
    }
 
    @Override
+   @Ignore
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testFailoverMultipleSessionsWithConsumers() throws Exception {
       //
    }
 
    @Override
+   @Ignore
    public void testTimeoutOnFailover() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testTimeoutOnFailoverConsume() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testFailBack() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testFailBackLiveRestartsBackupIsGone() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testLiveAndBackupLiveComesBack() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testSimpleFailover() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testFailThenReceiveMoreMessagesAfterFailover2() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testWithoutUsingTheBackup() throws Exception {
    }
 
    //todo check to see which failing tests are valid,
    @Override
+   @Ignore
    public void testSimpleSendAfterFailoverDurableNonTemporary() throws Exception {
    }
 
    @Override
+   @Ignore
    public void testCommitOccurredUnblockedAndResendNoDuplicates() throws Exception {
    }
-
-   /*@Override
-   public void testCommitDidNotOccurUnblockedAndResend() throws Exception
-   {
-   }
-
-
-
-   @Override
-   public void testLiveAndBackupLiveComesBackNewFactory() throws Exception
-   {
-   }
-
-   @Override
-   public void testXAMessagesSentSoRollbackOnEnd() throws Exception
-   {
-   }
-
-   @Override
-   public void testLiveAndBackupBackupComesBackNewFactory() throws Exception
-   {
-   }
-
-   @Override
-   public void testXAMessagesSentSoRollbackOnEnd2() throws Exception
-   {
-   }
-
-   @Override
-   public void testXAMessagesSentSoRollbackOnCommit() throws Exception
-   {
-   }
-
-   @Override
-   public void testTransactedMessagesSentSoRollback() throws Exception
-   {
-   }
-
-   @Override
-   public void testXAMessagesSentSoRollbackOnPrepare() throws Exception
-   {
-   }
-
-   @Override
-   public void testNonTransactedWithZeroConsumerWindowSize() throws Exception
-   {
-   }*/
 }
+
+

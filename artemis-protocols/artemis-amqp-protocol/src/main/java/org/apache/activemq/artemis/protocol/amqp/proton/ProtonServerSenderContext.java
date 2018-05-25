@@ -22,10 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -48,6 +45,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFound
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
@@ -69,6 +67,7 @@ import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
@@ -370,10 +369,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                isVolatile = true;
                if (shared && sender.getName() != null) {
                   queue = createQueueName(connection.isUseCoreSubscriptionNaming(), getClientId(), sender.getName(), shared, global, isVolatile);
-                  try {
+                  QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
+                  if (!(result.isExists() && Objects.equals(result.getAddress(), addressToUse) && Objects.equals(result.getFilterString(), simpleStringSelector))) {
                      sessionSPI.createSharedVolatileQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
-                  } catch (ActiveMQQueueExistsException e) {
-                     //this is ok, just means its shared
                   }
                } else {
                   queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
@@ -690,11 +688,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       // we only need a tag if we are going to settle later
       byte[] tag = preSettle ? new byte[0] : protonSession.getTag();
 
-      ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(message.getEncodeSize());
-      try {
-         message.sendBuffer(nettyBuffer, deliveryCount);
+      // Let the Message decide how to present the message bytes
+      ReadableBuffer sendBuffer = message.getSendBuffer(deliveryCount);
 
-         int size = nettyBuffer.writerIndex();
+      try {
+         int size = sendBuffer.remaining();
 
          while (!connection.tryLock(1, TimeUnit.SECONDS)) {
             if (closed || sender.getLocalState() == EndpointState.CLOSED) {
@@ -714,8 +712,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             delivery.setMessageFormat((int) message.getMessageFormat());
             delivery.setContext(messageReference);
 
-            // this will avoid a copy.. patch provided by Norman using buffer.array()
-            sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
+            sender.sendNoCopy(sendBuffer);
 
             if (preSettle) {
                // Presettled means the client implicitly accepts any delivery we send it.
@@ -731,7 +728,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          return size;
       } finally {
-         nettyBuffer.release();
+         if (sendBuffer instanceof NettyReadable) {
+            ((NettyReadable) sendBuffer).getByteBuf().release();
+         }
       }
    }
 

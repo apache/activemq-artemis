@@ -35,6 +35,12 @@ wildcard match can be used using the wildcard characters '`#`' and
 Eight different permissions can be given to the set of queues which
 match the address. Those permissions are:
 
+-   `createAddress`. This permission allows the user to create an
+    address fitting the `match`.
+
+-   `deleteAddress`. This permission allows the user to delete an
+    address fitting the `match`.
+
 -   `createDurableQueue`. This permission allows the user to create a
     durable queue under matching addresses.
 
@@ -225,13 +231,14 @@ The name of the queue or topic defined in LDAP will serve as the "match" for the
 will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is.
 
 ActiveMQ 5.x only has 3 permission types - `read`, `write`, and `admin`. These permission types are described on their
-[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 7 permission
-types - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`,
-`browse`, and `manage`. Here's how the old types are mapped to the new types:
+[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 9 permission
+types - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, 
+`deleteNonDurableQueue`, `send`, `consume`, `browse`, and `manage`. Here's how the old types are mapped to the new types:
 
 -   `read` - `consume`, `browse`
 -   `write` - `send`
--   `admin` - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`
+-   `admin` - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, 
+    `deleteNonDurableQueue`
 
 As mentioned, there are a few places where a translation was performed to achieve some equivalence.:
 
@@ -608,12 +615,15 @@ login module. The options supported by this login module are as follows:
 -   `reload` - boolean flag; whether or not to reload the properties files when a modification occurs; default is `false`
 
 In the context of the certificate login module, the `users.properties` file consists of a list of properties of the form,
-`UserName=StringifiedSubjectDN`. For example, to define the users, system, user, and guest, you could create a file like
-the following:
+`UserName=StringifiedSubjectDN` or `UserName=/SubjectDNRegExp/`. For example, to define the users, `system`, `user` and
+`guest` as well as a `hosts` user matching several DNs, you could create a file like the following:
 
     system=CN=system,O=Progress,C=US
     user=CN=humble user,O=Progress,C=US
     guest=CN=anon,O=Progress,C=DE
+    hosts=/CN=host\\d+\\.acme\\.com,O=Acme,C=UK/
+
+Note that the backslash character has to be escaped because it has a special treatment in properties files.
 
 Each username is mapped to a subject DN, encoded as a string (where the string encoding is specified by RFC 2253). For
 example, the system username is mapped to the `CN=system,O=Progress,C=US` subject DN. When performing authentication,
@@ -734,6 +744,11 @@ SASL GSSAPI. However, for clients that don't support SASL (core client), using T
 over an *unsecure* channel.
 
 
+## SASL
+[AMQP](using-AMQP.md) supports SASL. The following mechanisms are supported; PLAIN, EXTERNAL, ANONYMOUS, GSSAPI.
+The published list can be constrained via the amqp acceptor `saslMechanisms` property. 
+Note: EXTERNAL will only be chosen if a subject is available from the TLS client certificate.
+
 ## Changing the username/password for clustering
 
 In order for cluster connections to work correctly, each node in the
@@ -804,7 +819,7 @@ For example, if a class full name is "org.apache.pkg1.Class1", some matching ent
 
 A `*` means 'match-all' in a black or white list.
 
-### Specifying black list and white list via Connection Factories
+### Config via Connection Factories
 
 To specify the white and black lists one can use the URL parameters
 `deserializationBlackList` and `deserializationWhiteList`. For example,
@@ -816,7 +831,7 @@ The above statement creates a factory that has a black list contains two
 forbidden packages, "org.apache.pkg1" and "org.some.pkg2", separated by a
 comma.
 
-### Specifying black list and white list via system properties
+### Config via system properties
 
 There are two system properties available for specifying black list and white list:
 
@@ -826,7 +841,7 @@ There are two system properties available for specifying black list and white li
 Once defined, all JMS object message deserialization in the VM is subject to checks against the two lists. However if you create a ConnectionFactory
 and set a new set of black/white lists on it, the new values will override the system properties.
 
-### Specifying black list and white list for resource adapters
+### Config for resource adapters
 
 Message beans using a JMS resource adapter to receive messages can also control their object deserialization via properly configuring relevant
 properties for their resource adapters. There are two properties that you can configure with connection factories in a resource adapter:
@@ -836,7 +851,7 @@ properties for their resource adapters. There are two properties that you can co
 
 These properties, once specified, are eventually set on the corresponding internal factories.
 
-### Specifying black list and white list for REST interface
+### Config for REST interface
 
 Apache Artemis REST interface ([Rest](rest.md)) allows interactions between jms client and rest clients.
 It uses JMS ObjectMessage to wrap the actual user data between the 2 types of clients and deserialization

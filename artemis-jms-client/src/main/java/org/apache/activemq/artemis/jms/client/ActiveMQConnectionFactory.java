@@ -90,6 +90,8 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private boolean finalizeChecks;
 
+   private boolean ignoreJTA;
+
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
       URI uri = toURI();
@@ -710,6 +712,15 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    public synchronized void setInitialMessagePacketSize(final int size) {
       checkWrite();
       serverLocator.setInitialMessagePacketSize(size);
+   }
+
+   public boolean isIgnoreJTA() {
+      return ignoreJTA;
+   }
+
+   public void setIgnoreJTA(boolean ignoreJTA) {
+      checkWrite();
+      this.ignoreJTA = ignoreJTA;
    }
 
    /**

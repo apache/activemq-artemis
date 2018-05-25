@@ -32,7 +32,7 @@ The default for critical-analyzer-policy is `LOG`, however the generated broker.
 
 The broker on the distribution will then have it set to `HALT`, but if you use it in any other way the default will be `LOG`.
 
-## What would you expect
+## What to Expect
 
 - You will see some logs
 

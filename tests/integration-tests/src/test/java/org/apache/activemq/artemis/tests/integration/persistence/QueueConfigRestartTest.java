@@ -62,6 +62,51 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testQueueConfigLastValueAndRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, false, true, true);
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding1.getQueue().isLastValue());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding2.getQueue().isLastValue());
+   }
+
+   @Test
+   public void testQueueConfigExclusiveAndRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, true, true);
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding1.getQueue().isExclusive());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding2.getQueue().isExclusive());
+   }
+
+
+   @Test
    public void testQueueConfigUserAndRestart() throws Exception {
       ActiveMQServer server = createServer(true);
 

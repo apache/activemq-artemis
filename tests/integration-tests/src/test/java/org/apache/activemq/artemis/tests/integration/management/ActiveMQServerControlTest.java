@@ -180,6 +180,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testIsReplicaSync() throws Exception {
+      Assert.assertFalse(createManagementControl().isReplicaSync());
+   }
+
+   @Test
    public void testGetConnectorsAsJSON() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -914,12 +919,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
+      // add another TX, but don't prepare it
+      ClientMessage m5 = createTextMessage(clientSession, "");
+      ClientMessage m6 = createTextMessage(clientSession, "");
+      ClientMessage m7 = createTextMessage(clientSession, "");
+      ClientMessage m8 = createTextMessage(clientSession, "");
+      m5.putStringProperty("m5", "m5");
+      m6.putStringProperty("m6", "m6");
+      m7.putStringProperty("m7", "m7");
+      m8.putStringProperty("m8", "m8");
+      Xid xid2 = newXID();
+      clientSession.start(xid2, XAResource.TMNOFLAGS);
+      clientProducer.send(m5);
+      clientProducer.send(m6);
+      clientProducer.send(m7);
+      clientProducer.send(m8);
+      clientSession.end(xid2, XAResource.TMSUCCESS);
+
       ActiveMQServerControl serverControl = createManagementControl();
 
       JsonArray jsonArray = JsonUtil.readJsonArray(serverControl.listProducersInfoAsJSON());
 
       assertEquals(1, jsonArray.size());
-      assertEquals(4, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
+      assertEquals(8, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
 
       clientSession.close();
       locator.close();
@@ -930,6 +952,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(txDetails.matches(".*m2.*"));
       Assert.assertTrue(txDetails.matches(".*m3.*"));
       Assert.assertTrue(txDetails.matches(".*m4.*"));
+      Assert.assertFalse(txDetails.matches(".*m5.*"));
+      Assert.assertFalse(txDetails.matches(".*m6.*"));
+      Assert.assertFalse(txDetails.matches(".*m7.*"));
+      Assert.assertFalse(txDetails.matches(".*m8.*"));
    }
 
    @Test
@@ -1291,11 +1317,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(first.getString("clientAddress").length() > 0);
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber("sessionCount").longValue());
+      Assert.assertEquals("", first.getString("clientID"));
 
       Assert.assertTrue(second.getString("connectionID").length() > 0);
       Assert.assertTrue(second.getString("clientAddress").length() > 0);
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("sessionCount").longValue());
+      Assert.assertEquals("", second.getString("clientID"));
    }
 
    @Test
@@ -1338,6 +1366,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), first.getString("destinationName"));
+      Assert.assertEquals("queue", first.getString("destinationType"));
+      Assert.assertFalse(first.getBoolean("durable"));
 
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
       Assert.assertTrue(second.getString("connectionID").length() > 0);
@@ -1351,6 +1382,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
       Assert.assertTrue(second.getString("filter").length() > 0);
       Assert.assertEquals(filter, second.getString("filter"));
+      Assert.assertEquals(queueName.toString(), second.getString("destinationName"));
+      Assert.assertEquals("queue", second.getString("destinationType"));
+      Assert.assertFalse(second.getBoolean("durable"));
    }
 
    @Test
@@ -1415,6 +1449,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), first.getString("queueName"));
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), first.getString("destinationName"));
+      Assert.assertEquals("queue", first.getString("destinationType"));
+      Assert.assertFalse(first.getBoolean("durable"));
 
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
@@ -1426,6 +1463,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), second.getString("queueName"));
       Assert.assertEquals(false, second.getBoolean("browseOnly"));
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(queueName.toString(), second.getString("destinationName"));
+      Assert.assertEquals("queue", second.getString("destinationType"));
+      Assert.assertFalse(second.getBoolean("durable"));
    }
 
    @Test
@@ -1438,7 +1478,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session1 = addClientSession(factory.createSession());
-      Thread.sleep(5);
       ClientSession session2 = addClientSession(factory.createSession("myUser", "myPass", false, false, false, false, 0));
       session2.createConsumer(queueName);
 
@@ -1447,15 +1486,66 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2, array.size());
-      JsonObject first;
-      JsonObject second;
-      if (array.getJsonObject(0).getJsonNumber("creationTime").longValue() < array.getJsonObject(1).getJsonNumber("creationTime").longValue()) {
-         first = array.getJsonObject(0);
-         second = array.getJsonObject(1);
-      } else {
-         first = array.getJsonObject(1);
-         second = array.getJsonObject(0);
+      JsonObject first = lookupSession(array, session1);
+      JsonObject second = lookupSession(array, session2);
+
+      Assert.assertTrue(first.getString("sessionID").length() > 0);
+      Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
+      Assert.assertTrue(first.getString("principal").length() > 0);
+      Assert.assertEquals("guest", first.getString("principal"));
+      Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
+      Assert.assertEquals(0, first.getJsonNumber("consumerCount").longValue());
+
+      Assert.assertTrue(second.getString("sessionID").length() > 0);
+      Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
+      Assert.assertTrue(second.getString("principal").length() > 0);
+      Assert.assertEquals("myUser", second.getString("principal"));
+      Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
+      Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+   }
+
+   private JsonObject lookupSession(JsonArray jsonArray, ClientSession session) throws Exception {
+      String name = ((ClientSessionImpl)session).getName();
+
+      for (int i = 0; i < jsonArray.size(); i++) {
+         JsonObject obj = jsonArray.getJsonObject(i);
+         String sessionID = obj.getString("sessionID");
+         Assert.assertNotNull(sessionID);
+
+         if (sessionID.equals(name)) {
+            return obj;
+         }
       }
+
+      Assert.fail("Sesison not found for session id " + name);
+
+      // not going to happen, fail will throw an exception but it won't compile without this
+      return null;
+   }
+
+   @Test
+   public void testListAllSessionsAsJSON() throws Exception {
+      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory factory = createSessionFactory(locator);
+      ServerLocator locator2 = createInVMNonHALocator();
+      ClientSessionFactory factory2 = createSessionFactory(locator2);
+      ClientSession session1 = addClientSession(factory.createSession());
+      Thread.sleep(5);
+      ClientSession session2 = addClientSession(factory2.createSession("myUser", "myPass", false, false, false, false, 0));
+      session2.createConsumer(queueName);
+
+      String jsonString = serverControl.listAllSessionsAsJSON();
+      IntegrationTestLogger.LOGGER.info(jsonString);
+      Assert.assertNotNull(jsonString);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(2 + (usingCore() ? 1 : 0), array.size());
+      JsonObject first = lookupSession(array, session1);
+      JsonObject second = lookupSession(array, session2);
 
       Assert.assertTrue(first.getString("sessionID").length() > 0);
       Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));

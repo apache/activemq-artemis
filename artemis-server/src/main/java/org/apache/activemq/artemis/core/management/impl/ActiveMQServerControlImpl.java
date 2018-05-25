@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
@@ -722,13 +723,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+
    @Override
    public void deleteAddress(String name) throws Exception {
+      deleteAddress(name, false);
+   }
+
+   @Override
+   public void deleteAddress(String name, boolean force) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.removeAddressInfo(new SimpleString(name), null);
+         server.removeAddressInfo(new SimpleString(name), null, force);
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       } finally {
@@ -1825,6 +1832,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          for (RemotingConnection connection : connections) {
             JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("connectionID", connection.getID().toString()).add("clientAddress", connection.getRemoteAddress()).add("creationTime", connection.getCreationTime()).add("implementation", connection.getClass().getSimpleName()).add("sessionCount", server.getSessions(connection.getID().toString()).size());
+
+            List<ServerSession> sessions = server.getSessions(connection.getID().toString());
+
+            if (sessions.size() > 0) {
+               if (sessions.get(0).getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY) != null) {
+                  obj.add("clientID", sessions.get(0).getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY));
+               } else {
+                  obj.add("clientID", "");
+               }
+            } else {
+               obj.add("clientID", "");
+            }
+
             array.add(obj);
          }
          return array.build().toString();
@@ -1842,6 +1862,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       JsonArrayBuilder array = JsonLoader.createArrayBuilder();
       try {
          List<ServerSession> sessions = server.getSessions(connectionID);
+         for (ServerSession sess : sessions) {
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
+
+            if (sess.getValidatedUser() != null) {
+               obj.add("principal", sess.getValidatedUser());
+            }
+
+            array.add(obj);
+         }
+      } finally {
+         blockOnIO();
+      }
+      return array.build().toString();
+   }
+
+   @Override
+   public String listAllSessionsAsJSON() throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
+      try {
+         Set<ServerSession> sessions = server.getSessions();
          for (ServerSession sess : sessions) {
             JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
 
@@ -1917,6 +1961,18 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (consumer.getFilter() != null) {
          obj.add("filter", consumer.getFilter().getFilterString().toString());
       }
+
+      obj.add("destinationName", consumer.getQueue().getAddress().toString());
+
+      if (consumer.getQueueType().getType() == 0) {
+         obj.add("destinationType", "topic");
+      } else if (consumer.getQueueType().getType() == 1) {
+         obj.add("destinationType", "queue");
+      } else {
+         obj.add("destinationType", "");
+      }
+
+      obj.add("durable", consumer.getQueue().isDurable());
 
       return obj.build();
    }
@@ -2232,7 +2288,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       storageManager.deleteAddressSetting(new SimpleString(addressMatch));
    }
 
-   @Override
    public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
       checkStarted();
 
@@ -2581,7 +2636,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          @Override
          public void run() {
             try {
-               server.fail(true);
+               server.stop(true, true);
             } catch (Throwable e) {
                logger.warn(e.getMessage(), e);
             }
@@ -2590,7 +2645,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       t.start();
    }
 
-   @Override
    public void updateDuplicateIdCache(String address, Object[] ids) throws Exception {
       clearIO();
       try {

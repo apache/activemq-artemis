@@ -45,7 +45,7 @@ if [ -z "$ARTEMIS_HOME" ] ; then
 fi
 
 # Set Defaults Properties
-JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
+JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -Xms512M -Xmx1024M"
 CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
 
 # OS specific support.

@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -234,7 +234,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public void linkFlowControl(SimpleString address, ClientProducerCreditsImpl clientProducerCredits) {
+   public void linkFlowControl(SimpleString address, ClientProducerCredits clientProducerCredits) {
       // nothing to be done here... Flow control here is done on the core side
    }
 
@@ -766,11 +766,10 @@ public class ActiveMQSessionContext extends SessionContext {
                                         boolean isSessionStarted) throws ActiveMQException {
       ClientSession.QueueQuery queueInfo = consumerInternal.getQueueInfo();
 
-      // We try and recreate any non durable queues, since they probably won't be there unless
-      // they are defined in broker.xml
-      // This allows e.g. JMS non durable subs and temporary queues to continue to be used after failover
-      if (!queueInfo.isDurable()) {
-         CreateQueueMessage_V2 createQueueRequest = new CreateQueueMessage_V2(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getRoutingType(), queueInfo.getFilterString(), false, queueInfo.isTemporary(), queueInfo.getMaxConsumers(), queueInfo.isPurgeOnNoConsumers(), queueInfo.isAutoCreated(), false, queueInfo.isExclusive(), queueInfo.isLastValue());
+      // We try to recreate any non-durable or auto-created queues, since they might not be there on failover/reconnect.
+      // This allows e.g. JMS non durable subs and temporary queues to continue to be used after failover/reconnection
+      if (!queueInfo.isDurable() || queueInfo.isAutoCreated()) {
+         CreateQueueMessage_V2 createQueueRequest = new CreateQueueMessage_V2(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getRoutingType(), queueInfo.getFilterString(), queueInfo.isDurable(), queueInfo.isTemporary(), queueInfo.getMaxConsumers(), queueInfo.isPurgeOnNoConsumers(), queueInfo.isAutoCreated(), false, queueInfo.isExclusive(), queueInfo.isLastValue());
 
          sendPacketWithoutLock(sessionChannel, createQueueRequest);
       }

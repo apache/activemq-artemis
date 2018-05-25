@@ -59,7 +59,9 @@ import org.junit.Test;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 
-   private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
+   protected String getConfigurationName() {
+      return "ConfigurationTest-full-config.xml";
+   }
 
    @Override
    @Test
@@ -506,63 +508,62 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Map<String, Set<Role>> securityRoles = fc.getSecurityRoles();
       Set<Role> roles = securityRoles.get("#");
 
-      //N.B. - FileConfigurationParser uses the constructor without createAddress and deleteAddress
       //cn=mygroup,dc=local,dc=com = amq1
       Role testRole1 = new Role("cn=mygroup,dc=local,dc=com",false, false, false,
                                false, true, false, false,
-                               false);
+                               false, false, false);
 
       //myrole1 = amq1 + amq2
       Role testRole2 = new Role("myrole1",false, false, false,
                                 false, true, true, false,
-                                false);
+                                false, false, false);
 
       //myrole3 = amq3 + amq4
       Role testRole3 = new Role("myrole3",false, false, true,
                                 true, false, false, false,
-                                false);
+                                false, false, false);
 
       //myrole4 = amq5 + amq!@#$%^&*() + amq6
       Role testRole4 = new Role("myrole4",true, true, false,
                                 false, false, false, false,
-                                true);
+                                true, true, true);
 
       //myrole5 = amq4 = amq3 + amq4
       Role testRole5 = new Role("myrole5",false, false, true,
                                 true, false, false, false,
-                                false);
+                                false, false, false);
 
       Role testRole6 = new Role("amq1",false, false, false,
                                 false, true, false, false,
-                                false);
+                                false, false, false);
 
       Role testRole7 = new Role("amq2",false, false, false,
                                 false, false, true, false,
-                                false);
+                                false, false, false);
 
       Role testRole8 = new Role("amq3",false, false, true,
                                 false, false, false, false,
-                                false);
+                                false, false, false);
 
       Role testRole9 = new Role("amq4",false, false, true,
                                 true, false, false, false,
-                                false);
+                                false, false, false);
 
       Role testRole10 = new Role("amq5",false, false, false,
                                 false, false, false, false,
-                                false);
+                                false, true, true);
 
       Role testRole11 = new Role("amq6",false, true, false,
                                 false, false, false, false,
-                                true);
+                                true, false, false);
 
       Role testRole12 = new Role("amq7",false, false, false,
                                 false, false, false, true,
-                                false);
+                                false, false, false);
 
       Role testRole13 = new Role("amq!@#$%^&*()",true, false, false,
                                 false, false, false, false,
-                                false);
+                                false, false, false);
 
       assertEquals(13, roles.size());
       assertTrue(roles.contains(testRole1));
@@ -588,7 +589,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       try {
 
          // copy working configuration to a location where the standard classloader cannot find it
-         final Path workingConfiguration = new File(getClass().getResource("/" + fullConfigurationName).toURI()).toPath();
+         final Path workingConfiguration = new File(getClass().getResource("/" + getConfigurationName()).toURI()).toPath();
          final Path targetFile = customConfiguration.toPath();
 
          Files.copy(workingConfiguration, targetFile, StandardCopyOption.REPLACE_EXISTING);
@@ -663,7 +664,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    @Override
    protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager(fullConfigurationName);
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
       return fc;

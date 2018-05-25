@@ -108,7 +108,7 @@ public final class LibaioFile<Callback extends SubmitInfo> implements AutoClosea
     * @return the buffer allocated.
     */
    public ByteBuffer newBuffer(int size) {
-      return LibaioContext.newAlignedBuffer(size, 512);
+      return LibaioContext.newAlignedBuffer(size, 4 * 1024);
    }
 
    /**
@@ -116,9 +116,9 @@ public final class LibaioFile<Callback extends SubmitInfo> implements AutoClosea
     *
     * @param size number of bytes to be filled on the file
     */
-   public void fill(long size) {
+   public void fill(int alignment, long size) {
       try {
-         LibaioContext.fill(fd, size);
+         LibaioContext.fill(fd, alignment, size);
       } catch (OutOfMemoryError e) {
          NativeLogger.LOGGER.debug("Didn't have enough memory to allocate " + size + " bytes in memory, using simple fallocate");
          LibaioContext.fallocate(fd, size);

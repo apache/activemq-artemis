@@ -13,7 +13,7 @@ All interceptors are protocol specific.
 
 An interceptor for the core protocol must implement the interface `Interceptor`:
 
-``` java
+```java
 package org.apache.activemq.artemis.api.core.interceptor;
 
 public interface Interceptor
@@ -24,7 +24,7 @@ public interface Interceptor
 
 For stomp protocol an interceptor must implement the interface `StompFrameInterceptor`:
 
-``` java
+```java
 package org.apache.activemq.artemis.core.protocol.stomp;
 
 public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
@@ -35,7 +35,7 @@ public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
 
 Likewise for MQTT protocol, an interceptor must implement the interface `MQTTInterceptor`:
  
-``` java
+```java
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 public interface MQTTInterceptor extends BaseInterceptor<MqttMessage>
@@ -57,15 +57,17 @@ The returned boolean value is important:
 Both incoming and outgoing interceptors are configured in
 `broker.xml`:
 
-    <remoting-incoming-interceptors>
-       <class-name>org.apache.activemq.artemis.jms.example.LoginInterceptor</class-name>
-       <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
-    </remoting-incoming-interceptors>
+```xml
+<remoting-incoming-interceptors>
+   <class-name>org.apache.activemq.artemis.jms.example.LoginInterceptor</class-name>
+   <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
+</remoting-incoming-interceptors>
 
-    <remoting-outgoing-interceptors>
-       <class-name>org.apache.activemq.artemis.jms.example.LogoutInterceptor</class-name>
-       <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
-    </remoting-outgoing-interceptors>
+<remoting-outgoing-interceptors>
+   <class-name>org.apache.activemq.artemis.jms.example.LogoutInterceptor</class-name>
+   <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
+</remoting-outgoing-interceptors>
+```
 
 See the documentation on [adding runtime dependencies](using-server.md) to 
 understand how to make your interceptor available to the broker.

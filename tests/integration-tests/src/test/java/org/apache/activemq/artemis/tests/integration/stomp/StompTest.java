@@ -285,13 +285,11 @@ public class StompTest extends StompTestBase {
 
    }
 
-   @Test
-   public void testSendMessageToNonExistentQueue() throws Exception {
-      String nonExistentQueue = RandomUtil.randomString();
+   public void sendMessageToNonExistentQueue(String queuePrefix, String queue, RoutingType routingType) throws Exception {
       conn.connect(defUser, defPass);
-      send(conn, getQueuePrefix() + nonExistentQueue, null, "Hello World", true, RoutingType.ANYCAST);
+      send(conn, queuePrefix + queue, null, "Hello World", true, routingType);
 
-      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(nonExistentQueue));
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(queue));
       TextMessage message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
       Assert.assertEquals("Hello World", message.getText());
@@ -305,26 +303,32 @@ public class StompTest extends StompTestBase {
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
       // closing the consumer here should trigger auto-deletion
-      assertNotNull(server.getActiveMQServer()
-                          .getPostOffice()
-                          .getBinding(new SimpleString(nonExistentQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(queue)));
       consumer.close();
-      assertNull(server.getActiveMQServer()
-                       .getPostOffice()
-                       .getBinding(new SimpleString(nonExistentQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(queue)));
    }
 
    @Test
-   public void testSendMessageToNonExistentTopic() throws Exception {
-      String nonExistentTopic = RandomUtil.randomString();
+   public void testSendMessageToNonExistentQueue() throws Exception {
+      sendMessageToNonExistentQueue(getQueuePrefix(), RandomUtil.randomString(), RoutingType.ANYCAST);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentQueueUsingExplicitDefaultRouting() throws Exception {
+      String nonExistentQueue = RandomUtil.randomString();
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch(nonExistentQueue, new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST).setDefaultQueueRoutingType(RoutingType.ANYCAST));
+      sendMessageToNonExistentQueue(getQueuePrefix(), nonExistentQueue, null);
+   }
+
+   public void sendMessageToNonExistentTopic(String topicPrefix, String topic, RoutingType routingType) throws Exception {
       conn.connect(defUser, defPass);
 
       // first send a message to ensure that sending to a non-existent topic won't throw an error
-      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true, RoutingType.MULTICAST);
+      send(conn, topicPrefix + topic, null, "Hello World", true, routingType);
 
       // create a subscription on the topic and send/receive another message
-      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(nonExistentTopic));
-      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true);
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(topic));
+      send(conn, topicPrefix + topic, null, "Hello World", true, routingType);
       TextMessage message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
       Assert.assertEquals("Hello World", message.getText());
@@ -337,14 +341,29 @@ public class StompTest extends StompTestBase {
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
-      assertNotNull(server.getActiveMQServer()
-                          .getAddressInfo(new SimpleString(nonExistentTopic)));
+      assertNotNull(server.getActiveMQServer().getAddressInfo(new SimpleString(topic)));
 
       // closing the consumer here should trigger auto-deletion of the subscription queue and address
       consumer.close();
       Thread.sleep(200);
-      assertNull(server.getActiveMQServer()
-                       .getAddressInfo(new SimpleString(nonExistentTopic)));
+      assertNull(server.getActiveMQServer().getAddressInfo(new SimpleString(topic)));
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopic() throws Exception {
+      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), RoutingType.MULTICAST);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopicUsingExplicitDefaultRouting() throws Exception {
+      String nonExistentTopic = RandomUtil.randomString();
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch(nonExistentTopic, new AddressSettings().setDefaultAddressRoutingType(RoutingType.MULTICAST).setDefaultQueueRoutingType(RoutingType.MULTICAST));
+      sendMessageToNonExistentTopic(getTopicPrefix(), nonExistentTopic, null);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopicUsingImplicitDefaultRouting() throws Exception {
+      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), null);
    }
 
    /*
@@ -683,6 +702,42 @@ public class StompTest extends StompTestBase {
       Message message = consumer.receive(1000);
       Assert.assertNull(message);
 
+   }
+
+   @Test
+   public void testAnycastDestinationTypeMessageProperty() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
+
+      send(conn, getQueuePrefix() + getQueueName(), null, getName(), true, RoutingType.ANYCAST);
+
+      ClientStompFrame frame = conn.receiveFrame(10000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertTrue(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()) == null);
+      Assert.assertEquals(getName(), frame.getBody());
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testMulticastDestinationTypeMessageProperty() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribeTopic(conn, null, null, null);
+
+      send(conn, getTopicPrefix() + getTopicName(), null, getName(), true, RoutingType.MULTICAST);
+
+      ClientStompFrame frame = conn.receiveFrame(10000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertTrue(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()) == null);
+      Assert.assertEquals(getName(), frame.getBody());
+
+      conn.disconnect();
    }
 
    @Test
@@ -1518,6 +1573,163 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
+   /**
+    * This test and testPrefixedAutoCreatedMulticastAndAnycastWithSameName are basically the same but doing the
+    * operations in opposite order. In this test the anycast subscription is created first.
+    * @throws Exception
+    */
+   @Test
+   public void testPrefixedAutoCreatedAnycastAndMulticastWithSameName() throws Exception {
+      int port = 61614;
+
+      URI uri = createStompClientUri(scheme, hostname, port);
+
+      final String ADDRESS = UUID.randomUUID().toString();
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=STOMP&anycastPrefix=/queue/&multicastPrefix=/topic/").start();
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
+      conn.connect(defUser, defPass);
+
+      // since this queue doesn't exist the broker should create a new ANYCAST address & queue
+      String uuid = UUID.randomUUID().toString();
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, "/queue/" + ADDRESS)
+                                   .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      frame = conn.sendFrame(frame);
+      assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      AddressInfo addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
+      assertNotNull("No address was created with the name " + ADDRESS, addressInfo);
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
+      assertFalse(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
+      assertNotNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString(ADDRESS)));
+
+      // sending a MULTICAST message should alter the address to support MULTICAST
+      frame = send(conn, "/topic/" + ADDRESS, null, "Hello World 1", true);
+      assertFalse(frame.getCommand().equals("ERROR"));
+      addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
+
+      // however, no message should be routed to the ANYCAST queue
+      frame = conn.receiveFrame(1000);
+      Assert.assertNull(frame);
+
+      // sending a message to the ANYCAST queue, should be received
+      frame = send(conn, "/queue/" + ADDRESS, null, "Hello World 2", true);
+      assertFalse(frame.getCommand().equals("ERROR"));
+      frame = conn.receiveFrame(1000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals("Hello World 2", frame.getBody());
+      Assert.assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/queue/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      frame = conn.receiveFrame(1000);
+      Assert.assertNull(frame);
+
+      unsubscribe(conn, null, "/queue/" + ADDRESS, true, false);
+
+      // now subscribe to the address in a MULTICAST way which will create a MULTICAST queue for the subscription
+      uuid = UUID.randomUUID().toString();
+      frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                  .addHeader(Stomp.Headers.Subscribe.DESTINATION, "/topic/" + ADDRESS)
+                  .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      frame = conn.sendFrame(frame);
+      assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      // send a message which will be routed to the MULTICAST queue
+      frame = send(conn, "/topic/" + ADDRESS, null, "Hello World 3", true);
+      assertFalse(frame.getCommand().equals("ERROR"));
+
+      // receive that message on the topic subscription
+      frame = conn.receiveFrame(1000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals("Hello World 3", frame.getBody());
+      Assert.assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/topic/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      frame = conn.receiveFrame(1000);
+      Assert.assertNull(frame);
+
+      unsubscribe(conn, null, "/topic/" + ADDRESS, true, false);
+
+      conn.disconnect();
+   }
+
+   /**
+    * This test and testPrefixedAutoCreatedMulticastAndAnycastWithSameName are basically the same but doing the
+    * operations in opposite order. In this test the multicast subscription is created first.
+    * @throws Exception
+    */
+   @Test
+   public void testPrefixedAutoCreatedMulticastAndAnycastWithSameName() throws Exception {
+      int port = 61614;
+
+      URI uri = createStompClientUri(scheme, hostname, port);
+
+      final String ADDRESS = UUID.randomUUID().toString();
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=STOMP&anycastPrefix=/queue/&multicastPrefix=/topic/").start();
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
+      conn.connect(defUser, defPass);
+
+      // since this queue doesn't exist the broker should create a new MULTICAST address
+      String uuid = UUID.randomUUID().toString();
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, "/topic/" + ADDRESS)
+                                   .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      frame = conn.sendFrame(frame);
+      assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      AddressInfo addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
+      assertNotNull("No address was created with the name " + ADDRESS, addressInfo);
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
+      assertFalse(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
+
+      // sending an ANYCAST message should alter the address to support ANYCAST and create an ANYCAST queue
+      frame = send(conn, "/queue/" + ADDRESS, null, "Hello World 1", true);
+      assertFalse(frame.getCommand().equals("ERROR"));
+      addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
+      assertNotNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString(ADDRESS)));
+
+      // however, no message should be routed to the MULTICAST queue
+      frame = conn.receiveFrame(1000);
+      Assert.assertNull(frame);
+
+      // sending a message to the MULTICAST queue, should be received
+      frame = send(conn, "/topic/" + ADDRESS, null, "Hello World 2", true);
+      assertFalse(frame.getCommand().equals("ERROR"));
+      frame = conn.receiveFrame(2000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals("Hello World 2", frame.getBody());
+      Assert.assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/topic/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      frame = conn.receiveFrame(1000);
+      Assert.assertNull(frame);
+
+      frame = unsubscribe(conn, null, "/topic/" + ADDRESS, true, false);
+      assertFalse(frame.getCommand().equals("ERROR"));
+
+      // now subscribe to the address in an ANYCAST way
+      uuid = UUID.randomUUID().toString();
+      frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                  .addHeader(Stomp.Headers.Subscribe.DESTINATION, "/queue/" + ADDRESS)
+                  .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      frame = conn.sendFrame(frame);
+      assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      // receive that message on the ANYCAST queue
+      frame = conn.receiveFrame(1000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals("Hello World 1", frame.getBody());
+      Assert.assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+      Assert.assertEquals("/queue/" + ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      frame = conn.receiveFrame(2000);
+      Assert.assertNull(frame);
+
+      unsubscribe(conn, null, "/queue/" + ADDRESS, true, false);
+
+      conn.disconnect();
+   }
+
    @Test
    public void testDotPrefixedSendAndRecieveAnycast() throws Exception {
       testPrefixedSendAndRecieve("jms.queue.", RoutingType.ANYCAST);
@@ -1571,11 +1783,13 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testMulticastOperationsOnAnycastAddress() throws Exception {
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
       testRoutingSemantics(RoutingType.MULTICAST.toString(), getQueuePrefix() + getQueueName());
    }
 
    @Test
    public void testAnycastOperationsOnMulticastAddress() throws Exception {
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
       testRoutingSemantics(RoutingType.ANYCAST.toString(), getTopicPrefix() + getTopicName());
    }
 

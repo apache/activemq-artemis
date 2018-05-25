@@ -200,7 +200,7 @@ public abstract class VersionedStompFrameHandler {
          }
          message.setTimestamp(timestamp);
          message.setAddress(SimpleString.toSimpleString(destination));
-         StompUtils.copyStandardHeadersFromFrameToMessage(frame, message);
+         StompUtils.copyStandardHeadersFromFrameToMessage(frame, message, getPrefix(frame));
          if (frame.hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
             message.setType(Message.BYTES_TYPE);
             message.getBodyBuffer().writeBytes(frame.getBodyAsBytes());
@@ -279,8 +279,25 @@ public abstract class VersionedStompFrameHandler {
       return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
    }
 
-   public String getDestination(StompFrame request) {
-      return request.getHeader(Headers.Subscribe.DESTINATION);
+   public String getDestination(StompFrame request) throws ActiveMQStompException {
+      return getDestination(request, Headers.Subscribe.DESTINATION);
+   }
+
+   public String getDestination(StompFrame request, String header) throws ActiveMQStompException {
+      String destination = request.getHeader(header);
+      if (destination == null) {
+         return null;
+      }
+      return connection.getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString();
+   }
+
+   public String getPrefix(StompFrame request) throws ActiveMQStompException {
+      String destination = request.getHeader(Headers.Send.DESTINATION);
+      if (destination == null) {
+         return null;
+      }
+      SimpleString prefix = connection.getSession().getCoreSession().getPrefix(SimpleString.toSimpleString(destination));
+      return prefix == null ? null : prefix.toString();
    }
 
    public StompFrame postprocess(StompFrame request) {

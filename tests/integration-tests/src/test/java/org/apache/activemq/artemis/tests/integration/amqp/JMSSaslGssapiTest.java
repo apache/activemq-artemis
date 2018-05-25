@@ -82,11 +82,12 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       kdc.createPrincipal(userKeyTab, "client", "amqp/localhost");
 
       if (debug) {
-         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("javax.security.sasl");
-         logger.setLevel(java.util.logging.Level.FINEST);
-         logger.addHandler(new java.util.logging.ConsoleHandler());
-         for (java.util.logging.Handler handler : logger.getHandlers()) {
-            handler.setLevel(java.util.logging.Level.FINEST);
+         for (java.util.logging.Logger logger : new java.util.logging.Logger[] {java.util.logging.Logger.getLogger("javax.security.sasl"), java.util.logging.Logger.getLogger("org.apache.qpid.proton")}) {
+            logger.setLevel(java.util.logging.Level.FINEST);
+            logger.addHandler(new java.util.logging.ConsoleHandler());
+            for (java.util.logging.Handler handler : logger.getHandlers()) {
+               handler.setLevel(java.util.logging.Level.FINEST);
+            }
          }
       }
    }

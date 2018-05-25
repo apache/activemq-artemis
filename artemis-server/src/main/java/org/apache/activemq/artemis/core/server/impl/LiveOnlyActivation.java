@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.jboss.logging.Logger;
 
 public class LiveOnlyActivation extends Activation {
@@ -109,8 +110,8 @@ public class LiveOnlyActivation extends Activation {
          connectToScaleDownTarget(liveOnlyPolicy.getScaleDownPolicy());
       }
 
-      TransportConfiguration tc = scaleDownClientSessionFactory == null ? null : scaleDownClientSessionFactory.getConnectorConfiguration();
-      String nodeID = tc == null ? null : scaleDownClientSessionFactory.getServerLocator().getTopology().getMember(tc).getNodeId();
+      RemotingConnection rc = scaleDownClientSessionFactory == null ? null : scaleDownClientSessionFactory.getConnection();
+      String nodeID = rc == null ? null : scaleDownClientSessionFactory.getServerLocator().getTopology().getMember(rc).getNodeId();
       if (remotingService != null) {
          remotingService.freeze(nodeID, null);
       }

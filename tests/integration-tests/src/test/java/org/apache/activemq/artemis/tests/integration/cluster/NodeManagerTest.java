@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.AWAIT_LIVE;
@@ -36,7 +36,7 @@ import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerA
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.START_LIVE;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
 
-public class NodeManagerTest extends ActiveMQTestBase {
+public class NodeManagerTest extends SpawnedTestBase {
 
    @Test
    public void testLive() throws Exception {

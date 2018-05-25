@@ -46,6 +46,7 @@ import javax.transaction.xa.XAResource;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -386,7 +387,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             queue = queueCache.get(queueName);
          }
          if (queue == null) {
-            queue = internalCreateQueue(queueName, false);
+            queue = internalCreateQueue(queueName);
          }
          if (cacheDestination) {
             queueCache.put(queueName, queue);
@@ -396,8 +397,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
-
-   protected Queue internalCreateQueue(String queueName, final boolean retry) throws ActiveMQException, JMSException {
+   protected Queue internalCreateQueue(String queueName) throws ActiveMQException, JMSException {
       ActiveMQQueue queue = lookupQueue(queueName, false);
 
       if (queue == null) {
@@ -405,13 +405,23 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       if (queue == null) {
-         if (!retry) {
-            return internalCreateQueue("jms.queue." + queueName, true);
-         }
+         queue = internalCreateQueueCompatibility("jms.queue." + queueName);
+      }
+      if (queue == null) {
          throw new JMSException("There is no queue with name " + queueName);
       } else {
          return queue;
       }
+   }
+
+   protected ActiveMQQueue internalCreateQueueCompatibility(String queueName) throws ActiveMQException, JMSException {
+      ActiveMQQueue queue = lookupQueue(queueName, false);
+
+      if (queue == null) {
+         queue = lookupQueue(queueName, true);
+      }
+
+      return queue;
    }
 
    @Override
@@ -630,16 +640,20 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          queueName = ActiveMQDestination.createQueueNameForSubscription(durability == ConsumerDurability.DURABLE, connection.getClientID(), subscriptionName);
 
-         try {
-            if (durability == ConsumerDurability.DURABLE) {
-               createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers(), response.isDefaultExclusive(), response.isDefaultLastValueQueue());
-            } else {
-               createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, false, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers(), response.isDefaultExclusive(), response.isDefaultLastValueQueue());
+         QueueQuery subResponse = session.queueQuery(queueName);
+
+         if (!(subResponse.isExists() && Objects.equals(subResponse.getAddress(), dest.getSimpleAddress()) && Objects.equals(subResponse.getFilterString(), coreFilterString))) {
+            try {
+               if (durability == ConsumerDurability.DURABLE) {
+                  createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers(), response.isDefaultExclusive(), response.isDefaultLastValueQueue());
+               } else {
+                  createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, false, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers(), response.isDefaultExclusive(), response.isDefaultLastValueQueue());
+               }
+            } catch (ActiveMQQueueExistsException ignored) {
+               // We ignore this because querying and then creating the queue wouldn't be idempotent
+               // we could also add a parameter to ignore existence what would require a bigger work around to avoid
+               // compatibility.
             }
-         } catch (ActiveMQQueueExistsException ignored) {
-            // We ignore this because querying and then creating the queue wouldn't be idempotent
-            // we could also add a parameter to ignore existence what would require a bigger work around to avoid
-            // compatibility.
          }
 
          consumer = session.createConsumer(queueName, null, false);

@@ -64,6 +64,13 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
+
+         this.waitForBindings(servers[0], QUEUE_NAME, true, 1, 0, 2000);
+         this.waitForBindings(servers[1], QUEUE_NAME, true, 1, 0, 2000);
+         this.waitForBindings(servers[1], QUEUE_NAME, false, 1, 0, 2000);
+         this.waitForBindings(servers[0], QUEUE_NAME, false, 1, 0, 2000);
+
+
          MessageProducer prod1 = session1.createProducer(targetQueue1);
          MessageConsumer cons2 = session2.createConsumer(targetQueue2);
 

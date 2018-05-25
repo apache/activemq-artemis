@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageIdHelper;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
@@ -54,6 +55,7 @@ import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.DecoderImpl;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
@@ -69,7 +71,7 @@ public class AMQPMessage extends RefCountMessage {
    public static final int MAX_MESSAGE_PRIORITY = 9;
 
    final long messageFormat;
-   ByteBuf data;
+   ReadableBuffer data;
    boolean bufferValid;
    Boolean durable;
    long messageID;
@@ -106,7 +108,11 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    public AMQPMessage(long messageFormat, byte[] data, CoreMessageObjectPools coreMessageObjectPools) {
-      this.data = Unpooled.wrappedBuffer(data);
+      this(messageFormat, ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(data)), coreMessageObjectPools);
+   }
+
+   public AMQPMessage(long messageFormat, ReadableBuffer data, CoreMessageObjectPools coreMessageObjectPools) {
+      this.data = data;
       this.messageFormat = messageFormat;
       this.bufferValid = true;
       this.coreMessageObjectPools = coreMessageObjectPools;
@@ -136,8 +142,8 @@ public class AMQPMessage extends RefCountMessage {
          protonMessage = (MessageImpl) Message.Factory.create();
 
          if (data != null) {
-            data.readerIndex(0);
-            protonMessage.decode(data.nioBuffer());
+            data.rewind();
+            protonMessage.decode(data.duplicate());
             this._header = protonMessage.getHeader();
             protonMessage.setHeader(null);
          }
@@ -162,7 +168,6 @@ public class AMQPMessage extends RefCountMessage {
       }
    }
 
-   @SuppressWarnings("unchecked")
    private Map<String, Object> getApplicationPropertiesMap() {
       ApplicationProperties appMap = getApplicationProperties();
       Map<String, Object> map = null;
@@ -183,26 +188,26 @@ public class AMQPMessage extends RefCountMessage {
       parseHeaders();
 
       if (applicationProperties == null && appLocation >= 0) {
-         ByteBuffer buffer = getBuffer().nioBuffer();
+         ReadableBuffer buffer = data.duplicate();
          buffer.position(appLocation);
-         TLSEncode.getDecoder().setByteBuffer(buffer);
+         TLSEncode.getDecoder().setBuffer(buffer);
          Object section = TLSEncode.getDecoder().readObject();
          if (section instanceof ApplicationProperties) {
             this.applicationProperties = (ApplicationProperties) section;
          }
          this.appLocation = -1;
-         TLSEncode.getDecoder().setByteBuffer(null);
+         TLSEncode.getDecoder().setBuffer(null);
       }
 
       return applicationProperties;
    }
 
-   private void parseHeaders() {
+   private synchronized void parseHeaders() {
       if (!parsedHeaders) {
          if (data == null) {
             initalizeObjects();
          } else {
-            partialDecode(data.nioBuffer());
+            partialDecode(data);
          }
          parsedHeaders = true;
       }
@@ -367,10 +372,9 @@ public class AMQPMessage extends RefCountMessage {
       rejectedConsumers.add(consumer);
    }
 
-   private synchronized void partialDecode(ByteBuffer buffer) {
+   private synchronized void partialDecode(ReadableBuffer buffer) {
       DecoderImpl decoder = TLSEncode.getDecoder();
-      decoder.setByteBuffer(buffer);
-      buffer.position(0);
+      decoder.setBuffer(buffer.rewind());
 
       _header = null;
       _deliveryAnnotations = null;
@@ -388,6 +392,7 @@ public class AMQPMessage extends RefCountMessage {
             _header = (Header) section;
             headerEnds = buffer.position();
             messagePaylodStart = headerEnds;
+            this.durable = _header.getDurable();
 
             if (_header.getTtl() != null) {
                this.expiration = System.currentTimeMillis() + _header.getTtl().intValue();
@@ -448,19 +453,12 @@ public class AMQPMessage extends RefCountMessage {
          }
       } finally {
          decoder.setByteBuffer(null);
+         data.position(0);
       }
    }
 
    public long getMessageFormat() {
       return messageFormat;
-   }
-
-   public int getLength() {
-      return data.array().length;
-   }
-
-   public byte[] getArray() {
-      return data.array();
    }
 
    @Override
@@ -474,7 +472,7 @@ public class AMQPMessage extends RefCountMessage {
       if (data == null) {
          return null;
       } else {
-         return Unpooled.wrappedBuffer(data);
+         return Unpooled.wrappedBuffer(data.byteBuffer());
       }
    }
 
@@ -488,14 +486,15 @@ public class AMQPMessage extends RefCountMessage {
    public org.apache.activemq.artemis.api.core.Message copy() {
       checkBuffer();
 
-      byte[] origin = data.array();
-      byte[] newData = new byte[data.array().length - (messagePaylodStart - headerEnds)];
+      ReadableBuffer view = data.duplicate();
 
-      // Copy the original header
-      System.arraycopy(origin, 0, newData, 0, headerEnds);
+      byte[] newData = new byte[view.remaining() - (messagePaylodStart - headerEnds)];
 
-      // Copy the body following the delivery annotations if present
-      System.arraycopy(origin, messagePaylodStart, newData, headerEnds, data.array().length - messagePaylodStart);
+      view.position(0).limit(headerEnds);
+      view.get(newData, 0, headerEnds);
+      view.clear();
+      view.position(messagePaylodStart);
+      view.get(newData, headerEnds, view.remaining());
 
       AMQPMessage newEncode = new AMQPMessage(this.messageFormat, newData);
       newEncode.setDurable(isDurable()).setMessageID(this.getMessageID());
@@ -577,6 +576,8 @@ public class AMQPMessage extends RefCountMessage {
       if (durable != null) {
          return durable;
       }
+
+      parseHeaders();
 
       if (getHeader() != null && getHeader().getDurable() != null) {
          durable = getHeader().getDurable();
@@ -665,16 +666,20 @@ public class AMQPMessage extends RefCountMessage {
 
    private synchronized void checkBuffer() {
       if (!bufferValid) {
-         int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
-         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
-         try {
-            getProtonMessage().encode(new NettyWritable(buffer));
-            byte[] bytes = new byte[buffer.writerIndex()];
-            buffer.readBytes(bytes);
-            this.data = Unpooled.wrappedBuffer(bytes);
-         } finally {
-            buffer.release();
-         }
+         encodeProtonMessage();
+      }
+   }
+
+   private void encodeProtonMessage() {
+      int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
+      ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
+      try {
+         getProtonMessage().encode(new NettyWritable(buffer));
+         byte[] bytes = new byte[buffer.writerIndex()];
+         buffer.readBytes(bytes);
+         this.data = ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(bytes));
+      } finally {
+         buffer.release();
       }
    }
 
@@ -682,7 +687,7 @@ public class AMQPMessage extends RefCountMessage {
    public int getEncodeSize() {
       checkBuffer();
       // + 20checkBuffer is an estimate for the Header with the deliveryCount
-      return data.array().length - messagePaylodStart + 20;
+      return data.remaining() - messagePaylodStart + 20;
    }
 
    @Override
@@ -691,15 +696,16 @@ public class AMQPMessage extends RefCountMessage {
 
       int amqpDeliveryCount = deliveryCount - 1;
 
-      Header header = getHeader();
-      if (header == null && (amqpDeliveryCount > 0)) {
-         header = new Header();
-         header.setDurable(durable);
-      }
-
       // If the re-delivering the message then the header must be re-encoded
       // otherwise we want to write the original header if present.
       if (amqpDeliveryCount > 0) {
+
+         Header header = getHeader();
+         if (header == null) {
+            header = new Header();
+            header.setDurable(durable);
+         }
+
          synchronized (header) {
             header.setDeliveryCount(UnsignedInteger.valueOf(amqpDeliveryCount));
             TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buffer));
@@ -707,10 +713,89 @@ public class AMQPMessage extends RefCountMessage {
             TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
          }
       } else if (headerEnds > 0) {
-         buffer.writeBytes(data, 0, headerEnds);
+         buffer.writeBytes(data.duplicate().limit(headerEnds).byteBuffer());
       }
 
-      buffer.writeBytes(data, messagePaylodStart, data.writerIndex() - messagePaylodStart);
+      data.position(messagePaylodStart);
+      buffer.writeBytes(data.byteBuffer());
+      data.position(0);
+   }
+
+   /**
+    * Gets a ByteBuf from the Message that contains the encoded bytes to be sent on the wire.
+    * <p>
+    * When possible this method will present the bytes to the caller without copying them into
+    * another buffer copy.  If copying is needed a new Netty buffer is created and returned. The
+    * caller should ensure that the reference count on the returned buffer is always decremented
+    * to avoid a leak in the case of a copied buffer being returned.
+    *
+    * @param deliveryCount
+    *       The new delivery count for this message.
+    *
+    * @return a Netty ByteBuf containing the encoded bytes of this Message instance.
+    */
+   public ReadableBuffer getSendBuffer(int deliveryCount) {
+      checkBuffer();
+
+      if (deliveryCount > 1) {
+         return createCopyWithNewDeliveryCount(deliveryCount);
+      } else if (headerEnds != messagePaylodStart) {
+         return createCopyWithoutDeliveryAnnotations();
+      } else {
+         // Common case message has no delivery annotations and this is the first delivery
+         // so no re-encoding or section skipping needed.
+         return data.duplicate();
+      }
+   }
+
+   private ReadableBuffer createCopyWithoutDeliveryAnnotations() {
+      assert headerEnds != messagePaylodStart;
+
+      // The original message had delivery annotations and so we must copy into a new
+      // buffer skipping the delivery annotations section as that is not meant to survive
+      // beyond this hop.
+      ReadableBuffer duplicate = data.duplicate();
+
+      final ByteBuf result = PooledByteBufAllocator.DEFAULT.heapBuffer(getEncodeSize());
+      result.writeBytes(duplicate.limit(headerEnds).byteBuffer());
+      duplicate.clear();
+      duplicate.position(messagePaylodStart);
+      result.writeBytes(duplicate.byteBuffer());
+
+      return new NettyReadable(result);
+   }
+
+   private ReadableBuffer createCopyWithNewDeliveryCount(int deliveryCount) {
+      assert deliveryCount > 1;
+
+      final int amqpDeliveryCount = deliveryCount - 1;
+      // If the re-delivering the message then the header must be re-encoded
+      // (or created if not previously present).  Any delivery annotations should
+      // be skipped as well in the resulting buffer.
+
+      final ByteBuf result = PooledByteBufAllocator.DEFAULT.heapBuffer(getEncodeSize());
+
+      Header header = getHeader();
+      if (header == null) {
+         header = new Header();
+         header.setDurable(durable);
+      }
+
+      synchronized (header) {
+         // Updates or adds a Header section with the correct delivery count
+         header.setDeliveryCount(UnsignedInteger.valueOf(amqpDeliveryCount));
+         TLSEncode.getEncoder().setByteBuffer(new NettyWritable(result));
+         TLSEncode.getEncoder().writeObject(header);
+         TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
+      }
+
+      // This will skip any existing delivery annotations that might have been present
+      // in the original message.
+      data.position(messagePaylodStart);
+      result.writeBytes(data.byteBuffer());
+      data.position(0);
+
+      return new NettyReadable(result);
    }
 
    public TypedProperties createExtraProperties() {
@@ -1144,14 +1229,18 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    private int internalPersistSize() {
-      return data.array().length;
+      return data.remaining();
    }
 
    @Override
    public void persist(ActiveMQBuffer targetRecord) {
       checkBuffer();
       targetRecord.writeInt(internalPersistSize());
-      targetRecord.writeBytes(data.array(), 0, data.array().length );
+      if (data.hasArray()) {
+         targetRecord.writeBytes(data.array(), data.arrayOffset(), data.remaining());
+      } else {
+         targetRecord.writeBytes(data.byteBuffer());
+      }
    }
 
    @Override
@@ -1160,7 +1249,7 @@ public class AMQPMessage extends RefCountMessage {
       byte[] recordArray = new byte[size];
       record.readBytes(recordArray);
       this.messagePaylodStart = 0; // whatever was persisted will be sent
-      this.data = Unpooled.wrappedBuffer(recordArray);
+      this.data = ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(recordArray));
       this.bufferValid = true;
       this.durable = true; // it's coming from the journal, so it's durable
       parseHeaders();

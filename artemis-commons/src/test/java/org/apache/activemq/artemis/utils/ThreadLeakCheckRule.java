@@ -44,6 +44,10 @@ public class ThreadLeakCheckRule extends TestWatcher {
 
    protected boolean testFailed = false;
 
+   protected Description testDescription = null;
+
+   protected Throwable failure = null;
+
    protected Map<Thread, StackTraceElement[]> previousThreads;
 
    /**
@@ -65,7 +69,9 @@ public class ThreadLeakCheckRule extends TestWatcher {
 
    @Override
    protected void failed(Throwable e, Description description) {
+      this.failure = e;
       this.testFailed = true;
+      this.testDescription = description;
    }
 
    @Override
@@ -86,7 +92,7 @@ public class ThreadLeakCheckRule extends TestWatcher {
             boolean failedOnce = false;
 
             // if the test failed.. there's no point on waiting a full minute.. we will report it once and go
-            long timeout = System.currentTimeMillis() + (testFailed ? 1000 : 60000);
+            long timeout = System.currentTimeMillis() + (testFailed ? 30000 : 60000);
             while (failed && timeout > System.currentTimeMillis()) {
                failed = checkThread();
 
@@ -108,6 +114,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
                   System.out.println("***********************************************************************");
                   System.out.println("             The test failed and there is a leak");
                   System.out.println("***********************************************************************");
+                  failure.printStackTrace();
+                  Assert.fail("Test " + testDescription + " Failed with a leak - " + failure.getMessage());
                }
             } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
@@ -230,6 +238,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
 
       if (threadName.contains("SunPKCS11")) {
          return true;
+      } else if (threadName.contains("Keep-Alive-Timer")) {
+         return true;
       } else if (threadName.contains("Attach Listener")) {
          return true;
       } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
@@ -254,6 +264,9 @@ public class ThreadLeakCheckRule extends TestWatcher {
          return true;
       } else if (threadName.contains("hawtdispatch") || (group != null && group.getName().contains("hawtdispatch"))) {
          // Static workers used by MQTT client.
+         return true;
+      } else if (threadName.contains("ObjectCleanerThread")) {
+         // Required since upgrade to Netty 4.1.22 maybe because https://github.com/netty/netty/commit/739e70398ccb6b11ffa97c6b5f8d55e455a2165e
          return true;
       } else {
          for (StackTraceElement element : thread.getStackTrace()) {

@@ -56,7 +56,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    private static final Logger logger = Logger.getLogger(JDBCJournalImpl.class);
 
    // Sync Delay in ms
-   private static final int SYNC_DELAY = 5;
+   //private static final int SYNC_DELAY = 5;
+
+   private long syncDelay;
 
    private static int USER_VERSION = 1;
 
@@ -95,12 +97,14 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                           String tableName,
                           ScheduledExecutorService scheduledExecutorService,
                           Executor completeExecutor,
-                          IOCriticalErrorListener criticalIOErrorListener) {
+                          IOCriticalErrorListener criticalIOErrorListener,
+                          long syncDelay) {
       super(dataSource, provider);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
       this.criticalIOErrorListener = criticalIOErrorListener;
+      this.syncDelay = syncDelay;
    }
 
    public JDBCJournalImpl(String jdbcUrl,
@@ -108,18 +112,20 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                           SQLProvider sqlProvider,
                           ScheduledExecutorService scheduledExecutorService,
                           Executor completeExecutor,
-                          IOCriticalErrorListener criticalIOErrorListener) {
+                          IOCriticalErrorListener criticalIOErrorListener,
+                          long syncDelay) {
       super(sqlProvider, jdbcUrl, jdbcDriverClass);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
       this.criticalIOErrorListener = criticalIOErrorListener;
+      this.syncDelay = syncDelay;
    }
 
    @Override
    public void start() throws SQLException {
       super.start();
-      syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, SYNC_DELAY, TimeUnit.MILLISECONDS, this);
+      syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, syncDelay, TimeUnit.MILLISECONDS, this);
       started = true;
    }
 

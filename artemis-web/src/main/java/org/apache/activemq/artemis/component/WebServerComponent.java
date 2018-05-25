@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
+import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -81,12 +82,16 @@ public class WebServerComponent implements ExternalComponent {
 
          HttpConfiguration https = new HttpConfiguration();
          https.addCustomizer(new SecureRequestCustomizer());
+         https.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(https);
 
          connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
 
       } else {
-         connector = new ServerConnector(server);
+         HttpConfiguration configuration = new HttpConfiguration();
+         configuration.setSendServerVersion(false);
+         ConnectionFactory connectionFactory = new HttpConnectionFactory(configuration);
+         connector = new ServerConnector(server, connectionFactory);
       }
       connector.setPort(uri.getPort());
       connector.setHost(uri.getHost());
@@ -95,12 +100,17 @@ public class WebServerComponent implements ExternalComponent {
 
       handlers = new HandlerList();
 
-      Path warDir = Paths.get(artemisHome != null ? artemisHome : ".").resolve(webServerConfig.path).toAbsolutePath();
+      Path homeWarDir = Paths.get(artemisHome != null ? artemisHome : ".").resolve(webServerConfig.path).toAbsolutePath();
+      Path instanceWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve(webServerConfig.path).toAbsolutePath();
 
       if (webServerConfig.apps != null && webServerConfig.apps.size() > 0) {
          webContexts = new ArrayList<>();
          for (AppDTO app : webServerConfig.apps) {
-            WebAppContext webContext = deployWar(app.url, app.war, warDir);
+            Path dirToUse = homeWarDir;
+            if (new File(instanceWarDir.toFile().toString() + File.separator + app.war).exists()) {
+               dirToUse = instanceWarDir;
+            }
+            WebAppContext webContext = deployWar(app.url, app.war, dirToUse);
             webContexts.add(webContext);
             if (app.war.startsWith("console")) {
                consoleUrl = webServerConfig.bind + "/" + app.url;
@@ -108,20 +118,33 @@ public class WebServerComponent implements ExternalComponent {
          }
       }
 
-      ResourceHandler resourceHandler = new ResourceHandler();
-      resourceHandler.setResourceBase(warDir.toString());
-      resourceHandler.setDirectoriesListed(true);
-      resourceHandler.setWelcomeFiles(new String[]{"index.html"});
+      ResourceHandler homeResourceHandler = new ResourceHandler();
+      homeResourceHandler.setResourceBase(homeWarDir.toString());
+      homeResourceHandler.setDirectoriesListed(false);
+      homeResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+
+      ContextHandler homeContext = new ContextHandler();
+      homeContext.setContextPath("/");
+      homeContext.setResourceBase(homeWarDir.toString());
+      homeContext.setHandler(homeResourceHandler);
+      homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+
+      ResourceHandler instanceResourceHandler = new ResourceHandler();
+      instanceResourceHandler.setResourceBase(instanceWarDir.toString());
+      instanceResourceHandler.setDirectoriesListed(false);
+      instanceResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+
+      ContextHandler instanceContext = new ContextHandler();
+      instanceContext.setContextPath("/");
+      instanceContext.setResourceBase(instanceWarDir.toString());
+      instanceContext.setHandler(instanceResourceHandler);
+      homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
 
-      ContextHandler context = new ContextHandler();
-      context.setContextPath("/");
-      context.setResourceBase(warDir.toString());
-      context.setHandler(resourceHandler);
-
-      handlers.addHandler(context);
+      handlers.addHandler(homeContext);
+      handlers.addHandler(instanceContext);
       handlers.addHandler(defaultHandler);
       server.setHandler(handlers);
    }

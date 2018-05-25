@@ -16,11 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
@@ -33,6 +38,13 @@ import org.junit.Test;
  * adapted from: org.apache.activemq.RedeliveryPolicyTest
  */
 public class RedeliveryPolicyTest extends BasicOpenWireTest {
+
+   @Override
+   public void setUp() throws Exception {
+      // making data persistent makes it easier to debug it with print-data
+      this.realStore = true;
+      super.setUp();
+   }
 
    @Test
    public void testGetNext() throws Exception {
@@ -506,6 +518,12 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.commit();
    }
 
+   private void send(Session session, MessageProducer producer, Destination destination, String text) throws Exception {
+      Message message = session.createTextMessage(text);
+      message.setStringProperty("texto", text);
+      producer.send(destination, message);
+   }
+
    @Test
    public void testRedeliveryPolicyPerDestination() throws Exception {
       RedeliveryPolicy queuePolicy = new RedeliveryPolicy();
@@ -525,22 +543,24 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       map.put(new ActiveMQTopic(">"), topicPolicy);
       map.put(new ActiveMQQueue(">"), queuePolicy);
 
+      connection.setClientID("id1");
       connection.start();
       Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue queue = new ActiveMQQueue("TEST");
-      ActiveMQTopic topic = new ActiveMQTopic("TEST");
+      ActiveMQTopic topic = new ActiveMQTopic("TESTTOPIC");
       this.makeSureCoreQueueExist("TEST");
 
       MessageProducer producer = session.createProducer(null);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
       MessageConsumer queueConsumer = session.createConsumer(queue);
-      MessageConsumer topicConsumer = session.createConsumer(topic);
+      MessageConsumer topicConsumer = session.createDurableSubscriber(topic, "tp1");
 
       // Send the messages
-      producer.send(queue, session.createTextMessage("1st"));
-      producer.send(queue, session.createTextMessage("2nd"));
-      producer.send(topic, session.createTextMessage("1st"));
-      producer.send(topic, session.createTextMessage("2nd"));
+      send(session, producer, queue,"1st");
+      send(session, producer, queue,"2nd");
+      send(session, producer, topic,"1st");
+      send(session, producer, topic,"2nd");
 
       session.commit();
 
@@ -613,6 +633,56 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertNotNull(m);
       assertEquals("2nd", m.getText());
       session.commit();
+   }
+
+   @Test
+   public void testClientRedlivery() throws Exception {
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         this.makeSureCoreQueueExist("TEST");
+
+         Queue queue = session.createQueue("TEST");
+
+         MessageProducer producer = session.createProducer(queue);
+
+         producer.send(session.createTextMessage("test"));
+
+      } finally {
+         connection.close();
+      }
+
+      for (int i = 0; i < 10; ++i) {
+
+         connection = (ActiveMQConnection) factory.createConnection();
+
+         connection.start();
+
+         try {
+
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+            Queue queue = session.createQueue("TEST");
+
+            MessageConsumer consumer = session.createConsumer(queue);
+
+            Message message = consumer.receive(1000);
+
+            assertNotNull("Message null on iteration " + i, message);
+
+            System.out.println("received message: " + i);
+            System.out.println("is redelivered: " + message.getJMSRedelivered());
+            if (i > 0) {
+               assertTrue(message.getJMSRedelivered());
+            }
+
+         } finally {
+            connection.close();
+         }
+      }
+
    }
 
 }

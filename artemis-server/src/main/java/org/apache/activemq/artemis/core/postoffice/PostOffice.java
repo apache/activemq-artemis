@@ -58,6 +58,8 @@ public interface PostOffice extends ActiveMQComponent {
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
+   AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception;
+
    AddressInfo getAddressInfo(SimpleString address);
 
    AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception;

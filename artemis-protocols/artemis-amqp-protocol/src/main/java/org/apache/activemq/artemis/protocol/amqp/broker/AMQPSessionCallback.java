@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -71,6 +72,7 @@ import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
@@ -236,35 +238,51 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public void createTemporaryQueue(SimpleString queueName, RoutingType routingType) throws Exception {
-      serverSession.createQueue(queueName, queueName, routingType, null, true, false);
+      createTemporaryQueue(queueName, queueName, routingType, null);
    }
 
    public void createTemporaryQueue(SimpleString address,
                                     SimpleString queueName,
                                     RoutingType routingType,
                                     SimpleString filter) throws Exception {
-      serverSession.createQueue(address, queueName, routingType, filter, true, false);
+      try {
+         serverSession.createQueue(address, queueName, routingType, filter, true, false);
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
+      }
    }
 
    public void createUnsharedDurableQueue(SimpleString address,
                                           RoutingType routingType,
                                           SimpleString queueName,
                                           SimpleString filter) throws Exception {
-      serverSession.createQueue(address, queueName, routingType, filter, false, true, 1, false, false);
+      try {
+         serverSession.createQueue(address, queueName, routingType, filter, false, true, 1, false, false);
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
+      }
    }
 
    public void createSharedDurableQueue(SimpleString address,
                                         RoutingType routingType,
                                         SimpleString queueName,
                                         SimpleString filter) throws Exception {
-      serverSession.createQueue(address, queueName, routingType, filter, false, true, -1, false, false);
+      try {
+         serverSession.createQueue(address, queueName, routingType, filter, false, true, -1, false, false);
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
+      }
    }
 
    public void createSharedVolatileQueue(SimpleString address,
                                          RoutingType routingType,
                                          SimpleString queueName,
                                          SimpleString filter) throws Exception {
-      serverSession.createQueue(address, queueName, routingType, filter, false, false, -1, true, true);
+      try {
+         serverSession.createQueue(address, queueName, routingType, filter, false, false, -1, true, true);
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
+      }
    }
 
    public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate) throws Exception {
@@ -280,7 +298,7 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
       // if auto-create we will return whatever type was used before
-      if (!queueQueryResult.isAutoCreated() && queueQueryResult.getRoutingType() != routingType) {
+      if (queueQueryResult.isExists() && !queueQueryResult.isAutoCreated() && queueQueryResult.getRoutingType() != routingType) {
          throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
       }
 
@@ -441,7 +459,7 @@ public class AMQPSessionCallback implements SessionCallback {
                           final Delivery delivery,
                           SimpleString address,
                           int messageFormat,
-                          byte[] data) throws Exception {
+                          ReadableBuffer data) throws Exception {
       AMQPMessage message = new AMQPMessage(messageFormat, data, coreMessageObjectPools);
       if (address != null) {
          message.setAddress(address);

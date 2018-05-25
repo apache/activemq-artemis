@@ -16,12 +16,26 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.dto.AppDTO;
+import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.junit.Wait;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -35,12 +49,28 @@ public class ReplicatedFailoverTest extends FailoverTest {
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
-         isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback");
+         isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback") || description.getMethodName().equals("testLoop");
       }
 
    };
 
+
+   /* @Test
+   public void testLoop() throws Throwable {
+
+      for (int i = 0; i < 100; i++) {
+         System.err.println("#Test " + i);
+         testReplicatedFailback();
+         tearDown();
+         setUp();
+      }
+   } */
+
    protected void beforeWaitForRemoteBackupSynchronization() {
+   }
+
+   private void waitForSync(ActiveMQServer server) throws Exception {
+      Wait.waitFor(server::isReplicaSync);
    }
 
    @Test(timeout = 120000)
@@ -52,7 +82,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
       try {
          beforeWaitForRemoteBackupSynchronization();
 
-         waitForRemoteBackupSynchronization(backupServer.getServer());
+         waitForSync(backupServer.getServer());
 
          createSessionFactory();
 
@@ -68,9 +98,9 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
-         waitForRemoteBackupSynchronization(backupServer.getServer());
+         waitForSync(backupServer.getServer());
 
          waitForServerToStart(liveServer.getServer());
 
@@ -84,9 +114,9 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
-         waitForRemoteBackupSynchronization(backupServer.getServer());
+         waitForSync(backupServer.getServer());
 
          waitForServerToStart(liveServer.getServer());
 
@@ -100,11 +130,11 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForServerToStart(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
          backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
+         waitForSync(liveServer.getServer());
 
          waitForServerToStart(backupServer.getServer());
 
@@ -123,6 +153,50 @@ public class ReplicatedFailoverTest extends FailoverTest {
          } catch (Throwable ignored) {
          }
       }
+   }
+
+   @Test
+   public void testReplicatedFailbackBackupFromLiveBackToBackup() throws Exception {
+
+      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
+      HttpServer httpServer = HttpServer.create(address, 100);
+      httpServer.start();
+
+      try {
+         httpServer.createContext("/", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange t) throws IOException {
+               String response = "<html><body><b>This is a unit test</b></body></html>";
+               t.sendResponseHeaders(200, response.length());
+               OutputStream os = t.getResponseBody();
+               os.write(response.getBytes());
+               os.close();
+            }
+         });
+         WebServerDTO wdto = new WebServerDTO();
+         AppDTO appDTO = new AppDTO();
+         appDTO.war = "console.war";
+         appDTO.url = "console";
+         wdto.apps = new ArrayList<AppDTO>();
+         wdto.apps.add(appDTO);
+         wdto.bind = "http://localhost:0";
+         wdto.path = "console";
+         WebServerComponent webServerComponent = new WebServerComponent();
+         webServerComponent.configure(wdto, ".", ".");
+         webServerComponent.start();
+
+         backupServer.getServer().getNetworkHealthCheck().parseURIList("http://localhost:8787");
+         Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
+         backupServer.getServer().addExternalComponent(webServerComponent);
+         // this is called when backup servers go from live back to backup
+         backupServer.getServer().fail(true);
+         Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
+         Assert.assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
+         ((ServiceComponent) (backupServer.getServer().getExternalComponents().get(0))).stop(true);
+      } finally {
+         httpServer.stop(0);
+      }
+
    }
 
    @Override

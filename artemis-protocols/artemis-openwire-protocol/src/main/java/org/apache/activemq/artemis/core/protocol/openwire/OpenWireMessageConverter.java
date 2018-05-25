@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.reader.MessageUtil;
-import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -69,7 +68,7 @@ import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
 
-public class OpenWireMessageConverter implements MessageConverter<OpenwireMessage> {
+public final class OpenWireMessageConverter {
 
    private static final SimpleString JMS_TYPE_PROPERTY = new SimpleString("JMSType");
    private static final SimpleString JMS_CORRELATION_ID_PROPERTY = new SimpleString("JMSCorrelationID");
@@ -97,36 +96,13 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
    private static final SimpleString AMQ_MSG_DROPPABLE =  new SimpleString(AMQ_PREFIX + "DROPPABLE");
    private static final SimpleString AMQ_MSG_COMPRESSED = new SimpleString(AMQ_PREFIX + "COMPRESSED");
 
-   private final WireFormat marshaller;
+   private OpenWireMessageConverter() {
 
-   public OpenWireMessageConverter(WireFormat marshaller) {
-      this.marshaller = marshaller;
    }
 
-   @Override
-   public OpenwireMessage fromCore(ICoreMessage coreMessage) throws Exception {
-      return null;
-   }
-
-   @Override
-   public ICoreMessage toCore(OpenwireMessage pureMessage, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
-      return null;
-   }
-
-
-   //   @Override
-   public Object outbound(org.apache.activemq.artemis.api.core.Message message, int deliveryCount) {
-      // TODO: implement this
-      return null;
-   }
-
-   public org.apache.activemq.artemis.api.core.Message inbound(Message message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
-      return inbound(message, marshaller, coreMessageObjectPools);
-   }
-
-   private static org.apache.activemq.artemis.api.core.Message inbound(final Message messageSend,
-                                                                       final WireFormat marshaller,
-                                                                       final CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+   public static org.apache.activemq.artemis.api.core.Message inbound(final Message messageSend,
+                                                                      final WireFormat marshaller,
+                                                                      final CoreMessageObjectPools coreMessageObjectPools) throws Exception {
 
       final CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize(), coreMessageObjectPools);
 
@@ -197,7 +173,7 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
       final String groupId = messageSend.getGroupID();
       if (groupId != null) {
-         coreMessage.putStringProperty(AMQ_MSG_GROUP_ID, new SimpleString(groupId));
+         coreMessage.putStringProperty(AMQ_MSG_GROUP_ID, coreMessageObjectPools.getGroupIdStringSimpleStringPool().getOrCreate(groupId));
       }
       coreMessage.putIntProperty(AMQ_MSG_GROUP_SEQUENCE, messageSend.getGroupSequence());
 
@@ -509,9 +485,10 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
    }
 
-   public MessageDispatch createMessageDispatch(MessageReference reference,
-                                                ICoreMessage message,
-                                                AMQConsumer consumer) throws IOException, JMSException {
+   public static MessageDispatch createMessageDispatch(MessageReference reference,
+                                                       ICoreMessage message,
+                                                       WireFormat marshaller,
+                                                       AMQConsumer consumer) throws IOException {
       ActiveMQMessage amqMessage = toAMQMessage(reference, message, marshaller, consumer);
 
       //we can use core message id for sequenceId
@@ -527,6 +504,15 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       return md;
    }
 
+   private static final class EagerActiveMQBytesMessage extends ActiveMQBytesMessage {
+
+      EagerActiveMQBytesMessage(int size) {
+         this.bytesOut = new org.apache.activemq.util.ByteArrayOutputStream(size);
+         OutputStream os = bytesOut;
+         this.dataOut = new DataOutputStream(os);
+      }
+   }
+
    private static ActiveMQMessage toAMQMessage(MessageReference reference,
                                                ICoreMessage coreMessage,
                                                WireFormat marshaller,
@@ -536,12 +522,12 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       final Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
       final boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       final byte[] bytes;
-      final ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      final ActiveMQBuffer buffer = coreMessage.getDataBuffer();
       buffer.resetReaderIndex();
 
       switch (coreType) {
          case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
-            amqMsg = new ActiveMQBytesMessage();
+            amqMsg = new EagerActiveMQBytesMessage(0);
             bytes = toAMQMessageBytesType(buffer, isCompressed);
             break;
          case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:

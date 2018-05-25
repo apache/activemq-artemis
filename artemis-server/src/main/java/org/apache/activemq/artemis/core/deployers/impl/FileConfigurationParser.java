@@ -871,7 +871,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       for (String role : allRoles) {
-         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role)));
+         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role)));
       }
 
       return securityMatch;
@@ -1093,6 +1093,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String address = null;
       String filterString = null;
       boolean durable = true;
+      boolean maxConumserConfigured = false;
       int maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
       boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
       String user = null;
@@ -1105,6 +1106,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (item.getNodeName().equals("max-consumers")) {
             maxConsumers = Integer.parseInt(item.getNodeValue());
             Validators.MAX_QUEUE_CONSUMERS.validate(name, maxConsumers);
+            maxConumserConfigured = true;
          } else if (item.getNodeName().equals("purge-on-no-consumers")) {
             purgeOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("exclusive")) {
@@ -1130,7 +1132,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setUser(user)
-                                         .setExclusive(exclusive).setLastValue(lastValue);
+                                         .setExclusive(exclusive).setLastValue(lastValue).setMaxConsumerConfigured(maxConumserConfigured);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {
@@ -1174,10 +1176,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       if (mainConfig.isMaskPassword() != null) {
          params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
-      }
 
-      if (mainConfig.getPasswordCodec() != null) {
-         params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
+         if (mainConfig.isMaskPassword() && mainConfig.getPasswordCodec() != null) {
+            params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
+         }
       }
 
       return configurations.get(0);
@@ -1197,10 +1199,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       if (mainConfig.isMaskPassword() != null) {
          params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
-      }
 
-      if (mainConfig.getPasswordCodec() != null) {
-         params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
+         if (mainConfig.isMaskPassword() && mainConfig.getPasswordCodec() != null) {
+            params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
+         }
       }
 
       return configurations.get(0);
@@ -1467,12 +1469,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), Validators.NO_CHECK));
       conf.setLargeMessageTableName(getString(storeNode, "large-message-table-name", conf.getJdbcConnectionUrl(), Validators.NO_CHECK));
       conf.setPageStoreTableName(getString(storeNode, "page-store-table-name", conf.getPageStoreTableName(), Validators.NO_CHECK));
+      conf.setNodeManagerStoreTableName(getString(storeNode, "node-manager-store-table-name", conf.getNodeManagerStoreTableName(), Validators.NO_CHECK));
       conf.setJdbcConnectionUrl(getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), Validators.NO_CHECK));
       conf.setJdbcDriverClassName(getString(storeNode, "jdbc-driver-class-name", conf.getJdbcDriverClassName(), Validators.NO_CHECK));
       conf.setJdbcNetworkTimeout(getInteger(storeNode, "jdbc-network-timeout", conf.getJdbcNetworkTimeout(), Validators.NO_CHECK));
-      conf.setJdbcLockAcquisitionTimeoutMillis(getLong(storeNode, "jdbc-lock-acquisition-timeout", conf.getJdbcLockAcquisitionTimeoutMillis(), Validators.NO_CHECK));
       conf.setJdbcLockRenewPeriodMillis(getLong(storeNode, "jdbc-lock-renew-period", conf.getJdbcLockRenewPeriodMillis(), Validators.NO_CHECK));
       conf.setJdbcLockExpirationMillis(getLong(storeNode, "jdbc-lock-expiration", conf.getJdbcLockExpirationMillis(), Validators.NO_CHECK));
+      conf.setJdbcJournalSyncPeriodMillis(getLong(storeNode, "jdbc-journal-sync-period", conf.getJdbcJournalSyncPeriodMillis(), Validators.NO_CHECK));
       return conf;
    }
 
@@ -1671,7 +1674,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseGroupingHandlerConfiguration(final Element node, final Configuration mainConfiguration) {
       String name = node.getAttribute("name");
       String type = getString(node, "type", null, Validators.NOT_NULL_OR_EMPTY);
-      String address = getString(node, "address", null, Validators.NOT_NULL_OR_EMPTY);
+      String address = getString(node, "address", "", Validators.NO_CHECK);
       Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
       Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
       Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);

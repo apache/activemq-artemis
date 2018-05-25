@@ -432,6 +432,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void fail(boolean failoverOnServerShutdown) throws Exception;
 
+   void stop(boolean failoverOnServerShutdown, boolean isExit) throws Exception;
+
    Queue updateQueue(String name,
                      RoutingType routingType,
                      Integer maxConsumers,
@@ -472,6 +474,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void addExternalComponent(ActiveMQComponent externalComponent);
 
+   List<ActiveMQComponent> getExternalComponents();
+
    boolean addClientConnection(String clientId, boolean unique);
 
    void removeClientConnection(String clientId);
@@ -511,7 +515,6 @@ public interface ActiveMQServer extends ServiceComponent {
     * @throws Exception
     */
    AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
-
    /**
     * Remove an {@code AddressInfo} from the broker.
     *
@@ -520,6 +523,16 @@ public interface ActiveMQServer extends ServiceComponent {
     * @throws Exception
     */
    void removeAddressInfo(SimpleString address, SecurityAuth auth) throws Exception;
+
+   /**
+    * Remove an {@code AddressInfo} from the broker.
+    *
+    * @param address the {@code AddressInfo} to remove
+    * @param auth authorization information; {@code null} is valid
+    * @param force It will disconnect everything from the address including queues and consumers
+    * @throws Exception
+    */
+   void removeAddressInfo(SimpleString address, SecurityAuth auth, boolean force) throws Exception;
 
    String getInternalNamingPrefix();
 

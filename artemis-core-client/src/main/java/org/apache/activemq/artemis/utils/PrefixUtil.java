@@ -45,7 +45,20 @@ public class PrefixUtil {
       return address;
    }
 
+   public static SimpleString getPrefix(SimpleString address, Map<SimpleString, RoutingType> prefixes) {
+      for (Map.Entry<SimpleString, RoutingType> entry : prefixes.entrySet()) {
+         if (address.startsWith(entry.getKey())) {
+            return removeAddress(address, entry.getKey());
+         }
+      }
+      return null;
+   }
+
    public static SimpleString removePrefix(SimpleString string, SimpleString prefix) {
       return string.subSeq(prefix.length(), string.length());
+   }
+
+   public static SimpleString removeAddress(SimpleString string, SimpleString prefix) {
+      return string.subSeq(0, prefix.length());
    }
 }

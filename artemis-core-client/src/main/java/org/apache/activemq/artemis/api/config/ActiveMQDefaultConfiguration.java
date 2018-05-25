@@ -447,7 +447,9 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final long DEFAULT_JDBC_LOCK_EXPIRATION_MILLIS = TimeUnit.SECONDS.toMillis(20);
 
-   private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(60);
+   private static final long DEFAULT_JDBC_JOURNAL_SYNC_PERIOD_MILLIS = 5;
+
+   private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = -1;
 
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
@@ -1240,6 +1242,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultJdbcLockRenewPeriodMillis() {
       return DEFAULT_JDBC_LOCK_RENEW_PERIOD_MILLIS;
+   }
+
+   public static long getDefaultJdbcJournalSyncPeriodMillis() {
+      return DEFAULT_JDBC_JOURNAL_SYNC_PERIOD_MILLIS;
    }
 
    public static long getDefaultJdbcLockExpirationMillis() {

@@ -486,7 +486,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       //setup user and role on broker
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addUser("myUser", "myPassword");
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addRole("myUser", "consumeCreateRole");
-      Role consumeCreateRole = new Role("consumeCreateRole", false, true, true, true, true, true, true, true);
+      Role consumeCreateRole = new Role("consumeCreateRole", false, true, true, true, true, true, true, true, true, true);
       Set<Role> consumerCreateRoles = new HashSet<>();
       consumerCreateRoles.add(consumeCreateRole);
       liveService.getSecurityRepository().addMatch("test.queue", consumerCreateRoles);

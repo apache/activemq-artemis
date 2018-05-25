@@ -14,12 +14,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.0.0-pre" />
+    <PackageReference Include="AMQPNetLite" Version="2.1.1" />
   </ItemGroup>
 </Project>

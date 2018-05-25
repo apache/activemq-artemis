@@ -80,8 +80,10 @@ public class TypedProperties {
    }
 
    public TypedProperties(final TypedProperties other) {
-      properties = other.properties == null ? null : new HashMap<>(other.properties);
-      size = other.size;
+      synchronized (other) {
+         properties = other.properties == null ? null : new HashMap<>(other.properties);
+         size = other.size;
+      }
    }
 
    public boolean hasInternalProperties() {

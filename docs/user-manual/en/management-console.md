@@ -73,7 +73,7 @@ Under the address you can expand to find the `queues` for the address exposing a
 
 
 
-### Key Apache ActiveMQ Artemis Operations
+### Key Operations
 
 #### Creating a new Address
 

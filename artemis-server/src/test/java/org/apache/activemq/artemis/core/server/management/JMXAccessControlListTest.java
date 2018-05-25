@@ -150,4 +150,43 @@ public class JMXAccessControlListTest {
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomethingMore");
       Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
+
+   @Test
+   public void testKeylessDomain() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain.foo", null,"list*", "amq","monitor");
+      controlList.addToRoleAccess("org.myDomain.foo", null,"get*", "amq","monitor");
+      controlList.addToRoleAccess("org.myDomain.foo", null,"is*", "amq","monitor");
+      controlList.addToRoleAccess("org.myDomain.foo", null,"set*", "amq");
+      controlList.addToRoleAccess("org.myDomain.foo", null,"*", "amq");
+
+      List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "listFoo");
+      Assert.assertNotNull(roles);
+      Assert.assertEquals(roles.size(), 2);
+      Assert.assertEquals(roles.get(0), "amq");
+      Assert.assertEquals(roles.get(1), "monitor");
+
+      roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "getFoo");
+      Assert.assertNotNull(roles);
+      Assert.assertEquals(roles.size(), 2);
+      Assert.assertEquals(roles.get(0), "amq");
+      Assert.assertEquals(roles.get(1), "monitor");
+
+      roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "isFoo");
+      Assert.assertNotNull(roles);
+      Assert.assertEquals(roles.size(), 2);
+      Assert.assertEquals(roles.get(0), "amq");
+      Assert.assertEquals(roles.get(1), "monitor");
+
+      roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "setFoo");
+      Assert.assertNotNull(roles);
+      Assert.assertEquals(roles.size(), 1);
+      Assert.assertEquals(roles.get(0), "amq");
+
+      roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "createFoo");
+      Assert.assertNotNull(roles);
+      Assert.assertEquals(roles.size(), 1);
+      Assert.assertEquals(roles.get(0), "amq");
+
+   }
 }

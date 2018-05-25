@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.broker</groupId>
       <artifactId>jms-examples</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <version>2.7.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>interceptor-amqp</artifactId>
@@ -66,7 +66,7 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
-                     <libList><arg>org.apache.activemq.examples.broker:interceptor-client-amqp:${project.version}</arg></libList>
+                     <libList><arg>org.apache.activemq.examples.broker:interceptor-amqp:${project.version}</arg></libList>
                      <ignore>${noServer}</ignore>
                      <configuration>${basedir}/target/classes/activemq/server0</configuration>
                   </configuration>
@@ -110,7 +110,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>interceptor-client-amqp</artifactId>
+                  <artifactId>interceptor-amqp</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>

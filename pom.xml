@@ -20,7 +20,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.5.0-SNAPSHOT</version>
+   <version>2.7.0-SNAPSHOT</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -91,11 +91,12 @@
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.8.47</mockito.version>
-      <netty.version>4.1.19.Final</netty.version>
-      <proton.version>0.25.0</proton.version>
+      <netty.version>4.1.24.Final</netty.version>
+      <netty.tcnative.version>2.0.7.Final</netty.tcnative.version>
+      <proton.version>0.27.1</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.29.0</qpid.jms.version>
+      <qpid.jms.version>0.32.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
@@ -114,6 +115,7 @@
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
       <version.org.jacoco>0.7.9</version.org.jacoco>
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
+      <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
 
       <!-- used on tests -->
       <groovy.version>2.4.3</groovy.version>
@@ -388,12 +390,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
             <version>${jboss.logging.version}</version>
@@ -543,6 +539,12 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
             <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>${netty.tcnative.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -839,6 +841,15 @@
                     java.lang.IllegalStateException: endPosTable already set  -->
                   <version>3.1</version>
                   <configuration combine.self="override" />
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
+                     </systemPropertyVariables>
+                  </configuration>
                </plugin>
             </plugins>
          </build>
@@ -1372,7 +1383,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-jar-plugin</artifactId>
-               <version>2.4</version>
+               <version>${version.maven.jar.plugin}</version>
             </plugin>
             <plugin>
                <groupId>net.sf.maven-sar</groupId>
@@ -1605,6 +1616,7 @@
                   <exclude>**/*.iml</exclude>
                   <exclude>**/*.jceks</exclude>
                   <exclude>**/*.jks</exclude>
+                  <exclude>**/xml.xsd</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
                   <exclude>**/.settings/**</exclude>
