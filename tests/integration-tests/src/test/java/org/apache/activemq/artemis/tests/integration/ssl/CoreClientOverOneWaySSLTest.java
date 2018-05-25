@@ -55,6 +55,7 @@ import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
 public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
+   String suffix = "";
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters() {
@@ -63,7 +64,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    public CoreClientOverOneWaySSLTest(String storeType) {
       this.storeType = storeType;
-      String suffix = storeType.toLowerCase();
+      suffix = storeType.toLowerCase();
       // keytool expects PKCS12 stores to use the extension "p12"
       if (storeType.equals("PKCS12")) {
          suffix = "p12";
@@ -327,7 +328,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       // create an invalid SSL connection
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "other-client-side-truststore." + storeType.toLowerCase());
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "other-client-side-truststore." + suffix);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc)).setCallTimeout(3000);
@@ -340,7 +341,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
       // reload the acceptor to reload the SSL stores
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
-      acceptor.setKeyStorePath("other-server-side-keystore." + storeType.toLowerCase());
+      acceptor.setKeyStorePath("other-server-side-keystore." + suffix);
       acceptor.reload();
 
       // create a session with the locator which failed previously proving that the SSL stores have been reloaded
