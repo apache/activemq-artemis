@@ -57,14 +57,19 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private long voteRetryWait;
 
-   public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck) {
+   private final int quorumVoteWait;
+
+   public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck, int quorumVoteWait) {
       this.networkHealthCheck = networkHealthCheck;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck,
-                        ReplicatedPolicy replicatedPolicy) {
+                        ReplicatedPolicy replicatedPolicy,
+                        int quorumVoteWait) {
       this.networkHealthCheck = networkHealthCheck;
       this.replicatedPolicy = replicatedPolicy;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public ReplicaPolicy(String clusterName,
@@ -78,7 +83,8 @@ public class ReplicaPolicy extends BackupPolicy {
                         boolean voteOnReplicationFailure,
                         int quorumSize,
                         int voteRetries,
-                        long voteRetryWait) {
+                        long voteRetryWait,
+                        int quorumVoteWait) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
@@ -91,18 +97,21 @@ public class ReplicaPolicy extends BackupPolicy {
       this.scaleDownPolicy = scaleDownPolicy;
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public ReplicaPolicy(String clusterName,
                         int maxSavedReplicatedJournalsSize,
                         String groupName,
                         ReplicatedPolicy replicatedPolicy,
-                        NetworkHealthCheck networkHealthCheck) {
+                        NetworkHealthCheck networkHealthCheck,
+                        int quorumVoteWait) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
       this.replicatedPolicy = replicatedPolicy;
       this.networkHealthCheck = networkHealthCheck;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public String getClusterName() {
@@ -123,7 +132,7 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public ReplicatedPolicy getReplicatedPolicy() {
       if (replicatedPolicy == null) {
-         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize, voteRetries, voteRetryWait);
+         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize, voteRetries, voteRetryWait, quorumVoteWait);
       }
       return replicatedPolicy;
    }
@@ -233,5 +242,9 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public long getVoteRetryWait() {
       return voteRetryWait;
+   }
+
+   public int getQuorumVoteWait() {
+      return quorumVoteWait;
    }
 }

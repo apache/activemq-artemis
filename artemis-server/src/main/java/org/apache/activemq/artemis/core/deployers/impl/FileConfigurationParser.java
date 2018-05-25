@@ -1303,7 +1303,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    private ReplicatedPolicyConfiguration createReplicatedHaPolicy(Element policyNode) {
-      ReplicatedPolicyConfiguration configuration = new ReplicatedPolicyConfiguration();
+      ReplicatedPolicyConfiguration configuration = new ReplicatedPolicyConfiguration(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), Validators.GT_ZERO));
 
       configuration.setCheckForLiveServer(getBoolean(policyNode, "check-for-live-server", configuration.isCheckForLiveServer()));
 
@@ -1325,7 +1325,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    private ReplicaPolicyConfiguration createReplicaHaPolicy(Element policyNode) {
-      ReplicaPolicyConfiguration configuration = new ReplicaPolicyConfiguration();
+      ReplicaPolicyConfiguration configuration = new ReplicaPolicyConfiguration(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), Validators.GT_ZERO));
 
       configuration.setRestartBackup(getBoolean(policyNode, "restart-backup", configuration.isRestartBackup()));
 
