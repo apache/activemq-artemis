@@ -54,4 +54,8 @@ public class CoreMessageObjectPools {
    public TypedProperties.TypedPropertiesStringSimpleStringPools getPropertiesStringSimpleStringPools() {
       return propertiesStringSimpleStringPools.get();
    }
+
+   public static SimpleString cachedAddressSimpleString(String address, CoreMessageObjectPools coreMessageObjectPools) {
+      return SimpleString.toSimpleString(address, coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressStringSimpleStringPool());
+   }
 }

@@ -179,6 +179,9 @@ public class AmqpCoreConverter {
       TypedProperties properties = message.getExtraProperties();
       if (properties != null) {
          for (SimpleString str : properties.getPropertyNames()) {
+            if (str.equals(AMQPMessage.ADDRESS_PROPERTY)) {
+               continue;
+            }
             result.getInnerMessage().putBytesProperty(str, properties.getBytesProperty(str));
          }
       }

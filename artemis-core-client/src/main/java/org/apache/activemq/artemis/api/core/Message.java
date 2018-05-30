@@ -355,10 +355,28 @@ public interface Message {
 
    String getAddress();
 
+   /**
+    * Look at {@link #setAddress(SimpleString)} for the doc.
+    * @param address
+    * @return
+    */
    Message setAddress(String address);
 
    SimpleString getAddressSimpleString();
 
+   /**
+    * This will set the address on CoreMessage.
+    *
+    * Note for AMQPMessages:
+    * in AMQPMessages this will not really change the address on the message. Instead it will add a property
+    * on extraProperties which only transverse internally at the broker.
+    * Whatever you change here it won't affect anything towards the received message.
+    *
+    * If you wish to change AMQPMessages address you will have to do it directly at the AMQP Message, however beware
+    * that AMQPMessages are not supposed to be changed at the broker, so only do it if you know what you are doing.
+    * @param address
+    * @return
+    */
    Message setAddress(SimpleString address);
 
    long getTimestamp();

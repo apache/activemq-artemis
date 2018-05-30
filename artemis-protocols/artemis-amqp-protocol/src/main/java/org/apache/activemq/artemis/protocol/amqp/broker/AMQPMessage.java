@@ -67,6 +67,8 @@ import io.netty.buffer.Unpooled;
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
 
+   public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
+
    public static final int DEFAULT_MESSAGE_PRIORITY = 4;
    public static final int MAX_MESSAGE_PRIORITY = 9;
 
@@ -103,19 +105,20 @@ public class AMQPMessage extends RefCountMessage {
     *  these are properties created by the broker only */
    private volatile TypedProperties extraProperties;
 
-   public AMQPMessage(long messageFormat, byte[] data) {
-      this(messageFormat, data, null);
+   public AMQPMessage(long messageFormat, byte[] data, TypedProperties extraProperties) {
+      this(messageFormat, data, extraProperties, null);
    }
 
-   public AMQPMessage(long messageFormat, byte[] data, CoreMessageObjectPools coreMessageObjectPools) {
-      this(messageFormat, ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(data)), coreMessageObjectPools);
+   public AMQPMessage(long messageFormat, byte[] data, TypedProperties extraProperties, CoreMessageObjectPools coreMessageObjectPools) {
+      this(messageFormat, ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(data)), extraProperties, coreMessageObjectPools);
    }
 
-   public AMQPMessage(long messageFormat, ReadableBuffer data, CoreMessageObjectPools coreMessageObjectPools) {
+   public AMQPMessage(long messageFormat, ReadableBuffer data, TypedProperties extraProperties, CoreMessageObjectPools coreMessageObjectPools) {
       this.data = data;
       this.messageFormat = messageFormat;
       this.bufferValid = true;
       this.coreMessageObjectPools = coreMessageObjectPools;
+      this.extraProperties = extraProperties == null ? null : new TypedProperties(extraProperties);
       parseHeaders();
    }
 
@@ -496,7 +499,7 @@ public class AMQPMessage extends RefCountMessage {
       view.position(messagePaylodStart);
       view.get(newData, headerEnds, view.remaining());
 
-      AMQPMessage newEncode = new AMQPMessage(this.messageFormat, newData);
+      AMQPMessage newEncode = new AMQPMessage(this.messageFormat, newData, extraProperties, coreMessageObjectPools);
       newEncode.setDurable(isDurable()).setMessageID(this.getMessageID());
       return newEncode;
    }
@@ -604,26 +607,40 @@ public class AMQPMessage extends RefCountMessage {
       return addressSimpleString == null ? null : addressSimpleString.toString();
    }
 
+
+   public SimpleString cachedAddressSimpleString(String address) {
+      return CoreMessageObjectPools.cachedAddressSimpleString(address, coreMessageObjectPools);
+   }
+
    @Override
    public AMQPMessage setAddress(String address) {
-      this.address = SimpleString.toSimpleString(address, coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressStringSimpleStringPool());
+      setAddress(cachedAddressSimpleString(address));
       return this;
    }
 
    @Override
    public AMQPMessage setAddress(SimpleString address) {
       this.address = address;
+      createExtraProperties().putSimpleStringProperty(ADDRESS_PROPERTY, address);
       return this;
    }
 
    @Override
    public SimpleString getAddressSimpleString() {
       if (address == null) {
-         Properties properties = getProtonMessage().getProperties();
-         if (properties != null) {
-            setAddress(properties.getTo());
-         } else {
-            return null;
+         TypedProperties extraProperties = getExtraProperties();
+
+         // we first check if extraProperties is not null, no need to create it just to check it here
+         if (extraProperties != null) {
+            address = extraProperties.getSimpleStringProperty(ADDRESS_PROPERTY);
+         }
+
+         if (address == null) {
+            // if it still null, it will look for the address on the getTo();
+            Properties properties = getProperties();
+            if (properties != null && properties.getTo() != null) {
+               address = cachedAddressSimpleString(properties.getTo());
+            }
          }
       }
       return address;
@@ -1261,6 +1278,9 @@ public class AMQPMessage extends RefCountMessage {
          ", messageID=" + getMessageID() +
          ", address=" + getAddress() +
          ", size=" + getEncodeSize() +
+         ", applicationProperties=" + getApplicationProperties() +
+         ", properties=" + getProperties() +
+         ", extraProperties = " + getExtraProperties() +
          "]";
    }
 
