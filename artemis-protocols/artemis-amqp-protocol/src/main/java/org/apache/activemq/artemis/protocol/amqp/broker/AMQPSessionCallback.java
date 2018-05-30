@@ -460,7 +460,7 @@ public class AMQPSessionCallback implements SessionCallback {
                           SimpleString address,
                           int messageFormat,
                           ReadableBuffer data) throws Exception {
-      AMQPMessage message = new AMQPMessage(messageFormat, data, coreMessageObjectPools);
+      AMQPMessage message = new AMQPMessage(messageFormat, data, null, coreMessageObjectPools);
       if (address != null) {
          message.setAddress(address);
       } else {
