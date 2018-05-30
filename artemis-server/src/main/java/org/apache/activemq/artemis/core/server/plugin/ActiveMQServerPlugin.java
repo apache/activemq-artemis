@@ -158,6 +158,18 @@ public interface ActiveMQServerPlugin {
    }
 
    /**
+    * Called when adding session metadata fails because the metadata is a duplicate
+    *
+    * @param session
+    * @param key
+    * @param data
+    * @throws ActiveMQException
+    */
+   default void duplicateSessionMetadataFailure(ServerSession session, String key, String data) throws ActiveMQException {
+
+   }
+
+   /**
     * After session metadata is added to the session
     *
     * @param session
