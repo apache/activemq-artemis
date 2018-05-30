@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
+import java.lang.ref.WeakReference;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
 import javax.jms.Destination;
@@ -32,13 +40,6 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
-import java.lang.ref.WeakReference;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -242,10 +243,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          throw new IllegalStateException("setClientID can only be called directly after the connection is created");
       }
 
-      validateClientID(initialSession, clientID);
-
-      this.clientID = clientID;
       try {
+         validateClientID(initialSession, clientID);
+         this.clientID = clientID;
          this.addSessionMetaData(initialSession);
       } catch (ActiveMQException e) {
          JMSException ex = new JMSException("Internal error setting metadata jms-client-id");
@@ -257,12 +257,15 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       justCreated = false;
    }
 
-   private void validateClientID(ClientSession validateSession, String clientID) throws InvalidClientIDException {
+   private void validateClientID(ClientSession validateSession, String clientID)
+         throws InvalidClientIDException, ActiveMQException {
       try {
          validateSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA) {
             throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
+         } else {
+            throw e;
          }
       }
    }

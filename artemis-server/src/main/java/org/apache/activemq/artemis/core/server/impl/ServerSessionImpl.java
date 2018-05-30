@@ -1523,6 +1523,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerSession sessionWithMetaData = server.lookupSession(key, data);
       if (sessionWithMetaData != null && sessionWithMetaData != this) {
          // There is a duplication of this property
+         if (server.hasBrokerPlugins()) {
+            server.callBrokerPlugins(plugin -> plugin.duplicateSessionMetadataFailure(this, key, data));
+         }
          return false;
       } else {
          addMetaData(key, data);
