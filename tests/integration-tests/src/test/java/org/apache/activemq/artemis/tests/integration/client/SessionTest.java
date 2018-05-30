@@ -483,8 +483,7 @@ public class SessionTest extends ActiveMQTestBase {
       Assert.assertNotNull(m);
       m.acknowledge();
       clientSession.rollback();
-      Wait.waitFor(() -> getMessageCount(q) == 10);
-      Assert.assertEquals(10, getMessageCount(q));
+      Wait.assertEquals(10, () -> getMessageCount(q));
       clientSession.close();
       sendSession.close();
    }
