@@ -120,7 +120,7 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    private final Queue<OperationContext> pendingTokens = new ConcurrentLinkedQueue<>();
 
-   private final ExecutorFactory executorFactory;
+   private final ExecutorFactory ioExecutorFactory;
 
    private final Executor replicationStream;
 
@@ -142,12 +142,12 @@ public final class ReplicationManager implements ActiveMQComponent {
    public ReplicationManager(CoreRemotingConnection remotingConnection,
                              final long timeout,
                              final long initialReplicationSyncTimeout,
-                             final ExecutorFactory executorFactory) {
-      this.executorFactory = executorFactory;
+                             final ExecutorFactory ioExecutorFactory) {
+      this.ioExecutorFactory = ioExecutorFactory;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.replicatingChannel = remotingConnection.getChannel(CHANNEL_ID.REPLICATION.id, -1);
       this.remotingConnection = remotingConnection;
-      this.replicationStream = executorFactory.getExecutor();
+      this.replicationStream = ioExecutorFactory.getExecutor();
       this.timeout = timeout;
    }
 
@@ -355,7 +355,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          return null;
       }
 
-      final OperationContext repliToken = OperationContextImpl.getContext(executorFactory);
+      final OperationContext repliToken = OperationContextImpl.getContext(ioExecutorFactory);
       if (lineUp) {
          repliToken.replicationLineUp();
       }
