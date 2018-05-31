@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -149,7 +150,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                certSubjectDN = certs[0].getSubjectDN().getName();
             }
 
-            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
+            Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
+
+            ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
+
+            throw e;
          }
 
          return validatedUser;
