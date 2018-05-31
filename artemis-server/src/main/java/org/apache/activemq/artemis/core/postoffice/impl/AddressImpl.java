@@ -24,9 +24,11 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
 
 /**
- * splits an address string into its hierarchical parts split by '.'
+ * Splits an address string into its hierarchical parts using {@link WildcardConfiguration#getDelimiter()} as delimiter.
  */
 public class AddressImpl implements Address {
+
+   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    private final SimpleString address;
 
@@ -39,10 +41,10 @@ public class AddressImpl implements Address {
    private final WildcardConfiguration wildcardConfiguration;
 
    public AddressImpl(final SimpleString address) {
-      this(address, new WildcardConfiguration());
+      this(address, DEFAULT_WILDCARD_CONFIGURATION);
    }
 
-   public AddressImpl(final SimpleString address, WildcardConfiguration wildcardConfiguration) {
+   public AddressImpl(final SimpleString address, final WildcardConfiguration wildcardConfiguration) {
       this.address = address;
       this.wildcardConfiguration = wildcardConfiguration;
       addressParts = address.split(wildcardConfiguration.getDelimiter());
@@ -81,76 +83,113 @@ public class AddressImpl implements Address {
       linkedAddresses.remove(actualAddress);
    }
 
+   /**
+    * This method should actually be called `isMatchedBy`.
+    *
+    * @return `true` if this equals otherAddr or this address is matched by a pattern represented by otherAddr
+    */
    @Override
-   public boolean matches(final Address add) {
-      if (containsWildCard == add.containsWildCard()) {
-         return address.equals(add.getAddress());
-      }
-      int pos = 0;
-      int matchPos = 0;
+   public boolean matches(final Address otherAddr) {
+      if (otherAddr == null)
+         return false;
 
-      SimpleString nextToMatch;
-      for (; matchPos < add.getAddressParts().length; ) {
-         if (pos >= addressParts.length) {
-            // test for # as last address part
-            return pos + 1 == add.getAddressParts().length && add.getAddressParts()[pos].equals(new SimpleString(wildcardConfiguration.getAnyWords()));
+      if (address.equals(otherAddr.getAddress()))
+         return true;
+
+      final char sepAnyWords = wildcardConfiguration.getAnyWords();
+      final char sepSingleWord = wildcardConfiguration.getSingleWord();
+
+      final int thisAddrPartsLen = addressParts.length;
+      final int thisAddrPartsLastIdx = thisAddrPartsLen - 1;
+
+      final SimpleString[] otherAddrParts = otherAddr.getAddressParts();
+      final int otherAddrPartsLen = otherAddrParts.length;
+      final int otherAddrPartsLastIdx = otherAddrPartsLen - 1;
+
+      int thisIdx = 0;
+      int otherIdx = 0;
+
+      // iterate through all parts of otherAddr
+      while (otherIdx < otherAddrPartsLen) {
+
+         // check if we already tested the last part of this address
+         if (thisIdx > thisAddrPartsLastIdx) {
+            // check if last part of otherAddr is the any-words wildcard and report a match if so
+            if (otherIdx == otherAddrPartsLastIdx) {
+               final SimpleString otherAddrLastPart = otherAddrParts[otherAddrPartsLastIdx];
+               return otherAddrLastPart.length() > 0 && otherAddrLastPart.charAt(0) == sepAnyWords;
+            }
+            return false;
          }
-         SimpleString curr = addressParts[pos];
-         SimpleString next = addressParts.length > pos + 1 ? addressParts[pos + 1] : null;
-         SimpleString currMatch = add.getAddressParts()[matchPos];
-         if (currMatch.equals(new SimpleString(wildcardConfiguration.getSingleWord()))) {
-            pos++;
-            matchPos++;
-         } else if (currMatch.equals(new SimpleString(wildcardConfiguration.getAnyWords()))) {
-            if (matchPos == addressParts.length - 1) {
-               pos++;
-               matchPos++;
-            } else if (next == null) {
-               return false;
-            } else if (matchPos == add.getAddressParts().length - 1) {
+
+         SimpleString thisCurr = addressParts[thisIdx];
+         final SimpleString otherCurr = otherAddrParts[otherIdx];
+         final boolean otherCurrPartIsSingleChar = otherCurr.length() == 1;
+
+         // handle single-word wildcard found in otherAddr
+         if (otherCurrPartIsSingleChar && otherCurr.charAt(0) == sepSingleWord) {
+            thisIdx++;
+            otherIdx++;
+            continue;
+         }
+
+         // handle any-words wildcard found in otherAddr
+         if (otherCurrPartIsSingleChar && otherCurr.charAt(0) == sepAnyWords) {
+
+            // if last part of otherAddr is any-words wildcard report a match
+            if (otherIdx == otherAddrPartsLastIdx)
                return true;
+
+            SimpleString thisNext;
+            // check if this address has more parts to check
+            if (thisIdx < thisAddrPartsLastIdx) {
+               thisNext = addressParts[thisIdx + 1];
             } else {
-               nextToMatch = add.getAddressParts()[matchPos + 1];
-               while (curr != null) {
-                  if (curr.equals(nextToMatch)) {
-                     break;
-                  }
-                  pos++;
-                  curr = next;
-                  next = addressParts.length > pos + 1 ? addressParts[pos + 1] : null;
-               }
-               if (curr == null) {
-                  return false;
-               }
-               matchPos++;
+               // no more parts to check, thus check the current part against the next part of otherAddr
+               thisNext = thisCurr;
             }
-         } else {
-            if (!curr.equals(currMatch)) {
+
+            final SimpleString otherNext = otherAddrParts[otherIdx + 1];
+            // iterate through the remaining parts of this address until the part after the any-words wildcard of otherAddr is matched
+            while (thisCurr != null) {
+               if (thisCurr.equals(otherNext)) {
+                  break;
+               }
+               thisIdx++;
+               thisCurr = thisNext;
+               thisNext = thisAddrPartsLastIdx > thisIdx ? addressParts[thisIdx + 1] : null;
+            }
+            // if no further part in this address matched the next part in otherAddr report a mismatch
+            if (thisCurr == null)
                return false;
-            }
-            pos++;
-            matchPos++;
+            otherIdx++;
+            continue;
          }
+
+         // compare current parts of bothaddresses and report mismatch if they differ
+         if (!thisCurr.equals(otherCurr))
+            return false;
+
+         thisIdx++;
+         otherIdx++;
       }
-      return pos == addressParts.length;
+
+      // report match if all parts of this address were checked
+      return thisIdx == thisAddrPartsLen;
    }
 
    @Override
    public boolean equals(final Object o) {
-      if (this == o) {
+      if (this == o)
          return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
+
+      if (o == null || getClass() != o.getClass())
          return false;
-      }
 
-      AddressImpl address1 = (AddressImpl) o;
+      if (address.equals(((AddressImpl) o).address))
+         return true;
 
-      if (!address.equals(address1.address)) {
-         return false;
-      }
-
-      return true;
+      return false;
    }
 
    @Override
