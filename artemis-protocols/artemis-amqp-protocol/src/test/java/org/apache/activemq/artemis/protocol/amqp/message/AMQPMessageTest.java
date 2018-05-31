@@ -291,7 +291,7 @@ public class AMQPMessageTest {
       byte[] bytes = new byte[nettyBuffer.writerIndex()];
       nettyBuffer.readBytes(bytes);
 
-      return new AMQPMessage(0, bytes);
+      return new AMQPMessage(0, bytes, null);
    }
 
    private AMQPMessage encodeDelivery(AMQPMessage message, int deliveryCount) {
@@ -302,6 +302,6 @@ public class AMQPMessageTest {
       byte[] bytes = new byte[nettyBuffer.writerIndex()];
       nettyBuffer.readBytes(bytes);
 
-      return new AMQPMessage(0, bytes);
+      return new AMQPMessage(0, bytes, null);
    }
 }
