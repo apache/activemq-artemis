@@ -316,7 +316,7 @@ public class CoreAmqpConverter {
          byte[] data = new byte[buffer.writerIndex()];
          buffer.readBytes(data);
 
-         AMQPMessage amqpMessage = new AMQPMessage(messageFormat, data);
+         AMQPMessage amqpMessage = new AMQPMessage(messageFormat, data, null);
          amqpMessage.setMessageID(message.getInnerMessage().getMessageID());
          amqpMessage.setReplyTo(coreMessage.getReplyTo());
          return amqpMessage;
