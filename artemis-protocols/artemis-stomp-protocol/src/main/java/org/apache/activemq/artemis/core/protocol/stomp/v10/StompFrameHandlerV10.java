@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -54,32 +55,25 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
 
       try {
          connection.setClientID(clientID);
-         if (connection.validateUser(login, passcode, connection)) {
-            connection.setValid(true);
+         connection.setLogin(login);
+         connection.setPasscode(passcode);
+         // Create session which will validate user - this will cache the session in the protocol manager
+         connection.getSession();
+         connection.setValid(true);
 
-            // Create session after validating user - this will cache the session in the
-            // protocol manager
-            connection.getSession();
+         response = new StompFrameV10(Stomp.Responses.CONNECTED);
 
-            response = new StompFrameV10(Stomp.Responses.CONNECTED);
-
-            if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION)) {
-               response.addHeader(Stomp.Headers.Connected.VERSION, StompVersions.V1_0.toString());
-            }
-
-            response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
-
-            if (requestID != null) {
-               response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
-            }
-         } else {
-            // not valid
-            response = new StompFrameV10(Stomp.Responses.ERROR);
-            String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
-            response.setBody(responseText);
-            response.setNeedsDisconnect(true);
-            response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
+         if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION)) {
+            response.addHeader(Stomp.Headers.Connected.VERSION, StompVersions.V1_0.toString());
          }
+
+         response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
+
+         if (requestID != null) {
+            response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
+         }
+      } catch (ActiveMQSecurityException e) {
+         response = getFailedAuthenticationResponse(login);
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }

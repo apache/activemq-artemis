@@ -133,6 +133,8 @@ public abstract class VersionedStompFrameHandler {
          return null;
       } catch (ActiveMQStompException e) {
          return e.getFrame();
+      } catch (Exception e) {
+         return new ActiveMQStompException(e.getMessage(), e).setHandler(this).getFrame();
       }
 
    }
@@ -256,7 +258,7 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
-   public StompPostReceiptFunction onSubscribe(StompFrame frame) throws ActiveMQStompException {
+   public StompPostReceiptFunction onSubscribe(StompFrame frame) throws Exception {
       String destination = getDestination(frame);
 
       String selector = frame.getHeader(Stomp.Headers.Subscribe.SELECTOR);
@@ -279,11 +281,11 @@ public abstract class VersionedStompFrameHandler {
       return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
    }
 
-   public String getDestination(StompFrame request) throws ActiveMQStompException {
+   public String getDestination(StompFrame request) throws Exception {
       return getDestination(request, Headers.Subscribe.DESTINATION);
    }
 
-   public String getDestination(StompFrame request, String header) throws ActiveMQStompException {
+   public String getDestination(StompFrame request, String header) throws Exception {
       String destination = request.getHeader(header);
       if (destination == null) {
          return null;
@@ -291,7 +293,7 @@ public abstract class VersionedStompFrameHandler {
       return connection.getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString();
    }
 
-   public String getPrefix(StompFrame request) throws ActiveMQStompException {
+   public String getPrefix(StompFrame request) throws Exception {
       String destination = request.getHeader(Headers.Send.DESTINATION);
       if (destination == null) {
          return null;
@@ -367,7 +369,7 @@ public abstract class VersionedStompFrameHandler {
       connection.destroy();
    }
 
-   private RoutingType getRoutingType(String typeHeader, String destination) throws ActiveMQStompException {
+   private RoutingType getRoutingType(String typeHeader, String destination) throws Exception {
       // null is valid to return here so we know when the user didn't provide any routing info
       RoutingType routingType;
       if (typeHeader != null) {
@@ -376,6 +378,16 @@ public abstract class VersionedStompFrameHandler {
          routingType = connection.getSession().getCoreSession().getAddressAndRoutingType(new AddressInfo(new SimpleString(destination))).getRoutingType();
       }
       return routingType;
+   }
+
+   protected StompFrame getFailedAuthenticationResponse(String login) {
+      StompFrame response;
+      response = createStompFrame(Stomp.Responses.ERROR);
+      response.setNeedsDisconnect(true);
+      String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
+      response.setBody(responseText);
+      response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
+      return response;
    }
 
 }
