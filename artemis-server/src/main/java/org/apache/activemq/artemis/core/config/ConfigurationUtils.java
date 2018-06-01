@@ -141,6 +141,9 @@ public final class ConfigurationUtils {
 
    public static List<TransportConfiguration> parseAcceptorURI(String name, String uri) {
       try {
+         // remove all whitespace
+         uri = uri.replaceAll("\\s", "");
+
          AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
 
          List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
@@ -165,8 +168,10 @@ public final class ConfigurationUtils {
    }
 
    public static List<TransportConfiguration> parseConnectorURI(String name, String uri) {
-
       try {
+         // remove all whitespace
+         uri = uri.replaceAll("\\s", "");
+
          ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
 
          List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
