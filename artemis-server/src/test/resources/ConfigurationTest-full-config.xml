@@ -71,11 +71,20 @@
       </remoting-outgoing-interceptors>
       <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
       <connectors>
-         <connector name="connector1">tcp://localhost1:5678?localAddress=mylocal;localPort=99</connector>
+         <connector name="connector1">
+            tcp://localhost1:5678?
+            localAddress=mylocal;
+            localPort=99
+         </connector>
          <connector name="connector2">vm://5</connector>
       </connectors>
       <acceptors>
-         <acceptor>tcp://0.0.0.0:61616?tcpNoDelay=456;connectionTtl=44;connectionsAllowed=92</acceptor>
+         <acceptor>
+            tcp://0.0.0.0:61616?
+            tcpNoDelay=456;
+            connectionTtl=44;
+            connectionsAllowed=92
+         </acceptor>
          <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
       </acceptors>
       <broadcast-groups>
