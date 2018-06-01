@@ -180,12 +180,73 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
    }
 
    @Test
+   public void testRedistributionStoppedWithNoRemoteConsumers() throws Exception {
+      startServers(MessageLoadBalancingType.ON_DEMAND);
+
+      ConnectionFactory factory = getJmsConnectionFactory(1);
+
+      // Wait for cluster nodes to sync
+      waitForBindings(0, "queues.0", 1, 0, true);
+      waitForBindings(1, "queues.0", 1, 0, true);
+
+      waitForBindings(0, "queues.0", 1, 0, false);
+      waitForBindings(1, "queues.0", 1, 0, false);
+
+      // Create CFs
+      ConnectionFactory cf0 = getJmsConnectionFactory(0);
+      ConnectionFactory cf1 = getJmsConnectionFactory(1);
+
+      // Create Consumers
+      Connection cn0 = cf0.createConnection();
+      Session sn0 = cn0.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer c0 = sn0.createConsumer(sn0.createQueue(queueName.toString()));
+      cn0.start();
+
+      Connection cn1 = cf1.createConnection();
+      Session sn1 = cn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer c1 = sn1.createConsumer(sn0.createQueue(queueName.toString()));
+      cn1.start();
+
+      MessageProducer pd = sn0.createProducer(sn0.createQueue(queueName.toString()));
+
+      // Wait for cluster nodes to sync consumer count
+      waitForBindings(0, "queues.0", 1, 1, false);
+      waitForBindings(1, "queues.0", 1, 1, false);
+
+      // Start queue redistributor
+      c0.close();
+
+      // Send Messages to node1.
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         pd.send(sn0.createTextMessage("hello " + i));
+      }
+
+      // Ensure the messages are redistributed from node0 to node1.
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         assertNotNull(c1.receive(1000));
+      }
+
+      // Close client on node1.  This should make the node0 stop redistributing.
+      c1.close();
+      sn1.close();
+      cn1.close();
+
+      // Send more messages (these should stay in node0)
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         pd.send(sn0.createTextMessage("hello " + i));
+      }
+
+      // Messages should stay in node 1 and note get redistributed.
+      assertEquals(NUMBER_OF_MESSAGES, servers[0].locateQueue(queueName).getMessageCount());
+      assertEquals(0, servers[1].locateQueue(queueName).getMessageCount());
+   }
+
+   @Test
    public void testExpireRedistributed() throws Exception {
 
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
       ConnectionFactory factory = getJmsConnectionFactory(1);
-
 
       waitForBindings(0, "queues.0", 1, 0, true);
       waitForBindings(1, "queues.0", 1, 0, true);
