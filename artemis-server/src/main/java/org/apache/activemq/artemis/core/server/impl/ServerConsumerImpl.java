@@ -157,6 +157,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private boolean anycast = false;
 
+   private boolean isClosed = false;
+
    // Constructors ---------------------------------------------------------------------------------
 
    public ServerConsumerImpl(final long id,
@@ -477,7 +479,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void close(final boolean failed) throws Exception {
+   public synchronized void close(final boolean failed) throws Exception {
+
+      // Close should only ever be done once per consumer.
+      if (isClosed) return;
+      isClosed = true;
+
       if (logger.isTraceEnabled()) {
          logger.trace("ServerConsumerImpl::" + this + " being closed with failed=" + failed, new Exception("trace"));
       }
