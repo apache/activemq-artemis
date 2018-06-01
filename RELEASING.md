@@ -165,13 +165,32 @@ svn commit
 
 Old staged releases can be cleaned out periodically.
 
+## Generate the git-report and cleanup JIRA
+
+Please, include the git-commit-report as part of the release proces. To generate it follow these steps:
+
+- Download [git-release-report](https://github.com/clebertsuconic/git-release-report/releases)
+- Execute the following command:
+```bash
+$ java -jar git-release-report.jar <checkoutDirectory>/activemq-artemis <checkoutDirectory>/artemis-website commit-report-<version>.html <previous-version> <version> true
+```
+
+real example used on [2.6.1](http://activemq.apache.org/artemis/commit-report-2.6.1.html):
+```bash
+$ java -jar git-release-report.jar /work/apache-checkout/activemq-artemis commit-report-2.6.1.html 2.6.0 2.6.1 true
+```
+- This will parse all the git commits between the previous release, and current release tags while looking at current JIRA status.
+- Use this report to do some JIRA cleanup making sure your commits and JIRA are accurate.
+- Regenerate the report once you cleared JIRA.
+
 
 ## Locate Release Notes
 
-1. Go to the "Releases" page for the Artemis JIRA project: https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page
-2. Click on the version being released.
-3. Click the "Release Notes" link near the top of the page.
-4. Grab the URL to put into the VOTE email.
+1. Use the previous report to cleanup JIRA
+2. Go to the "Releases" page for the Artemis JIRA project: https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page
+3. Click on the version being released.
+4. Click the "Release Notes" link near the top of the page.
+5. Grab the URL to put into the VOTE email.
 
 
 ## Send Email
@@ -189,6 +208,9 @@ We added these new features as part of <version>:
 
 The release notes can be found here:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=<releaseNotesVersionID>&projectId=12315920
+
+Ths git commit report is here:
+http://activemq.apache.org/artemis/commit-report-<version>.html
 
 Source and binary distributions can be found here:
 https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/<version>/
