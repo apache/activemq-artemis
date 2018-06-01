@@ -60,7 +60,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private volatile long lastCheck;
 
-   private final boolean securityEnabled;
+   private boolean securityEnabled;
 
    private final String managementClusterUser;
 
@@ -95,6 +95,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    @Override
    public boolean isSecurityEnabled() {
       return securityEnabled;
+   }
+
+   @Override
+   public void setSecurityEnabled(boolean securityEnabled) {
+      this.securityEnabled = securityEnabled;
    }
 
    @Override
