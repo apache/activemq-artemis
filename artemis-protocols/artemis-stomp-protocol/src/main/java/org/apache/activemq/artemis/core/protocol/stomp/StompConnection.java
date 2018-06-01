@@ -778,6 +778,14 @@ public final class StompConnection implements RemotingConnection {
          stompListener.replySent(frame);
       }
 
+      if (frame.getCommand().equals(Stomp.Responses.ERROR)) {
+         String message = "no message header";
+         if (frame.hasHeader(Stomp.Headers.Error.MESSAGE)) {
+            message = frame.getHeader(Stomp.Headers.Error.MESSAGE);
+         }
+         ActiveMQStompProtocolLogger.LOGGER.sentErrorToClient(getTransportConnection().getRemoteAddress(), message);
+      }
+
    }
 
    public VersionedStompFrameHandler getFrameHandler() {

@@ -26,7 +26,7 @@ import org.jboss.logging.annotations.MessageLogger;
 /**
  * Logger Code 22
  *
- * each message id must be 6 digits long starting with 10, the 3rd digit donates the level so
+ * each message id must be 6 digits long starting with 22, the 3rd digit donates the level so
  *
  * INF0  1
  * WARN  2
@@ -35,7 +35,7 @@ import org.jboss.logging.annotations.MessageLogger;
  * TRACE 5
  * FATAL 6
  *
- * so an INFO message would be 101000 to 101999
+ * so an INFO message would be 241000 to 246999
  */
 
 @MessageLogger(projectCode = "AMQ")
@@ -49,6 +49,10 @@ public interface ActiveMQStompProtocolLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222068, value = "connection closed {0}", format = Message.Format.MESSAGE_FORMAT)
    void connectionClosed(StompConnection connection);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222069, value = "Sent ERROR frame to STOMP client {0}: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void sentErrorToClient(String address, String message);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224023, value = "Unable to send frame {0}", format = Message.Format.MESSAGE_FORMAT)
