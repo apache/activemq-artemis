@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -31,6 +32,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -52,8 +54,6 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
-
-import javax.security.auth.Subject;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
@@ -269,9 +269,8 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
-      ServerSession session = getSession().getCoreSession();
-
       try {
+         ServerSession session = getSession().getCoreSession();
          SimpleString simpleQueue = SimpleString.toSimpleString(queue);
          AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleQueue);
          AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
@@ -437,8 +436,16 @@ public final class StompConnection implements RemotingConnection {
       return login;
    }
 
+   public void setLogin(String login) {
+      this.login = login;
+   }
+
    public String getPasscode() {
       return passcode;
+   }
+
+   public void setPasscode(String passcode) {
+      this.passcode = passcode;
    }
 
    @Override
@@ -584,24 +591,15 @@ public final class StompConnection implements RemotingConnection {
       manager.sendReply(this, frame, function);
    }
 
-   public boolean validateUser(final String login, final String pass, final RemotingConnection connection) {
-      this.valid = manager.validateUser(login, pass, connection);
-      if (valid) {
-         this.login = login;
-         this.passcode = pass;
-      }
-      return valid;
-   }
-
    public CoreMessage createServerMessage() {
       return manager.createServerMessage();
    }
 
-   public StompSession getSession() throws ActiveMQStompException {
+   public StompSession getSession() throws ActiveMQStompException, ActiveMQSecurityException {
       return getSession(null);
    }
 
-   public StompSession getSession(String txID) throws ActiveMQStompException {
+   public StompSession getSession(String txID) throws ActiveMQStompException, ActiveMQSecurityException {
       StompSession session = null;
       try {
          if (txID == null) {
@@ -609,6 +607,8 @@ public final class StompConnection implements RemotingConnection {
          } else {
             session = manager.getTransactedSession(this, txID);
          }
+      } catch (ActiveMQSecurityException e) {
+         throw e;
       } catch (Exception e) {
          throw BUNDLE.errorGetSession(e).setHandler(frameHandler);
       }
@@ -623,15 +623,15 @@ public final class StompConnection implements RemotingConnection {
    }
 
    protected void sendServerMessage(ICoreMessage message, String txID) throws ActiveMQStompException {
-      StompSession stompSession = getSession(txID);
-
-      if (stompSession.isNoLocal()) {
-         message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
-      }
-      if (isEnableMessageID()) {
-         message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
-      }
       try {
+         StompSession stompSession = getSession(txID);
+
+         if (stompSession.isNoLocal()) {
+            message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
+         }
+         if (isEnableMessageID()) {
+            message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
+         }
          if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize)) {
             stompSession.sendInternal(message, false);
          } else {
