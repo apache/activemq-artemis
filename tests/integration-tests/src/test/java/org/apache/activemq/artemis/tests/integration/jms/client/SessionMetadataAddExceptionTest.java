@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jms.Connection;
+import javax.jms.InvalidClientIDException;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -33,9 +36,12 @@ import org.junit.Test;
  * is added
  */
 public class SessionMetadataAddExceptionTest extends JMSTestBase {
+   private AtomicInteger duplicateCount = new AtomicInteger();
 
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
+      duplicateCount.set(0);
+
       Configuration config = super.createDefaultConfig(netty);
       config.registerBrokerPlugin(new ActiveMQServerPlugin() {
 
@@ -47,6 +53,18 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
                if ("invalid".equals(data)) {
                   throw new ActiveMQException("Invalid clientId");
                }
+            }
+         }
+
+         @Override
+         public void duplicateSessionMetadataFailure(ServerSession session, String key, String data)
+               throws ActiveMQException {
+
+            //count number of times method called
+            duplicateCount.incrementAndGet();
+
+            if (data.equals("valid2")) {
+               throw new ActiveMQException("failure");
             }
          }
 
@@ -73,6 +91,36 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
       ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
       activeMQConnectionFactory.setClientID("invalid");
       cf.createConnection();
+   }
+
+   @Test(timeout = 5000)
+   public void testDuplicateClientIdSet() throws Exception {
+      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
+      Connection con = cf.createConnection();
+      Connection con2 = cf.createConnection();
+      try {
+         con.setClientID("valid");
+         con2.setClientID("valid");
+         fail("Should have failed for duplicate clientId");
+      } catch (InvalidClientIDException e) {
+         assertEquals(1, duplicateCount.get());
+      } finally {
+         activeMQConnectionFactory.close();
+      }
+   }
+
+   @Test(timeout = 5000, expected = JMSException.class)
+   public void testDuplicateClientIdSetActiveMQException() throws Exception {
+      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
+      Connection con = cf.createConnection();
+      Connection con2 = cf.createConnection();
+      try {
+         con.setClientID("valid2");
+         con2.setClientID("valid2");
+         fail("Should have failed");
+      } finally {
+         activeMQConnectionFactory.close();
+      }
    }
 
    @Test(timeout = 5000)
