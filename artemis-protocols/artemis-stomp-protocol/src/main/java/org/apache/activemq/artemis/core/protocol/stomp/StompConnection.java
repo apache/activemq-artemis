@@ -276,7 +276,6 @@ public final class StompConnection implements RemotingConnection {
          AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleQueue);
          AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
          RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
-         boolean checkAnycast = false;
          /**
           * If the address doesn't exist then it is created if possible.
           * If the address does exist but doesn't support the routing-type then the address is updated if possible.
@@ -285,8 +284,6 @@ public final class StompConnection implements RemotingConnection {
             if (addressSettings.isAutoCreateAddresses()) {
                session.createAddress(simpleQueue, effectiveAddressRoutingType, true);
             }
-
-            checkAnycast = true;
          } else if (!addressInfo.getRoutingTypes().contains(effectiveAddressRoutingType)) {
             if (addressSettings.isAutoCreateAddresses()) {
                EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
@@ -296,12 +293,10 @@ public final class StompConnection implements RemotingConnection {
                routingTypes.add(effectiveAddressRoutingType);
                manager.getServer().updateAddressInfo(simpleQueue, routingTypes);
             }
-
-            checkAnycast = true;
          }
 
          // only auto create the queue if the address is ANYCAST
-         if (checkAnycast && effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues()) {
+         if (effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues() && manager.getServer().locateQueue(simpleQueue) == null) {
             session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, true, true);
          }
       } catch (ActiveMQQueueExistsException e) {
