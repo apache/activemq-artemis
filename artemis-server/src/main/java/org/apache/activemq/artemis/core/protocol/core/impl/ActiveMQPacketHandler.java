@@ -175,7 +175,6 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          response = new CreateSessionResponseMessage(server.getVersion().getIncrementingVersion());
       } catch (ActiveMQClusterSecurityException | ActiveMQSecurityException e) {
-         ActiveMQServerLogger.LOGGER.securityProblemWhileCreatingSession(e.getMessage());
          response = new ActiveMQExceptionMessage(e);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
