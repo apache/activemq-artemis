@@ -114,7 +114,7 @@ public class QueueInfo implements Serializable {
 
       consumerUpdater.getAndUpdate(this, value -> {
          if (value > 0) {
-            return value--;
+            return --value;
          } else {
             ActiveMQServerLogger.LOGGER.consumerCountError("Tried to decrement consumer count below 0: " + this);
             return value;
