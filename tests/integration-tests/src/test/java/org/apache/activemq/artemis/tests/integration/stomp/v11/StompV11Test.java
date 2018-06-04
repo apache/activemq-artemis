@@ -96,7 +96,7 @@ public class StompV11Test extends StompTestBase {
 
    @Test
    public void testConnection() throws Exception {
-      server.getActiveMQServer().getConfiguration().setSecurityEnabled(true);
+      server.getActiveMQServer().getSecurityStore().setSecurityEnabled(true);
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection(v10Uri);
 
       connection.connect(defUser, defPass);

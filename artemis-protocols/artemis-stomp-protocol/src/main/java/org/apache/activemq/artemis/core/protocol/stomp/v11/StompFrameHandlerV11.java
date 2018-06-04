@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
 import org.apache.activemq.artemis.core.protocol.stomp.SimpleBytes;
@@ -69,54 +70,53 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       try {
          connection.setClientID(clientID);
-         if (connection.validateUser(login, passcode, connection)) {
-            connection.setValid(true);
+         connection.setLogin(login);
+         connection.setPasscode(passcode);
+         // Create session which will validate user - this will cache the session in the protocol manager
+         connection.getSession();
+         connection.setValid(true);
 
-            // Create session after validating user - this will cache the session in the
-            // protocol manager
-            connection.getSession();
+         response = this.createStompFrame(Stomp.Responses.CONNECTED);
 
-            response = this.createStompFrame(Stomp.Responses.CONNECTED);
+         // version
+         response.addHeader(Stomp.Headers.Connected.VERSION, connection.getVersion());
 
-            // version
-            response.addHeader(Stomp.Headers.Connected.VERSION, connection.getVersion());
+         // session
+         response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
 
-            // session
-            response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
+         // server
+         response.addHeader(Stomp.Headers.Connected.SERVER, connection.getActiveMQServerName());
 
-            // server
-            response.addHeader(Stomp.Headers.Connected.SERVER, connection.getActiveMQServerName());
-
-            if (requestID != null) {
-               response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
-            }
-
-            // heart-beat. We need to start after connected frame has been sent.
-            // otherwise the client may receive heart-beat before it receives
-            // connected frame.
-            String heartBeat = headers.get(Stomp.Headers.Connect.HEART_BEAT);
-
-            if (heartBeat != null) {
-               handleHeartBeat(heartBeat);
-               if (heartBeater == null) {
-                  response.addHeader(Stomp.Headers.Connected.HEART_BEAT, "0,0");
-               } else {
-                  response.addHeader(Stomp.Headers.Connected.HEART_BEAT, heartBeater.serverPingPeriod + "," + heartBeater.clientPingResponse);
-               }
-            }
-         } else {
-            // not valid
-            response = createStompFrame(Stomp.Responses.ERROR);
-            response.setNeedsDisconnect(true);
-            response.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
-            String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
-            response.setBody(responseText);
-            response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
+         if (requestID != null) {
+            response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
          }
+
+         // heart-beat. We need to start after connected frame has been sent.
+         // otherwise the client may receive heart-beat before it receives
+         // connected frame.
+         String heartBeat = headers.get(Stomp.Headers.Connect.HEART_BEAT);
+
+         if (heartBeat != null) {
+            handleHeartBeat(heartBeat);
+            if (heartBeater == null) {
+               response.addHeader(Stomp.Headers.Connected.HEART_BEAT, "0,0");
+            } else {
+               response.addHeader(Stomp.Headers.Connected.HEART_BEAT, heartBeater.serverPingPeriod + "," + heartBeater.clientPingResponse);
+            }
+         }
+      } catch (ActiveMQSecurityException e) {
+         response = getFailedAuthenticationResponse(login);
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
+      return response;
+   }
+
+   @Override
+   protected StompFrame getFailedAuthenticationResponse(String login) {
+      StompFrame response = super.getFailedAuthenticationResponse(login);
+      response.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
       return response;
    }
 
