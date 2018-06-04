@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -45,9 +44,6 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -65,7 +61,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
    private final Executor executor;
 
-   private final Map<String, StompSession> transactedSessions = new HashMap<>();
+   private final Map<Object, StompSession> transactedSessions = new HashMap<>();
 
    // key => connection ID, value => Stomp session
    private final Map<Object, StompSession> sessions = new HashMap<>();
@@ -212,33 +208,22 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       }
    }
 
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
    public StompSession getSession(StompConnection connection) throws Exception {
-      StompSession stompSession = sessions.get(connection.getID());
-      if (stompSession == null) {
-         stompSession = new StompSession(connection, this, server.getStorageManager().newContext(server.getExecutorFactory().getExecutor()));
-         String name = UUIDGenerator.getInstance().generateStringUUID();
-         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, true, false, false, false, null, stompSession, true, server.newOperationContext(), getPrefixes());
-         stompSession.setServerSession(session);
-         sessions.put(connection.getID(), stompSession);
-      }
-      server.getStorageManager().setContext(stompSession.getContext());
-      return stompSession;
+      return internalGetSession(connection, sessions, connection.getID(), false);
    }
 
    public StompSession getTransactedSession(StompConnection connection, String txID) throws Exception {
-      StompSession stompSession = transactedSessions.get(txID);
+      return internalGetSession(connection, transactedSessions, txID, true);
+   }
+
+   private StompSession internalGetSession(StompConnection connection, Map<Object, StompSession> sessions, Object id, boolean transacted) throws Exception {
+      StompSession stompSession = sessions.get(id);
       if (stompSession == null) {
-         stompSession = new StompSession(connection, this, server.getStorageManager().newContext(executor));
+         stompSession = new StompSession(connection, this, server.getStorageManager().newContext(server.getExecutorFactory().getExecutor()));
          String name = UUIDGenerator.getInstance().generateStringUUID();
-         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, false, false, false, false, null, stompSession, true, server.newOperationContext(), getPrefixes());
+         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, !transacted, false, false, false, null, stompSession, true, server.newOperationContext(), getPrefixes());
          stompSession.setServerSession(session);
-         transactedSessions.put(txID, stompSession);
+         sessions.put(id, stompSession);
       }
       server.getStorageManager().setContext(stompSession.getContext());
       return stompSession;
@@ -263,9 +248,9 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
             }
 
             // removed the transacted session belonging to the connection
-            Iterator<Entry<String, StompSession>> iterator = transactedSessions.entrySet().iterator();
+            Iterator<Entry<Object, StompSession>> iterator = transactedSessions.entrySet().iterator();
             while (iterator.hasNext()) {
-               Map.Entry<String, StompSession> entry = iterator.next();
+               Map.Entry<Object, StompSession> entry = iterator.next();
                if (entry.getValue().getConnection() == connection) {
                   ServerSession serverSession = entry.getValue().getCoreSession();
                   try {
@@ -324,24 +309,6 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
    public String getVirtualHostName() {
       return "activemq";
-   }
-
-   public boolean validateUser(String login, String passcode, RemotingConnection remotingConnection) {
-      boolean validated = true;
-
-      ActiveMQSecurityManager sm = server.getSecurityManager();
-
-      if (sm != null && server.getConfiguration().isSecurityEnabled()) {
-         if (sm instanceof ActiveMQSecurityManager3) {
-            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, remotingConnection) != null;
-         } else if (sm instanceof ActiveMQSecurityManager2) {
-            validated = ((ActiveMQSecurityManager2) sm).validateUser(login, passcode, CertificateUtil.getCertsFromConnection(remotingConnection));
-         } else {
-            validated = sm.validateUser(login, passcode);
-         }
-      }
-
-      return validated;
    }
 
    public CoreMessage createServerMessage() {
