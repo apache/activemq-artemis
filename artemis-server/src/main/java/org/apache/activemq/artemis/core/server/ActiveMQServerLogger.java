@@ -1946,4 +1946,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.TRACE)
    @Message(id = 224094, value = "Quorum vote result await is interrupted", format = Message.Format.MESSAGE_FORMAT)
    void quorumVoteAwaitInterrupted();
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224095, value = "Error updating Consumer Count: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void consumerCountError(String reason);
 }
