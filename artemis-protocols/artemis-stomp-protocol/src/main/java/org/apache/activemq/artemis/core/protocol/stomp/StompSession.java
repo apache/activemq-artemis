@@ -252,11 +252,13 @@ public class StompSession implements SessionCallback {
                                String destination,
                                String selector,
                                String ack) throws Exception {
+      SimpleString address = SimpleString.toSimpleString(destination);
       SimpleString queueName = SimpleString.toSimpleString(destination);
+      SimpleString selectorSimple = SimpleString.toSimpleString(selector);
       boolean pubSub = false;
       final int receiveCredits = ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO) ? -1 : consumerCredits;
 
-      Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(SimpleString.toSimpleString(destination))).getRoutingTypes();
+      Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(address)).getRoutingTypes();
       boolean topic = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
       if (topic) {
          // subscribes to a topic
@@ -267,14 +269,14 @@ public class StompSession implements SessionCallback {
             }
             queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
             if (manager.getServer().locateQueue(queueName) == null) {
-               session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), false, true);
+               session.createQueue(address, queueName, selectorSimple, false, true);
             }
          } else {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-            session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), true, false);
+            session.createQueue(address, queueName, selectorSimple, true, false);
          }
       }
-      final ServerConsumer consumer = topic ? session.createConsumer(consumerID, queueName, null, false, false, 0) : session.createConsumer(consumerID, queueName, SimpleString.toSimpleString(selector), false, false, 0);
+      final ServerConsumer consumer = session.createConsumer(consumerID, queueName, topic ? null : selectorSimple, false, false, 0);
       StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, pubSub);
       subscriptions.put(consumerID, subscription);
       session.start();
