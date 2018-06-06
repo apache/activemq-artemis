@@ -33,6 +33,7 @@ under the License.
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+      <netty.tcnative.version>2.0.7.Final</netty.tcnative.version>
    </properties>
 
    <dependencies>
@@ -40,6 +41,12 @@ under the License.
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client-all</artifactId>
          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-tcnative-boringssl-static</artifactId>
+         <version>${netty.tcnative.version}</version>
+         <!-- License: Apache 2.0 -->
       </dependency>
    </dependencies>
 
@@ -56,6 +63,7 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
+                     <libList>io.netty:netty-tcnative-boringssl-static:${netty.tcnative.version}</libList>
                   </configuration>
                </execution>
                <execution>
