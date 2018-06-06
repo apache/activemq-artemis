@@ -1635,7 +1635,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (logJournalWriteRate ? 1231 : 1237);
       result = prime * result + ((managementAddress == null) ? 0 : managementAddress.hashCode());
       result = prime * result + ((managementNotificationAddress == null) ? 0 : managementNotificationAddress.hashCode());
-      result = prime * result + (maskPassword ? 1231 : 1237);
+      result = prime * result + (maskPassword == null ? 0 : maskPassword.hashCode());
       result = prime * result + maxConcurrentPageIO;
       result = prime * result + (int) (memoryMeasureInterval ^ (memoryMeasureInterval >>> 32));
       result = prime * result + memoryWarningThreshold;
