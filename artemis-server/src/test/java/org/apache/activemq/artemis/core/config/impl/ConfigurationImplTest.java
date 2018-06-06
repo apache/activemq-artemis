@@ -89,6 +89,13 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testNullMaskPassword() {
+      ConfigurationImpl impl = new ConfigurationImpl();
+      impl.setMaskPassword(null);
+      impl.hashCode();
+   }
+
+   @Test
    public void testSetGetAttributes() throws Exception {
       for (int j = 0; j < 100; j++) {
          int i = RandomUtil.randomInt();
