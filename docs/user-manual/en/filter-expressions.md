@@ -10,19 +10,19 @@ please the JMS javadoc for
 
 Filter expressions are used in several places in Apache ActiveMQ Artemis
 
--   Predefined Queues. When pre-defining a queue, in
-    `broker.xml` in either the core or jms configuration a filter
-    expression can be defined for a queue. Only messages that match the
-    filter expression will enter the queue.
+- Predefined Queues. When pre-defining a queue, in
+  `broker.xml` in either the core or jms configuration a filter
+  expression can be defined for a queue. Only messages that match the
+  filter expression will enter the queue.
 
--   Core bridges can be defined with an optional filter expression, only
-    matching messages will be bridged (see [Core Bridges](core-bridges.md)).
+- Core bridges can be defined with an optional filter expression, only
+  matching messages will be bridged (see [Core Bridges](core-bridges.md)).
 
--   Diverts can be defined with an optional filter expression, only
-    matching messages will be diverted (see [Diverts](diverts.md)).
+- Diverts can be defined with an optional filter expression, only
+  matching messages will be diverted (see [Diverts](diverts.md)).
 
--   Filter are also used programmatically when creating consumers,
-    queues and in several places as described in [management](management.md).
+- Filter are also used programmatically when creating consumers,
+  queues and in several places as described in [management](management.md).
 
 There are some differences between JMS selector expressions and Apache ActiveMQ Artemis
 core filter expressions. Whereas JMS selector expressions operate on a
@@ -31,21 +31,21 @@ JMS message, Apache ActiveMQ Artemis core filter expressions operate on a core m
 The following identifiers can be used in a core filter expressions to
 refer to attributes of the core message in an expression:
 
--   `AMQPriority`. To refer to the priority of a message. Message
-    priorities are integers with valid values from `0 - 9`. `0` is the
-    lowest priority and `9` is the highest. E.g.
-    `AMQPriority = 3 AND animal = 'aardvark'`
+- `AMQPriority`. To refer to the priority of a message. Message
+  priorities are integers with valid values from `0 - 9`. `0` is the
+  lowest priority and `9` is the highest. E.g.
+  `AMQPriority = 3 AND animal = 'aardvark'`
 
--   `AMQExpiration`. To refer to the expiration time of a message. The
-    value is a long integer.
+- `AMQExpiration`. To refer to the expiration time of a message. The
+  value is a long integer.
 
--   `AMQDurable`. To refer to whether a message is durable or not. The
-    value is a string with valid values: `DURABLE` or `NON_DURABLE`.
+- `AMQDurable`. To refer to whether a message is durable or not. The
+  value is a string with valid values: `DURABLE` or `NON_DURABLE`.
 
--   `AMQTimestamp`. The timestamp of when the message was created. The
-    value is a long integer.
+- `AMQTimestamp`. The timestamp of when the message was created. The
+  value is a long integer.
 
--   `AMQSize`. The size of a message in bytes. The value is an integer.
+- `AMQSize`. The size of a message in bytes. The value is an integer.
 
 Any other identifiers used in core filter expressions will be assumed to
 be properties of the message.

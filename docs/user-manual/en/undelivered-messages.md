@@ -8,18 +8,18 @@ in the queue indefinitely, clogging the system.
 
 There are 2 ways to deal with these undelivered messages:
 
--   Delayed redelivery.
+- Delayed redelivery.
 
-    It is possible to delay messages redelivery.  This gives the client some
-    time to recover from any transient failures and to prevent overloading
-    its network or CPU resources.
+  It is possible to delay messages redelivery.  This gives the client some
+  time to recover from any transient failures and to prevent overloading
+  its network or CPU resources.
 
--   Dead Letter Address.
+- Dead Letter Address.
 
-    It is also possible to configure a dead letter address so that after
-    a specified number of unsuccessful deliveries, messages are removed
-    from their queue and sent to the dead letter address.  These messages
-    will not be delivered again from this queue.
+  It is also possible to configure a dead letter address so that after
+  a specified number of unsuccessful deliveries, messages are removed
+  from their queue and sent to the dead letter address.  These messages
+  will not be delivered again from this queue.
 
 Both options can be combined for maximum flexibility.
 
@@ -130,15 +130,15 @@ set of addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)).
 Dead letter messages which are consumed from a dead letter address have
 the following properties:
 
--   `_AMQ_ORIG_ADDRESS`
+- `_AMQ_ORIG_ADDRESS`
 
-    a String property containing the *original address* of the dead
-    letter message
+  a String property containing the *original address* of the dead
+  letter message
 
--   `_AMQ_ORIG_QUEUE`
+- `_AMQ_ORIG_QUEUE`
 
-    a String property containing the *original queue* of the dead letter
-    message
+  a String property containing the *original queue* of the dead letter
+  message
 
 ### Example
 

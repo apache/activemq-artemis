@@ -13,8 +13,8 @@ please see [Persistence](persistence.md).
 
 These are the native libraries distributed by Apache ActiveMQ Artemis:
 
--   libartemis-native-64.so - x86 64 bits
--   We distributed a 32-bit version until early 2017. While it's not available on the distribution any longer it should still be possible to compile to a 32-bit environment if needed.
+- libartemis-native-64.so - x86 64 bits
+- We distributed a 32-bit version until early 2017. While it's not available on the distribution any longer it should still be possible to compile to a 32-bit environment if needed.
 
 When using libaio, Apache ActiveMQ Artemis will always try loading these files as long
 as they are on the [library path](using-server.md#library-path)
@@ -28,12 +28,15 @@ You can install libaio using the following steps as the root user:
 
 Using yum, (e.g. on Fedora or Red Hat Enterprise Linux):
 
-    yum install libaio
+```
+yum install libaio
+```
 
 Using aptitude, (e.g. on Ubuntu or Debian system):
 
-    apt-get install libaio
-
+```
+apt-get install libaio
+```
 
 ## Compiling the native libraries
 
@@ -44,26 +47,26 @@ those platforms with the release.
 
 ## Compilation dependencies
 
-> **Note**
+> **Note:**
 >
 > The native layer is only available on Linux. If you are
 > in a platform other than Linux the native compilation will not work
 
 These are the required linux packages to be installed for the compilation to work:
 
--   gcc - C Compiler
+- gcc - C Compiler
 
--   gcc-c++ or g++ - Extension to gcc with support for C++
+- gcc-c++ or g++ - Extension to gcc with support for C++
 
--   libtool - Tool for link editing native libraries
+- libtool - Tool for link editing native libraries
 
--   libaio - library to disk asynchronous IO kernel functions
+- libaio - library to disk asynchronous IO kernel functions
 
--   libaio-dev - Compilation support for libaio
+- libaio-dev - Compilation support for libaio
 
--   cmake
+- cmake
 
--   A full JDK installed with the environment variable JAVA\_HOME set to
+- A full JDK installed with the environment variable JAVA\_HOME set to
     its location
 
 To perform this installation on RHEL or Fedora, you can simply type this at a command line:
@@ -74,7 +77,7 @@ Or on Debian systems:
 
     sudo apt-get install libtool gcc-g++ gcc libaio libaio- cmake
 
-> **Note**
+> **Note:**
 >
 > You could find a slight variation of the package names depending on
 > the version and Linux distribution. (for example gcc-c++ on Fedora

@@ -69,9 +69,8 @@
             <xsd:annotation>
                <xsd:documentation>
                   If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available
-                  on the
-                  classpath. If false then only the core protocol will be available, unless in Embedded mode where users
-                  can inject their own Protocol Managers.
+                  on the classpath. If false then only the core protocol will be available, unless in Embedded mode
+                  where users can inject their own Protocol Managers.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -216,7 +215,7 @@
          <xsd:element name="log-delegate-factory-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  XXX
+                  DEPRECATED: the name of the factory class to use for log delegation
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -356,7 +355,7 @@
          <xsd:element name="remoting-incoming-interceptors" type="class-name-sequenceType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor incoming
+                  a list of &lt;class-name/&gt; elements with the names of classes to use for intercepting incoming
                   remoting packets
                </xsd:documentation>
             </xsd:annotation>
@@ -365,7 +364,7 @@
          <xsd:element name="remoting-outgoing-interceptors" type="class-name-sequenceType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor outcoming
+                  a list of &lt;class-name/&gt; elements with the names of classes to use for intercepting outgoing
                   remoting packets
                </xsd:documentation>
             </xsd:annotation>
@@ -713,10 +712,10 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="journal-file-open-timeout" type="xsd:int" maxOccurs="1" minOccurs="0">
+         <xsd:element name="journal-file-open-timeout" type="xsd:int" default="5" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the length of time to wait when opening a new Journal file before timing out and failing
+                  the length of time in seconds to wait when opening a new Journal file before timing out and failing
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -867,7 +866,7 @@
                            <xsd:attribute name="match" type="xsd:string" use="required">
                               <xsd:annotation>
                                  <xsd:documentation>
-                                    regular expression for matching security roles against addresses
+                                    pattern for matching security roles against addresses; can use wildards
                                  </xsd:documentation>
                               </xsd:annotation>
                            </xsd:attribute>
@@ -1075,7 +1074,7 @@
          <xsd:element name="wildcard-addresses" type="wildcardType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Wildcard addresses format
+                  parameters to configure wildcard address matching format
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1103,9 +1102,20 @@
    <xsd:element name="broadcast-group">
       <xsd:complexType>
          <xsd:sequence>
-            <!-- XXX these 2 local-* here...-->
-            <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0"/>
-            <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0"/>
+            <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     a local address to which the datagram socket is bound
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     a local port to which the datagram socket is bound
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
             <xsd:element name="group-address" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -1163,7 +1173,6 @@
    <xsd:element name="discovery-group">
       <xsd:complexType>
          <xsd:all>
-            <!-- XXX -->
             <xsd:element name="group-address" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -1650,8 +1659,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED: use message-load-balancing-type instead. Select STRICT to mimic
-                  forward-when-no-consumers=true
-                  and ON_DEMAND to mimic forward-when-no-consumers=false.
+                  forward-when-no-consumers=true and ON_DEMAND to mimic forward-when-no-consumers=false.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1750,7 +1758,7 @@
                   <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
                      <xsd:annotation>
                         <xsd:documentation>
-                           XXX -- this is a duplicate...
+                           name of discovery group used by this cluster-connection
                         </xsd:documentation>
                      </xsd:annotation>
                   </xsd:attribute>
@@ -2961,7 +2969,7 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="default-max-consumers" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
+            <xsd:element name="default-max-consumers" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      the maximum number of consumers allowed on this queue at any one time
@@ -2990,7 +2998,7 @@
          <xsd:attribute name="match" type="xsd:string" use="required">
             <xsd:annotation>
                <xsd:documentation>
-                  XXX
+                  pattern for matching settings against addresses; can use wildards
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
@@ -3009,7 +3017,7 @@
             <xsd:element name="max-connections" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     how many connections are allowed by the matched entity (-1 means no limit, default is -1)
+                     how many connections are allowed by the matched user (-1 means no limit, default is -1)
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -3017,7 +3025,7 @@
             <xsd:element name="max-queues" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     how many queues can be created by the matched entity (-1 means no limit, default is -1)
+                     how many queues can be created by the matched user (-1 means no limit, default is -1)
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -3146,7 +3154,7 @@
       <xsd:attribute name="name" type="xsd:string" use="required">
          <xsd:annotation>
             <xsd:documentation>
-               The address name to matches incoming message addresses
+               The address name to match incoming message addresses
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>

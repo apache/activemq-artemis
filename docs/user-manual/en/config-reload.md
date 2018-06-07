@@ -1,8 +1,11 @@
 # Configuration Reload
 
-The system will perform a periodic check on the configuration files, configured by `configuration-file-refresh-period`, with the default at 5000, in milliseconds.
+The system will perform a periodic check on the configuration files, configured
+by `configuration-file-refresh-period`, with the default at 5000, in
+milliseconds.
 
-Once the configuration file is changed (broker.xml) the following modules will be reloaded automatically:
+Once the configuration file is changed (broker.xml) the following modules will
+be reloaded automatically:
 
 - Address Settings
 - Security Settings
@@ -10,7 +13,7 @@ Once the configuration file is changed (broker.xml) the following modules will b
 - Addresses & queues
 
 
-Notice: 
+**Note:**
 
 Deletion of Address's and Queue's, not auto created is controlled by Address Settings
 
@@ -23,50 +26,63 @@ Deletion of Address's and Queue's, not auto created is controlled by Address Set
    * FORCE - will remove the queue upon config reload, even if messages remains, losing the messages in the queue.
 
 
-By default both settings are OFF as such address & queues won't be removed upon reload, given the risk of losing messages. 
+By default both settings are OFF as such address & queues won't be removed upon
+reload, given the risk of losing messages.
 
-When OFF You may execute explicit CLI or Management operations to remove address & queues.
+When OFF You may execute explicit CLI or Management operations to remove
+address & queues.
 
 ## Reloadable Parameters
 
-The broker configuration file has 2 main parts, `<core>` and `<jms>`. Some of the parameters in the 2 parts are monitored and, 
-if modified, reloaded into the broker at runtime.
+The broker configuration file has 2 main parts, `<core>` and `<jms>`. Some of
+the parameters in the 2 parts are monitored and, if modified, reloaded into the
+broker at runtime.
 
-Please note that elements under `<jms>` are deprecated. Users are encouraged to use `<core>` configuration entities.
+**Note:** Elements under `<jms>` are **deprecated**. Users are encouraged to
+use `<core>` configuration entities.
 
-> *Note:*
-> Most parameters reloaded take effect immediately after reloading. However there are some 
-> that won’t take any effect unless you restarting the broker.
+> **Note:**
+>
+> Most parameters reloaded take effect immediately after reloading. However
+> there are some that won’t take any effect unless you restarting the broker.
 > Such parameters are specifically indicated in the following text.
 
-### `<core>` 
+### `<core>`
 
 #### `<security-settings>`
 
 * `<security-setting>` element
 
-Changes to any <security-setting> elements will be reloaded. Each <security-setting> defines security roles for a matched address. 
+Changes to any `<security-setting>` elements will be reloaded. Each
+`<security-setting>` defines security roles for a matched address.
 
-   * The `match` attribute
+* The `match` attribute
 
-   This attribute defines the address for which the security-setting is defined. It can take wildcards such as ‘#’ and ‘*’.  
+  This attribute defines the address for which the security-setting is
+  defined. It can take wildcards such as ‘#’ and ‘*’.
 
-   * The `<permission>` sub-elements
+* The `<permission>` sub-elements
 
-   Each `<security-setting>` can have a list of `<permission>` elements, each of which defines a specific permission-roles mapping. 
-   Each permission has 2 attributes ‘type’ and ‘roles’. The ‘type’ attribute defines the type of operation allowed, the ‘roles’ 
-   defines which roles are allowed to perform such operation. Refer to the user’s manual for a list of operations that can be defined.
+Each `<security-setting>` can have a list of `<permission>` elements, each
+of which defines a specific permission-roles mapping.  Each permission has 2
+attributes ‘type’ and ‘roles’. The ‘type’ attribute defines the type of
+operation allowed, the ‘roles’ defines which roles are allowed to perform such
+operation. Refer to the user’s manual for a list of operations that can be
+defined.
 
-> *Note:*
-> Once loaded the security-settings will take effect immediately. Any new clients will subject
-> to the new security settings. Any existing clients will subject to the new settings as well, as soon as they performs
-> a new security-sensitive operation.
+> **Note:**
+>
+> Once loaded the security-settings will take effect immediately. Any new
+> clients will subject to the new security settings. Any existing clients will
+> subject to the new settings as well, as soon as they performs a new
+> security-sensitive operation.
 
-Below lists the effects of adding, deleting and updating of an element/attribute within the `<security-settings>` element, whether
-an change can be done or can’t be done.
+Below lists the effects of adding, deleting and updating of an
+element/attribute within the `<security-settings>` element, whether an change
+can be done or can’t be done.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<security-settings>` | X* (at most one element is allowed) | Deleting it means delete the whole security settings from the running broker. | N/A*
 `<security-setting>` | Adding one element means adding a new set of security roles for an address in the running broker | Deleting one element means removing a set of security roles for an address in the running broker | Updating one element means updating the security roles for an address (if match attribute is not changed), or means removing the old match address settings and adding a new one (if match attribute is changed)
 attribute `match` | N/A* | X* | Changing this value is same as deleting the whole <security-setting> with the old match value and adding
@@ -81,21 +97,28 @@ attribute `roles` | N/A* | X* | Changing the ‘roles’ value means updating th
 
 * `<address-settings>` element
 
-Changes to elements under `<address-settings>` will be reloaded into runtime broker. It contains a list of `<address-setting>` elements.
+Changes to elements under `<address-settings>` will be reloaded into runtime
+broker. It contains a list of `<address-setting>` elements.
 
    * `<address-setting>` element
-   
-   Each address-setting element has a ‘match’ attribute that defines an address pattern for which this address-setting is defined. It also has a list of sub-elements used to define the properties of a matching address.
-   
-   > *Note:*
-   > Parameters reloaded in this category will take effect immediately after reloading. The effect of deletion of Address's and Queue's, 
-   > not auto created is controlled by parameter `config-delete-addresses` and `config-delete-queues` as described in the doc.
-   
-Below lists the effects of adding, deleting and updating of an element/attribute within the address-settings element, whether an change 
-can be done or can’t be done.
+
+   Each address-setting element has a ‘match’ attribute that defines an address
+   pattern for which this address-setting is defined. It also has a list of
+   sub-elements used to define the properties of a matching address.
+
+   > **Note:** 
+   >
+   > Parameters reloaded in this category will take effect immediately
+   > after reloading. The effect of deletion of Address's and Queue's, not auto
+   > created is controlled by parameter `config-delete-addresses` and
+   > `config-delete-queues` as described in the doc.
+
+Below lists the effects of adding, deleting and updating of an
+element/attribute within the address-settings element, whether an change can be
+done or can’t be done.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<address-settings>` | X(at most one element is allowed) | Deleting it means delete the whole address settings from the running broker | N/A
 `<address-setting>` | Adding one element means adding a set of address-setting for a new address in the running broker | Deleting one  means removing a set of address-setting for an address in the running broker | Updating one element means updating the address setting for an address (if match attribute is not changed), or means removing the old match address settings and adding a new one (if match attribute is changed)
 attribute `match` | N/A | X | Changing this value is same as deleting the whole <address-setting> with the old match value and adding a new one with the new match value.
@@ -132,20 +155,22 @@ attribute `match` | N/A | X | Changing this value is same as deleting the whole 
 
 #### `<diverts>`
 
-All `<divert>` elements will be reloaded. Each `<divert>` element 
-has a ‘name’ and several sub-elements that defines the properties of a divert.
+All `<divert>` elements will be reloaded. Each `<divert>` element has a ‘name’
+and several sub-elements that defines the properties of a divert.
 
-> *Note:*
-> Reloading `<diverts>` only resulting in deploying new diverts. Existing diverts 
-> won’t get undeployed even if you delete a `<divert>` element. Nor an existing 
-> divert will be updated if its element is updated after reloading. 
-> To make this happen you need a restart of the broker.
+> **Note:**
+>
+> Reloading `<diverts>` only resulting in deploying new diverts. Existing diverts
+> won’t get undeployed even if you delete a `<divert>` element. Nor an existing
+> divert will be updated if its element is updated after reloading.  To make
+> this happen you need a restart of the broker.
 
-Below lists the effects of adding, deleting and updating of an element/attribute 
-within the diverts element, whether an change can be done or can’t be done.
+Below lists the effects of adding, deleting and updating of an
+element/attribute within the diverts element, whether an change can be done or
+can’t be done.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<diverts>` | X (no more than one can be present) | Deleting it means delete  (undeploy) all diverts in running broker. | N/A
 `<divert>` | Adding a new divert. It will be deployed after reloading | No effect on the deployed divert.(unless restarting broker, in which case the divert will no longer be deployed) | No effect on the deployed divert (unless restarting broker, in which case the divert will be redeployed)
 attribute `name` | N/A | X | A new divert with the name will be deployed. (if it is not already there in broker). Otherwise no effect.
@@ -159,23 +184,28 @@ attribute `name` | N/A | X | A new divert with the name will be deployed. (if it
 
 #### `<addresses>`
 
-The `<addresses>` element contains a list `<address>` elements. Once changed, all `<address>` elements
- in `<addresses>` will be reloaded.
+The `<addresses>` element contains a list `<address>` elements. Once changed,
+all `<address>` elements in `<addresses>` will be reloaded.
 
-> *Note:*
-> Once reloaded, all new addresses (as well as the pre-configured queues) will be 
-> deployed to the running broker and all those that are missing from the configuration will be undeployed.
+> **Note:**
+>
+> Once reloaded, all new addresses (as well as the pre-configured queues) will
+> be deployed to the running broker and all those that are missing from the
+> configuration will be undeployed.
 
-> *Note:*
-> Parameters reloaded in this category will take effect immediately after reloading. 
-> The effect of deletion of Address's and Queue's, not auto created is controlled by 
-> parameter `config-delete-addresses` and `config-delete-queues` as described in this doc.
+> **Note:**
+>
+> Parameters reloaded in this category will take effect immediately after
+> reloading.  The effect of deletion of Address's and Queue's, not auto created
+> is controlled by parameter `config-delete-addresses` and
+> `config-delete-queues` as described in this doc.
 
-Below lists the effects of adding, deleting and updating of an element/attribute 
-within the `<addresses>` element, whether an change can be done or can’t be done.
+Below lists the effects of adding, deleting and updating of an
+element/attribute within the `<addresses>` element, whether an change can be
+done or can’t be done.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<addresses>` | X(no more than one is present) | Deleting it means delete  (undeploy) all diverts in running broker. | N/A
 `<address>` | A new address will be deployed in the running broker | The corresponding address will be undeployed. | N/A
 attribute `name` | N/A | X | After reloading the address of the old name will be undeployed and the new will be deployed.
@@ -186,21 +216,27 @@ attribute `name` | N/A | X | After reloading the address of the old name will be
 
 #### `<queues>`
 
-The `<queues>` element contains a list `<queue>` elements. Once changed, all `<queue>` elements in `<queues>` will be reloaded.
+The `<queues>` element contains a list `<queue>` elements. Once changed, all
+`<queue>` elements in `<queues>` will be reloaded.
 
-> *Note:*
-> Once reloaded, all new queues will be deployed to the running broker and all 
+> **Note:**
+>
+> Once reloaded, all new queues will be deployed to the running broker and all
 > queues that are missing from the configuration will be undeployed.
-> *Note:*
-> Parameters reloaded in this category will take effect immediately after reloading. 
-> The effect of deletion of Address's and Queue's, not auto created is controlled by 
-> parameter `config-delete-addresses` and `config-delete-queues` as described in this doc.
 
-Below lists the effects of adding, deleting and updating of an element/attribute within the `<queues>` element, 
-and whether an change can be done or can’t be done.
+> **Note:**
+>
+> Parameters reloaded in this category will take effect immediately after
+> reloading.  The effect of deletion of Address's and Queue's, not auto created
+> is controlled by parameter `config-delete-addresses` and
+> `config-delete-queues` as described in this doc.
+
+Below lists the effects of adding, deleting and updating of an
+element/attribute within the `<queues>` element, and whether an change can be
+done or can’t be done.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<queues>` | X(no more than one is present) | Deleting it means delete  (undeploy) all queues from running broker. | N/A
 `<queue>` | A new queue is deployed after reloading | The queue will be undeployed after reloading. | N/A
 attribute `name` | N/A | X | A queue with new name will be deployed and the queue with old name will be updeployed after reloading (see Note above).
@@ -214,15 +250,17 @@ attribute `durable` | N/A | No effect unless starting broker | No effect unless 
 
 #### `<queue>`
 
-Changes to any `<queue>` elements will be reloaded to the running broker. 
+Changes to any `<queue>` elements will be reloaded to the running broker.
 
-> *Note:*
-> Once reloaded, new queues defined in the new changes will be deployed to the running
-> broker. However existing queues won’t get undeployed even if the matching element is
-> deleted/missing. Also new queue elements matching existing queues won’t get re-created – they remain unchanged.
+> **Note:**
+>
+> Once reloaded, new queues defined in the new changes will be deployed to the
+> running broker. However existing queues won’t get undeployed even if the
+> matching element is deleted/missing. Also new queue elements matching
+> existing queues won’t get re-created – they remain unchanged.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<queue>` | A new jms queue will be deployed after reloading | No effect unless starting broker | No effect unless starting broker
 attribute `<name>` | N/A | X | A jms queue of the new name will be deployed after reloading
 `<selector>` | X(no more than one is present) | No effect unless starting broker | No effect unless starting broker
@@ -230,15 +268,16 @@ attribute `<name>` | N/A | X | A jms queue of the new name will be deployed afte
 
 #### `<topic>`
 
-Changes to any `<topic>` elements will be reloaded to the running broker. 
+Changes to any `<topic>` elements will be reloaded to the running broker.
 
-> *Note:*
-> Once reloaded, new topics defined in the new changes will be deployed to 
-> the running broker. However existing topics won’t get undeployed even if the 
+> **Note:**
+>
+> Once reloaded, new topics defined in the new changes will be deployed to the
+> running broker. However existing topics won’t get undeployed even if the
 > matching element is deleted/missing. Also any `<topic>` elements matching
 > existing topics won’t get re-deployed – they remain unchanged.
 
 Operation | Add | Delete | Update
-:--- | :--- | :--- | :---
+---|---|---|---
 `<topic>` | A new jms topic will be deployed after reloading | No effect unless starting broker | No effect unless starting broker
 attribute `name` | N/A | X | A jms topic of the new name will be deployed after reloading
