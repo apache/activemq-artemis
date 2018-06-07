@@ -186,8 +186,8 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    // Public --------------------------------------------------------
 
    public boolean send(final StompConnection connection, final StompFrame frame) {
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("sent " + frame);
+      if (ActiveMQStompProtocolLogger.LOGGER.isTraceEnabled()) {
+         ActiveMQStompProtocolLogger.LOGGER.trace("sent " + frame);
       }
 
       invokeInterceptors(this.outgoingInterceptors, frame, connection);
