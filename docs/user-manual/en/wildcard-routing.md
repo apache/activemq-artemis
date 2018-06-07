@@ -8,7 +8,7 @@ receive any messages sent to addresses that match this, for instance
 you create a consumer on this queue, this allows a consumer to consume
 messages which are sent to a *hierarchy* of addresses.
 
-> **Note**
+> **Note:**
 >
 > In JMS terminology this allows "topic hierarchies" to be created.
 

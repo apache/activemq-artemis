@@ -32,15 +32,15 @@ has definitely reached the server, and a response has been sent back to
 the client. This can be configured individually for durable and
 non-durable messages, and is determined by the following two URL parameters:
 
--   `blockOnDurableSend`. If this is set to `true` then all calls to
-    send for durable messages on non transacted sessions will block
-    until the message has reached the server, and a response has been
-    sent back. The default value is `true`.
+- `blockOnDurableSend`. If this is set to `true` then all calls to
+  send for durable messages on non transacted sessions will block
+  until the message has reached the server, and a response has been
+  sent back. The default value is `true`.
 
--   `blockOnNonDurableSend`. If this is set to `true` then all calls to
-    send for non-durable messages on non transacted sessions will block
-    until the message has reached the server, and a response has been
-    sent back. The default value is `false`.
+- `blockOnNonDurableSend`. If this is set to `true` then all calls to
+  send for non-durable messages on non transacted sessions will block
+  until the message has reached the server, and a response has been
+  sent back. The default value is `false`.
 
 Setting block on sends to `true` can reduce performance since each send
 requires a network round trip before the next send can be performed.
