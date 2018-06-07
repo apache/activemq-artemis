@@ -22,7 +22,7 @@ You can use these following configuration options on broker.xml to configure how
 
 
 Name | Description
-:--- | :---
+--- | ---
 critical-analyzer | Enable or disable the critical analysis (default true)
 critical-analyzer-timeout | Timeout used to do the critical analysis (default 120000 milliseconds)
 critical-analyzer-check-period | Time used to check the response times (default half of critical-analyzer-timeout)
@@ -42,7 +42,7 @@ If you have critical-analyzer-policy=HALT
 [Artemis Critical Analyzer] 18:10:00,831 ERROR [org.apache.activemq.artemis.core.server] AMQ224079: The process for the virtual machine will be killed, as component org.apache.activemq.artemis.tests.integration.critical.CriticalSimpleTest$2@5af97850 is not responsive
 ```
 
-While if you have critical-analyzer-policy=SHUTDOWN
+While if you have critical-analyzer-policy=`SHUTDOWN`
 
 ```
 [Artemis Critical Analyzer] 18:07:53,475 ERROR [org.apache.activemq.artemis.core.server] AMQ224080: The server process will now be stopped, as component org.apache.activemq.artemis.tests.integration.critical.CriticalSimpleTest$2@5af97850 is not responsive
@@ -85,7 +85,7 @@ AMQ119003: End Thread dump
 
 - The Server will be halted if configured to `HALT`
 
-- The system will be stopped if `SHUTDOWN` is used:
-* Notice that if the system is not behaving well, there is no guarantees the stop will work.
+- The system will be stopped if `SHUTDOWN` is used. **Notice**: If the system 
+  is not behaving well, there is no guarantees the stop will work.
 
 
