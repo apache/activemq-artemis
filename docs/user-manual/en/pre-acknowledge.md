@@ -2,11 +2,11 @@
 
 JMS specifies 3 acknowledgement modes:
 
--   `AUTO_ACKNOWLEDGE`
+- `AUTO_ACKNOWLEDGE`
 
--   `CLIENT_ACKNOWLEDGE`
+- `CLIENT_ACKNOWLEDGE`
 
--   `DUPS_OK_ACKNOWLEDGE`
+- `DUPS_OK_ACKNOWLEDGE`
 
 Apache ActiveMQ Artemis supports two additional modes: `PRE_ACKNOWLEDGE` and
 `INDIVIDUAL_ACKNOWLEDGE`
@@ -32,7 +32,7 @@ update messages. With these messages it might be reasonable to lose a
 message in event of crash, since the next price update message will
 arrive soon, overriding the previous price.
 
-> **Note**
+> **Note:**
 >
 > Please note, that if you use pre-acknowledge mode, then you will lose
 > transactional semantics for messages being consumed, since clearly
@@ -67,7 +67,7 @@ acknowledge mode with `ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE`.
 Individual ACK inherits all the semantics from Client Acknowledge, with
 the exception the message is individually acked.
 
-> **Note**
+> **Note:**
 >
 > Please note, that to avoid confusion on MDB processing, Individual
 > ACKNOWLEDGE is not supported through MDBs (or the inbound resource
@@ -76,5 +76,5 @@ the exception the message is individually acked.
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how to
-use pre-acknowledgement mode with JMS.
+See the [Pre-acknowledge Example](examples.md#pre-acknowledge) which shows how 
+to use pre-acknowledgement mode with JMS.

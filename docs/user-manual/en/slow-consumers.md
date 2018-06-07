@@ -36,5 +36,5 @@ the detection algorithm. See [thread pooling](thread-pooling.md) for more detail
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how to detect a slow consumer
+See the [slow consumer example](examples.md#slow-consumer) which shows how to detect a slow consumer
 with Apache ActiveMQ Artemis.

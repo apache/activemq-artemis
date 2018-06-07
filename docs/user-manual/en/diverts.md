@@ -117,9 +117,9 @@ non-exclusive divert, again from the divert example:
 
 ```xml
 <divert name="order-divert">
-    <address>orders</address>
-    <forwarding-address>spyTopic</forwarding-address>
-    <exclusive>false</exclusive>
+   <address>orders</address>
+   <forwarding-address>spyTopic</forwarding-address>
+   <exclusive>false</exclusive>
 </divert>
 ```
 

@@ -30,5 +30,5 @@ same property on the core message before sending.
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how scheduled messages can be used with
+See the [Scheduled Message Example](examples.md#scheduled-message) which shows how scheduled messages can be used with
 JMS.
