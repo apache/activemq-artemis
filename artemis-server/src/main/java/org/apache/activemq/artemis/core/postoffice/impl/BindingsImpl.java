@@ -258,7 +258,7 @@ public final class BindingsImpl implements Bindings {
                if (entry.getValue() instanceof RemoteQueueBinding) {
                   RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
                   if (remoteQueueBinding.getRemoteQueueID() == id) {
-                     message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
+                     message.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
                   }
                }
             }

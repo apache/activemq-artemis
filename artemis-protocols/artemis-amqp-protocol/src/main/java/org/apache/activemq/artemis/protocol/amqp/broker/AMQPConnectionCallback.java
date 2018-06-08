@@ -291,7 +291,9 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       ClusterConnection clusterConnection = clusterManager.getDefaultConnection(null);
       if (clusterConnection != null) {
          TopologyMemberImpl member = clusterConnection.getTopology().getMember(server.getNodeID().toString());
-         return member.toBackupURI();
+         if (member != null) {
+            return member.toBackupURI();
+         }
       }
       return null;
    }
