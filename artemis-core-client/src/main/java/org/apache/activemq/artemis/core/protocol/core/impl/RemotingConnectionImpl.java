@@ -76,9 +76,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    private final SimpleString nodeID;
 
-   private String clientID;
-
-
    @Override
    public void scheduledFlush() {
       flush();
@@ -148,7 +145,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    @Override
    public String toString() {
-      return "RemotingConnectionImpl [ID=" + getID() + ", clientID=" + clientID + ", nodeID=" + nodeID + ", transportConnection=" + getTransportConnection() + "]";
+      return "RemotingConnectionImpl [ID=" + getID() + ", clientID=" + getClientID() + ", nodeID=" + nodeID + ", transportConnection=" + getTransportConnection() + "]";
    }
 
    /**
