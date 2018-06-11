@@ -61,7 +61,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
 
    @Test(timeout = 60000)
-   public void testBrokerSendsHalfConfiguredIdleTimeout() throws Exception {
+   public void testHeartless() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
 
