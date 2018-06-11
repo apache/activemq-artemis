@@ -215,6 +215,17 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private final Reclaimer reclaimer = new Reclaimer();
 
+   public float getCompactPercentage() {
+      return compactPercentage;
+   }
+
+   public int getCompactMinFiles() {
+      return compactMinFiles;
+   }
+
+   public JournalFilesRepository getFilesRepository() {
+      return filesRepository;
+   }
    // Constructors --------------------------------------------------
 
    public JournalImpl(final int fileSize,
