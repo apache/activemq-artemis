@@ -130,6 +130,10 @@ public class JournalFilesRepository {
 
    // Public --------------------------------------------------------
 
+   public int getPoolSize() {
+      return poolSize;
+   }
+
    public void setExecutor(final Executor fileExecutor) {
       this.openFilesExecutor = fileExecutor;
    }
