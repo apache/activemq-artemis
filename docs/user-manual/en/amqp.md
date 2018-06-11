@@ -127,3 +127,32 @@ message for later delivery:
 
 If both annotations are present in the same message then the broker will prefer
 the more specific `x-opt-delivery-time` value.
+
+## Configuring AMQP Idle Timeout
+
+It is possible to configure the AMQP Server's IDLE Timeout by setting the property amqpIdleTimeout in milliseconds on the acceptor.
+
+This will make the server to send an AMQP frame open to the client, with your configured timeout / 2.
+
+So, if you configured your AMQP Idle Timeout to be 60000, the server will tell the client to send frames every 30,000 milliseconds.
+
+
+```xml
+<acceptor name="amqp">.... ;amqpIdleTimeout=<configured-timeout>; ..... </acceptor>
+```
+
+
+### Disabling Keep alive checks
+
+if you set amqpIdleTimeout=0 that will tell clients to not sending keep alive packets towards the server. On this case
+you will rely on TCP to determine when the socket needs to be closed.
+
+```xml
+<acceptor name="amqp">.... ;amqpIdleTimeout=0; ..... </acceptor>
+```
+
+This contains a real example for configuring amqpIdleTimeout:
+
+```xml
+<acceptor name="amqp">tcp://0.0.0.0:5672?amqpIdleTimeout=0;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;directDeliver=false;batchDelay=10</acceptor>
+```

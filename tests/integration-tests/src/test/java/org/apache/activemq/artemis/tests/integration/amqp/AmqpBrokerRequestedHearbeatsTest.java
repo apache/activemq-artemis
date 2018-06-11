@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -27,18 +30,41 @@ import org.apache.activemq.transport.amqp.client.AmqpConnectionListener;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Connection;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * Test handling of heartbeats requested by the broker.
  */
-public class AmqpBrokerReuqestedHearbeatsTest extends AmqpClientTestSupport {
+@RunWith(Parameterized.class)
+public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
 
    private final int TEST_IDLE_TIMEOUT = 1000;
+
+   @Parameterized.Parameters(name = "useOverride={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   @Parameterized.Parameter(0)
+   public boolean useOverride;
+
+   @Override
+   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
+      if (!useOverride) {
+         params.put("amqpIdleTimeout", "" + TEST_IDLE_TIMEOUT);
+      }
+   }
+
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
       server.getConfiguration().setConnectionTtlCheckInterval(TEST_IDLE_TIMEOUT / 3);
-      server.getConfiguration().setConnectionTTLOverride(TEST_IDLE_TIMEOUT);
+      if (useOverride) {
+         server.getConfiguration().setConnectionTTLOverride(TEST_IDLE_TIMEOUT);
+      }
    }
 
    @Test(timeout = 60000)
