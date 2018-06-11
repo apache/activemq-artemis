@@ -46,6 +46,15 @@ For further information on XInclude see:
 
 [https://www.w3.org/TR/xinclude/](https://www.w3.org/TR/xinclude/)
 
+##### Reloading modular configuration files
+
+Certain changes in `broker.xml` can be picked up at runtime as discussed in the [Configuration Reload](config-reload.md)
+chapter. Changes made directly to files which are included in `broker.xml` via `xi:include` will not be automatically
+picked up unless the file timestamp on `broker.xml` is also modified. For example, if `broker.xml` is including
+`my-address-settings.xml` and `my-address-settings.xml` is modified those changes won't be loaded until the user uses
+something like the [touch](https://en.wikipedia.org/wiki/Touch_%28Unix%29) command to update the `broker.xml` file's
+timestamp to trigger a reload.
+
 ### System properties
 
 It is possible to use System properties to replace some of the configuration properties. If you define a System property starting with "brokerconfig." that will be passed along to Bean Utils and the configuration would be replaced.
