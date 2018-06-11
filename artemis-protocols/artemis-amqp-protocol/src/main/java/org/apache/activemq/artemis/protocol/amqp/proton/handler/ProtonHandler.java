@@ -88,7 +88,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    public ProtonHandler(Executor flushExecutor, boolean isServer) {
       this.flushExecutor = flushExecutor;
-      this.readyListener = () -> flushExecutor.execute(() -> {
+      this.readyListener = () -> this.flushExecutor.execute(() -> {
          flush();
       });
       this.creationTime = System.currentTimeMillis();
@@ -105,8 +105,17 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       connection.collect(collector);
    }
 
-   public long tick(boolean firstTick) {
-      lock.lock();
+   public Long tick(boolean firstTick) {
+      if (firstTick) {
+         // the first tick needs to guarantee a lock here
+         lock.lock();
+      } else {
+         if (!lock.tryLock()) {
+            log.debug("Cannot hold a lock on ProtonHandler for Tick, it will retry shortly");
+            // if we can't lock the scheduler will retry in a very short period of time instead of holding the lock here
+            return null;
+         }
+      }
       try {
          if (!firstTick) {
             try {
@@ -122,7 +131,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
                transport.close();
                connection.setCondition(new ErrorCondition());
             }
-            return 0;
+            return 0L;
          }
          return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
       } finally {

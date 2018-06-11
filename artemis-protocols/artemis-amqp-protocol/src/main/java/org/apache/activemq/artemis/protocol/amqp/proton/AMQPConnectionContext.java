@@ -388,8 +388,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
             scheduledPool.schedule(new Runnable() {
                @Override
                public void run() {
-                  long rescheduleAt = handler.tick(false);
-                  if (rescheduleAt != 0) {
+                  Long rescheduleAt = handler.tick(false);
+                  if (rescheduleAt == null) {
+                     // this mean tick could not acquire a lock, we will just retry in 10 milliseconds.
+                     scheduledPool.schedule(this, 10, TimeUnit.MILLISECONDS);
+                  } else if (rescheduleAt != 0) {
                      scheduledPool.schedule(this, rescheduleAt - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()), TimeUnit.MILLISECONDS);
                   }
                }

@@ -45,11 +45,14 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import io.netty.channel.ChannelPipeline;
+import org.jboss.logging.Logger;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection> implements NotificationListener {
+
+   private static final Logger logger = Logger.getLogger(ProtonProtocolManager.class);
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
@@ -71,6 +74,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    private String[] saslMechanisms = MechanismFinder.getKnownMechanisms();
 
    private String saslLoginConfigScope = "amqp-sasl-gssapi";
+
+   private Long amqpIdleTimeout;
+
 
    /*
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
@@ -115,6 +121,17 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return false;
    }
 
+   public Long getAmqpIdleTimeout() {
+      return amqpIdleTimeout;
+   }
+
+   public ProtonProtocolManager setAmqpIdleTimeout(Long ttl) {
+      logger.debug("Setting up " + ttl + " as the connectionTtl");
+      this.amqpIdleTimeout = ttl;
+      return this;
+   }
+
+
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
       AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(this, remotingConnection, server.getExecutorFactory().getExecutor(), server);
@@ -122,6 +139,14 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
       if (server.getConfiguration().getConnectionTTLOverride() != -1) {
          ttl = server.getConfiguration().getConnectionTTLOverride();
+      }
+
+      if (getAmqpIdleTimeout() != null) {
+         ttl = getAmqpIdleTimeout().longValue();
+      }
+
+      if (ttl < 0) {
+         ttl = 0;
       }
 
       String id = server.getConfiguration().getName();
@@ -136,7 +161,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 
-      ConnectionEntry entry = new ConnectionEntry(delegate, executor, System.currentTimeMillis(), ttl);
+      // connection entry only understands -1 otherwise we would see disconnects for no reason
+      ConnectionEntry entry = new ConnectionEntry(delegate, executor, System.currentTimeMillis(), ttl <= 0 ? -1 : ttl);
 
       return entry;
    }
