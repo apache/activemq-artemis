@@ -26,7 +26,6 @@ import io.netty.channel.group.ChannelGroup;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
-import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 
@@ -99,7 +98,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
       // and we don't want to spew out stack traces in that event
       // The user has access to this exeception anyway via the ActiveMQException initial cause
 
-      ActiveMQException me = ActiveMQClientMessageBundle.BUNDLE.nettyError();
+      ActiveMQException me = new ActiveMQException(cause.getMessage());
       me.initCause(cause);
 
       synchronized (listener) {
