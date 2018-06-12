@@ -533,7 +533,7 @@ public class NettyConnector extends AbstractConnector {
                if (sslProvider.equals(TransportConstants.OPENSSL_PROVIDER)) {
                   engine = loadOpenSslEngine(channel.alloc(), realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
                } else {
-                  engine = loadJdkSslEngine(useDefaultSslContext, realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
+                  engine = loadJdkSslEngine(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
                }
 
                engine.setUseClientMode(true);
@@ -607,18 +607,26 @@ public class NettyConnector extends AbstractConnector {
       ActiveMQClientLogger.LOGGER.startedNettyConnector(connectorType, TransportConstants.NETTY_VERSION, host, port);
    }
 
-   private SSLEngine loadJdkSslEngine(boolean useDefaultSslContext,
-                                      String realKeyStoreProvider,
-                                      String realKeyStorePath,
-                                      String realKeyStorePassword,
-                                      String realTrustStoreProvider,
-                                      String realTrustStorePath,
-                                      String realTrustStorePassword) throws Exception {
+   private SSLEngine loadJdkSslEngine(String keystoreProvider,
+                                      String keystorePath,
+                                      String keystorePassword,
+                                      String truststoreProvider,
+                                      String truststorePath,
+                                      String truststorePassword) throws Exception {
       SSLContext context;
       if (useDefaultSslContext) {
          context = SSLContext.getDefault();
       } else {
-         context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, trustAll, crlPath);
+         context = new SSLSupport()
+            .setKeystoreProvider(keystoreProvider)
+            .setKeystorePath(keystorePath)
+            .setKeystorePassword(keystorePassword)
+            .setTruststoreProvider(truststoreProvider)
+            .setTruststorePath(truststorePath)
+            .setTruststorePassword(truststorePassword)
+            .setTrustAll(trustAll)
+            .setCrlPath(crlPath)
+            .createContext();
       }
       Subject subject = null;
       if (kerb5Config != null) {
@@ -642,14 +650,24 @@ public class NettyConnector extends AbstractConnector {
    }
 
    private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc,
-                                       String realKeyStoreProvider,
-                                       String realKeyStorePath,
-                                       String realKeyStorePassword,
-                                       String realTrustStoreProvider,
-                                       String realTrustStorePath,
-                                       String realTrustStorePassword) throws Exception {
+                                       String keystoreProvider,
+                                       String keystorePath,
+                                       String keystorePassword,
+                                       String truststoreProvider,
+                                       String truststorePath,
+                                       String truststorePassword) throws Exception {
 
-      SslContext context = SSLSupport.createNettyClientContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword, sslProvider, trustAll);
+
+      SslContext context = new SSLSupport()
+         .setKeystoreProvider(keystoreProvider)
+         .setKeystorePath(keystorePath)
+         .setKeystorePassword(keystorePassword)
+         .setTruststoreProvider(truststoreProvider)
+         .setTruststorePath(truststorePath)
+         .setTruststorePassword(truststorePassword)
+         .setSslProvider(sslProvider)
+         .setTrustAll(trustAll)
+         .createNettyClientContext();
 
       Subject subject = null;
       if (kerb5Config != null) {

@@ -235,7 +235,12 @@ public class MQTTSecurityCRLTest extends ActiveMQTestBase {
       mqtt.setConnectAttemptsMax(1);
       mqtt.setReconnectAttemptsMax(0);
       mqtt.setHost(host);
-      SSLContext sslContext = SSLSupport.createContext(TransportConstants.DEFAULT_KEYSTORE_PROVIDER, keystorePath, keystorePass, TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER, truststorePath, truststorePass);
+      SSLContext sslContext = new SSLSupport()
+         .setKeystorePath(keystorePath)
+         .setKeystorePassword(keystorePass)
+         .setTruststorePath(truststorePath)
+         .setTruststorePassword(truststorePass)
+         .createContext();
       mqtt.setSslContext(sslContext);
 
       BlockingConnection connection = mqtt.blockingConnection();

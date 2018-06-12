@@ -73,32 +73,60 @@ public class SSLSupportTest extends ActiveMQTestBase {
 
    @Test
    public void testContextWithRightParameters() throws Exception {
-      SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, trustStorePassword);
+      new SSLSupport()
+         .setKeystoreProvider(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .createContext();
    }
 
    // This is valid as it will create key and trust managers with system defaults
    @Test
    public void testContextWithNullParameters() throws Exception {
-      SSLSupport.createContext(null, null, null, null, null, null);
+      new SSLSupport().createContext();
    }
 
    @Test
    public void testContextWithKeyStorePathAsURL() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
-      SSLSupport.createContext(storeType, url.toString(), keyStorePassword, storeType, trustStorePath, trustStorePassword);
+      new SSLSupport()
+         .setKeystoreProvider(storeType)
+         .setKeystorePath(url.toString())
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .createContext();
    }
 
    @Test
    public void testContextWithKeyStorePathAsFile() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       File file = new File(url.toURI());
-      SSLSupport.createContext(storeType, file.getAbsolutePath(), keyStorePassword, storeType, trustStorePath, trustStorePassword);
+      new SSLSupport()
+         .setKeystoreProvider(storeType)
+         .setKeystorePath(file.getAbsolutePath())
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .createContext();
    }
 
    @Test
    public void testContextWithBadKeyStorePath() throws Exception {
       try {
-         SSLSupport.createContext(storeType, "not a keystore", keyStorePassword, storeType, trustStorePath, trustStorePassword);
+         new SSLSupport()
+            .setKeystoreProvider(storeType)
+            .setKeystorePath("not a keystore")
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(storeType)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .createContext();
          Assert.fail();
       } catch (Exception e) {
       }
@@ -107,7 +135,14 @@ public class SSLSupportTest extends ActiveMQTestBase {
    @Test
    public void testContextWithNullKeyStorePath() throws Exception {
       try {
-         SSLSupport.createContext(storeType, null, keyStorePassword, storeType, trustStorePath, trustStorePassword);
+         new SSLSupport()
+            .setKeystoreProvider(storeType)
+            .setKeystorePath(null)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(storeType)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .createContext();
       } catch (Exception e) {
          Assert.fail();
       }
@@ -122,13 +157,27 @@ public class SSLSupportTest extends ActiveMQTestBase {
          return;
       }
 
-      SSLSupport.createContext(storeType, "src/test/resources/" + keyStorePath, keyStorePassword, storeType, trustStorePath, trustStorePassword);
+      new SSLSupport()
+         .setKeystoreProvider(storeType)
+         .setKeystorePath("src/test/resources/" + keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .createContext();
    }
 
    @Test
    public void testContextWithBadKeyStorePassword() throws Exception {
       try {
-         SSLSupport.createContext(storeType, keyStorePath, "bad password", storeType, trustStorePath, trustStorePassword);
+         new SSLSupport()
+            .setKeystoreProvider(storeType)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword("bad password")
+            .setTruststoreProvider(storeType)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .createContext();
          Assert.fail();
       } catch (Exception e) {
       }
@@ -137,7 +186,14 @@ public class SSLSupportTest extends ActiveMQTestBase {
    @Test
    public void testContextWithNullKeyStorePassword() throws Exception {
       try {
-         SSLSupport.createContext(storeType, keyStorePath, null, storeType, trustStorePath, trustStorePassword);
+         new SSLSupport()
+            .setKeystoreProvider(storeType)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(null)
+            .setTruststoreProvider(storeType)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .createContext();
          Assert.fail();
       } catch (Exception e) {
          assertFalse(e instanceof NullPointerException);
@@ -147,7 +203,14 @@ public class SSLSupportTest extends ActiveMQTestBase {
    @Test
    public void testContextWithBadTrustStorePath() throws Exception {
       try {
-         SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, "not a trust store", trustStorePassword);
+         new SSLSupport()
+            .setKeystoreProvider(storeType)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(storeType)
+            .setTruststorePath("not a trust store")
+            .setTruststorePassword(trustStorePassword)
+            .createContext();
          Assert.fail();
       } catch (Exception e) {
       }
@@ -156,7 +219,14 @@ public class SSLSupportTest extends ActiveMQTestBase {
    @Test
    public void testContextWithBadTrustStorePassword() throws Exception {
       try {
-         SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, "bad passord");
+         new SSLSupport()
+            .setKeystoreProvider(storeType)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(storeType)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword("bad passord")
+            .createContext();
          Assert.fail();
       } catch (Exception e) {
       }
@@ -166,6 +236,14 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithTrustAll() throws Exception {
       //This is using a bad password but should not fail because the trust store should be ignored with
       //the trustAll flag set to true
-      SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, "bad passord", true);
+      new SSLSupport()
+         .setKeystoreProvider(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword("bad passord")
+         .setTrustAll(true)
+         .createContext();
    }
 }
