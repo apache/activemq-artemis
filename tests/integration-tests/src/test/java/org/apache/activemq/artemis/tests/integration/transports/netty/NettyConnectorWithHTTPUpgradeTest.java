@@ -210,7 +210,10 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       ServerBootstrap b = new ServerBootstrap();
       final SSLContext context;
       if (useSSL) {
-         context = SSLSupport.createContext("JKS", SERVER_SIDE_KEYSTORE, PASSWORD, null, null, null);
+         context = new SSLSupport()
+            .setKeystorePath(SERVER_SIDE_KEYSTORE)
+            .setKeystorePassword(PASSWORD)
+            .createContext();
       } else {
          context = null;
       }

@@ -542,7 +542,15 @@ public class NettyAcceptor extends AbstractAcceptor {
       try {
          if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
             throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " + "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
-         context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword, crlPath);
+         context = new SSLSupport()
+            .setKeystoreProvider(keyStoreProvider)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(trustStoreProvider)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .setCrlPath(crlPath)
+            .createContext();
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
          ise.initCause(e);
@@ -573,7 +581,15 @@ public class NettyAcceptor extends AbstractAcceptor {
       try {
          if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
             throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " + "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
-         context = SSLSupport.createNettyContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword, sslProvider);
+         context = new SSLSupport()
+            .setKeystoreProvider(keyStoreProvider)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(trustStoreProvider)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .setSslProvider(sslProvider)
+            .createNettyContext();
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
          ise.initCause(e);
