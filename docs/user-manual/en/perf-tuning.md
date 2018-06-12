@@ -139,7 +139,7 @@ some tuning:
   then you can avoid some unnecessary copying.
   
 - If using frameworks like Spring, configure destinations permanently broker
-  side and enable `destinationCache` on the client side.  See the [Setting The
+  side and enable `cacheDestinations` on the client side.  See the [Setting The
   Destination Cache](using-jms.md) for more information on this.
 
 ## Tuning Transport Settings
