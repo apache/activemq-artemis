@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Connection;
@@ -485,12 +487,19 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteDetach(Link link) throws Exception {
-      lock();
-      try {
-         link.detach();
-         link.free();
-      } finally {
-         unlock();
+      boolean handleAsClose = link.getSource() != null
+                              && ((Source) link.getSource()).getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH;
+
+      if (handleAsClose) {
+         onRemoteClose(link);
+      } else {
+         lock();
+         try {
+            link.detach();
+            link.free();
+         } finally {
+            unlock();
+         }
       }
    }
 
