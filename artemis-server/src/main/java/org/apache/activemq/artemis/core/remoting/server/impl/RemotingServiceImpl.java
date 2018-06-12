@@ -539,6 +539,10 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          logger.trace("Connection removed " + connectionID + " from server " + this.server, new Exception("trace"));
       }
 
+      issueFailure(connectionID, new ActiveMQRemoteDisconnectException());
+   }
+
+   private void issueFailure(Object connectionID, ActiveMQException e) {
       ConnectionEntry conn = connections.get(connectionID);
 
       if (conn != null && !conn.connection.isSupportReconnect()) {
@@ -554,20 +558,13 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                return;
             }
          }
-         conn.connection.fail(new ActiveMQRemoteDisconnectException());
+         conn.connection.fail(e);
       }
    }
 
    @Override
    public void connectionException(final Object connectionID, final ActiveMQException me) {
-      // We DO NOT call fail on connection exception, otherwise in event of real connection failure, the
-      // connection will be failed, the session will be closed and won't be able to reconnect
-
-      // E.g. if live server fails, then this handler wil be called on backup server for the server
-      // side replicating connection.
-      // If the connection fail() is called then the sessions on the backup will get closed.
-
-      // Connections should only fail when TTL is exceeded
+      issueFailure(connectionID, me);
    }
 
    @Override
