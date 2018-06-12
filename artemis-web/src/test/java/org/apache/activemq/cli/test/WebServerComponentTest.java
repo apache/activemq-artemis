@@ -177,9 +177,13 @@ public class WebServerComponentTest extends Assert {
       webServerComponent.start();
       final int port = webServerComponent.getPort();
       // Make the connection attempt.
-      String keyStoreProvider = "JKS";
 
-      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.getKeyStorePassword(), keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.getKeyStorePassword());
+      SSLContext context = new SSLSupport()
+         .setKeystorePath(webServerDTO.keyStorePath)
+         .setKeystorePassword(webServerDTO.getKeyStorePassword())
+         .setTruststorePath(webServerDTO.keyStorePath)
+         .setTruststorePassword(webServerDTO.getKeyStorePassword())
+         .createContext();
 
       SSLEngine engine = context.createSSLEngine();
       engine.setUseClientMode(true);
@@ -233,9 +237,13 @@ public class WebServerComponentTest extends Assert {
       webServerComponent.start();
       final int port = webServerComponent.getPort();
       // Make the connection attempt.
-      String keyStoreProvider = "JKS";
 
-      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.getKeyStorePassword(), keyStoreProvider, webServerDTO.trustStorePath, webServerDTO.getTrustStorePassword());
+      SSLContext context = new SSLSupport()
+         .setKeystorePath(webServerDTO.keyStorePath)
+         .setKeystorePassword(webServerDTO.getKeyStorePassword())
+         .setTruststorePath(webServerDTO.trustStorePath)
+         .setTruststorePassword(webServerDTO.getTrustStorePassword())
+         .createContext();
 
       SSLEngine engine = context.createSSLEngine();
       engine.setUseClientMode(true);
