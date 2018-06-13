@@ -175,7 +175,8 @@ public class ConnectorServerFactory {
    }
 
    private boolean isClientAuth() {
-      return this.authenticatorType.equals(AuthenticatorType.CERTIFICATE);
+      boolean result =  this.authenticatorType.equals(AuthenticatorType.CERTIFICATE);
+      return result;
    }
 
    public void init() throws Exception {
@@ -280,7 +281,7 @@ public class ConnectorServerFactory {
 
       @Override
       public ServerSocket createServerSocket(int port) throws IOException {
-         ServerSocket serverSocket = (ServerSocket) ServerSocketFactory.getDefault().createServerSocket(port, 50, InetAddress.getByName(rmiServerHost));
+         ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 50, InetAddress.getByName(rmiServerHost));
          return serverSocket;
       }
    }

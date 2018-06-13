@@ -108,4 +108,7 @@ public class ManagementConnector implements ActiveMQComponent {
       }
    }
 
+   public MBeanServer getMbeanServer() throws Exception {
+      return this.mbeanServerFactory.getServer();
+   }
 }

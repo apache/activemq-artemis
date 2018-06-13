@@ -20,6 +20,8 @@ package org.apache.activemq.artemis.core.server.management;
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
+import javax.management.MBeanServer;
+
 public class ManagementContext implements ActiveMQComponent {
    private boolean isStarted = false;
    private JMXAccessControlList accessControlList;
@@ -70,5 +72,12 @@ public class ManagementContext implements ActiveMQComponent {
 
    public JMXConnectorConfiguration getJmxConnectorConfiguration() {
       return jmxConnectorConfiguration;
+   }
+
+   public MBeanServer getMBeanServer() throws Exception {
+      if (!isStarted) {
+         throw new IllegalStateException("context not started yet.");
+      }
+      return this.mBeanServer.getMbeanServer();
    }
 }
