@@ -183,12 +183,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     */
    private ServerSession internalSession;
 
-   /**
-    * Used for proper closing of internal sessions like OpenWire advisory
-    * session at disconnect.
-    */
-   private final Set<SessionId> internalSessionIds = new ConcurrentHashSet<>();
-
    private final OperationContext operationContext;
 
    private static final AtomicLongFieldUpdater<OpenWireConnection> LAST_SENT_UPDATER = AtomicLongFieldUpdater.newUpdater(OpenWireConnection.class, "lastSent");
@@ -616,8 +610,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       state.shutdown();
 
       try {
-         for (SessionId sessionId : internalSessionIds) {
-            sessions.get(sessionId).close();
+         for (SessionId sessionId : sessionIdMap.values()) {
+            AMQSession session = sessions.get(sessionId);
+            if (session != null) {
+               session.close();
+            }
          }
          internalSession.close(false);
       } catch (Exception e) {
@@ -993,7 +990,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void addSessions(Set<SessionId> sessionSet) {
       for (SessionId sid : sessionSet) {
          addSession(getState().getSessionState(sid).getInfo(), true);
-         internalSessionIds.add(sid);
       }
    }
 
