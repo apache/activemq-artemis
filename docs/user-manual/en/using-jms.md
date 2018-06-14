@@ -393,7 +393,7 @@ valuable bandwidth. This can be configured on the connection factory via the
 Many frameworks such as Spring resolve the destination by name on every
 operation, this can cause a performance issue and extra calls to the broker, in
 a scenario where destinations (addresses) are permanent broker side, such as
-they are managed by a platform or operations team.  using `destinationCache`
+they are managed by a platform or operations team.  using `cacheDestinations`
 element, you can toggle on the destination cache to improve the performance and
 reduce the calls to the broker.  This should not be used if destinations
 (addresses) are not permanent broker side, as in dynamic creation/deletion.
