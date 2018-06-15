@@ -396,12 +396,6 @@ public interface ActiveMQServerControl {
    String[] getQueueNames();
 
    /**
-    * Returns the names of the queues created on this server with the given routing-type.
-    */
-   @Attribute(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)")
-   String[] getQueueNames(String routingType);
-
-   /**
     * Returns the uptime of this server.
     */
    @Attribute(desc = "Uptime of this server")
@@ -1246,5 +1240,11 @@ public interface ActiveMQServerControl {
    String listQueues(@Parameter(name = "Options") String options,
                      @Parameter(name = "Page Number") int page,
                      @Parameter(name = "Page Size") int pageSize) throws Exception;
+
+   /**
+    * Returns the names of the queues created on this server with the given routing-type.
+    */
+   @Operation(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)", impact = MBeanOperationInfo.INFO)
+   String[] getQueueNames(@Parameter(name = "routingType", desc = "The routing type, MULTICAST or ANYCAST") String routingType);
 }
 
