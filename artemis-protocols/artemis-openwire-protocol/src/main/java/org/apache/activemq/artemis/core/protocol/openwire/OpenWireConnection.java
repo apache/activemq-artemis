@@ -1013,6 +1013,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void removeSession(AMQConnectionContext context, SessionInfo info) throws Exception {
       AMQSession session = sessions.remove(info.getSessionId());
       if (session != null) {
+         sessionIdMap.remove(session.getCoreSession().getName());
          session.close();
       }
    }
