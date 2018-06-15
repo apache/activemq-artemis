@@ -61,12 +61,22 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
    public void testInternalSessionHandlingNoSessionClose() throws Exception {
       try (Connection conn = factory.createConnection()) {
          conn.start();
-         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
-         sendMessages(session, dest, 1);
-         MessageConsumer consumer = session.createConsumer(dest);
-         Message m = consumer.receive(2000);
-         assertNotNull(m);
+         for (int i = 0; i < 100; i++) {
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
+            sendMessages(session, dest, 1);
+            MessageConsumer consumer = session.createConsumer(dest);
+            Message m = consumer.receive(2000);
+            consumer.close();
+            assertNotNull(m);
+
+            if (i % 2 == 1) {
+               // it will close only half of the sessions
+               // just to introduce error conditions
+               session.close();
+            }
+
+         }
       }
       assertFalse(AssertionLoggerHandler.findText("Client connection failed, clearing up resources for session"));
       assertFalse(AssertionLoggerHandler.findText("Cleared up resources for session"));
