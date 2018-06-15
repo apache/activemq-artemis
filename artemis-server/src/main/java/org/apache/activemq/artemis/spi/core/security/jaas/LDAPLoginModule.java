@@ -84,7 +84,6 @@ public class LDAPLoginModule implements LoginModule {
    private static final String SASL_LOGIN_CONFIG_SCOPE = "saslLoginConfigScope";
    private static final String AUTHENTICATE_USER = "authenticateUser";
    private static final String REFERRAL = "referral";
-   private static final String MASK_PASSWORD = "maskPassword";
    private static final String PASSWORD_CODEC = "passwordCodec";
 
    protected DirContext context;
@@ -126,6 +125,9 @@ public class LDAPLoginModule implements LoginModule {
                                        new LDAPLoginProperty(USER_ROLE_NAME, (String) options.get(USER_ROLE_NAME)),
                                        new LDAPLoginProperty(EXPAND_ROLES, (String) options.get(EXPAND_ROLES)),
                                        new LDAPLoginProperty(EXPAND_ROLES_MATCHING, (String) options.get(EXPAND_ROLES_MATCHING)),
+                                       new LDAPLoginProperty(PASSWORD_CODEC, (String) options.get(PASSWORD_CODEC)),
+                                       new LDAPLoginProperty(SASL_LOGIN_CONFIG_SCOPE, (String) options.get(SASL_LOGIN_CONFIG_SCOPE)),
+                                       new LDAPLoginProperty(AUTHENTICATE_USER, (String) options.get(AUTHENTICATE_USER)),
                                        new LDAPLoginProperty(REFERRAL, (String) options.get(REFERRAL))};
 
       if (isLoginPropertySet(AUTHENTICATE_USER)) {
@@ -133,7 +135,7 @@ public class LDAPLoginModule implements LoginModule {
       }
       isRoleAttributeSet = isLoginPropertySet(ROLE_NAME);
       roleAttributeName = getLDAPPropertyValue(ROLE_NAME);
-      codecClass = (String) options.get(PASSWORD_CODEC);
+      codecClass = getLDAPPropertyValue(PASSWORD_CODEC);
    }
 
    private String getPlainPassword(String password) {
