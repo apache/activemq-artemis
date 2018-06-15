@@ -65,7 +65,11 @@ public class Wait {
    }
 
    public static void assertEquals(int size, IntCondition condition, long timeout) throws Exception {
-      boolean result = waitFor(() -> condition.getCount() == size, timeout);
+      assertEquals(size, condition, timeout, SLEEP_MILLIS);
+   }
+
+   public static void assertEquals(int size, IntCondition condition, long timeout, long sleepMillis) throws Exception {
+      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
 
       if (!result) {
          Assert.fail(size + " != " + condition.getCount());

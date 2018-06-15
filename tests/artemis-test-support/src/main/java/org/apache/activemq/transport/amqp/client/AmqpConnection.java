@@ -103,6 +103,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private boolean idleProcessingDisabled;
    private String containerId;
    private boolean authenticated;
+   private int maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
    private int channelMax = DEFAULT_CHANNEL_MAX;
    private long connectTimeout = DEFAULT_CONNECT_TIMEOUT;
    private long closeTimeout = DEFAULT_CLOSE_TIMEOUT;
@@ -367,7 +368,11 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
     * @return the currently set Max Frame Size value.
     */
    public int getMaxFrameSize() {
-      return DEFAULT_MAX_FRAME_SIZE;
+      return maxFrameSize;
+   }
+
+   public void setMaxFrameSize(int maxFrameSize) {
+      this.maxFrameSize = maxFrameSize;
    }
 
    public int getChannelMax() {

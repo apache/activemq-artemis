@@ -209,7 +209,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       lock.lock();
       try {
          while (true) {
-            int pending = transport.pending();
+            ByteBuffer head = transport.head();
+            int pending = head.remaining();
 
             if (pending <= 0) {
                break;
@@ -217,7 +218,6 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
             // We allocated a Pooled Direct Buffer, that will be sent down the stream
             ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(pending);
-            ByteBuffer head = transport.head();
             buffer.writeBytes(head);
 
             for (EventHandler handler : handlers) {
