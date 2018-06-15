@@ -56,4 +56,19 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
       assertFalse(AssertionLoggerHandler.findText("Client connection failed, clearing up resources for session"));
       assertFalse(AssertionLoggerHandler.findText("Cleared up resources for session"));
    }
+
+   @Test
+   public void testInternalSessionHandlingNoSessionClose() throws Exception {
+      try (Connection conn = factory.createConnection()) {
+         conn.start();
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
+         sendMessages(session, dest, 1);
+         MessageConsumer consumer = session.createConsumer(dest);
+         Message m = consumer.receive(2000);
+         assertNotNull(m);
+      }
+      assertFalse(AssertionLoggerHandler.findText("Client connection failed, clearing up resources for session"));
+      assertFalse(AssertionLoggerHandler.findText("Cleared up resources for session"));
+   }
 }
