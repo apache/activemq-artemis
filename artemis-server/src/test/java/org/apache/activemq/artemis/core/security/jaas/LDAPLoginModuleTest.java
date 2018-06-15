@@ -31,12 +31,15 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule;
+import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginProperty;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -162,4 +165,38 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       // since login failed commit should return false as well
       assertFalse(loginModule.commit());
    }
+
+   @Test
+   public void testPropertyConfigMap() throws Exception {
+      LDAPLoginModule loginModule = new LDAPLoginModule();
+      JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
+
+      Field configMap = null;
+      HashMap<String, Object> options = new HashMap<>();
+      for (Field field: loginModule.getClass().getDeclaredFields()) {
+         if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()) && field.getType().isAssignableFrom(String.class)) {
+            field.setAccessible(true);
+            options.put((String)field.get(loginModule), "SET");
+         }
+         if (field.getName().equals("config")) {
+            field.setAccessible(true);
+            configMap = field;
+         }
+      }
+      loginModule.initialize(new Subject(), callbackHandler, null, options);
+
+      LDAPLoginProperty[] ldapProps = (LDAPLoginProperty[]) configMap.get(loginModule);
+      for (String key: options.keySet()) {
+         assertTrue("val set: " + key, presentInArray(ldapProps, key));
+      }
+   }
+
+   private boolean presentInArray(LDAPLoginProperty[] ldapProps, String propertyName) {
+      for (LDAPLoginProperty conf : ldapProps) {
+         if (conf.getPropertyName().equals(propertyName) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue())))
+            return true;
+      }
+      return false;
+   }
+
 }
