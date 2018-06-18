@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.components.ExternalComponent;
@@ -35,6 +36,7 @@ import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -42,6 +44,7 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -143,10 +146,78 @@ public class WebServerComponent implements ExternalComponent {
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
 
+      if (webServerConfig.requestLog != null) {
+         handlers.addHandler(getLogHandler());
+      }
       handlers.addHandler(homeContext);
       handlers.addHandler(instanceContext);
       handlers.addHandler(defaultHandler);
       server.setHandler(handlers);
+   }
+
+   private RequestLogHandler getLogHandler() {
+      RequestLogHandler requestLogHandler = new RequestLogHandler();
+      NCSARequestLog requestLog = new NCSARequestLog();
+
+      // required via config so no check necessary
+      requestLog.setFilename(webServerConfig.requestLog.filename);
+
+      if (webServerConfig.requestLog.append != null) {
+         requestLog.setAppend(webServerConfig.requestLog.append);
+      }
+
+      if (webServerConfig.requestLog.extended != null) {
+         requestLog.setExtended(webServerConfig.requestLog.extended);
+      }
+
+      if (webServerConfig.requestLog.logCookies != null) {
+         requestLog.setLogCookies(webServerConfig.requestLog.logCookies);
+      }
+
+      if (webServerConfig.requestLog.logTimeZone != null) {
+         requestLog.setLogTimeZone(webServerConfig.requestLog.logTimeZone);
+      }
+
+      if (webServerConfig.requestLog.filenameDateFormat != null) {
+         requestLog.setFilenameDateFormat(webServerConfig.requestLog.filenameDateFormat);
+      }
+
+      if (webServerConfig.requestLog.retainDays != null) {
+         requestLog.setRetainDays(webServerConfig.requestLog.retainDays);
+      }
+
+      if (webServerConfig.requestLog.ignorePaths != null && webServerConfig.requestLog.ignorePaths.length() > 0) {
+         String[] split = webServerConfig.requestLog.ignorePaths.split(",");
+         String[] ignorePaths = new String[split.length];
+         for (int i = 0; i < ignorePaths.length; i++) {
+            ignorePaths[i] = split[i].trim();
+         }
+         requestLog.setIgnorePaths(ignorePaths);
+      }
+
+      if (webServerConfig.requestLog.logDateFormat != null) {
+         requestLog.setLogDateFormat(webServerConfig.requestLog.logDateFormat);
+      }
+
+      if (webServerConfig.requestLog.logLocale != null) {
+         requestLog.setLogLocale(Locale.forLanguageTag(webServerConfig.requestLog.logLocale));
+      }
+
+      if (webServerConfig.requestLog.logLatency != null) {
+         requestLog.setLogLatency(webServerConfig.requestLog.logLatency);
+      }
+
+      if (webServerConfig.requestLog.logServer != null) {
+         requestLog.setLogServer(webServerConfig.requestLog.logServer);
+      }
+
+      if (webServerConfig.requestLog.preferProxiedForAddress != null) {
+         requestLog.setPreferProxiedForAddress(webServerConfig.requestLog.preferProxiedForAddress);
+      }
+
+      requestLogHandler.setRequestLog(requestLog);
+
+      return requestLogHandler;
    }
 
    @Override
