@@ -72,7 +72,12 @@ public class MqttCrlEnabledExample {
       mqtt.setConnectAttemptsMax(0);
       mqtt.setReconnectAttemptsMax(0);
       mqtt.setHost(host);
-      mqtt.setSslContext(SSLSupport.createContext("JKS", keystorePath, keystorePass, "JKS", truststorePath, truststorePass));
+      mqtt.setSslContext(new SSLSupport()
+                            .setKeystorePath(keystorePath)
+                            .setKeystorePassword(keystorePass)
+                            .setTruststorePath(truststorePath)
+                            .setTruststorePassword(truststorePass)
+                            .createContext());
       mqtt.setCleanSession(true);
 
       BlockingConnection connection = mqtt.blockingConnection();
