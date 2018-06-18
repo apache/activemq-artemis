@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -57,6 +59,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
    @Parameter(defaultValue = "${activemq.basedir}", required = true)
    private File home;
+
+   @Parameter
+   private String[] replacePairs;
 
    @Parameter(defaultValue = "${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}/", required = true)
    private File alternateHome;
@@ -299,11 +304,26 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
                                        Path sourcePath,
                                        Path targetPath,
                                        PrintStream commandLineStream) throws IOException {
+      boolean hasReplacements = false;
+      if (replacePairs != null && replacePairs.length > 0) {
+         hasReplacements = true;
+         if (replacePairs.length % 2 == 1) {
+            throw new IllegalArgumentException("You need to pass an even number of replacement pairs");
+         }
+         for (int i = 0; i < replacePairs.length; i += 2) {
+            commandLineStream.println("# replace " + replacePairs[i] + " by " + replacePairs[i + 1] + " on these files");
+         }
+      }
       for (String file : list) {
          Path target = targetPath.resolve(file);
 
          Path originalFile = sourcePath.resolve(file);
-         Files.copy(originalFile, target, StandardCopyOption.REPLACE_EXISTING);
+
+         if (hasReplacements) {
+            copyWithReplacements(originalFile, target);
+         } else {
+            Files.copy(originalFile, target, StandardCopyOption.REPLACE_EXISTING);
+         }
 
          commandLineStream.println("");
 
@@ -319,6 +339,16 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
             commandLineStream.println("cp " + originalFile + " " + target);
          }
       }
+   }
+
+   private void copyWithReplacements(Path original, Path target) throws IOException {
+      Charset charset = StandardCharsets.UTF_8;
+
+      String content = new String(Files.readAllBytes(original), charset);
+      for (int i = 0; i < replacePairs.length; i += 2) {
+         content = content.replaceAll(replacePairs[i], replacePairs[i + 1]);
+      }
+      Files.write(target, content.getBytes(charset));
    }
 
    private String getCommandline(ArrayList<String> listCommands) {
