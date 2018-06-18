@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -39,6 +40,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -46,7 +48,10 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -64,6 +69,13 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    private static final int PAYLOAD = 110 * 1024;
 
    String testQueueName = "ConnectionFrameSize";
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      // Make the journal file size larger than the frame+message sizes used in the tests,
+      // since it is by default for external brokers and it changes the behaviour.
+      server.getConfiguration().setJournalFileSize(5 * 1024 * 1024);
+   }
 
    @Override
    protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
@@ -321,6 +333,80 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          byte[] bytesReceived = new byte[expectedSize];
          assertEquals(expectedSize, bytesMessage.readBytes(bytesReceived, expectedSize));
          assertTrue(Arrays.equals(payload, bytesReceived));
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testReceiveRedeliveredLargeMessagesWithSessionFlowControl() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      int numMsgs = 10;
+      int msgSize = 2_000_000;
+      int maxFrameSize = FRAME_SIZE; // Match the brokers outgoing frame size limit to make window sizing easy
+      int sessionCapacity = 2_500_000; // Restrict session to 1.x messages in flight at once, make it likely send is partial.
+
+      byte[] payload = createLargePayload(msgSize);
+      assertEquals(msgSize, payload.length);
+
+      AmqpClient client = createAmqpClient();
+
+      AmqpConnection connection = client.createConnection();
+      connection.setMaxFrameSize(maxFrameSize);
+      connection.setSessionIncomingCapacity(sessionCapacity);
+
+      connection.connect();
+      addConnection(connection);
+      try {
+         String testQueueName = getTestName();
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(testQueueName);
+
+         for (int i = 0; i < numMsgs; ++i) {
+            AmqpMessage message = new AmqpMessage();
+            message.setBytes(payload);
+
+            sender.send(message);
+         }
+
+         Wait.assertEquals(numMsgs, () -> getMessageCount(server.getPostOffice(), testQueueName), 5000, 10);
+
+         AmqpReceiver receiver = session.createReceiver(testQueueName);
+         receiver.flow(numMsgs);
+
+         ArrayList<AmqpMessage> messages = new ArrayList<>();
+         for (int i = 0; i < numMsgs; ++i) {
+            AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+            assertNotNull("failed at " + i, message);
+            messages.add(message);
+         }
+
+         for (int i = 0; i < numMsgs; ++i) {
+            AmqpMessage msg = messages.get(i);
+            msg.modified(true, false);
+         }
+
+         receiver.close();
+
+         AmqpReceiver receiver2 = session.createReceiver(testQueueName);
+         receiver2.flow(numMsgs);
+         for (int i = 0; i < numMsgs; ++i) {
+            AmqpMessage message = receiver2.receive(5, TimeUnit.SECONDS);
+            assertNotNull("failed at " + i, message);
+
+            Section body = message.getWrappedMessage().getBody();
+            assertNotNull("No message body for msg " + i, body);
+
+            //TODO: ARTEMIS-1941 raised. This is wrong, test sent a Data section, it got converted in transit.
+            assertTrue("Unexpected message body type for msg " + body.getClass(), body instanceof AmqpValue);
+            assertEquals("Unexpected body content for msg", new Binary(payload, 0, payload.length), ((AmqpValue) body).getValue());
+
+            message.accept();
+         }
+
+         session.close();
+
+      } finally {
          connection.close();
       }
    }
