@@ -239,7 +239,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, true);
 
-      SSLContext.setDefault(SSLSupport.createContext(TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_PATH, TransportConstants.DEFAULT_KEYSTORE_PASSWORD, storeType, CLIENT_SIDE_TRUSTSTORE, PASSWORD));
+      SSLContext.setDefault(new SSLSupport()
+                               .setTruststoreProvider(storeType)
+                               .setTruststorePath(CLIENT_SIDE_TRUSTSTORE)
+                               .setTruststorePassword(PASSWORD)
+                               .createContext());
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
@@ -662,7 +666,14 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    public String[] getEnabledCipherSuites() throws Exception {
-      SSLContext context = SSLSupport.createContext(storeType, SERVER_SIDE_KEYSTORE, PASSWORD, storeType, CLIENT_SIDE_TRUSTSTORE, PASSWORD);
+      SSLContext context = new SSLSupport()
+         .setKeystoreProvider(storeType)
+         .setKeystorePath(SERVER_SIDE_KEYSTORE)
+         .setKeystorePassword(PASSWORD)
+         .setTruststoreProvider(storeType)
+         .setTruststorePath(CLIENT_SIDE_TRUSTSTORE)
+         .setTruststorePassword(PASSWORD)
+         .createContext();
       SSLEngine engine = context.createSSLEngine();
       return engine.getEnabledCipherSuites();
    }
