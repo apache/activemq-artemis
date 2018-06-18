@@ -270,6 +270,11 @@ A `QueueBrowser` is used to look at messages on the queue without removing
 them. It can scan the entire content of a queue or only messages matching a
 message selector.
 
+## Camel
+
+The `camel` example demonstrates how to build and deploy a Camel route to the
+broker using a web application archive (i.e. `war` file).
+
 ## Client Kickoff
 
 The `client-kickoff` example shows how to terminate client connections given an

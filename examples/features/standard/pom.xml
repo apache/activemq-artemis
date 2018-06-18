@@ -44,6 +44,7 @@ under the License.
             <module>auto-closeable</module>
             <module>browser</module>
             <module>broker-plugin</module>
+            <module>camel</module>
             <module>cdi</module>
             <module>client-kickoff</module>
             <module>completion-listener</module>
@@ -114,6 +115,7 @@ under the License.
             <module>auto-closeable</module>
             <module>browser</module>
             <module>broker-plugin</module>
+            <module>camel</module>
             <module>cdi</module>
             <module>client-kickoff</module>
             <module>completion-listener</module>
