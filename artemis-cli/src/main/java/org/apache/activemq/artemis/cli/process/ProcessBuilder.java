@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
@@ -64,7 +65,7 @@ public class ProcessBuilder {
     * @return
     * @throws Exception
     */
-   public static Process build(String logname, File location, boolean hook, String... args) throws Exception {
+   public static Process build(String logname, File location, boolean hook, String[] args, String[] properties) throws Exception {
       boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
 
       String[] newArgs;
@@ -75,6 +76,12 @@ public class ProcessBuilder {
       }
 
       java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(newArgs);
+
+      Map<String,String> environment = builder.environment();
+      for (String prop : properties) {
+         String[] nameValue = prop.split("=");
+         environment.put(nameValue[0], nameValue[1]);
+      }
 
       builder.directory(new File(location, "bin"));
 

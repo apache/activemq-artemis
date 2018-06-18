@@ -31,6 +31,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -258,6 +259,9 @@ public final class XMLUtil {
       return s;
    }
    public static String replaceSystemProps(String xml) {
+      Properties props = new Properties(System.getProperties());
+      props.putAll(System.getenv());
+
       while (xml.contains("${")) {
          int start = xml.indexOf("${");
          int end = xml.indexOf("}") + 1;
@@ -272,7 +276,7 @@ public final class XMLUtil {
             prop = parts[0].trim();
             val = parts[1].trim();
          }
-         String sysProp = System.getProperty(prop, val);
+         String sysProp = props.getProperty(prop, val);
          logger.debug("replacing " + subString + " with " + sysProp);
          xml = xml.replace(subString, sysProp);
 
