@@ -54,10 +54,13 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public final class StompConnection implements RemotingConnection {
+
+   private static final Logger logger = Logger.getLogger(StompConnection.class);
 
    protected static final String CONNECTION_ID_PROP = "__AMQ_CID";
    private static final String SERVER_NAME = "ActiveMQ-Artemis/" + VersionLoader.getVersion().getFullVersion() +
@@ -579,6 +582,27 @@ public final class StompConnection implements RemotingConnection {
 
       if (Stomp.Commands.DISCONNECT.equals(cmd)) {
          this.disconnect(false);
+      }
+   }
+
+   public void logFrame(StompFrame request, boolean in) {
+      if (logger.isDebugEnabled()) {
+         StringBuilder message = new StringBuilder()
+            .append("STOMP(")
+            .append(getRemoteAddress())
+            .append(", ")
+            .append(this.getID())
+            .append("):");
+
+         if (in) {
+            message.append(" IN << ");
+         } else {
+            message.append("OUT >> ");
+         }
+
+         message.append(request);
+
+         logger.debug(message.toString());
       }
    }
 
