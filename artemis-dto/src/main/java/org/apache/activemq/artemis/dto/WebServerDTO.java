@@ -50,6 +50,9 @@ public class WebServerDTO extends ComponentDTO {
    @XmlElementRef
    public List<AppDTO> apps;
 
+   @XmlElementRef(required = false)
+   public RequestLogDTO requestLog;
+
    @XmlAttribute
    private String keyStorePassword;
 
