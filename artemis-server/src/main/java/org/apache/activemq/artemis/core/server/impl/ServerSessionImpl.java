@@ -1548,6 +1548,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
+   public Map<String, String> getMetaData() {
+      return metaData;
+   }
+
+   @Override
    public String[] getTargetAddresses() {
       Map<SimpleString, Pair<Object, AtomicLong>> copy = cloneTargetAddresses();
       Iterator<SimpleString> iter = copy.keySet().iterator();
