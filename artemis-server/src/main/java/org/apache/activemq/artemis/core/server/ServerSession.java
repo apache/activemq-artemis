@@ -251,6 +251,8 @@ public interface ServerSession extends SecurityAuth {
 
    String getMetaData(String key);
 
+   Map<String, String> getMetaData();
+
    String[] getTargetAddresses();
 
    /**
