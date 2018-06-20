@@ -71,6 +71,8 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
@@ -1523,6 +1525,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSession session1 = addClientSession(factory.createSession());
       Thread.sleep(5);
       ClientSession session2 = addClientSession(factory2.createSession("myUser", "myPass", false, false, false, false, 0));
+      session2.addMetaData("foo", "bar");
+      session2.addMetaData("bar", "baz");
       session2.createConsumer(queueName);
 
       String jsonString = serverControl.listAllSessionsAsJSON();
@@ -1546,6 +1550,30 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("myUser", second.getString("principal"));
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+      Assert.assertTrue(second.getJsonString("metadata").getString().contains("foo=bar"));
+      Assert.assertTrue(second.getJsonString("metadata").getString().contains("bar=baz"));
+   }
+
+   @Test
+   public void testListAllSessionsAsJSONWithJMS() throws Exception {
+      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "cf");
+      Connection con = cf.createConnection();
+      String clientID = UUID.randomUUID().toString();
+      con.setClientID(clientID);
+
+      String jsonString = serverControl.listAllSessionsAsJSON();
+      IntegrationTestLogger.LOGGER.info(jsonString);
+      Assert.assertNotNull(jsonString);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());
+      JsonObject obj = lookupSession(array, ((ActiveMQConnection)con).getInitialSession());
+      Assert.assertTrue(obj.getString("metadata").contains(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY + "=" + clientID));
+      Assert.assertTrue(obj.getString("metadata").contains(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
    }
 
    @Test

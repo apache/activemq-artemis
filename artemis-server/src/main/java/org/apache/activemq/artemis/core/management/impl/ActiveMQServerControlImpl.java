@@ -1849,13 +1849,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          List<ServerSession> sessions = server.getSessions(connectionID);
          for (ServerSession sess : sessions) {
-            JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
-
-            if (sess.getValidatedUser() != null) {
-               obj.add("principal", sess.getValidatedUser());
-            }
-
-            array.add(obj);
+            buildSessionJSON(array, sess);
          }
       } finally {
          blockOnIO();
@@ -1873,18 +1867,28 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          Set<ServerSession> sessions = server.getSessions();
          for (ServerSession sess : sessions) {
-            JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
-
-            if (sess.getValidatedUser() != null) {
-               obj.add("principal", sess.getValidatedUser());
-            }
-
-            array.add(obj);
+            buildSessionJSON(array, sess);
          }
       } finally {
          blockOnIO();
       }
       return array.build().toString();
+   }
+
+   public void buildSessionJSON(JsonArrayBuilder array, ServerSession sess) {
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
+
+      if (sess.getValidatedUser() != null) {
+         obj.add("principal", sess.getValidatedUser());
+      }
+
+      String metadata = sess.getMetaData() == null ? null : sess.getMetaData().toString();
+      if (metadata != null) {
+         // remove leading and trailing curly brackets
+         obj.add("metadata", metadata.substring(1, metadata.length() - 1));
+      }
+
+      array.add(obj);
    }
 
    @Override
