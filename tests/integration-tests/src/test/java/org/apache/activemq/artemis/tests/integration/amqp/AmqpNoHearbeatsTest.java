@@ -40,6 +40,11 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
+   private static final int OK = 0x33;
+
+   @Parameterized.Parameter(0)
+   public boolean useOverride;
+
    @Parameterized.Parameters(name = "useOverride={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
@@ -47,8 +52,6 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
       });
    }
 
-   @Parameterized.Parameter(0)
-   public boolean useOverride;
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
@@ -88,8 +91,6 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   private static final String QUEUE_NAME = "queue://testHeartless";
-
    // This test is validating a scenario where the client will leave with connection reset
    // This is done by setting soLinger=0 on the socket, which will make the system to issue a connection.reset instead of sending a
    // disconnect.
@@ -112,14 +113,14 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
       connection.getStateInspector().assertValid();
       AmqpSession session = connection.createSession();
-      AmqpReceiver receiver = session.createReceiver(QUEUE_NAME);
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       // This test needs a remote process exiting without closing the socket
       // with soLinger=0 on the socket so it will issue a connection.reset
-      Process p = SpawnedVMSupport.spawnVM(AmqpNoHearbeatsTest.class.getName(), "testConnectionReset");
-      Assert.assertEquals(33, p.waitFor());
+      Process p = SpawnedVMSupport.spawnVM(AmqpNoHearbeatsTest.class.getName(), getTestName(), getQueueName());
+      Assert.assertEquals(OK, p.waitFor());
 
-      AmqpSender sender = session.createSender(QUEUE_NAME);
+      AmqpSender sender = session.createSender(getQueueName());
 
       for (int i = 0; i < 10; i++) {
          AmqpMessage msg = new AmqpMessage();
@@ -137,18 +138,22 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
    }
 
    public static void main(String[] arg) {
-      if (arg.length > 0 && arg[0].equals("testConnectionReset")) {
+      if (arg.length == 2 && arg[0].startsWith("testCloseConsumerOnConnectionReset")) {
          try {
+            String queueName = arg[1];
             AmqpClient client = new AmqpClient(new URI("tcp://127.0.0.1:5672?transport.soLinger=0"), null, null);
             AmqpConnection connection = client.connect();
             AmqpSession session = connection.createSession();
-            AmqpReceiver receiver = session.createReceiver(QUEUE_NAME);
+            AmqpReceiver receiver = session.createReceiver(queueName);
             receiver.flow(10);
-            System.exit(33);
+            System.exit(OK);
          } catch (Throwable e) {
             e.printStackTrace();
             System.exit(-1);
          }
+      } else {
+         System.err.println("Test " + arg[0] + " unkown");
+         System.exit(-2);
       }
    }
 
