@@ -352,9 +352,14 @@ public interface Queue extends Bindable,CriticalComponent {
    float getRate();
 
    /**
-    * @return the user who created this queue
+    * @return the user associated with this queue
     */
    SimpleString getUser();
+
+   /**
+    * @param user the user associated with this queue
+    */
+   void setUser(SimpleString user);
 
    /** This is to perform a check on the counter again */
    void recheckRefCount(OperationContext context);

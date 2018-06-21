@@ -445,6 +445,13 @@ public interface ActiveMQServer extends ServiceComponent {
                      Boolean purgeOnNoConsumers,
                      Boolean exclusive) throws Exception;
 
+   Queue updateQueue(String name,
+                     RoutingType routingType,
+                     Integer maxConsumers,
+                     Boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     String user) throws Exception;
+
    /*
             * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
             * replace any factories with the same protocol
