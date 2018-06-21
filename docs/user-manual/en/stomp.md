@@ -220,6 +220,15 @@ To delete a durable subscription the `client-id` header must be set on the
 `UNSUBSCRIBE` frame. The values for these headers should match what was set on
 the `SUBSCRIBE` frame to delete the corresponding durable subscription.
 
+Aside from `durable-subscription-name`, the broker also supports
+`durable-subscriber-name` (a deprecated property used before
+`durable-subscription-name`) as well as `activemq.subscriptionName` from ActiveMQ
+5.x. This is the order of precedence if the frame contains more than one of these:
+
+1) `durable-subscriber-name`
+2) `durable-subscription-name`
+3) `activemq.subscriptionName`
+
 It is possible to pre-configure durable subscriptions since the STOMP
 implementation creates the queue used for the durable subscription in a
 deterministic way (i.e. using the format of `client-id`.`subscription-name`).
