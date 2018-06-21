@@ -136,7 +136,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final SimpleString name;
 
-   private final SimpleString user;
+   private SimpleString user;
 
    private volatile Filter filter;
 
@@ -489,6 +489,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public SimpleString getUser() {
       return user;
+   }
+
+   @Override
+   public void setUser(SimpleString user) {
+      this.user = user;
    }
 
    @Override
