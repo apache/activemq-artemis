@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMess
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
@@ -255,14 +256,12 @@ public class StompSession implements SessionCallback {
       SimpleString address = SimpleString.toSimpleString(destination);
       SimpleString queueName = SimpleString.toSimpleString(destination);
       SimpleString selectorSimple = SimpleString.toSimpleString(selector);
-      boolean pubSub = false;
       final int receiveCredits = ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO) ? -1 : consumerCredits;
 
       Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(address)).getRoutingTypes();
-      boolean topic = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
-      if (topic) {
+      boolean multicast = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
+      if (multicast) {
          // subscribes to a topic
-         pubSub = true;
          if (durableSubscriptionName != null) {
             if (clientID == null) {
                throw BUNDLE.missingClientID();
@@ -276,8 +275,8 @@ public class StompSession implements SessionCallback {
             session.createQueue(address, queueName, selectorSimple, true, false);
          }
       }
-      final ServerConsumer consumer = session.createConsumer(consumerID, queueName, topic ? null : selectorSimple, false, false, 0);
-      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, pubSub);
+      final ServerConsumer consumer = session.createConsumer(consumerID, queueName, multicast ? null : selectorSimple, false, false, 0);
+      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, multicast);
       subscriptions.put(consumerID, subscription);
       session.start();
       return () -> consumer.receiveCredits(receiveCredits);
@@ -295,14 +294,15 @@ public class StompSession implements SessionCallback {
             iterator.remove();
             SimpleString queueName = sub.getQueueName();
             session.closeConsumer(consumerID);
-            if (sub.isPubSub() && manager.getServer().locateQueue(queueName) != null) {
+            Queue queue = manager.getServer().locateQueue(queueName);
+            if (sub.isMulticast() && queue != null && (durableSubscriptionName == null && !queue.isDurable())) {
                session.deleteQueue(queueName);
             }
             result = true;
          }
       }
 
-      if (!result && durableSubscriptionName != null && clientID != null) {
+      if (durableSubscriptionName != null && clientID != null) {
          SimpleString queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
          if (manager.getServer().locateQueue(queueName) != null) {
             session.deleteQueue(queueName);
