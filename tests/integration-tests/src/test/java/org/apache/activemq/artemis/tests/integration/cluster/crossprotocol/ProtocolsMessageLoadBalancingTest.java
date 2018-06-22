@@ -29,6 +29,12 @@ import java.util.Collection;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -392,9 +398,34 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       waitForBindings(1, "queues.0", 1, 1, false);
 
 
-      // sending Messages.. they should be load balanced
-      {
-         ConnectionFactory cf =  getJmsConnectionFactory(0);
+
+      if (protocol.equals("AMQP")) {
+
+
+         ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+         locator.setMinLargeMessageSize(1024);
+         ClientSessionFactory coreFactory = locator.createSessionFactory();
+         ClientSession clientSession = coreFactory.createSession();
+         ClientProducer producer = clientSession.createProducer(queueName);
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            ClientMessage message = clientSession.createMessage((byte)0, true);
+            StringBuffer stringbuffer = new StringBuffer();
+            stringbuffer.append("hello");
+            if (i % 3 == 0) {
+               // making 1/3 of the messages to be large message
+               for (int j = 0; j < 10 * 1024; j++) {
+                  stringbuffer.append(" ");
+               }
+            }
+            message.getBodyBuffer().writeUTF(stringbuffer.toString());
+            producer.send(message);
+         }
+         coreFactory.close();
+
+      } else {
+
+         // sending Messages.. they should be load balanced
+         ConnectionFactory cf = getJmsConnectionFactory(0);
          Connection cn = cf.createConnection();
          Session sn = cn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer pd = sn.createProducer(sn.createQueue(queueName.toString()));
