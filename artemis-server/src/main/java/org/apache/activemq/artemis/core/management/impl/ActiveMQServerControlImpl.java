@@ -825,6 +825,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Deprecated
    @Override
    public String updateQueue(String name,
                              String routingType,
@@ -833,18 +834,29 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       return updateQueue(name, routingType, maxConsumers, purgeOnNoConsumers, null);
    }
 
+   @Deprecated
    @Override
    public String updateQueue(String name,
                              String routingType,
                              Integer maxConsumers,
                              Boolean purgeOnNoConsumers,
                              Boolean exclusive) throws Exception {
+      return updateQueue(name, routingType, maxConsumers, purgeOnNoConsumers, exclusive, null);
+   }
+
+   @Override
+   public String updateQueue(String name,
+                             String routingType,
+                             Integer maxConsumers,
+                             Boolean purgeOnNoConsumers,
+                             Boolean exclusive,
+                             String user) throws Exception {
       checkStarted();
 
       clearIO();
 
       try {
-         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, purgeOnNoConsumers, exclusive);
+         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, purgeOnNoConsumers, exclusive, user);
          if (queue == null) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
          }

@@ -145,6 +145,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                                   @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                                   @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                                   @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
+                                   @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive,
+                                   @Parameter(name = "user", desc = "The user associated with this queue") String user)
+            throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, maxConsumers, purgeOnNoConsumers, exclusive, user);
+         }
+
+         @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
             proxy.invokeOperation("deleteAddress", name);
          }

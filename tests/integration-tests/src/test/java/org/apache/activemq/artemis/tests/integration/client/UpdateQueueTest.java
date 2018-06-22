@@ -49,7 +49,11 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
 
-      long originalID = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, null, true, false).getID();
+      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, null, true, false);
+
+      long originalID = queue.getID();
+
+      Assert.assertNull(queue.getUser());
 
       Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -59,7 +63,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false);
+      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false, "newUser");
 
       conn.close();
       factory.close();
@@ -69,9 +73,11 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
 
-      Queue queue = server.locateQueue(ADDRESS);
+      queue = server.locateQueue(ADDRESS);
 
       Assert.assertNotNull("queue not found", queue);
+
+      Assert.assertEquals("newUser", queue.getUser().toString());
 
       factory = new ActiveMQConnectionFactory();
 
