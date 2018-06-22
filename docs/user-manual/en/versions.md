@@ -1,12 +1,33 @@
 # Versions
 
-This chapter provides the information for each release:
+This chapter provides the following information for each release:
 - A link to the full release notes which includes all issues resolved in the release.
-- A brief list of "highlights."
+- A brief list of "highlights" when applicable.
 - If necessary, specific steps required when upgrading from the previous version. 
   - **Note:** If the upgrade spans multiple versions then the steps from **each** version need to be followed in order.
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
-    chapter in addition to any version-specific upgrade instructions outlined here. 
+    chapter in addition to any version-specific upgrade instructions outlined here.
+
+## 2.6.2
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12343404).
+
+This was a bug-fix release with no substantial new features or improvements.
+
+## 2.6.1
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12343356).
+
+This was a bug-fix release with no substantial new features or improvements.
+
+## 2.6.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12342903).
+
+Highlights:
+- Support [regular expressions for matching client certificates](security.md#certificateloginmodule).
+- Support `SASL_EXTERNAL` for AMQP clients.
+- New examples showing [virtual topic mapping](examples.md#openwire) and [exclusive queue](examples.md#exclusive-queue) features.
 
 ## 2.5.0
 
