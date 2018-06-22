@@ -1393,6 +1393,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public SimpleString getUser() {
          return null;
       }
+
+      @Override
+      public void setUser(SimpleString user) {
+
+      }
+
       @Override
       public boolean isLastValue() {
          return false;

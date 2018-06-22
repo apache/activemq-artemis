@@ -2546,7 +2546,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          int maxConsumer = (config.isMaxConsumerConfigured()) ? maxConsumerQueueConfig : maxConsumerAddressSetting;
          if (locateQueue(queueName) != null && locateQueue(queueName).getAddress().toString().equals(config.getAddress())) {
             updateQueue(config.getName(), config.getRoutingType(), maxConsumer, config.getPurgeOnNoConsumers(),
-                        config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive());
+                        config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive(),
+                        config.getUser());
          } else {
             // if the address::queue doesn't exist then create it
             try {
@@ -2943,6 +2944,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return queue;
    }
 
+   @Deprecated
    @Override
    public Queue updateQueue(String name,
                             RoutingType routingType,
@@ -2951,13 +2953,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return updateQueue(name, routingType, maxConsumers, purgeOnNoConsumers, null);
    }
 
+   @Deprecated
    @Override
    public Queue updateQueue(String name,
                             RoutingType routingType,
                             Integer maxConsumers,
                             Boolean purgeOnNoConsumers,
                             Boolean exclusive) throws Exception {
-      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers, exclusive);
+      return updateQueue(name, routingType, maxConsumers, purgeOnNoConsumers, null, null);
+   }
+
+   @Override
+   public Queue updateQueue(String name,
+                            RoutingType routingType,
+                            Integer maxConsumers,
+                            Boolean purgeOnNoConsumers,
+                            Boolean exclusive,
+                            String user) throws Exception {
+      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers, exclusive, user);
       if (queueBinding != null) {
          final Queue queue = queueBinding.getQueue();
          return queue;
