@@ -1344,6 +1344,40 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testDurableUnSubscribeWithoutDurableSubName() throws Exception {
+      server.getActiveMQServer().getConfiguration().getWildcardConfiguration().setDelimiter('/');
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("/topic/#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.MULTICAST).setDefaultQueueRoutingType(RoutingType.MULTICAST));
+      conn.connect(defUser, defPass, "myclientid");
+      String subId = UUID.randomUUID().toString();
+      String durableSubName = UUID.randomUUID().toString();
+      String receipt = UUID.randomUUID().toString();
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, "/topic/test.foo")
+                                   .addHeader(Stomp.Headers.Unsubscribe.ID, subId)
+                                   .addHeader(Stomp.Headers.Subscribe.ACK_MODE, Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL)
+                                   .addHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, durableSubName)
+                                   .addHeader(Stomp.Headers.RECEIPT_REQUESTED, receipt);
+
+      frame = conn.sendFrame(frame);
+      assertEquals(receipt, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      assertTrue(Wait.waitFor(() -> server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + durableSubName)) != null, 2000, 100));
+
+      receipt = UUID.randomUUID().toString();
+      frame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE)
+                  .addHeader(Stomp.Headers.Unsubscribe.ID, subId)
+                  .addHeader(Stomp.Headers.RECEIPT_REQUESTED, receipt);
+
+      frame = conn.sendFrame(frame);
+      assertEquals(receipt, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      conn.disconnect();
+
+      // make sure the durable subscription queue is still there
+      assertTrue(Wait.waitFor(() -> server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + durableSubName)) != null, 2000, 100));
+   }
+
+   @Test
    public void testDurableUnSubscribeLegacySubscriptionHeader() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);

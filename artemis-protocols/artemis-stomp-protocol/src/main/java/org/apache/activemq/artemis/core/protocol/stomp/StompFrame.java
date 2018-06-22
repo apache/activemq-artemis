@@ -77,8 +77,12 @@ public class StompFrame {
 
    @Override
    public String toString() {
-      return "StompFrame[command=" + command + ", headers=" + headers + ", content= " + this.body + " bytes " +
-         Arrays.toString(bytesBody);
+      return new StringBuilder()
+         .append("StompFrame[command=").append(command)
+         .append(", headers=").append(headers)
+         .append(", content= ").append(this.body)
+         .append(", bytes= ").append(Arrays.toString(bytesBody))
+         .toString();
    }
 
    public boolean isPing() {
