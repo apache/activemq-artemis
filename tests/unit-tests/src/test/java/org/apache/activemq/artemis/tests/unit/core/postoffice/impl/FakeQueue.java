@@ -739,6 +739,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void setUser(SimpleString user) {
+      // no-op
+   }
+
+   @Override
    public long getDeliveringSize() {
       return 0;
    }
