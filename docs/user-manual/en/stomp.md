@@ -38,6 +38,14 @@ In Apache ActiveMQ Artemis, these destinations are mapped to *addresses* and
 *queues* depending on the operation being done and the desired semantics (e.g.
 anycast or multicast).
 
+## Logging
+
+Incoming and outgoing STOMP frames can be logged by enabling `DEBUG` for
+`org.apache.activemq.artemis.core.protocol.stomp.StompConnection`. This can be
+extremely useful for debugging or simply monitoring client activity. Along with
+the STOMP frame itself the remote IP address of the client is logged as well as
+the internal connection ID so that frames from the same client can be correlated.
+
 ## Sending
 
 When a STOMP client sends a message (using a `SEND` frame), the protocol
