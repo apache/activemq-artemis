@@ -29,6 +29,12 @@ import java.util.Collection;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -366,6 +372,87 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       receiveMessages(connection[1], consumer[1], NUMBER_OF_MESSAGES / 2, true);
 
    }
+
+   @Test
+   public void testRedistributeAfterLoadBalanced() throws Exception {
+
+      startServers(MessageLoadBalancingType.ON_DEMAND);
+
+      ConnectionFactory[] factory = new ConnectionFactory[NUMBER_OF_SERVERS];
+      Connection[] connection = new Connection[NUMBER_OF_SERVERS];
+      Session[]  session = new Session[NUMBER_OF_SERVERS];
+      MessageConsumer[]  consumer = new MessageConsumer[NUMBER_OF_SERVERS];
+
+      // this will pre create consumers to make sure messages are distributed evenly without redistribution
+      for (int node = 0; node < NUMBER_OF_SERVERS; node++) {
+         factory[node] = getJmsConnectionFactory(node);
+         connection[node] = factory[node].createConnection();
+         session[node] = connection[node].createSession(false, Session.AUTO_ACKNOWLEDGE);
+         consumer[node] = session[node].createConsumer(session[node].createQueue(queueName.toString()));
+      }
+
+      waitForBindings(0, "queues.0", 1, 1, true);
+      waitForBindings(1, "queues.0", 1, 1, true);
+
+      waitForBindings(0, "queues.0", 1, 1, false);
+      waitForBindings(1, "queues.0", 1, 1, false);
+
+
+
+      if (protocol.equals("AMQP")) {
+
+
+         ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+         locator.setMinLargeMessageSize(1024);
+         ClientSessionFactory coreFactory = locator.createSessionFactory();
+         ClientSession clientSession = coreFactory.createSession();
+         ClientProducer producer = clientSession.createProducer(queueName);
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            ClientMessage message = clientSession.createMessage((byte)0, true);
+            StringBuffer stringbuffer = new StringBuffer();
+            stringbuffer.append("hello");
+            if (i % 3 == 0) {
+               // making 1/3 of the messages to be large message
+               for (int j = 0; j < 10 * 1024; j++) {
+                  stringbuffer.append(" ");
+               }
+            }
+            message.getBodyBuffer().writeUTF(stringbuffer.toString());
+            producer.send(message);
+         }
+         coreFactory.close();
+
+      } else {
+
+         // sending Messages.. they should be load balanced
+         ConnectionFactory cf = getJmsConnectionFactory(0);
+         Connection cn = cf.createConnection();
+         Session sn = cn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer pd = sn.createProducer(sn.createQueue(queueName.toString()));
+
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            StringBuffer stringbuffer = new StringBuffer();
+            stringbuffer.append("hello");
+            if (i % 3 == 0) {
+               // making 1/3 of the messages to be large message
+               for (int j = 0; j < 300 * 1024; j++) {
+                  stringbuffer.append(" ");
+               }
+            }
+            pd.send(sn.createTextMessage(stringbuffer.toString()));
+         }
+
+         cn.close();
+      }
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES / 2, servers[1].locateQueue(queueName)::getMessageCount);
+      Wait.assertEquals(NUMBER_OF_MESSAGES / 2, servers[0].locateQueue(queueName)::getMessageCount);
+      receiveMessages(connection[0], consumer[0], NUMBER_OF_MESSAGES / 2, true);
+      connection[1].close();
+      // this wil be after redistribution
+      receiveMessages(connection[0], consumer[0], NUMBER_OF_MESSAGES / 2, true);
+   }
+
 
    private void receiveMessages(Connection connection,
                                 MessageConsumer messageConsumer,
