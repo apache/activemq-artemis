@@ -468,7 +468,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
-                                   String user) throws Exception {
+                                   SimpleString user) throws Exception {
       synchronized (addressLock) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -514,7 +514,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
          if ((user != null && !user.equals(queue.getUser()) || (user == null && queue.getUser() != null))) {
             changed = true;
-            queue.setUser(SimpleString.toSimpleString(user));
+            queue.setUser(user);
          }
 
          if (changed) {
