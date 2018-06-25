@@ -512,7 +512,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             changed = true;
             queue.setExclusive(exclusive);
          }
-         if ((user != null && !user.equals(queue.getUser()) || (user == null && queue.getUser() != null))) {
+         if (user != null && !user.equals(queue.getUser())) {
             changed = true;
             queue.setUser(user);
          }
