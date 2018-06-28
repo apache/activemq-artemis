@@ -40,7 +40,10 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.UPDATE_DELIVERY_COUNT;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.Reader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +54,9 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -82,8 +87,12 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.Scheduled
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
-
+import org.jboss.logging.Logger;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Outputs a String description of the Journals contents.
@@ -92,8 +101,40 @@ import org.apache.activemq.artemis.utils.XidCodecSupport;
  */
 public final class DescribeJournal {
 
+   private static final Logger logger = Logger.getLogger(DescribeJournal.class);
+
    private final List<RecordInfo> records;
    private final List<PreparedTransactionInfo> preparedTransactions;
+   private static final Configuration CONFIGURATION;
+
+   static {
+      String instanceFolder = System.getProperty("artemis.instance");
+      if (instanceFolder != null) {
+         CONFIGURATION = new FileConfiguration();
+         File configFile = new File(instanceFolder + "/etc/broker.xml");
+         URL url;
+
+         try {
+            url = configFile.toURI().toURL();
+            Reader reader = new InputStreamReader(url.openStream());
+            String xml = XMLUtil.readerToString(reader);
+            xml = XMLUtil.replaceSystemProps(xml);
+            Element e = XMLUtil.stringToElement(xml);
+
+            String root = ((FileConfiguration) CONFIGURATION).getRootElement();
+            NodeList children = e.getElementsByTagName(root);
+            if (root != null && children.getLength() > 0) {
+               Node item = children.item(0);
+               XMLUtil.validate(item, ((FileConfiguration) CONFIGURATION).getSchema());
+               ((FileConfiguration) CONFIGURATION).parse((Element) item, url);
+            }
+         } catch (Exception e) {
+            logger.error("failed to load broker.xml", e);
+         }
+      } else {
+         CONFIGURATION = new ConfigurationImpl();
+      }
+   }
 
    public DescribeJournal(List<RecordInfo> records, List<PreparedTransactionInfo> preparedTransactions) {
       this.records = records;
@@ -128,9 +169,7 @@ public final class DescribeJournal {
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(messagesDir, null, 1);
 
       // Will use only default values. The load function should adapt to anything different
-      ConfigurationImpl defaultValues = new ConfigurationImpl();
-
-      JournalImpl messagesJournal = new JournalImpl(defaultValues.getJournalFileSize(), defaultValues.getJournalMinFiles(), defaultValues.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
+      JournalImpl messagesJournal = new JournalImpl(CONFIGURATION.getJournalFileSize(), CONFIGURATION.getJournalMinFiles(), CONFIGURATION.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
 
       return describeJournal(messagesFF, messagesJournal, messagesDir, out, safe);
    }
