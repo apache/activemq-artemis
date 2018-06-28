@@ -383,19 +383,29 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       PageCache cache = cursorProvider.getPageCache(pos.getPageNr());
 
+      PageCache emptyCache = null;
       if (cache != null && !cache.isLive() && retPos.getMessageNr() >= cache.getNumberOfMessages()) {
+         emptyCache = cache;
+         saveEmptyPageAsConsumedPage(emptyCache);
          // The next message is beyond what's available at the current page, so we need to move to the next page
          cache = null;
       }
 
       // it will scan for the next available page
       while ((cache == null && retPos.getPageNr() <= pageStore.getCurrentWritingPage()) || (cache != null && retPos.getPageNr() <= pageStore.getCurrentWritingPage() && cache.getNumberOfMessages() == 0)) {
+         emptyCache = cache;
          retPos = moveNextPage(retPos);
 
          cache = cursorProvider.getPageCache(retPos.getPageNr());
+
+         if (cache != null) {
+            saveEmptyPageAsConsumedPage(emptyCache);
+         }
       }
 
       if (cache == null) {
+         saveEmptyPageAsConsumedPage(emptyCache);
+
          // it will be null in the case of the current writing page
          return null;
       } else {
@@ -785,6 +795,17 @@ final class PageSubscriptionImpl implements PageSubscription {
          return pageInfo;
       }
 
+   }
+
+   private void saveEmptyPageAsConsumedPage(final PageCache cache) {
+      if (cache != null && cache.getNumberOfMessages() == 0) {
+         synchronized (consumedPages) {
+            PageCursorInfo pageInfo = consumedPages.get(cache.getPageId());
+            if (pageInfo == null) {
+               consumedPages.put(cache.getPageId(), new PageCursorInfo(cache.getPageId(), cache.getNumberOfMessages(), cache));
+            }
+         }
+      }
    }
 
    // Package protected ---------------------------------------------
