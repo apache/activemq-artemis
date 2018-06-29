@@ -104,6 +104,16 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public long getRoutedMessageCount() {
+            return (long) proxy.retrieveAttributeValue("routedMessageCount");
+         }
+
+         @Override
+         public long getUnRoutedMessageCount() {
+            return (long) proxy.retrieveAttributeValue("unRoutedMessageCount");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,

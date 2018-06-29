@@ -104,6 +104,18 @@ public interface AddressControl {
    @Attribute(desc = "number of messages added to all the queues for this address")
    long getMessageCount();
 
+   /**
+    * Returns the number of messages routed to one or more bindings
+    */
+   @Attribute(desc = "number of messages routed to one or more bindings")
+   long getRoutedMessageCount();
+
+   /**
+    * Returns the number of messages not routed to any bindings
+    */
+   @Attribute(desc = "number of messages not routed to any bindings")
+   long getUnRoutedMessageCount();
+
 
    /**
     * @param headers  the message headers and properties to set. Can only
