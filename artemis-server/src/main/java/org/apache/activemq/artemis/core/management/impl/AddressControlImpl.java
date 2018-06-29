@@ -267,6 +267,16 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       return getMessageCount(DurabilityType.ALL);
    }
 
+   @Override
+   public long getRoutedMessageCount() {
+      return addressInfo.getRoutedMessageCount();
+   }
+
+   @Override
+   public long getUnRoutedMessageCount() {
+      return addressInfo.getUnRoutedMessageCount();
+   }
+
 
    @Override
    public String sendMessage(final Map<String, String> headers,
