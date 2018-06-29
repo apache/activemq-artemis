@@ -19,6 +19,13 @@ package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_SEQUENCE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_LIST;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_STRING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.EMPTY_BINARY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
@@ -30,6 +37,7 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_NATIVE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PROPERTIES;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
@@ -254,6 +262,9 @@ public class CoreAmqpConverter {
             } else if (key.equals(JMS_AMQP_REPLYTO_GROUP_ID)) {
                properties.setReplyToGroupId(message.getStringProperty(key));
                continue;
+            } else if (key.equals(JMS_AMQP_ORIGINAL_ENCODING)) {
+               // skip..remove annotation from previous inbound transformation
+               continue;
             } else if (key.startsWith(JMS_AMQP_FOOTER_PREFIX)) {
                if (footerMap == null) {
                   footerMap = new HashMap<>();
@@ -331,6 +342,13 @@ public class CoreAmqpConverter {
    private static Section convertBody(ServerJMSMessage message, Map<Symbol, Object> maMap, Properties properties) throws JMSException {
 
       Section body = null;
+      short orignalEncoding = AMQP_UNKNOWN;
+
+      try {
+         orignalEncoding = message.getShortProperty(JMS_AMQP_ORIGINAL_ENCODING);
+      } catch (Exception ex) {
+         // Ignore and stick with UNKNOWN
+      }
 
       if (message instanceof ServerJMSBytesMessage) {
          Binary payload = getBinaryFromMessageBody((ServerJMSBytesMessage) message);
@@ -338,11 +356,40 @@ public class CoreAmqpConverter {
          maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_BYTES_MESSAGE);
          if (payload == null) {
             payload = EMPTY_BINARY;
-         } else {
-            body = new AmqpValue(payload);
+         }
+
+         switch (orignalEncoding) {
+            case AMQP_NULL:
+               break;
+            case AMQP_VALUE_BINARY:
+               body = new AmqpValue(payload);
+               break;
+            case AMQP_DATA:
+            case AMQP_UNKNOWN:
+            default:
+               body = new Data(payload);
+               break;
          }
       } else if (message instanceof ServerJMSTextMessage) {
-         body = new AmqpValue(((TextMessage) message).getText());
+         String text = (((TextMessage) message).getText());
+
+         switch (orignalEncoding) {
+            case AMQP_NULL:
+               break;
+            case AMQP_DATA:
+               if (text == null) {
+                  body = new Data(EMPTY_BINARY);
+               } else {
+                  body = new Data(new Binary(text.getBytes(StandardCharsets.UTF_8)));
+               }
+               break;
+            case AMQP_VALUE_STRING:
+            case AMQP_UNKNOWN:
+            default:
+               body = new AmqpValue(text);
+               break;
+         }
+
          maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_TEXT_MESSAGE);
       } else if (message instanceof ServerJMSMapMessage) {
          body = new AmqpValue(getMapFromMessageBody((ServerJMSMapMessage) message));
@@ -358,7 +405,16 @@ public class CoreAmqpConverter {
          } catch (MessageEOFException e) {
          }
 
-         body = new AmqpSequence(list);
+         switch (orignalEncoding) {
+            case AMQP_SEQUENCE:
+               body = new AmqpSequence(list);
+               break;
+            case AMQP_VALUE_LIST:
+            case AMQP_UNKNOWN:
+            default:
+               body = new AmqpValue(list);
+               break;
+         }
       } else if (message instanceof ServerJMSObjectMessage) {
          properties.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE);
          maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_OBJECT_MESSAGE);
@@ -368,7 +424,16 @@ public class CoreAmqpConverter {
             payload = EMPTY_BINARY;
          }
 
-         body = new Data(payload);
+         switch (orignalEncoding) {
+            case AMQP_VALUE_BINARY:
+               body = new AmqpValue(payload);
+               break;
+            case AMQP_DATA:
+            case AMQP_UNKNOWN:
+            default:
+               body = new Data(payload);
+               break;
+         }
 
          // For a non-AMQP message we tag the outbound content type as containing
          // a serialized Java object so that an AMQP client has a hint as to what
