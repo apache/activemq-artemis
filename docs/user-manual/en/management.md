@@ -804,6 +804,40 @@ un-formatted result of a call to `java.lang.System.currentTimeMillis()`.
   `_AMQ_Address`, `_AMQ_ConsumerCount`, `_AMQ_RemoteAddress`,
   `_AMQ_ConnectionName`, `_AMQ_ConsumerName`, `_AMQ_SessionName`
 
+- `ADDRESS_ADDED` (22)
+
+  `_AMQ_Address`, `_AMQ_Routing_Type`
+
+- `ADDRESS_REMOVED` (23)
+
+  `_AMQ_Address`, `_AMQ_Routing_Type`
+
+- `CONNECTION_CREATED` (24)
+
+  `_AMQ_ConnectionName`, `_AMQ_RemoteAddress`
+
+- `CONNECTION_DESTROYED` (25)
+
+  `_AMQ_ConnectionName`, `_AMQ_RemoteAddress`
+
+- `SESSION_CREATED` (26)
+
+  `_AMQ_ConnectionName`, `_AMQ_User`, `_AMQ_SessionName`
+
+- `SESSION_CLOSED` (27)
+
+  `_AMQ_ConnectionName`, `_AMQ_User`, `_AMQ_SessionName`
+
+- `MESSAGE_DELIVERED` (28)
+
+  `_AMQ_Address`, `_AMQ_Routing_Type`, `_AMQ_RoutingName`,
+  `_AMQ_ConsumerName`, `_AMQ_Message_ID`
+
+- `MESSAGE_EXPIRED` (29)
+
+  `_AMQ_Address`, `_AMQ_Routing_Type`, `_AMQ_RoutingName`,
+  `_AMQ_ConsumerName`, `_AMQ_Message_ID`
+
 ## Message Counters
 
 Message counters can be used to obtain information on queues *over time* as
