@@ -49,7 +49,7 @@ public class FakePostOffice implements PostOffice {
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
-                                   String user) throws Exception {
+                                   SimpleString user) throws Exception {
       return null;
    }
 

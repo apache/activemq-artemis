@@ -2970,7 +2970,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Boolean purgeOnNoConsumers,
                             Boolean exclusive,
                             String user) throws Exception {
-      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers, exclusive, user);
+      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers, exclusive, new SimpleString(user));
       if (queueBinding != null) {
          final Queue queue = queueBinding.getQueue();
          return queue;
