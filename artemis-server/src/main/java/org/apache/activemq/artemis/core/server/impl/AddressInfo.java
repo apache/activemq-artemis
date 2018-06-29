@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.utils.PrefixUtil;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 public class AddressInfo {
 
@@ -35,6 +36,14 @@ public class AddressInfo {
    private RoutingType firstSeen;
 
    private boolean internal = false;
+
+   private volatile long routedMessageCount = 0;
+
+   private static final AtomicLongFieldUpdater<AddressInfo> routedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "routedMessageCount");
+
+   private volatile long unRoutedMessageCount = 0;
+
+   private static final AtomicLongFieldUpdater<AddressInfo> unRoutedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "unRoutedMessageCount");
 
    public AddressInfo(SimpleString name) {
       this(name, EnumSet.noneOf(RoutingType.class));
@@ -153,6 +162,22 @@ public class AddressInfo {
          }
       }
       return this;
+   }
+
+   public long incrementRoutedMessageCount() {
+      return routedMessageCountUpdater.incrementAndGet(this);
+   }
+
+   public long incrementUnRoutedMessageCount() {
+      return unRoutedMessageCountUpdater.incrementAndGet(this);
+   }
+
+   public long getRoutedMessageCount() {
+      return routedMessageCountUpdater.get(this);
+   }
+
+   public long getUnRoutedMessageCount() {
+      return unRoutedMessageCountUpdater.get(this);
    }
 
 }
