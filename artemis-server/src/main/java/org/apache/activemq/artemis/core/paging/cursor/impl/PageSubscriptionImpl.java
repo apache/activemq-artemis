@@ -388,11 +388,19 @@ final class PageSubscriptionImpl implements PageSubscription {
          cache = null;
       }
 
+      PageCache lastTmpCache = null;
       // it will scan for the next available page
       while ((cache == null && retPos.getPageNr() <= pageStore.getCurrentWritingPage()) || (cache != null && retPos.getPageNr() <= pageStore.getCurrentWritingPage() && cache.getNumberOfMessages() == 0)) {
+         lastTmpCache = cache;
          retPos = moveNextPage(retPos);
 
          cache = cursorProvider.getPageCache(retPos.getPageNr());
+
+         if (cache != null) {
+            if (lastTmpCache != null && lastTmpCache.getNumberOfMessages() == 0) {
+               saveEmptyPageAsConsumedPage(lastTmpCache);
+            }
+         }
       }
 
       if (cache == null) {
@@ -785,6 +793,15 @@ final class PageSubscriptionImpl implements PageSubscription {
          return pageInfo;
       }
 
+   }
+
+   private void saveEmptyPageAsConsumedPage(final PageCache cache) {
+      synchronized (consumedPages) {
+         PageCursorInfo pageInfo = consumedPages.get(cache.getPageId());
+         if (pageInfo == null) {
+            consumedPages.put(cache.getPageId(), new PageCursorInfo(cache.getPageId(), cache.getNumberOfMessages(), cache));
+         }
+      }
    }
 
    // Package protected ---------------------------------------------
