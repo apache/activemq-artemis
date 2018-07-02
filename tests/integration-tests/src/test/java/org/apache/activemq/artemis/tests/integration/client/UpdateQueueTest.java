@@ -21,7 +21,6 @@ import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,6 +37,76 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class UpdateQueueTest extends ActiveMQTestBase {
+
+   @Test
+   public void testUpdateQueueWithNullUser() throws Exception {
+      ActiveMQServer server = createServer(true, true);
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+
+      server.start();
+
+      SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
+
+      final SimpleString user = new SimpleString("newUser");
+
+      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, user, null, true, false);
+
+      long originalID = queue.getID();
+
+      Assert.assertEquals(user, queue.getUser());
+
+      Connection conn = factory.createConnection();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer prod = session.createProducer(session.createQueue(ADDRESS.toString()));
+
+      for (int i = 0; i < 100; i++) {
+         prod.send(session.createTextMessage("message " + i));
+      }
+
+      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false, null);
+
+      conn.close();
+      factory.close();
+
+      server.stop();
+      server.start();
+
+      validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
+
+      queue = server.locateQueue(ADDRESS);
+
+      Assert.assertNotNull("queue not found", queue);
+
+      Assert.assertEquals("newUser", user, queue.getUser());
+
+      factory = new ActiveMQConnectionFactory();
+
+      conn = factory.createConnection();
+      session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageConsumer consumer = session.createConsumer(session.createQueue(ADDRESS.toString()));
+
+      conn.start();
+      for (int i = 0; i < 100; i++) {
+         Assert.assertNotNull(consumer.receive(5000));
+      }
+
+      Assert.assertNull(consumer.receiveNoWait());
+
+      Assert.assertEquals(1, queue.getMaxConsumers());
+
+      conn.close();
+
+      Assert.assertEquals(originalID, server.locateQueue(ADDRESS).getID());
+
+      // stopping, restarting to make sure the system will not create an extra record without an udpate
+      server.stop();
+      server.start();
+      validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
+      server.stop();
+
+   }
 
    @Test
    public void testUpdateQueue() throws Exception {
