@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.artemis.tests.util.HAConfigUtils;
 import org.junit.Test;
 public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
 
@@ -33,7 +33,7 @@ public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
       ((ReplicatedPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
       ((ReplicaPolicyConfiguration) servers[4].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
       ((ReplicaPolicyConfiguration) servers[5].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
-      ReplicatedPolicyConfiguration replicatedPolicyConf = new ReplicatedPolicyConfiguration(QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC);
+      ReplicatedPolicyConfiguration replicatedPolicyConf = new ReplicatedPolicyConfiguration();
       replicatedPolicyConf.setGroupName("group0");
       replicatedPolicyConf.setVoteRetries(5);
       replicatedPolicyConf.setVoteRetryWait(100);
@@ -46,7 +46,7 @@ public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
       startServers(0, 1, 2);
       startServers(3, 4, 5);
       //Assert if the default time 30 sec is used
-      assertEquals(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC, ((ReplicatedPolicy)(servers[0].getHAPolicy())).getQuorumVoteWait());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), ((ReplicatedPolicy)(servers[0].getHAPolicy())).getQuorumVoteWait());
       //Assert if the configured time is used.
       assertEquals(QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC, ((ReplicatedPolicy)(servers[3].getHAPolicy())).getQuorumVoteWait());
    }
