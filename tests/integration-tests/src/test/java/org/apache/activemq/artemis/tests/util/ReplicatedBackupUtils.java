@@ -44,8 +44,8 @@ public final class ReplicatedBackupUtils {
          liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor);
       }
 
-      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME)).setHAPolicyConfiguration(new ReplicaPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
+      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME)).setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
-      liveConfig.setName(LIVE_NODE_NAME).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME)).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration(HAConfigUtils.QUORUM_VOTE_WAIT_TIME_SEC));
+      liveConfig.setName(LIVE_NODE_NAME).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME)).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
    }
 }
