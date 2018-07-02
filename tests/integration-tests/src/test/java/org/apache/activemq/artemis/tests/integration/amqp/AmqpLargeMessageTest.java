@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +50,7 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.Section;
@@ -149,8 +151,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       session.close();
    }
 
-   private void receiveJMS(int nMsgs,
-                                ConnectionFactory factory) throws JMSException {
+   private void receiveJMS(int nMsgs, ConnectionFactory factory) throws JMSException {
       Connection connection2 = factory.createConnection();
       Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
       connection2.start();
@@ -397,15 +398,217 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             Section body = message.getWrappedMessage().getBody();
             assertNotNull("No message body for msg " + i, body);
 
-            //TODO: ARTEMIS-1941 raised. This is wrong, test sent a Data section, it got converted in transit.
-            assertTrue("Unexpected message body type for msg " + body.getClass(), body instanceof AmqpValue);
-            assertEquals("Unexpected body content for msg", new Binary(payload, 0, payload.length), ((AmqpValue) body).getValue());
+            assertTrue("Unexpected message body type for msg " + body.getClass(), body instanceof Data);
+            assertEquals("Unexpected body content for msg", new Binary(payload, 0, payload.length), ((Data) body).getValue());
 
             message.accept();
          }
 
          session.close();
 
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testMessageWithAmqpValueAndEmptyBinaryPreservesBody() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+
+         AmqpMessage message = createAmqpLargeMessageWithNoBody();
+
+         message.getWrappedMessage().setBody(new AmqpValue(new Binary(new byte[0])));
+
+         sender.send(message);
+         sender.close();
+
+         AmqpReceiver receiver = session.createReceiver(getTestName());
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull("failed to read large AMQP message", received);
+         MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
+
+         assertTrue(wrapped.getBody() instanceof AmqpValue);
+         AmqpValue body = (AmqpValue) wrapped.getBody();
+         assertTrue(body.getValue() instanceof Binary);
+         Binary payload = (Binary) body.getValue();
+         assertEquals(0, payload.getLength());
+
+         received.accept();
+         session.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testMessageWithDataAndEmptyBinaryPreservesBody() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+
+         AmqpMessage message = createAmqpLargeMessageWithNoBody();
+
+         message.getWrappedMessage().setBody(new Data(new Binary(new byte[0])));
+
+         sender.send(message);
+         sender.close();
+
+         AmqpReceiver receiver = session.createReceiver(getTestName());
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull("failed to read large AMQP message", received);
+         MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
+
+         assertTrue(wrapped.getBody() instanceof Data);
+         Data body = (Data) wrapped.getBody();
+         assertTrue(body.getValue() instanceof Binary);
+         Binary payload = (Binary) body.getValue();
+         assertEquals(0, payload.getLength());
+
+         received.accept();
+         session.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testMessageWithDataAndContentTypeOfTextPreservesBodyType() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+
+         AmqpMessage message = createAmqpLargeMessageWithNoBody();
+
+         String messageText = "This text will be in a Data Section";
+
+         message.getWrappedMessage().setContentType("text/plain");
+         message.getWrappedMessage().setBody(new Data(new Binary(messageText.getBytes(StandardCharsets.UTF_8))));
+
+         sender.send(message);
+         sender.close();
+
+         AmqpReceiver receiver = session.createReceiver(getTestName());
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull("failed to read large AMQP message", received);
+         MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
+
+         assertTrue(wrapped.getBody() instanceof Data);
+         Data body = (Data) wrapped.getBody();
+         assertTrue(body.getValue() instanceof Binary);
+         Binary payload = (Binary) body.getValue();
+         String reconstitutedString = new String(
+            payload.getArray(), payload.getArrayOffset(), payload.getLength(), StandardCharsets.UTF_8);
+
+         assertEquals(messageText, reconstitutedString);
+
+         received.accept();
+         session.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @SuppressWarnings({ "unchecked", "rawtypes" })
+   @Test(timeout = 60000)
+   public void testMessageWithAmqpValueListPreservesBodyType() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+
+         AmqpMessage message = createAmqpLargeMessageWithNoBody();
+
+         List<String> values = new ArrayList<>();
+         values.add("1");
+         values.add("2");
+         values.add("3");
+
+         message.getWrappedMessage().setBody(new AmqpValue(values));
+
+         sender.send(message);
+         sender.close();
+
+         AmqpReceiver receiver = session.createReceiver(getTestName());
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull("failed to read large AMQP message", received);
+         MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
+
+         assertTrue(wrapped.getBody() instanceof AmqpValue);
+         AmqpValue body = (AmqpValue) wrapped.getBody();
+         assertTrue(body.getValue() instanceof List);
+         List<String> payload = (List) body.getValue();
+         assertEquals(3, payload.size());
+
+         received.accept();
+         session.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @SuppressWarnings({ "unchecked", "rawtypes" })
+   @Test(timeout = 60000)
+   public void testMessageWithAmqpSequencePreservesBodyType() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+
+         AmqpMessage message = createAmqpLargeMessageWithNoBody();
+
+         List<String> values = new ArrayList<>();
+         values.add("1");
+         values.add("2");
+         values.add("3");
+
+         message.getWrappedMessage().setBody(new AmqpSequence(values));
+
+         sender.send(message);
+         sender.close();
+
+         AmqpReceiver receiver = session.createReceiver(getTestName());
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull("failed to read large AMQP message", received);
+         MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
+
+         assertTrue(wrapped.getBody() instanceof AmqpSequence);
+         AmqpSequence body = (AmqpSequence) wrapped.getBody();
+         assertTrue(body.getValue() instanceof List);
+         List<String> payload = (List) body.getValue();
+         assertEquals(3, payload.size());
+
+         received.accept();
+         session.close();
       } finally {
          connection.close();
       }
@@ -481,6 +684,19 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          payload[i] = value;
       }
       message.setBytes(payload);
+      return message;
+   }
+
+   private AmqpMessage createAmqpLargeMessageWithNoBody() {
+      AmqpMessage message = new AmqpMessage();
+
+      byte[] payload = new byte[512 * 1024];
+      for (int i = 0; i < payload.length; i++) {
+         payload[i] = (byte) 65;
+      }
+
+      message.setMessageAnnotation("x-opt-big-blob", new String(payload, StandardCharsets.UTF_8));
+
       return message;
    }
 }
