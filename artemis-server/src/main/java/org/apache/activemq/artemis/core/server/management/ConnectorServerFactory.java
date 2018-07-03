@@ -25,7 +25,6 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -184,7 +183,6 @@ public class ConnectorServerFactory {
          throw new IllegalArgumentException("server must be set");
       }
       JMXServiceURL url = new JMXServiceURL(this.serviceUrl);
-      setupArtemisRMIServerSocketFactory();
       if (isClientAuth()) {
          this.secured = true;
       }
@@ -247,11 +245,6 @@ public class ConnectorServerFactory {
       environment.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, rcsf);
    }
 
-   private void setupArtemisRMIServerSocketFactory() {
-      RMIServerSocketFactory rmiServerSocketFactory = new ArtemisRMIServerSocketFactory(getRmiServerHost());
-      environment.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, rmiServerSocketFactory);
-   }
-
    private static class ArtemisSslRMIServerSocketFactory implements RMIServerSocketFactory {
       private SSLServerSocketFactory sssf;
       private boolean clientAuth;
@@ -270,20 +263,5 @@ public class ConnectorServerFactory {
          return ss;
       }
    }
-
-   private static class ArtemisRMIServerSocketFactory implements RMIServerSocketFactory {
-      private String rmiServerHost;
-
-      ArtemisRMIServerSocketFactory(String rmiServerHost) {
-         this.rmiServerHost = rmiServerHost;
-      }
-
-      @Override
-      public ServerSocket createServerSocket(int port) throws IOException {
-         ServerSocket serverSocket = (ServerSocket) ServerSocketFactory.getDefault().createServerSocket(port, 50, InetAddress.getByName(rmiServerHost));
-         return serverSocket;
-      }
-   }
-
 
 }

@@ -57,7 +57,7 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
          sqlProvider);
    }
 
-   @Test(timeout = 10000)
+   @Test(timeout = 30000)
    public void shouldStartIfTableNotExist() throws Exception {
       final JdbcSharedStateManager sharedStateManager = createSharedStateManager();
       try {
@@ -67,7 +67,7 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test(timeout = 30000)
    public void shouldStartIfTableExistEmpty() throws Exception {
       final TestJDBCDriver fakeDriver = createFakeDriver(false);
       fakeDriver.start();
@@ -80,7 +80,7 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test(timeout = 30000)
    public void shouldStartIfTableExistInitialized() throws Exception {
       final TestJDBCDriver fakeDriver = createFakeDriver(true);
       fakeDriver.start();
@@ -93,7 +93,7 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test(timeout = 30000)
    public void shouldStartTwoIfTableNotExist() throws Exception {
       final JdbcSharedStateManager liveSharedStateManager = createSharedStateManager();
       final JdbcSharedStateManager backupSharedStateManager = createSharedStateManager();
