@@ -302,6 +302,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       RemotingConnection toStop = remotingConnection;
       if (toStop != null) {
          toStop.removeFailureListener(failureListener);
+         toStop.destroy();
       }
       remotingConnection = null;
       started = false;
