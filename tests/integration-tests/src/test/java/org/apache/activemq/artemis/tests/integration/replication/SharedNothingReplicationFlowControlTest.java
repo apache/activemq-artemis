@@ -55,7 +55,6 @@ import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.logging.Logger;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,7 +85,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
    public void testReplicationIfFlowControlled() throws Exception {
       // start live
       Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      ActiveMQServer liveServer = ActiveMQServers.newActiveMQServer(liveConfiguration);
       liveServer.start();
 
       Wait.waitFor(() -> liveServer.isStarted());
@@ -99,7 +98,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       ClientSession sess = csf.createSession();
       sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
       sess.close();
-
+      Executor sendMessageExecutor = Executors.newCachedThreadPool();
 
       int i = 0;
       final int j = 100;
@@ -107,7 +106,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
-      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
+      ActiveMQServer backupServer = ActiveMQServers.newActiveMQServer(backupConfiguration);
       backupServer.start();
 
       Wait.waitFor(() -> backupServer.isStarted());
