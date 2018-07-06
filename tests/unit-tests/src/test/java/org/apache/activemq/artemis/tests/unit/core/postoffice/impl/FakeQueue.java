@@ -49,6 +49,41 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public int getConsumersBeforeDispatch() {
+      return 0;
+   }
+
+   @Override
+   public void setConsumersBeforeDispatch(int consumersBeforeDispatch) {
+
+   }
+
+   @Override
+   public long getDelayBeforeDispatch() {
+      return 0;
+   }
+
+   @Override
+   public void setDelayBeforeDispatch(long delayBeforeDispatch) {
+
+   }
+
+   @Override
+   public long getDispatchStartTime() {
+      return 0;
+   }
+
+   @Override
+   public boolean isDispatching() {
+      return false;
+   }
+
+   @Override
+   public void setDispatching(boolean dispatching) {
+
+   }
+
+   @Override
    public boolean isExclusive() {
       // no-op
       return false;

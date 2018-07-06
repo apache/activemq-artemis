@@ -468,6 +468,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
+                                   Integer consumersBeforeDispatch,
+                                   Long delayBeforeDispatch,
                                    SimpleString user) throws Exception {
       synchronized (addressLock) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
@@ -511,6 +513,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (exclusive != null && queue.isExclusive() != exclusive.booleanValue()) {
             changed = true;
             queue.setExclusive(exclusive);
+         }
+         if (consumersBeforeDispatch != null && !consumersBeforeDispatch.equals(queue.getConsumersBeforeDispatch())) {
+            changed = true;
+            queue.setConsumersBeforeDispatch(consumersBeforeDispatch.intValue());
+         }
+         if (delayBeforeDispatch != null && !delayBeforeDispatch.equals(queue.getDelayBeforeDispatch())) {
+            changed = true;
+            queue.setDelayBeforeDispatch(delayBeforeDispatch.longValue());
          }
          if (logger.isDebugEnabled()) {
             if (user == null && queue.getUser() != null) {

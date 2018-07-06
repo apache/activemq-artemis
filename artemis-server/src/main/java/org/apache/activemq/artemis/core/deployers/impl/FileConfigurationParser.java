@@ -183,6 +183,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEFAULT_EXCLUSIVE_NODE_NAME = "default-exclusive-queue";
 
+   private static final String DEFAULT_CONSUMERS_BEFORE_DISPATCH = "default-consumers-before-dispatch";
+
+   private static final String DEFAULT_DELAY_BEFORE_DISPATCH = "default-delay-before-dispatch";
+
    private static final String REDISTRIBUTION_DELAY_NODE_NAME = "redistribution-delay";
 
    private static final String SEND_TO_DLA_ON_NO_ROUTE = "send-to-dla-on-no-route";
@@ -1050,6 +1054,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setDefaultPurgeOnNoConsumers(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_MAX_CONSUMERS.equalsIgnoreCase(name)) {
             addressSettings.setDefaultMaxConsumers(XMLUtil.parseInt(child));
+         } else if (DEFAULT_CONSUMERS_BEFORE_DISPATCH.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultConsumersBeforeDispatch(XMLUtil.parseInt(child));
+         } else if (DEFAULT_DELAY_BEFORE_DISPATCH.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultDelayBeforeDispatch(XMLUtil.parseLong(child));
          } else if (DEFAULT_QUEUE_ROUTING_TYPE.equalsIgnoreCase(name)) {
             String value = getTrimmedTextContent(child);
             Validators.ROUTING_TYPE.validate(DEFAULT_QUEUE_ROUTING_TYPE, value);
@@ -1093,12 +1101,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String address = null;
       String filterString = null;
       boolean durable = true;
-      boolean maxConumserConfigured = false;
-      int maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+      Integer maxConsumers = null;
       boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
       String user = null;
       Boolean exclusive = null;
       Boolean lastValue = null;
+      Integer consumersBeforeDispatch = null;
+      Long delayBeforeDispatch = null;
 
       NamedNodeMap attributes = node.getAttributes();
       for (int i = 0; i < attributes.getLength(); i++) {
@@ -1106,13 +1115,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (item.getNodeName().equals("max-consumers")) {
             maxConsumers = Integer.parseInt(item.getNodeValue());
             Validators.MAX_QUEUE_CONSUMERS.validate(name, maxConsumers);
-            maxConumserConfigured = true;
          } else if (item.getNodeName().equals("purge-on-no-consumers")) {
             purgeOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("exclusive")) {
             exclusive = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("last-value")) {
             lastValue = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("consumers-before-dispatch")) {
+            consumersBeforeDispatch = Integer.parseInt(item.getNodeValue());
+         } else if (item.getNodeName().equals("delay-before-dispatch")) {
+            delayBeforeDispatch = Long.parseLong(item.getNodeValue());
          }
       }
 
@@ -1132,7 +1144,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setUser(user)
-                                         .setExclusive(exclusive).setLastValue(lastValue).setMaxConsumerConfigured(maxConumserConfigured);
+                                         .setExclusive(exclusive).setLastValue(lastValue).setConsumersBeforeDispatch(consumersBeforeDispatch).setDelayBeforeDispatch(delayBeforeDispatch);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {
