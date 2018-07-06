@@ -587,6 +587,13 @@ system. It is implemented by
   for the connection to the directory server. This option must be set explicitly
   to an empty string, because it has no default value.
 
+- `connectionPool`. boolean, enable the ldap connection pool property
+ 'com.sun.jndi.ldap.connect.pool'. Note that the pool is [configured at the jvm level with system properties](https://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html).
+
+
+- `connectionTimeout`. String milliseconds, that can time limit a ldap connection
+ attempt. The default is infinite.
+
 - `userBase` - selects a particular subtree of the DIT to search for user
   entries. The subtree is specified by a DN, which specifes the base node of
   the subtree. For example, by setting this option to
