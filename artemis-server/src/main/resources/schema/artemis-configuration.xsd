@@ -510,6 +510,8 @@
                         <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="consumers-before-dispatch" type="xsd:int" use="optional"/>
+                        <xsd:attribute name="delay-before-dispatch" type="xsd:long" use="optional"/>
                         <xsd:attributeGroup ref="xml:specialAttrs"/>
                      </xsd:complexType>
                   </xsd:element>
@@ -2802,6 +2804,22 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="default-consumers-before-dispatch" type="xsd:int" default="0" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the default number of consumers needed before dispatch can start for queues under the address.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-delay-before-dispatch" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the default delay to wait before dispatching if number of consumers before dispatch is not met for queues under the address.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="redistribution-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -3119,6 +3137,8 @@
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="consumers-before-dispatch" type="xsd:int" use="optional"/>
+      <xsd:attribute name="delay-before-dispatch" type="xsd:long" use="optional"/>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 

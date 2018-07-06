@@ -473,6 +473,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
+   public static final int DEFAULT_CONSUMERS_BEFORE_DISPATCH = 0;
+
+   public static final long DEFAULT_DELAY_BEFORE_DISPATCH = -1;
+
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
@@ -1300,6 +1304,14 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultPurgeOnNoConsumers() {
       return DEFAULT_PURGE_ON_NO_CONSUMERS;
+   }
+
+   public static int getDefaultConsumersBeforeDispatch() {
+      return DEFAULT_CONSUMERS_BEFORE_DISPATCH;
+   }
+
+   public static long getDefaultDelayBeforeDispatch() {
+      return DEFAULT_DELAY_BEFORE_DISPATCH;
    }
 
    public static String getInternalNamingPrefix() {

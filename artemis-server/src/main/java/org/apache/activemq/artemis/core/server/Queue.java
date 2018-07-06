@@ -68,6 +68,20 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setPurgeOnNoConsumers(boolean value);
 
+   int getConsumersBeforeDispatch();
+
+   void setConsumersBeforeDispatch(int consumersBeforeDispatch);
+
+   long getDelayBeforeDispatch();
+
+   void setDelayBeforeDispatch(long delayBeforeDispatch);
+
+   long getDispatchStartTime();
+
+   boolean isDispatching();
+
+   void setDispatching(boolean dispatching);
+
    boolean isExclusive();
 
    void setExclusive(boolean value);

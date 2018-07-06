@@ -39,13 +39,15 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Boolean lastValue;
 
-   private Integer maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+   private Integer maxConsumers;
+
+   private Integer consumersBeforeDispatch;
+
+   private Long delayBeforeDispatch;
 
    private Boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
 
    private RoutingType routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
-
-   private boolean maxConsumerConfigured = false;
 
    public CoreQueueConfiguration() {
    }
@@ -78,13 +80,12 @@ public class CoreQueueConfiguration implements Serializable {
       return lastValue;
    }
 
-   public boolean isMaxConsumerConfigured() {
-      return maxConsumerConfigured;
+   public Integer getConsumersBeforeDispatch() {
+      return consumersBeforeDispatch;
    }
 
-   public CoreQueueConfiguration setMaxConsumerConfigured(boolean maxConsumerConfigured) {
-      this.maxConsumerConfigured = maxConsumerConfigured;
-      return this;
+   public Long getDelayBeforeDispatch() {
+      return delayBeforeDispatch;
    }
 
    /**
@@ -128,6 +129,22 @@ public class CoreQueueConfiguration implements Serializable {
    }
 
    /**
+    * @param consumersBeforeDispatch for this queue, default is 0 (dispatch as soon as 1 consumer)
+    */
+   public CoreQueueConfiguration setConsumersBeforeDispatch(Integer consumersBeforeDispatch) {
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+      return this;
+   }
+
+   /**
+    * @param delayBeforeDispatch for this queue, default is 0 (start dispatch with no delay)
+    */
+   public CoreQueueConfiguration setDelayBeforeDispatch(Long delayBeforeDispatch) {
+      this.delayBeforeDispatch = delayBeforeDispatch;
+      return this;
+   }
+
+   /**
     * @param purgeOnNoConsumers delete this queue when consumer count reaches 0, default is false
     */
    public CoreQueueConfiguration setPurgeOnNoConsumers(Boolean purgeOnNoConsumers) {
@@ -157,7 +174,7 @@ public class CoreQueueConfiguration implements Serializable {
       return purgeOnNoConsumers;
    }
 
-   public int getMaxConsumers() {
+   public Integer getMaxConsumers() {
       return maxConsumers;
    }
 
@@ -182,7 +199,8 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
       result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
-      result = prime * result + (maxConsumerConfigured ? 1331 : 1337);
+      result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
+      result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
       return result;
    }
 
@@ -201,8 +219,6 @@ public class CoreQueueConfiguration implements Serializable {
       } else if (!address.equals(other.address))
          return false;
       if (durable != other.durable)
-         return false;
-      if (maxConsumerConfigured != other.maxConsumerConfigured)
          return false;
       if (filterString == null) {
          if (other.filterString != null)
@@ -235,6 +251,18 @@ public class CoreQueueConfiguration implements Serializable {
          if (other.lastValue != null)
             return false;
       } else if (!lastValue.equals(other.lastValue)) {
+         return false;
+      }
+      if (consumersBeforeDispatch == null) {
+         if (other.consumersBeforeDispatch != null)
+            return false;
+      } else if (!consumersBeforeDispatch.equals(other.consumersBeforeDispatch)) {
+         return false;
+      }
+      if (delayBeforeDispatch == null) {
+         if (other.delayBeforeDispatch != null)
+            return false;
+      } else if (!delayBeforeDispatch.equals(other.delayBeforeDispatch)) {
          return false;
       }
       return true;
