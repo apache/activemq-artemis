@@ -45,6 +45,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,8 @@ import static org.junit.Assert.fail;
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
 @ApplyLdifFiles("test.ldif")
 public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
+
+   private static final Logger logger = Logger.getLogger(LDAPLoginModuleTest.class);
 
    private static final String PRINCIPAL = "uid=admin,ou=system";
    private static final String CREDENTIALS = "secret";
@@ -109,6 +112,8 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testLogin() throws LoginException {
+      logger.info("num session: " + ldapServer.getLdapSessionManager().getSessions().length);
+
       LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
          @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -125,6 +130,24 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       });
       context.login();
       context.logout();
+
+      assertTrue("no sessions after logout", waitForSessions(0));
+   }
+
+   private boolean waitForSessions(int expected) {
+      final long expiry = System.currentTimeMillis() + 5000;
+      int numSession =  ldapServer.getLdapSessionManager().getSessions().length;
+      while (numSession != expected && System.currentTimeMillis() < expiry) {
+         try {
+            TimeUnit.MILLISECONDS.sleep(100);
+         } catch (InterruptedException ok) {
+            break;
+         }
+         numSession =  ldapServer.getLdapSessionManager().getSessions().length;
+         logger.info("num session " + numSession);
+
+      }
+      return numSession == expected;
    }
 
    @Test
@@ -150,6 +173,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
          return;
       }
       fail("Should have failed authenticating");
+      assertTrue("no sessions after logout", waitForSessions(0));
    }
 
    @Test
