@@ -220,6 +220,7 @@ public class LDAPLoginModule implements LoginModule {
    private void clear() {
       username = null;
       userAuthenticated = false;
+      closeContext();
    }
 
    @Override
