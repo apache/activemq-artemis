@@ -36,6 +36,10 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule;
@@ -132,6 +136,79 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       context.logout();
 
       assertTrue("no sessions after logout", waitForSessions(0));
+   }
+
+   @Test
+   public void testLoginPooled() throws LoginException {
+
+      LoginContext context = new LoginContext("LDAPLoginPooled", new CallbackHandler() {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+               if (callbacks[i] instanceof NameCallback) {
+                  ((NameCallback) callbacks[i]).setName("first");
+               } else if (callbacks[i] instanceof PasswordCallback) {
+                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+               } else {
+                  throw new UnsupportedCallbackException(callbacks[i]);
+               }
+            }
+         }
+      });
+      context.login();
+      context.logout();
+
+      // again
+
+      context.login();
+      context.logout();
+
+      // new context
+      context = new LoginContext("LDAPLoginPooled", new CallbackHandler() {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+               if (callbacks[i] instanceof NameCallback) {
+                  ((NameCallback) callbacks[i]).setName("first");
+               } else if (callbacks[i] instanceof PasswordCallback) {
+                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+               } else {
+                  throw new UnsupportedCallbackException(callbacks[i]);
+               }
+            }
+         }
+      });
+      context.login();
+      context.logout();
+
+      Executor pool = Executors.newCachedThreadPool();
+      for (int i = 0; i < 10; i++) {
+         ((ExecutorService) pool).execute(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  LoginContext context = new LoginContext("LDAPLoginPooled", new CallbackHandler() {
+                     @Override
+                     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+                        for (int i = 0; i < callbacks.length; i++) {
+                           if (callbacks[i] instanceof NameCallback) {
+                              ((NameCallback) callbacks[i]).setName("first");
+                           } else if (callbacks[i] instanceof PasswordCallback) {
+                              ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+                           } else {
+                              throw new UnsupportedCallbackException(callbacks[i]);
+                           }
+                        }
+                     }
+                  });
+                  context.login();
+                  context.logout();
+               } catch (Exception ignored) {
+               }
+            }
+         });
+      }
+      assertTrue("no sessions after logout", waitForSessions(10));
    }
 
    private boolean waitForSessions(int expected) {
