@@ -85,6 +85,8 @@ public class LDAPLoginModule implements LoginModule {
    private static final String AUTHENTICATE_USER = "authenticateUser";
    private static final String REFERRAL = "referral";
    private static final String PASSWORD_CODEC = "passwordCodec";
+   private static final String CONNECTION_POOL = "connectionPool";
+   private static final String CONNECTION_TIMEOUT = "connectionTimeout";
 
    protected DirContext context;
 
@@ -128,7 +130,9 @@ public class LDAPLoginModule implements LoginModule {
                                        new LDAPLoginProperty(PASSWORD_CODEC, (String) options.get(PASSWORD_CODEC)),
                                        new LDAPLoginProperty(SASL_LOGIN_CONFIG_SCOPE, (String) options.get(SASL_LOGIN_CONFIG_SCOPE)),
                                        new LDAPLoginProperty(AUTHENTICATE_USER, (String) options.get(AUTHENTICATE_USER)),
-                                       new LDAPLoginProperty(REFERRAL, (String) options.get(REFERRAL))};
+                                       new LDAPLoginProperty(REFERRAL, (String) options.get(REFERRAL)),
+                                       new LDAPLoginProperty(CONNECTION_POOL, (String) options.get(CONNECTION_POOL)),
+                                       new LDAPLoginProperty(CONNECTION_TIMEOUT, (String) options.get(CONNECTION_TIMEOUT))};
 
       if (isLoginPropertySet(AUTHENTICATE_USER)) {
          authenticateUser = Boolean.valueOf(getLDAPPropertyValue(AUTHENTICATE_USER));
@@ -580,6 +584,12 @@ public class LDAPLoginModule implements LoginModule {
             env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(CONNECTION_PROTOCOL));
             env.put(Context.PROVIDER_URL, getLDAPPropertyValue(CONNECTION_URL));
             env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(AUTHENTICATION));
+            if (isLoginPropertySet(CONNECTION_POOL)) {
+               env.put("com.sun.jndi.ldap.connect.pool", getLDAPPropertyValue(CONNECTION_POOL));
+            }
+            if (isLoginPropertySet(CONNECTION_TIMEOUT)) {
+               env.put("com.sun.jndi.ldap.connect.timeout", getLDAPPropertyValue(CONNECTION_TIMEOUT));
+            }
 
             // handle LDAP referrals
             // valid values are "throw", "ignore" and "follow"
