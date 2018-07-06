@@ -170,6 +170,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean defaultPurgeOnNoConsumers = null;
 
+   private Integer defaultConsumersBeforeDispatch = null;
+
+   private Long defaultDelayBeforeDispatch = null;
+
    private RoutingType defaultQueueRoutingType = null;
 
    private RoutingType defaultAddressRoutingType = null;
@@ -214,6 +218,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.maxSizeBytesRejectThreshold = other.maxSizeBytesRejectThreshold;
       this.defaultMaxConsumers = other.defaultMaxConsumers;
       this.defaultPurgeOnNoConsumers = other.defaultPurgeOnNoConsumers;
+      this.defaultConsumersBeforeDispatch = other.defaultConsumersBeforeDispatch;
+      this.defaultDelayBeforeDispatch = other.defaultDelayBeforeDispatch;
       this.defaultQueueRoutingType = other.defaultQueueRoutingType;
       this.defaultAddressRoutingType = other.defaultAddressRoutingType;
    }
@@ -325,6 +331,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setDefaultMaxConsumers(Integer defaultMaxConsumers) {
       this.defaultMaxConsumers = defaultMaxConsumers;
+      return this;
+   }
+
+   public int getDefaultConsumersBeforeDispatch() {
+      return defaultConsumersBeforeDispatch != null ? defaultConsumersBeforeDispatch : ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
+   }
+
+   public AddressSettings setDefaultConsumersBeforeDispatch(Integer defaultConsumersBeforeDispatch) {
+      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
+      return this;
+   }
+
+   public long getDefaultDelayBeforeDispatch() {
+      return defaultDelayBeforeDispatch != null ? defaultDelayBeforeDispatch : ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
+   }
+
+   public AddressSettings setDefaultDelayBeforeDispatch(Long defaultDelayBeforeDispatch) {
+      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
       return this;
    }
 
@@ -667,6 +691,18 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (defaultAddressRoutingType == null) {
          defaultAddressRoutingType = merged.defaultAddressRoutingType;
       }
+      if (defaultExclusiveQueue == null) {
+         defaultExclusiveQueue = merged.defaultExclusiveQueue;
+      }
+      if (defaultLastValueQueue == null) {
+         defaultLastValueQueue = merged.defaultLastValueQueue;
+      }
+      if (defaultConsumersBeforeDispatch == null) {
+         defaultConsumersBeforeDispatch = merged.defaultConsumersBeforeDispatch;
+      }
+      if (defaultDelayBeforeDispatch == null) {
+         defaultDelayBeforeDispatch = merged.defaultDelayBeforeDispatch;
+      }
    }
 
    @Override
@@ -767,6 +803,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          defaultExclusiveQueue = BufferHelper.readNullableBoolean(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultConsumersBeforeDispatch = BufferHelper.readNullableInteger(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         defaultDelayBeforeDispatch = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -805,7 +849,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultPurgeOnNoConsumers) +
          DataConstants.SIZE_BYTE +
          DataConstants.SIZE_BYTE +
-         BufferHelper.sizeOfNullableBoolean(defaultExclusiveQueue);
+         BufferHelper.sizeOfNullableBoolean(defaultExclusiveQueue) +
+         BufferHelper.sizeOfNullableInteger(defaultConsumersBeforeDispatch) +
+         BufferHelper.sizeOfNullableLong(defaultDelayBeforeDispatch);
    }
 
    @Override
@@ -882,6 +928,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, defaultExclusiveQueue);
 
+      BufferHelper.writeNullableInteger(buffer, defaultConsumersBeforeDispatch);
+
+      BufferHelper.writeNullableLong(buffer, defaultDelayBeforeDispatch);
+
    }
 
    /* (non-Javadoc)
@@ -928,6 +978,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultPurgeOnNoConsumers == null) ? 0 : defaultPurgeOnNoConsumers.hashCode());
       result = prime * result + ((defaultQueueRoutingType == null) ? 0 : defaultQueueRoutingType.hashCode());
       result = prime * result + ((defaultAddressRoutingType == null) ? 0 : defaultAddressRoutingType.hashCode());
+      result = prime * result + ((defaultConsumersBeforeDispatch == null) ? 0 : defaultConsumersBeforeDispatch.hashCode());
+      result = prime * result + ((defaultDelayBeforeDispatch == null) ? 0 : defaultDelayBeforeDispatch.hashCode());
       return result;
    }
 
@@ -1133,6 +1185,18 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!defaultAddressRoutingType.equals(other.defaultAddressRoutingType))
          return false;
+
+      if (defaultConsumersBeforeDispatch == null) {
+         if (other.defaultConsumersBeforeDispatch != null)
+            return false;
+      } else if (!defaultConsumersBeforeDispatch.equals(other.defaultConsumersBeforeDispatch))
+         return false;
+
+      if (defaultDelayBeforeDispatch == null) {
+         if (other.defaultDelayBeforeDispatch != null)
+            return false;
+      } else if (!defaultDelayBeforeDispatch.equals(other.defaultDelayBeforeDispatch))
+         return false;
       return true;
    }
 
@@ -1212,6 +1276,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultQueueRoutingType +
          ", defaultAddressRoutingType=" +
          defaultAddressRoutingType +
+         ", defaultConsumersBeforeDispatch=" +
+         defaultConsumersBeforeDispatch +
+         ", defaultDelayBeforeDispatch=" +
+         defaultDelayBeforeDispatch +
          "]";
    }
 }

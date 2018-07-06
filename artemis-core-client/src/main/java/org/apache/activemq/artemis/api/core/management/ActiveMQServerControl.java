@@ -581,6 +581,42 @@ public interface ActiveMQServerControl {
     * @param durable            is the queue durable?
     * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
+    * @param exclusive if the queue should route exclusively to one consumer
+    * @param lastValue use last-value semantics
+    * @param consumersBeforeDispatch number of consumers needed before dispatch can start
+    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param autoCreateAddress  create an address with default values should a matching address not be found
+    * @return a textual summary of the queue
+    * @throws Exception
+    */
+   @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
+   String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                      @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                      @Parameter(name = "name", desc = "Name of the queue") String name,
+                      @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
+                      @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                      @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                      @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
+                      @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") boolean exclusive,
+                      @Parameter(name = "lastValue", desc = "Use last-value semantics") boolean lastValue,
+                      @Parameter(name = "consumersBeforeDispatch", desc = "Number of consumers needed before dispatch can start") int consumersBeforeDispatch,
+                      @Parameter(name = "delayBeforeDispatch", desc = "Delay to wait before dispatching if number of consumers before dispatch is not met") long delayBeforeDispatch,
+                      @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
+
+   /**
+    * Create a queue.
+    * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
+    * <br>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    *
+    * @param address            address to bind the queue to
+    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param name               name of the queue
+    * @param filterStr          filter of the queue
+    * @param durable            is the queue durable?
+    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @param autoCreateAddress  create an address with default values should a matching address not be found
     * @return a textual summary of the queue
     * @throws Exception
@@ -594,6 +630,7 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
                       @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
+
 
    /**
     * Update a queue.
@@ -649,6 +686,30 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
                       @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive,
+                      @Parameter(name = "user", desc = "The user associated with this queue") String user) throws Exception;
+
+   /**
+    * Update a queue
+    *
+    * @param name               name of the queue
+    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
+    * @param exclusive          if the queue should route exclusively to one consumer
+    * @param consumersBeforeDispatch number of consumers needed before dispatch can start
+    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param user               the user associated with this queue
+    * @return
+    * @throws Exception
+    */
+   @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
+   String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                      @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                      @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                      @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
+                      @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive,
+                      @Parameter(name = "consumersBeforeDispatch", desc = "Number of consumers needed before dispatch can start") Integer consumersBeforeDispatch,
+                      @Parameter(name = "delayBeforeDispatch", desc = "Delay to wait before dispatching if number of consumers before dispatch is not met") Long delayBeforeDispatch,
                       @Parameter(name = "user", desc = "The user associated with this queue") String user) throws Exception;
 
    /**

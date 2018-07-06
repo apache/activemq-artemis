@@ -105,6 +105,52 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       Assert.assertTrue(queueBinding2.getQueue().isExclusive());
    }
 
+   @Test
+   public void testQueueConfigConsumersBeforeDispatchAndRestart() throws Exception {
+      int consumersBeforeDispatch = 5;
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, true, consumersBeforeDispatch, -1, true);
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
+   }
+
+   @Test
+   public void testQueueConfigDelayBeforeDispatchAndRestart() throws Exception {
+      long delayBeforeDispatch = 5000L;
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, true, 0, delayBeforeDispatch, true);
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
+   }
+
 
    @Test
    public void testQueueConfigUserAndRestart() throws Exception {
