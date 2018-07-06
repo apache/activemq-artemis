@@ -341,11 +341,11 @@ public class JMSMappingOutboundTransformerTest {
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-      assertFalse(0 == ((Binary) ((Data) amqp.getBody()).getValue()).getLength());
+      assertTrue(amqp.getBody() instanceof AmqpValue);
+      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
+      assertFalse(0 == ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
 
-      Object value = deserialize((((Data) amqp.getBody()).getValue()).getArray());
+      Object value = deserialize(((Binary) ((AmqpValue) amqp.getBody()).getValue()).getArray());
       assertNotNull(value);
       assertTrue(value instanceof UUID);
    }
@@ -361,7 +361,7 @@ public class JMSMappingOutboundTransformerTest {
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
       assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(0, ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
+      assertEquals(5, ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
    }
 
    // ----- TextMessage type tests -------------------------------------------//
