@@ -451,9 +451,12 @@ public class CoreAmqpConverter {
          // this will represent a readOnly buffer for the message
          ActiveMQBuffer buffer = internalMessage.getDataBuffer();
          try {
-            Object s = buffer.readNullableSimpleString();
-            if (s != null) {
-               body = new AmqpValue(s.toString());
+            // the buffer may be completely empty (e.g. if the original AMQP message had a null body)
+            if (buffer.readableBytes() > 0) {
+               Object s = buffer.readNullableSimpleString();
+               if (s != null) {
+                  body = new AmqpValue(s.toString());
+               }
             }
          } catch (Throwable ignored) {
             logger.debug("Exception ignored during conversion", ignored.getMessage(), ignored);
