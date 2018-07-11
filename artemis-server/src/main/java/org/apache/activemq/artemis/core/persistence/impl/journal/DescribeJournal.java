@@ -105,12 +105,12 @@ public final class DescribeJournal {
 
    private final List<RecordInfo> records;
    private final List<PreparedTransactionInfo> preparedTransactions;
-   private static final Configuration CONFIGURATION;
 
-   static {
+   private static Configuration getConfiguration() {
+      Configuration configuration;
       String instanceFolder = System.getProperty("artemis.instance");
       if (instanceFolder != null) {
-         CONFIGURATION = new FileConfiguration();
+         configuration = new FileConfiguration();
          File configFile = new File(instanceFolder + "/etc/broker.xml");
          URL url;
 
@@ -121,19 +121,21 @@ public final class DescribeJournal {
             xml = XMLUtil.replaceSystemProps(xml);
             Element e = XMLUtil.stringToElement(xml);
 
-            String root = ((FileConfiguration) CONFIGURATION).getRootElement();
+            String root = ((FileConfiguration) configuration).getRootElement();
             NodeList children = e.getElementsByTagName(root);
             if (root != null && children.getLength() > 0) {
                Node item = children.item(0);
-               XMLUtil.validate(item, ((FileConfiguration) CONFIGURATION).getSchema());
-               ((FileConfiguration) CONFIGURATION).parse((Element) item, url);
+               XMLUtil.validate(item, ((FileConfiguration) configuration).getSchema());
+               ((FileConfiguration) configuration).parse((Element) item, url);
             }
          } catch (Exception e) {
             logger.error("failed to load broker.xml", e);
          }
       } else {
-         CONFIGURATION = new ConfigurationImpl();
+         configuration = new ConfigurationImpl();
       }
+
+      return configuration;
    }
 
    public DescribeJournal(List<RecordInfo> records, List<PreparedTransactionInfo> preparedTransactions) {
@@ -166,10 +168,11 @@ public final class DescribeJournal {
    }
 
    public static DescribeJournal describeMessagesJournal(final File messagesDir, PrintStream out, boolean safe) throws Exception {
+      Configuration configuration = getConfiguration();
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(messagesDir, null, 1);
 
       // Will use only default values. The load function should adapt to anything different
-      JournalImpl messagesJournal = new JournalImpl(CONFIGURATION.getJournalFileSize(), CONFIGURATION.getJournalMinFiles(), CONFIGURATION.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
+      JournalImpl messagesJournal = new JournalImpl(configuration.getJournalFileSize(), configuration.getJournalMinFiles(), configuration.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
 
       return describeJournal(messagesFF, messagesJournal, messagesDir, out, safe);
    }
