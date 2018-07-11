@@ -40,7 +40,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class SpawnedVMSupport {
 
-   static ConcurrentHashMap<Process, String> startedProcesses = new ConcurrentHashMap();
+   static ConcurrentHashMap<Process, String> startedProcesses = null;
 
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
@@ -203,7 +203,9 @@ public final class SpawnedVMSupport {
       ProcessLogger errorLogger = new ProcessLogger(logErrorOutput, process.getErrorStream(), className, wordMatch, wordRunning);
       errorLogger.start();
 
-      startedProcesses.put(process, className);
+      if (startedProcesses != null) {
+         startedProcesses.put(process, className);
+      }
       return process;
    }
 
@@ -216,18 +218,20 @@ public final class SpawnedVMSupport {
 
       HashSet<Process> aliveProcess = new HashSet<>();
 
-      for (;;) {
-         try {
-            aliveProcess.clear();
-            for (Process process : startedProcesses.keySet()) {
-               if (process.isAlive()) {
-                  aliveProcess.add(process);
-                  process.destroyForcibly();
+      if (startedProcesses != null) {
+         for (;;) {
+            try {
+               aliveProcess.clear();
+               for (Process process : startedProcesses.keySet()) {
+                  if (process.isAlive()) {
+                     aliveProcess.add(process);
+                     process.destroyForcibly();
+                  }
                }
+               break;
+            } catch (Throwable e) {
+               e.printStackTrace();
             }
-            break;
-         } catch (Throwable e) {
-            e.printStackTrace();
          }
       }
 
@@ -251,6 +255,10 @@ public final class SpawnedVMSupport {
 
    }
 
+   public static void enableCheck() {
+      startedProcesses = new ConcurrentHashMap<>();
+   }
+
    public static void checkProcess() {
 
       HashSet<Process> aliveProcess = getAliveProcesses();
@@ -265,7 +273,7 @@ public final class SpawnedVMSupport {
             Assert.fail("There are " + aliveProcess.size() + " processes alive :: " + buffer.toString());
          }
       } finally {
-         startedProcesses.clear();
+         startedProcesses = null;
       }
    }
 
