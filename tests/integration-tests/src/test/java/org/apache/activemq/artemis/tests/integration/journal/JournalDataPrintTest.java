@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
@@ -32,6 +33,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class JournalDataPrintTest extends ActiveMQTestBase {
 
@@ -49,9 +53,17 @@ public class JournalDataPrintTest extends ActiveMQTestBase {
       try {
          server.start();
          server.stop();
+         // This will force some static load that used to be on the class, which would make this test to fail.
+         DescribeJournal journal = new DescribeJournal(null, null);
          System.setProperty("artemis.instance",
                this.getClass().getClassLoader().getResource("dataprint").getFile());
-         PrintData.printData(server.getConfiguration().getBindingsLocation().getAbsoluteFile(), server.getConfiguration().getJournalLocation().getAbsoluteFile(), server.getConfiguration().getPagingLocation().getAbsoluteFile());
+         PrintData.printData(server.getConfiguration().getBindingsLocation().getAbsoluteFile(), server.getConfiguration().getJournalLocation().getAbsoluteFile(), server.getConfiguration().getPagingLocation().getAbsoluteFile(),
+                             new PrintStream(new OutputStream() {
+                                @Override
+                                public void write(int b) throws IOException {
+                                    // dev/null
+                                }
+                             }), false);
 
          // list journal file
          File dirFile = server.getConfiguration().getJournalLocation().getAbsoluteFile();
