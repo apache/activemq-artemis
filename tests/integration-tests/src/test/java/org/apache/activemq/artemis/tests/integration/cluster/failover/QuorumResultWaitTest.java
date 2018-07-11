@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.junit.Test;
+
 public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
 
    public static final int QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC = 12;
@@ -33,7 +34,7 @@ public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
       ((ReplicatedPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
       ((ReplicaPolicyConfiguration) servers[4].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
       ((ReplicaPolicyConfiguration) servers[5].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
-      ReplicatedPolicyConfiguration replicatedPolicyConf = new ReplicatedPolicyConfiguration();
+      ReplicatedPolicyConfiguration replicatedPolicyConf = new ReplicatedPolicyConfiguration().setQuorumVoteWait(QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC);
       replicatedPolicyConf.setGroupName("group0");
       replicatedPolicyConf.setVoteRetries(5);
       replicatedPolicyConf.setVoteRetryWait(100);
@@ -43,12 +44,16 @@ public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
    @Test
    public void testQuorumVotingResultWait() throws Exception {
       setupCluster();
-      startServers(0, 1, 2);
-      startServers(3, 4, 5);
-      //Assert if the default time 30 sec is used
-      assertEquals(ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), ((ReplicatedPolicy)(servers[0].getHAPolicy())).getQuorumVoteWait());
-      //Assert if the configured time is used.
-      assertEquals(QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC, ((ReplicatedPolicy)(servers[3].getHAPolicy())).getQuorumVoteWait());
+      try {
+         startServers(0, 1, 2);
+         startServers(3, 4, 5);
+         //Assert if the default time 30 sec is used
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), ((ReplicatedPolicy) (servers[0].getHAPolicy())).getQuorumVoteWait());
+         //Assert if the configured time is used.
+         assertEquals(QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC, ((ReplicatedPolicy) (servers[3].getHAPolicy())).getQuorumVoteWait());
+      } finally {
+         stopServers(0, 1, 2, 3, 4, 5);
+      }
    }
 
    @Override
