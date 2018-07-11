@@ -26,4 +26,10 @@ public class SpawnedVMCheck extends ExternalResource {
       super.after();
       SpawnedVMSupport.checkProcess();
    }
+
+   @Override
+   public void before() throws Throwable {
+      super.before();
+      SpawnedVMSupport.enableCheck();
+   }
 }
