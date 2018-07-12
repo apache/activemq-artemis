@@ -17,14 +17,8 @@
 package org.apache.activemq.artemis.api.core.management;
 
 import javax.json.JsonObject;
-import java.text.DateFormat;
-import java.util.Date;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
-import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
-import org.apache.activemq.artemis.utils.JsonLoader;
-
-import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Helper class to create Java Objects from the
@@ -49,20 +43,6 @@ public final class MessageCounterInfo {
    private final String lastAddTimestamp;
 
    private final String udpateTimestamp;
-
-   /**
-    * Returns a JSON String serialization of a {@link MessageCounter} object.
-    *
-    * @param counter
-    * @return
-    * @throws Exception
-    */
-   public static String toJSon(final MessageCounter counter) throws Exception {
-      DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-      String lastAddTimestamp = dateFormat.format(new Date(counter.getLastAddedMessageTime()));
-      String updateTimestamp = dateFormat.format(new Date(counter.getLastUpdate()));
-      return JsonLoader.createObjectBuilder().add("destinationName", nullSafe(counter.getDestinationName())).add("destinationSubscription", nullSafe(counter.getDestinationSubscription())).add("destinationDurable", counter.isDestinationDurable()).add("count", counter.getCount()).add("countDelta", counter.getCountDelta()).add("messageCount", counter.getMessageCount()).add("messageCountDelta", counter.getMessageCountDelta()).add("lastAddTimestamp", lastAddTimestamp).add("updateTimestamp", updateTimestamp).build().toString();
-   }
 
    /**
     * Returns a MessageCounterInfo corresponding to the JSON serialization returned
