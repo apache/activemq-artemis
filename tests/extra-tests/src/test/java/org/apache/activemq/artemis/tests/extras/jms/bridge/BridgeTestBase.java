@@ -37,6 +37,8 @@ import java.util.Set;
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -44,7 +46,6 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -53,13 +54,11 @@ import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
@@ -88,15 +87,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
 
    protected ActiveMQServer server0;
 
-   protected JMSServerManager jmsServer0;
-
    protected ActiveMQServer server1;
-
-   protected JMSServerManager jmsServer1;
-
-   private InVMNamingContext context0;
-
-   protected InVMNamingContext context1;
 
    protected HashMap<String, Object> params1;
 
@@ -111,11 +102,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(0, false)).setBindingsDirectory(getBindingsDir(0, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
       server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, false));
-
-      context0 = new InVMNamingContext();
-      jmsServer0 = new JMSServerManagerImpl(server0);
-      jmsServer0.setRegistry(new JndiBindingRegistry(context0));
-      jmsServer0.start();
+      server0.start();
 
       params1 = new HashMap<>();
       params1.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
@@ -123,20 +110,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       Configuration conf1 = createBasicConfig().setJournalDirectory(getJournalDir(1, false)).setBindingsDirectory(getBindingsDir(1, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
 
       server1 = addServer(ActiveMQServers.newActiveMQServer(conf1, false));
-
-      context1 = new InVMNamingContext();
-
-      jmsServer1 = new JMSServerManagerImpl(server1);
-      jmsServer1.setRegistry(new JndiBindingRegistry(context1));
-      jmsServer1.start();
-
-      createQueue("sourceQueue", 0);
-
-      jmsServer0.createTopic(false, "sourceTopic", "/topic/sourceTopic");
-
-      createQueue("localTargetQueue", 0);
-
-      createQueue("targetQueue", 1);
+      server1.start();
 
       setUpAdministeredObjects();
       TxControl.enable();
@@ -147,11 +121,11 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
    }
 
    protected void createQueue(final String queueName, final int index) throws Exception {
-      JMSServerManager server = jmsServer0;
+      ActiveMQServer server = server0;
       if (index == 1) {
-         server = jmsServer1;
+         server = server1;
       }
-      assertTrue("queue '/queue/" + queueName + "' created", server.createQueue(false, queueName, null, true, "/queue/" + queueName));
+      assertTrue("queue '/queue/" + queueName + "' created", server.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false) != null);
    }
 
    @Override
@@ -170,8 +144,8 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (cff1 instanceof ActiveMQConnectionFactory) {
          ((ActiveMQConnectionFactory) cff1).close();
       }
-      stopComponent(jmsServer0);
-      stopComponent(jmsServer1);
+      stopComponent(server0);
+      stopComponent(server1);
       cff0 = cff1 = null;
       cff0xa = cff1xa = null;
 
@@ -187,17 +161,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
 
       server0 = null;
 
-      jmsServer0 = null;
-
       server1 = null;
-
-      jmsServer1 = null;
-      if (context0 != null)
-         context0.close();
-      context0 = null;
-      if (context1 != null)
-         context1.close();
-      context1 = null;
 
       // Shutting down Arjuna threads
       TxControl.disable(true);
@@ -297,7 +261,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       sourceQueueFactory = new DestinationFactory() {
          @Override
          public Destination createDestination() throws Exception {
-            return (Destination) context0.lookup("/queue/sourceQueue");
+            return ActiveMQDestination.createDestination("/queue/sourceQueue", ActiveMQDestination.TYPE.QUEUE);
          }
       };
 
@@ -306,7 +270,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       targetQueueFactory = new DestinationFactory() {
          @Override
          public Destination createDestination() throws Exception {
-            return (Destination) context1.lookup("/queue/targetQueue");
+            return ActiveMQDestination.createDestination("/queue/targetQueue", ActiveMQDestination.TYPE.QUEUE);
          }
       };
 
@@ -315,7 +279,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       sourceTopicFactory = new DestinationFactory() {
          @Override
          public Destination createDestination() throws Exception {
-            return (Destination) context0.lookup("/topic/sourceTopic");
+            return ActiveMQDestination.createDestination("/topic/sourceTopic", ActiveMQDestination.TYPE.TOPIC);
          }
       };
 
@@ -324,7 +288,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       localTargetQueueFactory = new DestinationFactory() {
          @Override
          public Destination createDestination() throws Exception {
-            return (Destination) context0.lookup("/queue/localTargetQueue");
+            return ActiveMQDestination.createDestination("/queue/localTargetQueue", ActiveMQDestination.TYPE.QUEUE);
          }
       };
 

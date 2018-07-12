@@ -46,7 +46,7 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + wsport + "?stompMaxFramePayloadLength=" + stompWSMaxFrameSize).start();
+      server.getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + wsport + "?stompMaxFramePayloadLength=" + stompWSMaxFrameSize).start();
       wsURI = createStompClientUri(scheme, hostname, wsport);
    }
 

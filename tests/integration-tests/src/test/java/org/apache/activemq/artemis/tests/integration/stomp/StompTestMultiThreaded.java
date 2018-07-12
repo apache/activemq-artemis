@@ -67,8 +67,8 @@ public class StompTestMultiThreaded extends StompTestBase {
 
    @Test
    public void testTwoConcurrentSubscribers() throws Exception {
-      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteAddresses(false).setAutoDeleteQueues(false));
-      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://localhost:61614?protocols=STOMP&anycastPrefix=/queue/").start();
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteAddresses(false).setAutoDeleteQueues(false));
+      server.getRemotingService().createAcceptor("test", "tcp://localhost:61614?protocols=STOMP&anycastPrefix=/queue/").start();
 
       int nThreads = 2;
 
@@ -89,7 +89,7 @@ public class StompTestMultiThreaded extends StompTestBase {
          }
 
          // delete queue here so it can be auto-created again during the next loop iteration
-         server.getActiveMQServer().locateQueue(QUEUE).deleteQueue();
+         server.locateQueue(QUEUE).deleteQueue();
       }
    }
 }

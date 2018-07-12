@@ -19,26 +19,22 @@ package org.apache.activemq.artemis.rest.integration;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.rest.test.TransformTest;
-import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.rest.test.Util;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
 import org.jboss.resteasy.test.TestPortProvider;
-import org.apache.activemq.artemis.rest.test.Util;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,22 +44,22 @@ import static org.junit.Assert.assertNotNull;
 
 public class EmbeddedRestActiveMQJMSTest {
 
-   private static EmbeddedRestActiveMQJMS server;
+   private static EmbeddedRestActiveMQ server;
+   private static ConnectionFactory factory;
    private static Link consumeNext;
 
    @BeforeClass
    public static void startEmbedded() throws Exception {
-      server = new EmbeddedRestActiveMQJMS(null);
-      assertNotNull(server.embeddedActiveMQ);
+      server = new EmbeddedRestActiveMQ(null);
+      assertNotNull(server.getEmbeddedActiveMQ());
       server.getManager().setConfigResourcePath("activemq-rest.xml");
 
       SecurityConfiguration securityConfiguration = createDefaultSecurityConfiguration();
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
-      server.getEmbeddedJMS().setSecurityManager(securityManager);
+      server.getEmbeddedActiveMQ().setSecurityManager(securityManager);
 
       server.start();
-      List<String> connectors = createInVmConnector();
-      server.getEmbeddedJMS().getJMSServerManager().createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
+      factory = ActiveMQJMSClient.createConnectionFactory("vm://0", "cf");
 
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/queues/exampleQueue"));
 
@@ -77,12 +73,6 @@ public class EmbeddedRestActiveMQJMSTest {
       response = Util.setAutoAck(consumers, true);
       consumeNext = response.getLinkHeader().getLinkByTitle("consume-next");
       System.out.println("consume-next: " + consumeNext);
-   }
-
-   private static List<String> createInVmConnector() {
-      List<String> connectors = new ArrayList<>();
-      connectors.add("in-vm");
-      return connectors;
    }
 
    @AfterClass
@@ -167,12 +157,6 @@ public class EmbeddedRestActiveMQJMSTest {
       assertNotNull(consumeNext);
    }
 
-   private static Connection createConnection() throws JMSException {
-      BindingRegistry reg = server.getRegistry();
-      ConnectionFactory factory = (ConnectionFactory) reg.lookup("ConnectionFactory");
-      return factory.createConnection();
-   }
-
    private static SecurityConfiguration createDefaultSecurityConfiguration() {
       SecurityConfiguration securityConfiguration = new SecurityConfiguration();
       securityConfiguration.addUser("guest", "guest");
@@ -189,7 +173,7 @@ public class EmbeddedRestActiveMQJMSTest {
    }
 
    private static void publish(String destination, Serializable object, String contentType) throws Exception {
-      Connection conn = createConnection();
+      Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination dest = session.createQueue(destination);
 

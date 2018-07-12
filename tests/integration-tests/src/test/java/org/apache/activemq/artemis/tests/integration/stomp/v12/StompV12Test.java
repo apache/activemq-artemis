@@ -97,7 +97,7 @@ public class StompV12Test extends StompTestBase {
 
    @Test
    public void testConnection() throws Exception {
-      server.getActiveMQServer().getSecurityStore().setSecurityEnabled(true);
+      server.getSecurityStore().setSecurityEnabled(true);
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection(v10Uri);
 
       connection.connect(defUser, defPass);
@@ -375,7 +375,7 @@ public class StompV12Test extends StompTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateQueues(false);
       addressSettings.setAutoCreateAddresses(false);
-      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       conn.connect(defUser, defPass);
 
@@ -1502,11 +1502,11 @@ public class StompV12Test extends StompTestBase {
 
       long start = System.currentTimeMillis();
       SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
-      while (server.getActiveMQServer().locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
+      while (server.locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
          Thread.sleep(100);
       }
 
-      assertNull(server.getActiveMQServer().locateQueue(queueName));
+      assertNull(server.locateQueue(queueName));
 
       conn.disconnect();
    }

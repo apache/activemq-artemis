@@ -24,10 +24,10 @@ import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.tests.extras.jms.bridge.BridgeTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
@@ -52,7 +52,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
          targetLocation = "ENTRY",
          action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($2,$3,$4);")})
    public void performCrashDestinationStopBridge() throws Exception {
-      activeMQServer = jmsServer1;
+      activeMQServer = server1;
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
       final JMSBridgeImpl bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false).setBridgeName("test-bridge");
@@ -106,7 +106,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       }
    }
 
-   static JMSServerManager activeMQServer;
+   static ActiveMQServer activeMQServer;
    static boolean stopped = false;
    static int count = 20;
    static CountDownLatch stopLatch = new CountDownLatch(1);
