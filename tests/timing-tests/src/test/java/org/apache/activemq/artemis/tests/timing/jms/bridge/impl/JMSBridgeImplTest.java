@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -51,20 +52,16 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -84,7 +81,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    private static final String TARGET = RandomUtil.randomString();
 
-   private JMSServerManager jmsServer;
+   private ActiveMQServer server;
 
    private static final AtomicBoolean tcclClassFound = new AtomicBoolean(false);
 
@@ -701,14 +698,11 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       super.setUp();
 
       Configuration config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      InVMNamingContext context = new InVMNamingContext();
-      jmsServer = new JMSServerManagerImpl(addServer(ActiveMQServers.newActiveMQServer(config, false)));
-      jmsServer.setRegistry(new JndiBindingRegistry(context));
-      jmsServer.start();
+      server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+      server.start();
 
-      jmsServer.createQueue(false, JMSBridgeImplTest.SOURCE, null, true, "/queue/" + JMSBridgeImplTest.SOURCE);
-      jmsServer.createQueue(false, JMSBridgeImplTest.TARGET, null, true, "/queue/" + JMSBridgeImplTest.TARGET);
-
+      server.createQueue(SimpleString.toSimpleString(JMSBridgeImplTest.SOURCE), RoutingType.ANYCAST, SimpleString.toSimpleString(JMSBridgeImplTest.SOURCE), null, true, false);
+      server.createQueue(SimpleString.toSimpleString(JMSBridgeImplTest.TARGET), RoutingType.ANYCAST, SimpleString.toSimpleString(JMSBridgeImplTest.TARGET), null, true, false);
    }
 
    @Test

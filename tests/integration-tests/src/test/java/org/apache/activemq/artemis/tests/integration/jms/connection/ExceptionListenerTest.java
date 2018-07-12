@@ -28,14 +28,11 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.integration.jms.server.management.NullInitialContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,11 +45,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private JMSServerManagerImpl jmsServer;
-
    private ActiveMQConnectionFactory cf;
-
-   private static final String Q_NAME = "ConnectionTestQueue";
 
    @Override
    @Before
@@ -60,10 +53,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
       super.setUp();
 
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
-      jmsServer = new JMSServerManagerImpl(server);
-      jmsServer.setRegistry(new JndiBindingRegistry(new NullInitialContext()));
-      jmsServer.start();
-      jmsServer.createQueue(false, ExceptionListenerTest.Q_NAME, null, true, ExceptionListenerTest.Q_NAME);
+      server.start();
       cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);

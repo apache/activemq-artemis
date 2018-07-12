@@ -19,21 +19,15 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 import javax.jms.ConnectionFactory;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -50,7 +44,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
 
-   protected JMSServerManagerImpl jmsServer;
    protected boolean realStore = false;
    protected boolean enableSecurity = false;
 
@@ -108,42 +101,14 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       mbeanServer = MBeanServerFactory.createMBeanServer();
       server.setMBeanServer(mbeanServer);
       addServer(server);
-      jmsServer = new JMSServerManagerImpl(server);
-      namingContext = new InVMNamingContext();
-      jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
-      jmsServer.start();
+      server.start();
 
-      registerConnectionFactory();
+      coreCf = ActiveMQJMSClient.createConnectionFactory("vm://0?reconnectAttempts=-1","cf");
       System.out.println("debug: server started");
    }
 
    //override this to add extra server configs
    protected void extraServerConfig(Configuration serverConfig) {
-   }
-
-   protected void registerConnectionFactory() throws Exception {
-      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
-      connectorConfigs.add(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-
-      createCF(connectorConfigs, "/cf");
-
-      coreCf = (ConnectionFactory) namingContext.lookup("/cf");
-   }
-
-   protected void createCF(final List<TransportConfiguration> connectorConfigs,
-                           final String... jndiBindings) throws Exception {
-      final int retryInterval = 1000;
-      final double retryIntervalMultiplier = 1.0;
-      final int reconnectAttempts = -1;
-      final int callTimeout = 30000;
-      List<String> connectorNames = registerConnectors(server, connectorConfigs);
-
-      String cfName = name.getMethodName();
-      if (cfName == null) {
-         cfName = "cfOpenWire";
-      }
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(cfName).setConnectorNames(connectorNames).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setCallTimeout(callTimeout).setReconnectAttempts(reconnectAttempts);
-      jmsServer.createConnectionFactory(false, configuration, jndiBindings);
    }
 
    @Override

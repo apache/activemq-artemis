@@ -28,22 +28,18 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
-import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -64,9 +60,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
    private CountDownLatch reconnectionLatch;
    private CountDownLatch allMessagesReceived;
 
-   private JMSServerManager serverManager;
-
-   private InVMNamingContext context;
+   private Context context;
 
    private static final String QUEUE_NAME = ManualReconnectionToSingleServerTest.class.getSimpleName() + ".queue";
 
@@ -90,7 +84,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
    public void testExceptionListener() throws Exception {
       connect();
 
-      ConnectionFactory cf = (ConnectionFactory) context.lookup("/cf");
+      ConnectionFactory cf = (ConnectionFactory) context.lookup("cf");
       Destination dest = (Destination) context.lookup(QUEUE_NAME);
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -103,10 +97,10 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
          if (i == NUM / 2) {
             conn.close();
-            serverManager.stop();
+            server.stop();
             Thread.sleep(5000);
-            serverManager.start();
-            cf = (ConnectionFactory) context.lookup("/cf");
+            server.start();
+            cf = (ConnectionFactory) context.lookup("cf");
             dest = (Destination) context.lookup(QUEUE_NAME);
             conn = cf.createConnection();
             sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -139,21 +133,22 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      context = new InVMNamingContext();
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory.class.getCanonicalName());
+      props.put("queue." + QUEUE_NAME, QUEUE_NAME);
+      props.put("connectionFactory.cf", "tcp://127.0.0.1:61616?retryInterval=1000&reconnectAttempts=-1");
+
+      context = new InitialContext(props);
 
       server = createServer(false, createDefaultNettyConfig());
 
-      JMSConfiguration configuration = new JMSConfigurationImpl();
-      serverManager = new JMSServerManagerImpl(server, configuration);
-      serverManager.setRegistry(new JndiBindingRegistry(context));
+      Configuration configuration = new ConfigurationImpl();
 
-      configuration.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(QUEUE_NAME).setBindings(QUEUE_NAME));
+      configuration.getQueueConfigurations().add(new CoreQueueConfiguration().setName(QUEUE_NAME));
 
       ArrayList<TransportConfiguration> configs = new ArrayList<>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(registerConnectors(server, configs)).setBindings("/cf").setRetryInterval(1000).setReconnectAttempts(-1);
-      configuration.getConnectionFactoryConfigurations().add(cfConfig);
-      serverManager.start();
+      server.start();
 
       listener = new Listener();
 
@@ -198,7 +193,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
          while (true) {
             try {
                queue = (Queue) initialContext.lookup(QUEUE_NAME);
-               cf = (ConnectionFactory) initialContext.lookup("/cf");
+               cf = (ConnectionFactory) initialContext.lookup("cf");
                break;
             } catch (Exception e) {
                if (retries++ > retryLimit)

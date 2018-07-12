@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.Connection;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class ConnectionErrorSocketCloseTest extends BasicOpenWireTest {
    @Test(timeout = 60000)
    public void testDuplicateClientIdCloseConnection() throws Exception {
       connection.start();
-      Wait.waitFor(() -> getActiveMQServer().getRemotingService().getConnections().size() == 1, 10000, 500);
+      Wait.waitFor(() -> server.getRemotingService().getConnections().size() == 1, 10000, 500);
 
       try (Connection con = factory.createConnection()) {
          // Try and create second connection the second should fail because of a
@@ -53,13 +52,7 @@ public class ConnectionErrorSocketCloseTest extends BasicOpenWireTest {
 
          // after 2 seconds the second connection should be terminated by the
          // broker because of the exception
-         assertTrue(Wait.waitFor(() -> getActiveMQServer().getRemotingService().getConnections().size() == 1, 10000, 500));
+         assertTrue(Wait.waitFor(() -> server.getRemotingService().getConnections().size() == 1, 10000, 500));
       }
    }
-
-   @SuppressWarnings("deprecation")
-   private ActiveMQServer getActiveMQServer() {
-      return jmsServer.getActiveMQServer();
-   }
-
 }
