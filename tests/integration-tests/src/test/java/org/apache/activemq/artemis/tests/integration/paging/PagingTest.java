@@ -5405,6 +5405,99 @@ public class PagingTest extends ActiveMQTestBase {
       internalTestMultiFilters(false);
    }
 
+   @Test
+   public void testPageEmptyFile() throws Exception {
+      boolean persistentMessages = true;
+
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+      server.start();
+
+      final int messageSize = 1024;
+
+      final int numberOfMessages = 100;
+
+      try {
+         ServerLocator locator = createInVMNonHALocator().setClientFailureCheckPeriod(120000).setConnectionTTL(5000000).setCallTimeout(120000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+         ClientSessionFactory sf = locator.createSessionFactory();
+
+         ClientSession session = sf.createSession(false, false, false);
+
+         session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
+
+         PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
+         store.forceAnotherPage();
+         store.forceAnotherPage();
+
+         ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+         ClientMessage message = null;
+
+         byte[] body = new byte[messageSize];
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            message = session.createMessage(persistentMessages);
+
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+            bodyLocal.writeBytes(body);
+
+            producer.send(message);
+         }
+
+         session.commit();
+
+         Queue queue = server.locateQueue(PagingTest.ADDRESS);
+         Assert.assertEquals(numberOfMessages, queue.getMessageCount());
+
+         store.forceAnotherPage();
+
+         session.start();
+
+         ClientConsumer consumer = session.createConsumer(PagingTest.ADDRESS);
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            message = consumer.receive(5000);
+            assertNotNull(message);
+            message.acknowledge();
+         }
+
+         session.commit();
+
+         assertNull(consumer.receiveImmediate());
+
+         consumer.close();
+
+         store.getCursorProvider().cleanup();
+
+         Assert.assertEquals(0, queue.getMessageCount());
+
+         long timeout = System.currentTimeMillis() + 5000;
+         while (store.isPaging() && timeout > System.currentTimeMillis()) {
+            Thread.sleep(100);
+         }
+
+         store.getCursorProvider().cleanup();
+
+         sf.close();
+
+         locator.close();
+
+         Assert.assertEquals(1, store.getNumberOfPages());
+
+      } finally {
+         try {
+            server.stop();
+         } catch (Throwable ignored) {
+         }
+      }
+   }
+
    public void internalTestMultiFilters(boolean browsing) throws Throwable {
       clearDataRecreateServerDirs();
 
