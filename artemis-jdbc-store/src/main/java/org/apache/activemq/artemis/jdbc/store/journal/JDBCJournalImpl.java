@@ -94,7 +94,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    public JDBCJournalImpl(DataSource dataSource,
                           SQLProvider provider,
-                          String tableName,
                           ScheduledExecutorService scheduledExecutorService,
                           Executor completeExecutor,
                           IOCriticalErrorListener criticalIOErrorListener,
