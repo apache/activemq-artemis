@@ -29,10 +29,12 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -40,6 +42,9 @@ import org.junit.Test;
  * resources when one of its client crashes.
  */
 public class ClientCrashTest extends ClientTestBase {
+
+   @Rule
+   public SpawnedVMCheck spawnedVMCheck = new SpawnedVMCheck();
 
    // using short values so this test can run fast
    static final int PING_PERIOD = 100;
