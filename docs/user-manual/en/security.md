@@ -690,6 +690,19 @@ system. It is implemented by
 - `referral` - specify how to handle referrals; valid values: `ignore`,
   `follow`, `throw`; default is `ignore`.
 
+- `expandRoles` - boolean indicating whether to enable the role expansion
+  functionality or not; default false. If enabled, then roles within roles will
+  be found. For example, role `A` is in role `B`. User `X` is in role `A`,
+  which means user `X` is in role `B` by virtue of being in role `A`.
+
+- `expandRolesMatching` - specifies an LDAP search filter which is applied to
+  the subtree selected by `roleBase`. Before passing to the LDAP search operation,
+  the string value you provide here is subjected to string substitution, as
+  implemented by the `java.text.MessageFormat` class. Essentially, this means that
+  the special string, `{0}`, is substituted by the role name as extracted from the
+  previous role search. This option must always be set to enable role expansion
+  because it has no default value. Example value: `(member={0})`.
+
 - `debug` - boolean flag; if `true`, enable debugging; this is used only for
   testing or debugging; normally, it should be set to `false`, or omitted;
   default is `false`
