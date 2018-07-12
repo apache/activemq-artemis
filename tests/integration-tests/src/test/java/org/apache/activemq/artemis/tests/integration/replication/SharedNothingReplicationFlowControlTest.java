@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,13 +53,29 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.logging.Logger;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class SharedNothingReplicationFlowControlTest {
+public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
+
+   ExecutorService sendMessageExecutor;
+
+
+   @Before
+   public void setupExecutor() {
+      sendMessageExecutor = Executors.newCachedThreadPool();
+   }
+
+   @After
+   public void teardownExecutor() {
+      sendMessageExecutor.shutdownNow();
+   }
 
    private static final Logger logger = Logger.getLogger(SharedNothingReplicationFlowControlTest.class);
 
@@ -70,7 +86,7 @@ public class SharedNothingReplicationFlowControlTest {
    public void testReplicationIfFlowControlled() throws Exception {
       // start live
       Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = ActiveMQServers.newActiveMQServer(liveConfiguration);
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       liveServer.start();
 
       Wait.waitFor(() -> liveServer.isStarted());
@@ -83,7 +99,7 @@ public class SharedNothingReplicationFlowControlTest {
       ClientSession sess = csf.createSession();
       sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
       sess.close();
-      Executor sendMessageExecutor = Executors.newCachedThreadPool();
+
 
       int i = 0;
       final int j = 100;
@@ -91,7 +107,7 @@ public class SharedNothingReplicationFlowControlTest {
 
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
-      ActiveMQServer backupServer = ActiveMQServers.newActiveMQServer(backupConfiguration);
+      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
       backupServer.start();
 
       Wait.waitFor(() -> backupServer.isStarted());
