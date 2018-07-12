@@ -19,10 +19,14 @@ package org.apache.activemq.artemis.core.messagecounter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.utils.JsonLoader;
+
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * This class stores message count informations for a given queue
@@ -306,6 +310,30 @@ public class MessageCounter {
          ", serverQueue =" +
          serverQueue +
          "]";
+   }
+
+   /**
+    * Returns a JSON String serialization of a {@link MessageCounter} object.
+    *
+    * @return
+    */
+   public String toJSon() {
+      DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+      String lastAddTimestamp = dateFormat.format(new Date(this.getLastAddedMessageTime()));
+      String updateTimestamp = dateFormat.format(new Date(this.getLastUpdate()));
+      return JsonLoader
+         .createObjectBuilder()
+         .add("destinationName", nullSafe(this.getDestinationName()))
+         .add("destinationSubscription", nullSafe(this.getDestinationSubscription()))
+         .add("destinationDurable", this.isDestinationDurable())
+         .add("count", this.getCount())
+         .add("countDelta", this.getCountDelta())
+         .add("messageCount", this.getMessageCount())
+         .add("messageCountDelta", this.getMessageCountDelta())
+         .add("lastAddTimestamp", lastAddTimestamp)
+         .add("updateTimestamp", updateTimestamp)
+         .build()
+         .toString();
    }
 
    // Package protected ---------------------------------------------
