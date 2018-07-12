@@ -62,9 +62,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -118,10 +118,10 @@ public class StompPluginTest extends StompTestBase {
    private final AtomicBoolean stompBeforeRemoveSession = new AtomicBoolean();
 
    @Override
-   protected JMSServerManager createServer() throws Exception {
-      JMSServerManager server = super.createServer();
-      server.getActiveMQServer().registerBrokerPlugin(verifier);
-      server.getActiveMQServer().registerBrokerPlugin(new ActiveMQServerPlugin() {
+   protected ActiveMQServer createServer() throws Exception {
+      ActiveMQServer server = super.createServer();
+      server.registerBrokerPlugin(verifier);
+      server.registerBrokerPlugin(new ActiveMQServerPlugin() {
 
          @Override
          public void beforeCreateSession(String name, String username, int minLargeMessageSize,

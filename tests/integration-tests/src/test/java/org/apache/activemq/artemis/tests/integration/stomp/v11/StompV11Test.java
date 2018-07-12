@@ -96,7 +96,7 @@ public class StompV11Test extends StompTestBase {
 
    @Test
    public void testConnection() throws Exception {
-      server.getActiveMQServer().getSecurityStore().setSecurityEnabled(true);
+      server.getSecurityStore().setSecurityEnabled(true);
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection(v10Uri);
 
       connection.connect(defUser, defPass);
@@ -708,7 +708,7 @@ public class StompV11Test extends StompTestBase {
 
       uri = createStompClientUri(scheme, hostname, port);
 
-      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?connectionTtl=1000&connectionTtlMin=5000&connectionTtlMax=10000").start();
+      server.getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?connectionTtl=1000&connectionTtlMin=5000&connectionTtlMax=10000").start();
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection(uri);
 
       //no heart beat at all if heat-beat absent
@@ -857,7 +857,7 @@ public class StompV11Test extends StompTestBase {
       StompClientConnection connection;
       int port = 61614;
 
-      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1").start();
+      server.getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1").start();
 
       connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
@@ -881,8 +881,8 @@ public class StompV11Test extends StompTestBase {
          connection.closeTransport();
       }
 
-      server.getActiveMQServer().getRemotingService().destroyAcceptor("test");
-      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1.5").start();
+      server.getRemotingService().destroyAcceptor("test");
+      server.getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1.5").start();
 
       connection = StompClientConnectionFactory.createClientConnection(uri);
       frame = connection.createFrame(Stomp.Commands.CONNECT)
@@ -1518,11 +1518,11 @@ public class StompV11Test extends StompTestBase {
 
       long start = System.currentTimeMillis();
       SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
-      while (server.getActiveMQServer().locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
+      while (server.locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
          Thread.sleep(100);
       }
 
-      assertNull(server.getActiveMQServer().locateQueue(queueName));
+      assertNull(server.locateQueue(queueName));
 
       conn.disconnect();
    }
@@ -2165,8 +2165,8 @@ public class StompV11Test extends StompTestBase {
       conn.startPinger(100);
 
 
-      Assert.assertEquals(1, server.getActiveMQServer().getRemotingService().getConnections().size());
-      StompConnection stompConnection = (StompConnection)server.getActiveMQServer().getRemotingService().getConnections().iterator().next();
+      Assert.assertEquals(1, server.getRemotingService().getConnections().size());
+      StompConnection stompConnection = (StompConnection)server.getRemotingService().getConnections().iterator().next();
       StompFrameHandlerV11 stompFrameHandler = (StompFrameHandlerV11)stompConnection.getStompVersionHandler();
 
       Thread.sleep(1000);
@@ -2177,7 +2177,7 @@ public class StompV11Test extends StompTestBase {
       conn.stopPinger();
       //((AbstractStompClientConnection)conn).killReaderThread();
       Wait.waitFor(() -> {
-         return server.getActiveMQServer().getRemotingService().getConnections().size() == 0;
+         return server.getRemotingService().getConnections().size() == 0;
       });
 
       Assert.assertFalse(stompFrameHandler.getHeartBeater().isStarted());
@@ -2202,7 +2202,7 @@ public class StompV11Test extends StompTestBase {
       // Obtain a reference to the server StompConnection object
       RemotingConnection remotingConnection = null;
       StompConnection stompConnection = null;
-      Iterator<RemotingConnection> iterator = server.getActiveMQServer().getRemotingService().getConnections().iterator();
+      Iterator<RemotingConnection> iterator = server.getRemotingService().getConnections().iterator();
       while (iterator.hasNext()) {
          remotingConnection = iterator.next();
          if (remotingConnection instanceof StompConnection) {
@@ -2236,7 +2236,7 @@ public class StompV11Test extends StompTestBase {
       Thread.sleep(2000);
 
       Wait.waitFor(() -> {
-         return server.getActiveMQServer().getRemotingService().getConnections().size() == 0;
+         return server.getRemotingService().getConnections().size() == 0;
       });
 
       Assert.assertFalse("HeartBeater is still running!!", stompFrameHandler.getHeartBeater().isStarted());

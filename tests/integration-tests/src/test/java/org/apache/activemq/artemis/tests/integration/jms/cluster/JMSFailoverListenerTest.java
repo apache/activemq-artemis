@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -39,20 +40,15 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -73,19 +69,11 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    // Attributes ----------------------------------------------------
 
-   protected InVMNamingContext ctx1 = new InVMNamingContext();
-
-   protected InVMNamingContext ctx2 = new InVMNamingContext();
-
    protected Configuration backupConf;
 
    protected Configuration liveConf;
 
-   protected JMSServerManager liveJMSServer;
-
    protected ActiveMQServer liveServer;
-
-   protected JMSServerManager backupJMSServer;
 
    protected ActiveMQServer backupServer;
 
@@ -281,26 +269,18 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       backupServer = addServer(new InVMNodeManagerServer(backupConf, nodeManager));
 
-      backupJMSServer = new JMSServerManagerImpl(backupServer);
-
-      backupJMSServer.setRegistry(new JndiBindingRegistry(ctx2));
-
-      backupJMSServer.getActiveMQServer().setIdentity("JMSBackup");
+      backupServer.setIdentity("JMSBackup");
       log.info("Starting backup");
-      backupJMSServer.start();
+      backupServer.start();
 
       liveConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).addAcceptorConfiguration(liveAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(livetc.getName(), livetc).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
 
       liveServer = addServer(new InVMNodeManagerServer(liveConf, nodeManager));
 
-      liveJMSServer = new JMSServerManagerImpl(liveServer);
-
-      liveJMSServer.setRegistry(new JndiBindingRegistry(ctx1));
-
-      liveJMSServer.getActiveMQServer().setIdentity("JMSLive");
+      liveServer.setIdentity("JMSLive");
       log.info("Starting life");
 
-      liveJMSServer.start();
+      liveServer.start();
 
       JMSUtil.waitForServer(backupServer);
    }
