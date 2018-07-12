@@ -480,6 +480,12 @@ public class LDAPLoginModule implements LoginModule {
          while (!pendingNameExpansion.isEmpty()) {
             String name = pendingNameExpansion.remove();
             final String expandFilter = expandRolesMatchingFormat.format(new String[]{name});
+            if (logger.isDebugEnabled()) {
+               logger.debug("Get 'expanded' user roles.");
+               logger.debug("Looking for the 'expanded' user roles in LDAP with ");
+               logger.debug("  base DN: " + getLDAPPropertyValue(ROLE_BASE));
+               logger.debug("  filter: " + expandFilter);
+            }
             try {
                results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ROLE_BASE), expandFilter, constraints));
             } catch (PrivilegedActionException e) {
