@@ -242,7 +242,12 @@ public abstract class AbstractJDBCDriver {
                   }
                }
             } catch (SQLException e) {
-               logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder("Can't verify the initialization of table ").append(tableName).append(" due to:"), e, sqlProvider.getCountJournalRecordsSQL()));
+               //that's not a real issue and do not deserve any user-level log:
+               //some DBMS just return stale information about table existence
+               //and can fail on later attempts to access them
+               if (logger.isTraceEnabled()) {
+                  logger.trace(JDBCUtils.appendSQLExceptionDetails(new StringBuilder("Can't verify the initialization of table ").append(tableName).append(" due to:"), e, sqlProvider.getCountJournalRecordsSQL()));
+               }
                try {
                   connection.rollback();
                } catch (SQLException rollbackEx) {
