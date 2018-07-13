@@ -126,7 +126,6 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
    }
 
    public ReplicatedPolicyConfiguration setQuorumVoteWait(int quorumVoteWait) {
-      new Exception("here").printStackTrace();
       this.quorumVoteWait = quorumVoteWait;
       return this;
    }
