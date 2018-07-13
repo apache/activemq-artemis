@@ -26,11 +26,14 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.utils.FileUtil;
 
 public class SpawnedJMSServer {
 
    public static ActiveMQServer server;
+   public static JMSServerManager serverManager;
 
    // Using files may be useful for debugging (through print-data for instance)
    private static final boolean useFiles = false;
@@ -89,16 +92,18 @@ public class SpawnedJMSServer {
          // set DLA and expiry to avoid spamming the log with warnings
          server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
 
-         server.start();
+         serverManager = new JMSServerManagerImpl(server);
+         serverManager.start();
       }
       return server;
    }
 
    public static void stopServer() throws Exception {
       if (server != null) {
-         server.stop();
+         serverManager.stop();
       }
       server = null;
+      serverManager = null;
    }
 
    // Constructors --------------------------------------------------

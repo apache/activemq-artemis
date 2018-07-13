@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.extras.jms.bridge;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.naming.Context;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -44,13 +43,16 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -111,11 +113,13 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
       private String name;
       private int id;
 
-      private ActiveMQServer liveNode;
-      private ActiveMQServer backupNode;
+      private JMSServerManager liveNode;
+      private JMSServerManager backupNode;
 
       private TransportConfiguration liveConnector;
       private TransportConfiguration backupConnector;
+
+      private Context liveContext;
 
       private ServerLocator locator;
       private ClientSessionFactory sessionFactory;
@@ -145,21 +149,30 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
          //live
          Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(id, false)).setBindingsDirectory(getBindingsDir(id, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0)).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
 
-         liveNode = addServer(ActiveMQServers.newActiveMQServer(conf0, true));
+         ActiveMQServer server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, true));
+
+         liveContext = new InVMContext();
+         liveNode = new JMSServerManagerImpl(server0);
+         liveNode.setRegistry(new JndiBindingRegistry(liveContext));
 
          //backup
          ReplicaPolicyConfiguration replicaPolicyConfiguration = new ReplicaPolicyConfiguration();
          replicaPolicyConfiguration.setQuorumVoteWait(QUORUM_VOTE_WAIT_TIME_SEC);
          Configuration config = createBasicConfig().setJournalDirectory(getJournalDir(id, true)).setBindingsDirectory(getBindingsDir(id, true)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addConnectorConfiguration(backupConnector.getName(), backupConnector).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(replicaPolicyConfiguration).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
-         backupNode = addServer(ActiveMQServers.newActiveMQServer(config, true));
+         ActiveMQServer backup = addServer(ActiveMQServers.newActiveMQServer(config, true));
+
+         Context context = new InVMContext();
+
+         backupNode = new JMSServerManagerImpl(backup);
+         backupNode.setRegistry(new JndiBindingRegistry(context));
       }
 
       public void start() throws Exception {
          liveNode.start();
-         waitForServerToStart(liveNode);
+         waitForServerToStart(liveNode.getActiveMQServer());
          backupNode.start();
-         waitForRemoteBackupSynchronization(backupNode);
+         waitForRemoteBackupSynchronization(backupNode.getActiveMQServer());
 
          locator = ActiveMQClient.createServerLocatorWithHA(liveConnector).setReconnectAttempts(15);
          sessionFactory = locator.createSessionFactory();
@@ -173,7 +186,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
       }
 
       public void createQueue(String queueName) throws Exception {
-         liveNode.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
+         liveNode.createQueue(true, queueName, null, true, "/queue/" + queueName);
       }
 
       public ConnectionFactoryFactory getConnectionFactoryFactory() {
@@ -194,7 +207,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
          DestinationFactory destFactory = new DestinationFactory() {
             @Override
             public Destination createDestination() throws Exception {
-               return ActiveMQDestination.createDestination(queueName, ActiveMQDestination.TYPE.QUEUE);
+               return (Destination) liveContext.lookup("/queue/" + queueName);
             }
          };
          return destFactory;
@@ -248,7 +261,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
             }
          });
 
-         liveNode.stop();
+         liveNode.getActiveMQServer().stop();
 
          boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
          assertTrue(ok);

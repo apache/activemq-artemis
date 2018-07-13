@@ -64,7 +64,6 @@ public class SecurityTest extends JMSTestCase {
       } else {
          System.setProperty(DefaultConnectionProperties.BROKER_BIND_URL, originalBrokerBindUrl);
       }
-      DefaultConnectionProperties.initialize();
    }
 
 

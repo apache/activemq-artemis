@@ -20,7 +20,6 @@ import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
-@Deprecated
 public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ {
 
    public EmbeddedRestActiveMQJMS(ConnectionFactoryOptions jmsOptions) {
@@ -29,14 +28,14 @@ public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ {
 
    @Override
    protected void initEmbeddedActiveMQ() {
-      super.setEmbeddedActiveMQ(new EmbeddedJMS());
+      embeddedActiveMQ = new EmbeddedJMS();
    }
 
    public BindingRegistry getRegistry() {
-      return ((EmbeddedJMS) getEmbeddedActiveMQ()).getRegistry();
+      return ((EmbeddedJMS) embeddedActiveMQ).getRegistry();
    }
 
    public EmbeddedJMS getEmbeddedJMS() {
-      return (EmbeddedJMS) getEmbeddedActiveMQ();
+      return (EmbeddedJMS) embeddedActiveMQ;
    }
 }

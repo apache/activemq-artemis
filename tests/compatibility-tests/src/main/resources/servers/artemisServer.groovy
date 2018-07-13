@@ -55,7 +55,6 @@ try {
 
 jmsConfiguration = new JMSConfigurationImpl();
 
-// used here even though it's deprecated to be compatible with older versions of the broker
 server = new EmbeddedJMS();
 server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);

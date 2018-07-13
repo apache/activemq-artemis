@@ -336,7 +336,7 @@ public class JMSBridgeTest extends BridgeTestBase {
    @Test
    public void testStartBridgeFirst() throws Exception {
       //stop the source server, we want to start the bridge first
-      server0.stop();
+      jmsServer0.stop();
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
@@ -349,8 +349,10 @@ public class JMSBridgeTest extends BridgeTestBase {
          bridge.start();
 
          //now start the server
-         server0.start();
-
+         jmsServer0.start();
+         createQueue("sourceQueue", 0);
+         createQueue("localTargetQueue", 0);
+         jmsServer0.createTopic(false, "sourceTopic", "/topic/sourceTopic");
          // Send half the messages
 
          sendMessages(cf0, sourceQueue, 0, NUM_MESSAGES / 2, false, false);
@@ -1325,7 +1327,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       JMSBridgeTest.log.info("About to crash server");
 
-      server1.stop();
+      jmsServer1.stop();
 
       // Now stop the bridge while the failover is happening
 
@@ -1335,7 +1337,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       // Shutdown the source server
 
-      server0.stop();
+      jmsServer0.stop();
    }
 
    // Private -------------------------------------------------------------------------------

@@ -40,11 +40,10 @@ import java.util.UUID;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -54,10 +53,17 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -91,7 +97,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    protected Topic topic;
 
-   protected ActiveMQServer server;
+   protected JMSServerManager server;
 
    protected String defUser = "brianm";
 
@@ -137,7 +143,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       server = createServer();
       server.start();
 
-      waitForServerToStart(server);
+      waitForServerToStart(server.getActiveMQServer());
 
       connectionFactory = createConnectionFactory();
 
@@ -168,7 +174,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
     * @return
     * @throws Exception
     */
-   protected ActiveMQServer createServer() throws Exception {
+   protected JMSServerManager createServer() throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + ","  + MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
@@ -185,9 +191,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                                                 .setPersistenceEnabled(isPersistenceEnabled())
                                                 .addAcceptorConfiguration(stompTransport)
                                                 .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
-                                                .setConnectionTtlCheckInterval(500)
-                                                .addQueueConfiguration(new CoreQueueConfiguration().setAddress(getQueueName()).setName(getQueueName()).setRoutingType(RoutingType.ANYCAST))
-                                                .addAddressConfiguration(new CoreAddressConfiguration().setName(getTopicName()).addRoutingType(RoutingType.MULTICAST));
+                                                .setConnectionTtlCheckInterval(500);
 
       if (getIncomingInterceptors() != null) {
          config.setIncomingInterceptorClassNames(getIncomingInterceptors());
@@ -213,7 +217,12 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          });
       }
 
-      return activeMQServer;
+      JMSConfiguration jmsConfig = new JMSConfigurationImpl();
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl().setName(getTopicName()).setBindings(getTopicName()));
+      server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
+      server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
+      return server;
    }
 
    protected ConnectionFactory createConnectionFactory() {
