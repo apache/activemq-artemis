@@ -115,7 +115,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    }
 
    @Test
-   public void testLogin() throws LoginException {
+   public void testLogin() throws Exception {
       logger.info("num session: " + ldapServer.getLdapSessionManager().getSessions().length);
 
       LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
@@ -135,100 +135,76 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       context.login();
       context.logout();
 
-      assertTrue("no sessions after logout", waitForSessions(0));
+      assertTrue("sessions still active after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length == 0));
    }
 
    @Test
-   public void testLoginPooled() throws LoginException {
-
-      LoginContext context = new LoginContext("LDAPLoginPooled", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+   public void testLoginPooled() throws Exception {
+      CallbackHandler callbackHandler = callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback) {
+               ((NameCallback) callbacks[i]).setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback) {
+               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
-      });
+      };
+
+      LoginContext context = new LoginContext("LDAPLoginPooled", callbackHandler);
       context.login();
       context.logout();
 
       // again
-
       context.login();
       context.logout();
 
       // new context
-      context = new LoginContext("LDAPLoginPooled", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
-            }
-         }
-      });
+      context = new LoginContext("LDAPLoginPooled", callbackHandler);
       context.login();
       context.logout();
 
       Executor pool = Executors.newCachedThreadPool();
-      for (int i = 0; i < 10; i++) {
-         ((ExecutorService) pool).execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  LoginContext context = new LoginContext("LDAPLoginPooled", new CallbackHandler() {
-                     @Override
-                     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-                        for (int i = 0; i < callbacks.length; i++) {
-                           if (callbacks[i] instanceof NameCallback) {
-                              ((NameCallback) callbacks[i]).setName("first");
-                           } else if (callbacks[i] instanceof PasswordCallback) {
-                              ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-                           } else {
-                              throw new UnsupportedCallbackException(callbacks[i]);
-                           }
-                        }
-                     }
-                  });
-                  context.login();
-                  context.logout();
-               } catch (Exception ignored) {
-               }
+      for (int i = 0; i < 20; i++) {
+         pool.execute(() -> {
+            try {
+               LoginContext context1 = new LoginContext("LDAPLoginPooled", callbackHandler);
+               context1.login();
+               context1.logout();
+            } catch (Exception ignored) {
             }
          });
       }
-      assertTrue("no sessions after logout", waitForSessions(10));
+
+      /*
+       * The number of sessions here is variable due to the pool used to create the LoginContext objects and the pooling
+       * for the LDAP connections (which are managed by the JVM implementation). We really just need to confirm that
+       * there are still connections to the LDAP server open even after all the LoginContext objects are closed as that
+       * will indicate the LDAP connection pooling is working.
+       */
+      assertTrue("not enough active sessions after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length >= 5));
+
+      ((ExecutorService) pool).shutdown();
+      ((ExecutorService) pool).awaitTermination(2, TimeUnit.SECONDS);
    }
 
-   private boolean waitForSessions(int expected) {
-      final long expiry = System.currentTimeMillis() + 5000;
-      int numSession =  ldapServer.getLdapSessionManager().getSessions().length;
-      while (numSession != expected && System.currentTimeMillis() < expiry) {
-         try {
-            TimeUnit.MILLISECONDS.sleep(100);
-         } catch (InterruptedException ok) {
-            break;
-         }
-         numSession =  ldapServer.getLdapSessionManager().getSessions().length;
-         logger.info("num session " + numSession);
+   public interface Condition {
+      boolean isSatisfied() throws Exception;
+   }
 
+   private boolean waitFor(final Condition condition) throws Exception {
+      final long expiry = System.currentTimeMillis() + 5000;
+      boolean conditionSatisified = condition.isSatisfied();
+      while (!conditionSatisified && System.currentTimeMillis() < expiry) {
+         TimeUnit.MILLISECONDS.sleep(100);
+         conditionSatisified = condition.isSatisfied();
       }
-      return numSession == expected;
+      return conditionSatisified;
    }
 
    @Test
-   public void testUnauthenticated() throws LoginException {
+   public void testUnauthenticated() throws Exception {
       LoginContext context = new LoginContext("UnAuthenticatedLDAPLogin", new CallbackHandler() {
          @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -250,7 +226,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
          return;
       }
       fail("Should have failed authenticating");
-      assertTrue("no sessions after logout", waitForSessions(0));
+      assertTrue("sessions still active after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length == 0));
    }
 
    @Test
