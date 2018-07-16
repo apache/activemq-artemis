@@ -22,6 +22,7 @@ import java.lang.management.ManagementFactory;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.config.impl.LegacyJMSConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
@@ -71,7 +72,8 @@ public final class ActiveMQServers {
                                                   final ActiveMQSecurityManager securityManager) throws Exception {
 
       FileConfiguration config = new FileConfiguration();
-      new FileDeploymentManager(configURL).addDeployable(config).readConfiguration();
+      LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
+      new FileDeploymentManager(configURL).addDeployable(config).addDeployable(legacyJMSConfiguration).readConfiguration();
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager);
 

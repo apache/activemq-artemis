@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.impl.LegacyJMSConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -3151,6 +3152,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       public void reload(URL uri) throws Exception {
          if (isActive()) {
             Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
+            LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
+            legacyJMSConfiguration.parseConfiguration(uri.openStream());
+
             ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
             securityRepository.swap(config.getSecurityRoles().entrySet());
             configuration.setSecurityRoles(config.getSecurityRoles());
