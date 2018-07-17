@@ -53,7 +53,7 @@ public class ResponseCache {
       long correlationID = response.getCorrelationID();
       Packet packet = remove(correlationID);
       if (packet != null) {
-         responseHandler.responseHandler(packet, response);
+         responseHandler.handleResponse(packet, response);
       }
    }
 

@@ -18,12 +18,15 @@ package org.apache.activemq.artemis.jms.tests;
 
 import static org.junit.Assert.fail;
 
+import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
+import javax.jms.JMSContext;
+import javax.jms.JMSProducer;
 import javax.jms.JMSSecurityException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
@@ -33,6 +36,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -188,10 +193,14 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
+      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      if (getJmsServer().locateQueue(queueName) == null) {
+         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+      }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection("guest", "guest");
       Session session = connection.createSession();
-      Destination destination = session.createQueue("guest.cannot.send");
+      Destination destination = session.createQueue(queueName.toString());
       MessageProducer messageProducer = session.createProducer(destination);
       try {
          messageProducer.send(session.createTextMessage("hello"));
@@ -209,21 +218,119 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
+      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      if (getJmsServer().locateQueue(queueName) == null) {
+         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+      }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
       connectionFactory.setBlockOnDurableSend(false);
       connectionFactory.setBlockOnNonDurableSend(false);
       Connection connection = connectionFactory.createConnection("guest", "guest");
       Session session = connection.createSession();
-      Destination destination = session.createQueue("guest.cannot.send");
+      Destination destination = session.createQueue(queueName.toString());
       MessageProducer messageProducer = session.createProducer(destination);
       messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
       try {
          AtomicReference<Exception> e = new AtomicReference<>();
-         //        messageProducer.send(session.createTextMessage("hello"));
 
          CountDownLatch countDownLatch = new CountDownLatch(1);
          messageProducer.send(session.createTextMessage("hello"), new CompletionListener() {
+            @Override
+            public void onCompletion(Message message) {
+               countDownLatch.countDown();
+            }
+
+            @Override
+            public void onException(Message message, Exception exception) {
+               e.set(exception);
+               countDownLatch.countDown();
+            }
+         });
+         countDownLatch.await(10, TimeUnit.SECONDS);
+         if (e.get() != null) {
+            throw e.get();
+         }
+         fail("JMSSecurityException expected as guest is not allowed to send");
+      } catch (JMSSecurityException activeMQSecurityException) {
+         activeMQSecurityException.printStackTrace();
+      } finally {
+         connection.close();
+      }
+   }
+
+   /**
+    * Same as testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent, but using JMS 2 API.
+    */
+   @Test
+   public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistentJMS2() throws Exception {
+      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      if (getJmsServer().locateQueue(queueName) == null) {
+         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+      }
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      connectionFactory.setConfirmationWindowSize(100);
+      connectionFactory.setBlockOnDurableSend(false);
+      connectionFactory.setBlockOnNonDurableSend(false);
+      JMSContext context = connectionFactory.createContext("guest", "guest");
+      Destination destination = context.createQueue(queueName.toString());
+      JMSProducer messageProducer = context.createProducer();
+      messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      try {
+         AtomicReference<Exception> e = new AtomicReference<>();
+
+         CountDownLatch countDownLatch = new CountDownLatch(1);
+         messageProducer.setAsync(new CompletionListener() {
+            @Override
+            public void onCompletion(Message message) {
+               countDownLatch.countDown();
+            }
+
+            @Override
+            public void onException(Message message, Exception exception) {
+               e.set(exception);
+               countDownLatch.countDown();
+            }
+         });
+         messageProducer.send(destination, context.createTextMessage("hello"));
+         countDownLatch.await(10, TimeUnit.SECONDS);
+         if (e.get() != null) {
+            throw e.get();
+         }
+         fail("JMSSecurityException expected as guest is not allowed to send");
+      } catch (JMSSecurityException activeMQSecurityException) {
+         activeMQSecurityException.printStackTrace();
+      } finally {
+         context.close();
+      }
+   }
+
+   /**
+    * Same as testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent, but using a large message.
+    */
+   @Test
+   public void testLoginValidUserAndPasswordButNotAuthorisedToSendLargeNonPersistent() throws Exception {
+      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      if (getJmsServer().locateQueue(queueName) == null) {
+         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+      }
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      connectionFactory.setConfirmationWindowSize(100);
+      connectionFactory.setBlockOnDurableSend(false);
+      connectionFactory.setBlockOnNonDurableSend(false);
+      connectionFactory.setMinLargeMessageSize(1024);
+      Connection connection = connectionFactory.createConnection("guest", "guest");
+      Session session = connection.createSession();
+      Destination destination = session.createQueue(queueName.toString());
+      MessageProducer messageProducer = session.createProducer(destination);
+      messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      try {
+         AtomicReference<Exception> e = new AtomicReference<>();
+
+         CountDownLatch countDownLatch = new CountDownLatch(1);
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(new byte[10 * 1024]);
+         messageProducer.send(message, new CompletionListener() {
             @Override
             public void onCompletion(Message message) {
                countDownLatch.countDown();

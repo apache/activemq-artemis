@@ -43,9 +43,11 @@ public interface SendAcknowledgementHandler {
    void sendAcknowledged(Message message);
 
    default void sendFailed(Message message, Exception e) {
-      //This is to keep old behaviour that would ack even if error,
-      // if anyone custom implemented this interface but doesnt update.
-      sendAcknowledged(message);
+      /**
+       * By default ignore failures to preserve compatibility with existing implementations.
+       * If the message makes it to the broker and a failure occurs sendAcknowledge() will
+       * still be invoked just like it always was.
+       */
    }
 
 }

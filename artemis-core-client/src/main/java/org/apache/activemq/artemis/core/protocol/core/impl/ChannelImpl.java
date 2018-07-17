@@ -316,7 +316,7 @@ public final class ChannelImpl implements Channel {
          checkReconnectID(reconnectID);
 
          //We do this outside the lock as ResponseCache is threadsafe and allows responses to come in,
-         //As the send could block if the response cache is cannot add, preventing responses to be handled.
+         //As the send could block if the response cache cannot add, preventing responses to be handled.
          if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
             while (!responseAsyncCache.add(packet)) {
                try {
@@ -426,7 +426,7 @@ public final class ChannelImpl implements Channel {
                   throw new ActiveMQInterruptedException(e);
                }
 
-               if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket) {
+               if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket && !response.isResponseAsync()) {
                   ActiveMQClientLogger.LOGGER.packetOutOfOrder(response, new Exception("trace"));
                }
 
@@ -642,7 +642,7 @@ public final class ChannelImpl implements Channel {
       }
    }
 
-   public void handleResponse(Packet packet) {
+   public void handleAsyncResponse(Packet packet) {
       if (responseAsyncCache != null && packet.isResponseAsync()) {
          responseAsyncCache.handleResponse(packet);
       }
@@ -700,7 +700,7 @@ public final class ChannelImpl implements Channel {
          if (packet.isResponse()) {
             confirm(packet);
 
-            handleResponse(packet);
+            handleAsyncResponse(packet);
             lock.lock();
 
             try {
