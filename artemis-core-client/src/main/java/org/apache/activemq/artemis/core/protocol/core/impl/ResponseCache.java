@@ -53,7 +53,7 @@ public class ResponseCache {
       long correlationID = response.getCorrelationID();
       Packet packet = remove(correlationID);
       if (packet != null) {
-         responseHandler.responseHandler(packet, response);
+         responseHandler.handleResponse(packet, response);
       }
    }
 
@@ -66,5 +66,9 @@ public class ResponseCache {
 
    public void setResponseHandler(ResponseHandler responseHandler) {
       this.responseHandler = responseHandler;
+   }
+
+   public int size() {
+      return this.store.size();
    }
 }

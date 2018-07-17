@@ -17,14 +17,14 @@
 package org.apache.activemq.artemis.core.protocol.core;
 
 /**
- * A CommandConfirmationHandler is used by the channel to confirm confirmations of packets.
+ * A ResponseHandler is used by the channel to handle async responses.
  */
 public interface ResponseHandler {
 
    /**
-    * called by channel after a confirmation has been received.
+    * called by channel after an async response has been received.
     *
     * @param packet the packet confirmed
     */
-   void responseHandler(Packet packet, Packet response);
+   void handleResponse(Packet packet, Packet response);
 }
