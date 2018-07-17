@@ -168,11 +168,7 @@ public class ActiveMQSessionContext extends SessionContext {
       sessionChannel.setHandler(handler);
 
       if (confirmationWindow >= 0) {
-         if (sessionChannel.getConnection().isVersionBeforeAsyncResponseChange()) {
-            sessionChannel.setCommandConfirmationHandler(commandConfirmationHandler);
-         } else {
-            sessionChannel.setResponseHandler(responseHandler);
-         }
+         setHandlers();
       }
    }
 
@@ -189,16 +185,24 @@ public class ActiveMQSessionContext extends SessionContext {
       this.killed = true;
    }
 
+   private void setHandlers() {
+      sessionChannel.setCommandConfirmationHandler(commandConfirmationHandler);
+
+      if (!sessionChannel.getConnection().isVersionBeforeAsyncResponseChange()) {
+         sessionChannel.setResponseHandler(responseHandler);
+      }
+   }
+
    private final CommandConfirmationHandler commandConfirmationHandler = new CommandConfirmationHandler() {
       @Override
       public void commandConfirmed(Packet packet) {
-         responseHandler.responseHandler(packet, null);
+         responseHandler.handleResponse(packet, null);
       }
    };
 
    private final ResponseHandler responseHandler = new ResponseHandler() {
       @Override
-      public void responseHandler(Packet packet, Packet response) {
+      public void handleResponse(Packet packet, Packet response) {
          final ActiveMQException activeMQException;
          if (response != null && response.getType() == PacketImpl.EXCEPTION) {
             ActiveMQExceptionMessage exceptionResponseMessage = (ActiveMQExceptionMessage) response;
@@ -229,7 +233,7 @@ public class ActiveMQSessionContext extends SessionContext {
             if (exception == null) {
                sendAckHandler.sendAcknowledged(message);
             } else {
-               handler.sendFailed(message, exception);
+               sendAckHandler.sendFailed(message, exception);
             }
          }
       }
@@ -269,11 +273,8 @@ public class ActiveMQSessionContext extends SessionContext {
 
    @Override
    public void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
-      if (sessionChannel.getConnection().isVersionBeforeAsyncResponseChange()) {
-         sessionChannel.setCommandConfirmationHandler(commandConfirmationHandler);
-      } else {
-         sessionChannel.setResponseHandler(responseHandler);
-      }
+      setHandlers();
+
       this.sendAckHandler = handler;
    }
 
@@ -932,12 +933,12 @@ public class ActiveMQSessionContext extends SessionContext {
                                                          boolean lastChunk,
                                                          byte[] chunk,
                                                          SendAcknowledgementHandler messageHandler) throws ActiveMQException {
-      final boolean requiresResponse = lastChunk || confirmationWindow != -1;
+      final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket;
       if (sessionChannel.getConnection().isVersionBeforeAsyncResponseChange()) {
          chunkPacket = new SessionSendContinuationMessage(msgI, chunk, !lastChunk, requiresResponse, messageBodySize, messageHandler);
       } else {
-         chunkPacket = new SessionSendContinuationMessage_V2(msgI, chunk, !lastChunk, requiresResponse, messageBodySize, messageHandler);
+         chunkPacket = new SessionSendContinuationMessage_V2(msgI, chunk, !lastChunk, requiresResponse || confirmationWindow != -1, messageBodySize, messageHandler);
       }
       final int expectedEncodeSize = chunkPacket.expectedEncodeSize();
       //perform a weak form of flow control to avoid OOM on tight loops
@@ -955,11 +956,7 @@ public class ActiveMQSessionContext extends SessionContext {
          }
          if (requiresResponse) {
             // When sending it blocking, only the last chunk will be blocking.
-            if (sendBlocking) {
-               channel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
-            } else {
-               channel.send(chunkPacket);
-            }
+            channel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
          } else {
             channel.send(chunkPacket);
          }
