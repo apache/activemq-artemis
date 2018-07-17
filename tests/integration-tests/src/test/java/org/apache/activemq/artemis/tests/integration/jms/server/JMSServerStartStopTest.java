@@ -34,6 +34,9 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -46,7 +49,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private ActiveMQServer server;
+   private JMSServerManager jmsServer;
 
    private Connection conn;
 
@@ -57,13 +60,18 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       FileConfiguration fc = new FileConfiguration();
+      FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager("server-start-stop-config1.xml");
       deploymentManager.addDeployable(fc);
+      deploymentManager.addDeployable(fileConfiguration);
       deploymentManager.readConfiguration();
 
       ActiveMQJAASSecurityManager sm = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
-      server = addServer(new ActiveMQServerImpl(fc, sm));
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(fc, sm));
+
+      jmsServer = new JMSServerManagerImpl(server, fileConfiguration);
+      jmsServer.setRegistry(null);
    }
 
    @Test
@@ -73,7 +81,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       for (int j = 0; j < numMessages; j++) {
          JMSServerStartStopTest.log.info("Iteration " + j);
 
-         server.start();
+         jmsServer.start();
 
          ActiveMQConnectionFactory jbcf = createConnectionFactory();
 
@@ -96,11 +104,11 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
 
             jbcf.close();
 
-            server.stop();
+            jmsServer.stop();
          }
       }
 
-      server.start();
+      jmsServer.start();
 
       jbcf = createConnectionFactory();
 
@@ -133,7 +141,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
    // https://jira.jboss.org/jira/browse/HORNETQ-315
    @Test
    public void testCloseConnectionAfterServerIsShutdown() throws Exception {
-      server.start();
+      jmsServer.start();
 
       jbcf = createConnectionFactory();
 
@@ -143,7 +151,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
 
       conn = jbcf.createConnection();
 
-      server.stop();
+      jmsServer.stop();
       conn.close();
    }
 

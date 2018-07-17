@@ -22,11 +22,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-/**
- * This really isn't needed for Spring integration as demonstrated by org.apache.activemq.artemis.tests.integration.spring.SpringIntegrationTest
- * as well as the "spring-integration" example
- */
-@Deprecated
 public class SpringJmsBootstrap extends EmbeddedJMS implements BeanFactoryAware {
 
    @Override

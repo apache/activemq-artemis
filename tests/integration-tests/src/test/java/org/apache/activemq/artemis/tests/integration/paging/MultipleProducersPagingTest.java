@@ -24,6 +24,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,11 +36,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
@@ -60,7 +66,7 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
    private AtomicLong msgReceived;
    private AtomicLong msgSent;
    private final Set<Connection> connections = new HashSet<>();
-   private ActiveMQServer server;
+   private EmbeddedJMS jmsServer;
    private ConnectionFactory cf;
    private Queue queue;
 
@@ -70,18 +76,21 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
       super.setUp();
       executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
 
-      server = createServer(createBasicConfig()
-                               .setPersistenceEnabled(false)
-                               .setAddressesSettings(Collections.singletonMap("#", new AddressSettings()
-                                  .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-                                  .setPageSizeBytes(50000)
-                                  .setMaxSizeBytes(404850)))
-                               .setAcceptorConfigurations(Collections.singleton(new TransportConfiguration(NettyAcceptorFactory.class.getName()))));
+      AddressSettings addressSettings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(50000).setMaxSizeBytes(404850);
 
-      server.start();
+      Configuration config = createBasicConfig().setPersistenceEnabled(false).setAddressesSettings(Collections.singletonMap("#", addressSettings)).setAcceptorConfigurations(Collections.singleton(new TransportConfiguration(NettyAcceptorFactory.class.getName()))).setConnectorConfigurations(Collections.singletonMap("netty", new TransportConfiguration(NettyConnectorFactory.class.getName())));
 
-      cf = ActiveMQJMSClient.createConnectionFactory("tcp://127.0.0.1:61616", "cf");
-      queue = ActiveMQJMSClient.createQueue("simple");
+      final JMSConfiguration jmsConfig = new JMSConfigurationImpl();
+      jmsConfig.getConnectionFactoryConfigurations().add(new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(Arrays.asList("netty")).setBindings("/cf"));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName("simple").setSelector("").setDurable(false).setBindings("/queue/simple"));
+
+      jmsServer = new EmbeddedJMS();
+      jmsServer.setConfiguration(config);
+      jmsServer.setJmsConfiguration(jmsConfig);
+      jmsServer.start();
+
+      cf = (ConnectionFactory) jmsServer.lookup("/cf");
+      queue = (Queue) jmsServer.lookup("/queue/simple");
 
       barrierLatch = new CyclicBarrier(PRODUCERS + 1);
       runnersLatch = new CountDownLatch(PRODUCERS + 1);
@@ -159,8 +168,8 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
          conn.close();
       }
       connections.clear();
-      if (server != null)
-         server.stop();
+      if (jmsServer != null)
+         jmsServer.stop();
       super.tearDown();
    }
 }
