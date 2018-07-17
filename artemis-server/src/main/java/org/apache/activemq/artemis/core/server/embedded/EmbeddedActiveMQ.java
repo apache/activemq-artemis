@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.config.impl.LegacyJMSConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -122,7 +123,8 @@ public class EmbeddedActiveMQ {
             configResourcePath = "broker.xml";
          FileDeploymentManager deploymentManager = new FileDeploymentManager(configResourcePath);
          FileConfiguration config = new FileConfiguration();
-         deploymentManager.addDeployable(config);
+         LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
+         deploymentManager.addDeployable(config).addDeployable(legacyJMSConfiguration);
          deploymentManager.readConfiguration();
          configuration = config;
       }
