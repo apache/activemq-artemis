@@ -389,13 +389,13 @@ connection. The default value for this parameter is `10000` milliseconds.
 
 Sometimes it may be impossible to use UDP on the network you are using.
 In this case its possible to configure a connection with an initial list
-if possible servers. This could be just one server that you know will
+of possible servers. This could be just one server that you know will
 always be available or a list of servers where at least one will be
 available.
 
 This doesn't mean that you have to know where all your servers are going
 to be hosted, you can configure these servers to use the reliable
-servers to connect to. Once they are connected there connection details
+servers to connect to. Once they are connected their connection details
 will be propagated via the server it connects to
 
 #### Configuring a Cluster Connection
