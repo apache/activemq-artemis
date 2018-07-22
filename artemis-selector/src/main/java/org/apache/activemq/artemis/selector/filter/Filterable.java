@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * A Filterable is the object being evaluated by the filters.  It provides
  * access to filtered properties.
@@ -41,7 +43,7 @@ public interface Filterable {
     * @param name
     * @return
     */
-   Object getProperty(String name);
+   Object getProperty(SimpleString name);
 
    /**
     * Used by the NoLocal filter.

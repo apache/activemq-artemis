@@ -33,6 +33,11 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>xml-apis</groupId>
          <artifactId>xml-apis</artifactId>
          <optional>true</optional>
