@@ -59,7 +59,7 @@ set JVM_ARGS=%JVM_ARGS% -classpath %ARTEMIS_HOME%\lib\artemis-boot.jar
 set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.instance=%ARTEMIS_INSTANCE%
 set JVM_ARGS=%JVM_ARGS% -Ddata.dir=%ARTEMIS_DATA_DIR%
-set JVM_ARGS=%JVM_ARGS% -Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"
+set JVM_ARGS=%JVM_ARGS% -Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%
 set JVM_ARGS=%JVM_ARGS% -Djava.util.logging.manager=%ARTEMIS_LOG_MANAGER%
 set JVM_ARGS=%JVM_ARGS% -Dlogging.configuration=%ARTEMIS_LOGGING_CONF%
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
