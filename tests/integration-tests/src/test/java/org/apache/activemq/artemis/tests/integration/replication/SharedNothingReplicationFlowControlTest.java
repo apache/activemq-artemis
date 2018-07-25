@@ -18,17 +18,22 @@
 package org.apache.activemq.artemis.tests.integration.replication;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -40,20 +45,34 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFile;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -65,7 +84,6 @@ import org.junit.rules.TemporaryFolder;
 public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
    ExecutorService sendMessageExecutor;
-
 
    @Before
    public void setupExecutor() {
@@ -99,7 +117,6 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       ClientSession sess = csf.createSession();
       sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
       sess.close();
-
 
       int i = 0;
       final int j = 100;
@@ -192,6 +209,124 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       logger.infof("expected %d messages, live=%d, backup=%d", j, liveJournalCounter.get(), replicationCounter.get());
       Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
       Assert.assertEquals("Backup did not replicated all journal", j, replicationCounter.get());
+   }
+
+   @Test
+   public void testSendPages() throws Exception {
+      // start live
+      Configuration liveConfiguration = createLiveConfiguration();
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      liveServer.start();
+
+      Wait.waitFor(() -> liveServer.isStarted());
+
+      ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+      locator.setCallTimeout(60_000L);
+      locator.setConnectionTTL(60_000L);
+
+      final ClientSessionFactory csf = locator.createSessionFactory();
+      ClientSession sess = csf.createSession();
+      sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
+
+      PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.toSimpleString("flowcontrol"));
+      store.startPaging();
+
+      ClientProducer prod = sess.createProducer("flowcontrol");
+      for (int i = 0; i < 100; i++) {
+         prod.send(sess.createMessage(true));
+
+         if (i % 10 == 0) {
+            sess.commit();
+            store.forceAnotherPage();
+         }
+      }
+
+      sess.close();
+
+      openCount.set(0);
+      closeCount.set(0);
+      // start backup
+      Configuration backupConfiguration = createBackupConfiguration().setNetworkCheckURLList(null);
+
+      ActiveMQServer backupServer = new ActiveMQServerImpl(backupConfiguration, ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration())) {
+         @Override
+         public PagingManager createPagingManager() throws Exception {
+            PagingManagerImpl manager = (PagingManagerImpl) super.createPagingManager();
+            PagingStoreFactoryNIO originalPageStore = (PagingStoreFactoryNIO) manager.getPagingStoreFactory();
+            manager.replacePageStoreFactory(new PageStoreFactoryTestable(originalPageStore));
+            return manager;
+         }
+      };
+
+      addServer(backupServer).start();
+
+      Wait.waitFor(() -> backupServer.isStarted());
+
+      Wait.waitFor(backupServer::isReplicaSync, 30000);
+
+      PageStoreFactoryTestable testablePageStoreFactory = (PageStoreFactoryTestable) ((PagingManagerImpl) backupServer.getPagingManager()).getPagingStoreFactory();
+
+      Assert.assertEquals(openCount.get(), closeCount.get());
+   }
+
+   static AtomicInteger openCount = new AtomicInteger(0);
+   static AtomicInteger closeCount = new AtomicInteger(0);
+
+   private static class PageStoreFactoryTestable extends PagingStoreFactoryNIO {
+
+      PageStoreFactoryTestable(StorageManager storageManager,
+                                      File directory,
+                                      long syncTimeout,
+                                      ScheduledExecutorService scheduledExecutor,
+                                      ExecutorFactory executorFactory,
+                                      boolean syncNonTransactional,
+                                      IOCriticalErrorListener critialErrorListener) {
+         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener);
+      }
+
+      PageStoreFactoryTestable(PagingStoreFactoryNIO other) {
+         this(other.getStorageManager(), other.getDirectory(), other.getSyncTimeout(), other.getScheduledExecutor(), other.getExecutorFactory(), other.isSyncNonTransactional(), other.getCritialErrorListener());
+      }
+
+      @Override
+      protected SequentialFileFactory newFileFactory(String directoryName) {
+         return new TestableNIOFactory(new File(getDirectory(), directoryName), false, getCritialErrorListener(), 1);
+      }
+   }
+
+   public static class TestableNIOFactory extends NIOSequentialFileFactory {
+
+      public TestableNIOFactory(File journalDir, boolean buffered, IOCriticalErrorListener listener, int maxIO) {
+         super(journalDir, buffered, listener, maxIO);
+      }
+
+      @Override
+      public SequentialFile createSequentialFile(String fileName) {
+         return new TestableSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
+      }
+   }
+
+   public static class TestableSequentialFile extends NIOSequentialFile {
+
+      public TestableSequentialFile(SequentialFileFactory factory,
+                                    File directory,
+                                    String file,
+                                    int maxIO,
+                                    Executor writerExecutor) {
+         super(factory, directory, file, maxIO, writerExecutor);
+      }
+
+      @Override
+      public void open(int maxIO, boolean useExecutor) throws IOException {
+         super.open(maxIO, useExecutor);
+         openCount.incrementAndGet();
+      }
+
+      @Override
+      public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
+         super.close();
+         closeCount.incrementAndGet();
+      }
    }
 
    // Set a small call timeout and write buffer high water mark value to trigger replication flow control
