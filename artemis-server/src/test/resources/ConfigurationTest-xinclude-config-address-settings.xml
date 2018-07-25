@@ -62,5 +62,6 @@
       <default-max-consumers>15</default-max-consumers>
       <default-queue-routing-type>MULTICAST</default-queue-routing-type>
       <default-address-routing-type>ANYCAST</default-address-routing-type>
+      <default-consumer-window-size>10000</default-consumer-window-size>
    </address-setting>
 </address-settings>

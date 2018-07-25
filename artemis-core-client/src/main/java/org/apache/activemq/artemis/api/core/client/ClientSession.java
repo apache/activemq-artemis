@@ -147,6 +147,8 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Boolean isExclusive();
 
       Boolean isLastValue();
+
+      Integer getDefaultConsumerWindowSize();
    }
 
    // Lifecycle operations ------------------------------------------

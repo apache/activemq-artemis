@@ -241,6 +241,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AMQP_USE_CORE_SUBSCRIPTION_NAMING = "amqp-use-core-subscription-naming";
 
+   private static final String DEFAULT_CONSUMER_WINDOW_SIZE = "default-consumer-window-size";
+
 
    // Attributes ----------------------------------------------------
 
@@ -1068,6 +1070,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Validators.ROUTING_TYPE.validate(DEFAULT_ADDRESS_ROUTING_TYPE, value);
             RoutingType routingType = RoutingType.valueOf(value);
             addressSettings.setDefaultAddressRoutingType(routingType);
+         } else if (DEFAULT_CONSUMER_WINDOW_SIZE.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultConsumerWindowSize(XMLUtil.parseInt(child));
          }
       }
       return setting;
