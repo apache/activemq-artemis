@@ -128,6 +128,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    PagingManager getPagingManager();
 
+   PagingManager createPagingManager() throws Exception;
+
    ManagementService getManagementService();
 
    ActiveMQSecurityManager getSecurityManager();
