@@ -74,6 +74,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.jboss.logging.Logger;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -103,7 +104,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
    public void testReplicationIfFlowControlled() throws Exception {
       // start live
       Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = ActiveMQServers.newActiveMQServer(liveConfiguration);
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       liveServer.start();
 
       Wait.waitFor(() -> liveServer.isStarted());
@@ -117,14 +118,13 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
       sess.close();
 
-Executor sendMessageExecutor = Executors.newCachedThreadPool();
       int i = 0;
       final int j = 100;
       final CountDownLatch allMessageSent = new CountDownLatch(j);
 
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
-      ActiveMQServer backupServer = ActiveMQServers.newActiveMQServer(backupConfiguration);
+      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
       backupServer.start();
 
       Wait.waitFor(() -> backupServer.isStarted());
