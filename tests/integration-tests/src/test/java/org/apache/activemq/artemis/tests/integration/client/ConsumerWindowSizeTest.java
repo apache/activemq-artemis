@@ -24,7 +24,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -32,6 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -1386,4 +1389,65 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testDefaultConsumerWindowSize() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      messagingService.start();
+      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      consumer.start();
+
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE / 2, consumer.getClientWindowSize());
+   }
+
+   @Test
+   public void testConsumerWindowSizeAddressSettings() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      final int defaultConsumerWindowSize = 1024 * 5;
+      final AddressSettings settings = new AddressSettings();
+      settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
+      messagingService.getConfiguration()
+            .getAddressesSettings().put(queueA.toString(), settings);
+
+      messagingService.start();
+      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      session.start();
+
+      assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+   }
+
+   @Test
+   public void testConsumerWindowSizeAddressSettingsWildCard() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      final int defaultConsumerWindowSize = 1024 * 5;
+      final AddressSettings settings = new AddressSettings();
+      settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
+      messagingService.getConfiguration()
+            .getAddressesSettings().put("#", settings);
+
+      messagingService.start();
+      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+      ClientConsumerImpl consumer2 = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      session.start();
+
+      assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+      assertEquals(defaultConsumerWindowSize / 2, consumer2.getClientWindowSize());
+   }
 }
