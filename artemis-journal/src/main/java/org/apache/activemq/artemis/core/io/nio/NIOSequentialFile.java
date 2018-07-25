@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.Env;
 
-public final class NIOSequentialFile extends AbstractSequentialFile {
+public class NIOSequentialFile extends AbstractSequentialFile {
 
    private FileChannel channel;
 
