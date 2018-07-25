@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
-public final class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
+public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
    private static final int DEFAULT_CAPACITY_ALIGNMENT = Env.osPageSize();
 
