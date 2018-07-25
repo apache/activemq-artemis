@@ -62,6 +62,14 @@ public interface QueueBindingInfo {
 
    void setLastValue(boolean lastValue);
 
+   int getConsumersBeforeDispatch();
+
+   void setConsumersBeforeDispatch(int consumersBeforeDispatch);
+
+   long getDelayBeforeDispatch();
+
+   void setDelayBeforeDispatch(long delayBeforeDispatch);
+
    byte getRoutingType();
 
    void setRoutingType(byte routingType);
