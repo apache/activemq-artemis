@@ -1904,4 +1904,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public int getProducerCount() {
       return getServerProducers().size();
    }
+
+   @Override
+   public int getDefaultConsumerWindowSize(SimpleString address) {
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
+      return as.getDefaultConsumerWindowSize();
+   }
 }

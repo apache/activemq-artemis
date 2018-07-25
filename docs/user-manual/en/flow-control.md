@@ -33,7 +33,7 @@ buffered on each consumer is determined by the `consumerWindowSize`
 parameter.
 
 By default, the `consumerWindowSize` is set to 1 MiB (1024 \* 1024
-bytes).
+bytes) unless overridden via ([Address Settings](address-model.md#configuring-addresses-and-queues-via-address-settings))
 
 The value can be:
 
