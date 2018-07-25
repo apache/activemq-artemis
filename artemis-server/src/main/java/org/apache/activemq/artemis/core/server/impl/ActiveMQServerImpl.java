@@ -1110,8 +1110,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       sessions.clear();
 
-      activateCallbacks.clear();
-
       state = SERVER_STATE.STOPPED;
 
       activationLatch.setCount(1);
@@ -3187,4 +3185,5 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public List<ActiveMQComponent> getExternalComponents() {
       return externalComponents;
    }
+
 }
