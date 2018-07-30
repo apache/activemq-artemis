@@ -77,11 +77,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final ClientProtocolManager clientProtocolManager;
 
-   private final TransportConfiguration connectorConfig;
+   private TransportConfiguration connectorConfig;
 
    private TransportConfiguration currentConnectorConfig;
 
-   private TransportConfiguration backupConfig;
+   private volatile TransportConfiguration backupConfig;
 
    private ConnectorFactory connectorFactory;
 
@@ -174,8 +174,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       this.clientProtocolManager = serverLocator.newProtocolManager();
 
       this.clientProtocolManager.setSessionFactory(this);
-
-      this.connectorConfig = connectorConfig;
 
       this.currentConnectorConfig = connectorConfig;
 
@@ -881,6 +879,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   //The order of connector configs to try to get a connection:
+   //currentConnectorConfig, backupConfig and then lastConnectorConfig.
+   //On each successful connect, the current and last will be
+   //updated properly.
    @Override
    public RemotingConnection getConnection() {
       if (closed)
@@ -1101,8 +1103,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                // Switching backup as live
                connector = backupConnector;
+               connectorConfig = currentConnectorConfig;
                currentConnectorConfig = backupConfig;
-               backupConfig = null;
                connectorFactory = backupConnectorFactory;
                return transportConnection;
             }
@@ -1113,23 +1115,24 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
 
 
-         if (currentConnectorConfig.equals(connectorConfig)) {
+         if (currentConnectorConfig.equals(connectorConfig) || connectorConfig == null) {
 
             // There was no changes on current and original connectors, just return null here and let the retry happen at the first portion of this method on the next retry
             return null;
          }
 
-         ConnectorFactory originalConnectorFactory = instantiateConnectorFactory(connectorConfig.getFactoryClassName());
+         ConnectorFactory lastConnectorFactory = instantiateConnectorFactory(connectorConfig.getFactoryClassName());
 
-         Connector originalConnector = createConnector(originalConnectorFactory, connectorConfig);
+         Connector lastConnector = createConnector(lastConnectorFactory, connectorConfig);
 
-         transportConnection = openTransportConnection(originalConnector);
+         transportConnection = openTransportConnection(lastConnector);
 
          if (transportConnection != null) {
             logger.debug("Returning into original connector");
-            connector = originalConnector;
-            backupConfig = null;
+            connector = lastConnector;
+            TransportConfiguration temp = currentConnectorConfig;
             currentConnectorConfig = connectorConfig;
+            connectorConfig = temp;
             return transportConnection;
          } else {
             logger.debug("no connection been made, returning null");
