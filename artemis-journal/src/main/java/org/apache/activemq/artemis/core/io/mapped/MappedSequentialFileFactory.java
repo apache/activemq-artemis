@@ -20,10 +20,13 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import io.netty.util.ThreadDeathWatcher;
+
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Env;
 
 public final class MappedSequentialFileFactory extends AbstractSequentialFileFactory {
@@ -32,6 +35,8 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
    private boolean bufferPooling;
    //pools only the biggest one -> optimized for the common case
    private final ThreadLocal<ByteBuffer> bytesPool;
+
+   private final ThreadLocal<BytesPoolCallback> bytesPoolCallbackPool;
 
    public MappedSequentialFileFactory(File directory,
                                        int capacity,
@@ -48,6 +53,7 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
       this.setDatasync(true);
       this.bufferPooling = true;
       this.bytesPool = new ThreadLocal<>();
+      this.bytesPoolCallbackPool = new ThreadLocal<>();
    }
 
    public MappedSequentialFileFactory capacity(int capacity) {
@@ -130,6 +136,16 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
                      PlatformDependent.freeDirectBuffer(byteBuffer);
                   }
                   bytesPool.set(buffer);
+
+                  BytesPoolCallback bytesPoolCallback = bytesPoolCallbackPool.get();
+                  if (bytesPoolCallback != null) {
+                     bytesPoolCallback.updatePooledBytes(buffer);
+                  } else {
+                     bytesPoolCallback = new BytesPoolCallback(buffer);
+                     bytesPoolCallbackPool.set(bytesPoolCallback);
+                     ThreadDeathWatcher.watch(Thread.currentThread(), bytesPoolCallback);
+                  }
+
                } else {
                   PlatformDependent.freeDirectBuffer(buffer);
                }
@@ -197,4 +213,23 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
       }
    }
 
+   private class BytesPoolCallback implements Runnable {
+
+      private ByteBuffer pooledBytes;
+
+      public BytesPoolCallback(ByteBuffer pooledBytes) {
+         this.pooledBytes = pooledBytes;
+      }
+
+      public void updatePooledBytes(ByteBuffer pooledBytes) {
+         this.pooledBytes = pooledBytes;
+      }
+
+      @Override
+      public void run() {
+         if (pooledBytes != null) {
+            PlatformDependent.freeDirectBuffer(pooledBytes);
+         }
+      }
+   }
 }

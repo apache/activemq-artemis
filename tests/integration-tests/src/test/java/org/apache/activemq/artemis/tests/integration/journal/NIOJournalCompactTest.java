@@ -59,6 +59,7 @@ import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import sun.misc.JavaNioAccess;
 
 public class NIOJournalCompactTest extends JournalImplTestBase {
 
@@ -250,6 +251,49 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       assertEquals(1, records1.size());
 
+   }
+
+
+   @Test
+   public void testCompactWithCheckDirectByteBuffer() throws Exception {
+
+      setup(2, 60 * 1024, false);
+
+      final byte recordType = (byte) 0;
+
+      journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO);
+
+      journal.start();
+
+      journal.loadInternalOnly();
+
+      journal.appendAddRecord(1, recordType, "test".getBytes(), true);
+
+      journal.forceMoveNextFile();
+
+      journal.appendUpdateRecord(1, recordType, "update".getBytes(), true);
+
+      journal.appendDeleteRecord(1, true);
+
+      journal.appendAddRecord(2, recordType, "finalRecord".getBytes(), true);
+
+      for (int i = 10; i < 100; i++) {
+         journal.appendAddRecord(i, recordType, ("tst" + i).getBytes(), true);
+         journal.forceMoveNextFile();
+         journal.appendUpdateRecord(i, recordType, ("uptst" + i).getBytes(), true);
+         journal.appendDeleteRecord(i, true);
+      }
+
+      journal.testCompact();
+
+      JavaNioAccess.BufferPool bufferPoolAccess = sun.misc.SharedSecrets.getJavaNioAccess().getDirectBufferPool();
+
+      long directBuffeMemoryUsed = bufferPoolAccess.getMemoryUsed();
+
+      // ioExecutor keepalive is 60s
+      Thread.sleep(80 * 1000L);
+
+      assertEquals(true, directBuffeMemoryUsed > bufferPoolAccess.getMemoryUsed());
    }
 
    @Test
