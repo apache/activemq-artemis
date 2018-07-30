@@ -580,12 +580,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void pageStoreStartIOError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222038, value = "Starting paging on address ''{0}''; size is currently: {1} bytes; max-size-bytes: {2}", format = Message.Format.MESSAGE_FORMAT)
-   void pageStoreStart(SimpleString storeName, long addressSize, long maxSize);
+   @Message(id = 222038, value = "Starting paging on address ''{0}''; size is currently: {1} bytes; max-size-bytes: {2}; global-size-bytes: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void pageStoreStart(SimpleString storeName, long addressSize, long maxSize, long globalMaxSize);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222039, value = "Messages sent to address ''{0}'' are being dropped; size is currently: {1} bytes; max-size-bytes: {2}", format = Message.Format.MESSAGE_FORMAT)
-   void pageStoreDropMessages(SimpleString storeName, long addressSize, long maxSize);
+   @Message(id = 222039, value = "Messages sent to address ''{0}'' are being dropped; size is currently: {1} bytes; max-size-bytes: {2}; global-size-bytes: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void pageStoreDropMessages(SimpleString storeName, long addressSize, long maxSize, long globalMaxSize);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222040, value = "Server is stopped", format = Message.Format.MESSAGE_FORMAT)
