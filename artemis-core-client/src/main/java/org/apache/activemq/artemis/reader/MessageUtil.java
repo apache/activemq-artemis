@@ -152,9 +152,11 @@ public class MessageUtil {
       HashSet<String> set = new HashSet<>();
 
       for (SimpleString propName : message.getPropertyNames()) {
-         if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
-            propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME) && !propName.equals(Message.HDR_ROUTING_TYPE) &&
-            !propName.startsWith(Message.HDR_ROUTE_TO_IDS)) {
+         if (propName.equals(Message.HDR_GROUP_ID)) {
+            set.add(MessageUtil.JMSXGROUPID);
+         } else if (propName.equals(Message.HDR_VALIDATED_USER)) {
+            set.add(MessageUtil.JMSXUSERID);
+         } else if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) || propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME) && !propName.equals(Message.HDR_ROUTING_TYPE) && !propName.startsWith(Message.HDR_ROUTE_TO_IDS)) {
             set.add(propName.toString());
          }
       }
