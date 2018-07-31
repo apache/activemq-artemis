@@ -21,10 +21,10 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -47,7 +47,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private final Executor executor;
 
-   private final Map<String, Object> fileLocks = new HashMap<>();
+   private final Map<String, Object> fileLocks = new ConcurrentHashMap<>();
 
    private JDBCSequentialFileFactoryDriver dbDriver;
 
@@ -66,7 +66,6 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       } catch (SQLException e) {
          criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
       }
-
    }
 
    public JDBCSequentialFileFactory(final String connectionUrl,
