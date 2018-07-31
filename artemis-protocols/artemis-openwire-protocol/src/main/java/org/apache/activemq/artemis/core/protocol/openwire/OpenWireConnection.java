@@ -1464,7 +1464,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             internalSession.resetTX(null);
          }
 
-         return new IntegerResponse(XAResource.XA_RDONLY);
+         return new IntegerResponse(XAResource.XA_OK);
       }
 
       @Override
