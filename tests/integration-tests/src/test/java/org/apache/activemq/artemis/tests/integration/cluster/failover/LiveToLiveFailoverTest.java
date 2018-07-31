@@ -362,6 +362,11 @@ public class LiveToLiveFailoverTest extends FailoverTest {
    @Ignore
    public void testCommitOccurredUnblockedAndResendNoDuplicates() throws Exception {
    }
+
+   @Override
+   @Ignore
+   public void testFailLiveTooSoon() throws Exception {
+   }
 }
 
 
