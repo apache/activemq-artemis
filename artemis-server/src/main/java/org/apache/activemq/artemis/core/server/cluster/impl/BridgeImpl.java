@@ -55,10 +55,10 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -158,6 +158,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    private boolean keepConnecting = true;
 
    private ActiveMQServer server;
+
+   private final BridgeMetrics metrics = new BridgeMetrics();
 
    public BridgeImpl(final ServerLocatorInternal serverLocator,
                      final int initialConnectAttempts,
@@ -518,6 +520,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
                ref.getQueue().acknowledge(ref);
                pendingAcks.countDown();
+               metrics.incrementMessagesAcknowledged();
             } else {
                if (logger.isTraceEnabled()) {
                   logger.trace("BridgeImpl::sendAcknowledged bridge " + this + " could not find reference for message " + message);
@@ -611,13 +614,21 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          pendingAcks.countUp();
 
          try {
+            final HandleStatus status;
             if (message.isLargeMessage()) {
                deliveringLargeMessage = true;
                deliverLargeMessage(dest, ref, (LargeServerMessage) message);
-               return HandleStatus.HANDLED;
+               status = HandleStatus.HANDLED;
             } else {
-               return deliverStandardMessage(dest, ref, message);
+               status =  deliverStandardMessage(dest, ref, message);
             }
+
+            //Only increment messages pending acknowledgement if handled by bridge
+            if (status == HandleStatus.HANDLED) {
+               metrics.incrementMessagesPendingAcknowledgement();
+            }
+
+            return status;
          } catch (Exception e) {
             // If an exception happened, we must count down immediately
             pendingAcks.countDown();
@@ -768,6 +779,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
     */
    public TopologyMember getTargetNodeFromTopology() {
       return this.targetNode;
+   }
+
+   @Override
+   public BridgeMetrics getMetrics() {
+      return this.metrics;
    }
 
    @Override

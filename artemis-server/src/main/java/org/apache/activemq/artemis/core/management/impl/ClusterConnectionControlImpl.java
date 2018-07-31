@@ -16,16 +16,18 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
 import java.util.List;
 import java.util.Map;
+
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 
 public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl {
 
@@ -221,6 +223,48 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
       return MBeanInfoHelper.getMBeanAttributesInfo(ClusterConnectionControl.class);
+   }
+
+   @Override
+   public long getMessagesPendingAcknowledgement() {
+      clearIO();
+      try {
+         return clusterConnection.getMetrics().getMessagesPendingAcknowledgement();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      clearIO();
+      try {
+         return clusterConnection.getMetrics().getMessagesAcknowledged();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public Map<String, Object> getMetrics()  {
+      clearIO();
+      try {
+         return clusterConnection.getMetrics().convertToMap();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public Map<String, Object> getBridgeMetrics(String nodeId) {
+      clearIO();
+      try {
+         final BridgeMetrics bridgeMetrics = clusterConnection.getBridgeMetrics(nodeId);
+         return bridgeMetrics != null ? bridgeMetrics.convertToMap() : null;
+      } finally {
+         blockOnIO();
+      }
+
    }
 
    // Public --------------------------------------------------------

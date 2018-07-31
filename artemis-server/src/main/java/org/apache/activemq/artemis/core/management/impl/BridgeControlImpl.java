@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
 import java.util.List;
 import java.util.Map;
+
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
@@ -226,6 +227,36 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
       return MBeanInfoHelper.getMBeanAttributesInfo(BridgeControl.class);
+   }
+
+   @Override
+   public long getMessagesPendingAcknowledgement() {
+      clearIO();
+      try {
+         return bridge.getMetrics().getMessagesPendingAcknowledgement();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      clearIO();
+      try {
+         return bridge.getMetrics().getMessagesAcknowledged();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public Map<String, Object> getMetrics() {
+      clearIO();
+      try {
+         return bridge.getMetrics().convertToMap();
+      } finally {
+         blockOnIO();
+      }
    }
 
    // Public --------------------------------------------------------
