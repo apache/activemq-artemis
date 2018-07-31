@@ -790,3 +790,8 @@ types](#routing-type).
 address if the broker is unable to determine the routing-type based on the
 client and/or protocol semantics. Default is `MULTICAST`. Read more about
 [routing types](#routing-type).
+
+`default-consumer-window-size` defines the default `consumerWindowSize` value 
+for a `CORE` protocol consumer, if not defined the default will be set to 
+1 MiB (1024 * 1024 bytes). The consumer will use this value as the window size
+if the value is not set on the client. Read more about [flow control](#flow-control).

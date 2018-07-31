@@ -358,4 +358,6 @@ public interface ServerSession extends SecurityAuth {
    int getConsumerCount();
 
    int getProducerCount();
+
+   int getDefaultConsumerWindowSize(SimpleString address);
 }
