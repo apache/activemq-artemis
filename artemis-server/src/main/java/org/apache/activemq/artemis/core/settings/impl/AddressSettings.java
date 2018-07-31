@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.Mergeable;
@@ -178,6 +179,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private RoutingType defaultAddressRoutingType = null;
 
+   private Integer defaultConsumerWindowSize = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -222,6 +225,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultDelayBeforeDispatch = other.defaultDelayBeforeDispatch;
       this.defaultQueueRoutingType = other.defaultQueueRoutingType;
       this.defaultAddressRoutingType = other.defaultAddressRoutingType;
+      this.defaultConsumerWindowSize = other.defaultConsumerWindowSize;
    }
 
    public AddressSettings() {
@@ -580,6 +584,21 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    /**
+    * @return the defaultConsumerWindowSize
+    */
+   public int getDefaultConsumerWindowSize() {
+      return defaultConsumerWindowSize != null ? defaultConsumerWindowSize : ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
+   }
+
+   /**
+    * @param defaultConsumerWindowSize the defaultConsumerWindowSize to set
+    */
+   public AddressSettings setDefaultConsumerWindowSize(int defaultConsumerWindowSize) {
+      this.defaultConsumerWindowSize = defaultConsumerWindowSize;
+      return this;
+   }
+
+   /**
     * merge 2 objects in to 1
     *
     * @param merged
@@ -693,6 +712,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (defaultExclusiveQueue == null) {
          defaultExclusiveQueue = merged.defaultExclusiveQueue;
+      }
+      if (defaultConsumerWindowSize == null) {
+         defaultConsumerWindowSize = merged.defaultConsumerWindowSize;
       }
       if (defaultLastValueQueue == null) {
          defaultLastValueQueue = merged.defaultLastValueQueue;
@@ -811,6 +833,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          defaultDelayBeforeDispatch = BufferHelper.readNullableLong(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultConsumerWindowSize = BufferHelper.readNullableInteger(buffer);
+      }
    }
 
    @Override
@@ -851,7 +877,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          DataConstants.SIZE_BYTE +
          BufferHelper.sizeOfNullableBoolean(defaultExclusiveQueue) +
          BufferHelper.sizeOfNullableInteger(defaultConsumersBeforeDispatch) +
-         BufferHelper.sizeOfNullableLong(defaultDelayBeforeDispatch);
+         BufferHelper.sizeOfNullableLong(defaultDelayBeforeDispatch) +
+         BufferHelper.sizeOfNullableInteger(defaultConsumerWindowSize);
    }
 
    @Override
@@ -932,6 +959,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, defaultDelayBeforeDispatch);
 
+      BufferHelper.writeNullableInteger(buffer, defaultConsumerWindowSize);
+
    }
 
    /* (non-Javadoc)
@@ -980,6 +1009,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultAddressRoutingType == null) ? 0 : defaultAddressRoutingType.hashCode());
       result = prime * result + ((defaultConsumersBeforeDispatch == null) ? 0 : defaultConsumersBeforeDispatch.hashCode());
       result = prime * result + ((defaultDelayBeforeDispatch == null) ? 0 : defaultDelayBeforeDispatch.hashCode());
+      result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
       return result;
    }
 
@@ -1197,6 +1227,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!defaultDelayBeforeDispatch.equals(other.defaultDelayBeforeDispatch))
          return false;
+
+      if (defaultConsumerWindowSize == null) {
+         if (other.defaultConsumerWindowSize != null)
+            return false;
+      } else if (!defaultConsumerWindowSize.equals(other.defaultConsumerWindowSize))
+         return false;
       return true;
    }
 
@@ -1280,6 +1316,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultConsumersBeforeDispatch +
          ", defaultDelayBeforeDispatch=" +
          defaultDelayBeforeDispatch +
+         ", defaultClientWindowSize=" +
+         defaultConsumerWindowSize +
          "]";
    }
 }

@@ -51,6 +51,8 @@ public class QueueQueryResult {
 
    private Boolean lastValue;
 
+   private Integer defaultConsumerWindowSize;
+
    public QueueQueryResult(final SimpleString name,
                            final SimpleString address,
                            final boolean durable,
@@ -65,7 +67,8 @@ public class QueueQueryResult {
                            final RoutingType routingType,
                            final int maxConsumers,
                            final Boolean exclusive,
-                           final Boolean lastValue) {
+                           final Boolean lastValue,
+                           final Integer defaultConsumerWindowSize) {
       this.durable = durable;
 
       this.temporary = temporary;
@@ -95,6 +98,8 @@ public class QueueQueryResult {
       this.exclusive = exclusive;
 
       this.lastValue = lastValue;
+
+      this.defaultConsumerWindowSize = defaultConsumerWindowSize;
    }
 
    public boolean isExists() {
@@ -159,5 +164,9 @@ public class QueueQueryResult {
 
    public Boolean isLastValue() {
       return lastValue;
+   }
+
+   public Integer getDefaultConsumerWindowSize() {
+      return defaultConsumerWindowSize;
    }
 }
