@@ -346,6 +346,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(15, conf.getAddressesSettings().get("a2").getDefaultMaxConsumers());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a2").getDefaultQueueRoutingType());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a2").getDefaultAddressRoutingType());
+      assertEquals(10000, conf.getAddressesSettings().get("a2").getDefaultConsumerWindowSize());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
       assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());
