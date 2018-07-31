@@ -739,7 +739,7 @@ public class PagingStoreImpl implements PagingStore {
          if (size > 0) {
             if (maxSize != -1 && newSize > maxSize || globalFull) {
                if (startPaging()) {
-                  ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, newSize, maxSize);
+                  ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, newSize, maxSize, pagingManager.getGlobalSize());
                }
             }
          }
@@ -785,7 +785,7 @@ public class PagingStoreImpl implements PagingStore {
             if (!printedDropMessagesWarning) {
                printedDropMessagesWarning = true;
 
-               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize);
+               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
             }
 
             if (message.isLargeMessage()) {
