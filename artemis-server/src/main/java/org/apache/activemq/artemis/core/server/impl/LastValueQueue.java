@@ -63,6 +63,8 @@ public class LastValueQueue extends QueueImpl {
                          final RoutingType routingType,
                          final Integer maxConsumers,
                          final Boolean exclusive,
+                         final Integer consumersBeforeDispatch,
+                         final Long delayBeforeDispatch,
                          final Boolean purgeOnNoConsumers,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
@@ -71,7 +73,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    @Override

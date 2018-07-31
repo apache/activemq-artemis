@@ -37,8 +37,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLong;
 
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNullRefException;
@@ -87,6 +89,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.BooleanUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -113,6 +116,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    protected static final int CRITICAL_CONSUMER = 3;
 
    private static final Logger logger = Logger.getLogger(QueueImpl.class);
+   private static final AtomicIntegerFieldUpdater dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
+   private static final AtomicLongFieldUpdater dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
 
    public static final int REDISTRIBUTOR_BATCH_SIZE = 100;
 
@@ -216,7 +221,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final SimpleString address;
 
-   private Redistributor redistributor;
+   private ConsumerHolder<Redistributor> redistributor;
 
    private ScheduledFuture<?> redistributorFuture;
 
@@ -267,6 +272,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private volatile RoutingType routingType;
 
    private final QueueFactory factory;
+
+   public volatile int dispatching = 0;
+
+   public volatile long dispatchStartTime = -1;
+
+   private int consumersBeforeDispatch = 0;
+
+   private long delayBeforeDispatch = 0;
+
 
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
@@ -413,6 +427,31 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
       this.id = id;
@@ -440,6 +479,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.exclusive = exclusive == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : exclusive;
 
       this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
+
+      this.consumersBeforeDispatch = consumersBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch;
+
+      this.delayBeforeDispatch = delayBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch() : delayBeforeDispatch;
 
       this.postOffice = postOffice;
 
@@ -503,6 +546,48 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public synchronized void setExclusive(boolean exclusive) {
       this.exclusive = exclusive;
    }
+
+   @Override
+   public int getConsumersBeforeDispatch() {
+      return consumersBeforeDispatch;
+   }
+
+   @Override
+   public synchronized void setConsumersBeforeDispatch(int consumersBeforeDispatch) {
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+   }
+
+   @Override
+   public long getDelayBeforeDispatch() {
+      return delayBeforeDispatch;
+   }
+
+   @Override
+   public synchronized void setDelayBeforeDispatch(long delayBeforeDispatch) {
+      this.delayBeforeDispatch = delayBeforeDispatch;
+   }
+
+   @Override
+   public long getDispatchStartTime() {
+      return dispatchStartTimeUpdater.get(this);
+   }
+
+   @Override
+   public boolean isDispatching() {
+      return BooleanUtil.toBoolean(dispatchingUpdater.get(this));
+   }
+
+   @Override
+   public synchronized void setDispatching(boolean dispatching) {
+      if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(!dispatching), BooleanUtil.toInt(dispatching))) {
+         if (dispatching) {
+            dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
+         } else {
+            dispatchStartTimeUpdater.set(this, -1);
+         }
+      }
+   }
+
 
    @Override
    public boolean isLastValue() {
@@ -867,6 +952,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
+   private boolean canDispatch() {
+      boolean canDispatch = BooleanUtil.toBoolean(dispatchingUpdater.get(this));
+      if (canDispatch) {
+         return true;
+      } else {
+         long currentDispatchStartTime = dispatchStartTimeUpdater.get(this);
+         if (currentDispatchStartTime != -1 && currentDispatchStartTime < System.currentTimeMillis()) {
+            dispatchingUpdater.set(this, BooleanUtil.toInt(true));
+            return true;
+         } else {
+            return false;
+         }
+      }
+   }
+
    @Override
    public void addConsumer(final Consumer consumer) throws Exception {
       if (logger.isDebugEnabled()) {
@@ -876,7 +976,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_CONSUMER);
       try {
          synchronized (this) {
-
             if (maxConsumers != MAX_CONSUMERS_UNLIMITED && consumersCount.get() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
@@ -892,7 +991,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             consumerList.add(new ConsumerHolder(consumer));
 
             if (consumerSet.add(consumer)) {
-               consumersCount.incrementAndGet();
+               int currentConsumerCount = consumersCount.incrementAndGet();
+               if (delayBeforeDispatch >= 0) {
+                  dispatchStartTimeUpdater.compareAndSet(this,-1, delayBeforeDispatch + System.currentTimeMillis());
+               }
+               if (currentConsumerCount >= consumersBeforeDispatch) {
+                  if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(false), BooleanUtil.toInt(true))) {
+                     dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
+                  }
+               }
             }
 
             if (refCountForConsumers != null) {
@@ -931,7 +1038,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (consumerSet.remove(consumer)) {
-               consumersCount.decrementAndGet();
+               int currentConsumerCount = consumersCount.decrementAndGet();
+               boolean stopped = dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(true), BooleanUtil.toInt(currentConsumerCount != 0));
+               if (stopped) {
+                  dispatchStartTimeUpdater.set(this, -1);
+               }
             }
 
             LinkedList<SimpleString> groupsToRemove = null;
@@ -1005,11 +1116,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void cancelRedistributor() throws Exception {
       if (redistributor != null) {
-         redistributor.stop();
-         Redistributor redistributorToRemove = redistributor;
+         redistributor.consumer.stop();
          redistributor = null;
-
-         removeConsumer(redistributorToRemove);
       }
 
       clearRedistributorFuture();
@@ -2265,7 +2373,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          synchronized (this) {
 
             // Need to do these checks inside the synchronized
-            if (paused || consumerList.isEmpty()) {
+            if (paused || !canDispatch() && redistributor == null) {
                return;
             }
 
@@ -2273,20 +2381,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                break;
             }
 
-            if (endPos < 0 || consumersChanged) {
-               consumersChanged = false;
+            ConsumerHolder<? extends Consumer> holder;
+            if (redistributor == null) {
 
-               size = consumerList.size();
+               if (endPos < 0 || consumersChanged) {
+                  consumersChanged = false;
 
-               endPos = pos - 1;
+                  size = consumerList.size();
 
-               if (endPos < 0) {
-                  endPos = size - 1;
-                  noDelivery = 0;
+                  endPos = pos - 1;
+
+                  if (endPos < 0) {
+                     endPos = size - 1;
+                     noDelivery = 0;
+                  }
                }
-            }
 
-            ConsumerHolder holder = consumerList.get(pos);
+               holder = consumerList.get(pos);
+            } else {
+               holder = redistributor;
+            }
 
             Consumer consumer = holder.consumer;
             Consumer groupConsumer = null;
@@ -2332,7 +2446,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   }
                }
 
-               if (exclusive) {
+               if (exclusive && redistributor == null) {
                   consumer = consumerList.get(0).consumer;
                }
 
@@ -2522,13 +2636,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("QueueImpl::Adding redistributor on queue " + this.toString());
          }
-         redistributor = new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE);
 
-         consumerList.add(new ConsumerHolder(redistributor));
+         redistributor = (new ConsumerHolder(new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE)));
 
          consumersChanged = true;
 
-         redistributor.start();
+         redistributor.consumer.start();
 
          deliverAsync();
       }
@@ -2864,7 +2977,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // this would protect any eventual bug
             return false;
          }
-         if (paused || consumerList.isEmpty()) {
+         if (paused || !canDispatch() && redistributor == null) {
             return false;
          }
 
@@ -2877,7 +2990,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          int size = consumerList.size();
 
          while (true) {
-            ConsumerHolder holder = consumerList.get(pos);
+            ConsumerHolder<? extends Consumer> holder;
+            if (redistributor == null) {
+               holder = consumerList.get(pos);
+            } else {
+               holder = redistributor;
+            }
 
             Consumer consumer = holder.consumer;
 
@@ -2895,7 +3013,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
             }
 
-            if (exclusive) {
+            if (exclusive && redistributor == null) {
                consumer = consumerList.get(0).consumer;
             }
 
@@ -3158,13 +3276,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // Inner classes
    // --------------------------------------------------------------------------
 
-   private static class ConsumerHolder {
+   private static class ConsumerHolder<T extends  Consumer> {
 
-      ConsumerHolder(final Consumer consumer) {
+      ConsumerHolder(final T consumer) {
          this.consumer = consumer;
       }
 
-      final Consumer consumer;
+      final T consumer;
 
       LinkedListIterator<MessageReference> iter;
 

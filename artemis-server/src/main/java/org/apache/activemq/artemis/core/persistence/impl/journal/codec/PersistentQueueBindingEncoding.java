@@ -50,6 +50,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public boolean lastValue;
 
+   public int consumersBeforeDispatch;
+
+   public long delayBeforeDispatch;
+
    public byte routingType;
 
    public PersistentQueueBindingEncoding() {
@@ -76,6 +80,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          exclusive +
          ", lastValue=" +
          lastValue +
+         ", consumersBeforeDispatch=" +
+         consumersBeforeDispatch +
+         ", delayBeforeDispatch=" +
+         delayBeforeDispatch +
          ", routingType=" +
          routingType +
          "]";
@@ -90,6 +98,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final boolean purgeOnNoConsumers,
                                          final boolean exclusive,
                                          final boolean lastValue,
+                                         final int consumersBeforeDispatch,
+                                         final long delayBeforeDispatch,
                                          final byte routingType) {
       this.name = name;
       this.address = address;
@@ -100,6 +110,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
       this.lastValue = lastValue;
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+      this.delayBeforeDispatch = delayBeforeDispatch;
       this.routingType = routingType;
    }
 
@@ -196,6 +208,26 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public int getConsumersBeforeDispatch() {
+      return consumersBeforeDispatch;
+   }
+
+   @Override
+   public void setConsumersBeforeDispatch(int consumersBeforeDispatch) {
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+   }
+
+   @Override
+   public long getDelayBeforeDispatch() {
+      return delayBeforeDispatch;
+   }
+
+   @Override
+   public void setDelayBeforeDispatch(long delayBeforeDispatch) {
+      this.delayBeforeDispatch = delayBeforeDispatch;
+   }
+
+   @Override
    public byte getRoutingType() {
       return routingType;
    }
@@ -246,6 +278,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
       }
+      if (buffer.readableBytes() > 0) {
+         consumersBeforeDispatch = buffer.readInt();
+      } else {
+         consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
+      }
+      if (buffer.readableBytes() > 0) {
+         delayBeforeDispatch = buffer.readLong();
+      } else {
+         delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
+      }
    }
 
    @Override
@@ -260,6 +302,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeByte(routingType);
       buffer.writeBoolean(exclusive);
       buffer.writeBoolean(lastValue);
+      buffer.writeInt(consumersBeforeDispatch);
+      buffer.writeLong(delayBeforeDispatch);
    }
 
    @Override
@@ -271,7 +315,9 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BYTE +
          DataConstants.SIZE_BOOLEAN +
-         DataConstants.SIZE_BOOLEAN;
+         DataConstants.SIZE_BOOLEAN +
+         DataConstants.SIZE_INT +
+         DataConstants.SIZE_LONG;
    }
 
    private SimpleString createMetadata() {
