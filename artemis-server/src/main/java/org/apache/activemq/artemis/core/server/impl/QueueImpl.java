@@ -2365,7 +2365,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
             }
 
-            if (pos == endPos) {
+            if (groupConsumer != null || exclusive) {
+               if (noDelivery > 0) {
+                  break;
+               }
+               noDelivery = 0;
+            } else if (pos == endPos) {
                // Round robin'd all
 
                if (noDelivery == size) {
@@ -2917,7 +2922,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return true;
             }
 
-            if (pos == startPos) {
+            if (pos == startPos || groupConsumer != null || exclusive) {
                // Tried them all
                break;
             }
