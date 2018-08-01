@@ -108,12 +108,14 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @throws SQLException
     */
    public void openFile(JDBCSequentialFile file) throws SQLException {
-      final long fileId = fileExists(file);
-      if (fileId < 0) {
-         createFile(file);
-      } else {
-         file.setId(fileId);
-         loadFile(file);
+      synchronized (connection) {
+         final long fileId = fileExists(file);
+         if (fileId < 0) {
+            createFile(file);
+         } else {
+            file.setId(fileId);
+            loadFile(file);
+         }
       }
    }
 
