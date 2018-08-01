@@ -20,9 +20,12 @@ import java.nio.file.FileStore;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -38,6 +41,7 @@ import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.jboss.logging.Logger;
 
 public final class PagingManagerImpl implements PagingManager {
@@ -74,6 +78,10 @@ public final class PagingManagerImpl implements PagingManager {
 
    private volatile boolean diskFull = false;
 
+   private final Executor memoryExecutor;
+
+   private final Queue<Runnable> memoryCallback = new ConcurrentLinkedQueue<>();
+
    private final ConcurrentMap</*TransactionID*/Long, PageTransactionInfo> transactions = new ConcurrentHashMap<>();
 
    private ActiveMQScheduledComponent scheduledComponent = null;
@@ -102,6 +110,7 @@ public final class PagingManagerImpl implements PagingManager {
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
+      this.memoryExecutor = pagingSPI.newExecutor();
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
@@ -154,6 +163,13 @@ public final class PagingManagerImpl implements PagingManager {
 
    protected void checkMemoryRelease() {
       if (!diskFull && (maxSize < 0 || globalSizeBytes.get() < maxSize) && !blockedStored.isEmpty()) {
+         if (!memoryCallback.isEmpty()) {
+            if (memoryExecutor != null) {
+               memoryExecutor.execute(this::memoryReleased);
+            } else {
+               memoryReleased();
+            }
+         }
          Iterator<PagingStore> storeIterator = blockedStored.iterator();
          while (storeIterator.hasNext()) {
             PagingStore store = storeIterator.next();
@@ -187,7 +203,7 @@ public final class PagingManagerImpl implements PagingManager {
 
       @Override
       public void under(FileStore store, double usage) {
-         if (diskFull) {
+         if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
             ActiveMQServerLogger.LOGGER.diskCapacityRestored();
             diskFull = false;
             checkMemoryRelease();
@@ -204,6 +220,27 @@ public final class PagingManagerImpl implements PagingManager {
    public boolean isUsingGlobalSize() {
       return maxSize > 0;
    }
+
+   @Override
+   public void checkMemory(final Runnable runWhenAvailable) {
+
+      if (isGlobalFull()) {
+         memoryCallback.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+         return;
+      }
+      runWhenAvailable.run();
+   }
+
+
+   private void memoryReleased() {
+      Runnable runnable;
+
+      while ((runnable = memoryCallback.poll()) != null) {
+         runnable.run();
+      }
+   }
+
+
 
    @Override
    public boolean isGlobalFull() {
