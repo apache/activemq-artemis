@@ -137,6 +137,16 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
             System.out.println("TickS::" + usage);
             latch.countDown();
          }
+
+         @Override
+         public void over(FileStore store, double usage) {
+
+         }
+
+         @Override
+         public void under(FileStore store, double usage) {
+
+         }
       });
       storeMonitor.start();
 

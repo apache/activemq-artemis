@@ -23,7 +23,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,6 +62,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.jboss.logging.Logger;
 
 /**
@@ -639,7 +642,16 @@ public class PagingStoreImpl implements PagingStore {
 
    }
 
-   private final PagingManager.MemoryFreedRunnablesExecutor memoryFreedRunnablesExecutor = new PagingManager.MemoryFreedRunnablesExecutor();
+   private final Queue<Runnable> onMemoryFreedRunnables = new ConcurrentLinkedQueue<>();
+
+   private void memoryReleased() {
+      Runnable runnable;
+
+      while ((runnable = onMemoryFreedRunnables.poll()) != null) {
+         runnable.run();
+      }
+   }
+
 
    @Override
    public boolean checkMemory(final Runnable runWhenAvailable) {
@@ -650,9 +662,8 @@ public class PagingStoreImpl implements PagingStore {
          }
       } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
          if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() > maxSize || pagingManager.isGlobalFull()) {
-            PagingManager.OverSizedRunnable ourRunnable = new PagingManager.OverSizedRunnable(runWhenAvailable);
 
-            memoryFreedRunnablesExecutor.addRunnable(ourRunnable);
+            onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
 
             // We check again to avoid a race condition where the size can come down just after the element
             // has been added, but the check to execute was done before the element was added
@@ -660,7 +671,7 @@ public class PagingStoreImpl implements PagingStore {
             // MUCH better performance in a highly concurrent environment
             if (!pagingManager.isGlobalFull() && (sizeInBytes.get() <= maxSize || maxSize < 0)) {
                // run it now
-               ourRunnable.run();
+               runWhenAvailable.run();
             } else {
                if (usingGlobalMaxSize || pagingManager.isDiskFull()) {
                   pagingManager.addBlockedStore(this);
@@ -719,8 +730,8 @@ public class PagingStoreImpl implements PagingStore {
 
    public boolean checkReleaseMemory(boolean globalOversized, long newSize) {
       if (!globalOversized && (newSize <= maxSize || maxSize < 0)) {
-         if (!memoryFreedRunnablesExecutor.isEmpty()) {
-            executor.execute(memoryFreedRunnablesExecutor);
+         if (!onMemoryFreedRunnables.isEmpty()) {
+            executor.execute(this::memoryReleased);
             if (blocking.get()) {
                ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, sizeInBytes.get(), maxSize);
                blocking.set(false);

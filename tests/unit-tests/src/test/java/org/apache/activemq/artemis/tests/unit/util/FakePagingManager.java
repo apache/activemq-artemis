@@ -30,7 +30,12 @@ import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 public final class FakePagingManager implements PagingManager {
 
    @Override
-   public void addBlockedStore(Blockable store) {
+   public void addBlockedStore(PagingStore store) {
+
+   }
+
+   @Override
+   public void checkMemory(Runnable runWhenAvailable) {
 
    }
 
@@ -112,11 +117,6 @@ public final class FakePagingManager implements PagingManager {
 
    @Override
    public boolean isDiskFull() {
-      return false;
-   }
-
-   @Override
-   public boolean checkMemory(Runnable runnable) {
       return false;
    }
 
