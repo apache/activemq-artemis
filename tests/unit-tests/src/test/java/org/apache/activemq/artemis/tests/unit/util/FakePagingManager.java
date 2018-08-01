@@ -35,6 +35,11 @@ public final class FakePagingManager implements PagingManager {
    }
 
    @Override
+   public void checkMemory(Runnable runWhenAvailable) {
+
+   }
+
+   @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
    }
 
