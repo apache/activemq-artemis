@@ -186,6 +186,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final List<ConsumerHolder> consumerList = new CopyOnWriteArrayList<>();
 
+   private int getConsumerListSize() {
+      return consumerList.size() + (redistributor != null ? 1 : 0);
+   }
+
+   private ConsumerHolder getConsumerList(int i) {
+      if (i == consumerList.size()) {
+         return redistributor;
+      } else {
+         return consumerList.get(i);
+      }
+   }
+
    private final ScheduledDeliveryHandler scheduledDeliveryHandler;
 
    private AtomicLong messagesAdded = new AtomicLong(0);
@@ -319,6 +331,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       for (ConsumerHolder holder : consumerList) {
          out.println("consumer: " + holder.consumer.debug());
+      }
+
+      if (redistributor != null) {
+         out.println("Redistributor::" + redistributor);
       }
 
       for (MessageReference reference : intermediateMessageReferences) {
@@ -1077,7 +1093,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private boolean checkConsumerDirectDeliver() {
       boolean supports = true;
-      for (ConsumerHolder consumerCheck : consumerList) {
+      for (int i = 0; i < getConsumerListSize(); i++) {
+         ConsumerHolder consumerCheck = getConsumerList(i);
          if (!consumerCheck.consumer.supportsDirectDelivery()) {
             supports = false;
          }
@@ -2157,7 +2174,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized void resetAllIterators() {
-      for (ConsumerHolder holder : this.consumerList) {
+      for (int i = 0; i < getConsumerListSize(); i++) {
+         ConsumerHolder holder = getConsumerList(i);
          if (holder.iter != null) {
             holder.iter.close();
          }
@@ -2382,24 +2400,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             ConsumerHolder<? extends Consumer> holder;
-            if (redistributor == null) {
+            if (endPos < 0 || consumersChanged) {
+               consumersChanged = false;
 
-               if (endPos < 0 || consumersChanged) {
-                  consumersChanged = false;
+               size = getConsumerListSize();
 
-                  size = consumerList.size();
+               endPos = pos - 1;
 
-                  endPos = pos - 1;
-
-                  if (endPos < 0) {
-                     endPos = size - 1;
-                     noDelivery = 0;
-                  }
+               if (endPos < 0) {
+                  endPos = size - 1;
+                  noDelivery = 0;
                }
+            }
 
-               holder = consumerList.get(pos);
-            } else {
+            if (!canDispatch() && redistributor != null) {
                holder = redistributor;
+            } else {
+               holder = getConsumerList(pos);
             }
 
             Consumer consumer = holder.consumer;
@@ -2447,7 +2464,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
 
                if (exclusive && redistributor == null) {
-                  consumer = consumerList.get(0).consumer;
+                  consumer = getConsumerList(0).consumer;
                }
 
                HandleStatus status = handle(ref, consumer);
@@ -2987,13 +3004,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          int startPos = pos;
 
-         int size = consumerList.size();
+         int size = getConsumerListSize();
 
          while (true) {
-            ConsumerHolder<? extends Consumer> holder;
-            if (redistributor == null) {
-               holder = consumerList.get(pos);
-            } else {
+
+            ConsumerHolder holder = getConsumerList(pos);
+            if (!canDispatch() && redistributor != null) {
+               // if you can't dispatch, the only possible one is the redistributor
                holder = redistributor;
             }
 
@@ -3014,7 +3031,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (exclusive && redistributor == null) {
-               consumer = consumerList.get(0).consumer;
+               consumer = getConsumerList(0).consumer;
             }
 
             // Only move onto the next position if the consumer on the current position was used.
@@ -3123,6 +3140,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       synchronized (this) {
          consumerListClone = new ArrayList<>(consumerList);
+         if (redistributor != null) {
+            consumerListClone.add(redistributor);
+         }
       }
       return consumerListClone;
    }
