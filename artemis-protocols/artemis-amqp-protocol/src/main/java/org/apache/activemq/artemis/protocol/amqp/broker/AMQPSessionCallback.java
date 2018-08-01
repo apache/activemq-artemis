@@ -581,9 +581,7 @@ public class AMQPSessionCallback implements SessionCallback {
          Runnable creditRunnable = () -> {
             connection.lock();
             try {
-               if (receiver.getRemoteCredit() <= threshold) {
-                  receiver.flow(credits);
-               }
+               receiver.flow(credits);
             } finally {
                connection.unlock();
             }
@@ -592,10 +590,10 @@ public class AMQPSessionCallback implements SessionCallback {
 
          if (address == null) {
             pagingManager.checkMemory(creditRunnable);
-            return;
+         } else {
+            final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
+            store.checkMemory(creditRunnable);
          }
-         final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
-         store.checkMemory(creditRunnable);
       } catch (Exception e) {
          throw new RuntimeException(e);
       }
