@@ -807,7 +807,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              boolean purgeOnNoConsumers,
                              boolean autoCreateAddress) throws Exception {
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address == null ? name : address);
-      return createQueue(address, routingType, name, filterStr, durable, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), addressSettings.getDefaultConsumersBeforeDispatch(), addressSettings.getDefaultDelayBeforeDispatch(), addressSettings.isAutoCreateAddresses());
+      return createQueue(address, routingType, name, filterStr, durable, maxConsumers, purgeOnNoConsumers, addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), addressSettings.getDefaultConsumersBeforeDispatch(), addressSettings.getDefaultDelayBeforeDispatch(), autoCreateAddress);
    }
 
    @Override
