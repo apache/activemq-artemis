@@ -153,14 +153,12 @@ a given property.)
 
   Messages can be expired from a queue by using the `expireMessages()` method.
   If an expiry address is defined, messages will be sent to it, otherwise they
-  are discarded. The queue's expiry address can be set with the
-  `setExpiryAddress()` method.
+  are discarded.
 
   Messages can also be sent to a dead letter address with the
   `sendMessagesToDeadLetterAddress()` method. It returns the number of messages
   which are sent to the dead letter address. If a dead letter address is not
-  defined, message are removed from the queue and discarded. The queue's dead
-  letter address can be set with the `setDeadLetterAddress()` method.
+  defined, message are removed from the queue and discarded.
 
   Messages can also be moved from a queue to another queue by using the
   `moveMessages()` method.
