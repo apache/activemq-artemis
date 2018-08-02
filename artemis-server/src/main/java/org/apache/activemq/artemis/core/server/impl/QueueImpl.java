@@ -2375,7 +2375,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          MessageReference ref;
 
          Consumer handledconsumer = null;
-         SimpleString groupID;
+
          synchronized (this) {
 
             // Need to do these checks inside the synchronized
@@ -2442,7 +2442,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                // If a group id is set, then this overrides the consumer chosen round-robin
 
-               groupID = extractGroupID(ref);
+               SimpleString groupID = extractGroupID(ref);
 
                if (groupID != null) {
                   groupConsumer = groups.get(groupID);
@@ -2490,10 +2490,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
             }
 
-            if (pos == endPos || (redistributor != null || groupConsumer != null || exclusive)) {
+            if (redistributor != null || groupConsumer != null || exclusive) {
+               if (noDelivery > 0) {
+                  break;
+               }
+               noDelivery = 0;
+            } else if (pos == endPos) {
                // Round robin'd all
 
-               if (noDelivery == size && redistributor == null || ((redistributor != null || groupConsumer != null || exclusive) && noDelivery > 0)) {
+               if (noDelivery == size) {
                   if (handledconsumer != null) {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
