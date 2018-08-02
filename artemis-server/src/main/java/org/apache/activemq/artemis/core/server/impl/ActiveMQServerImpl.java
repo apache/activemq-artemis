@@ -1766,7 +1766,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                  boolean exclusive,
                                  boolean lastValue) throws Exception {
       AddressSettings as = getAddressSettingsRepository().getMatch(address == null ? name.toString() : address.toString());
-      createSharedQueue(address, routingType, name, filterString, user, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultLastValueQueue(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch());
+      createSharedQueue(address, routingType, name, filterString, user, durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch());
    }
 
    @Override
