@@ -550,7 +550,10 @@ public class ManagementServiceImpl implements ManagementService {
          @Override
          public void activated() {
             try {
-               messagingServer.addAddressInfo(new AddressInfo(managementNotificationAddress, RoutingType.MULTICAST));
+               ActiveMQServer usedServer = messagingServer;
+               if (usedServer != null) {
+                  usedServer.addAddressInfo(new AddressInfo(managementNotificationAddress, RoutingType.MULTICAST));
+               }
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.unableToCreateManagementNotificationAddress(managementNotificationAddress, e);
             }
