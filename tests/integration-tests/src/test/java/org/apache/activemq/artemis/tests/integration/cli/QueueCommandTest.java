@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
+import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
 import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -335,6 +336,34 @@ public class QueueCommandTest extends JMSTestBase {
       updateQueue.setName(queueName.toString());
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(updateQueue, "AMQ119017: Queue " + queueName + " does not exist");
+
+      assertFalse(server.queueQuery(queueName).isExists());
+   }
+
+   @Test
+   public void testPurgeQueue() throws Exception {
+      SimpleString queueName = new SimpleString("purgeQueue");
+
+      CreateQueue command = new CreateQueue();
+      command.setName(queueName.toString());
+      command.setAutoCreateAddress(true);
+      command.setAnycast(true);
+      command.execute(new ActionContext());
+
+      PurgeQueue purge = new PurgeQueue();
+      purge.setName(queueName.toString());
+      purge.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionPassed(purge);
+   }
+
+   @Test
+   public void testPurgeQueueDoesNotExist() throws Exception {
+      SimpleString queueName = new SimpleString("purgeQueue");
+
+      PurgeQueue purge = new PurgeQueue();
+      purge.setName(queueName.toString());
+      purge.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(purge, "AMQ119067: Cannot find resource with name queue." + queueName);
 
       assertFalse(server.queueQuery(queueName).isExists());
    }
