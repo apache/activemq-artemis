@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1079,6 +1080,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       boolean supports = true;
       for (ConsumerHolder consumerCheck : consumerList) {
          if (!consumerCheck.consumer.supportsDirectDelivery()) {
+            supports = false;
+         }
+      }
+      if (redistributor != null) {
+         if (!redistributor.consumer.supportsDirectDelivery()) {
             supports = false;
          }
       }
@@ -2158,10 +2164,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void resetAllIterators() {
       for (ConsumerHolder holder : this.consumerList) {
-         if (holder.iter != null) {
-            holder.iter.close();
-         }
-         holder.iter = null;
+         holder.resetIterator();
+      }
+      if (redistributor != null) {
+         redistributor.resetIterator();
       }
    }
 
@@ -2369,7 +2375,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          MessageReference ref;
 
          Consumer handledconsumer = null;
-
+         SimpleString groupID;
          synchronized (this) {
 
             // Need to do these checks inside the synchronized
@@ -2436,7 +2442,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                // If a group id is set, then this overrides the consumer chosen round-robin
 
-               SimpleString groupID = extractGroupID(ref);
+               groupID = extractGroupID(ref);
 
                if (groupID != null) {
                   groupConsumer = groups.get(groupID);
@@ -2484,10 +2490,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
             }
 
-            if (pos == endPos) {
+            if (pos == endPos || (redistributor != null || groupConsumer != null || exclusive)) {
                // Round robin'd all
 
-               if (noDelivery == size) {
+               if (noDelivery == size && redistributor == null || ((redistributor != null || groupConsumer != null || exclusive) && noDelivery > 0)) {
                   if (handledconsumer != null) {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
@@ -3040,7 +3046,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return true;
             }
 
-            if (pos == startPos) {
+            if (pos == startPos || redistributor != null || groupConsumer != null || exclusive) {
                // Tried them all
                break;
             }
@@ -3122,7 +3128,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       List<ConsumerHolder> consumerListClone;
 
       synchronized (this) {
-         consumerListClone = new ArrayList<>(consumerList);
+         if (redistributor == null) {
+            consumerListClone = new ArrayList<>(consumerList);
+         } else {
+            consumerListClone = Collections.singletonList(redistributor);
+         }
       }
       return consumerListClone;
    }
@@ -3285,6 +3295,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       final T consumer;
 
       LinkedListIterator<MessageReference> iter;
+
+      private void resetIterator() {
+         if (iter != null) {
+            iter.close();
+         }
+         iter = null;
+      }
 
    }
 
