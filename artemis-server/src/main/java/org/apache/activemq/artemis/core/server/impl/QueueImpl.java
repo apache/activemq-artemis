@@ -560,6 +560,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized void setExclusive(boolean exclusive) {
+      new Exception("exclusive set at " + exclusive).printStackTrace();
       this.exclusive = exclusive;
    }
 
@@ -2416,7 +2417,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (!canDispatch() && redistributor != null) {
                holder = redistributor;
             } else {
-               holder = getConsumerList(pos);
+               holder = getConsumerList(exclusive ? 0 : pos);
             }
 
             Consumer consumer = holder.consumer;
@@ -2461,10 +2462,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   if (groupConsumer != null) {
                      consumer = groupConsumer;
                   }
-               }
-
-               if (exclusive && redistributor == null) {
-                  consumer = getConsumerList(0).consumer;
                }
 
                HandleStatus status = handle(ref, consumer);
@@ -3008,7 +3005,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          while (true) {
 
-            ConsumerHolder holder = getConsumerList(pos);
+            ConsumerHolder holder = getConsumerList(exclusive ? 0 : pos);
             if (!canDispatch() && redistributor != null) {
                // if you can't dispatch, the only possible one is the redistributor
                holder = redistributor;
@@ -3028,10 +3025,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (groupConsumer != null) {
                   consumer = groupConsumer;
                }
-            }
-
-            if (exclusive && redistributor == null) {
-               consumer = getConsumerList(0).consumer;
             }
 
             // Only move onto the next position if the consumer on the current position was used.
