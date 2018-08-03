@@ -351,6 +351,50 @@
                   </configuration>
                </execution>
                <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <id>210-check</id>
+                  <configuration>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:2.1.0</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:2.1.0</arg>
+                        <arg>org.apache.activemq:artemis-cli:2.1.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.1.0</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:2.1.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.1.0</arg>
+                        <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <variableName>ARTEMIS-210</variableName>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <id>200-check</id>
+                  <configuration>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:2.0.0</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:2.0.0</arg>
+                        <arg>org.apache.activemq:artemis-cli:2.0.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.0.0</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:2.0.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.0.0</arg>
+                        <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <variableName>ARTEMIS-200</variableName>
+                  </configuration>
+               </execution>
+               <execution>
                   <id>140-check</id>
                   <phase>compile</phase>
                   <goals>
@@ -452,6 +496,14 @@
                   <property>
                      <name>ARTEMIS-SNAPSHOT</name>
                      <value>${ARTEMIS-SNAPSHOT}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-200</name>
+                     <value>${ARTEMIS-200}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-210</name>
+                     <value>${ARTEMIS-210}</value>
                   </property>
                   <property>
                      <name>ARTEMIS-240</name>
