@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,6 +69,13 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
       Assert.assertEquals(bridgeConfig.getRetryIntervalMultiplier(), proxy.retrieveAttributeValue("retryIntervalMultiplier", Double.class));
       Assert.assertEquals(bridgeConfig.getReconnectAttempts(), proxy.retrieveAttributeValue("reconnectAttempts", Integer.class));
       Assert.assertEquals(bridgeConfig.isUseDuplicateDetection(), proxy.retrieveAttributeValue("useDuplicateDetection", Boolean.class));
+
+      @SuppressWarnings("unchecked")
+      Map<String, Object> bridgeMetrics = (Map<String, Object>) proxy.retrieveAttributeValue("metrics", Map.class);
+      Assert.assertEquals(0L, proxy.retrieveAttributeValue("messagesPendingAcknowledgement", Long.class));
+      Assert.assertEquals(0L, proxy.retrieveAttributeValue("messagesAcknowledged", Long.class));
+      Assert.assertEquals(0L, bridgeMetrics.get(BridgeMetrics.MESSAGES_PENDING_ACKNOWLEDGEMENT_KEY));
+      Assert.assertEquals(0L, bridgeMetrics.get(BridgeMetrics.MESSAGES_ACKNOWLEDGED_KEY));
 
       Object[] data = (Object[]) proxy.retrieveAttributeValue("staticConnectors");
       Assert.assertEquals(bridgeConfig.getStaticConnectors().get(0), data[0]);
