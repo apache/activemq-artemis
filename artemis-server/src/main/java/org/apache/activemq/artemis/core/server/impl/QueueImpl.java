@@ -2516,7 +2516,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             // Only move onto the next position if the consumer on the current position was used.
             // When using group we don't need to load balance to the next position
-            if (!exclusive && groupConsumer == null) {
+            if (redistributor == null && !exclusive && groupConsumer == null) {
                pos++;
             }
 
@@ -3029,7 +3029,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             // Only move onto the next position if the consumer on the current position was used.
-            if (!exclusive && groupConsumer == null) {
+            if (redistributor == null && !exclusive && groupConsumer == null) {
                pos++;
             }
 
