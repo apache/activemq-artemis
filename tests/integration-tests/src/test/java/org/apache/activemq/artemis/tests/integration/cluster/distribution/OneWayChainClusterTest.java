@@ -75,6 +75,15 @@ public class OneWayChainClusterTest extends ClusterTestBase {
       send(0, "queues.testaddress", 10, false, null);
       verifyReceiveRoundRobin(10, 0, 1);
       verifyNotReceive(0, 1);
+
+      //half of the messages should be sent over bridges to the last broker in the chain
+      //as there is a consumer on that last broker
+      verifyClusterMetrics(0, "cluster0-1", 5, 5);
+      verifyClusterMetrics(1, "cluster1-2", 5, 5);
+      verifyClusterMetrics(2, "cluster2-3", 5, 5);
+      verifyClusterMetrics(3, "cluster3-4", 5, 5);
+      verifyClusterMetrics(4, "cluster4-X", 0, 0);
+
    }
 
    @Test

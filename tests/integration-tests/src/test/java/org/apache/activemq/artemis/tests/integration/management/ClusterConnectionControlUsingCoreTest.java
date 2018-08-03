@@ -99,6 +99,28 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
          }
 
          @Override
+         public long getMessagesPendingAcknowledgement() {
+            return (Long) proxy.retrieveAttributeValue("messagesPendingAcknowledgement", Long.class);
+         }
+
+         @Override
+         public long getMessagesAcknowledged() {
+            return (Long) proxy.retrieveAttributeValue("messagesAcknowledged", Long.class);
+         }
+
+         @SuppressWarnings("unchecked")
+         @Override
+         public Map<String, Object> getMetrics() {
+            return (Map<String, Object>) proxy.retrieveAttributeValue("metrics", Map.class);
+         }
+
+         @SuppressWarnings("unchecked")
+         @Override
+         public Map<String, Object> getBridgeMetrics(String nodeId) throws Exception {
+            return (Map<String, Object>) proxy.invokeOperation("getBridgeMetrics", nodeId);
+         }
+
+         @Override
          public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started", Boolean.class);
          }

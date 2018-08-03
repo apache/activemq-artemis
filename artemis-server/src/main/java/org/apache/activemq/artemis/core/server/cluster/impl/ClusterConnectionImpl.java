@@ -749,6 +749,26 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       topology.updateAsLive(nodeID, localMember);
    }
 
+
+   @Override
+   public ClusterConnectionMetrics getMetrics() {
+      long messagesPendingAcknowledgement = 0;
+      long messagesAcknowledged = 0;
+      for (MessageFlowRecord record : records.values()) {
+         final BridgeMetrics metrics = record.getBridge() != null ? record.getBridge().getMetrics() : null;
+         messagesPendingAcknowledgement += metrics != null ? metrics.getMessagesPendingAcknowledgement() : 0;
+         messagesAcknowledged += metrics != null ? metrics.getMessagesAcknowledged() : 0;
+      }
+
+      return new ClusterConnectionMetrics(messagesPendingAcknowledgement, messagesAcknowledged);
+   }
+
+   @Override
+   public BridgeMetrics getBridgeMetrics(String nodeId) {
+      final MessageFlowRecord record = records.get(nodeId);
+      return record != null && record.getBridge() != null ? record.getBridge().getMetrics() : null;
+   }
+
    private void createNewRecord(final long eventUID,
                                 final String targetNodeID,
                                 final TransportConfiguration connector,
