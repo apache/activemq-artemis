@@ -96,4 +96,52 @@ public interface ClusterConnectionControl extends ActiveMQComponentControl {
     */
    @Attribute(desc = "map of the nodes connected to this cluster connection (keys are node IDs, values are the addresses used to connect to the nodes)")
    Map<String, String> getNodes() throws Exception;
+
+   /**
+    * The messagesPendingAcknowledgement counter is incremented when any bridge in the cluster connection has
+    * forwarded a message and is waiting acknowledgement from the other broker. (aggregate over all bridges)
+    *
+    * This is a cumulative total and the number of outstanding pending messages for the cluster connection
+    * can be computed by subtracting messagesAcknowledged from messagesPendingAcknowledgement.
+    *
+    */
+   @Attribute(desc = "The messagesPendingAcknowledgement counter is incremented when any bridge in the cluster connection has forwarded a message and is waiting acknowledgement from the other broker. (aggregate over all bridges)")
+   long getMessagesPendingAcknowledgement();
+
+   /**
+    * The messagesAcknowledged counter is the number of messages actually received by a remote broker for all
+    * bridges in this cluster connection
+    *
+    * This is a cumulative total and the number of outstanding pending messages for the cluster connection
+    * can be computed by subtracting messagesAcknowledged from messagesPendingAcknowledgement.
+    *
+    */
+   @Attribute(desc = "The messagesAcknowledged counter is the number of messages actually received by a remote broker for all bridges in this cluster connection")
+   long getMessagesAcknowledged();
+
+   /**
+    * The current metrics for this cluster connection (aggregate over all bridges to other nodes)
+    *
+    * The messagesPendingAcknowledgement counter is incremented when any bridge in the cluster connection has
+    * forwarded a message and is waiting acknowledgement from the other broker.
+    *
+    * The messagesAcknowledged counter is the number of messages actually received by a remote broker for all
+    * bridges in this cluster connection
+    *
+    * @return
+    */
+   @Attribute(desc = "The metrics for this cluster connection. The messagesPendingAcknowledgement counter is incremented when any bridge in the cluster connection has forwarded a message and is waiting acknowledgement from the other broker. The messagesAcknowledged counter is the number of messages actually received by a remote broker for all bridges in this cluster connection")
+   Map<String, Object> getMetrics();
+
+   /**
+    * The bridge metrics for the given node in the cluster connection
+    *
+    * The messagesPendingAcknowledgement counter is incremented when the bridge is has forwarded a message but is waiting acknowledgement from the other broker.
+    * The messagesAcknowledged counter is the number of messages actually received by the remote broker for this bridge.
+    *
+    * @throws Exception
+    */
+   @Attribute(desc = "The metrics for the bridge by nodeId. The messagesPendingAcknowledgement counter is incremented when the bridge is has forwarded a message but is waiting acknowledgement from the other broker. The messagesAcknowledged counter is the number of messages actually received by the remote broker for this bridge.")
+   Map<String, Object> getBridgeMetrics(String nodeId) throws Exception;
+
 }
