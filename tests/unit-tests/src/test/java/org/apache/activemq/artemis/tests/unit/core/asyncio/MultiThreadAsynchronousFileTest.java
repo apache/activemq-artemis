@@ -94,7 +94,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
    private void executeTest(final boolean sync) throws Throwable {
       MultiThreadAsynchronousFileTest.debug(sync ? "Sync test:" : "Async test");
-      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 21000);
+      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 100);
       factory.start();
       factory.disableBufferReuse();
 
@@ -142,10 +142,6 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
          factory.stop();
       }
 
-   }
-
-   private int getNewPosition() {
-      return position.addAndGet(1);
    }
 
    class ThreadProducer extends Thread {
