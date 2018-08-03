@@ -20,10 +20,10 @@ import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.Mergeable;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -729,6 +729,17 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    @Override
    public void decode(ActiveMQBuffer buffer) {
+      int original = buffer.readerIndex();
+      try {
+         decode(buffer, false);
+      } catch (Throwable e) {
+         buffer.readerIndex(original);
+         // Try a compatible version where the wire was broken
+         decode(buffer, true);
+      }
+   }
+
+   public void decode(ActiveMQBuffer buffer, boolean tryCompatible) {
       SimpleString policyStr = buffer.readNullableSimpleString();
 
       if (policyStr != null) {
@@ -791,7 +802,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       autoDeleteQueues = BufferHelper.readNullableBoolean(buffer);
 
-      policyStr = buffer.readNullableSimpleString();
+      policyStr = tryCompatible ? null : buffer.readNullableSimpleString();
 
       if (policyStr != null) {
          configDeleteQueues = DeletionPolicy.valueOf(policyStr.toString());
@@ -803,7 +814,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       autoDeleteAddresses = BufferHelper.readNullableBoolean(buffer);
 
-      policyStr = buffer.readNullableSimpleString();
+      policyStr = tryCompatible ? null : buffer.readNullableSimpleString();
 
       if (policyStr != null) {
          configDeleteAddresses = DeletionPolicy.valueOf(policyStr.toString());

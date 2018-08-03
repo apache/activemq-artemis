@@ -30,6 +30,8 @@ public class GroovyRun {
    public static final String SNAPSHOT = "ARTEMIS-SNAPSHOT";
    public static final String ONE_FIVE = "ARTEMIS-155";
    public static final String ONE_FOUR = "ARTEMIS-140";
+   public static final String TWO_ZERO = "ARTEMIS-200";
+   public static final String TWO_ONE = "ARTEMIS-210";
    public static final String TWO_FOUR = "ARTEMIS-240";
    public static final String HORNETQ_235 = "HORNETQ-235";
    public static final String HORNETQ_247 = "HORNETQ-247";
