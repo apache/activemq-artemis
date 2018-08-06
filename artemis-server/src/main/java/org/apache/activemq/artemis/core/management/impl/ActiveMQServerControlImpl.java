@@ -1923,10 +1923,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          obj.add("principal", sess.getValidatedUser());
       }
 
-      String metadata = sess.getMetaData() == null ? null : sess.getMetaData().toString();
-      if (metadata != null) {
-         // remove leading and trailing curly brackets
-         obj.add("metadata", metadata.substring(1, metadata.length() - 1));
+      if (sess.getMetaData() != null) {
+         final JsonObjectBuilder metadata = JsonLoader.createObjectBuilder();
+         for (Entry<String, String> entry : sess.getMetaData().entrySet()) {
+            metadata.add(entry.getKey(), entry.getValue());
+         }
+         obj.add("metadata", metadata);
       }
 
       array.add(obj);
