@@ -1550,8 +1550,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("myUser", second.getString("principal"));
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
-      Assert.assertTrue(second.getJsonString("metadata").getString().contains("foo=bar"));
-      Assert.assertTrue(second.getJsonString("metadata").getString().contains("bar=baz"));
+      Assert.assertEquals(second.getJsonObject("metadata").getJsonString("foo").getString(), "bar");
+      Assert.assertEquals(second.getJsonObject("metadata").getJsonString("bar").getString(), "baz");
    }
 
    @Test
@@ -1572,8 +1572,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());
       JsonObject obj = lookupSession(array, ((ActiveMQConnection)con).getInitialSession());
-      Assert.assertTrue(obj.getString("metadata").contains(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY + "=" + clientID));
-      Assert.assertTrue(obj.getString("metadata").contains(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
+      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
+      Assert.assertNotNull(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
    }
 
    @Test
