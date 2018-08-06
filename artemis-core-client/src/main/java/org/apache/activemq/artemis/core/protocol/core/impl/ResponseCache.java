@@ -64,6 +64,10 @@ public class ResponseCache {
       });
    }
 
+   public int size() {
+      return this.store.size();
+   }
+
    public void setResponseHandler(ResponseHandler responseHandler) {
       this.responseHandler = responseHandler;
    }

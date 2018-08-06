@@ -150,6 +150,10 @@ public final class ChannelImpl implements Channel {
       this.interceptors = interceptors;
    }
 
+   protected ResponseCache getCache() {
+      return responseAsyncCache;
+   }
+
    @Override
    public int getReconnectID() {
       return reconnectID.get();
