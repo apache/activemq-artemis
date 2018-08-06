@@ -200,14 +200,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          } else {
             ActiveMQServerLogger.LOGGER.invalidPacketForReplication(packet);
          }
-      } catch (ActiveMQException e) {
-         logger.warn(e.getMessage(), e);
-         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
-         response = new ActiveMQExceptionMessage(e);
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
-         response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
+         criticalErrorListener.onIOException(e, "Failure during replication", null);
+         response = e instanceof ActiveMQException ? new ActiveMQExceptionMessage((ActiveMQException) e) : new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
       }
 
       if (response != null) {
