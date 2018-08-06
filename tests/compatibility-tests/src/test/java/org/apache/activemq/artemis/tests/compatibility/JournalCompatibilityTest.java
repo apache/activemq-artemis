@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.compatibility;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ONE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ZERO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +64,8 @@ public class JournalCompatibilityTest extends VersionedBaseTest {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
+      combinations.add(new Object[]{null, TWO_ZERO, SNAPSHOT});
+      combinations.add(new Object[]{null, TWO_ONE, SNAPSHOT});
       combinations.add(new Object[]{null, TWO_FOUR, SNAPSHOT});
       // the purpose on this one is just to validate the test itself.
       /// if it can't run against itself it won't work at all
@@ -94,12 +98,12 @@ public class JournalCompatibilityTest extends VersionedBaseTest {
    @Test
    public void testSendReceive() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest");
+      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest");
+      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
 
       setVariable(receiverClassloader, "latch", null);
       evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
@@ -112,12 +116,12 @@ public class JournalCompatibilityTest extends VersionedBaseTest {
    @Test
    public void testSendReceiveQueueMetrics() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest");
+      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest");
+      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
 
       setVariable(receiverClassloader, "latch", null);
       evaluate(receiverClassloader, "metrics/queueMetrics.groovy", server, receiver, "receiveMessages");
@@ -132,14 +136,14 @@ public class JournalCompatibilityTest extends VersionedBaseTest {
    public void testSendReceiveSizeQueueMetricsPaging() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
       //Set max size to 1 to cause messages to immediately go to the paging store
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", Long.toString(1));
+      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", Long.toString(1), true);
       evaluate(senderClassloader, "journalcompatibility/forcepaging.groovy");
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       evaluate(senderClassloader, "journalcompatibility/ispaging.groovy");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", Long.toString(1));
+      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", Long.toString(1), false);
       evaluate(receiverClassloader, "journalcompatibility/ispaging.groovy");
 
 
