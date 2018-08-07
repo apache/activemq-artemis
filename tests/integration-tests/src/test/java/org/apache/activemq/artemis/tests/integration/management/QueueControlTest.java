@@ -2311,17 +2311,17 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));
-      Assert.assertEquals(1, getMessagesAdded(queueControl));
+      Wait.assertEquals(1, () -> getMessagesAdded(queueControl));
       producer.send(session.createMessage(durable));
-      Assert.assertEquals(2, getMessagesAdded(queueControl));
+      Wait.assertEquals(2, () -> getMessagesAdded(queueControl));
 
       consumeMessages(2, session, queue);
 
-      Assert.assertEquals(2, getMessagesAdded(queueControl));
+      Wait.assertEquals(2, () -> getMessagesAdded(queueControl));
 
       queueControl.resetMessagesAdded();
 
-      Assert.assertEquals(0, getMessagesAdded(queueControl));
+      Wait.assertEquals(0, () -> getMessagesAdded(queueControl));
 
       session.deleteQueue(queue);
    }
