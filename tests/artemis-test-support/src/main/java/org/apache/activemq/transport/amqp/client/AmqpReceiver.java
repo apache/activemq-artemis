@@ -363,6 +363,20 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     *         if an error occurs while sending the flow.
     */
    public void flow(final int credit) throws IOException {
+      flow(credit, false);
+   }
+
+   /**
+    * Controls the amount of credit given to the receiver link.
+    *
+    * @param credit
+    *        the amount of credit to grant.
+    * @param deferWrite
+    *        defer writing to the wire, hold until for the next operation writes.
+    * @throws IOException
+    *         if an error occurs while sending the flow.
+    */
+   public void flow(final int credit, final boolean deferWrite) throws IOException {
       checkClosed();
       final ClientFuture request = new ClientFuture();
       session.getScheduler().execute(new Runnable() {
@@ -372,7 +386,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
             checkClosed();
             try {
                getEndpoint().flow(credit);
-               session.pumpToProtonTransport(request);
+               if (!deferWrite) {
+                  session.pumpToProtonTransport(request);
+               }
                request.onSuccess();
             } catch (Exception e) {
                request.onFailure(e);
