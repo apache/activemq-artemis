@@ -1926,7 +1926,7 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message);
 
       QueueControl queueControl = createManagementControl(address, queue);
-      Assert.assertEquals(1, getMessageCount(queueControl));
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
 
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
@@ -1959,7 +1959,7 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message);
 
       QueueControl queueControl = createManagementControl(address, queue);
-      Assert.assertEquals(1, getMessageCount(queueControl));
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
 
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
