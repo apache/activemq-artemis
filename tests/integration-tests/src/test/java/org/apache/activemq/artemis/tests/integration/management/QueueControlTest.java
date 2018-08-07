@@ -2366,8 +2366,9 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message);
 
       // the message IDs are set on the server
-      Map<String, Object>[] messages = queueControl.listMessages(null);
-      Assert.assertEquals(1, messages.length);
+      Map<String, Object>[] messages;
+      Wait.assertEquals(1, () -> queueControl.listMessages(null).length);
+      messages = queueControl.listMessages(null);
       long messageID = (Long) messages[0].get("messageID");
 
       queueControl.expireMessage(messageID);
