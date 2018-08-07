@@ -2632,25 +2632,25 @@ public class QueueControlTest extends ManagementTestBase {
                                 Supplier<Number> durableCount, Supplier<Number> durableSize) throws Exception {
 
       //make sure count stat equals message count
-      Assert.assertTrue(Wait.waitFor(() -> count.get().longValue() == messageCount, 3, 100));
+      Assert.assertTrue(Wait.waitFor(() -> count.get().longValue() == messageCount, 3 * 1000, 100));
 
       if (messageCount > 0) {
          //verify size stat greater than 0
-         Assert.assertTrue(Wait.waitFor(() -> size.get().longValue() > 0, 3, 100));
+         Assert.assertTrue(Wait.waitFor(() -> size.get().longValue() > 0, 3 * 1000, 100));
 
          //If durable then make sure durable count and size are correct
          if (durable) {
-            Assert.assertTrue(Wait.waitFor(() -> durableCount.get().longValue() == messageCount, 3, 100));
-            Assert.assertTrue(Wait.waitFor(() -> durableSize.get().longValue() > 0, 3, 100));
+            Wait.assertEquals(messageCount, () -> durableCount.get().longValue(), 3 * 1000, 100);
+            Assert.assertTrue(Wait.waitFor(() -> durableSize.get().longValue() > 0, 3 * 1000, 100));
          } else {
-            Assert.assertTrue(Wait.waitFor(() -> durableCount.get().longValue() == 0, 3, 100));
-            Assert.assertTrue(Wait.waitFor(() -> durableSize.get().longValue() == 0, 3, 100));
+            Wait.assertEquals(0L, () -> durableCount.get().longValue(), 3 * 1000, 100);
+            Wait.assertEquals(0L, () -> durableSize.get().longValue(), 3 * 1000, 100);
          }
       } else {
-         Assert.assertTrue(Wait.waitFor(() -> count.get().longValue() == 0, 3, 100));
-         Assert.assertTrue(Wait.waitFor(() -> durableCount.get().longValue() == 0, 3, 100));
-         Assert.assertTrue(Wait.waitFor(() -> size.get().longValue() == 0, 3, 100));
-         Assert.assertTrue(Wait.waitFor(() -> durableSize.get().longValue() == 0, 3, 100));
+         Wait.assertEquals(0L, () -> count.get().longValue(), 3 * 1000, 100);
+         Wait.assertEquals(0L, () -> durableCount.get().longValue(), 3 * 1000, 100);
+         Wait.assertEquals(0L, () -> size.get().longValue(), 3 * 1000, 100);
+         Wait.assertEquals(0L, () -> durableSize.get().longValue(), 3 * 1000, 100);
       }
    }
 }
