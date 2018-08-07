@@ -224,8 +224,10 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    @Override
    public void createDirs() throws Exception {
       boolean ok = journalDir.mkdirs();
-      if (!ok) {
-         throw new IOException("Failed to create directory " + journalDir);
+      if (!ok && !journalDir.exists()) {
+         IOException e = new IOException("Unable to create directory: " + journalDir);
+         onIOError(e, e.getMessage(), null);
+         throw e;
       }
    }
 
