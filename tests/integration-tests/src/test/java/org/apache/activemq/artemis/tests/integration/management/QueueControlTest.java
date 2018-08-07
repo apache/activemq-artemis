@@ -800,13 +800,11 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(session.createMessage(durable));
       producer.send(session.createMessage(durable));
 
-      Map<String, Object>[] messages = queueControl.listMessages(null);
-      Assert.assertEquals(2, messages.length);
+      Wait.assertEquals(2, () -> queueControl.listMessages(null).length);
 
       consumeMessages(2, session, queue);
 
-      messages = queueControl.listMessages(null);
-      Assert.assertEquals(0, messages.length);
+      Wait.assertEquals(0, () -> queueControl.listMessages(null).length);
 
       session.deleteQueue(queue);
    }
