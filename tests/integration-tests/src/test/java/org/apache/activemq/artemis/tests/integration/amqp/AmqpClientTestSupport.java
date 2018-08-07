@@ -326,7 +326,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
          for (int i = 0; i < count; ++i) {
             AmqpMessage message = new AmqpMessage();
             message.setMessageId("MessageID:" + i);
-            message.setDurable(true);
+            message.setDurable(durable);
             if (routingType != null) {
                message.setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE.toString(), routingType.getType());
             }
