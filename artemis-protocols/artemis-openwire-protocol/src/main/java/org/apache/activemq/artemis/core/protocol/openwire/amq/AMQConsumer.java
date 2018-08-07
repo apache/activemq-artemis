@@ -186,6 +186,9 @@ public class AMQConsumer {
       addressInfo.setInternal(internalAddress);
       if (isDurable) {
          queueName = org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForSubscription(true, clientID, subscriptionName);
+         if (info.getDestination().isComposite()) {
+            queueName =  queueName.concat(physicalName);
+         }
          QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
          if (result.isExists()) {
             // Already exists
