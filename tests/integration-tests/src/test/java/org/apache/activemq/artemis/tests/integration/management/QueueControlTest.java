@@ -800,13 +800,11 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(session.createMessage(durable));
       producer.send(session.createMessage(durable));
 
-      Map<String, Object>[] messages = queueControl.listMessages(null);
-      Assert.assertEquals(2, messages.length);
+      Wait.assertEquals(2, () -> queueControl.listMessages(null).length);
 
       consumeMessages(2, session, queue);
 
-      messages = queueControl.listMessages(null);
-      Assert.assertEquals(0, messages.length);
+      Wait.assertEquals(0, () -> queueControl.listMessages(null).length);
 
       session.deleteQueue(queue);
    }
@@ -823,13 +821,11 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(session.createMessage(durable));
       producer.send(session.createMessage(durable));
 
-      Map<String, Object>[] messages = queueControl.listMessages("");
-      Assert.assertEquals(2, messages.length);
+      Wait.assertEquals(2, () -> queueControl.listMessages("").length);
 
       consumeMessages(2, session, queue);
 
-      messages = queueControl.listMessages("");
-      Assert.assertEquals(0, messages.length);
+      Wait.assertEquals(0, () -> queueControl.listMessages("").length);
 
       session.deleteQueue(queue);
    }
@@ -1930,7 +1926,7 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message);
 
       QueueControl queueControl = createManagementControl(address, queue);
-      Assert.assertEquals(1, getMessageCount(queueControl));
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
 
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
@@ -1963,7 +1959,7 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message);
 
       QueueControl queueControl = createManagementControl(address, queue);
-      Assert.assertEquals(1, getMessageCount(queueControl));
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
 
       // the message IDs are set on the server
       Map<String, Object>[] messages = queueControl.listMessages(null);
@@ -2315,17 +2311,17 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));
-      Assert.assertEquals(1, getMessagesAdded(queueControl));
+      Wait.assertEquals(1, () -> getMessagesAdded(queueControl));
       producer.send(session.createMessage(durable));
-      Assert.assertEquals(2, getMessagesAdded(queueControl));
+      Wait.assertEquals(2, () -> getMessagesAdded(queueControl));
 
       consumeMessages(2, session, queue);
 
-      Assert.assertEquals(2, getMessagesAdded(queueControl));
+      Wait.assertEquals(2, () -> getMessagesAdded(queueControl));
 
       queueControl.resetMessagesAdded();
 
-      Assert.assertEquals(0, getMessagesAdded(queueControl));
+      Wait.assertEquals(0, () -> getMessagesAdded(queueControl));
 
       session.deleteQueue(queue);
    }
@@ -2370,8 +2366,9 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message);
 
       // the message IDs are set on the server
-      Map<String, Object>[] messages = queueControl.listMessages(null);
-      Assert.assertEquals(1, messages.length);
+      Map<String, Object>[] messages;
+      Wait.assertEquals(1, () -> queueControl.listMessages(null).length);
+      messages = queueControl.listMessages(null);
       long messageID = (Long) messages[0].get("messageID");
 
       queueControl.expireMessage(messageID);
