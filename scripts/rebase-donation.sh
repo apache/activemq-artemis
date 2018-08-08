@@ -25,7 +25,7 @@ set -e
 git fetch temp-hornetq
 git fetch temp-upstream
 git checkout temp-hornetq/apache-donation -B donation
-git checkout temp-upstream/master -B master-donation
+git checkout temp-upstream/2.6.x -B 2.6.x-donation
 git rebase donation
 git remote rm temp-hornetq
 git remote rm temp-upstream
