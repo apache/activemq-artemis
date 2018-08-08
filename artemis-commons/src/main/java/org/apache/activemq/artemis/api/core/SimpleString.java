@@ -179,6 +179,9 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    public static SimpleString readSimpleString(final ByteBuf buffer, final int length) {
+      if (length > buffer.readableBytes()) {
+         throw new IndexOutOfBoundsException();
+      }
       byte[] data = new byte[length];
       buffer.readBytes(data);
       return new SimpleString(data);
