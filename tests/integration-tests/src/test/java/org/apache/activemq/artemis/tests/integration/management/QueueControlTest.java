@@ -112,7 +112,7 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(filter.toString(), queueControl.getFilter());
       Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
 
       session.deleteQueue(queue);
    }
@@ -126,7 +126,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
       Assert.assertEquals(queue.toString(), queueControl.getName());
-      Assert.assertEquals(null, queueControl.getFilter());
+      Assert.assertNull(queueControl.getFilter());
 
       session.deleteQueue(queue);
    }
@@ -1027,7 +1027,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       //Verify that original queue has a memory size greater than 0 and DLQ is 0
       assertTrue(queueMemorySize1.get() > 0);
-      assertTrue(queueMemorySize2.get() == 0);
+      assertEquals(0, queueMemorySize2.get());
 
       // Read and rollback all messages to DLQ
       ClientConsumer clientConsumer = session.createConsumer(qName);
@@ -1042,7 +1042,7 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertNull(clientConsumer.receiveImmediate());
 
       //Verify that original queue has a memory size of 0 and DLQ is greater than 0 after rollback
-      assertTrue(queueMemorySize1.get() == 0);
+      assertEquals(0, queueMemorySize1.get());
       assertTrue(queueMemorySize2.get() > 0);
 
       QueueControl dlqQueueControl = createManagementControl(dla, dlq);
@@ -1056,7 +1056,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       //Verify that original queue has a memory size of greater than 0 and DLQ is 0 after move
       assertTrue(queueMemorySize1.get() > 0);
-      assertTrue(queueMemorySize2.get() == 0);
+      assertEquals(0, queueMemorySize2.get());
 
       // .. and that the messages is now on the original queue once more.
       for (int i = 0; i < numMessagesToTest; i++) {
@@ -1069,8 +1069,8 @@ public class QueueControlTest extends ManagementTestBase {
       clientConsumer.close();
 
       //Verify that original queue and DLQ have a memory size of 0
-      assertTrue(queueMemorySize1.get() == 0);
-      assertTrue(queueMemorySize2.get() == 0);
+      assertEquals(0, queueMemorySize1.get());
+      assertEquals(0, queueMemorySize2.get());
    }
 
    /**
@@ -1521,7 +1521,7 @@ public class QueueControlTest extends ManagementTestBase {
       session.createQueue(address, RoutingType.MULTICAST, queueName, null, durable);
 
       Queue queue = server.locateQueue(queueName);
-      Assert.assertEquals(false, queue.getPageSubscription().isPaging());
+      Assert.assertFalse(queue.getPageSubscription().isPaging());
 
       ClientProducer producer = session.createProducer(address);
 
@@ -1545,7 +1545,7 @@ public class QueueControlTest extends ManagementTestBase {
          producer.send(message);
       }
 
-      Assert.assertEquals(true, queue.getPageSubscription().isPaging());
+      Assert.assertTrue(queue.getPageSubscription().isPaging());
 
       QueueControl queueControl = createManagementControl(address, queueName);
       assertMessageMetrics(queueControl, numberOfMessages, durable);
@@ -2570,7 +2570,7 @@ public class QueueControlTest extends ManagementTestBase {
       final LocalQueueBinding binding = (LocalQueueBinding) server.getPostOffice().getBinding(queue);
       Queue q = binding.getQueue();
       AtomicInteger queueMemorySize1 = (AtomicInteger) queueMemorySizeField.get(q);
-      assertTrue(queueMemorySize1.get() == 0);
+      assertEquals(0, queueMemorySize1.get());
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(durable);
@@ -2582,7 +2582,7 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(0, queueControl.getMessageCount());
 
       //Verify that original queue has a memory size of 0
-      assertTrue(queueMemorySize1.get() == 0);
+      assertEquals(0, queueMemorySize1.get());
 
       session.deleteQueue(queue);
    }
