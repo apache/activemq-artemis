@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils.collections;
 
 import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * A priority linked list implementation
@@ -26,9 +27,11 @@ import java.util.NoSuchElementException;
  */
 public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
 
+   private static final AtomicIntegerFieldUpdater<PriorityLinkedListImpl> SIZE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(PriorityLinkedListImpl.class, "size");
+
    protected LinkedListImpl<T>[] levels;
 
-   private int size;
+   private volatile int size;
 
    private int lastReset;
 
@@ -65,7 +68,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
 
       levels[priority].addHead(t);
 
-      size++;
+      exclusiveIncrementSize(1);
    }
 
    @Override
@@ -74,7 +77,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
 
       levels[priority].addTail(t);
 
-      size++;
+      exclusiveIncrementSize(1);
    }
 
    @Override
@@ -94,7 +97,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
             t = ll.poll();
 
             if (t != null) {
-               size--;
+               exclusiveIncrementSize(-1);
 
                if (ll.size() == 0) {
                   if (highestPriority == i) {
@@ -116,7 +119,15 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          list.clear();
       }
 
-      size = 0;
+      exclusiveSetSize(0);
+   }
+
+   private void exclusiveIncrementSize(int amount) {
+      SIZE_UPDATER.lazySet(this, this.size + amount);
+   }
+
+   private void exclusiveSetSize(int value) {
+      SIZE_UPDATER.lazySet(this, value);
    }
 
    @Override
@@ -242,7 +253,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
             highestPriority = i;
          }
 
-         size--;
+         exclusiveIncrementSize(-1);
       }
    }
 }
