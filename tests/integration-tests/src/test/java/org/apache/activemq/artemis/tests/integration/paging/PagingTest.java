@@ -1409,7 +1409,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setPagingDirectory(UUID.randomUUID().toString());
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setPagingDirectory("/" + UUID.randomUUID().toString());
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
