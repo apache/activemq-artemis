@@ -24,77 +24,61 @@ import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.hyphenated.HyphenatedParser;
 import org.apache.activemq.artemis.selector.strict.StrictParser;
 
-/**
- */
 public class SelectorParser {
 
-   private static final LRUCache<String, Object> cache = new LRUCache<>(100);
    private static final String CONVERT_STRING_EXPRESSIONS_PREFIX = "convert_string_expressions:";
    private static final String HYPHENATED_PROPS_PREFIX = "hyphenated_props:";
    private static final String NO_CONVERT_STRING_EXPRESSIONS_PREFIX = "no_convert_string_expressions:";
    private static final String NO_HYPHENATED_PROPS_PREFIX = "no_hyphenated_props:";
 
    public static BooleanExpression parse(String sql) throws FilterException {
-      Object result = cache.get(sql);
-      if (result instanceof FilterException) {
-         throw (FilterException) result;
-      } else if (result instanceof BooleanExpression) {
-         return (BooleanExpression) result;
-      } else {
-         String actual = sql;
-         boolean convertStringExpressions = false;
-         boolean hyphenatedProps = false;
-         while (true) {
-            if (actual.startsWith(CONVERT_STRING_EXPRESSIONS_PREFIX)) {
-               convertStringExpressions = true;
-               actual = actual.substring(CONVERT_STRING_EXPRESSIONS_PREFIX.length());
-               continue;
-            }
-            if (actual.startsWith(HYPHENATED_PROPS_PREFIX)) {
-               hyphenatedProps = true;
-               actual = actual.substring(HYPHENATED_PROPS_PREFIX.length());
-               continue;
-            }
-            if (actual.startsWith(NO_CONVERT_STRING_EXPRESSIONS_PREFIX)) {
-               convertStringExpressions = false;
-               actual = actual.substring(NO_CONVERT_STRING_EXPRESSIONS_PREFIX.length());
-               continue;
-            }
-            if (actual.startsWith(NO_HYPHENATED_PROPS_PREFIX)) {
-               hyphenatedProps = false;
-               actual = actual.substring(NO_HYPHENATED_PROPS_PREFIX.length());
-               continue;
-            }
-            break;
+      String actual = sql;
+      boolean convertStringExpressions = false;
+      boolean hyphenatedProps = false;
+      while (true) {
+         if (actual.startsWith(CONVERT_STRING_EXPRESSIONS_PREFIX)) {
+            convertStringExpressions = true;
+            actual = actual.substring(CONVERT_STRING_EXPRESSIONS_PREFIX.length());
+            continue;
          }
+         if (actual.startsWith(HYPHENATED_PROPS_PREFIX)) {
+            hyphenatedProps = true;
+            actual = actual.substring(HYPHENATED_PROPS_PREFIX.length());
+            continue;
+         }
+         if (actual.startsWith(NO_CONVERT_STRING_EXPRESSIONS_PREFIX)) {
+            convertStringExpressions = false;
+            actual = actual.substring(NO_CONVERT_STRING_EXPRESSIONS_PREFIX.length());
+            continue;
+         }
+         if (actual.startsWith(NO_HYPHENATED_PROPS_PREFIX)) {
+            hyphenatedProps = false;
+            actual = actual.substring(NO_HYPHENATED_PROPS_PREFIX.length());
+            continue;
+         }
+         break;
+      }
 
-         if (convertStringExpressions) {
-            ComparisonExpression.CONVERT_STRING_EXPRESSIONS.set(true);
+      if (convertStringExpressions) {
+         ComparisonExpression.CONVERT_STRING_EXPRESSIONS.set(true);
+      }
+      try {
+         BooleanExpression e = null;
+         if (hyphenatedProps) {
+            HyphenatedParser parser = new HyphenatedParser(new StringReader(actual));
+            e = parser.JmsSelector();
+         } else {
+            StrictParser parser = new StrictParser(new StringReader(actual));
+            e = parser.JmsSelector();
          }
-         try {
-            BooleanExpression e = null;
-            if (hyphenatedProps) {
-               HyphenatedParser parser = new HyphenatedParser(new StringReader(actual));
-               e = parser.JmsSelector();
-            } else {
-               StrictParser parser = new StrictParser(new StringReader(actual));
-               e = parser.JmsSelector();
-            }
-            cache.put(sql, e);
-            return e;
-         } catch (Throwable e) {
-            FilterException fe = new FilterException(actual, e);
-            cache.put(sql, fe);
-            throw fe;
-         } finally {
-            if (convertStringExpressions) {
-               ComparisonExpression.CONVERT_STRING_EXPRESSIONS.remove();
-            }
+         return e;
+      } catch (Throwable e) {
+         FilterException fe = new FilterException(actual, e);
+         throw fe;
+      } finally {
+         if (convertStringExpressions) {
+            ComparisonExpression.CONVERT_STRING_EXPRESSIONS.remove();
          }
       }
-   }
-
-   public static void clearCache() {
-      cache.clear();
    }
 }
