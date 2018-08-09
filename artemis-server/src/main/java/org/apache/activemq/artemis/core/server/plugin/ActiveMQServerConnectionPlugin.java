@@ -17,18 +17,33 @@
 
 package org.apache.activemq.artemis.core.server.plugin;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+
 /**
  *
  */
-public interface ActiveMQServerPlugin extends
-        ActiveMQServerBasePlugin,
-        ActiveMQServerConnectionPlugin,
-        ActiveMQServerSessionPlugin,
-        ActiveMQServerConsumerPlugin,
-        ActiveMQServerAddressPlugin,
-        ActiveMQServerQueuePlugin,
-        ActiveMQServerBindingPlugin,
-        ActiveMQServerMessagePlugin,
-        ActiveMQServerBridgePlugin,
-        ActiveMQServerCriticalPlugin {
+public interface ActiveMQServerConnectionPlugin extends ActiveMQServerBasePlugin {
+
+
+
+   /**
+    * A connection has been created.
+    *
+    * @param connection The newly created connection
+    * @throws ActiveMQException
+    */
+   default void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
+
+   }
+
+   /**
+    * A connection has been destroyed.
+    *
+    * @param connection
+    * @throws ActiveMQException
+    */
+   default void afterDestroyConnection(RemotingConnection connection) throws ActiveMQException {
+
+   }
 }

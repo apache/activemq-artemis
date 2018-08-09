@@ -406,8 +406,8 @@ public final class ClusterManager implements ActiveMQComponent {
          return;
       }
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeDeployBridge(config));
+      if (server.hasBrokerBridgePlugins()) {
+         server.callBrokerBridgePlugins(plugin -> plugin.beforeDeployBridge(config));
       }
 
       Queue queue = (Queue) binding.getBindable();
@@ -483,8 +483,8 @@ public final class ClusterManager implements ActiveMQComponent {
 
       bridge.start();
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterDeployBridge(bridge));
+      if (server.hasBrokerBridgePlugins()) {
+         server.callBrokerBridgePlugins(plugin -> plugin.afterDeployBridge(bridge));
       }
    }
 
