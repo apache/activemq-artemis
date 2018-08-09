@@ -28,7 +28,7 @@ public class SimpleStringTest {
    @Test
    public void testOutOfBoundsThrownOnMalformedString() {
       ByteBuf byteBuffer = ByteBufAllocator.DEFAULT.buffer(5);
-      byteBuffer.writeInt(100);
+      byteBuffer.writeInt(Integer.MAX_VALUE);
 
       Exception e = null;
       try {
