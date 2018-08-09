@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -649,7 +650,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
-      List<ActiveMQServerPlugin> brokerPlugins = fc.getBrokerPlugins();
+      List<ActiveMQServerBasePlugin> brokerPlugins = fc.getBrokerPlugins();
       assertEquals(2, brokerPlugins.size());
       assertTrue(brokerPlugins.get(0) instanceof EmptyPlugin1);
       assertTrue(brokerPlugins.get(1) instanceof EmptyPlugin2);
