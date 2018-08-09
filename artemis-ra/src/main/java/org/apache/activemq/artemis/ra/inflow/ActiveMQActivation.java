@@ -572,10 +572,10 @@ public class ActiveMQActivation {
          ActiveMQRALogger.LOGGER.instantiatingDestination(spec.getDestinationType(), spec.getDestination());
 
          if (Topic.class.getName().equals(spec.getDestinationType())) {
-            destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(spec.getDestination());
+            destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic((spec.getTopicPrefix() == null ? "" : spec.getTopicPrefix()) + spec.getDestination());
             isTopic = true;
          } else {
-            destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(spec.getDestination());
+            destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue((spec.getQueuePrefix() == null ? "" : spec.getQueuePrefix()) + spec.getDestination());
          }
       }
    }
