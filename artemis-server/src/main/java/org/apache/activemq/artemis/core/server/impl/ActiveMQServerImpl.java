@@ -149,7 +149,16 @@ import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBridgePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConnectionPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
@@ -655,7 +664,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          @Override
          public void run() {
             try {
-               callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.criticalFailure(criticalComponent) : null);
+               if (hasBrokerCriticalPlugins()) {
+                  callBrokerCriticalPlugins(plugin -> plugin.criticalFailure(criticalComponent));
+               }
             } catch (Throwable e) {
                logger.warn(e.getMessage(), e);
             }
@@ -1412,14 +1423,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       checkSessionLimit(validatedUser);
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
-                                                                                  autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes) : null);
-
+      if (hasBrokerSessionPlugins()) {
+         callBrokerSessionPlugins(plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
+                 autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes));
+      }
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes);
 
       sessions.put(name, session);
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateSession(session) : null);
+      if (hasBrokerSessionPlugins()) {
+         callBrokerSessionPlugins(plugin -> plugin.afterCreateSession(session));
+      }
 
       return session;
    }
@@ -1898,8 +1912,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
-                                                                                 removeConsumers, autoDeleteAddress) : null);
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
+                 removeConsumers, autoDeleteAddress));
+      }
 
       addressSettingsRepository.clearCache();
 
@@ -1930,8 +1946,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       queue.deleteQueue(removeConsumers);
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
-                                                                                removeConsumers, autoDeleteAddress) : null);
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
+                 removeConsumers, autoDeleteAddress));
+      }
       AddressInfo addressInfo = getAddressInfo(address);
 
       if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated()) {
@@ -2008,32 +2026,126 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void registerBrokerPlugins(final List<ActiveMQServerPlugin> plugins) {
+   public void registerBrokerPlugins(final List<ActiveMQServerBasePlugin> plugins) {
       configuration.registerBrokerPlugins(plugins);
       plugins.forEach(plugin -> plugin.registered(this));
    }
 
    @Override
-   public void registerBrokerPlugin(final ActiveMQServerPlugin plugin) {
+   public void registerBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
       configuration.registerBrokerPlugin(plugin);
       plugin.registered(this);
    }
 
    @Override
-   public void unRegisterBrokerPlugin(final ActiveMQServerPlugin plugin) {
+   public void unRegisterBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
       configuration.unRegisterBrokerPlugin(plugin);
       plugin.unregistered(this);
    }
 
    @Override
-   public List<ActiveMQServerPlugin> getBrokerPlugins() {
+   public List<ActiveMQServerBasePlugin> getBrokerPlugins() {
       return configuration.getBrokerPlugins();
    }
 
    @Override
+   public List<ActiveMQServerConnectionPlugin> getBrokerConnectionPlugins() {
+      return configuration.getBrokerConnectionPlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerSessionPlugin> getBrokerSessionPlugins() {
+      return configuration.getBrokerSessionPlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerConsumerPlugin> getBrokerConsumerPlugins() {
+      return configuration.getBrokerConsumerPlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerAddressPlugin> getBrokerAddressPlugins() {
+      return configuration.getBrokerAddressPlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerQueuePlugin> getBrokerQueuePlugins() {
+      return configuration.getBrokerQueuePlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerBindingPlugin> getBrokerBindingPlugins() {
+      return configuration.getBrokerBindingPlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerMessagePlugin> getBrokerMessagePlugins() {
+      return configuration.getBrokerMessagePlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerBridgePlugin> getBrokerBridgePlugins() {
+      return configuration.getBrokerBridgePlugins();
+   }
+
+   @Override
+   public List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins() {
+      return configuration.getBrokerCriticalPlugins();
+   }
+
+   @Override
    public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerConnectionPlugins(final ActiveMQPluginRunnable<ActiveMQServerConnectionPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerConnectionPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerSessionPlugins(final ActiveMQPluginRunnable<ActiveMQServerSessionPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerSessionPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerConsumerPlugins(final ActiveMQPluginRunnable<ActiveMQServerConsumerPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerConsumerPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerAddressPlugins(final ActiveMQPluginRunnable<ActiveMQServerAddressPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerAddressPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerQueuePlugins(final ActiveMQPluginRunnable<ActiveMQServerQueuePlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerQueuePlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerBindingPlugins(final ActiveMQPluginRunnable<ActiveMQServerBindingPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerBindingPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerMessagePlugins(final ActiveMQPluginRunnable<ActiveMQServerMessagePlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerMessagePlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerBridgePlugins(final ActiveMQPluginRunnable<ActiveMQServerBridgePlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerBridgePlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerCriticalPlugins(final ActiveMQPluginRunnable<ActiveMQServerCriticalPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerCriticalPlugins(), pluginRun);
+   }
+
+   private <P extends ActiveMQServerBasePlugin> void callBrokerPlugins(final List<P> plugins, final ActiveMQPluginRunnable<P> pluginRun) throws ActiveMQException {
       if (pluginRun != null) {
-         for (ActiveMQServerPlugin plugin : getBrokerPlugins()) {
+         for (P plugin : plugins) {
             try {
                pluginRun.run(plugin);
             } catch (Throwable e) {
@@ -2051,6 +2163,51 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean hasBrokerPlugins() {
       return !getBrokerPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerConnectionPlugins() {
+      return !getBrokerConnectionPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerSessionPlugins() {
+      return !getBrokerSessionPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerConsumerPlugins() {
+      return !getBrokerConsumerPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerAddressPlugins() {
+      return !getBrokerAddressPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerQueuePlugins() {
+      return !getBrokerQueuePlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerBindingPlugins() {
+      return !getBrokerBindingPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerMessagePlugins() {
+      return !getBrokerMessagePlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerBridgePlugins() {
+      return !getBrokerBridgePlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerCriticalPlugins() {
+      return !getBrokerCriticalPlugins().isEmpty();
    }
 
    @Override
@@ -2854,7 +3011,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
               .delayBeforeDispatch(delayBeforeDispatch)
               .build();
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateQueue(queueConfig) : null);
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.beforeCreateQueue(queueConfig));
+      }
 
       final Queue queue = queueFactory.createQueueWith(queueConfig);
 
@@ -2898,7 +3057,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          managementService.registerQueue(queue, queue.getAddress(), storageManager);
       }
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateQueue(queue) : null);
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.afterCreateQueue(queue));
+      }
 
       callPostQueueCreationCallbacks(queue.getName());
 
@@ -2978,7 +3139,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
               .delayBeforeDispatch(delayBeforeDispatch)
               .build();
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateQueue(queueConfig) : null);
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.beforeCreateQueue(queueConfig));
+      }
 
       final Queue queue = queueFactory.createQueueWith(queueConfig);
 
@@ -3020,7 +3183,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
-      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateQueue(queue) : null);
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.afterCreateQueue(queue));
+      }
 
       callPostQueueCreationCallbacks(queue.getName());
 

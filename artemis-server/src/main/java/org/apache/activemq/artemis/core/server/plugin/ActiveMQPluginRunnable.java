@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.server.plugin;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
-public interface ActiveMQPluginRunnable {
+public interface ActiveMQPluginRunnable<P extends ActiveMQServerBasePlugin> {
 
-   void run(ActiveMQServerPlugin plugin) throws ActiveMQException;
+   void run(P plugin) throws ActiveMQException;
 
 }
