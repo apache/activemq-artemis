@@ -42,6 +42,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBridgePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConnectionPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -66,7 +76,6 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.Env;
@@ -244,7 +253,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
 
-   private final List<ActiveMQServerPlugin> brokerPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerBasePlugin> brokerPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerConnectionPlugin> brokerConnectionPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerSessionPlugin> brokerSessionPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerConsumerPlugin> brokerConsumerPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerAddressPlugin> brokerAddressPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerQueuePlugin> brokerQueuePlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerBindingPlugin> brokerBindingPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerMessagePlugin> brokerMessagePlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerBridgePlugin> brokerBridgePlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerCriticalPlugin> brokerCriticalPlugins = new CopyOnWriteArrayList<>();
 
    private Map<String, Set<String>> securityRoleNameMappings = new HashMap<>();
 
@@ -1371,23 +1389,122 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public void registerBrokerPlugins(final List<ActiveMQServerPlugin> plugins) {
-      brokerPlugins.addAll(plugins);
+   public void registerBrokerPlugins(final List<ActiveMQServerBasePlugin> plugins) {
+      plugins.forEach(plugin -> registerBrokerPlugin(plugin));
    }
 
    @Override
-   public void registerBrokerPlugin(final ActiveMQServerPlugin plugin) {
+   public void registerBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
       brokerPlugins.add(plugin);
+      if (plugin instanceof ActiveMQServerConnectionPlugin) {
+         brokerConnectionPlugins.add((ActiveMQServerConnectionPlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerSessionPlugin) {
+         brokerSessionPlugins.add((ActiveMQServerSessionPlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerConsumerPlugin) {
+         brokerConsumerPlugins.add((ActiveMQServerConsumerPlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerAddressPlugin) {
+         brokerAddressPlugins.add((ActiveMQServerAddressPlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerQueuePlugin) {
+         brokerQueuePlugins.add((ActiveMQServerQueuePlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerBindingPlugin) {
+         brokerBindingPlugins.add((ActiveMQServerBindingPlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerMessagePlugin) {
+         brokerMessagePlugins.add((ActiveMQServerMessagePlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerBridgePlugin) {
+         brokerBridgePlugins.add((ActiveMQServerBridgePlugin) plugin);
+      }
+      if (plugin instanceof ActiveMQServerCriticalPlugin) {
+         brokerCriticalPlugins.add((ActiveMQServerCriticalPlugin) plugin);
+      }
    }
 
    @Override
-   public void unRegisterBrokerPlugin(final ActiveMQServerPlugin plugin) {
+   public void unRegisterBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
       brokerPlugins.remove(plugin);
+      if (plugin instanceof ActiveMQServerConnectionPlugin) {
+         brokerConnectionPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerSessionPlugin) {
+         brokerSessionPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerConsumerPlugin) {
+         brokerConsumerPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerAddressPlugin) {
+         brokerAddressPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerQueuePlugin) {
+         brokerQueuePlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerBindingPlugin) {
+         brokerBindingPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerMessagePlugin) {
+         brokerMessagePlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerBridgePlugin) {
+         brokerBridgePlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerCriticalPlugin) {
+         brokerCriticalPlugins.remove(plugin);
+      }
    }
 
    @Override
-   public List<ActiveMQServerPlugin> getBrokerPlugins() {
+   public List<ActiveMQServerBasePlugin> getBrokerPlugins() {
       return brokerPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerConnectionPlugin> getBrokerConnectionPlugins() {
+      return brokerConnectionPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerSessionPlugin> getBrokerSessionPlugins() {
+      return brokerSessionPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerConsumerPlugin> getBrokerConsumerPlugins() {
+      return brokerConsumerPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerAddressPlugin> getBrokerAddressPlugins() {
+      return brokerAddressPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerQueuePlugin> getBrokerQueuePlugins() {
+      return brokerQueuePlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerBindingPlugin> getBrokerBindingPlugins() {
+      return brokerBindingPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerMessagePlugin> getBrokerMessagePlugins() {
+      return brokerMessagePlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerBridgePlugin> getBrokerBridgePlugins() {
+      return brokerBridgePlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins() {
+      return brokerCriticalPlugins;
    }
 
    @Override

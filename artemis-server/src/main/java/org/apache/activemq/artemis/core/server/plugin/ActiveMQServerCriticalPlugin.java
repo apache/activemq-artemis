@@ -17,18 +17,20 @@
 
 package org.apache.activemq.artemis.core.server.plugin;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.utils.critical.CriticalComponent;
+
 /**
  *
  */
-public interface ActiveMQServerPlugin extends
-        ActiveMQServerBasePlugin,
-        ActiveMQServerConnectionPlugin,
-        ActiveMQServerSessionPlugin,
-        ActiveMQServerConsumerPlugin,
-        ActiveMQServerAddressPlugin,
-        ActiveMQServerQueuePlugin,
-        ActiveMQServerBindingPlugin,
-        ActiveMQServerMessagePlugin,
-        ActiveMQServerBridgePlugin,
-        ActiveMQServerCriticalPlugin {
+public interface ActiveMQServerCriticalPlugin extends ActiveMQServerBasePlugin {
+
+   /**
+    * A Critical failure has been detected.
+    * This will be called before the broker is stopped
+    * @param components
+    * @throws ActiveMQException
+    */
+   default void criticalFailure(CriticalComponent components) throws ActiveMQException {
+   }
 }
