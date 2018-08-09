@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
@@ -95,6 +96,9 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String AFTER_DELIVER = "afterDeliver";
    public static final String BEFORE_DEPLOY_BRIDGE = "beforeDeployBridge";
    public static final String AFTER_DEPLOY_BRIDGE = "afterDeployBridge";
+   public static final String BEFORE_DELIVER_BRIDGE = "beforeDeliverBridge";
+   public static final String AFTER_DELIVER_BRIDGE = "afterDeliverBridge";
+   public static final String AFTER_ACKNOWLEDGE_BRIDGE = "afterAcknowledgeBridge";
 
    public MethodCalledVerifier(Map<String, AtomicInteger> methodCalls) {
       super();
@@ -338,6 +342,24 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public void afterDeployBridge(Bridge bridge) {
       Preconditions.checkNotNull(bridge);
       methodCalled(AFTER_DEPLOY_BRIDGE);
+   }
+
+   @Override
+   public void beforeDeliverBridge(Bridge bridge, MessageReference ref) throws ActiveMQException {
+      Preconditions.checkNotNull(bridge);
+      methodCalled(BEFORE_DELIVER_BRIDGE);
+   }
+
+   @Override
+   public void afterDeliverBridge(Bridge bridge, MessageReference ref, HandleStatus status) throws ActiveMQException {
+      Preconditions.checkNotNull(bridge);
+      methodCalled(AFTER_DELIVER_BRIDGE);
+   }
+
+   @Override
+   public void afterAcknowledgeBridge(Bridge bridge, MessageReference ref) throws ActiveMQException {
+      Preconditions.checkNotNull(bridge);
+      methodCalled(AFTER_ACKNOWLEDGE_BRIDGE);
    }
 
    public void validatePluginMethodsEquals(int count, String... names) {
