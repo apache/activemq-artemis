@@ -522,8 +522,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                pendingAcks.countDown();
                metrics.incrementMessagesAcknowledged();
 
-               if (server.hasBrokerPlugins()) {
-                  server.callBrokerPlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
+               if (server.hasBrokerBridgePlugins()) {
+                  server.callBrokerBridgePlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
                }
             } else {
                if (logger.isTraceEnabled()) {
@@ -618,8 +618,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          pendingAcks.countUp();
 
          try {
-            if (server.hasBrokerPlugins()) {
-               server.callBrokerPlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
+            if (server.hasBrokerBridgePlugins()) {
+               server.callBrokerBridgePlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
             }
 
             final HandleStatus status;
@@ -636,8 +636,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                metrics.incrementMessagesPendingAcknowledgement();
             }
 
-            if (server.hasBrokerPlugins()) {
-               server.callBrokerPlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
+            if (server.hasBrokerBridgePlugins()) {
+               server.callBrokerBridgePlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
             }
 
             return status;

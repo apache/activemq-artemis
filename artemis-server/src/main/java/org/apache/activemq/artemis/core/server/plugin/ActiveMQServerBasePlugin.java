@@ -17,18 +17,36 @@
 
 package org.apache.activemq.artemis.core.server.plugin;
 
+import java.util.Map;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+
+
 /**
  *
  */
-public interface ActiveMQServerPlugin extends
-        ActiveMQServerBasePlugin,
-        ActiveMQServerConnectionPlugin,
-        ActiveMQServerSessionPlugin,
-        ActiveMQServerConsumerPlugin,
-        ActiveMQServerAddressPlugin,
-        ActiveMQServerQueuePlugin,
-        ActiveMQServerBindingPlugin,
-        ActiveMQServerMessagePlugin,
-        ActiveMQServerBridgePlugin,
-        ActiveMQServerCriticalPlugin {
+public interface ActiveMQServerBasePlugin {
+
+   /**
+    * used to pass configured properties to Plugin
+    *
+    * @param properties
+    */
+   default void init(Map<String, String> properties) {
+   }
+
+   /**
+    * The plugin has been registered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been registered to
+    */
+   default void registered(ActiveMQServer server) {
+   }
+
+   /**
+    * The plugin has been unregistered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been unregistered to
+    */
+   default void unregistered(ActiveMQServer server) {
+   }
 }
