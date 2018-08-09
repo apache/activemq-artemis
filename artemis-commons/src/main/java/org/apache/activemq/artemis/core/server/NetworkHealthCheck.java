@@ -289,10 +289,10 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       } else {
          for (ActiveMQComponent component : componentList) {
             if (component.isStarted()) {
+               ownShutdown = true;
                try {
                   ActiveMQUtilLogger.LOGGER.stoppingService(component.toString());
                   component.stop();
-                  ownShutdown = true;
                } catch (Exception e) {
                   ActiveMQUtilLogger.LOGGER.errorStoppingComponent(e, component.toString());
                }
