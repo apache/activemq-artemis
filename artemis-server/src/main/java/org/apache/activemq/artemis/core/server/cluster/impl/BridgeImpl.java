@@ -521,6 +521,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                ref.getQueue().acknowledge(ref);
                pendingAcks.countDown();
                metrics.incrementMessagesAcknowledged();
+
+               if (server.hasBrokerPlugins()) {
+                  server.callBrokerPlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
+               }
             } else {
                if (logger.isTraceEnabled()) {
                   logger.trace("BridgeImpl::sendAcknowledged bridge " + this + " could not find reference for message " + message);
@@ -614,18 +618,26 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          pendingAcks.countUp();
 
          try {
+            if (server.hasBrokerPlugins()) {
+               server.callBrokerPlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
+            }
+
             final HandleStatus status;
             if (message.isLargeMessage()) {
                deliveringLargeMessage = true;
                deliverLargeMessage(dest, ref, (LargeServerMessage) message);
                status = HandleStatus.HANDLED;
             } else {
-               status =  deliverStandardMessage(dest, ref, message);
+               status = deliverStandardMessage(dest, ref, message);
             }
 
             //Only increment messages pending acknowledgement if handled by bridge
             if (status == HandleStatus.HANDLED) {
                metrics.incrementMessagesPendingAcknowledgement();
+            }
+
+            if (server.hasBrokerPlugins()) {
+               server.callBrokerPlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
             }
 
             return status;
