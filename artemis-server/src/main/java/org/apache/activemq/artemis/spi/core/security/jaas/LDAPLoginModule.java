@@ -167,7 +167,7 @@ public class LDAPLoginModule implements LoginModule {
          throw (LoginException) new LoginException().initCause(e);
       }
 
-      String password;
+      String password = null;
 
       username = ((NameCallback) callbacks[0]).getName();
       if (username == null)
@@ -175,8 +175,17 @@ public class LDAPLoginModule implements LoginModule {
 
       if (((PasswordCallback) callbacks[1]).getPassword() != null)
          password = new String(((PasswordCallback) callbacks[1]).getPassword());
-      else
-         password = "";
+
+      /**
+       * https://tools.ietf.org/html/rfc4513#section-6.3.1
+       *
+       * Clients that use the results from a simple Bind operation to make
+       * authorization decisions should actively detect unauthenticated Bind
+       * requests (by verifying that the supplied password is not empty) and
+       * react appropriately.
+       */
+      if (password == null || (password != null && password.length() == 0))
+         throw new FailedLoginException("Password cannot be null or empty");
 
       // authenticate will throw LoginException
       // in case of failed authentication

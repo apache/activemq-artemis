@@ -27,6 +27,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
@@ -266,6 +267,56 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       for (String key: options.keySet()) {
          assertTrue("val set: " + key, presentInArray(ldapProps, key));
       }
+   }
+
+   @Test
+   public void testEmptyPassword() throws Exception {
+      LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+               if (callbacks[i] instanceof NameCallback) {
+                  ((NameCallback) callbacks[i]).setName("first");
+               } else if (callbacks[i] instanceof PasswordCallback) {
+                  ((PasswordCallback) callbacks[i]).setPassword("".toCharArray());
+               } else {
+                  throw new UnsupportedCallbackException(callbacks[i]);
+               }
+            }
+         }
+      });
+      try {
+         context.login();
+         fail("Should have thrown a FailedLoginException");
+      } catch (FailedLoginException fle) {
+         assertEquals("Password cannot be null or empty", fle.getMessage());
+      }
+      context.logout();
+   }
+
+   @Test
+   public void testNullPassword() throws Exception {
+      LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+               if (callbacks[i] instanceof NameCallback) {
+                  ((NameCallback) callbacks[i]).setName("first");
+               } else if (callbacks[i] instanceof PasswordCallback) {
+                  ((PasswordCallback) callbacks[i]).setPassword(null);
+               } else {
+                  throw new UnsupportedCallbackException(callbacks[i]);
+               }
+            }
+         }
+      });
+      try {
+         context.login();
+         fail("Should have thrown a FailedLoginException");
+      } catch (FailedLoginException fle) {
+         assertEquals("Password cannot be null or empty", fle.getMessage());
+      }
+      context.logout();
    }
 
    private boolean presentInArray(LDAPLoginProperty[] ldapProps, String propertyName) {
