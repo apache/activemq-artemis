@@ -356,8 +356,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       synchronized (this) {
          if (!closed) {
-            if (server.hasBrokerPlugins()) {
-               server.callBrokerPlugins(plugin -> plugin.beforeCloseSession(this, failed));
+            if (server.hasBrokerSessionPlugins()) {
+               server.callBrokerSessionPlugins(plugin -> plugin.beforeCloseSession(this, failed));
             }
          }
          this.setStarted(false);
@@ -412,8 +412,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          closed = true;
 
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.afterCloseSession(this, failed));
+         if (server.hasBrokerSessionPlugins()) {
+            server.callBrokerSessionPlugins(plugin -> plugin.afterCloseSession(this, failed));
          }
       }
    }
@@ -470,16 +470,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       Filter filter = FilterImpl.createFilter(filterString);
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeCreateConsumer(consumerID, (QueueBinding) binding,
+      if (server.hasBrokerConsumerPlugins()) {
+         server.callBrokerConsumerPlugins(plugin -> plugin.beforeCreateConsumer(consumerID, (QueueBinding) binding,
                filterString, browseOnly, supportLargeMessage));
       }
 
       ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
       consumers.put(consumer.getID(), consumer);
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterCreateConsumer(consumer));
+      if (server.hasBrokerConsumerPlugins()) {
+         server.callBrokerConsumerPlugins(plugin -> plugin.afterCreateConsumer(consumer));
       }
 
       if (!browseOnly) {
@@ -1422,8 +1422,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          message = msg;
       }
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
       }
 
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
@@ -1470,8 +1470,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          result = doSend(tx, message, address, direct, noAutoCreateQueue);
       }
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, result));
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, result));
       }
 
       return result;
@@ -1504,8 +1504,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void addMetaData(String key, String data) throws Exception {
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeSessionMetadataAdded(this, key, data));
+      if (server.hasBrokerSessionPlugins()) {
+         server.callBrokerSessionPlugins(plugin -> plugin.beforeSessionMetadataAdded(this, key, data));
       }
 
       if (metaData == null) {
@@ -1513,8 +1513,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       metaData.put(key, data);
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterSessionMetadataAdded(this, key, data));
+      if (server.hasBrokerSessionPlugins()) {
+         server.callBrokerSessionPlugins(plugin -> plugin.afterSessionMetadataAdded(this, key, data));
       }
    }
 
@@ -1523,8 +1523,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerSession sessionWithMetaData = server.lookupSession(key, data);
       if (sessionWithMetaData != null && sessionWithMetaData != this) {
          // There is a duplication of this property
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.duplicateSessionMetadataFailure(this, key, data));
+         if (server.hasBrokerSessionPlugins()) {
+            server.callBrokerSessionPlugins(plugin -> plugin.duplicateSessionMetadataFailure(this, key, data));
          }
          return false;
       } else {

@@ -435,8 +435,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private boolean internalAddressInfo(AddressInfo addressInfo, boolean reload) throws Exception {
       synchronized (addressLock) {
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
+         if (server.hasBrokerAddressPlugins()) {
+            server.callBrokerAddressPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
          }
 
          boolean result;
@@ -451,8 +451,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                if (!addressInfo.isInternal()) {
                   managementService.registerAddress(addressInfo);
                }
-               if (server.hasBrokerPlugins()) {
-                  server.callBrokerPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
+               if (server.hasBrokerAddressPlugins()) {
+                  server.callBrokerAddressPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
                }
             } catch (Exception e) {
                e.printStackTrace();
@@ -552,13 +552,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         EnumSet<RoutingType> routingTypes) throws Exception {
       synchronized (addressLock) {
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.beforeUpdateAddress(addressName, routingTypes));
+         if (server.hasBrokerAddressPlugins()) {
+            server.callBrokerAddressPlugins(plugin -> plugin.beforeUpdateAddress(addressName, routingTypes));
          }
 
          final AddressInfo address = addressManager.updateAddressInfo(addressName, routingTypes);
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.afterUpdateAddress(address));
+         if (server.hasBrokerAddressPlugins()) {
+            server.callBrokerAddressPlugins(plugin -> plugin.afterUpdateAddress(address));
          }
 
          return address;
@@ -574,8 +574,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception {
       synchronized (addressLock) {
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.beforeRemoveAddress(address));
+         if (server.hasBrokerAddressPlugins()) {
+            server.callBrokerAddressPlugins(plugin -> plugin.beforeRemoveAddress(address));
          }
 
          final Bindings bindingsForAddress = getDirectBindings(address);
@@ -593,8 +593,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
          managementService.unregisterAddress(address);
          final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
-         if (server.hasBrokerPlugins()) {
-            server.callBrokerPlugins(plugin -> plugin.afterRemoveAddress(address, addressInfo));
+         if (server.hasBrokerAddressPlugins()) {
+            server.callBrokerAddressPlugins(plugin -> plugin.afterRemoveAddress(address, addressInfo));
          }
 
          return addressInfo;
@@ -628,8 +628,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    // even though failover is complete
    @Override
    public synchronized void addBinding(final Binding binding) throws Exception {
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeAddBinding(binding));
+      if (server.hasBrokerBindingPlugins()) {
+         server.callBrokerBindingPlugins(plugin -> plugin.beforeAddBinding(binding));
       }
 
       addressManager.addBinding(binding);
@@ -662,8 +662,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       managementService.sendNotification(new Notification(uid, CoreNotificationType.BINDING_ADDED, props));
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterAddBinding(binding));
+      if (server.hasBrokerBindingPlugins()) {
+         server.callBrokerBindingPlugins(plugin -> plugin.afterAddBinding(binding));
       }
 
    }
@@ -673,8 +673,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                              Transaction tx,
                                              boolean deleteData) throws Exception {
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeRemoveBinding(uniqueName, tx, deleteData));
+      if (server.hasBrokerBindingPlugins()) {
+         server.callBrokerBindingPlugins(plugin -> plugin.beforeRemoveBinding(uniqueName, tx, deleteData));
       }
 
       addressSettingsRepository.clearCache();
@@ -722,8 +722,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       binding.close();
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterRemoveBinding(binding, tx, deleteData) );
+      if (server.hasBrokerBindingPlugins()) {
+         server.callBrokerBindingPlugins(plugin -> plugin.afterRemoveBinding(binding, tx, deleteData) );
       }
 
       return binding;
@@ -869,8 +869,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
       }
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
       }
 
       if (logger.isTraceEnabled()) {
@@ -935,8 +935,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          context.getTransaction().commit();
       }
 
-      if (server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, result));
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, result));
       }
 
       return result;

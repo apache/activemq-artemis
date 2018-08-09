@@ -1384,8 +1384,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          messagesAcknowledged.incrementAndGet();
       }
 
-      if (server != null && server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+      if (server != null && server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
       }
    }
 
@@ -1422,8 +1422,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          messagesAcknowledged.incrementAndGet();
       }
 
-      if (server != null && server.hasBrokerPlugins()) {
-         server.callBrokerPlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+      if (server != null && server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
       }
    }
 
@@ -1514,9 +1514,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          acknowledge(ref, AckReason.EXPIRED, consumer);
       }
 
-      if (server != null && server.hasBrokerPlugins()) {
+      if (server != null && server.hasBrokerMessagePlugins()) {
          final SimpleString expiryAddress = messageExpiryAddress;
-         server.callBrokerPlugins(plugin -> plugin.messageExpired(ref, expiryAddress, consumer));
+         server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, expiryAddress, consumer));
       }
    }
 

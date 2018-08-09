@@ -52,7 +52,16 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBridgePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConnectionPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -225,17 +234,71 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    void callPostQueueDeletionCallbacks(SimpleString address, SimpleString queueName) throws Exception;
 
-   void registerBrokerPlugin(ActiveMQServerPlugin plugin);
+   void registerBrokerPlugin(ActiveMQServerBasePlugin plugin);
 
-   void unRegisterBrokerPlugin(ActiveMQServerPlugin plugin);
+   void unRegisterBrokerPlugin(ActiveMQServerBasePlugin plugin);
 
-   void registerBrokerPlugins(List<ActiveMQServerPlugin> plugins);
+   void registerBrokerPlugins(List<ActiveMQServerBasePlugin> plugins);
 
-   List<ActiveMQServerPlugin> getBrokerPlugins();
+   List<ActiveMQServerBasePlugin> getBrokerPlugins();
+
+   List<ActiveMQServerConnectionPlugin> getBrokerConnectionPlugins();
+
+   List<ActiveMQServerSessionPlugin> getBrokerSessionPlugins();
+
+   List<ActiveMQServerConsumerPlugin> getBrokerConsumerPlugins();
+
+   List<ActiveMQServerAddressPlugin> getBrokerAddressPlugins();
+
+   List<ActiveMQServerQueuePlugin> getBrokerQueuePlugins();
+
+   List<ActiveMQServerBindingPlugin> getBrokerBindingPlugins();
+
+   List<ActiveMQServerMessagePlugin> getBrokerMessagePlugins();
+
+   List<ActiveMQServerBridgePlugin> getBrokerBridgePlugins();
+
+   List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins();
 
    void callBrokerPlugins(ActiveMQPluginRunnable pluginRun) throws ActiveMQException;
 
+   void callBrokerConnectionPlugins(ActiveMQPluginRunnable<ActiveMQServerConnectionPlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerSessionPlugins(ActiveMQPluginRunnable<ActiveMQServerSessionPlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerConsumerPlugins(ActiveMQPluginRunnable<ActiveMQServerConsumerPlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerAddressPlugins(ActiveMQPluginRunnable<ActiveMQServerAddressPlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerQueuePlugins(ActiveMQPluginRunnable<ActiveMQServerQueuePlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerBindingPlugins(ActiveMQPluginRunnable<ActiveMQServerBindingPlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerMessagePlugins(ActiveMQPluginRunnable<ActiveMQServerMessagePlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerBridgePlugins(ActiveMQPluginRunnable<ActiveMQServerBridgePlugin> pluginRun) throws ActiveMQException;
+
+   void callBrokerCriticalPlugins(ActiveMQPluginRunnable<ActiveMQServerCriticalPlugin> pluginRun) throws ActiveMQException;
+
    boolean hasBrokerPlugins();
+
+   boolean hasBrokerConnectionPlugins();
+
+   boolean hasBrokerSessionPlugins();
+
+   boolean hasBrokerConsumerPlugins();
+
+   boolean hasBrokerAddressPlugins();
+
+   boolean hasBrokerQueuePlugins();
+
+   boolean hasBrokerBindingPlugins();
+
+   boolean hasBrokerMessagePlugins();
+
+   boolean hasBrokerBridgePlugins();
+
+   boolean hasBrokerCriticalPlugins();
 
    void checkQueueCreationLimit(String username) throws Exception;
 
