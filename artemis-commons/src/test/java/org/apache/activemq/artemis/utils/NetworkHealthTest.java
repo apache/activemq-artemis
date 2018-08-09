@@ -143,6 +143,31 @@ public class NetworkHealthTest {
    }
 
    @Test
+   public void testAlreadyShutdown() throws Exception {
+      assumeTrue(purePingWorks(IPV6_LOCAL));
+      ReusableLatch latch = new ReusableLatch(0);
+      NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100) {
+         @Override
+         public void run() {
+            super.run();
+            latch.countDown();
+            System.out.println("Check");
+         }
+      });
+      check.addComponent(component);
+      InetAddress address = InetAddress.getByName("127.0.0.1");
+      check.addAddress(address);
+
+      component.stop();
+
+      latch.setCount(1);
+      Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
+
+      Assert.assertFalse("NetworkHealthCheck should have no business on restarting the component, the network was never down, hence no check needed!", component.isStarted());
+
+   }
+
+   @Test
    public void testParseSpaces() throws Exception {
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
 
