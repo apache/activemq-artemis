@@ -46,6 +46,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
       UNSUPPORTED_CF_PROPERTIES.add("user");
       UNSUPPORTED_CF_PROPERTIES.add("userName");
       UNSUPPORTED_CF_PROPERTIES.add("password");
+      UNSUPPORTED_CF_PROPERTIES.add("enableSharedClientID");
 
       UNSUPPORTED_RA_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_RA_PROPERTIES.add("HA");
