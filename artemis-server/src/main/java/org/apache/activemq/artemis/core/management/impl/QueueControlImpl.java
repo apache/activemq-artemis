@@ -724,7 +724,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                while (iterator.hasNext()) {
                   MessageReference ref = iterator.next();
                   String messageProperty = ref.getMessage().getStringProperty(propertySearch);
-                  messageProperty = messageProperty == null ? UNDEFINED : messageProperty ;
+                  messageProperty = messageProperty == null ? UNDEFINED : messageProperty;
                   Integer value = result.getOrDefault(messageProperty, 0);
                   result.put(messageProperty, ++value);
                }
