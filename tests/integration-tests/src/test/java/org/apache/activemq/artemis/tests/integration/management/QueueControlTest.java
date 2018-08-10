@@ -1795,7 +1795,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(false);
-         if(i % 3 == 0){
+         if (i % 3 == 0) {
             msg.putStringProperty(key, valueGroup1);
          } else {
             msg.putStringProperty(key, valueGroup2);
@@ -1810,11 +1810,11 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
       Assert.assertEquals(120, getMessageCount(queueControl));
-      String result = queueControl.countMessagesProperty(key);
+      String result = queueControl.countMessages(null, key);
       JsonObject jsonObject = JsonUtil.readJsonObject(result);
       Assert.assertEquals(34, jsonObject.getInt(valueGroup1));
       Assert.assertEquals(66, jsonObject.getInt(valueGroup2));
-      Assert.assertEquals(20, jsonObject.getInt("*_UNDEFINED_*"));
+      Assert.assertEquals(20, jsonObject.getInt("null"));
       session.deleteQueue(queue);
    }
 
@@ -1834,9 +1834,9 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
       Assert.assertEquals(100, getMessageCount(queueControl));
-      String result = queueControl.countMessagesProperty(null);
+      String result = queueControl.countMessages(null,null);
       JsonObject jsonObject = JsonUtil.readJsonObject(result);
-      Assert.assertEquals(100, jsonObject.getInt("*_UNDEFINED_*"));
+      Assert.assertEquals(100, jsonObject.getInt("null"));
       session.deleteQueue(queue);
    }
 
