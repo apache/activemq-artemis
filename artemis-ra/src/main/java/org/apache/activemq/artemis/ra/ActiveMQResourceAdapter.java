@@ -662,6 +662,32 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
+    * Set enable1xPrefixes
+    *
+    * @param enable1xPrefixes The value
+    */
+   public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
+      if (logger.isTraceEnabled()) {
+         ActiveMQRALogger.LOGGER.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
+      }
+
+      raProperties.setEnable1xPrefixes(enable1xPrefixes);
+   }
+
+   /**
+    * Get isCacheDestinations
+    *
+    * @return The value
+    */
+   public Boolean isEnable1xPrefixes() {
+      if (logger.isTraceEnabled()) {
+         ActiveMQRALogger.LOGGER.trace("isEnable1xPrefixes()");
+      }
+
+      return raProperties.isEnable1xPrefixes();
+   }
+
+   /**
     * Set compressLargeMessage
     *
     * @param compressLargeMessage The value
