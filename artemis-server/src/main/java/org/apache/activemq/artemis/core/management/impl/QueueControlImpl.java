@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.openmbean.CompositeData;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -30,6 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.openmbean.CompositeData;
+import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -63,6 +64,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    public static final int FLUSH_LIMIT = 500;
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -682,30 +684,45 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long countMessages(final String filterStr) throws Exception {
-      checkStarted();
+      Long value = intenalCountMessages(filterStr, null).get(Objects.toString(null));
+      return value == null ? 0 : value;
+   }
 
+   @Override
+   public String countMessages(final String filterStr, final String groupByProperty) throws Exception {
+      return JsonUtil.toJsonObject(intenalCountMessages(filterStr, groupByProperty)).toString();
+   }
+
+   private Map<String, Long> intenalCountMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
+      checkStarted();
       clearIO();
+      Map<String, Long> result = new HashMap<>();
+
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
-         if (filter == null) {
-            return getMessageCount();
+         SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+         if (filter == null && groupByProperty == null) {
+            result.put(Objects.toString(null), getMessageCount());
          } else {
             try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-               int count = 0;
-
                try {
                   while (iterator.hasNext()) {
-                     MessageReference ref = iterator.next();
-                     if (filter.match(ref.getMessage())) {
-                        count++;
+                     Message message = iterator.next().getMessage();
+                     if (filter == null || filter.match(message)) {
+                        if (groupByProperty == null) {
+                           result.compute(Objects.toString(null), (k,v) -> v == null ? 1 : ++v);
+                        } else {
+                           String propertyValue = Objects.toString(message.getObjectProperty(groupByProperty));
+                           result.compute(propertyValue, (k,v) -> v == null ? 1 : ++v);
+                        }
                      }
                   }
                } catch (NoSuchElementException ignored) {
                   // this could happen through paging browsing
                }
-               return count;
             }
          }
+         return result;
       } finally {
          blockOnIO();
       }
