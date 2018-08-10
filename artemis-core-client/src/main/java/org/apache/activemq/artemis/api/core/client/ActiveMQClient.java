@@ -135,6 +135,8 @@ public final class ActiveMQClient {
 
    public static final boolean DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING = true;
 
+   public static final boolean DEFAULT_ENABLE_1X_PREFIXES = false;
+
    public static final String THREAD_POOL_MAX_SIZE_PROPERTY_KEY = "activemq.artemis.client.global.thread.pool.max.size";
 
    public static final String SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY = "activemq.artemis.client.global.scheduled.thread.pool.core.size";
