@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    public static final int FLUSH_LIMIT = 500;
+   public static final String UNDEFINED = "*_UNDEFINED_*";
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -705,6 +706,32 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                }
                return count;
             }
+         }
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String countMessagesProperty(final String filter) throws Exception {
+      checkStarted();
+      clearIO();
+      try {
+         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
+            Map<String, Integer> result = new HashMap<>();
+            String propertySearch = filter == null ? UNDEFINED : filter;
+            try {
+               while (iterator.hasNext()) {
+                  MessageReference ref = iterator.next();
+                  String messageProperty = ref.getMessage().getStringProperty(propertySearch);
+                  messageProperty = messageProperty == null ? UNDEFINED : messageProperty ;
+                  Integer value = result.getOrDefault(messageProperty, 0);
+                  result.put(messageProperty, ++value);
+               }
+            } catch (NoSuchElementException ignored) {
+               // this could happen through paging browsing
+            }
+            return JsonUtil.toJsonObject(result).toString();
          }
       } finally {
          blockOnIO();
