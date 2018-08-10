@@ -297,13 +297,13 @@ public interface QueueControl {
    long countMessages() throws Exception;
 
    /**
-    * Counts the number of messages in this queue group by property received in the parameter using JSON serialization.
-    * In case no has property return amount of messages in the *_UNDEFINED_*
+    * Counts the number of messages in this queue matching the specified filter, grouped by the given property field.
+    * In case of null property will be grouped in "null"
     * <br>
     * Using {@code null} or an empty filter will count <em>all</em> messages from this queue.
     */
-   @Operation(desc = "Returns the number of the messages in the separate property value the queue", impact = MBeanOperationInfo.INFO)
-   String countMessagesProperty(@Parameter(name = "filter", desc = "This filter separate account messages") String filter) throws Exception;
+   @Operation(desc = "Returns the number of the messages in the queue matching the given filter, grouped by the given property field", impact = MBeanOperationInfo.INFO)
+   String countMessages(@Parameter(name = "filter", desc = "This filter separate account messages") String filter, @Parameter(name = "groupByProperty", desc = "This property to group by") String groupByProperty) throws Exception;
 
    /**
     * Removes the message corresponding to the specified message ID.
