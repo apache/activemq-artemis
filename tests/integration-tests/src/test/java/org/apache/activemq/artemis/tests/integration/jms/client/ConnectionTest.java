@@ -131,6 +131,27 @@ public class ConnectionTest extends JMSTestBase {
       session2.close();
    }
 
+   @Test
+   public void testTwoConnectionsSameIDThroughCFWithShareClientIDEnabeld() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616?clientID=myid;enableSharedClientID=true");
+
+      conn = connectionFactory.createConnection();
+      try {
+         conn2 = connectionFactory.createConnection();
+      } catch (InvalidClientIDException expected) {
+         Assert.fail("Should allow sharing of client IDs among the same CF");
+      }
+
+      Session session1 = conn.createSession();
+      Session session2 = conn.createSession();
+      Session session3 = conn2.createSession();
+      Session session4 = conn2.createSession();
+
+      session1.close();
+      session2.close();
+      session3.close();
+      session4.close();
+   }
 
    @Test
    public void testGetSetConnectionFactory() throws Exception {
