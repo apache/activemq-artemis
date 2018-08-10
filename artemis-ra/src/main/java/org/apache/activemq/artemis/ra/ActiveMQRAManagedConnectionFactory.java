@@ -592,6 +592,14 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setCacheDestinations(cacheDestinations);
    }
 
+   public Boolean isEnable1xPrefixes() {
+      return mcfProperties.isEnable1xPrefixes();
+   }
+
+   public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
+      mcfProperties.setEnable1xPrefixes(enable1xPrefixes);
+   }
+
    public Integer getScheduledThreadPoolMaxSize() {
       return mcfProperties.getScheduledThreadPoolMaxSize();
    }
