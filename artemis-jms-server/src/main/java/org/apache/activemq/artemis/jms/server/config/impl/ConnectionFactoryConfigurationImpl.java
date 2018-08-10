@@ -126,6 +126,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private boolean enable1xPrefixes = ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
 
+   private boolean enableSharedClientID = ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
+
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -638,6 +641,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       deserializationWhiteList = BufferHelper.readNullableSimpleStringAsString(buffer);
 
       enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : null;
+
+      enableSharedClientID = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
+
    }
 
    @Override
@@ -729,6 +735,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       BufferHelper.writeAsNullableSimpleString(buffer, deserializationWhiteList);
 
       buffer.writeBoolean(enable1xPrefixes);
+
+      BufferHelper.writeNullableBoolean(buffer, enableSharedClientID);
    }
 
    @Override
@@ -844,8 +852,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableSimpleString(deserializationWhiteList) +
 
-         DataConstants.SIZE_BOOLEAN;
+         DataConstants.SIZE_BOOLEAN +
          // enable1xPrefixes;
+
+         BufferHelper.sizeOfNullableBoolean(enableSharedClientID);
 
       return size;
    }
@@ -914,6 +924,16 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return this;
    }
 
+   @Override
+   public ConnectionFactoryConfiguration setEnableSharedClientID(boolean enabled) {
+      this.enableSharedClientID = enabled;
+      return this;
+   }
+
+   @Override
+   public boolean isEnableSharedClientID() {
+      return enableSharedClientID;
+   }
 
    // Public --------------------------------------------------------
 

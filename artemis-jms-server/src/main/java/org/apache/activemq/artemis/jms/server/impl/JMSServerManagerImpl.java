@@ -1221,6 +1221,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       cf.setDeserializationWhiteList(cfConfig.getDeserializationWhiteList());
       cf.setInitialMessagePacketSize(cfConfig.getInitialMessagePacketSize());
       cf.setEnable1xPrefixes(cfConfig.isEnable1xPrefixes());
+      cf.setEnableSharedClientID(cfConfig.isEnableSharedClientID());
 
       return cf;
    }

@@ -95,6 +95,8 @@ public final class ActiveMQClient {
 
    public static final boolean DEFAULT_PRE_ACKNOWLEDGE = false;
 
+   public static final boolean DEFAULT_ENABLED_SHARED_CLIENT_ID = false;
+
    public static final long DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT = 10000;
 
    public static final long DEFAULT_DISCOVERY_REFRESH_TIMEOUT = 10000;
