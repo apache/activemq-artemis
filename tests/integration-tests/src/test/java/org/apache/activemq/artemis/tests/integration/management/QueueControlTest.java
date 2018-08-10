@@ -1782,6 +1782,66 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testCountMessagesPropertyExist() throws Exception {
+      String key = new String("key_group");
+      String valueGroup1 = "group_1";
+      String valueGroup2 = "group_2";
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      for (int i = 0; i < 100; i++) {
+         ClientMessage msg = session.createMessage(false);
+         if(i % 3 == 0){
+            msg.putStringProperty(key, valueGroup1);
+         } else {
+            msg.putStringProperty(key, valueGroup2);
+         }
+         producer.send(msg);
+      }
+
+      for (int i = 0; i < 20; i++) {
+         ClientMessage msg = session.createMessage(false);
+         producer.send(msg);
+      }
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(120, getMessageCount(queueControl));
+      String result = queueControl.countMessagesProperty(key);
+      JsonObject jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertEquals(34, jsonObject.getInt(valueGroup1));
+      Assert.assertEquals(66, jsonObject.getInt(valueGroup2));
+      Assert.assertEquals(20, jsonObject.getInt("*_UNDEFINED_*"));
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testCountMessagesPropertyWithNullFilter() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      for (int i = 0; i < 100; i++) {
+         ClientMessage msg = session.createMessage(false);
+         msg.putStringProperty(RandomUtil.randomString(), RandomUtil.randomString());
+         producer.send(msg);
+      }
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(100, getMessageCount(queueControl));
+      String result = queueControl.countMessagesProperty(null);
+      JsonObject jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertEquals(100, jsonObject.getInt("*_UNDEFINED_*"));
+      session.deleteQueue(queue);
+   }
+
+
+   @Test
    public void testExpireMessagesWithFilter() throws Exception {
       SimpleString key = new SimpleString("key");
       long matchingValue = RandomUtil.randomLong();
