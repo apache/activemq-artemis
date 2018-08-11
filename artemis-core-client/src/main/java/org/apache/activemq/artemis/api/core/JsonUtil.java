@@ -258,7 +258,7 @@ public final class JsonUtil {
       JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
       if (map != null) {
          for (Map.Entry<String, ?> entry : map.entrySet()) {
-            addToObject(entry.getKey(), entry.getValue(), jsonObjectBuilder);
+            addToObject(String.valueOf(entry.getKey()), entry.getValue(), jsonObjectBuilder);
          }
       }
       return jsonObjectBuilder.build();
