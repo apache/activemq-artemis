@@ -189,7 +189,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
 
    @Override
    public int getBodySize() {
-      return getBodyBuffer().writerIndex() - getBodyBuffer().readerIndex();
+      return endOfBodyPosition - BUFFER_HEADER_SPACE;
    }
 
    @Override
