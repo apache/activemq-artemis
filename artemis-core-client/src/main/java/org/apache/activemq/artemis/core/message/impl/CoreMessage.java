@@ -308,7 +308,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       sendBuffer.readerIndex(0);
    }
 
-   private synchronized void checkEncode() {
+   protected synchronized void checkEncode() {
       if (!validBuffer) {
          encode();
       }
