@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -45,7 +46,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;
@@ -444,6 +444,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       long retryInterval = RandomUtil.randomPositiveLong();
       double retryIntervalMultiplier = RandomUtil.randomDouble();
       int reconnectAttempts = RandomUtil.randomPositiveInt();
+      boolean enableSharedClientID = true;
 
       try {
          cf.setClientID(clientID);
