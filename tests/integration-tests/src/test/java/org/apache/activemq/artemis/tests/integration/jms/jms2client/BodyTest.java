@@ -20,12 +20,12 @@ import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageFormatException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,6 +48,7 @@ public class BodyTest extends JMSTestBase {
       try (
          Connection conn = cf.createConnection();
       ) {
+
          Session sess = conn.createSession();
          MessageProducer producer = sess.createProducer(queue);
 
@@ -55,27 +56,17 @@ public class BodyTest extends JMSTestBase {
          conn.start();
 
          BytesMessage bytesMessage = sess.createBytesMessage();
-         BytesMessage bytesMessage2 = sess.createBytesMessage();
-         bytesMessage2.writeInt(42);
-         bytesMessage2.reset();
-
          producer.send(bytesMessage);
+
          Message msg = cons.receiveNoWait();
-
-         producer.send(bytesMessage2);
-         Message msg2 = cons.receiveNoWait();
-
          assertNotNull(msg);
-         assertNotNull(msg2);
 
-         // message body is empty. getBody parameter may be set to any type
-         Assert.assertNull(msg.getBody(java.lang.Object.class));
-         Assert.assertNull(msg.getBody(byte[].class));
-         Assert.assertNull(msg.getBody(String.class));
-
-         // message body is not empty. getBody parameter must be set to byte[].class (or java.lang.Object.class)
-         Assert.assertNotNull(msg2.getBody(byte[].class));
-         Assert.assertNotNull(msg2.getBody(java.lang.Object.class));
+         try {
+            msg.getBody(String.class);
+            fail("Exception expected");
+         } catch (MessageFormatException e) {
+         }
       }
+
    }
 }
