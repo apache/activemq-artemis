@@ -114,6 +114,8 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private Boolean cacheDestinations;
 
+   private Boolean enable1xPrefixes;
+
    private Integer initialMessagePacketSize;
 
    private Integer scheduledThreadPoolMaxSize;
@@ -629,6 +631,21 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       this.cacheDestinations = cacheDestinations;
    }
 
+   public Boolean isEnable1xPrefixes() {
+      if (ConnectionFactoryProperties.trace) {
+         ActiveMQRALogger.LOGGER.trace("isEnable1xPrefixes()");
+      }
+      return enable1xPrefixes;
+   }
+
+   public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
+      if (ConnectionFactoryProperties.trace) {
+         ActiveMQRALogger.LOGGER.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
+      }
+      hasBeenUpdated = true;
+      this.enable1xPrefixes = enable1xPrefixes;
+   }
+
    public Integer getScheduledThreadPoolMaxSize() {
       if (ConnectionFactoryProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("getScheduledThreadPoolMaxSize()");
@@ -975,6 +992,13 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
             return false;
       } else if (!deserializationWhiteList.equals(other.deserializationWhiteList))
          return false;
+
+      if (this.enable1xPrefixes == null) {
+         if (other.enable1xPrefixes != null)
+            return false;
+      } else if (!this.enable1xPrefixes.equals(other.enable1xPrefixes))
+         return false;
+
       return true;
    }
 
@@ -1027,6 +1051,7 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       result = prime * result + ((connectionParameters == null) ? 0 : connectionParameters.hashCode());
       result = prime * result + ((deserializationBlackList == null) ? 0 : deserializationBlackList.hashCode());
       result = prime * result + ((deserializationWhiteList == null) ? 0 : deserializationWhiteList.hashCode());
+      result = prime * result + ((enable1xPrefixes == null) ? 0 : enable1xPrefixes.hashCode());
       return result;
    }
 }

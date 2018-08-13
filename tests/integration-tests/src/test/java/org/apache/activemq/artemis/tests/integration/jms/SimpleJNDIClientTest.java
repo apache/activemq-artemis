@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -663,5 +664,60 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       testContext(ctx, "myConnectionFactory", JMSFactoryType.CF);
 
+   }
+
+   @Test
+   public void test1xNaming() throws NamingException, JMSException {
+      liveService.getSecurityStore().setSecurityEnabled(false);
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0?enable1xPrefixes=true");
+      props.put("connectionFactory.ConnectionFactory2", "vm://0");
+      Context ctx = new InitialContext(props);
+
+      ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
+      ((ActiveMQConnectionFactory)connectionFactory).setEnable1xPrefixes(true);
+      Connection connection = connectionFactory.createConnection();
+      Session session = connection.createSession();
+
+      assertTrue(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertTrue(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertTrue(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertTrue(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+
+      connection.close();
+
+      // test setting programmatically
+      connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory2");
+      ((ActiveMQConnectionFactory)connectionFactory).setEnable1xPrefixes(true);
+      connection = connectionFactory.createConnection();
+      session = connection.createSession();
+
+      assertTrue(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertTrue(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertTrue(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertTrue(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+
+      connection.close();
+   }
+
+   @Test
+   public void test1xNamingNegative() throws NamingException, JMSException {
+      liveService.getSecurityStore().setSecurityEnabled(false);
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0");
+      Context ctx = new InitialContext(props);
+
+      ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
+      Connection connection = connectionFactory.createConnection();
+      Session session = connection.createSession();
+
+      assertFalse(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertFalse(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+
+      connection.close();
    }
 }
