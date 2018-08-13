@@ -454,12 +454,14 @@ public class ActiveMQActivation {
             // This will clone the connection factory
             // to make sure we won't close anyone's connection factory when we stop the MDB
             factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
+            factory.setEnableSharedClientID(true);
          } else {
             factory = ra.newConnectionFactory(spec);
          }
       } else {
          factory = ra.newConnectionFactory(spec);
       }
+
    }
 
    /**

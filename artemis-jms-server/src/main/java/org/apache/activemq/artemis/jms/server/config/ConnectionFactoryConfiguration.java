@@ -193,4 +193,8 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
    boolean isEnable1xPrefixes();
 
    ConnectionFactoryConfiguration setEnable1xPrefixes(boolean enable1xPrefixes);
+
+   boolean isEnableSharedClientID();
+
+   ConnectionFactoryConfiguration setEnableSharedClientID(boolean enabled);
 }
