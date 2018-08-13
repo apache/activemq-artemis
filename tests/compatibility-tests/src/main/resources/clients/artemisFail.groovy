@@ -1,4 +1,10 @@
 package clients
+
+import org.apache.activemq.artemis.api.core.ActiveMQException
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener
+import org.apache.activemq.artemis.api.core.client.FailoverEventType
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -19,15 +25,17 @@ package clients
 // Create a client connection factory
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
-import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
+import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 
-if (serverArg[0].startsWith("HORNETQ")) {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?protocolManagerFactoryStr=org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory&confirmationWindowSize=1048576&blockOnDurableSend=false&reconnectAttempts=-1&retryInterval=100");
-} else {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false&ha=true&reconnectAttempts=-1&retryInterval=100");
-}
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit;
 
-
-GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
-GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
-
+CountDownLatch latch = new CountDownLatch(1);
+((ActiveMQConnection)connectionToFail).setFailoverListener(new FailoverEventListener() {
+    @Override
+    void failoverEvent(FailoverEventType eventType) {
+        latch.countDown();
+    }
+})
+((ActiveMQConnection)connectionToFail).getSessionFactory().getConnection().fail(new ActiveMQException("fail"));
+GroovyRun.assertTrue(latch.await(10, TimeUnit.SECONDS));
