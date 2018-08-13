@@ -124,6 +124,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
 
+   private boolean enable1xPrefixes = ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -532,6 +534,17 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return this;
    }
 
+   @Override
+   public boolean isEnable1xPrefixes() {
+      return enable1xPrefixes;
+   }
+
+   @Override
+   public ConnectionFactoryConfiguration setEnable1xPrefixes(final boolean enable1xPrefixes) {
+      this.enable1xPrefixes = enable1xPrefixes;
+      return this;
+   }
+
    // Encoding Support Implementation --------------------------------------------------------------
 
    @Override
@@ -623,6 +636,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       deserializationBlackList = BufferHelper.readNullableSimpleStringAsString(buffer);
 
       deserializationWhiteList = BufferHelper.readNullableSimpleStringAsString(buffer);
+
+      enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : null;
    }
 
    @Override
@@ -712,6 +727,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       BufferHelper.writeAsNullableSimpleString(buffer, deserializationBlackList);
 
       BufferHelper.writeAsNullableSimpleString(buffer, deserializationWhiteList);
+
+      buffer.writeBoolean(enable1xPrefixes);
    }
 
    @Override
@@ -825,7 +842,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableSimpleString(deserializationBlackList) +
 
-         BufferHelper.sizeOfNullableSimpleString(deserializationWhiteList);
+         BufferHelper.sizeOfNullableSimpleString(deserializationWhiteList) +
+
+         DataConstants.SIZE_BOOLEAN;
+         // enable1xPrefixes;
 
       return size;
    }

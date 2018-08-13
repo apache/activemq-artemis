@@ -236,6 +236,18 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return createTemporaryTopic(address, session);
    }
 
+   public static ActiveMQTemporaryQueue createTemporaryQueue(final ActiveMQSession session, final String prefix) {
+      String address = prefix + UUID.randomUUID().toString();
+
+      return createTemporaryQueue(address, session);
+   }
+
+   public static ActiveMQTemporaryTopic createTemporaryTopic(final ActiveMQSession session, final String prefix) {
+      String address = prefix + UUID.randomUUID().toString();
+
+      return createTemporaryTopic(address, session);
+   }
+
    public static ActiveMQTemporaryTopic createTemporaryTopic(String address, final ActiveMQSession session) {
       return new ActiveMQTemporaryTopic(address, session);
    }
