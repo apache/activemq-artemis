@@ -26,7 +26,6 @@ String serverType = arg[0];
 String clientType = arg[1];
 String operation = arg[2];
 
-
 try {
     legacyOption = legacy;
 } catch (Throwable e) {
@@ -127,8 +126,60 @@ if (operation.equals("sendAckMessages") || operation.equals("sendTopic")) {
     plain.setStringProperty("plain", "doce");
     plain.setIntProperty("order", 15)
     producer.send(plain);
-
     session.commit();
+    session.close();
+
+    Session newSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+    connectionToFail = connection;
+    if (clientType.equals("ARTEMIS-SNAPSHOT")) {
+        // this is validating a bug that could only be fixed in snapshot
+        GroovyRun.evaluate("clients/artemisFail.groovy", "serverArg", serverType);
+    }
+    MessageProducer newProducer = newSession.createProducer(destination);
+    for (int i = 0 ; i < 10; i++) {
+        String bodyText = "This is message " + i;
+        TextMessage textMessage = newSession.createTextMessage(bodyText);
+        int size = 5 + i % 10;
+        StringBuffer variableSize = new StringBuffer();
+        for (int s = 0; s < size; s++) {
+            variableSize.append(" " + i);
+        }
+        textMessage.setStringProperty("inMessageId", variableSize.toString());
+        newProducer.send(textMessage);
+        newSession.commit();
+
+        newSession.close();
+        newSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+        newProducer = newSession.createProducer(destination);
+        if (i % 2 == 0) {
+            // failing half of the sessions for the snapshots
+            if (clientType.equals("ARTEMIS-SNAPSHOT")) {
+                // this is validating a bug that could only be fixed in snapshot
+                GroovyRun.evaluate("clients/artemisFail.groovy", "serverArg", serverType);
+            }
+        }
+
+    }
+
+    // even if topic, will send a few on queue
+    newProducer = newSession.createProducer(queue);
+
+    for (int i = 0; i < 7; i++) {
+        String bodyText = "This is message " + i;
+        TextMessage textMessage = newSession.createTextMessage(bodyText);
+        int size = 5 + i % 10;
+        StringBuffer variableSize = new StringBuffer();
+        for (int s = 0; s < size; s++) {
+            variableSize.append(" " + i);
+        }
+        textMessage.setStringProperty("inMessageId", variableSize.toString());
+        newProducer.send(textMessage);
+        newSession.commit();
+   }
+
+    newSession.commit();
+    newSession.close();
+
 
     connection.close();
 }
@@ -194,7 +245,26 @@ if (operation.equals("receiveMessages") || operation.equals("receiveNonDurableSu
     GroovyRun.assertNotNull(plain);
     GroovyRun.assertEquals("doce", plain.getStringProperty("plain"));
 
+
+    for (int i = 0 ; i < 10; i++) {
+        TextMessage recMessage = consumer.receive(5000);
+        GroovyRun.assertNotNull(recMessage);
+        GroovyRun.assertEquals("This is message " + i, recMessage.getText());
+    }
+
     session.commit();
+
+    consumer.close();
+
+    // force a few on the queue even if the test is for topics
+    consumer = session.createConsumer(queue);
+
+    for (int i = 0; i < 7; i++) {
+        TextMessage recMessage = consumer.receive(5000);
+        GroovyRun.assertNotNull(recMessage);
+        GroovyRun.assertEquals("This is message " + i, recMessage.getText());
+    }
+
     connection.close();
 }
 
