@@ -237,7 +237,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    public void connect(final int initialConnectAttempts,
                        final boolean failoverOnInitialConnection) throws ActiveMQException {
       // Get the connection
-      getConnectionWithRetry(initialConnectAttempts);
+      getConnectionWithRetry(initialConnectAttempts, null);
 
       if (connection == null) {
          StringBuilder msg = new StringBuilder("Unable to connect to server using configuration ").append(currentConnectorConfig);
@@ -743,7 +743,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          session.preHandleFailover(connection);
       }
 
-      getConnectionWithRetry(reconnectAttempts);
+      getConnectionWithRetry(reconnectAttempts, oldConnection);
 
       if (connection == null) {
          if (!clientProtocolManager.isAlive())
@@ -774,7 +774,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
-   private void getConnectionWithRetry(final int reconnectAttempts) {
+   private void getConnectionWithRetry(final int reconnectAttempts, RemotingConnection oldConnection) {
       if (!clientProtocolManager.isAlive())
          return;
       if (logger.isTraceEnabled()) {
@@ -795,6 +795,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
 
          if (getConnection() != null) {
+            if (oldConnection != null && oldConnection instanceof CoreRemotingConnection) {
+               // transferring old connection version into the new connection
+               ((CoreRemotingConnection)connection).setChannelVersion(((CoreRemotingConnection)oldConnection).getChannelVersion());
+            }
             if (logger.isDebugEnabled()) {
                logger.debug("Reconnection successful");
             }
