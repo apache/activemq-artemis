@@ -32,6 +32,6 @@ for (Object o : queueControls) {
     QueueControl c = (QueueControl) o;
     GroovyRun.assertTrue(c.getPersistentSize() > 0);
     GroovyRun.assertTrue(c.getDurablePersistentSize() > 0);
-    GroovyRun.assertEquals(16l, c.getMessageCount());
-    GroovyRun.assertEquals(16l, c.getDurableMessageCount());
+    GroovyRun.assertEquals(33l, c.getMessageCount());
+    GroovyRun.assertEquals(33l, c.getDurableMessageCount());
  }
