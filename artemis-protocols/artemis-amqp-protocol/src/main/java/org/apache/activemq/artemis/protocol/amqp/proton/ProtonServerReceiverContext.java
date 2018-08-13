@@ -218,6 +218,23 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (!delivery.isReadable()) {
             return;
          }
+
+         if (delivery.isAborted()) {
+            receiver = ((Receiver) delivery.getLink());
+
+            // Aborting implicitly remotely settles, so advance
+            // receiver to the next delivery and settle locally.
+            receiver.advance();
+            delivery.settle();
+
+            // Replenish the credit if not doing a drain
+            if (!receiver.getDrain()) {
+               receiver.flow(1);
+            }
+
+            return;
+         }
+
          if (delivery.isPartial()) {
             return;
          }
