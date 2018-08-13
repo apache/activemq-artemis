@@ -301,7 +301,7 @@ Parameter|Description
   `auto-create-addresses` element to the `address-setting` you want the broker
   to automatically create.
 
-- (Optional) Add the `address-setting` if it does not exits. Use the match
+- (Optional) Add the `address-setting` if it does not exist. Use the match
   parameter and the [wildcard syntax](wildcard-syntax.md) to match more than
   one specific address.
 
@@ -328,7 +328,7 @@ with `/news/politics/` will be automatically created by the broker.
   `auto-delete-addresses` element to the `address-setting` you want the broker to
   automatically create.
 
-- (Optional) Add the `address-setting` if it does not exits. Use the match
+- (Optional) Add the `address-setting` if it does not exist. Use the match
   parameter and the [wildcard syntax](wildcard-syntax.md) to match more than one
   specific address.
 
