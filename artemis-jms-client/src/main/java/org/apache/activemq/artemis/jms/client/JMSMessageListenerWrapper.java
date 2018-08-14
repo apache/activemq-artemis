@@ -82,6 +82,10 @@ public class JMSMessageListenerWrapper implements MessageHandler {
          msg.setClientAcknowledge();
       }
 
+      if (session.isEnable1xPrefixes()) {
+         msg.setEnable1xPrefixes(true);
+      }
+
       try {
          msg.doBeforeReceive();
       } catch (Exception e) {
