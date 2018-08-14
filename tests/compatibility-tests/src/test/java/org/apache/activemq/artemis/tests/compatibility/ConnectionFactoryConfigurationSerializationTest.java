@@ -77,16 +77,10 @@ public class ConnectionFactoryConfigurationSerializationTest extends VersionedBa
       FileUtil.deleteDirectory(serverFolder.getRoot());
       serverFolder.getRoot().mkdirs();
       setVariable(senderClassloader, "persistent", false);
-      startServer(serverFolder.getRoot(), senderClassloader, "1");
    }
 
    @After
    public void afterTest() {
-      try {
-         stopServer(senderClassloader);
-      } catch (Throwable ignored) {
-         ignored.printStackTrace();
-      }
    }
 
    @Test
