@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import io.netty.buffer.Unpooled;
+import java.nio.ByteBuffer;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -27,9 +29,12 @@ import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.BufferHelper;
 import org.junit.Test;
 
 public class StoreConfigTest extends JMSTestBase {
@@ -287,6 +292,107 @@ public class StoreConfigTest extends JMSTestBase {
       checkDestination("newq.1");
 
       jmsServer.stop();
+   }
+
+   @Test
+   public void testCompatibilityWith260() {
+      List<String> transportConfigurations = new ArrayList<>();
+      transportConfigurations.add("tst");
+      ConnectionFactoryConfigurationImpl configuration = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl();
+      configuration.setName("np").setConnectorNames(transportConfigurations);
+
+      ByteBuffer buffer = ByteBuffer.allocate(configuration.getEncodeSize());
+      ActiveMQBuffer activeMQBuffer = new ChannelBufferWrapper(Unpooled.wrappedBuffer(buffer));
+      activeMQBuffer.clear();
+      encodeVersion260(activeMQBuffer, configuration);
+      configuration.decode(activeMQBuffer);
+   }
+
+   public void encodeVersion260(final ActiveMQBuffer buffer, final ConnectionFactoryConfigurationImpl connectionFactoryConfiguration) {
+
+      BufferHelper.writeAsSimpleString(buffer, connectionFactoryConfiguration.getName());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, connectionFactoryConfiguration.getDiscoveryGroupName());
+
+      if (connectionFactoryConfiguration.getConnectorNames() == null) {
+         buffer.writeInt(0);
+      } else {
+         buffer.writeInt(connectionFactoryConfiguration.getConnectorNames().size());
+
+         for (String tc : connectionFactoryConfiguration.getConnectorNames()) {
+            BufferHelper.writeAsSimpleString(buffer, tc);
+         }
+      }
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isHA());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, connectionFactoryConfiguration.getClientID());
+
+      buffer.writeLong(connectionFactoryConfiguration.getClientFailureCheckPeriod());
+
+      buffer.writeLong(connectionFactoryConfiguration.getConnectionTTL());
+
+      buffer.writeLong(connectionFactoryConfiguration.getCallTimeout());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isCacheLargeMessagesClient());
+
+      buffer.writeInt(connectionFactoryConfiguration.getMinLargeMessageSize());
+
+      buffer.writeInt(connectionFactoryConfiguration.getConsumerWindowSize());
+
+      buffer.writeInt(connectionFactoryConfiguration.getConsumerMaxRate());
+
+      buffer.writeInt(connectionFactoryConfiguration.getConfirmationWindowSize());
+
+      buffer.writeInt(connectionFactoryConfiguration.getProducerWindowSize());
+
+      buffer.writeInt(connectionFactoryConfiguration.getProducerMaxRate());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isBlockOnAcknowledge());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isBlockOnDurableSend());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isBlockOnNonDurableSend());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isAutoGroup());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isPreAcknowledge());
+
+      BufferHelper.writeAsSimpleString(buffer, connectionFactoryConfiguration.getLoadBalancingPolicyClassName());
+
+      buffer.writeInt(connectionFactoryConfiguration.getTransactionBatchSize());
+
+      buffer.writeInt(connectionFactoryConfiguration.getDupsOKBatchSize());
+
+      buffer.writeLong(connectionFactoryConfiguration.getInitialWaitTimeout());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isUseGlobalPools());
+
+      buffer.writeInt(connectionFactoryConfiguration.getScheduledThreadPoolMaxSize());
+
+      buffer.writeInt(connectionFactoryConfiguration.getThreadPoolMaxSize());
+
+      buffer.writeLong(connectionFactoryConfiguration.getRetryInterval());
+
+      buffer.writeDouble(connectionFactoryConfiguration.getRetryIntervalMultiplier());
+
+      buffer.writeLong(connectionFactoryConfiguration.getMaxRetryInterval());
+
+      buffer.writeInt(connectionFactoryConfiguration.getReconnectAttempts());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isFailoverOnInitialConnection());
+
+      buffer.writeBoolean(connectionFactoryConfiguration.isCompressLargeMessages());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, connectionFactoryConfiguration.getGroupID());
+
+      buffer.writeInt(connectionFactoryConfiguration.getFactoryType().intValue());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, connectionFactoryConfiguration.getProtocolManagerFactoryStr());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, connectionFactoryConfiguration.getDeserializationBlackList());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, connectionFactoryConfiguration.getDeserializationWhiteList());
    }
 
    /**
