@@ -94,6 +94,7 @@ under the License.
             <module>shared-consumer</module>
             <module>slow-consumer</module>
             <module>spring-integration</module>
+            <module>spring-boot-integration</module>
             <module>ssl-enabled</module>
             <module>ssl-enabled-crl-mqtt</module>
             <module>ssl-enabled-dual-authentication</module>
