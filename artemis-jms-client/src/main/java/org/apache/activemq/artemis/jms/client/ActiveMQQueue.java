@@ -72,7 +72,7 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
 
    @Override
    public String getQueueName() {
-      return getAddress();
+      return getName();
    }
 
    @Override

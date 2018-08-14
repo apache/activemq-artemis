@@ -1793,6 +1793,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       }
 
       cf.setEnableSharedClientID(true);
+      cf.setEnable1xPrefixes(raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
       setParams(cf, overrideProperties);
       return cf;
    }
@@ -1859,6 +1860,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       cf.setReconnectAttempts(0);
       cf.setInitialConnectAttempts(0);
+      cf.setEnable1xPrefixes(raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
       cf.setEnableSharedClientID(true);
       return cf;
    }
