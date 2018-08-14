@@ -640,7 +640,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       deserializationWhiteList = BufferHelper.readNullableSimpleStringAsString(buffer);
 
-      enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : null;
+      enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
 
       enableSharedClientID = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
