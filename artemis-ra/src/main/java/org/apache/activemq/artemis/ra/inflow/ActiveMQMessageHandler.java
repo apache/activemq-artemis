@@ -124,17 +124,13 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                if (!spec.isShareSubscriptions()) {
                   throw ActiveMQRALogger.LOGGER.canNotCreatedNonSharedSubscriber();
                } else if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-                  logger.debug("the mdb on destination " + queueName + " already had " +
-                                                   subResponse.getConsumerCount() +
-                                                   " consumers but the MDB is configured to share subscriptions, so no exceptions are thrown");
+                  logger.debug("the mdb on destination " + queueName + " already had " + subResponse.getConsumerCount() + " consumers but the MDB is configured to share subscriptions, so no exceptions are thrown");
                }
             }
 
             SimpleString oldFilterString = subResponse.getFilterString();
 
-            boolean selectorChanged = selector == null && oldFilterString != null ||
-               oldFilterString == null && selector != null ||
-               (oldFilterString != null && selector != null && !oldFilterString.toString().equals(selector));
+            boolean selectorChanged = selector == null && oldFilterString != null || oldFilterString == null && selector != null || (oldFilterString != null && selector != null && !oldFilterString.toString().equals(selector));
 
             SimpleString oldTopicName = subResponse.getAddress();
 
@@ -196,6 +192,14 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
    XAResource getXAResource() {
       return useXA ? session : null;
+   }
+
+   public Thread getCurrentThread() {
+      if (consumer == null) {
+         return null;
+      }
+
+      return consumer.getCurrentThread();
    }
 
    public Thread interruptConsumer(FutureLatch future) {
