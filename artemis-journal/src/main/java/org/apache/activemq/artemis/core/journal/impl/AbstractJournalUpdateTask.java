@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.journal.impl;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -152,10 +153,11 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       }
    }
 
-   public static SequentialFile readControlFile(final SequentialFileFactory fileFactory,
+   static SequentialFile readControlFile(final SequentialFileFactory fileFactory,
                                                 final List<String> dataFiles,
                                                 final List<String> newFiles,
-                                                final List<Pair<String, String>> renameFile) throws Exception {
+                                                final List<Pair<String, String>> renameFile,
+                                                final AtomicReference<ByteBuffer> wholeFileBufferRef) throws Exception {
       SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL);
 
       if (controlFile.exists()) {
@@ -163,13 +165,12 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
          final ArrayList<RecordInfo> records = new ArrayList<>();
 
-
          JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallbackAbstract() {
             @Override
             public void onReadAddRecord(final RecordInfo info) throws Exception {
                records.add(info);
             }
-         });
+         }, wholeFileBufferRef);
 
          if (records.size() == 0) {
             // the record is damaged
@@ -205,29 +206,48 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       }
    }
 
+   public static SequentialFile readControlFile(final SequentialFileFactory fileFactory,
+                                                final List<String> dataFiles,
+                                                final List<String> newFiles,
+                                                final List<Pair<String, String>> renameFile) throws Exception {
+      return readControlFile(fileFactory, dataFiles, newFiles, renameFile, null);
+   }
+
+   private void flush(boolean releaseWritingBuffer) throws Exception {
+      if (writingChannel != null) {
+         try {
+            if (sequentialFile.isOpen()) {
+               try {
+                  sequentialFile.position(0);
+
+                  // To Fix the size of the file
+                  writingChannel.writerIndex(writingChannel.capacity());
+
+                  final ByteBuffer byteBuffer = bufferWrite;
+                  final int readerIndex = writingChannel.readerIndex();
+                  byteBuffer.clear().position(readerIndex).limit(readerIndex + writingChannel.readableBytes());
+                  sequentialFile.blockingWriteDirect(byteBuffer, true, false);
+               } finally {
+                  sequentialFile.close();
+                  newDataFiles.add(currentFile);
+               }
+            }
+         } finally {
+            if (releaseWritingBuffer) {
+               //deterministic release of native resources
+               fileFactory.releaseDirectBuffer(bufferWrite);
+               writingChannel = null;
+               bufferWrite = null;
+            }
+         }
+      }
+   }
 
    /**
     * Write pending output into file
     */
    public void flush() throws Exception {
-      if (writingChannel != null) {
-         sequentialFile.position(0);
-
-         // To Fix the size of the file
-         writingChannel.writerIndex(writingChannel.capacity());
-
-         bufferWrite.clear()
-            .position(writingChannel.readerIndex())
-            .limit(writingChannel.readableBytes());
-
-         sequentialFile.writeDirect(bufferWrite, true);
-         sequentialFile.close();
-         newDataFiles.add(currentFile);
-      }
-
-      bufferWrite = null;
-
-      writingChannel = null;
+      flush(true);
    }
 
    public boolean containsRecord(final long id) {
@@ -243,11 +263,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
     */
 
    protected void openFile() throws Exception {
-      flush();
-
-      bufferWrite = fileFactory.newBuffer(journal.getFileSize());
-
-      writingChannel = ActiveMQBuffers.wrappedBuffer(bufferWrite);
+      flush(false);
 
       currentFile = filesRepository.openFileCMP();
 
@@ -256,6 +272,21 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       sequentialFile.open(1, false);
 
       currentFile = new JournalFileImpl(sequentialFile, nextOrderingID++, JournalImpl.FORMAT_VERSION);
+
+      final int fileSize = journal.getFileSize();
+      if (bufferWrite != null && bufferWrite.capacity() < fileSize) {
+         fileFactory.releaseDirectBuffer(bufferWrite);
+         bufferWrite = null;
+         writingChannel = null;
+      }
+      if (bufferWrite == null) {
+         final ByteBuffer bufferWrite = fileFactory.allocateDirectBuffer(fileSize);
+         this.bufferWrite = bufferWrite;
+         writingChannel = ActiveMQBuffers.wrappedBuffer(bufferWrite);
+      } else {
+         writingChannel.clear();
+         bufferWrite.clear();
+      }
 
       JournalImpl.writeHeader(writingChannel, journal.getUserVersion(), currentFile.getFileID());
    }

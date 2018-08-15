@@ -274,6 +274,28 @@ final class MappedSequentialFile implements SequentialFile {
    }
 
    @Override
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
+      try {
+         checkIsOpen();
+         final int position = bytes.position();
+         final int limit = bytes.limit();
+         final int remaining = limit - position;
+         if (remaining > 0) {
+            this.mappedFile.write(bytes, position, remaining);
+            final int newPosition = position + remaining;
+            bytes.position(newPosition);
+            if (factory.isDatasync() && sync) {
+               this.mappedFile.force();
+            }
+         }
+      } finally {
+         if (releaseBuffer) {
+            this.factory.releaseBuffer(bytes);
+         }
+      }
+   }
+
+   @Override
    public int read(ByteBuffer bytes, IOCallback callback) throws IOException {
       if (callback == null) {
          throw new NullPointerException("callback parameter need to be set");
