@@ -290,7 +290,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("HornetQMessageHandler::calling beforeDelivery on message " + message);
+            logger.trace("ActiveMQMessageHandler::calling beforeDelivery on message " + message);
          }
 
          endpoint.beforeDelivery(ActiveMQActivation.ONMESSAGE);
@@ -310,7 +310,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("HornetQMessageHandler::calling afterDelivery on message " + message);
+            logger.trace("ActiveMQMessageHandler::calling afterDelivery on message " + message);
          }
 
          try {
