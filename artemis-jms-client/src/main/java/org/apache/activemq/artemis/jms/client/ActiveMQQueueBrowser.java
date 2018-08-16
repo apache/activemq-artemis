@@ -49,18 +49,22 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    private SimpleString filterString;
 
+   private final boolean enable1xPrefixes;
+
    // Constructors ---------------------------------------------------------------------------------
 
    protected ActiveMQQueueBrowser(final ConnectionFactoryOptions options,
                                   final ActiveMQQueue queue,
                                   final String messageSelector,
-                                  final ClientSession session) throws JMSException {
+                                  final ClientSession session,
+                                  final boolean enable1xPrefixes) throws JMSException {
       this.options = options;
       this.session = session;
       this.queue = queue;
       if (messageSelector != null) {
          filterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
       }
+      this.enable1xPrefixes = enable1xPrefixes;
    }
 
    // QueueBrowser implementation -------------------------------------------------------------------
@@ -138,6 +142,11 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
             ClientMessage next = current;
             current = null;
             msg = ActiveMQMessage.createMessage(next, session, options);
+
+            if (enable1xPrefixes) {
+               msg.setEnable1xPrefixes(true);
+            }
+
             try {
                msg.doBeforeReceive();
             } catch (Exception e) {

@@ -220,6 +220,10 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                coreMessage.getType() == ActiveMQObjectMessage.TYPE;
             jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
 
+            if (session.isEnable1xPrefixes()) {
+               jmsMsg.setEnable1xPrefixes(true);
+            }
+
             try {
                jmsMsg.doBeforeReceive();
             } catch (IndexOutOfBoundsException ioob) {
