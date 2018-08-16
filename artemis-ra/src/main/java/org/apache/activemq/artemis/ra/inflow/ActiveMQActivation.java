@@ -455,6 +455,7 @@ public class ActiveMQActivation {
             // to make sure we won't close anyone's connection factory when we stop the MDB
             factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
             factory.setEnableSharedClientID(true);
+            factory.setEnable1xPrefixes(((ActiveMQResourceAdapter) fac).isEnable1xPrefixes());
          } else {
             factory = ra.newConnectionFactory(spec);
          }
