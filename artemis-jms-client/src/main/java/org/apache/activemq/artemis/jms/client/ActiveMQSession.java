@@ -879,7 +879,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
 
-      return new ActiveMQQueueBrowser(options, (ActiveMQQueue) activeMQDestination, filterString, session);
+      return new ActiveMQQueueBrowser(options, (ActiveMQQueue) activeMQDestination, filterString, session, enable1xPrefixes);
 
    }
 
@@ -1124,6 +1124,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    public void removeConsumer(final ActiveMQMessageConsumer consumer) {
       consumers.remove(consumer);
+   }
+
+   public boolean isEnable1xPrefixes() {
+      return enable1xPrefixes;
    }
 
    // Package protected ---------------------------------------------

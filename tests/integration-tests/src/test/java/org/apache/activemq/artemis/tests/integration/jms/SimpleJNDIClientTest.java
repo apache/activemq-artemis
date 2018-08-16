@@ -676,7 +676,6 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
-      ((ActiveMQConnectionFactory)connectionFactory).setEnable1xPrefixes(true);
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
 
