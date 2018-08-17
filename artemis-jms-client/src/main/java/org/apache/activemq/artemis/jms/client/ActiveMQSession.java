@@ -144,28 +144,36 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public BytesMessage createBytesMessage() throws JMSException {
       checkClosed();
 
-      return new ActiveMQBytesMessage(session);
+      ActiveMQBytesMessage message = new ActiveMQBytesMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
+      return message;
    }
 
    @Override
    public MapMessage createMapMessage() throws JMSException {
       checkClosed();
 
-      return new ActiveMQMapMessage(session);
+      ActiveMQMapMessage message = new ActiveMQMapMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
+      return message;
    }
 
    @Override
    public Message createMessage() throws JMSException {
       checkClosed();
 
-      return new ActiveMQMessage(session);
+      ActiveMQMessage message = new ActiveMQMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
+      return message;
    }
 
    @Override
    public ObjectMessage createObjectMessage() throws JMSException {
       checkClosed();
 
-      return new ActiveMQObjectMessage(session, options);
+      ActiveMQObjectMessage message = new ActiveMQObjectMessage(session, options);
+      message.setEnable1xPrefixes(enable1xPrefixes);
+      return message;
    }
 
    @Override
@@ -173,8 +181,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQObjectMessage msg = new ActiveMQObjectMessage(session, options);
-
       msg.setObject(object);
+      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -183,7 +191,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public StreamMessage createStreamMessage() throws JMSException {
       checkClosed();
 
-      return new ActiveMQStreamMessage(session);
+      ActiveMQStreamMessage message = new ActiveMQStreamMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
+      return message;
    }
 
    @Override
@@ -191,8 +201,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
-
       msg.setText(null);
+      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -202,8 +212,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
-
       msg.setText(text);
+      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
