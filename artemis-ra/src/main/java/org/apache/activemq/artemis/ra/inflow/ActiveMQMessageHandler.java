@@ -282,6 +282,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       }
 
       ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session, options);
+      msg.setEnable1xPrefixes(activation.getConnectionFactory().isEnable1xPrefixes());
+
       boolean beforeDelivery = false;
 
       try {
