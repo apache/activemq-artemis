@@ -1500,9 +1500,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
          XAException xaException = null;
          if (onePhase) {
+            logger.debug("Throwing oneFase RMFAIL on xid=" + xid, t);
             //we must return XA_RMFAIL
             xaException = new XAException(XAException.XAER_RMFAIL);
          } else {
+            logger.debug("Throwing twoFase Retry on xid=" + xid, t);
             // Any error on commit -> RETRY
             // We can't rollback a Prepared TX for definition
             xaException = new XAException(XAException.XA_RETRY);
@@ -1753,7 +1755,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       } catch (XAException xae) {
          throw xae;
       } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT || e.getType() == ActiveMQExceptionType.SHUTDOWN_ERROR) {
             // Unblocked on failover
             throw new XAException(XAException.XA_RETRY);
          }

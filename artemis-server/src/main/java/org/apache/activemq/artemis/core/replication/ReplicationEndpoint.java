@@ -150,6 +150,20 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       journals[id] = journal;
    }
 
+   /**
+    * This is for tests basically, do not use it as its API is not guaranteed for future usage.
+    */
+   public void pause() {
+      started = false;
+   }
+
+   /**
+    * This is for tests basically, do not use it as its API is not guaranteed for future usage.
+    */
+   public void resume() {
+      started = true;
+   }
+
    @Override
    public void handlePacket(final Packet packet) {
       if (logger.isTraceEnabled()) {

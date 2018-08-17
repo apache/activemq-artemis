@@ -229,9 +229,21 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public synchronized void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
+   public void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
+      try {
+         enterCritical(CRITICAL_STOP);
+         synchronized (this) {
+            if (internalStop(ioCriticalError, sendFailover))
+               return;
+         }
+      } finally {
+         leaveCritical(CRITICAL_STOP);
+      }
+   }
+
+   private boolean internalStop(boolean ioCriticalError, boolean sendFailover) throws Exception {
       if (!started) {
-         return;
+         return true;
       }
 
       if (!ioCriticalError) {
@@ -255,30 +267,41 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          // that's ok
       }
 
-      // We cache the variable as the replicator could be changed between here and the time we call stop
-      // since sendLiveIsStopping may issue a close back from the channel
-      // and we want to ensure a stop here just in case
-      ReplicationManager replicatorInUse = replicator;
-      if (replicatorInUse != null) {
-         if (sendFailover) {
-            final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
-            if (token != null) {
-               try {
-                  token.waitCompletion(5000);
-               } catch (Exception e) {
-                  // ignore it
+      enterCritical(CRITICAL_STOP_2);
+      storageManagerLock.writeLock().lock();
+      try {
+
+         // We cache the variable as the replicator could be changed between here and the time we call stop
+         // since sendLiveIsStopping may issue a close back from the channel
+         // and we want to ensure a stop here just in case
+         ReplicationManager replicatorInUse = replicator;
+         if (replicatorInUse != null) {
+            if (sendFailover) {
+               final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
+               if (token != null) {
+                  try {
+                     token.waitCompletion(5000);
+                  } catch (Exception e) {
+                     // ignore it
+                  }
                }
             }
+            // we cannot clear replication tokens, otherwise clients will eventually be informed of completion during a server's shutdown
+            // while the backup will never receive then
+            replicatorInUse.stop(false);
          }
-         replicatorInUse.stop();
+         bindingsJournal.stop();
+
+         messageJournal.stop();
+
+         journalLoaded = false;
+
+         started = false;
+      } finally {
+         storageManagerLock.writeLock().unlock();
+         leaveCritical(CRITICAL_STOP_2);
       }
-      bindingsJournal.stop();
-
-      messageJournal.stop();
-
-      journalLoaded = false;
-
-      started = false;
+      return false;
    }
 
    /**
