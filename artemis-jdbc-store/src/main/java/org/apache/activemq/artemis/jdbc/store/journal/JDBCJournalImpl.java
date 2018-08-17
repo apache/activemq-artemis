@@ -31,7 +31,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
@@ -334,19 +336,19 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
 
-   private void checkStatus() {
+   private void checkStatus() throws Exception {
       checkStatus(null);
    }
 
-   private void checkStatus(IOCompletion callback) {
+   private void checkStatus(IOCompletion callback) throws Exception {
       if (!started) {
          if (callback != null) callback.onError(-1, "JDBC Journal is not loaded");
-         throw new IllegalStateException("JDBCJournal is not loaded");
+         throw new ActiveMQShutdownException("JDBCJournal is not loaded");
       }
 
       if (failed.get()) {
          if (callback != null) callback.onError(-1, "JDBC Journal failed");
-         throw new IllegalStateException("JDBCJournal Failed");
+         throw new ActiveMQException("JDBCJournal Failed");
       }
    }
 
@@ -388,7 +390,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       if (callback != null) callback.waitCompletion();
    }
 
-   private synchronized void addTxRecord(JDBCJournalRecord record) {
+   private synchronized void addTxRecord(JDBCJournalRecord record) throws Exception {
 
       if (logger.isTraceEnabled()) {
          logger.trace("addTxRecord " + record + ", started=" + started + ", failed=" + failed);
