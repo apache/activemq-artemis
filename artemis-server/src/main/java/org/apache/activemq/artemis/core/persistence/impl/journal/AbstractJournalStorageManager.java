@@ -126,8 +126,10 @@ import org.jboss.logging.Logger;
  */
 public abstract class AbstractJournalStorageManager extends CriticalComponentImpl implements StorageManager {
 
-   private static final int CRITICAL_PATHS = 1;
-   private static final int CRITICAL_STORE = 0;
+   protected static final int CRITICAL_PATHS = 3;
+   protected static final int CRITICAL_STORE = 0;
+   protected static final int CRITICAL_STOP = 1;
+   protected static final int CRITICAL_STOP_2 = 2;
 
    private static final Logger logger = Logger.getLogger(AbstractJournalStorageManager.class);
 
@@ -403,6 +405,16 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    public void readUnLock() {
       storageManagerLock.readLock().unlock();
       leaveCritical(CRITICAL_STORE);
+   }
+
+   /** for internal use and testsuite, don't use it outside of tests */
+   public void writeLock() {
+      storageManagerLock.writeLock().lock();
+   }
+
+   /** for internal use and testsuite, don't use it outside of tests */
+   public void writeUnlock() {
+      storageManagerLock.writeLock().unlock();
    }
 
    @Override
