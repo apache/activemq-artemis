@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.utils.ArtemisSystemProperties;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -124,7 +125,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
 
-   private boolean enable1xPrefixes = ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
+   private boolean enable1xPrefixes = ArtemisSystemProperties.getInstance().is1XPrefix();
 
    private boolean enableSharedClientID = ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
@@ -640,7 +641,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       deserializationWhiteList = BufferHelper.readNullableSimpleStringAsString(buffer);
 
-      enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
+      enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : ArtemisSystemProperties.getInstance().is1XPrefix();
 
       enableSharedClientID = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 

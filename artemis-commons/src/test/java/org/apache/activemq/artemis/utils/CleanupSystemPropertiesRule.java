@@ -79,6 +79,9 @@ public class CleanupSystemPropertiesRule extends ExternalResource {
          }
 
          System.out.println("======================================================================================================");
+
+         // re-init this, to avoid inner test dependencies
+         ArtemisSystemProperties.init();
       }
 
 

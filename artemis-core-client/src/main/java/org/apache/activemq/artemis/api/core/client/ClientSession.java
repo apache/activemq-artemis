@@ -30,6 +30,14 @@ import org.apache.activemq.artemis.api.core.RoutingType;
  */
 public interface ClientSession extends XAResource, AutoCloseable {
 
+   /** Even though this is a JMS Concept, for compatibility on the JMS facade, this is the best generic place to enable
+    *  such flag */
+   boolean isEnable1xPrefixes();
+
+   /** Even though this is a JMS Concept, for compatibility on the JMS facade, this is the best generic place to enable
+    *  such flag */
+   void setEnable1xPrefixes(boolean value);
+
    /**
     * This is used to identify a ClientSession as used by the JMS Layer
     * The JMS Layer will add this through Meta-data, so the server or management layers

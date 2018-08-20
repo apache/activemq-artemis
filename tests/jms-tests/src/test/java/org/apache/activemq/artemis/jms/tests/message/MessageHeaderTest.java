@@ -767,6 +767,16 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
    class FakeSession implements ClientSession {
 
       @Override
+      public boolean isEnable1xPrefixes() {
+         return false;
+      }
+
+      @Override
+      public void setEnable1xPrefixes(boolean value) {
+
+      }
+
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final boolean browseOnly) throws ActiveMQException {
          // TODO Auto-generated method stub

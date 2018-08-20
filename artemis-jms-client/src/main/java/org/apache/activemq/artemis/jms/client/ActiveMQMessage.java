@@ -209,8 +209,6 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    private boolean clientAck;
 
-   private boolean enable1xPrefixes;
-
    private long jmsDeliveryTime;
 
    // Constructors --------------------------------------------------
@@ -371,7 +369,7 @@ public class ActiveMQMessage implements javax.jms.Message {
             String name = address.toString();
 
             // swap the old prefixes for the new ones so the proper destination type gets created
-            if (enable1xPrefixes) {
+            if (session.isEnable1xPrefixes()) {
                if (address.startsWith(OLD_QUEUE_QUALIFIED_PREFIX)) {
                   name = address.subSeq(OLD_QUEUE_QUALIFIED_PREFIX.length(), address.length()).toString();
                } else if (address.startsWith(OLD_TEMP_QUEUE_QUALIFED_PREFIX)) {
@@ -423,7 +421,7 @@ public class ActiveMQMessage implements javax.jms.Message {
          SimpleString address = message.getAddressSimpleString();
          SimpleString name = address;
 
-         if (address != null & enable1xPrefixes) {
+         if (address != null & session.isEnable1xPrefixes()) {
             if (address.startsWith(PacketImpl.OLD_QUEUE_PREFIX)) {
                name = address.subSeq(PacketImpl.OLD_QUEUE_PREFIX.length(), address.length());
             } else if (address.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX)) {
@@ -901,10 +899,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
-   }
-
-   public void setEnable1xPrefixes(boolean enable1xPrefixes) {
-      this.enable1xPrefixes = enable1xPrefixes;
    }
 
    @Override

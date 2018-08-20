@@ -145,7 +145,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQBytesMessage message = new ActiveMQBytesMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -154,7 +153,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQMapMessage message = new ActiveMQMapMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -163,7 +161,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQMessage message = new ActiveMQMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -172,7 +169,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQObjectMessage message = new ActiveMQObjectMessage(session, options);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -182,7 +178,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQObjectMessage msg = new ActiveMQObjectMessage(session, options);
       msg.setObject(object);
-      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -192,7 +187,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQStreamMessage message = new ActiveMQStreamMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -202,7 +196,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
       msg.setText(null);
-      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -213,7 +206,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
       msg.setText(text);
-      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }

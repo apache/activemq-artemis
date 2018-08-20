@@ -612,7 +612,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          } else if (acknowledgeMode == Session.AUTO_ACKNOWLEDGE) {
             session = sessionFactory.createSession(username, password, isXA, true, true, sessionFactory.getServerLocator().isPreAcknowledge(), 0);
          } else if (acknowledgeMode == Session.DUPS_OK_ACKNOWLEDGE) {
-            session = sessionFactory.createSession(username, password, isXA, true, true, sessionFactory.getServerLocator().isPreAcknowledge(), dupsOKBatchSize);
+            session = (ClientSessionInternal)sessionFactory.createSession(username, password, isXA, true, true, sessionFactory.getServerLocator().isPreAcknowledge(), dupsOKBatchSize);
          } else if (acknowledgeMode == Session.CLIENT_ACKNOWLEDGE) {
             session = sessionFactory.createSession(username, password, isXA, true, false, sessionFactory.getServerLocator().isPreAcknowledge(), isBlockOnAcknowledge ? transactionBatchSize : ackBatchSize);
          } else if (acknowledgeMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
@@ -628,6 +628,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          // Setting multiple times on different sessions doesn't matter since RemotingConnection
          // maintains
          // a set (no duplicates)
+         session.setEnable1xPrefixes(enable1xPrefixes);
          session.addFailureListener(listener);
          session.addFailoverListener(failoverListener);
 
