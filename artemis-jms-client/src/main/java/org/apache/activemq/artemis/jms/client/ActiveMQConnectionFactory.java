@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
@@ -94,7 +95,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private boolean ignoreJTA;
 
-   private boolean enable1xPrefixes = ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
+   private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
