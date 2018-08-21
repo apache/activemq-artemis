@@ -17,6 +17,9 @@
 package org.apache.activemq.artemis.utils;
 
 import java.net.URL;
+import java.util.Properties;
+
+import org.jboss.logging.Logger;
 
 /**
  * This class will be used to perform generic class-loader operations,
@@ -26,6 +29,8 @@ import java.net.URL;
  */
 
 public final class ClassloadingUtil {
+
+   private static final Logger logger = Logger.getLogger(ClassloadingUtil.class);
 
    private static final String INSTANTIATION_EXCEPTION_MESSAGE = "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
 
@@ -84,7 +89,10 @@ public final class ClassloadingUtil {
    }
 
    public static URL findResource(final String resourceName) {
-      ClassLoader loader = ClassloadingUtil.class.getClassLoader();
+      return findResource(ClassloadingUtil.class.getClassLoader(), resourceName);
+   }
+
+   public static URL findResource(ClassLoader loader, final String resourceName) {
       try {
          URL resource = loader.getResource(resourceName);
          if (resource != null)
@@ -98,4 +106,26 @@ public final class ClassloadingUtil {
 
       return loader.getResource(resourceName);
    }
+
+
+   public static String loadProperty(ClassLoader loader, String propertiesFile, String name) {
+      Properties properties = loadProperties(loader, propertiesFile);
+
+      return (String)properties.get(name);
+   }
+
+   public static Properties loadProperties(ClassLoader loader, String propertiesFile) {
+      Properties properties = new Properties();
+
+      try {
+         URL url = findResource(loader, propertiesFile);
+         if (url != null) {
+            properties.load(url.openStream());
+         }
+      } catch (Throwable ignored) {
+         logger.warn(ignored);
+      }
+      return properties;
+   }
+
 }
