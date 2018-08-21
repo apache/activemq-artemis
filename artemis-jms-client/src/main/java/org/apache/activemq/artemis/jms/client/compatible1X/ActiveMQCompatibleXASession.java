@@ -14,31 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jms.client;
 
-import javax.jms.XAQueueSession;
-import javax.jms.XATopicSession;
+package org.apache.activemq.artemis.jms.client.compatible1X;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQXASession;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 
-public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession {
+public class ActiveMQCompatibleXASession extends ActiveMQXASession {
 
-   /**
-    * @param connection
-    * @param transacted
-    * @param xa
-    * @param ackMode
-    * @param session
-    * @param sessionType
-    */
-   protected ActiveMQXASession(final ConnectionFactoryOptions options,
-                               ActiveMQConnection connection,
-                               boolean transacted,
-                               boolean xa,
-                               int ackMode,
-                               boolean cacheDestinations,
-                               ClientSession session,
-                               int sessionType) {
+   public ActiveMQCompatibleXASession(ConnectionFactoryOptions options,
+                                      ActiveMQConnection connection,
+                                      boolean transacted,
+                                      boolean xa,
+                                      int ackMode,
+                                      boolean cacheDestinations,
+                                      ClientSession session,
+                                      int sessionType) {
       super(options, connection, transacted, xa, ackMode, cacheDestinations, session, sessionType);
    }
 }

@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
+import org.apache.activemq.artemis.utils.ArtemisSystemProperties;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 
@@ -94,7 +95,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private boolean ignoreJTA;
 
-   private boolean enable1xPrefixes = ActiveMQClient.DEFAULT_ENABLE_1X_PREFIXES;
+   private boolean enable1xPrefixes = ArtemisSystemProperties.getInstance().is1XPrefix();
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {

@@ -40,9 +40,9 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 /**
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
  */
-public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber {
+public class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber {
 
-   private final ConnectionFactoryOptions options;
+   protected final ConnectionFactoryOptions options;
 
    private final ClientConsumer consumer;
 
@@ -218,11 +218,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
             boolean needSession = ackMode == Session.CLIENT_ACKNOWLEDGE ||
                ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE ||
                coreMessage.getType() == ActiveMQObjectMessage.TYPE;
-            jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
-
-            if (session.isEnable1xPrefixes()) {
-               jmsMsg.setEnable1xPrefixes(true);
-            }
+            jmsMsg = getActiveMQMessage(coreMessage, coreSession, needSession);
 
             try {
                jmsMsg.doBeforeReceive();
@@ -257,6 +253,12 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
          ((ClientSessionInternal) session.getCoreSession()).markRollbackOnly();
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
+   }
+
+   protected ActiveMQMessage getActiveMQMessage(ClientMessage coreMessage,
+                                                ClientSession coreSession,
+                                                boolean needSession) {
+      return ActiveMQMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
    }
 
    // Inner classes -------------------------------------------------

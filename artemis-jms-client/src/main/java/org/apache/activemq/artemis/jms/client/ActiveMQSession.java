@@ -82,9 +82,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    private static SimpleString REJECTING_FILTER = new SimpleString("_AMQX=-1");
 
-   private final ConnectionFactoryOptions options;
+   protected final ConnectionFactoryOptions options;
 
-   private final ActiveMQConnection connection;
+   protected final ActiveMQConnection connection;
 
    private final ClientSession session;
 
@@ -102,8 +102,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    private final boolean cacheDestination;
 
-   private final boolean enable1xPrefixes;
-
    private final Map<String, Topic> topicCache = new ConcurrentHashMap<>();
 
    private final Map<String, Queue> queueCache = new ConcurrentHashMap<>();
@@ -116,7 +114,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                              final boolean xa,
                              final int ackMode,
                              final boolean cacheDestination,
-                             final boolean enable1xPrefixes,
                              final ClientSession session,
                              final int sessionType) {
       this.options = options;
@@ -134,8 +131,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       this.xa = xa;
 
       this.cacheDestination = cacheDestination;
-
-      this.enable1xPrefixes = enable1xPrefixes;
    }
 
    // Session implementation ----------------------------------------
@@ -145,7 +140,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQBytesMessage message = new ActiveMQBytesMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -154,7 +148,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQMapMessage message = new ActiveMQMapMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -163,7 +156,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQMessage message = new ActiveMQMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -172,7 +164,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQObjectMessage message = new ActiveMQObjectMessage(session, options);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -182,7 +173,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQObjectMessage msg = new ActiveMQObjectMessage(session, options);
       msg.setObject(object);
-      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -192,7 +182,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
 
       ActiveMQStreamMessage message = new ActiveMQStreamMessage(session);
-      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -202,7 +191,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
       msg.setText(null);
-      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -213,7 +201,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
       msg.setText(text);
-      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -674,7 +661,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          consumer = session.createConsumer(queueName, null, false);
 
-         ActiveMQMessageConsumer jbc = new ActiveMQMessageConsumer(options, connection, this, consumer, false, dest, selectorString, autoDeleteQueueName);
+         ActiveMQMessageConsumer jbc = newConsumer(dest, selectorString, false, consumer, autoDeleteQueueName);
 
          consumers.add(jbc);
 
@@ -826,7 +813,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             }
          }
 
-         ActiveMQMessageConsumer jbc = new ActiveMQMessageConsumer(options, connection, this, consumer, noLocal, dest, selectorString, autoDeleteQueueName);
+         ActiveMQMessageConsumer jbc = newConsumer(dest, selectorString, noLocal, consumer, autoDeleteQueueName);
 
          consumers.add(jbc);
 
@@ -834,6 +821,14 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
+   }
+
+   protected ActiveMQMessageConsumer newConsumer(ActiveMQDestination dest,
+                                                 String selectorString,
+                                                 boolean noLocal,
+                                                 ClientConsumer consumer,
+                                                 SimpleString autoDeleteQueueName) throws JMSException {
+      return new ActiveMQMessageConsumer(options, connection, this, consumer, noLocal, dest, selectorString, autoDeleteQueueName);
    }
 
    public void ackAllConsumers() throws JMSException {
@@ -901,12 +896,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         final ActiveMQTemporaryQueue queue;
-         if (enable1xPrefixes) {
-            queue  = ActiveMQDestination.createTemporaryQueue(this, PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString());
-         } else {
-            queue  = ActiveMQDestination.createTemporaryQueue(this);
-         }
+         final ActiveMQTemporaryQueue queue = newTemporaryQueue();
 
          SimpleString simpleAddress = queue.getSimpleAddress();
 
@@ -920,6 +910,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   protected ActiveMQTemporaryQueue newTemporaryQueue() {
+      return ActiveMQDestination.createTemporaryQueue(this);
+   }
+
    @Override
    public TemporaryTopic createTemporaryTopic() throws JMSException {
       // As per spec. section 4.11
@@ -929,11 +923,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       try {
          final ActiveMQTemporaryTopic topic;
-         if (enable1xPrefixes) {
-            topic  = ActiveMQDestination.createTemporaryTopic(this, PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString());
-         } else {
-            topic  = ActiveMQDestination.createTemporaryTopic(this);
-         }
+         topic = newTemporaryTopic();
 
          SimpleString simpleAddress = topic.getSimpleAddress();
 
@@ -950,6 +940,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
+   }
+
+   protected ActiveMQTemporaryTopic newTemporaryTopic() {
+      return ActiveMQDestination.createTemporaryTopic(this);
    }
 
    @Override

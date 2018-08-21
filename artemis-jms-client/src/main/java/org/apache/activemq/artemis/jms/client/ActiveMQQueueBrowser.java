@@ -143,10 +143,6 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
             current = null;
             msg = ActiveMQMessage.createMessage(next, session, options);
 
-            if (enable1xPrefixes) {
-               msg.setEnable1xPrefixes(true);
-            }
-
             try {
                msg.doBeforeReceive();
             } catch (Exception e) {

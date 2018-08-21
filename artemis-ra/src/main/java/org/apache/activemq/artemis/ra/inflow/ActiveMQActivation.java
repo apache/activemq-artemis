@@ -385,6 +385,11 @@ public class ActiveMQActivation {
             Thread interruptThread = handler.getCurrentThread();
             if (interruptThread != null) {
                try {
+                  logger.tracef("Interrupting thread %s", interruptThread.getName());
+               } catch (Throwable justLog) {
+                  logger.warn(justLog);
+               }
+               try {
                   interruptThread.interrupt();
                } catch (Throwable e) {
                   //ok
@@ -477,6 +482,7 @@ public class ActiveMQActivation {
 
       try {
          result = ra.createSession(cf, spec.getAcknowledgeModeInt(), spec.getUser(), spec.getPassword(), ra.getPreAcknowledge(), ra.getDupsOKBatchSize(), ra.getTransactionBatchSize(), isDeliveryTransacted, spec.isUseLocalTx(), spec.getTransactionTimeout());
+         result.setEnable1xPrefixes(spec.isEnable1xPrefixes());
 
          result.addMetaData("resource-adapter", "inbound");
          result.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");

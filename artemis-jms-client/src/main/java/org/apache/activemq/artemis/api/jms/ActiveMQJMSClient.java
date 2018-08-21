@@ -21,9 +21,11 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
+import org.apache.activemq.artemis.utils.ArtemisSystemProperties;
 
 /**
  * A utility class for creating ActiveMQ Artemis client-side JMS managed resources.
@@ -115,21 +117,37 @@ public class ActiveMQJMSClient {
    /**
     * Creates a client-side representation of a JMS Topic.
     *
+    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createTopic(String)} as that method will know the proper
+    * prefix used at the target server.
+    *
     * @param name the name of the topic
     * @return The Topic
     */
+   @Deprecated
    public static Topic createTopic(final String name) {
-      return ActiveMQDestination.createTopic(name);
+      if (ArtemisSystemProperties.getInstance().is1XPrefix()) {
+         return ActiveMQDestination.createTopic(PacketImpl.OLD_TOPIC_PREFIX + name);
+      } else {
+         return ActiveMQDestination.createTopic(name);
+      }
    }
 
    /**
     * Creates a client-side representation of a JMS Queue.
     *
+    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createQueue(String)} (String)} as that method will know the proper
+    * prefix used at the target server.
+    * *
     * @param name the name of the queue
     * @return The Queue
     */
+   @Deprecated
    public static Queue createQueue(final String name) {
-      return ActiveMQDestination.createQueue(name);
+      if (ArtemisSystemProperties.getInstance().is1XPrefix()) {
+         return ActiveMQDestination.createQueue(PacketImpl.OLD_QUEUE_PREFIX + name);
+      } else {
+         return ActiveMQDestination.createQueue(name);
+      }
    }
 
    private ActiveMQJMSClient() {

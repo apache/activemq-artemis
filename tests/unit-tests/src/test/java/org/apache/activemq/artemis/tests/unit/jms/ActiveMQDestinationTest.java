@@ -20,8 +20,13 @@ import javax.jms.Destination;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ArtemisSystemProperties;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,6 +44,24 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
+
+
+   @Test
+   public void test1XPrefix() throws Exception {
+      System.setProperty("org.apache.activemq.artemis.enable1xPrefixes", "true");
+      ArtemisSystemProperties.init();
+      Assert.assertTrue(ArtemisSystemProperties.getInstance().is1XPrefix());
+      ActiveMQQueue queue = (ActiveMQQueue)ActiveMQJMSClient.createQueue("q1");
+      Assert.assertEquals("jms.queue.q1", queue.getQueueName());
+      ActiveMQTopic topic = (ActiveMQTopic) ActiveMQJMSClient.createTopic("t1");
+      Assert.assertEquals("jms.topic.t1", topic.getTopicName());
+      System.clearProperty("org.apache.activemq.artemis.enable1xPrefixes");
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+      Assert.assertTrue(factory.isEnable1xPrefixes());
+      ArtemisSystemProperties.init();
+
+   }
 
    @Test
    public void testEquals() throws Exception {

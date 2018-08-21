@@ -150,6 +150,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final Executor closeExecutor;
 
+   private boolean enable1XPrefixes;
+
    private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    ClientSessionImpl(final ClientSessionFactoryInternal sessionFactory,
@@ -240,6 +242,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // ClientSession implementation
    // -----------------------------------------------------------------
+
+   @Override
+   public boolean isEnable1xPrefixes() {
+      return enable1XPrefixes;
+   }
+
+   @Override
+   public void setEnable1xPrefixes(boolean value) {
+      this.enable1XPrefixes = value;
+   }
 
    @Override
    public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
