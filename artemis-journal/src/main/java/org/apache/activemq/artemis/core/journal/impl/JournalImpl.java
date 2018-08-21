@@ -48,6 +48,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -823,6 +824,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                              usedFile);
                }
                result.set(true);
+            } catch (ActiveMQShutdownException e) {
+               result.fail(e);
+               logger.error("appendPrepareRecord:" + e, e);
             } catch (Throwable e) {
                result.fail(e);
                setErrorCondition(callback, null, e);
@@ -882,7 +886,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                result.set(true);
-            } catch (Exception e) {
+            } catch (ActiveMQShutdownException e) {
+               result.fail(e);
+               logger.error("appendUpdateRecord:" + e, e);
+            } catch (Throwable e) {
                result.fail(e);
                setErrorCondition(callback, null, e);
                logger.error("appendUpdateRecord:" + e, e);
@@ -933,7 +940,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   record.delete(usedFile);
                }
                result.set(true);
-            } catch (Exception e) {
+            } catch (ActiveMQShutdownException e) {
+               result.fail(e);
+               logger.error("appendDeleteRecord:" + e, e);
+            } catch (Throwable e) {
                result.fail(e);
                logger.error("appendDeleteRecord:" + e, e);
             } finally {
@@ -993,7 +1003,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                tx.addPositive(usedFile, id, addRecord.getEncodeSize());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                logger.error("appendAddRecordTransactional:" + e, e);
                setErrorCondition(null, tx, e);
             } finally {
@@ -1031,9 +1041,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
    }
 
-   private void checkJournalIsLoaded() {
+   private void checkJournalIsLoaded() throws Exception {
       if (state != JournalState.LOADED && state != JournalState.SYNCING) {
-         throw new IllegalStateException("Journal must be in state=" + JournalState.LOADED + ", was [" + state + "]");
+         throw new ActiveMQShutdownException("Journal must be in state=" + JournalState.LOADED + ", was [" + state + "]");
       }
    }
 
@@ -1085,7 +1095,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                tx.addPositive( usedFile, id, updateRecordTX.getEncodeSize() );
-            } catch ( Exception e ) {
+            } catch (Throwable e ) {
                logger.error("appendUpdateRecordTransactional:" +  e.getMessage(), e );
                setErrorCondition(null, tx, e );
             } finally {
@@ -1132,7 +1142,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                tx.addNegative(usedFile, id);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                logger.error("appendDeleteRecordTransactional:" + e, e);
                setErrorCondition(null, tx, e);
             } finally {
@@ -1185,7 +1195,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                tx.prepare(usedFile);
-            } catch (Exception e) {
+            } catch (ActiveMQShutdownException e) {
+               result.fail(e);
+               logger.error("appendPrepareRecord:" + e, e);
+            } catch (Throwable e) {
                result.fail(e);
                logger.error("appendPrepareRecord:" + e, e);
                setErrorCondition(callback, tx, e);
@@ -1267,6 +1280,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
 
                tx.commit(usedFile);
+            } catch (ActiveMQShutdownException e) {
+               result.fail(e);
+               logger.error("appendCommitRecord:" + e, e);
             } catch (Throwable e) {
                result.fail(e);
                logger.error("appendCommitRecord:" + e, e);
@@ -1317,6 +1333,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                JournalFile usedFile = appendRecord(rollbackRecord, false, sync, tx, callback);
 
                tx.rollback(usedFile);
+            } catch (ActiveMQShutdownException e) {
+               result.fail(e);
+               logger.error("appendRollbackRecord:" + e, e);
             } catch (Throwable e) {
                result.fail(e);
                logger.error("appendRollbackRecord:" + e, e);
@@ -2360,9 +2379,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          return;
       }
 
-      setJournalState(JournalState.STOPPED);
-
       flush();
+
+      setJournalState(JournalState.STOPPED);
 
       if (providedIOThreadPool == null) {
          threadPool.shutdown();
@@ -2680,6 +2699,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                     final boolean sync,
                                     final JournalTransaction tx,
                                     final IOCallback parameterCallback) throws Exception {
+
+      checkJournalIsLoaded();
 
       final IOCallback callback;
 
