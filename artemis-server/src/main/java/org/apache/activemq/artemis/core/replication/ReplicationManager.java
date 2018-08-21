@@ -282,6 +282,10 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    @Override
    public void stop() throws Exception {
+      stop(true);
+   }
+
+   public void stop(boolean clearTokens) throws Exception {
       synchronized (this) {
          if (!started) {
             logger.trace("Stopping being ignored as it hasn't been started");
@@ -297,7 +301,10 @@ public final class ReplicationManager implements ActiveMQComponent {
 
       enabled = false;
       writable.set(true);
-      clearReplicationTokens();
+
+      if (clearTokens) {
+         clearReplicationTokens();
+      }
 
       RemotingConnection toStop = remotingConnection;
       if (toStop != null) {
