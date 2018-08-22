@@ -577,6 +577,17 @@ public class ActiveMQSessionContext extends SessionContext {
 
       Xid[] xidArray = xids.toArray(new Xid[xids.size()]);
 
+      if (logger.isTraceEnabled()) {
+         StringBuffer buffer = new StringBuffer();
+         for (int i = 0; i < xidArray.length; i++) {
+            buffer.append(xidArray[i].toString());
+            if (i + 1 < xidArray.length) {
+               buffer.append(",");
+            }
+         }
+         logger.trace("xaScan returning " + xidArray.length + " xids = [" + buffer.toString() + "]");
+      }
+
       return xidArray;
    }
 
