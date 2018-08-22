@@ -33,7 +33,16 @@ but the general process is as follows:
    ```
    ARTEMIS_HOME='/path/to/apache-artemis-version'
    ```
- 
+
+If you run Artemis as a service on windows you have to do the following additional steps:
+
+1. Navigate to the `bin` folder of the broker instance that's being upgraded
+1. Open `artemis-service.xml`. It contains a property which is relevant for the upgrade:
+
+   ```
+   <env name="ARTEMIS_HOME" value="/path/to/apache-artemis-version"/>
+   ```
+
 The `ARTEMIS_HOME` property is used to link the instance with the home.  _In
 most cases_ the instance can be upgraded to a newer version simply by changing
 the value of this property to the location of the new broker home. Please refer
