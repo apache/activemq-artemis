@@ -877,62 +877,69 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          logger.trace("Message after routed=" + message);
       }
 
-      if (context.getQueueCount() == 0) {
-         // Send to DLA if appropriate
+      try {
+         if (context.getQueueCount() == 0) {
+            // Send to DLA if appropriate
 
-         AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
+            AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
-         boolean sendToDLA = addressSettings.isSendToDLAOnNoRoute();
+            boolean sendToDLA = addressSettings.isSendToDLAOnNoRoute();
 
-         if (sendToDLA) {
-            // Send to the DLA for the address
+            if (sendToDLA) {
+               // Send to the DLA for the address
 
-            SimpleString dlaAddress = addressSettings.getDeadLetterAddress();
+               SimpleString dlaAddress = addressSettings.getDeadLetterAddress();
 
-            if (logger.isDebugEnabled()) {
-               logger.debug("sending message to dla address = " + dlaAddress + ", message=" + message);
-            }
+               if (logger.isDebugEnabled()) {
+                  logger.debug("sending message to dla address = " + dlaAddress + ", message=" + message);
+               }
 
-            if (dlaAddress == null) {
-               result = RoutingStatus.NO_BINDINGS;
-               ActiveMQServerLogger.LOGGER.noDLA(address);
+               if (dlaAddress == null) {
+                  result = RoutingStatus.NO_BINDINGS;
+                  ActiveMQServerLogger.LOGGER.noDLA(address);
+               } else {
+                  message.referenceOriginalMessage(message, null);
+
+                  message.setAddress(dlaAddress);
+
+                  message.reencode();
+
+                  route(message, context.getTransaction(), false);
+                  result = RoutingStatus.NO_BINDINGS_DLA;
+               }
             } else {
-               message.referenceOriginalMessage(message, null);
+               result = RoutingStatus.NO_BINDINGS;
 
-               message.setAddress(dlaAddress);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Message " + message + " is not going anywhere as it didn't have a binding on address:" + address);
+               }
 
-               message.reencode();
-
-               route(message, context.getTransaction(), false);
-               result = RoutingStatus.NO_BINDINGS_DLA;
+               if (message.isLargeMessage()) {
+                  ((LargeServerMessage) message).deleteFile();
+               }
             }
          } else {
-            result = RoutingStatus.NO_BINDINGS;
-
-            if (logger.isDebugEnabled()) {
-               logger.debug("Message " + message + " is not going anywhere as it didn't have a binding on address:" + address);
-            }
-
-            if (message.isLargeMessage()) {
-               ((LargeServerMessage) message).deleteFile();
+            result = RoutingStatus.OK;
+            try {
+               processRoute(message, context, direct);
+            } catch (ActiveMQAddressFullException e) {
+               if (startedTX.get()) {
+                  context.getTransaction().rollback();
+               } else if (context.getTransaction() != null) {
+                  context.getTransaction().markAsRollbackOnly(e);
+               }
+               throw e;
             }
          }
-      } else {
-         result = RoutingStatus.OK;
-         try {
-            processRoute(message, context, direct);
-         } catch (ActiveMQAddressFullException e) {
-            if (startedTX.get()) {
-               context.getTransaction().rollback();
-            } else if (context.getTransaction() != null) {
-               context.getTransaction().markAsRollbackOnly(e);
-            }
-            throw e;
-         }
-      }
 
-      if (startedTX.get()) {
-         context.getTransaction().commit();
+         if (startedTX.get()) {
+            context.getTransaction().commit();
+         }
+      } catch (Exception e) {
+         if (server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.onMessageRouteException(message, context, direct, rejectDuplicates, e));
+         }
+         throw e;
       }
 
       if (server.hasBrokerMessagePlugins()) {
