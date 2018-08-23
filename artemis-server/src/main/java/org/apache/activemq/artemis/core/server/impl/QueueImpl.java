@@ -1247,9 +1247,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (pageSubscription != null) {
          // messageReferences will have depaged messages which we need to discount from the counter as they are
          // counted on the pageSubscription as well
-         return pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
+         return messageReferences.size() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
       } else {
-         return pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount();
+         return messageReferences.size() + getScheduledCount() + getDeliveringCount();
       }
    }
 
