@@ -876,7 +876,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
-      final AddressSettings addressSettings = getAddressSettingsRepository().getMatch(name.toString());
+      QueueQueryResult response;
+
+      Binding binding = getPostOffice().getBinding(name);
+
+      final SimpleString addressName = binding != null && binding.getType() == BindingType.LOCAL_QUEUE
+            ? binding.getAddress() : name;
+
+      final AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
 
       boolean autoCreateQueues = addressSettings.isAutoCreateQueues();
       boolean defaultPurgeOnNoConsumers = addressSettings.isDefaultPurgeOnNoConsumers();
@@ -884,10 +891,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       boolean defaultExclusiveQueue = addressSettings.isDefaultExclusiveQueue();
       boolean defaultLastValueQueue = addressSettings.isDefaultLastValueQueue();
       int defaultConsumerWindowSize = addressSettings.getDefaultConsumerWindowSize();
-
-      QueueQueryResult response;
-
-      Binding binding = getPostOffice().getBinding(name);
 
       SimpleString managementAddress = getManagementService() != null ? getManagementService().getManagementAddress() : null;
 
