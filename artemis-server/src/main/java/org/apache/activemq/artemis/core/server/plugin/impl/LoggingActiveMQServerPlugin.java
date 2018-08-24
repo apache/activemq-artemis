@@ -491,6 +491,32 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
       }
    }
 
+   @Override
+   public void onSendException(ServerSession session,
+                               Transaction tx,
+                               Message message,
+                               boolean direct,
+                               boolean noAutoCreateQueue,
+                               Exception e) throws ActiveMQException {
+      if (logAll || logSendingEvents) {
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
+            //details - debug level
+            LoggingActiveMQServerPluginLogger.LOGGER.onSendErrorDetails((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                        message, (session == null ? UNAVAILABLE : session.getName()),
+                                                                        tx, session, direct, noAutoCreateQueue);
+         }
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            //info level log
+            LoggingActiveMQServerPluginLogger.LOGGER.onSendError((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                 (session == null ? UNAVAILABLE : session.getName()),
+                                                                 (session == null ? UNAVAILABLE : session.getConnectionID().toString()),
+                                                                 e);
+         }
+      }
+   }
+
    /**
     * Before a message is routed
     *
@@ -535,6 +561,26 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
             //info level log
             LoggingActiveMQServerPluginLogger.LOGGER.afterMessageRoute((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
                                                                        result);
+         }
+
+      }
+   }
+
+   @Override
+   public void onMessageRouteException(Message message,
+                                       RoutingContext context,
+                                       boolean direct,
+                                       boolean rejectDuplicates,
+                                       Exception e) throws ActiveMQException {
+      if (logAll || logSendingEvents) {
+
+         //details - debug level logging
+         LoggingActiveMQServerPluginLogger.LOGGER.onMessageRouteErrorDetails(message, context, direct, rejectDuplicates);
+
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+            //info level log
+            LoggingActiveMQServerPluginLogger.LOGGER.onMessageRouteError((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                         e);
          }
 
       }

@@ -90,8 +90,10 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String MESSAGE_ACKED = "messageAcknowledged";
    public static final String BEFORE_SEND = "beforeSend";
    public static final String AFTER_SEND = "afterSend";
+   public static final String ON_SEND_EXCEPTION = "onSendException";
    public static final String BEFORE_MESSAGE_ROUTE = "beforeMessageRoute";
    public static final String AFTER_MESSAGE_ROUTE = "afterMessageRoute";
+   public static final String ON_MESSAGE_ROUTE_EXCEPTION = "onMessageRouteException";
    public static final String BEFORE_DELIVER = "beforeDeliver";
    public static final String AFTER_DELIVER = "afterDeliver";
    public static final String BEFORE_DEPLOY_BRIDGE = "beforeDeployBridge";
@@ -305,6 +307,14 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
+   public void onSendException(ServerSession session, Transaction tx, Message message, boolean direct,
+                               boolean noAutoCreateQueue, Exception e) {
+      Preconditions.checkNotNull(message);
+      Preconditions.checkNotNull(e);
+      methodCalled(ON_SEND_EXCEPTION);
+   }
+
+   @Override
    public void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) {
       Preconditions.checkNotNull(message);
       Preconditions.checkNotNull(context);
@@ -318,6 +328,15 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
       Preconditions.checkNotNull(context);
       Preconditions.checkNotNull(result);
       methodCalled(AFTER_MESSAGE_ROUTE);
+   }
+
+   @Override
+   public void onMessageRouteException(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
+                                       Exception e) {
+      Preconditions.checkNotNull(message);
+      Preconditions.checkNotNull(context);
+      Preconditions.checkNotNull(e);
+      methodCalled(ON_MESSAGE_ROUTE_EXCEPTION);
    }
 
    @Override

@@ -1426,54 +1426,60 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          server.callBrokerMessagePlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
       }
 
-      // If the protocol doesn't support flow control, we have no choice other than fail the communication
-      if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
-         ActiveMQIOErrorException exception = ActiveMQMessageBundle.BUNDLE.diskBeyondLimit();
-         this.getRemotingConnection().fail(exception);
-         throw exception;
-      }
-
       final RoutingStatus result;
-      //large message may come from StompSession directly, in which
-      //case the id header already generated.
-      if (!message.isLargeMessage()) {
-         long id = storageManager.generateID();
-         // This will re-encode the message
-         message.setMessageID(id);
+      try {
+         // If the protocol doesn't support flow control, we have no choice other than fail the communication
+         if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
+            ActiveMQIOErrorException exception = ActiveMQMessageBundle.BUNDLE.diskBeyondLimit();
+            this.getRemotingConnection().fail(exception);
+            throw exception;
+         }
+
+         //large message may come from StompSession directly, in which
+         //case the id header already generated.
+         if (!message.isLargeMessage()) {
+            long id = storageManager.generateID();
+            // This will re-encode the message
+            message.setMessageID(id);
+         }
+
+         SimpleString address = message.getAddressSimpleString();
+
+         if (defaultAddress == null && address != null) {
+            defaultAddress = address;
+         }
+
+         if (address == null) {
+            // We don't want to force a re-encode when the message gets sent to the consumer
+            message.setAddress(defaultAddress);
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("send(message=" + message + ", direct=" + direct + ") being called");
+         }
+
+         if (message.getAddress() == null) {
+            // This could happen with some tests that are ignoring messages
+            throw ActiveMQMessageBundle.BUNDLE.noAddress();
+         }
+
+         if (message.getAddressSimpleString().equals(managementAddress)) {
+            // It's a management message
+
+            result = handleManagementMessage(tx, message, direct);
+         } else {
+            result = doSend(tx, message, address, direct, noAutoCreateQueue);
+         }
+
+      } catch (Exception e) {
+         if (server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, message, direct, noAutoCreateQueue, e));
+         }
+         throw e;
       }
-
-      SimpleString address = message.getAddressSimpleString();
-
-      if (defaultAddress == null && address != null) {
-         defaultAddress = address;
-      }
-
-      if (address == null) {
-         // We don't want to force a re-encode when the message gets sent to the consumer
-         message.setAddress(defaultAddress);
-      }
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("send(message=" + message + ", direct=" + direct + ") being called");
-      }
-
-      if (message.getAddress() == null) {
-         // This could happen with some tests that are ignoring messages
-         throw ActiveMQMessageBundle.BUNDLE.noAddress();
-      }
-
-      if (message.getAddressSimpleString().equals(managementAddress)) {
-         // It's a management message
-
-         result = handleManagementMessage(tx, message, direct);
-      } else {
-         result = doSend(tx, message, address, direct, noAutoCreateQueue);
-      }
-
       if (server.hasBrokerMessagePlugins()) {
          server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, result));
       }
-
       return result;
    }
 
