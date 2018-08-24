@@ -65,6 +65,21 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
       this.afterSend(tx, message, direct, noAutoCreateQueue, result);
    }
 
+   /**
+    * When there was an exception sending the message
+    *
+    * @param session
+    * @param tx
+    * @param message
+    * @param direct
+    * @param noAutoCreateQueue
+    * @param e the exception that occurred when sending the message
+    * @throws ActiveMQException
+    */
+   default void onSendException(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
+                                Exception e) throws ActiveMQException {
+
+   }
 
    /**
     * Before a message is sent
@@ -125,6 +140,21 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     */
    default void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                   RoutingStatus result) throws ActiveMQException {
+
+   }
+
+   /**
+    * When there was an error routing the message
+    *
+    * @param message
+    * @param context
+    * @param direct
+    * @param rejectDuplicates
+    * @param e the exception that occurred during message routing
+    * @throws ActiveMQException
+    */
+   default void onMessageRouteException(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
+                                        Exception e) throws ActiveMQException {
 
    }
 
