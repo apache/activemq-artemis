@@ -36,15 +36,18 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -1425,6 +1428,33 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       session.start();
 
       assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+   }
+
+   @Test
+   public void testConsumerWindowSizeAddressSettingsDifferentAddressAndQueueName() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      final int defaultConsumerWindowSize = 1024 * 5;
+      final AddressSettings settings = new AddressSettings();
+      settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
+      messagingService.getConfiguration()
+            .getAddressesSettings().put(addressA.toString(), settings);
+
+      messagingService.start();
+      messagingService.createQueue(addressA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      session.start();
+
+      assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+
+      ServerSession ss = messagingService.getSessionByID(((ClientSessionImpl)session).getName());
+      ServerConsumerImpl cons = (ServerConsumerImpl) ss.locateConsumer(consumer.getConsumerContext().getId());
+
+      assertTrue(Wait.waitFor(() -> cons.getAvailableCredits().get() == consumer.getClientWindowSize(), 5000, 500));
    }
 
    @Test
