@@ -141,6 +141,15 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
    @Message(id = 841016, value = "criticalFailure called with criticalComponent: {0}", format = Message.Format.MESSAGE_FORMAT)
    void criticalFailure(CriticalComponent components);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 841017, value = "error sending message with ID: {0}, session name: {1}, session connectionID: {2}," +
+      " exception: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void onSendError(String messageID, String sessionName, String sessionConnectionID, Exception e);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 841018, value = "error routing message with ID: {0}, exception: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void onMessageRouteError(String messageID, Exception e);
+
    //DEBUG messages
 
    @LogMessage(level = Logger.Level.DEBUG)
@@ -257,5 +266,24 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 843015, value = "beforeDeployBridge called with bridgeConfiguration: {0}", format = Message.Format.MESSAGE_FORMAT)
    void beforeDeployBridge(BridgeConfiguration config);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 843016, value = "onSendError message ID: {0}, message {1}, session name: {2} with tx: {3}, session: {4}, direct: {5}," +
+      " noAutoCreateQueue: {6}", format = Message.Format.MESSAGE_FORMAT)
+   void onSendErrorDetails(String messageID,
+                           org.apache.activemq.artemis.api.core.Message message,
+                           String sessionName,
+                           Transaction tx,
+                           ServerSession session,
+                           boolean direct,
+                           boolean noAutoCreateQueue);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 843017, value = "onMessageRouteError message: {0}, with context: {1}, direct: {2}, rejectDuplicates: {3}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void onMessageRouteErrorDetails(org.apache.activemq.artemis.api.core.Message message,
+                                   RoutingContext context,
+                                   boolean direct,
+                                   boolean rejectDuplicates);
 
 }
