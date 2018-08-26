@@ -92,6 +92,7 @@ public class JournalFilesRepository {
             pushOpenedFile();
          } catch (Exception e) {
             ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
+            fileFactory.onIOError(e, "unable to open ", null);
          }
       }
    };
@@ -404,6 +405,16 @@ public class JournalFilesRepository {
       return openedFiles.size();
    }
 
+   public JournalFile openFileCMP() throws Exception {
+      JournalFile file = openFile();
+
+      SequentialFile sequentialFile = file.getFile();
+      sequentialFile.close();
+      sequentialFile.renameTo(sequentialFile.getFileName() + ".cmp");
+
+      return file;
+   }
+
    /**
     * <p>This method will instantly return the opened file, and schedule opening and reclaiming.</p>
     * <p>In case there are no cached opened files, this method will block until the file was opened,
@@ -441,7 +452,7 @@ public class JournalFilesRepository {
    /**
     * Open a file and place it into the openedFiles queue
     */
-   public void pushOpenedFile() throws Exception {
+   public synchronized void pushOpenedFile() throws Exception {
       JournalFile nextOpenedFile = takeFile(true, true, true, false);
 
       if (logger.isTraceEnabled()) {

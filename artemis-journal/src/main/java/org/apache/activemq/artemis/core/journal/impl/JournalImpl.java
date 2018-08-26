@@ -167,6 +167,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private final JournalFilesRepository filesRepository;
 
+   public JournalFilesRepository getFilesRepository() {
+      return filesRepository;
+   }
+
    // Compacting may replace this structure
    private final ConcurrentMap<Long, JournalRecord> records = new ConcurrentHashMap<>();
 

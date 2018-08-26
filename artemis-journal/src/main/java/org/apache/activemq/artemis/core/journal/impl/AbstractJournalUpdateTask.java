@@ -241,7 +241,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
       writingChannel = ActiveMQBuffers.wrappedBuffer(bufferWrite);
 
-      currentFile = filesRepository.takeFile(false, false, false, true);
+      currentFile = filesRepository.openFileCMP();
 
       sequentialFile = currentFile.getFile();
 
