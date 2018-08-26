@@ -348,7 +348,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    @Override
    public String toString() {
-      return "JournalImpl(state=" + state + ", currentFile=[" + currentFile + "], hash=" + super.toString() + ")";
+      try {
+         return "JournalImpl(state=" + state + ", directory=[" + this.fileFactory.getDirectory().toString() + "], hash=" + super.toString() + ")";
+      } catch (Throwable e) {
+         logger.warn(e);
+         return super.toString();
+      }
    }
 
    @Override
@@ -1278,6 +1283,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, txID, null);
                JournalFile usedFile = appendRecord(commitRecord, true, sync, tx, callback);
 
+               if (logger.isTraceEnabled()) {
+                  logger.trace("appendCommitRecord::txID=" + txID + ", usedFile = " + usedFile);
+               }
 
                tx.commit(usedFile);
             } catch (ActiveMQShutdownException e) {
@@ -1417,7 +1425,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          private void checkDeleteSize() {
             // HORNETQ-482 - Flush deletes only if memory is critical
             if (recordsToDelete.size() > DELETE_FLUSH && runtime.freeMemory() < runtime.maxMemory() * 0.2) {
-               ActiveMQJournalLogger.LOGGER.debug("Flushing deletes during loading, deleteCount = " + recordsToDelete.size());
+               logger.debug("Flushing deletes during loading, deleteCount = " + recordsToDelete.size());
                // Clean up when the list is too large, or it won't be possible to load large sets of files
                // Done as part of JBMESSAGING-1678
                Iterator<RecordInfo> iter = records.iterator();
@@ -1431,7 +1439,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                recordsToDelete.clear();
 
-               ActiveMQJournalLogger.LOGGER.debug("flush delete done");
+               logger.debug("flush delete done");
             }
          }
 
@@ -1529,8 +1537,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          throw new IllegalStateException("There is pending compacting operation");
       }
 
-      if (ActiveMQJournalLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQJournalLogger.LOGGER.debug("JournalImpl::compact compacting journal " + (++compactCount));
+      if (logger.isDebugEnabled()) {
+         logger.debug("JournalImpl::compact " + JournalImpl.this + " for its " + (++compactCount) + " time");
       }
 
       compactorLock.writeLock().lock();
@@ -1540,7 +1548,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          boolean previousReclaimValue = isAutoReclaim();
 
          try {
-            ActiveMQJournalLogger.LOGGER.debug("Starting compacting operation on journal");
+            if (logger.isDebugEnabled()) {
+               logger.debug("Starting compacting operation on journal " + this);
+            }
 
             onCompactStart();
 
@@ -1669,9 +1679,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             renameFiles(dataFilesToProcess, newDatafiles);
             deleteControlFile(controlFile);
 
-            ActiveMQJournalLogger.LOGGER.debug("Finished compacting on journal");
+            if (logger.isDebugEnabled()) {
+               logger.debug("Finished compacting on journal " + this);
+            }
 
          } finally {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Flushing compacting on journal " + this);
+            }
             // An Exception was probably thrown, and the compactor was not cleared
             if (compactor != null) {
                try {
@@ -1681,12 +1696,15 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                compactor = null;
             }
+            if (logger.isDebugEnabled()) {
+               logger.debug("since compact finished, setAutoReclaim back into " + previousReclaimValue);
+            }
             setAutoReclaim(previousReclaimValue);
          }
       } finally {
          compactorLock.writeLock().unlock();
-         if (ActiveMQJournalLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQJournalLogger.LOGGER.debug("JournalImpl::compact finishing");
+         if (logger.isDebugEnabled()) {
+            logger.debug("JournalImpl::compact finalized");
          }
 
 
