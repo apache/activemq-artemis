@@ -238,13 +238,13 @@ public class JournalTransaction {
       //   without setting this properly...
       if (compacting && compactor != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("adding tx " + this.id + " into compacting");
+            logger.trace("adding txID=" + this.id + " into compacting");
          }
          compactor.addCommandCommit(this, file);
       } else {
 
          if (logger.isTraceEnabled()) {
-            logger.trace("no compact commit " + this.id);
+            logger.trace("there was no compactor on commit txID=" + this.id);
          }
          if (pos != null) {
             for (JournalUpdate trUpdate : pos) {

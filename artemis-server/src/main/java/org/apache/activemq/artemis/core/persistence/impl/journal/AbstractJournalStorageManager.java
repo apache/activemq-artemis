@@ -669,6 +669,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       try {
          messageJournal.appendCommitRecord(txID, syncTransactional, getContext(syncTransactional), lineUpContext);
          if (!lineUpContext && !syncTransactional) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("calling getContext(true).done() for txID=" + txID + ",lineupContext=" + lineUpContext + " syncTransactional=" + syncTransactional + "... forcing call on getContext(true).done");
+            }
             /**
              * If {@code lineUpContext == false}, it means that we have previously lined up a
              * context somewhere else (specifically see @{link TransactionImpl#asyncAppendCommit}),
@@ -1742,7 +1745,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   if (record.isUpdate) {
                      PageTransactionInfo pgTX = pagingManager.getTransaction(pageTransactionInfo.getTransactionID());
-                     pgTX.reloadUpdate(this, pagingManager, tx, pageTransactionInfo.getNumberOfMessages());
+                     if (pgTX != null) {
+                        pgTX.reloadUpdate(this, pagingManager, tx, pageTransactionInfo.getNumberOfMessages());
+                     }
                   } else {
                      pageTransactionInfo.setCommitted(false);
 

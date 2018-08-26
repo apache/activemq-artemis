@@ -616,7 +616,7 @@ public class TransactionImpl implements Transaction {
    public String toString() {
       Date dt = new Date(this.createTime);
       return "TransactionImpl [xid=" + xid +
-         ", id=" +
+         ", txID=" +
          id +
          ", xid=" + xid +
          ", state=" +
