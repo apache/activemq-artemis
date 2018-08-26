@@ -976,6 +976,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting, boolean isShutdown) {
 
+      logger.debug("Stopping server");
+
       synchronized (this) {
          if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
             return;
