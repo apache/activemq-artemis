@@ -73,7 +73,7 @@ public class LargeMessageOnShutdownTest extends ActiveMQTestBase {
             condition = "!flagged(\"testLargeMessageOnShutdown\")",
             action =
                "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageOnShutdownTest.stopServer();" +
-               "waitFor(\"testLargeMessageOnShutdown\");" +
+               "waitFor(\"testLargeMessageOnShutdown\", 5000);" +
                "flag(\"testLargeMessageOnShutdown\")"
          ),
          @BMRule(
