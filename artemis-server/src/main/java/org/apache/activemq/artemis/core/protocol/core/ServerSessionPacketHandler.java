@@ -160,6 +160,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final boolean direct;
 
+   private final Object largeMessageLock = new Object();
 
    public ServerSessionPacketHandler(final ActiveMQServer server,
                                      final CoreProtocolManager manager,
@@ -196,11 +197,15 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private void clearLargeMessage() {
-      if (currentLargeMessage != null) {
-         try {
-            currentLargeMessage.deleteFile();
-         } catch (Throwable error) {
-            ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+      synchronized (largeMessageLock) {
+         if (currentLargeMessage != null) {
+            try {
+               currentLargeMessage.deleteFile();
+            } catch (Throwable error) {
+               ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+            } finally {
+               currentLargeMessage = null;
+            }
          }
       }
    }
@@ -958,26 +963,28 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                   final long messageBodySize,
                                   final byte[] body,
                                   final boolean continues) throws Exception {
-      if (currentLargeMessage == null) {
-         throw ActiveMQMessageBundle.BUNDLE.largeMessageNotInitialised();
-      }
 
-      // Immediately release the credits for the continuations- these don't contribute to the in-memory size
-      // of the message
-
-      currentLargeMessage.addBytes(body);
-
-      if (!continues) {
-         currentLargeMessage.releaseResources();
-
-         if (messageBodySize >= 0) {
-            currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
+      synchronized (largeMessageLock) {
+         if (currentLargeMessage == null) {
+            throw ActiveMQMessageBundle.BUNDLE.largeMessageNotInitialised();
          }
 
-         LargeServerMessage message = currentLargeMessage;
-         currentLargeMessage = null;
-         session.doSend(session.getCurrentTransaction(), message, null, false, false);
+         // Immediately release the credits for the continuations- these don't contribute to the in-memory size
+         // of the message
+
+         currentLargeMessage.addBytes(body);
+
+         if (!continues) {
+            currentLargeMessage.releaseResources();
+
+            if (messageBodySize >= 0) {
+               currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
+            }
+
+            LargeServerMessage message = currentLargeMessage;
+            currentLargeMessage = null;
+            session.doSend(session.getCurrentTransaction(), message, null, false, false);
+         }
       }
    }
-
 }
