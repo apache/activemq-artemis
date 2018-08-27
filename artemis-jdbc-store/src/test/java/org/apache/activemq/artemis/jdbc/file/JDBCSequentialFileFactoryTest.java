@@ -221,6 +221,9 @@ public class JDBCSequentialFileFactoryTest {
 
       checkData(file, src);
       checkData(copy, src);
+
+      assertEquals(bufferSize, copy.size());
+      assertEquals(bufferSize, file.size());
    }
 
    @Test

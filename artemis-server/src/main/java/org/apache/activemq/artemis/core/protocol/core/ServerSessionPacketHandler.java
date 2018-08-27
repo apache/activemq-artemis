@@ -974,9 +974,9 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
          }
 
-         session.doSend(session.getCurrentTransaction(), currentLargeMessage, null, false, false);
-
+         LargeServerMessage message = currentLargeMessage;
          currentLargeMessage = null;
+         session.doSend(session.getCurrentTransaction(), message, null, false, false);
       }
    }
 
