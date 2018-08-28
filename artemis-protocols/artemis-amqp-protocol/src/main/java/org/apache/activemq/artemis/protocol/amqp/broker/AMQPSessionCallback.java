@@ -581,8 +581,11 @@ public class AMQPSessionCallback implements SessionCallback {
          Runnable creditRunnable = () -> {
             connection.lock();
             try {
-               if (receiver.getRemoteCredit() <= threshold) {
-                  receiver.flow(credits);
+               if (receiver.getCredit() <= threshold) {
+                  int topUp = credits - receiver.getCredit();
+                  if (topUp > 0) {
+                     receiver.flow(topUp);
+                  }
                }
             } finally {
                connection.unlock();

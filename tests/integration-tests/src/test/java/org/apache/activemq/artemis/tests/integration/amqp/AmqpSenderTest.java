@@ -199,7 +199,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
                   initialCredit.countDown();
                   break;
                case 2:
-                  assertEquals("Unexpected replenished credit", AmqpSupport.AMQP_LOW_CREDITS_DEFAULT + AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit());
+                  assertEquals("Unexpected replenished credit", AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit());
                   refreshedCredit.countDown();
                   break;
                default:
