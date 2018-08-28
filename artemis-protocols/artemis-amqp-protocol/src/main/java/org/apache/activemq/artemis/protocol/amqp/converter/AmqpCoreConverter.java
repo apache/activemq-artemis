@@ -199,7 +199,7 @@ public class AmqpCoreConverter {
             if (str.equals(AMQPMessage.ADDRESS_PROPERTY)) {
                continue;
             }
-            result.getInnerMessage().putBytesProperty(str, properties.getBytesProperty(str));
+            result.getInnerMessage().putObjectProperty(str, properties.getProperty(str));
          }
       }
 
