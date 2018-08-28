@@ -30,6 +30,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.jboss.logging.Logger;
@@ -85,7 +86,11 @@ public abstract class AbstractJDBCDriver {
    }
 
    public AbstractJDBCDriver(Connection connection, SQLProvider sqlProvider) {
-      this.connection = connection;
+      if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
+         this.connection = new LoggingConnection(connection, logger);
+      } else {
+         this.connection = connection;
+      }
       this.sqlProvider = sqlProvider;
       this.networkTimeoutExecutor = null;
       this.networkTimeoutMillis = -1;
@@ -118,6 +123,11 @@ public abstract class AbstractJDBCDriver {
          if (dataSource != null) {
             try {
                connection = dataSource.getConnection();
+
+               if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
+                  this.connection = new LoggingConnection(connection, logger);
+               }
+
             } catch (SQLException e) {
                logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
                throw e;
@@ -132,6 +142,11 @@ public abstract class AbstractJDBCDriver {
                }
                final Driver dbDriver = getDriver(jdbcDriverClass);
                connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
+
+               if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
+                  this.connection = new LoggingConnection(connection, logger);
+               }
+
                if (connection == null) {
                   throw new IllegalStateException("the driver: " + jdbcDriverClass + " isn't able to connect to the requested url: " + jdbcConnectionUrl);
                }
@@ -293,7 +308,11 @@ public abstract class AbstractJDBCDriver {
 
    public final void setConnection(Connection connection) {
       if (this.connection == null) {
-         this.connection = connection;
+         if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
+            this.connection = new LoggingConnection(connection, logger);
+         } else {
+            this.connection = connection;
+         }
       }
    }
 
