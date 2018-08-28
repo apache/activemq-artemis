@@ -22,12 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -112,6 +114,14 @@ public class TestConversions extends Assert {
       return mapprop;
    }
 
+   private TypedProperties createTypedPropertiesMap() {
+      TypedProperties typedProperties = new TypedProperties();
+      typedProperties.putBooleanProperty(new SimpleString("true"), Boolean.TRUE);
+      typedProperties.putBooleanProperty(new SimpleString("false"), Boolean.FALSE);
+      typedProperties.putSimpleStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+      return typedProperties;
+   }
+
    @Test
    public void testSimpleConversionMap() throws Exception {
       Map<String, Object> mapprop = createPropertiesMap();
@@ -187,6 +197,30 @@ public class TestConversions extends Assert {
       textMessage.decode();
 
       verifyProperties(textMessage);
+
+      Assert.assertEquals(text, textMessage.getText());
+
+   }
+
+   @Test
+   public void testSimpleConversionWithExtraProperties() throws Exception {
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+
+      String text = "someText";
+      message.setBody(new AmqpValue(text));
+
+      AMQPMessage encodedMessage = new AMQPMessage(message);
+      TypedProperties extraProperties = createTypedPropertiesMap();
+      extraProperties.putBytesProperty(new SimpleString("bytesProp"), "value".getBytes());
+      encodedMessage.setExtraProperties(extraProperties);
+
+      ICoreMessage serverMessage = encodedMessage.toCore();
+
+      ServerJMSTextMessage textMessage = (ServerJMSTextMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      textMessage.decode();
+
+      verifyProperties(textMessage);
+      assertEquals("value", new String(((byte[]) textMessage.getObjectProperty("bytesProp"))));
 
       Assert.assertEquals(text, textMessage.getText());
 
