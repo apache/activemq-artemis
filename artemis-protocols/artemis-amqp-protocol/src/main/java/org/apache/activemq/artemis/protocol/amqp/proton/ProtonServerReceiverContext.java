@@ -299,7 +299,9 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    public void flow(int credits, int threshold) {
       // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
       if (sessionSPI != null) {
-         sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
+         if (receiver.getCredit() <= threshold) {
+            sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
+         }
       } else {
          connection.lock();
          try {
