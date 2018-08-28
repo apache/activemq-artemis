@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
@@ -86,6 +87,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
    private volatile boolean connected;
 
+   private boolean enable1XPrefix;
+
    public ActiveMQMessageHandler(final ConnectionFactoryOptions options,
                                  final ActiveMQActivation activation,
                                  final TransactionManager tm,
@@ -104,6 +107,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       if (logger.isTraceEnabled()) {
          logger.trace("setup()");
       }
+
+      this.enable1XPrefix = activation.getConnectionFactory().isEnable1xPrefixes();
 
       ActiveMQActivationSpec spec = activation.getActivationSpec();
       String selector = spec.getMessageSelector();
@@ -281,8 +286,12 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          logger.trace("onMessage(" + message + ")");
       }
 
-      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session, options);
-      msg.setEnable1xPrefixes(activation.getConnectionFactory().isEnable1xPrefixes());
+      ActiveMQMessage msg;
+      if (enable1XPrefix) {
+         msg = ActiveMQCompatibleMessage.createMessage(message, session, options);
+      } else {
+         msg = ActiveMQMessage.createMessage(message, session, options);
+      }
 
       boolean beforeDelivery = false;
 

@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,7 +36,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 
 @RunWith(Parameterized.class)
-public class OldAddressSpaceTest extends VersionedBaseTest {
+public class OldAddressSpaceTest extends VersionedBase {
 
    @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {

@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
@@ -141,10 +142,10 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
          if (hasMoreElements()) {
             ClientMessage next = current;
             current = null;
-            msg = ActiveMQMessage.createMessage(next, session, options);
-
             if (enable1xPrefixes) {
-               msg.setEnable1xPrefixes(true);
+               msg = ActiveMQCompatibleMessage.createMessage(next, session, options);
+            } else {
+               msg = ActiveMQMessage.createMessage(next, session, options);
             }
 
             try {

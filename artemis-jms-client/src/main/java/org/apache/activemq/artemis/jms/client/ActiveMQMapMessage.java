@@ -38,7 +38,7 @@ import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;
 /**
  * ActiveMQ Artemis implementation of a JMS MapMessage.
  */
-public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage {
+public class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage {
    // Constants -----------------------------------------------------
 
    public static final byte TYPE = Message.MAP_TYPE;
