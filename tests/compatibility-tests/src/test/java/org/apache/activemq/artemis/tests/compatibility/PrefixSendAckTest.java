@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -31,7 +32,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
 @RunWith(Parameterized.class)
-public class PrefixSendAckTest extends ServerBaseTest {
+public class PrefixSendAckTest extends ServerBase {
    @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();

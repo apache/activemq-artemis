@@ -18,13 +18,17 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +36,6 @@ import org.junit.runners.Parameterized;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
 /**
  * To run this test on the IDE and debug it, run the compatibility-tests through a command line once:
@@ -48,7 +51,49 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR
  * Run->Edit Configuration->Add ArtemisMeshTest and add your properties.
  */
 @RunWith(Parameterized.class)
-public class ConnectionFactoryConfigurationSerializationTest extends VersionedBase {
+public class ReplyToTest extends ServerBase {
+
+   @Before
+   @Override
+   public void setUp() throws Throwable {
+
+      FileUtil.deleteDirectory(serverFolder.getRoot());
+      serverFolder.getRoot().mkdirs();
+
+      File file = serverFolder.newFile(ActiveMQJMSClient.class.getName() + ".properties");
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
+      PrintStream stream = new PrintStream(fileOutputStream);
+      stream.println("enable1xPrefixes=true");
+      stream.close();
+
+      setVariable(serverClassloader, "persistent", Boolean.FALSE);
+      startServer(serverFolder.getRoot(), serverClassloader, "live");
+   }
+
+   @After
+   @Override
+   public void tearDown() throws Throwable {
+      super.tearDown();
+   }
+
+   @Override
+   public ClassLoader getClasspath(String name) throws Exception {
+      if (name.equals(SNAPSHOT)) {
+
+         String snapshotPath = System.getProperty(SNAPSHOT);
+         Assume.assumeNotNull(snapshotPath);
+
+         String path = serverFolder.getRoot().getAbsolutePath() + File.pathSeparator + snapshotPath;
+
+         ClassLoader loader = defineClassLoader(path);
+
+         clearGroovy(loader);
+
+         return loader;
+      } else {
+         return super.getClasspath(name);
+      }
+   }
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -65,30 +110,24 @@ public class ConnectionFactoryConfigurationSerializationTest extends VersionedBa
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.addAll(combinatory(new Object[]{null}, new Object[]{ONE_FIVE, SNAPSHOT, TWO_FOUR}, new Object[]{ONE_FIVE, SNAPSHOT, TWO_FOUR}));
+      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
+      combinations.add(new Object[]{ONE_FIVE, SNAPSHOT, SNAPSHOT});
+
+      // TODO: It's not currently possible to mix reply to between 1.x and SNAPSHOT. Both sides need to be on the same version!
+      // combinations.addAll(combinatory(SNAPSHOT, new Object[]{SNAPSHOT, ONE_FIVE}, new Object[]{SNAPSHOT, ONE_FIVE}, new Object[]{SNAPSHOT, ONE_FIVE}));
       return combinations;
    }
 
-   public ConnectionFactoryConfigurationSerializationTest(String server, String sender, String receiver) throws Exception {
+   public ReplyToTest(String server, String sender, String receiver) throws Exception {
       super(server, sender, receiver);
    }
 
-   @Before
-   public void beforeTest() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
-      setVariable(senderClassloader, "persistent", false);
-   }
-
-   @After
-   public void afterTest() {
-   }
-
    @Test
-   public void testSerializeFactory() throws Throwable {
-      File file = serverFolder.newFile("objects.ser");
-      evaluate(senderClassloader, "serial/cfserial.groovy", file.getAbsolutePath(), "write", sender);
-      evaluate(receiverClassloader, "serial/cfserial.groovy", file.getAbsolutePath(), "read", receiver);
+   public void testSendReceive() throws Throwable {
+
+      setVariable(receiverClassloader, "latch", null);
+      evaluate(senderClassloader, "ReplyToTest/replyToSend.groovy");
+      evaluate(receiverClassloader, "ReplyToTest/replyToReceive.groovy");
    }
 
 }

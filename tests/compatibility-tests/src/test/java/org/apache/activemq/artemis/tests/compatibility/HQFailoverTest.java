@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +47,7 @@ import static org.junit.Assert.assertTrue;
  * and it will make sure that failover happens without any problems.
  */
 @RunWith(Parameterized.class)
-public class HQFailoverTest extends VersionedBaseTest {
+public class HQFailoverTest extends VersionedBase {
 
    @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {

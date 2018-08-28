@@ -1,3 +1,5 @@
+package journalcompatibility
+
 import org.apache.activemq.artemis.api.core.SimpleString
 import org.apache.activemq.artemis.core.server.Queue
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun

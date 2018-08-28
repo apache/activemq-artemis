@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 
 public class JMSMessageListenerWrapper implements MessageHandler {
 
@@ -72,7 +73,13 @@ public class JMSMessageListenerWrapper implements MessageHandler {
     */
    @Override
    public void onMessage(final ClientMessage message) {
-      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session.getCoreSession(), options);
+      ActiveMQMessage msg;
+
+      if (session.isEnable1xPrefixes()) {
+         msg = ActiveMQCompatibleMessage.createMessage(message, session.getCoreSession(), options);
+      } else {
+         msg = ActiveMQMessage.createMessage(message, session.getCoreSession(), options);
+      }
 
       if (individualACK) {
          msg.setIndividualAcknowledge();
@@ -80,10 +87,6 @@ public class JMSMessageListenerWrapper implements MessageHandler {
 
       if (clientACK) {
          msg.setClientAcknowledge();
-      }
-
-      if (session.isEnable1xPrefixes()) {
-         msg.setEnable1xPrefixes(true);
       }
 
       try {
