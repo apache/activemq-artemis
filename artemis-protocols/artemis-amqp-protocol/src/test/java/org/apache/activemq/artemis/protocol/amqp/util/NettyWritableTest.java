@@ -16,18 +16,18 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.util;
 
+import java.nio.ByteBuffer;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
-import java.nio.ByteBuffer;
-
-import org.apache.qpid.proton.codec.ReadableBuffer;
-import org.junit.Test;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 /**
  * Tests for behavior of NettyWritable
@@ -117,6 +117,16 @@ public class NettyWritableTest {
       assertEquals(0, writable.position());
       writable.put(input);
       assertEquals(1, writable.position());
+   }
+
+   @Test
+   public void testPutStringWithNonAsciiCharsUseExactLength() {
+      final String string = Character.toString((char) 129);
+      final int utf8Bytes = ByteBufUtil.utf8Bytes(string);
+      assert string.length() < utf8Bytes;
+      final ByteBuf buffer = Unpooled.buffer(utf8Bytes, utf8Bytes);
+      final NettyWritable nettyWritable = new NettyWritable(buffer);
+      nettyWritable.put(string);
    }
 
    @Test

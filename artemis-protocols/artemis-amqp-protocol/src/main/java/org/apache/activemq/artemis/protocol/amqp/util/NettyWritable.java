@@ -17,12 +17,11 @@
 package org.apache.activemq.artemis.protocol.amqp.util;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-
-import org.apache.qpid.proton.codec.ReadableBuffer;
-import org.apache.qpid.proton.codec.WritableBuffer;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.apache.qpid.proton.codec.WritableBuffer;
 
 /**
  * {@link WritableBuffer} implementation that wraps a Netty {@link ByteBuf} to
@@ -106,7 +105,8 @@ public class NettyWritable implements WritableBuffer {
 
    @Override
    public void put(String value) {
-      nettyBuffer.writeCharSequence(value, StandardCharsets.UTF_8);
+      final int utf8Bytes = ByteBufUtil.utf8Bytes(value);
+      ByteBufUtil.reserveAndWriteUtf8(nettyBuffer, value, utf8Bytes);
    }
 
    @Override
