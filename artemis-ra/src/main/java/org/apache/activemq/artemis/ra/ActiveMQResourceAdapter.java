@@ -240,8 +240,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       tm = ServiceUtils.getTransactionManager();
 
-      recoveryManager.start(useAutoRecovery);
-
       this.ctx = ctx;
 
       if (!configured.getAndSet(true)) {
@@ -251,6 +249,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             throw new ResourceAdapterInternalException("Unable to create activation", e);
          }
       }
+
+      recoveryManager.start(useAutoRecovery);
 
       ActiveMQRALogger.LOGGER.resourceAdaptorStarted();
    }
@@ -272,6 +272,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
       }
 
+      recoveryManager.stop();
+
       activations.clear();
 
       for (ActiveMQRAManagedConnectionFactory managedConnectionFactory : managedConnectionFactories) {
@@ -292,8 +294,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (recoveryActiveMQConnectionFactory != null) {
          recoveryActiveMQConnectionFactory.close();
       }
-
-      recoveryManager.stop();
 
       ActiveMQRALogger.LOGGER.raStopped();
    }
