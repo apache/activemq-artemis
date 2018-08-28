@@ -65,6 +65,8 @@ for (int i = 0; i < 500; i++) {
 }
 session.commit();
 
+connection.close();
+
 // Defined on AddressConfigTest.java at the test with setVariable
 
 latch.countDown();

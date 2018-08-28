@@ -197,7 +197,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    private String msgID;
 
    // Cache it
-   private Destination replyTo;
+   protected Destination replyTo;
 
    // Cache it
    private String jmsCorrelationID;
@@ -208,8 +208,6 @@ public class ActiveMQMessage implements javax.jms.Message {
    private boolean individualAck;
 
    private boolean clientAck;
-
-   private boolean enable1xPrefixes;
 
    private long jmsDeliveryTime;
 
@@ -366,23 +364,11 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public Destination getJMSReplyTo() throws JMSException {
       if (replyTo == null) {
-         SimpleString address = MessageUtil.getJMSReplyTo(message);
-         if (address != null) {
-            String name = address.toString();
 
-            // swap the old prefixes for the new ones so the proper destination type gets created
-            if (enable1xPrefixes) {
-               if (address.startsWith(OLD_QUEUE_QUALIFIED_PREFIX)) {
-                  name = address.subSeq(OLD_QUEUE_QUALIFIED_PREFIX.length(), address.length()).toString();
-               } else if (address.startsWith(OLD_TEMP_QUEUE_QUALIFED_PREFIX)) {
-                  name = address.subSeq(OLD_TEMP_QUEUE_QUALIFED_PREFIX.length(), address.length()).toString();
-               } else if (address.startsWith(OLD_TOPIC_QUALIFIED_PREFIX)) {
-                  name = address.subSeq(OLD_TOPIC_QUALIFIED_PREFIX.length(), address.length()).toString();
-               } else if (address.startsWith(OLD_TEMP_TOPIC_QUALIFED_PREFIX)) {
-                  name = address.subSeq(OLD_TEMP_TOPIC_QUALIFED_PREFIX.length(), address.length()).toString();
-               }
-            }
-            replyTo = ActiveMQDestination.fromPrefixedName(address.toString(), name);
+         SimpleString repl = MessageUtil.getJMSReplyTo(message);
+
+         if (repl != null) {
+            replyTo = ActiveMQDestination.fromPrefixedName(repl.toString());
          }
       }
       return replyTo;
@@ -417,23 +403,20 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
+   protected SimpleString checkPrefix(SimpleString address) {
+      return address;
+   }
+
+   protected SimpleString checkPrefixStr(SimpleString address) {
+      return address;
+   }
+
+
    @Override
    public Destination getJMSDestination() throws JMSException {
       if (dest == null) {
          SimpleString address = message.getAddressSimpleString();
-         SimpleString name = address;
-
-         if (address != null & enable1xPrefixes) {
-            if (address.startsWith(PacketImpl.OLD_QUEUE_PREFIX)) {
-               name = address.subSeq(PacketImpl.OLD_QUEUE_PREFIX.length(), address.length());
-            } else if (address.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX)) {
-               name = address.subSeq(PacketImpl.OLD_TEMP_QUEUE_PREFIX.length(), address.length());
-            } else if (address.startsWith(PacketImpl.OLD_TOPIC_PREFIX)) {
-               name = address.subSeq(PacketImpl.OLD_TOPIC_PREFIX.length(), address.length());
-            } else if (address.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX)) {
-               name = address.subSeq(PacketImpl.OLD_TEMP_TOPIC_PREFIX.length(), address.length());
-            }
-         }
+         SimpleString changedAddress = checkPrefix(address);
 
          if (address == null) {
             dest = null;
@@ -445,8 +428,8 @@ public class ActiveMQMessage implements javax.jms.Message {
             dest = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address.toString());
          }
 
-         if (name != null) {
-            ((ActiveMQDestination) dest).setName(name.toString());
+         if (changedAddress != null) {
+            ((ActiveMQDestination) dest).setName(changedAddress.toString());
          }
       }
 
@@ -901,10 +884,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
-   }
-
-   public void setEnable1xPrefixes(boolean enable1xPrefixes) {
-      this.enable1xPrefixes = enable1xPrefixes;
    }
 
    @Override

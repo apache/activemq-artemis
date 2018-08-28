@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 
 /**
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
@@ -218,10 +219,11 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
             boolean needSession = ackMode == Session.CLIENT_ACKNOWLEDGE ||
                ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE ||
                coreMessage.getType() == ActiveMQObjectMessage.TYPE;
-            jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
 
             if (session.isEnable1xPrefixes()) {
-               jmsMsg.setEnable1xPrefixes(true);
+               jmsMsg = ActiveMQCompatibleMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
+            } else {
+               jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
             }
 
             try {
