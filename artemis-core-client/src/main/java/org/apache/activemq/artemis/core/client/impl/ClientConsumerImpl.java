@@ -86,6 +86,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    // Number of pending calls on flow control
    private final ReusableLatch pendingFlowControl = new ReusableLatch(0);
 
+   private final int initialWindow;
+
    private final int clientWindowSize;
 
    private final int ackBatchSize;
@@ -140,6 +142,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                              final SimpleString queueName,
                              final SimpleString filterString,
                              final boolean browseOnly,
+                             final int initialWindow,
                              final int clientWindowSize,
                              final int ackBatchSize,
                              final TokenBucketLimiter rateLimiter,
@@ -163,6 +166,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       this.rateLimiter = rateLimiter;
 
       sessionExecutor = executor;
+
+      this.initialWindow = initialWindow;
 
       this.clientWindowSize = clientWindowSize;
 
@@ -741,6 +746,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          controller.cancel();
          currentLargeMessageController = null;
       }
+   }
+
+   @Override
+   public int getInitialWindowSize() {
+      return initialWindow;
    }
 
    @Override

@@ -736,6 +736,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       }
 
       @Override
+      public int getInitialWindowSize() {
+         return 0;
+      }
+
+      @Override
       public SimpleString getFilterString() {
 
          return null;
