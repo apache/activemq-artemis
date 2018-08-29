@@ -1454,7 +1454,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       ServerSession ss = messagingService.getSessionByID(((ClientSessionImpl)session).getName());
       ServerConsumerImpl cons = (ServerConsumerImpl) ss.locateConsumer(consumer.getConsumerContext().getId());
 
-      assertTrue(Wait.waitFor(() -> cons.getAvailableCredits().get() == consumer.getClientWindowSize(), 5000, 500));
+      assertTrue(Wait.waitFor(() -> cons.getAvailableCredits().get() == consumer.getClientWindowSize() * 2, 5000, 50));
    }
 
    @Test
@@ -1465,7 +1465,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       final AddressSettings settings = new AddressSettings();
       settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
       messagingService.getConfiguration()
-            .getAddressesSettings().put("#", settings);
+         .getAddressesSettings().put("#", settings);
 
       messagingService.start();
       messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
