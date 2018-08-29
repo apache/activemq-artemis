@@ -55,6 +55,8 @@ public interface ClientConsumerInternal extends ClientConsumer {
 
    int getClientWindowSize();
 
+   int getInitialWindowSize();
+
    int getBufferSize();
 
    void cleanUp() throws ActiveMQException;

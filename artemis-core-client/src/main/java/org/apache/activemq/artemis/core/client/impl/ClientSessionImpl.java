@@ -1888,7 +1888,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       // TODO: this could semantically change on other servers. I know for instance on stomp this is just an ignore
       if (consumer.getClientWindowSize() != 0) {
-         sessionContext.sendConsumerCredits(consumer, consumer.getClientWindowSize());
+         sessionContext.sendConsumerCredits(consumer, consumer.getInitialWindowSize());
       }
 
       return consumer;
