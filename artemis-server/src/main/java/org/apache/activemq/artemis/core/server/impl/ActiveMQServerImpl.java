@@ -2744,6 +2744,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
          AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()), config.getRoutingTypes());
          addOrUpdateAddressInfo(info);
+         ActiveMQServerLogger.LOGGER.deployAddress(config.getName(), config.getRoutingTypes().toString());
          deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
       }
    }
@@ -2751,7 +2752,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
          SimpleString queueName = SimpleString.toSimpleString(config.getName());
-         ActiveMQServerLogger.LOGGER.deployQueue(config.getName(), config.getAddress());
+         ActiveMQServerLogger.LOGGER.deployQueue(config.getName(), config.getAddress(), config.getRoutingType().toString());
          AddressSettings as = addressSettingsRepository.getMatch(config.getAddress());
          // determine if there is an address::queue match; update it if so
          int maxConsumers =  config.getMaxConsumers() == null ? as.getDefaultMaxConsumers() : config.getMaxConsumers();
