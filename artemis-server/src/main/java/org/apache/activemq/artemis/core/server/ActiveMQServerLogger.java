@@ -94,8 +94,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void serverStopped(String version, SimpleString nodeId, String uptime);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221003, value = "Deploying queue {0} on address {1}", format = Message.Format.MESSAGE_FORMAT)
-   void deployQueue(String queueName, String addressName);
+   @Message(id = 221003, value = "Deploying {2} queue {0} on address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void deployQueue(String queueName, String addressName, String routingType);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221004, value = "{0}", format = Message.Format.MESSAGE_FORMAT)
@@ -425,6 +425,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221079, value = "Ignoring prepare on xid as already called : {0}", format = Message.Format.MESSAGE_FORMAT)
    void ignoringPrepareOnXidAlreadyCalled(String xid);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221080, value = "Deploying address {0} supporting {1}", format = Message.Format.MESSAGE_FORMAT)
+   void deployAddress(String addressName, String routingTypes);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
