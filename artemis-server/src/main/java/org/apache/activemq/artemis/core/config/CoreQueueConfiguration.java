@@ -201,6 +201,7 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
       result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
       result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
+      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
       return result;
    }
 
@@ -265,6 +266,29 @@ public class CoreQueueConfiguration implements Serializable {
       } else if (!delayBeforeDispatch.equals(other.delayBeforeDispatch)) {
          return false;
       }
+      if (routingType == null) {
+         if (other.routingType != null)
+            return false;
+      } else if (!routingType.equals(other.routingType)) {
+         return false;
+      }
       return true;
+   }
+
+   @Override
+   public String toString() {
+      return "CoreQueueConfiguration[" +
+         "name=" + name +
+         ", address=" + address +
+         ", routingType=" + routingType +
+         ", durable=" + durable +
+         ", filterString=" + filterString +
+         ", maxConsumers=" + maxConsumers +
+         ", purgeOnNoConsumers=" + purgeOnNoConsumers +
+         ", exclusive=" + exclusive +
+         ", lastValue=" + lastValue +
+         ", consumersBeforeDispatch=" + consumersBeforeDispatch +
+         ", delayBeforeDispatch=" + delayBeforeDispatch +
+         "]";
    }
 }
