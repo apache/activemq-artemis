@@ -2601,6 +2601,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }, 0, dumpInfoInterval, TimeUnit.MILLISECONDS);
       }
 
+      // Undeploy any addresses and queues not in config
+      undeployAddressesAndQueueNotInConfiguration();
+
       // Deploy the rest of the stuff
 
       // Deploy predefined addresses
@@ -2608,9 +2611,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       // Deploy any predefined queues
       deployQueuesFromConfiguration();
-
-      // Undeploy any addresses and queues not in config
-      undeployAddressesAndQueueNotInConfiguration();
 
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses
       // this needs to be done before clustering is fully activated
@@ -2698,25 +2698,28 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          .map(CoreAddressConfiguration::getName)
          .collect(Collectors.toSet());
 
-      Set<String> queuesInConfig = configuration.getAddressConfigurations().stream()
-         .map(CoreAddressConfiguration::getQueueConfigurations)
-         .flatMap(List::stream).map(CoreQueueConfiguration::getName)
-         .collect(Collectors.toSet());
+      Set<String> queuesInConfig = new HashSet<>();
+      for (CoreAddressConfiguration cac : configuration.getAddressConfigurations()) {
+         for (CoreQueueConfiguration cqc : cac.getQueueConfigurations()) {
+            // combine the routing-type and queue name as the unique identifier as it's possible to change the routing-type without changing the name
+            queuesInConfig.add(cqc.getRoutingType().toString() + cqc.getName());
+         }
+      }
 
       for (SimpleString addressName : listAddressNames()) {
          AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
 
          if (!addressesInConfig.contains(addressName.toString()) && addressSettings.getConfigDeleteAddresses() == DeletionPolicy.FORCE) {
             for (Queue queue : listQueues(addressName)) {
-               ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
+               ActiveMQServerLogger.LOGGER.undeployQueue(queue.getRoutingType(), queue.getName());
                queue.deleteQueue(true);
             }
             ActiveMQServerLogger.LOGGER.undeployAddress(addressName);
             removeAddressInfo(addressName, null);
          } else if (addressSettings.getConfigDeleteQueues() == DeletionPolicy.FORCE) {
             for (Queue queue : listConfiguredQueues(addressName)) {
-               if (!queuesInConfig.contains(queue.getName().toString())) {
-                  ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
+               if (!queuesInConfig.contains(queue.getRoutingType().toString() + queue.getName().toString())) {
+                  ActiveMQServerLogger.LOGGER.undeployQueue(queue.getRoutingType(), queue.getName());
                   queue.deleteQueue(true);
                }
             }
@@ -3441,8 +3444,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
 
             ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
-            deployAddressesFromConfiguration(config);
             undeployAddressesAndQueueNotInConfiguration(config);
+            deployAddressesFromConfiguration(config);
             configuration.setAddressConfigurations(config.getAddressConfigurations());
             configuration.setQueueConfigurations(config.getQueueConfigurations());
          }
