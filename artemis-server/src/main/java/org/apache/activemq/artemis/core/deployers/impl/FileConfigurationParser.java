@@ -770,8 +770,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Element node = (Element) elements.item(0);
          NodeList list = node.getElementsByTagName("address");
          for (int i = 0; i < list.getLength(); i++) {
-            CoreAddressConfiguration addrConfig = parseAddressConfiguration(list.item(i));
-            config.getAddressConfigurations().add(addrConfig);
+            config.addAddressConfiguration(parseAddressConfiguration(list.item(i)));
          }
       }
    }
