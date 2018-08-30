@@ -39,6 +39,11 @@ public class GroovyRun {
    public static Binding binding = new Binding();
    public static GroovyShell shell = new GroovyShell(binding);
 
+   public static void clear() {
+      binding = new Binding();
+      shell = new GroovyShell(binding);
+   }
+
    /**
     * This can be called from the scripts as well.
     *  The scripts will use this method instead of its own groovy method.
@@ -67,6 +72,7 @@ public class GroovyRun {
 
       return shell.evaluate(scriptURI);
    }
+
 
    public static void setVariable(String name, Object arg) {
       binding.setVariable(name, arg);

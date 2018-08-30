@@ -1,9 +1,13 @@
-package ActiveMQJMSClientCompatibilityTest
+package ReplyToTest
 
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun
+
+import javax.jms.*
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -28,3 +32,39 @@ GroovyRun.assertEquals("q1", queue.getQueueName());
 ActiveMQTopic topic = (ActiveMQTopic) ActiveMQJMSClient.createTopic("t1");
 GroovyRun.assertEquals("jms.topic.t1", topic.getAddress());
 GroovyRun.assertEquals("t1", topic.getTopicName());
+
+cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false&ha=true&reconnectAttempts=-1&retryInterval=100");
+Connection connection = cf.createConnection();
+Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+queue = session.createQueue("queue");
+replyToQueue = ActiveMQJMSClient.createQueue("t1");
+
+producer = session.createProducer(queue);
+producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+Message bareMessage = session.createMessage();
+send(bareMessage);
+
+BytesMessage bytesMessage = session.createBytesMessage();
+bytesMessage.writeBytes("hello".getBytes());
+send(bytesMessage);
+
+
+MapMessage mapMessage = session.createMapMessage();
+send(mapMessage);
+
+ObjectMessage objectMessage = session.createObjectMessage("hello");
+send(objectMessage);
+
+send(session.createStreamMessage());
+
+TextMessage textMessage = session.createTextMessage("May the force be with you");
+send(textMessage);
+
+session.commit();
+
+
+void send(Message message) {
+    message.setJMSReplyTo(replyToQueue);
+    producer.send(message);
+}
