@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -45,7 +46,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
  * Run->Edit Configuration->Add ArtemisMeshTest and add your properties.
  */
 @RunWith(Parameterized.class)
-public class ExportImportTest extends VersionedBaseTest {
+public class ExportImportTest extends VersionedBase {
    private String serverScriptToUse;
 
    // this will ensure that all tests in this class are run twice,

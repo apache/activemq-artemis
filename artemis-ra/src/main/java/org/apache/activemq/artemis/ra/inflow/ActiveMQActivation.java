@@ -385,6 +385,11 @@ public class ActiveMQActivation {
             Thread interruptThread = handler.getCurrentThread();
             if (interruptThread != null) {
                try {
+                  logger.tracef("Interrupting thread %s", interruptThread.getName());
+               } catch (Throwable justLog) {
+                  logger.warn(justLog);
+               }
+               try {
                   interruptThread.interrupt();
                } catch (Throwable e) {
                   //ok
