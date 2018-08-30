@@ -65,4 +65,14 @@ public class CoreAddressConfiguration implements Serializable {
    public List<CoreQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
    }
+
+   @Override
+   public String toString() {
+      return "CoreAddressConfiguration[" +
+         "name=" + name +
+         ", routingTypes=" + routingTypes +
+         ", queueConfigurations=" + queueConfigurations +
+         "]";
+   }
+
 }
