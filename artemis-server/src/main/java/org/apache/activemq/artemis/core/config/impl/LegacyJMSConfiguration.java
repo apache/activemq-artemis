@@ -17,9 +17,6 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import javax.management.MBeanServer;
-import javax.xml.XMLConstants;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -110,9 +107,11 @@ public class LegacyJMSConfiguration implements Deployable {
       String xml = XMLUtil.readerToString(reader);
       xml = XMLUtil.replaceSystemProps(xml);
       Element e = XMLUtil.stringToElement(xml);
-      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      Schema schema = schemaFactory.newSchema(XMLUtil.findResource(CONFIGURATION_SCHEMA_URL));
-      parseConfiguration(e);
+      // only parse elements from <jms>
+      NodeList children = e.getElementsByTagName(CONFIGURATION_SCHEMA_ROOT_ELEMENT);
+      if (children.getLength() > 0) {
+         parseConfiguration(children.item(0));
+      }
    }
 
    /**
