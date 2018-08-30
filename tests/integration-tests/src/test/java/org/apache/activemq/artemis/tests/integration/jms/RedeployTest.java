@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
@@ -196,9 +197,6 @@ public class RedeployTest extends ActiveMQTestBase {
 
    }
 
-
-
-
    @Test
    public void testRedeployAddressQueue() throws Exception {
       Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
@@ -263,6 +261,46 @@ public class RedeployTest extends ActiveMQTestBase {
 
          Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change_queue"));
          Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_removal_queue_1"));
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployChangeQueueRoutingType() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-queue-routingtype.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-queue-routingtype-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = new Runnable() {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+         Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "myAddress"));
+         Assert.assertEquals(RoutingType.MULTICAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "myAddress"));
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
       } finally {
          embeddedActiveMQ.stop();
       }

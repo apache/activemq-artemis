@@ -44,6 +44,7 @@ import io.netty.channel.Channel;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -1898,12 +1899,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void criticalSystemLog(Object component);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 224076, value = "UnDeploying address {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 224076, value = "Undeploying address {0}", format = Message.Format.MESSAGE_FORMAT)
    void undeployAddress(SimpleString addressName);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 224077, value = "UnDeploying queue {0}", format = Message.Format.MESSAGE_FORMAT)
-   void undeployQueue(SimpleString queueName);
+   @Message(id = 224077, value = "Undeploying {0} queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void undeployQueue(RoutingType routingType, SimpleString queueName);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224078, value = "The size of duplicate cache detection (<id_cache-size/>) appears to be too large {0}. It should be no greater than the number of messages that can be squeezed into conformation buffer (<confirmation-window-size/>) {1}.", format = Message.Format.MESSAGE_FORMAT)
