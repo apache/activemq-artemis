@@ -1593,6 +1593,16 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 22273,  value = "Address \"{0}\" is full. Bridge {1} will disconnect", format = Message.Format.MESSAGE_FORMAT)
    void bridgeAddressFull(String addressName, String bridgeName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222274, value = "Failed to deploy address {0}: {1}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void problemDeployingAddress(String addressName, String message);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222275, value = "Failed to deploy queue {0}: {1}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void problemDeployingQueue(String queueName, String message);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

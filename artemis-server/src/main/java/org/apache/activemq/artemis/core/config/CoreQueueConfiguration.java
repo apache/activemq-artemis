@@ -183,6 +183,7 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
       result = prime * result + (maxConsumerConfigured ? 1331 : 1337);
+      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
       return result;
    }
 
@@ -237,6 +238,27 @@ public class CoreQueueConfiguration implements Serializable {
       } else if (!lastValue.equals(other.lastValue)) {
          return false;
       }
+      if (routingType == null) {
+         if (other.routingType != null)
+            return false;
+      } else if (!routingType.equals(other.routingType)) {
+         return false;
+      }
       return true;
+   }
+
+   @Override
+   public String toString() {
+      return "CoreQueueConfiguration[" +
+         "name=" + name +
+         ", address=" + address +
+         ", routingType=" + routingType +
+         ", durable=" + durable +
+         ", filterString=" + filterString +
+         ", maxConsumers=" + maxConsumers +
+         ", purgeOnNoConsumers=" + purgeOnNoConsumers +
+         ", exclusive=" + exclusive +
+         ", lastValue=" + lastValue +
+         "]";
    }
 }
