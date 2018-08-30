@@ -260,6 +260,9 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_queue_change").contains("config_test_queue_change_queue"));
          Assert.assertEquals(1, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").getMaxConsumers());
          Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+
+         Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change_queue"));
+         Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_removal_queue_1"));
       } finally {
          embeddedActiveMQ.stop();
       }
