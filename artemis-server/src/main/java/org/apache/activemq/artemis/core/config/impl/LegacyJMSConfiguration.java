@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -150,10 +149,9 @@ public class LegacyJMSConfiguration implements Deployable {
     */
    public void parseTopicConfiguration(final Node node) throws Exception {
       String topicName = node.getAttributes().getNamedItem(NAME_ATTR).getNodeValue();
-      List<CoreAddressConfiguration> coreAddressConfigurations = configuration.getAddressConfigurations();
-      coreAddressConfigurations.add(new CoreAddressConfiguration()
-                                       .setName(topicName)
-                                       .addRoutingType(RoutingType.MULTICAST));
+      configuration.addAddressConfiguration(new CoreAddressConfiguration()
+                                               .setName(topicName)
+                                               .addRoutingType(RoutingType.MULTICAST));
    }
 
    /**
@@ -173,22 +171,22 @@ public class LegacyJMSConfiguration implements Deployable {
       for (int i = 0; i < children.getLength(); i++) {
          Node child = children.item(i);
 
-         if (QUEUE_SELECTOR_NODE_NAME.equals(children.item(i).getNodeName())) {
-            Node selectorNode = children.item(i);
+         if (QUEUE_SELECTOR_NODE_NAME.equals(child.getNodeName())) {
+            Node selectorNode = child;
             Node attNode = selectorNode.getAttributes().getNamedItem("string");
             selectorString = attNode.getNodeValue();
          }
       }
 
-      List<CoreAddressConfiguration> coreAddressConfigurations = configuration.getAddressConfigurations();
-      coreAddressConfigurations.add(new CoreAddressConfiguration()
-                                       .setName(queueName)
-                                       .addRoutingType(RoutingType.ANYCAST)
-                                       .addQueueConfiguration(new CoreQueueConfiguration()
-                                                                 .setAddress(queueName)
-                                                                 .setName(queueName)
-                                                                 .setFilterString(selectorString)
-                                                                 .setRoutingType(RoutingType.ANYCAST)));
+      configuration.addAddressConfiguration(new CoreAddressConfiguration()
+                                               .setName(queueName)
+                                               .addRoutingType(RoutingType.ANYCAST)
+                                               .addQueueConfiguration(new CoreQueueConfiguration()
+                                                                         .setAddress(queueName)
+                                                                         .setName(queueName)
+                                                                         .setFilterString(selectorString)
+                                                                         .setDurable(durable)
+                                                                         .setRoutingType(RoutingType.ANYCAST)));
    }
 
 
