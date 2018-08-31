@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -400,17 +398,10 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
-         ActiveMQBuffer buffer1 = ActiveMQBuffers.wrappedBuffer(bufferRead);
-         return encode(buffer1, bufferRead.capacity());
-      }
-
-      @Override
-      public int encode(final ActiveMQBuffer bufferOut, final int size) {
-         byte[] bytes = new byte[size];
-         buffer.readBytes(bytes);
-         bufferOut.writeBytes(bytes, 0, size);
-         return size;
+      public int encode(final ByteBuffer bufferRead) {
+         final int remaining = bufferRead.remaining();
+         buffer.readBytes(bufferRead);
+         return remaining;
       }
    }
 

@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.message;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
@@ -42,11 +41,6 @@ public interface LargeBodyEncoder {
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
    int encode(ByteBuffer bufferRead) throws ActiveMQException;
-
-   /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
-    */
-   int encode(ActiveMQBuffer bufferOut, int size) throws ActiveMQException;
 
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
