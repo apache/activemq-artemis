@@ -1398,13 +1398,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private LargeServerMessage messageToLargeMessage(Message message) throws Exception {
       ICoreMessage coreMessage = message.toCore();
       LargeServerMessage lsm = getStorageManager().createLargeMessage(storageManager.generateID(), coreMessage);
-
       ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
-      byte[] body = new byte[buffer.readableBytes()];
-      buffer.readBytes(body);
-      lsm.addBytes(body);
+      final int readableBytes = buffer.readableBytes();
+      lsm.addBytes(buffer);
       lsm.releaseResources();
-      lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, body.length);
+      lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);
       return lsm;
    }
 

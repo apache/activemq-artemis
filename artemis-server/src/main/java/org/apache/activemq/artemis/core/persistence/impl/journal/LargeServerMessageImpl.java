@@ -53,10 +53,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    // We should only use the NIO implementation on the Journal
    private SequentialFile file;
 
-   // set when a copyFrom is called
-   // The actual copy is done when finishCopy is called
-   private SequentialFile pendingCopy;
-
    private long bodySize = -1;
 
    private final AtomicInteger delayDeletionCount = new AtomicInteger(0);
@@ -129,6 +125,21 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       storageManager.addBytesToLargeMessage(file, getMessageID(), bytes);
 
       bodySize += bytes.length;
+   }
+
+   @Override
+   public synchronized void addBytes(final ActiveMQBuffer bytes) throws Exception {
+      validateFile();
+
+      if (!file.isOpen()) {
+         file.open();
+      }
+
+      final int readableBytes = bytes.readableBytes();
+
+      storageManager.addBytesToLargeMessage(file, getMessageID(), bytes);
+
+      bodySize += readableBytes;
    }
 
    @Override
@@ -488,22 +499,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          }
       }
 
-      @Override
-      public int encode(final ActiveMQBuffer bufferOut, final int size) throws ActiveMQException {
-         // This could maybe be optimized (maybe reading directly into bufferOut)
-         ByteBuffer bufferRead = ByteBuffer.allocate(size);
-
-         int bytesRead = encode(bufferRead);
-
-         bufferRead.flip();
-
-         if (bytesRead > 0) {
-            bufferOut.writeBytes(bufferRead.array(), 0, bytesRead);
-         }
-
-         return bytesRead;
-      }
-
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.message.LargeBodyEncoder#getLargeBodySize()
        */
@@ -512,4 +507,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          return getBodySize();
       }
    }
+
+
 }
