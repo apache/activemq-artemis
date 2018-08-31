@@ -254,14 +254,14 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    private ActiveMQBuffer getLargeMessageBuffer() throws ActiveMQException {
-      ActiveMQBuffer buffer;
       LargeBodyEncoder encoder = getBodyEncoder();
       encoder.open();
       int bodySize = (int) encoder.getLargeBodySize();
-
-      buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
-
-      encoder.encode(buffer, bodySize);
+      final ActiveMQBuffer buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
+      buffer.byteBuf().ensureWritable(bodySize);
+      final ByteBuffer nioBuffer = buffer.byteBuf().internalNioBuffer(0, bodySize);
+      encoder.encode(nioBuffer);
+      buffer.writerIndex(bodySize);
       encoder.close();
       return buffer;
    }
@@ -1154,16 +1154,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
-         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(bufferRead);
-         return encode(buffer, bufferRead.capacity());
-      }
-
-      @Override
-      public int encode(final ActiveMQBuffer bufferOut, final int size) {
-         bufferOut.byteBuf().writeBytes(buffer, lastPos, size);
-         lastPos += size;
-         return size;
+      public int encode(final ByteBuffer bufferRead) {
+         final int remaining = bufferRead.remaining();
+         buffer.getBytes(lastPos, bufferRead);
+         lastPos += remaining;
+         return remaining;
       }
    }
 
