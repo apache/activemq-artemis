@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.io.nio;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -42,7 +42,19 @@ import org.apache.activemq.artemis.utils.Env;
 
 public class NIOSequentialFile extends AbstractSequentialFile {
 
+   /* This value has been tuned just to reduce the memory footprint
+      of read/write of the whole file size: given that this value
+      is > 8192, RandomAccessFile JNI code will use malloc/free instead
+      of using a copy on the stack, but it has been proven to NOT be
+      a bottleneck.
+
+      Instead of reading the whole content in a single operation, this will read in smaller chunks.
+    */
+   private static final int CHUNK_SIZE = 2 * 1024 * 1024;
+
    private FileChannel channel;
+
+   private RandomAccessFile rfile;
 
    private final int maxIO;
 
@@ -82,7 +94,9 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    @Override
    public void open(final int maxIO, final boolean useExecutor) throws IOException {
       try {
-         channel = FileChannel.open(getFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+         rfile = new RandomAccessFile(getFile(), "rw");
+
+         channel = rfile.getChannel();
 
          fileSize = channel.size();
       } catch (ClosedChannelException e) {
@@ -139,18 +153,27 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       super.close();
 
       try {
-         if (channel != null) {
-            if (waitSync && factory.isDatasync())
-               channel.force(false);
-            channel.close();
+         try {
+            if (channel != null) {
+               if (waitSync && factory.isDatasync())
+                  channel.force(false);
+               channel.close();
+            }
+         } finally {
+            if (rfile != null) {
+               rfile.close();
+            }
          }
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
+      } finally {
+         channel = null;
+         rfile = null;
       }
-      channel = null;
+
 
       notifyAll();
    }
@@ -160,6 +183,37 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       return read(bytes, null);
    }
 
+
+   private static int readRafInChunks(RandomAccessFile raf, byte[] b, int off, int len) throws IOException {
+      int remaining = len;
+      int offset = off;
+      while (remaining > 0) {
+         final int chunkSize = Math.min(CHUNK_SIZE, remaining);
+         final int read = raf.read(b, offset, chunkSize);
+         assert read != 0;
+         if (read == -1) {
+            if (len == remaining) {
+               return -1;
+            }
+            break;
+         }
+         offset += read;
+         remaining -= read;
+      }
+      return len - remaining;
+   }
+
+   private static void writeRafInChunks(RandomAccessFile raf, byte[] b, int off, int len) throws IOException {
+      int remaining = len;
+      int offset = off;
+      while (remaining > 0) {
+         final int chunkSize = Math.min(CHUNK_SIZE, remaining);
+         raf.write(b, offset, chunkSize);
+         offset += chunkSize;
+         remaining -= chunkSize;
+      }
+   }
+
    @Override
    public synchronized int read(final ByteBuffer bytes,
                                 final IOCallback callback) throws IOException, ActiveMQIllegalStateException {
@@ -167,7 +221,19 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          if (channel == null) {
             throw new ActiveMQIllegalStateException("File " + this.getFileName() + " has a null channel");
          }
-         int bytesRead = channel.read(bytes);
+         final int bytesRead;
+         if (bytes.hasArray()) {
+            if (bytes.remaining() > CHUNK_SIZE) {
+               bytesRead = readRafInChunks(rfile, bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            } else {
+               bytesRead = rfile.read(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            }
+            if (bytesRead > 0) {
+               bytes.position(bytes.position() + bytesRead);
+            }
+         } else {
+            bytesRead = channel.read(bytes);
+         }
 
          if (callback != null) {
             callback.done();
@@ -310,7 +376,16 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                                 final IOCallback callback,
                                 boolean releaseBuffer) throws IOException {
       try {
-         channel.write(bytes);
+         if (bytes.hasArray()) {
+            if (bytes.remaining() > CHUNK_SIZE) {
+               writeRafInChunks(rfile, bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            } else {
+               rfile.write(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            }
+            bytes.position(bytes.limit());
+         } else {
+            channel.write(bytes);
+         }
 
          if (sync) {
             sync();
