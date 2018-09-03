@@ -224,6 +224,31 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    }
 
    @Override
+   public int getBodyBufferSize() {
+      final boolean closeFile = file == null || !file.isOpen();
+      try {
+         openFile();
+         final long fileSize = file.size();
+         int fileSizeAsInt = (int) fileSize;
+         if (fileSizeAsInt < 0) {
+            logger.warnf("suspicious large message file size of %d bytes for %s, will use %d instead.",
+                         fileSize, file.getFileName(), Integer.MAX_VALUE);
+            fileSizeAsInt = Integer.MAX_VALUE;
+         }
+         return fileSizeAsInt;
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      } finally {
+         if (closeFile) {
+            try {
+               file.close();
+            } catch (Exception ignored) {
+            }
+         }
+      }
+   }
+
+   @Override
    public boolean isLargeMessage() {
       return true;
    }
