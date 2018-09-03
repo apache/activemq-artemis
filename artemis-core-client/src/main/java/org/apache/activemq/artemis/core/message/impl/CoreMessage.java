@@ -217,6 +217,13 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
    }
 
+   @Override
+   public int getBodyBufferSize() {
+      checkEncode();
+      internalWritableBuffer();
+      return endOfBodyPosition - BUFFER_HEADER_SPACE;
+   }
+
    /**
     * This will return the proper buffer to represent the data of the Message. If compressed it will decompress.
     * If large, it will read from the file or streaming.
