@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.io.nio;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -43,6 +43,8 @@ import org.apache.activemq.artemis.utils.Env;
 public class NIOSequentialFile extends AbstractSequentialFile {
 
    private FileChannel channel;
+
+   private RandomAccessFile rfile;
 
    private final int maxIO;
 
@@ -82,7 +84,9 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    @Override
    public void open(final int maxIO, final boolean useExecutor) throws IOException {
       try {
-         channel = FileChannel.open(getFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+         rfile = new RandomAccessFile(getFile(), "rw");
+
+         channel = rfile.getChannel();
 
          fileSize = channel.size();
       } catch (ClosedChannelException e) {
@@ -139,18 +143,27 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       super.close();
 
       try {
-         if (channel != null) {
-            if (waitSync && factory.isDatasync())
-               channel.force(false);
-            channel.close();
+         try {
+            if (channel != null) {
+               if (waitSync && factory.isDatasync())
+                  channel.force(false);
+               channel.close();
+            }
+         } finally {
+            if (rfile != null) {
+               rfile.close();
+            }
          }
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
+      } finally {
+         channel = null;
+         rfile = null;
       }
-      channel = null;
+
 
       notifyAll();
    }
@@ -167,7 +180,15 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          if (channel == null) {
             throw new ActiveMQIllegalStateException("File " + this.getFileName() + " has a null channel");
          }
-         int bytesRead = channel.read(bytes);
+         final int bytesRead;
+         if (bytes.hasArray()) {
+            bytesRead = rfile.read(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            if (bytesRead > 0) {
+               bytes.position(bytes.position() + bytesRead);
+            }
+         } else {
+            bytesRead = channel.read(bytes);
+         }
 
          if (callback != null) {
             callback.done();
@@ -310,7 +331,12 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                                 final IOCallback callback,
                                 boolean releaseBuffer) throws IOException {
       try {
-         channel.write(bytes);
+         if (bytes.hasArray()) {
+            rfile.write(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            bytes.position(bytes.limit());
+         } else {
+            channel.write(bytes);
+         }
 
          if (sync) {
             sync();
