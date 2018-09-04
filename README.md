@@ -10,6 +10,8 @@ our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
 ## Build Status
 
 Build Status: [![Build Status](https://travis-ci.org/apache/activemq-artemis.svg?branch=master)](https://travis-ci.org/apache/activemq-artemis)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/apache/activemq-artemis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/apache/activemq-artemis/context:java)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/apache/activemq-artemis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/apache/activemq-artemis/alerts)
 
 ## Building the ASYNC IO library
 
