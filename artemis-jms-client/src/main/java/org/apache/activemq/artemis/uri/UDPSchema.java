@@ -49,7 +49,7 @@ public class UDPSchema extends AbstractCFSchema {
       } else {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(dgc, options.getFactoryTypeEnum());
       }
-      return BeanSupport.setData(uri, factory, query);
+      return setData(uri, query, factory);
    }
 
    @Override

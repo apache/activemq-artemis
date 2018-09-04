@@ -36,4 +36,13 @@ public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFacto
       return BeanSupport.setData(uri, new JMSConnectionOptions(), query);
    }
 
+
+   protected ActiveMQConnectionFactory setData(URI uri,
+                                               Map<String, String> query,
+                                               ActiveMQConnectionFactory factory) throws Exception {
+      BeanSupport.setData(uri, factory.getServerLocator(), query);
+      return BeanSupport.setData(uri, factory, query);
+   }
+
+
 }
