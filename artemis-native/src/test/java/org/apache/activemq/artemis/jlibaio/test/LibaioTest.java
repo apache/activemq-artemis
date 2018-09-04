@@ -630,7 +630,7 @@ public class LibaioTest {
 
    @Test
    public void testBlockedCallback() throws Exception {
-      final LibaioContext blockedContext = new LibaioContext(500, true, true);
+      final LibaioContext blockedContext = new LibaioContext(LIBAIO_QUEUE_SIZE, true, true);
       Thread t = new Thread() {
          @Override
          public void run() {
@@ -640,7 +640,7 @@ public class LibaioTest {
 
       t.start();
 
-      int NUMBER_OF_BLOCKS = 5000;
+      int NUMBER_OF_BLOCKS = LIBAIO_QUEUE_SIZE * 10;
 
       final CountDownLatch latch = new CountDownLatch(NUMBER_OF_BLOCKS);
 
