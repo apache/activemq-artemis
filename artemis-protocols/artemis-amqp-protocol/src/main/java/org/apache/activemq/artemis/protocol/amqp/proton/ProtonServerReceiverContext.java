@@ -127,7 +127,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             if (address != null && !address.isEmpty()) {
                defRoutingType = getRoutingType(target.getCapabilities(), address);
                try {
-                  if (!sessionSPI.bindingQuery(address, defRoutingType)) {
+                  if (!sessionSPI.checkAddressAndAutocreateIfPossible(address, defRoutingType)) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                   }
                } catch (ActiveMQAMQPNotFoundException e) {
