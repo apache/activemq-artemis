@@ -50,6 +50,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       super(transportConnection, executor);
       this.manager = manager;
       this.amqpConnection = amqpConnection;
+      transportConnection.setProtocolConnection(this);
    }
 
    public Executor getExecutor() {
