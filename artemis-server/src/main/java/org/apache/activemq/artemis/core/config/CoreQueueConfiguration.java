@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.Queue;
 
 public class CoreQueueConfiguration implements Serializable {
 
@@ -187,6 +188,22 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
+   public static CoreQueueConfiguration getCoreQueueConfiguration(Queue queue) {
+      return new CoreQueueConfiguration()
+         .setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString().toString())
+         .setRoutingType(queue.getRoutingType())
+         .setDurable(queue.isDurable())
+         .setAddress(queue.getAddress() == null ? null : queue.getAddress().toString())
+         .setName(queue.getName().toString())
+         .setConsumersBeforeDispatch(queue.getConsumersBeforeDispatch())
+         .setDelayBeforeDispatch(queue.getDelayBeforeDispatch())
+         .setExclusive(queue.isExclusive())
+         .setLastValue(queue.isLastValue())
+         .setMaxConsumers(queue.getMaxConsumers())
+         .setPurgeOnNoConsumers(queue.isPurgeOnNoConsumers())
+         .setUser(queue.getUser() == null ? null : queue.getUser().toString());
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -202,6 +219,7 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
       result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
       result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
+      result = prime * result + ((user == null) ? 0 : user.hashCode());
       return result;
    }
 
@@ -270,6 +288,12 @@ public class CoreQueueConfiguration implements Serializable {
          if (other.routingType != null)
             return false;
       } else if (!routingType.equals(other.routingType)) {
+         return false;
+      }
+      if (user == null) {
+         if (other.user != null)
+            return false;
+      } else if (!user.equals(other.user)) {
          return false;
       }
       return true;

@@ -2698,13 +2698,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          .map(CoreAddressConfiguration::getName)
          .collect(Collectors.toSet());
 
-      Set<String> queuesInConfig = new HashSet<>();
-      for (CoreAddressConfiguration cac : configuration.getAddressConfigurations()) {
-         for (CoreQueueConfiguration cqc : cac.getQueueConfigurations()) {
-            // combine the routing-type and queue name as the unique identifier as it's possible to change the routing-type without changing the name
-            queuesInConfig.add(cqc.getRoutingType().toString() + cqc.getName());
-         }
-      }
+      Set<Integer> queuesInConfig = configuration.getAddressConfigurations().stream()
+         .map(CoreAddressConfiguration::getQueueConfigurations)
+         .flatMap(List::stream).map(CoreQueueConfiguration::hashCode)
+         .collect(Collectors.toSet());
 
       for (SimpleString addressName : listAddressNames()) {
          AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
@@ -2718,7 +2715,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             removeAddressInfo(addressName, null);
          } else if (addressSettings.getConfigDeleteQueues() == DeletionPolicy.FORCE) {
             for (Queue queue : listConfiguredQueues(addressName)) {
-               if (!queuesInConfig.contains(queue.getRoutingType().toString() + queue.getName().toString())) {
+               if (!queuesInConfig.contains(CoreQueueConfiguration.getCoreQueueConfiguration(queue).hashCode())) {
                   ActiveMQServerLogger.LOGGER.undeployQueue(queue.getRoutingType(), queue.getName());
                   queue.deleteQueue(true);
                }
