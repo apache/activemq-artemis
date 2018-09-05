@@ -83,4 +83,57 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       assertEquals(negative ? RoutingType.ANYCAST : RoutingType.MULTICAST, server.locateQueue(SimpleString.toSimpleString("myQueue")).getRoutingType());
       server.stop();
    }
+
+   @Test
+   public void testChangeQueueFilterOnRestart() throws Exception {
+      internalTestChangeQueueFilterOnRestart(false);
+   }
+
+   @Test
+   public void testChangeQueueFilterOnRestartNegative() throws Exception {
+      internalTestChangeQueueFilterOnRestart(true);
+   }
+
+   public void internalTestChangeQueueFilterOnRestart(boolean negative) throws Exception {
+      // if negative == true then the queue's filter should *not* change
+
+      final String filter1 = "x = 'x'";
+      final String filter2 = "x = 'y'";
+
+      Configuration configuration = createDefaultInVMConfig();
+      configuration.addAddressesSetting("#", new AddressSettings()
+         .setConfigDeleteQueues(negative ? DeletionPolicy.OFF : DeletionPolicy.FORCE)
+         .setConfigDeleteAddresses(negative ? DeletionPolicy.OFF : DeletionPolicy.FORCE));
+
+      List addressConfigurations = new ArrayList();
+      CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
+         .setName("myAddress")
+         .addRoutingType(RoutingType.ANYCAST)
+         .addQueueConfiguration(new CoreQueueConfiguration()
+                                   .setName("myQueue")
+                                   .setAddress("myAddress")
+                                   .setFilterString(filter1)
+                                   .setRoutingType(RoutingType.ANYCAST));
+      addressConfigurations.add(addressConfiguration);
+      configuration.setAddressConfigurations(addressConfigurations);
+      server = createServer(true, configuration);
+      server.start();
+      server.stop();
+
+      addressConfiguration = new CoreAddressConfiguration()
+         .setName("myAddress")
+         .addRoutingType(RoutingType.ANYCAST)
+         .addQueueConfiguration(new CoreQueueConfiguration()
+                                   .setName("myQueue")
+                                   .setAddress("myAddress")
+                                   .setFilterString(filter2)
+                                   .setRoutingType(RoutingType.ANYCAST));
+      addressConfigurations.clear();
+      addressConfigurations.add(addressConfiguration);
+      configuration.setAddressConfigurations(addressConfigurations);
+
+      server.start();
+      assertEquals(negative ? filter1 : filter2, server.locateQueue(SimpleString.toSimpleString("myQueue")).getFilter().getFilterString().toString());
+      server.stop();
+   }
 }

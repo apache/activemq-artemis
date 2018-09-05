@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.jms;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -95,6 +96,68 @@ public class RedeployTest extends ActiveMQTestBase {
             connection.start();
             MessageConsumer consumer = session.createConsumer(session.createQueue("NewQueue"));
             Assert.assertNotNull("Divert wasn't redeployed accordingly", consumer.receive(5000));
+         }
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployFilter() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-queue-filter.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-queue-filter-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = new Runnable() {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            connection.start();
+            Queue queue = session.createQueue("myQueue");
+            MessageProducer producer = session.createProducer(queue);
+            Message message = session.createMessage();
+            message.setStringProperty("x", "x");
+            producer.send(message);
+            MessageConsumer consumer = session.createConsumer(queue);
+            assertNotNull(consumer.receive(2000));
+         }
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            connection.start();
+            Queue queue = session.createQueue("myQueue");
+            MessageProducer producer = session.createProducer(queue);
+            Message message = session.createMessage();
+            message.setStringProperty("x", "y");
+            producer.send(message);
+            MessageConsumer consumer = session.createConsumer(queue);
+            assertNotNull(consumer.receive(2000));
          }
 
       } finally {
