@@ -433,7 +433,7 @@ public class ActiveMQMessage implements javax.jms.Message {
             dest = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address.toString());
          }
 
-         if (changedAddress != null) {
+         if (changedAddress != null && dest != null) {
             ((ActiveMQDestination) dest).setName(changedAddress.toString());
          }
       }
@@ -902,7 +902,7 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    private void checkProperty(final String name) throws JMSException {
       if (propertiesReadOnly) {
-         if (name.equals(ActiveMQJMSConstants.JMS_ACTIVEMQ_INPUT_STREAM)) {
+         if (name != null && name.equals(ActiveMQJMSConstants.JMS_ACTIVEMQ_INPUT_STREAM)) {
             throw new MessageNotWriteableException("You cannot set the Input Stream on received messages. Did you mean " + ActiveMQJMSConstants.JMS_ACTIVEMQ_OUTPUT_STREAM +
                                                       " or " +
                                                       ActiveMQJMSConstants.JMS_ACTIVEMQ_SAVE_STREAM +

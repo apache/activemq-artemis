@@ -934,12 +934,11 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
             return false;
       } else if (!this.producerWindowSize.equals(other.producerWindowSize))
          return false;
-      else if (!protocolManagerFactoryStr.equals(other.protocolManagerFactoryStr))
-         return false;
       if (this.protocolManagerFactoryStr == null) {
          if (other.protocolManagerFactoryStr != null)
             return false;
-      }
+      } else if (!protocolManagerFactoryStr.equals(other.protocolManagerFactoryStr))
+         return false;
       if (this.reconnectAttempts == null) {
          if (other.reconnectAttempts != null)
             return false;
@@ -1007,7 +1006,7 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       if (enableSharedClientID == null) {
          if (other.enableSharedClientID != null)
             return false;
-      } else if (!enableSharedClientID == other.enableSharedClientID)
+      } else if (!this.enableSharedClientID.equals(other.enableSharedClientID))
          return false;
 
       return true;

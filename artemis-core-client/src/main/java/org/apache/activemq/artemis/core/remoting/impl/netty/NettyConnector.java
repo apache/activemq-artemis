@@ -1181,7 +1181,7 @@ public class NettyConnector extends AbstractConnector {
 
    @Override
    public boolean isEquivalent(Map<String, Object> configuration) {
-      Boolean httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
+      boolean httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
       if (httpUpgradeEnabled) {
          // we need to look at the activemqServerName to distinguish between ActiveMQ servers that could be proxied behind the same
          // HTTP upgrade handler in the Web server
@@ -1198,9 +1198,9 @@ public class NettyConnector extends AbstractConnector {
       //here we only check host and port because these two parameters
       //is sufficient to determine the target host
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
-      Integer port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
+      int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
 
-      if (!port.equals(this.port))
+      if (port != this.port)
          return false;
 
       if (host.equals(this.host))
