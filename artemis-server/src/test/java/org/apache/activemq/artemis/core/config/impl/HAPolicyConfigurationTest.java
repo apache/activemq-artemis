@@ -139,6 +139,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(replicatedPolicy.isCheckForLiveServer());
          assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
          assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
+         assertEquals(replicatedPolicy.getRetryReplicationWait(), 12345);
       } finally {
          server.stop();
       }
@@ -161,6 +162,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertFalse(replicaPolicy.isRestartBackup());
          assertTrue(replicaPolicy.isAllowFailback());
          assertEquals(replicaPolicy.getInitialReplicationSyncTimeout(), 9876);
+         assertEquals(replicaPolicy.getRetryReplicationWait(), 12345);
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertEquals(scaleDownPolicy.getGroupName(), "boo!");

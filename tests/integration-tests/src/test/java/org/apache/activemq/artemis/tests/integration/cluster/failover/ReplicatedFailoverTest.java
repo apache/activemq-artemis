@@ -25,8 +25,10 @@ import java.util.concurrent.TimeUnit;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.component.WebServerComponent;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -35,6 +37,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,11 +48,13 @@ import org.junit.runner.Description;
 public class ReplicatedFailoverTest extends FailoverTest {
 
    boolean isReplicatedFailbackTest = false;
+   boolean isExtraBackupGroupNameReplicates = false;
    @Rule
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
          isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback") || description.getMethodName().equals("testLoop");
+         isExtraBackupGroupNameReplicates = description.getMethodName().equals("testExtraBackupGroupNameReplicates");
       }
 
    };
@@ -71,6 +76,49 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
    private void waitForSync(ActiveMQServer server) throws Exception {
       Wait.waitFor(server::isReplicaSync);
+   }
+
+   @Test
+   public void testExtraBackupReplicates() throws Exception {
+      Configuration secondBackupConfig = backupConfig.copy();
+      TransportConfiguration tc = secondBackupConfig.getAcceptorConfigurations().iterator().next();
+      TestableServer secondBackupServer = createTestableServer(secondBackupConfig);
+      tc.getParams().put("serverId", "2");
+      secondBackupConfig.setBindingsDirectory(getBindingsDir(1, true)).setJournalDirectory(getJournalDir(1, true)).setPagingDirectory(getPageDir(1, true)).setLargeMessagesDirectory(getLargeMessagesDir(1, true)).setSecurityEnabled(false);
+
+      waitForRemoteBackupSynchronization(backupServer.getServer());
+
+      secondBackupServer.start();
+      Thread.sleep(5000);
+      backupServer.stop();
+      waitForSync(secondBackupServer.getServer());
+      waitForRemoteBackupSynchronization(secondBackupServer.getServer());
+
+   }
+
+   @Test
+   public void testExtraBackupGroupNameReplicates() throws Exception {
+      ReplicaPolicyConfiguration backupReplicaPolicyConfiguration = (ReplicaPolicyConfiguration) backupServer.getServer().getConfiguration().getHAPolicyConfiguration();
+      backupReplicaPolicyConfiguration.setGroupName("foo");
+
+      ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+      replicatedPolicyConfiguration.setGroupName("foo");
+
+      Configuration secondBackupConfig = backupConfig.copy();
+      TransportConfiguration tc = secondBackupConfig.getAcceptorConfigurations().iterator().next();
+      TestableServer secondBackupServer = createTestableServer(secondBackupConfig);
+      tc.getParams().put("serverId", "2");
+      secondBackupConfig.setBindingsDirectory(getBindingsDir(1, true)).setJournalDirectory(getJournalDir(1, true)).setPagingDirectory(getPageDir(1, true)).setLargeMessagesDirectory(getLargeMessagesDir(1, true)).setSecurityEnabled(false);
+      ReplicaPolicyConfiguration replicaPolicyConfiguration = (ReplicaPolicyConfiguration) secondBackupConfig.getHAPolicyConfiguration();
+      replicaPolicyConfiguration.setGroupName("foo");
+      waitForRemoteBackupSynchronization(backupServer.getServer());
+
+      secondBackupServer.start();
+      Thread.sleep(5000);
+      backupServer.stop();
+      waitForSync(secondBackupServer.getServer());
+      waitForRemoteBackupSynchronization(secondBackupServer.getServer());
+
    }
 
    @Test(timeout = 120000)
@@ -212,6 +260,12 @@ public class ReplicatedFailoverTest extends FailoverTest {
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
       } else {
          super.setupHAPolicyConfiguration();
+      }
+
+      if (isExtraBackupGroupNameReplicates) {
+         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("foo");
+         ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("foo");
+
       }
    }
 
