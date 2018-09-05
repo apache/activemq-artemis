@@ -782,7 +782,7 @@ public final class OpenWireMessageConverter {
                   MarshallingSupport.marshalDouble(dataOut, doubleVal);
                   break;
                case DataConstants.FLOAT:
-                  Float floatVal = Float.intBitsToFloat(buffer.readInt());
+                  float floatVal = Float.intBitsToFloat(buffer.readInt());
                   MarshallingSupport.marshalFloat(dataOut, floatVal);
                   break;
                case DataConstants.INT:

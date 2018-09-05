@@ -370,7 +370,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       public void sequentialDone() {
 
          if (error) {
-            callback.onError(errorCode, errorMessage);
+            if (callback != null) {
+               callback.onError(errorCode, errorMessage);
+            }
             onIOError(new ActiveMQException(errorCode, errorMessage), errorMessage, null);
             errorMessage = null;
          } else {

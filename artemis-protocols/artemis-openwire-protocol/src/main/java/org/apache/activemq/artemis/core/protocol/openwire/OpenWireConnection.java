@@ -1261,7 +1261,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                }
             }
          } else {
-            tx.rollback();
+            if (tx != null) {
+               tx.rollback();
+            }
          }
 
          return null;
@@ -1413,7 +1415,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                }
             }
          } else {
-            tx.commit(onePhase);
+            if (tx != null) {
+               tx.commit(onePhase);
+            }
          }
 
          return null;

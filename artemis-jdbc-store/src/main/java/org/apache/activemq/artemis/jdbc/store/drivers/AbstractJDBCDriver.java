@@ -199,7 +199,7 @@ public abstract class AbstractJDBCDriver {
          connection.setAutoCommit(false);
          final boolean tableExists;
          try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
-            if ((rs == null) || (rs != null && !rs.next())) {
+            if (rs == null || !rs.next()) {
                tableExists = false;
                if (logger.isTraceEnabled()) {
                   logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));

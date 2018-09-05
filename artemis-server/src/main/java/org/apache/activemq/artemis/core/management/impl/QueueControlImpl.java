@@ -1131,7 +1131,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          long index = 0;
-         long start = (page - 1) * pageSize;
+         long start = (long) (page - 1) * pageSize;
          long end = Math.min(page * pageSize, queue.getMessageCount());
 
          ArrayList<CompositeData> c = new ArrayList<>();

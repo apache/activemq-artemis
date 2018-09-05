@@ -86,7 +86,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
             netToUse = null;
          }
       } catch (Exception e) {
-         ActiveMQUtilLogger.LOGGER.failedToSetNIC(e, nicName == null ? " " : nicName);
+         ActiveMQUtilLogger.LOGGER.failedToSetNIC(e, nicName);
          netToUse = null;
       }
 
@@ -326,6 +326,10 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    }
 
    public boolean check(InetAddress address) {
+      if (address == null) {
+         return false;
+      }
+
       try {
          if (address.isReachable(networkInterface, 0, networkTimeout)) {
             if (logger.isTraceEnabled()) {
@@ -336,7 +340,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
             return purePing(address);
          }
       } catch (Exception e) {
-         ActiveMQUtilLogger.LOGGER.failedToCheckAddress(e, address == null ? " " : address.toString());
+         ActiveMQUtilLogger.LOGGER.failedToCheckAddress(e, address.toString());
          return false;
       }
    }
@@ -392,6 +396,10 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    }
 
    public boolean check(URL url) {
+      if (url == null) {
+         return false;
+      }
+
       try {
          URLConnection connection = url.openConnection();
          connection.setReadTimeout(networkTimeout);
@@ -399,7 +407,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          is.close();
          return true;
       } catch (Exception e) {
-         ActiveMQUtilLogger.LOGGER.failedToCheckURL(e, url == null ? " " : url.toString());
+         ActiveMQUtilLogger.LOGGER.failedToCheckURL(e, url.toString());
          return false;
       }
    }

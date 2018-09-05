@@ -181,9 +181,9 @@ public class TransactionImpl implements Transaction {
       synchronized (timeoutLock) {
          boolean timedout;
          if (timeoutSeconds == -1) {
-            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + defaultTimeout * 1000;
+            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + (long) defaultTimeout * 1000;
          } else {
-            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + timeoutSeconds * 1000;
+            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + (long) timeoutSeconds * 1000;
          }
 
          if (timedout) {
