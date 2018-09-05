@@ -145,7 +145,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
          doSend(address1, message, null);
          if (handler != null) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Handler was used on producing messages towards address " + address1.toString() + " however there is no confirmationWindowEnabled");
+               logger.debug("Handler was used on producing messages towards address " + (address1 == null ? null : address1.toString()) + " however there is no confirmationWindowEnabled");
             }
 
             if (!confirmationNotSetLogged) {

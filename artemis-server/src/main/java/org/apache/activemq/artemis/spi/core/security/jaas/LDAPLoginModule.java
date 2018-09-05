@@ -184,7 +184,7 @@ public class LDAPLoginModule implements LoginModule {
        * requests (by verifying that the supplied password is not empty) and
        * react appropriately.
        */
-      if (password == null || (password != null && password.length() == 0))
+      if (password == null || password.length() == 0)
          throw new FailedLoginException("Password cannot be null or empty");
 
       // authenticate will throw LoginException

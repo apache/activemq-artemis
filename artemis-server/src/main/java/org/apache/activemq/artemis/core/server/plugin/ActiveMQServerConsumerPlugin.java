@@ -51,7 +51,7 @@ public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
     * Before a consumer is created
     *
     * @param consumerID
-    * @param QueueBinding
+    * @param queueBinding
     * @param filterString
     * @param browseOnly
     * @param supportLargeMessage

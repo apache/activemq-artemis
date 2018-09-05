@@ -323,12 +323,8 @@ public class CoreAmqpConverter {
          if (daMap != null) {
             encoder.writeObject(new DeliveryAnnotations(daMap));
          }
-         if (maMap != null) {
-            encoder.writeObject(new MessageAnnotations(maMap));
-         }
-         if (properties != null) {
-            encoder.writeObject(properties);
-         }
+         encoder.writeObject(new MessageAnnotations(maMap));
+         encoder.writeObject(properties);
          if (apMap != null) {
             encoder.writeObject(new ApplicationProperties(apMap));
          }
