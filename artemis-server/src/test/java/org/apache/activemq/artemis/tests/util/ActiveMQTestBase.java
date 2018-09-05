@@ -1219,7 +1219,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return params;
    }
 
-   protected static final TransportConfiguration getNettyAcceptorTransportConfiguration(final boolean live) {
+   protected TransportConfiguration getNettyAcceptorTransportConfiguration(final boolean live) {
       if (live) {
          return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY);
       }
@@ -1231,7 +1231,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, server1Params);
    }
 
-   protected static final TransportConfiguration getNettyConnectorTransportConfiguration(final boolean live) {
+   protected TransportConfiguration getNettyConnectorTransportConfiguration(final boolean live) {
       if (live) {
          return new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       }
@@ -1239,6 +1239,7 @@ public abstract class ActiveMQTestBase extends Assert {
       Map<String, Object> server1Params = new HashMap<>();
 
       server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
 
