@@ -27,6 +27,7 @@
                <check-for-live-server>true</check-for-live-server>
                <cluster-name>abcdefg</cluster-name>
                <initial-replication-sync-timeout>9876</initial-replication-sync-timeout>
+               <retry-replication-wait>12345</retry-replication-wait>
             </master>
          </replication>
       </ha-policy>

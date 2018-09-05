@@ -54,6 +54,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    private long voteRetryWait;
 
+   private long retryReplicationWait;
+
    /*
    * this are only used as the policy when the server is started as a live after a failover
    * */
@@ -78,7 +80,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            int quorumSize,
                            int voteRetries,
                            long voteRetryWait,
-                           int quorumVoteWait) {
+                           int quorumVoteWait,
+                           long retryReplicationWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
@@ -89,6 +92,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.voteRetries = voteRetries;
       this.voteRetryWait = voteRetryWait;
       this.quorumVoteWait = quorumVoteWait;
+      this.retryReplicationWait = retryReplicationWait;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -159,6 +163,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
          replicaPolicy.setVoteOnReplicationFailure(voteOnReplicationFailure);
          replicaPolicy.setVoteRetries(voteRetries);
          replicaPolicy.setVoteRetryWait(voteRetryWait);
+         replicaPolicy.setretryReplicationWait(retryReplicationWait);
          if (clusterName != null && clusterName.length() > 0) {
             replicaPolicy.setClusterName(clusterName);
          }
@@ -240,5 +245,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public int getQuorumVoteWait() {
       return quorumVoteWait;
+   }
+
+   public long getRetryReplicationWait() {
+      return retryReplicationWait;
    }
 }
