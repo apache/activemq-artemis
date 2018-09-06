@@ -17,12 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.jms;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +26,16 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -289,9 +293,14 @@ public class RedeployTest extends ActiveMQTestBase {
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
       try {
+         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://0.0.0.0:61616");
+         try (JMSContext context = connectionFactory.createContext()) {
+            context.createProducer().send(context.createQueue("myAddress"), "hello");
+         }
+
          latch.await(10, TimeUnit.SECONDS);
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "myAddress"));
-         Assert.assertEquals(RoutingType.MULTICAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
 
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -300,7 +309,14 @@ public class RedeployTest extends ActiveMQTestBase {
          latch.await(10, TimeUnit.SECONDS);
 
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "myAddress"));
-         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
+         Assert.assertEquals(RoutingType.MULTICAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
+
+         //Ensures the queue isnt detroyed by checking message sent before change is consumable after (e.g. no message loss)
+         try (JMSContext context = connectionFactory.createContext()) {
+            Message message = context.createSharedDurableConsumer(context.createTopic("myAddress"), "myQueue").receive();
+            assertEquals("hello", ((TextMessage) message).getText());
+         }
+
       } finally {
          embeddedActiveMQ.stop();
       }

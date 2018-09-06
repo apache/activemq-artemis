@@ -23,17 +23,20 @@ under the License.
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
    <core xmlns="urn:activemq:core">
-      <address-settings>
-         <address-setting match="#">
-            <config-delete-queues>FORCE</config-delete-queues>
-         </address-setting>
-      </address-settings>
+      <security-enabled>false</security-enabled>
+
+      <acceptors>
+         <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports ActiveMQ Artemis Core, OpenWire, STOMP, AMQP, MQTT, and HornetQ Core. -->
+         <!-- performance tests have shown that openWire performs best with these buffer sizes -->
+         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
+
+      </acceptors>
 
       <addresses>
          <address name="myAddress">
-            <multicast>
+            <anycast>
                <queue name="myQueue"/>
-            </multicast>
+            </anycast>
          </address>
       </addresses>
    </core>

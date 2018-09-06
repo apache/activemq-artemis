@@ -2601,9 +2601,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }, 0, dumpInfoInterval, TimeUnit.MILLISECONDS);
       }
 
-      // Undeploy any addresses and queues not in config
-      undeployAddressesAndQueueNotInConfiguration();
-
       // Deploy the rest of the stuff
 
       // Deploy predefined addresses
@@ -2611,6 +2608,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       // Deploy any predefined queues
       deployQueuesFromConfiguration();
+
+      // Undeploy any addresses and queues not in config
+      undeployAddressesAndQueueNotInConfiguration();
 
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses
       // this needs to be done before clustering is fully activated
@@ -2695,31 +2695,28 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void undeployAddressesAndQueueNotInConfiguration(Configuration configuration) throws Exception {
       Set<String> addressesInConfig = configuration.getAddressConfigurations().stream()
-         .map(CoreAddressConfiguration::getName)
-         .collect(Collectors.toSet());
+              .map(CoreAddressConfiguration::getName)
+              .collect(Collectors.toSet());
 
-      Set<String> queuesInConfig = new HashSet<>();
-      for (CoreAddressConfiguration cac : configuration.getAddressConfigurations()) {
-         for (CoreQueueConfiguration cqc : cac.getQueueConfigurations()) {
-            // combine the routing-type and queue name as the unique identifier as it's possible to change the routing-type without changing the name
-            queuesInConfig.add(cqc.getRoutingType().toString() + cqc.getName());
-         }
-      }
+      Set<String> queuesInConfig = configuration.getAddressConfigurations().stream()
+              .map(CoreAddressConfiguration::getQueueConfigurations)
+              .flatMap(List::stream).map(CoreQueueConfiguration::getName)
+              .collect(Collectors.toSet());
 
       for (SimpleString addressName : listAddressNames()) {
          AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
 
          if (!addressesInConfig.contains(addressName.toString()) && addressSettings.getConfigDeleteAddresses() == DeletionPolicy.FORCE) {
             for (Queue queue : listQueues(addressName)) {
-               ActiveMQServerLogger.LOGGER.undeployQueue(queue.getRoutingType(), queue.getName());
+               ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
                queue.deleteQueue(true);
             }
             ActiveMQServerLogger.LOGGER.undeployAddress(addressName);
             removeAddressInfo(addressName, null);
          } else if (addressSettings.getConfigDeleteQueues() == DeletionPolicy.FORCE) {
             for (Queue queue : listConfiguredQueues(addressName)) {
-               if (!queuesInConfig.contains(queue.getRoutingType().toString() + queue.getName().toString())) {
-                  ActiveMQServerLogger.LOGGER.undeployQueue(queue.getRoutingType(), queue.getName());
+               if (!queuesInConfig.contains(queue.getName().toString())) {
+                  ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
                   queue.deleteQueue(true);
                }
             }
@@ -2747,13 +2744,36 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
          try {
             ActiveMQServerLogger.LOGGER.deployAddress(config.getName(), config.getRoutingTypes().toString());
-            AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()), config.getRoutingTypes());
-            addOrUpdateAddressInfo(info);
+            SimpleString address = SimpleString.toSimpleString(config.getName());
+
+            AddressInfo tobe = new AddressInfo(address, config.getRoutingTypes());
+
+            //During this stage until all queues re-configured we combine the current (if exists) with to-be routing types to allow changes in queues
+            AddressInfo current = getAddressInfo(address);
+            AddressInfo merged = new AddressInfo(address, tobe.getRoutingType());
+            if (current != null) {
+               merged.getRoutingTypes().addAll(current.getRoutingTypes());
+            }
+            addOrUpdateAddressInfo(merged);
+
             deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
+
+            //Now all queues updated we apply the actual address info expected tobe.
+            addOrUpdateAddressInfo(tobe);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.problemDeployingAddress(config.getName(), e.getMessage());
          }
       }
+   }
+
+   private AddressInfo mergedRoutingTypes(SimpleString address, AddressInfo... addressInfos) {
+      EnumSet<RoutingType> mergedRoutingTypes = EnumSet.noneOf(RoutingType.class);
+      for (AddressInfo addressInfo : addressInfos) {
+         if (addressInfo != null) {
+            mergedRoutingTypes.addAll(addressInfo.getRoutingTypes());
+         }
+      }
+      return new AddressInfo(address, mergedRoutingTypes);
    }
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
