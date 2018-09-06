@@ -139,8 +139,10 @@ public final class XmlDataImporter extends ActionAbstract {
       return null;
    }
 
-   public void process(String inputFile, String host, int port, boolean transactional) throws Exception {
-      this.process(new FileInputStream(inputFile), host, port, transactional);
+   public void process(String inputFileName, String host, int port, boolean transactional) throws Exception {
+      try (FileInputStream inputFile = new FileInputStream(inputFileName)) {
+         this.process(inputFile, host, port, transactional);
+      }
    }
 
    /**
@@ -207,8 +209,10 @@ public final class XmlDataImporter extends ActionAbstract {
       process(inputStream, session, managementSession);
    }
 
-   public void validate(String file) throws Exception {
-      validate(new FileInputStream(file));
+   public void validate(String fileName) throws Exception {
+      try (FileInputStream file = new FileInputStream(fileName)) {
+         validate(file);
+      }
    }
 
    public void validate(InputStream inputStream) throws Exception {

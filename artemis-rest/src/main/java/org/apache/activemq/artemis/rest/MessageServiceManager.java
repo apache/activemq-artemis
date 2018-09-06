@@ -122,10 +122,11 @@ public class MessageServiceManager {
                url = new URL(configResourcePath);
             }
             JAXBContext jaxb = JAXBContext.newInstance(MessageServiceConfiguration.class);
-            Reader reader = new InputStreamReader(url.openStream());
-            String xml = XMLUtil.readerToString(reader);
-            xml = XMLUtil.replaceSystemProps(xml);
-            configuration = (MessageServiceConfiguration) jaxb.createUnmarshaller().unmarshal(new StringReader(xml));
+            try (Reader reader = new InputStreamReader(url.openStream())) {
+               String xml = XMLUtil.readerToString(reader);
+               xml = XMLUtil.replaceSystemProps(xml);
+               configuration = (MessageServiceConfiguration) jaxb.createUnmarshaller().unmarshal(new StringReader(xml));
+            }
          }
       }
       if (threadPool == null)

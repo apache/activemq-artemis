@@ -130,9 +130,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
     * however we need the guard to synchronize multiple step operations during topology updates.
     */
    private final Object recordsGuard = new Object();
-   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<>();
 
-   private final Map<String, MessageFlowRecord> disconnectedRecords = new ConcurrentHashMap<>();
+   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<>();
 
    private final ScheduledExecutorService scheduledExecutor;
 
