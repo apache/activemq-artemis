@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -306,33 +307,39 @@ public class AMQPSessionCallback implements SessionCallback {
 
 
    public boolean checkAddressAndAutocreateIfPossible(SimpleString address, RoutingType routingType) throws Exception {
-      AddressInfo addressInfo = manager.getServer().getAddressInfo(address);
+      boolean result = false;
+      SimpleString unPrefixedAddress = serverSession.removePrefix(address);
+      AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
 
-      // if the address exists go ahead and return
-      if (addressInfo != null) {
-         return true;
+      if (routingType == RoutingType.MULTICAST) {
+         if (manager.getServer().getAddressInfo(unPrefixedAddress) == null) {
+            if (addressSettings.isAutoCreateAddresses()) {
+               try {
+                  serverSession.createAddress(address, routingType, true);
+               } catch (ActiveMQAddressExistsException e) {
+                  // The address may have been created by another thread in the mean time.  Catch and do nothing.
+               }
+               result = true;
+            }
+         } else {
+            result = true;
+         }
+      } else if (routingType == RoutingType.ANYCAST) {
+         if (manager.getServer().locateQueue(unPrefixedAddress) == null) {
+            if (addressSettings.isAutoCreateQueues()) {
+               try {
+                  serverSession.createQueue(address, address, routingType, null, false, true, true);
+               } catch (ActiveMQQueueExistsException e) {
+                  // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+               }
+               result = true;
+            }
+         } else {
+            result = true;
+         }
       }
 
-      // if the address and/or queue don't exist then create them if possible
-      if (routingType == RoutingType.MULTICAST && addressInfo == null) {
-         if (manager.getServer().getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateAddresses()) {
-            try {
-               serverSession.createAddress(address, routingType, true);
-            } catch (ActiveMQAddressExistsException e) {
-               // The address may have been created by another thread in the mean time.  Catch and do nothing.
-            }
-         }
-      } else if (routingType == RoutingType.ANYCAST && manager.getServer().locateQueue(address) == null) {
-         if (manager.getServer().getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateQueues()) {
-            try {
-               serverSession.createQueue(address, address, routingType, null, false, true, true);
-            } catch (ActiveMQQueueExistsException e) {
-               // The queue may have been created by another thread in the mean time.  Catch and do nothing.
-            }
-         }
-      }
-
-      return manager.getServer().getAddressInfo(address) != null;
+      return result;
    }
 
 
