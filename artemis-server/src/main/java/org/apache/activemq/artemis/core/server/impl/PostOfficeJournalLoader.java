@@ -153,6 +153,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .maxConsumers(queueBindingInfo.getMaxConsumers())
             .exclusive(queueBindingInfo.isExclusive())
             .lastValue(queueBindingInfo.isLastValue())
+            .lastValueKey(queueBindingInfo.getLastValueKey())
+            .nonDestructive(queueBindingInfo.isNonDestructive())
             .consumersBeforeDispatch(queueBindingInfo.getConsumersBeforeDispatch())
             .delayBeforeDispatch(queueBindingInfo.getDelayBeforeDispatch())
             .routingType(RoutingType.getType(queueBindingInfo.getRoutingType()))

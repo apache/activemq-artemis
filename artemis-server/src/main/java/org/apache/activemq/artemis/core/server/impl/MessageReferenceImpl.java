@@ -53,6 +53,8 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    private Object protocolData;
 
+   private long expiration = -1;
+
    // Static --------------------------------------------------------
 
    private static final int memoryOffset = 64;

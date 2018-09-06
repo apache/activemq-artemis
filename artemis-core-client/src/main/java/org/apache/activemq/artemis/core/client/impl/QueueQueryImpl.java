@@ -52,6 +52,15 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final Boolean lastValue;
 
+   private final SimpleString lastValueKey;
+
+   private final Boolean nonDestructive;
+
+   private final Integer consumersBeforeDispatch;
+
+   private final Long delayBeforeDispatch;
+
+
    private final Integer defaultConsumerWindowSize;
 
    public QueueQueryImpl(final boolean durable,
@@ -92,6 +101,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final RoutingType routingType) {
       this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, null, null, null);
    }
+
    public QueueQueryImpl(final boolean durable,
                          final boolean temporary,
                          final int consumerCount,
@@ -108,6 +118,29 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final Boolean exclusive,
                          final Boolean lastValue,
                          final Integer defaultConsumerWindowSize) {
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, lastValue, null, null, null, null, defaultConsumerWindowSize);
+   }
+
+   public QueueQueryImpl(final boolean durable,
+                         final boolean temporary,
+                         final int consumerCount,
+                         final long messageCount,
+                         final SimpleString filterString,
+                         final SimpleString address,
+                         final SimpleString name,
+                         final boolean exists,
+                         final boolean autoCreateQueues,
+                         final int maxConsumers,
+                         final boolean autoCreated,
+                         final boolean purgeOnNoConsumers,
+                         final RoutingType routingType,
+                         final Boolean exclusive,
+                         final Boolean lastValue,
+                         final SimpleString lastValueKey,
+                         final Boolean nonDestructive,
+                         final Integer consumersBeforeDispatch,
+                         final Long delayBeforeDispatch,
+                         final Integer defaultConsumerWindowSize) {
       this.durable = durable;
       this.temporary = temporary;
       this.consumerCount = consumerCount;
@@ -123,6 +156,10 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.routingType = routingType;
       this.exclusive = exclusive;
       this.lastValue = lastValue;
+      this.lastValueKey = lastValueKey;
+      this.nonDestructive = nonDestructive;
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+      this.delayBeforeDispatch = delayBeforeDispatch;
       this.defaultConsumerWindowSize = defaultConsumerWindowSize;
    }
 
@@ -199,6 +236,26 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    @Override
    public Boolean isLastValue() {
       return lastValue;
+   }
+
+   @Override
+   public SimpleString getLastValueKey() {
+      return lastValueKey;
+   }
+
+   @Override
+   public Boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
+   @Override
+   public Integer getConsumersBeforeDispatch() {
+      return consumersBeforeDispatch;
+   }
+
+   @Override
+   public Long getDelayBeforeDispatch() {
+      return delayBeforeDispatch;
    }
 
    @Override
