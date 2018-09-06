@@ -822,7 +822,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       ActiveMQActivationSpec that = (ActiveMQActivationSpec) o;
 
-      if (acknowledgeMode != that.acknowledgeMode)
+      if (acknowledgeMode != null ? !acknowledgeMode.equals(that.acknowledgeMode) : that.acknowledgeMode != null)
          return false;
       if (subscriptionDurability != that.subscriptionDurability)
          return false;

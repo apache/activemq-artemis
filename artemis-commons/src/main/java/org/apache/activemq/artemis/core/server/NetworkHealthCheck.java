@@ -176,13 +176,13 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    }
 
    @Override
-   public NetworkHealthCheck setPeriod(long period) {
+   public synchronized NetworkHealthCheck setPeriod(long period) {
       super.setPeriod(period);
       return this;
    }
 
    @Override
-   public NetworkHealthCheck setTimeUnit(TimeUnit timeUnit) {
+   public synchronized NetworkHealthCheck setTimeUnit(TimeUnit timeUnit) {
       super.setTimeUnit(timeUnit);
       return this;
    }
