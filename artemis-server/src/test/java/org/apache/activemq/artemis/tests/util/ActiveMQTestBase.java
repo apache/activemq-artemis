@@ -552,6 +552,14 @@ public abstract class ActiveMQTestBase extends Assert {
       return params;
    }
 
+
+   /** This exists as an extension point for tests, so tests can replace it */
+   protected ClusterConnectionConfiguration createBasicClusterConfig(String connectorName,
+                                                                                      String... connectors) {
+      return basicClusterConnectionConfig(connectorName, connectors);
+   }
+
+
    protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName,
                                                                                       String... connectors) {
       ArrayList<String> connectors0 = new ArrayList<>();
