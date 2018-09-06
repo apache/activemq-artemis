@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -724,11 +723,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       // only send durable messages... // listFiles append a "." to anything...
       List<String> filenames = largeMessagesFactory.listFiles("msg");
 
-      List<Long> idList = new ArrayList<>();
       for (String filename : filenames) {
          Long id = getLargeMessageIdFromFilename(filename);
          if (!largeMessagesToDelete.contains(id)) {
-            idList.add(id);
             SequentialFile seqFile = largeMessagesFactory.createSequentialFile(filename);
             long size = seqFile.size();
             largeMessages.put(id, new Pair<>(filename, size));

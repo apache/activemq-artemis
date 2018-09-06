@@ -1251,17 +1251,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return configurations.get(0);
    }
 
-   private static final ArrayList<String> POLICY_LIST = new ArrayList<>();
-
-   static {
-      POLICY_LIST.add("colocated");
-      POLICY_LIST.add("live-only");
-      POLICY_LIST.add("replicated");
-      POLICY_LIST.add("replica");
-      POLICY_LIST.add("shared-store-master");
-      POLICY_LIST.add("shared-store-slave");
-   }
-
    private static final ArrayList<String> HA_LIST = new ArrayList<>();
 
    static {
