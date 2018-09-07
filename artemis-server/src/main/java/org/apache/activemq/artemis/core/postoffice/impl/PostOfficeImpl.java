@@ -465,6 +465,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public QueueBinding updateQueue(SimpleString name,
                                    RoutingType routingType,
+                                   Filter filter,
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
@@ -521,6 +522,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (delayBeforeDispatch != null && !delayBeforeDispatch.equals(queue.getDelayBeforeDispatch())) {
             changed = true;
             queue.setDelayBeforeDispatch(delayBeforeDispatch.longValue());
+         }
+         if (filter != null && !filter.equals(queue.getFilter())) {
+            changed = true;
+            queue.setFilter(filter);
          }
          if (logger.isDebugEnabled()) {
             if (user == null && queue.getUser() != null) {

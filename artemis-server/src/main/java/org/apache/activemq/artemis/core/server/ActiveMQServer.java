@@ -537,6 +537,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    Queue updateQueue(String name,
                      RoutingType routingType,
+                     String filterString,
                      Integer maxConsumers,
                      Boolean purgeOnNoConsumers,
                      Boolean exclusive,

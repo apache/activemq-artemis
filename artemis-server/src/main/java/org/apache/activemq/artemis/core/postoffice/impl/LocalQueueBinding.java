@@ -32,8 +32,6 @@ public class LocalQueueBinding implements QueueBinding {
 
    private final Queue queue;
 
-   private final Filter filter;
-
    private final SimpleString clusterName;
 
    private SimpleString name;
@@ -45,8 +43,6 @@ public class LocalQueueBinding implements QueueBinding {
 
       this.name = queue.getName();
 
-      filter = queue.getFilter();
-
       clusterName = queue.getName().concat(nodeID);
    }
 
@@ -57,7 +53,7 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public Filter getFilter() {
-      return filter;
+      return queue.getFilter();
    }
 
    @Override
@@ -158,7 +154,7 @@ public class LocalQueueBinding implements QueueBinding {
          ", queue=" +
          queue +
          ", filter=" +
-         filter +
+         getFilter() +
          ", name=" +
          name +
          ", clusterName=" +
