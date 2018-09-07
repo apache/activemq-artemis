@@ -834,6 +834,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isConfigurationManaged() {
+         return false;
+      }
+
+      @Override
+      public void setConfigurationManaged(boolean configurationManaged) {
+
+      }
+
+      @Override
       public void recheckRefCount(OperationContext context) {
       }
 

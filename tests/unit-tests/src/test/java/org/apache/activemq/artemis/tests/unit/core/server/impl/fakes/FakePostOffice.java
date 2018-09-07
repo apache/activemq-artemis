@@ -53,7 +53,8 @@ public class FakePostOffice implements PostOffice {
                                    Boolean exclusive,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,
-                                   SimpleString user) throws Exception {
+                                   SimpleString user,
+                                   Boolean configurationManaged) throws Exception {
       return null;
    }
 

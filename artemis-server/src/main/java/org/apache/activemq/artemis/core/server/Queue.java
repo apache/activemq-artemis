@@ -94,6 +94,10 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setMaxConsumer(int maxConsumers);
 
+   boolean isConfigurationManaged();
+
+   void setConfigurationManaged(boolean configurationManaged);
+
    void addConsumer(Consumer consumer) throws Exception;
 
    void removeConsumer(Consumer consumer);

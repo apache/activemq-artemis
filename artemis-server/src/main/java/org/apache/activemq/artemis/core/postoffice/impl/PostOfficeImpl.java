@@ -471,7 +471,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Boolean exclusive,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,
-                                   SimpleString user) throws Exception {
+                                   SimpleString user,
+                                   Boolean configurationManaged) throws Exception {
       synchronized (addressLock) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -526,6 +527,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (filter != null && !filter.equals(queue.getFilter())) {
             changed = true;
             queue.setFilter(filter);
+         }
+         if (configurationManaged != null && !configurationManaged.equals(queue.isConfigurationManaged())) {
+            changed = true;
+            queue.setConfigurationManaged(configurationManaged);
          }
          if (logger.isDebugEnabled()) {
             if (user == null && queue.getUser() != null) {

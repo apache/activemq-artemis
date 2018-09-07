@@ -73,7 +73,8 @@ public interface PostOffice extends ActiveMQComponent {
                             Boolean exclusive,
                             Integer consumersBeforeDispatch,
                             Long delayBeforeDispatch,
-                            SimpleString user) throws Exception;
+                            SimpleString user,
+                            Boolean configurationManaged) throws Exception;
 
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 
