@@ -88,4 +88,63 @@ public class ConfigChangeTest extends ActiveMQTestBase {
 
       server.stop();
    }
+
+   @Test
+   public void testChangeQueueFilterOnRestart() throws Exception {
+      final String filter1 = "x = 'x'";
+      final String filter2 = "x = 'y'";
+
+      Configuration configuration = createDefaultInVMConfig(  );
+      configuration.addAddressesSetting("#", new AddressSettings());
+
+      List addressConfigurations = new ArrayList();
+      CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
+         .setName("myAddress")
+         .addRoutingType(RoutingType.ANYCAST)
+         .addQueueConfiguration(new CoreQueueConfiguration()
+                                   .setName("myQueue")
+                                   .setAddress("myAddress")
+                                   .setFilterString(filter1)
+                                   .setRoutingType(RoutingType.ANYCAST));
+      addressConfigurations.add(addressConfiguration);
+      configuration.setAddressConfigurations(addressConfigurations);
+      server = createServer(true, configuration);
+      server.start();
+
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://0");
+      try (JMSContext context = connectionFactory.createContext()) {
+         context.createProducer().setProperty("x", "x").send(context.createQueue("myAddress"), "hello");
+      }
+
+      long originalBindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
+
+      server.stop();
+
+      addressConfiguration = new CoreAddressConfiguration()
+         .setName("myAddress")
+         .addRoutingType(RoutingType.ANYCAST)
+         .addQueueConfiguration(new CoreQueueConfiguration()
+                                   .setName("myQueue")
+                                   .setAddress("myAddress")
+                                   .setFilterString(filter2)
+                                   .setRoutingType(RoutingType.ANYCAST));
+      addressConfigurations.clear();
+      addressConfigurations.add(addressConfiguration);
+      configuration.setAddressConfigurations(addressConfigurations);
+
+      server.start();
+      assertEquals(filter2, server.locateQueue(SimpleString.toSimpleString("myQueue")).getFilter().getFilterString().toString());
+
+      //Ensures the queue is not destroyed by checking message sent before change is consumable after (e.g. no message loss)
+      try (JMSContext context = connectionFactory.createContext()) {
+         Message message = context.createConsumer(context.createQueue("myAddress::myQueue")).receive();
+         assertEquals("hello", ((TextMessage) message).getText());
+      }
+
+      long bindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
+      assertEquals("Ensure the original queue is not destroyed by checking the binding id is the same", originalBindingId, bindingId);
+
+      server.stop();
+
+   }
 }
