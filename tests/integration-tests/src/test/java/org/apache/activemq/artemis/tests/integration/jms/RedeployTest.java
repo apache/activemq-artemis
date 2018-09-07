@@ -38,6 +38,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
@@ -99,6 +100,102 @@ public class RedeployTest extends ActiveMQTestBase {
             connection.start();
             MessageConsumer consumer = session.createConsumer(session.createQueue("NewQueue"));
             Assert.assertNotNull("Divert wasn't redeployed accordingly", consumer.receive(5000));
+         }
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployFilter() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-queue-filter.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-queue-filter-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = new Runnable() {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            connection.start();
+            Queue queue = session.createQueue("myQueue");
+            MessageProducer producer = session.createProducer(queue);
+            Message message = session.createMessage();
+            message.setStringProperty("x", "x");
+            producer.send(message);
+            MessageConsumer consumer = session.createConsumer(queue);
+            assertNotNull(consumer.receive(5000));
+            consumer.close();
+         }
+
+         //Send a message that should remain in the queue (this ensures config change is non-destructive)
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            connection.start();
+            Queue queue = session.createQueue("myQueue");
+            MessageProducer producer = session.createProducer(queue);
+            Message message = session.createTextMessage("hello");
+            message.setStringProperty("x", "x");
+            producer.send(message);
+         }
+
+         Binding binding = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myQueue"));
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         Binding bindingAfterChange = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myQueue"));
+
+         assertTrue("Instance should be the same (as should be non destructive)", binding == bindingAfterChange);
+         assertEquals(binding.getID(), bindingAfterChange.getID());
+
+         //Check that after the config change we can still consume a message that was sent before, ensuring config change was non-destructive of the queue.
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            connection.start();
+            Queue queue = session.createQueue("myQueue");
+            MessageConsumer consumer = session.createConsumer(queue);
+            Message message = consumer.receive(5000);
+            assertNotNull(message);
+            assertEquals("hello", ((TextMessage)message).getText());
+            consumer.close();
+         }
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            connection.start();
+            Queue queue = session.createQueue("myQueue");
+            MessageProducer producer = session.createProducer(queue);
+            Message message = session.createMessage();
+            message.setStringProperty("x", "y");
+            producer.send(message);
+            MessageConsumer consumer = session.createConsumer(queue);
+            assertNotNull(consumer.receive(2000));
+            consumer.close();
          }
 
       } finally {
