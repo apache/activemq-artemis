@@ -106,6 +106,16 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isConfigurationManaged() {
+      return false;
+   }
+
+   @Override
+   public void setConfigurationManaged(boolean configurationManaged) {
+
+   }
+
+   @Override
    public boolean isInternalQueue() {
       // no-op
       return false;
