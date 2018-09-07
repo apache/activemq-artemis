@@ -45,6 +45,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    Filter getFilter();
 
+   void setFilter(Filter filter);
+
    PageSubscription getPageSubscription();
 
    RoutingType getRoutingType();

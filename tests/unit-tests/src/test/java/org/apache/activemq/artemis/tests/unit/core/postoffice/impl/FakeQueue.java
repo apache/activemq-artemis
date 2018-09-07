@@ -427,6 +427,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void setFilter(Filter filter) {
+
+   }
+
+   @Override
    public long getMessageCount() {
       return messageCount;
    }

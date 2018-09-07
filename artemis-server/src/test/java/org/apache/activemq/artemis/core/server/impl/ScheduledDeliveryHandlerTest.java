@@ -883,6 +883,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void setFilter(Filter filter) {
+      }
+
+      @Override
       public PageSubscription getPageSubscription() {
          return null;
       }
