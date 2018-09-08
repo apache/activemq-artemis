@@ -136,7 +136,7 @@ public class RedeployTest extends ActiveMQTestBase {
               Connection connection = factory.createConnection();
               Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
             connection.start();
-            Queue queue = session.createQueue("myQueue");
+            Queue queue = session.createQueue("myFilterQueue");
             MessageProducer producer = session.createProducer(queue);
             Message message = session.createMessage();
             message.setStringProperty("x", "x");
@@ -151,14 +151,14 @@ public class RedeployTest extends ActiveMQTestBase {
               Connection connection = factory.createConnection();
               Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
             connection.start();
-            Queue queue = session.createQueue("myQueue");
+            Queue queue = session.createQueue("myFilterQueue");
             MessageProducer producer = session.createProducer(queue);
             Message message = session.createTextMessage("hello");
             message.setStringProperty("x", "x");
             producer.send(message);
          }
 
-         Binding binding = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myQueue"));
+         Binding binding = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myFilterQueue"));
 
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -166,7 +166,7 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
          latch.await(10, TimeUnit.SECONDS);
 
-         Binding bindingAfterChange = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myQueue"));
+         Binding bindingAfterChange = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myFilterQueue"));
 
          assertTrue("Instance should be the same (as should be non destructive)", binding == bindingAfterChange);
          assertEquals(binding.getID(), bindingAfterChange.getID());
@@ -176,7 +176,7 @@ public class RedeployTest extends ActiveMQTestBase {
               Connection connection = factory.createConnection();
               Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
             connection.start();
-            Queue queue = session.createQueue("myQueue");
+            Queue queue = session.createQueue("myFilterQueue");
             MessageConsumer consumer = session.createConsumer(queue);
             Message message = consumer.receive(5000);
             assertNotNull(message);
@@ -188,7 +188,7 @@ public class RedeployTest extends ActiveMQTestBase {
               Connection connection = factory.createConnection();
               Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
             connection.start();
-            Queue queue = session.createQueue("myQueue");
+            Queue queue = session.createQueue("myFilterQueue");
             MessageProducer producer = session.createProducer(queue);
             Message message = session.createMessage();
             message.setStringProperty("x", "y");
