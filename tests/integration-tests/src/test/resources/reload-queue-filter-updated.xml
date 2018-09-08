@@ -30,9 +30,9 @@ under the License.
       </acceptors>
 
       <addresses>
-         <address name="myQueue">
+         <address name="myFilterQueue">
             <anycast>
-               <queue name="myQueue">
+               <queue name="myFilterQueue">
                   <filter string="x = 'y'"/>
                </queue>
             </anycast>
