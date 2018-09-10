@@ -32,6 +32,7 @@ import org.junit.rules.TemporaryFolder;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
@@ -91,11 +92,11 @@ public class CliTestBase {
       Artemis.internalExecute("run");
    }
 
-   protected void setupAuth() throws Exception {
+   void setupAuth() {
       setupAuth(temporaryFolder.getRoot());
    }
 
-   protected void setupAuth(File folder) throws Exception {
+   void setupAuth(File folder) {
       System.setProperty("java.security.auth.login.config", folder.getAbsolutePath() + "/etc/login.config");
    }
 
@@ -105,7 +106,7 @@ public class CliTestBase {
       assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
-   protected ActiveMQConnectionFactory getConnectionFactory(int serverPort) throws Exception {
+   protected ActiveMQConnectionFactory getConnectionFactory(int serverPort) {
       return new ActiveMQConnectionFactory("tcp://localhost:" + String.valueOf(serverPort));
    }
 
@@ -121,13 +122,19 @@ public class CliTestBase {
               "--auto-create-address");
    }
 
-   protected void closeConnection(ActiveMQConnectionFactory cf, Connection connection) throws Exception {
+   void closeConnection(ActiveMQConnectionFactory cf, Connection connection) throws Exception {
       try {
          connection.close();
          cf.close();
       } finally {
          stopServer();
       }
+   }
+
+   protected Session createSession(Connection connection) throws JMSException {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      connection.start();
+      return session;
    }
 
    protected List<Message> consumeMessages(Session session, String address, int noMessages, boolean fqqn) throws Exception {
@@ -143,8 +150,12 @@ public class CliTestBase {
       return messages;
    }
 
-   protected Destination getDestination(String queueName) {
+   Destination getDestination(String queueName) {
       return ActiveMQDestination.createDestination("queue://" + queueName, ActiveMQDestination.TYPE.QUEUE);
+   }
+
+   Destination getTopicDestination(String queueName) {
+      return ActiveMQDestination.createDestination("topic://" + queueName, ActiveMQDestination.TYPE.TOPIC);
    }
 
 }
