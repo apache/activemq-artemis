@@ -57,7 +57,7 @@ public class TCPSchema extends AbstractCFSchema {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), tcs);
       }
 
-      return BeanSupport.setData(uri, factory, query);
+      return setData(uri, query, factory);
    }
 
    @Override
