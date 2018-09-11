@@ -460,6 +460,18 @@ additional properties:
   https://en.wikipedia.org/wiki/Comparison_of_TLS_implementations for more
   information's.
 
+- `sniHost`
+
+  When used on an `acceptor` the `sniHost` is a *regular expression* used to
+  match the [`server_name`](https://tools.ietf.org/html/rfc6066) extension on
+  incoming SSL connections. If the name doesn't match then the connection to
+  the acceptor will be rejected. A WARN message will be logged if this happens.
+  If the incoming connection doesn't include the `server_name` extension then
+  the connection will be accepted.
+
+  When used on a `connector` the `sniHost` value is used for the `server_name`
+  extension on the SSL connection.
+
 ### Configuring Netty HTTP
 
 Netty HTTP tunnels packets over the HTTP protocol. It can be useful in
