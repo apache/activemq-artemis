@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
+import static org.apache.activemq.artemis.api.core.Message.EMBEDDED_TYPE;
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
@@ -82,6 +83,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalS
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -120,7 +122,13 @@ public class CoreAmqpConverter {
       if (coreMessage == null) {
          return null;
       }
-
+      if (coreMessage.isServerMessage() && coreMessage.isLargeMessage() && coreMessage.getType() == EMBEDDED_TYPE) {
+         //large AMQP messages received across cluster nodes
+         final Message message = EmbedMessageUtil.extractEmbedded(coreMessage);
+         if (message instanceof AMQPMessage) {
+            return (AMQPMessage) message;
+         }
+      }
       ServerJMSMessage message = ServerJMSMessage.wrapCoreMessage(coreMessage);
       message.decode();
 
