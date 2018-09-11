@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.nullpm;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import io.netty.buffer.Unpooled;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
@@ -39,11 +41,16 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
    @Override
    public synchronized void addBytes(final byte[] bytes) {
       if (buffer == null) {
-         buffer = ActiveMQBuffers.dynamicBuffer(bytes.length).byteBuf();
+         buffer = Unpooled.buffer(bytes.length);
       }
 
       // expand the buffer
       buffer.writeBytes(bytes);
+   }
+
+   @Override
+   public synchronized ActiveMQBuffer getReadOnlyBodyBuffer() {
+      return new ChannelBufferWrapper(buffer.slice(0, buffer.writerIndex()).asReadOnly());
    }
 
    @Override
