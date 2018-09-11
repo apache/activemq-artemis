@@ -56,6 +56,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public byte routingType;
 
+   public boolean configurationManaged;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -86,6 +88,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          delayBeforeDispatch +
          ", routingType=" +
          routingType +
+         ", configurationManaged=" +
+         configurationManaged +
          "]";
    }
 
@@ -100,7 +104,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final boolean lastValue,
                                          final int consumersBeforeDispatch,
                                          final long delayBeforeDispatch,
-                                         final byte routingType) {
+                                         final byte routingType,
+                                         final boolean configurationManaged) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -113,6 +118,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       this.delayBeforeDispatch = delayBeforeDispatch;
       this.routingType = routingType;
+      this.configurationManaged = configurationManaged;
    }
 
    @Override
@@ -152,6 +158,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    @Override
    public boolean isAutoCreated() {
       return autoCreated;
+   }
+
+   @Override
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   @Override
+   public void setConfigurationManaged(boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
    }
 
    @Override
@@ -288,6 +304,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
       }
+      if (buffer.readableBytes() > 0) {
+         configurationManaged = buffer.readBoolean();
+      } else {
+         configurationManaged = false;
+      }
    }
 
    @Override
@@ -304,6 +325,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeBoolean(lastValue);
       buffer.writeInt(consumersBeforeDispatch);
       buffer.writeLong(delayBeforeDispatch);
+      buffer.writeBoolean(configurationManaged);
    }
 
    @Override
@@ -317,7 +339,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_INT +
-         DataConstants.SIZE_LONG;
+         DataConstants.SIZE_LONG +
+         DataConstants.SIZE_BOOLEAN;
    }
 
    private SimpleString createMetadata() {

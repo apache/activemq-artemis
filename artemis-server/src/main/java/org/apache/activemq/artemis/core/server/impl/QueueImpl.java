@@ -279,9 +279,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    public volatile long dispatchStartTime = -1;
 
-   private int consumersBeforeDispatch = 0;
+   private volatile int consumersBeforeDispatch = 0;
 
-   private long delayBeforeDispatch = 0;
+   private volatile long delayBeforeDispatch = 0;
+
+   private volatile boolean configurationManaged;
 
 
    /**
@@ -429,7 +431,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, purgeOnNoConsumers, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
@@ -447,6 +449,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final Integer consumersBeforeDispatch,
                     final Long delayBeforeDispatch,
                     final Boolean purgeOnNoConsumers,
+                    final boolean configurationManaged,
                     final ScheduledExecutorService scheduledExecutor,
                     final PostOffice postOffice,
                     final StorageManager storageManager,
@@ -485,6 +488,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.consumersBeforeDispatch = consumersBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch;
 
       this.delayBeforeDispatch = delayBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch() : delayBeforeDispatch;
+
+      this.configurationManaged = configurationManaged;
 
       this.postOffice = postOffice;
 
@@ -660,6 +665,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void setMaxConsumer(int maxConsumers) {
       this.maxConsumers = maxConsumers;
+   }
+
+   @Override
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   @Override
+   public synchronized void setConfigurationManaged(boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
    }
 
    @Override

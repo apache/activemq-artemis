@@ -42,6 +42,7 @@ public final class QueueConfig {
    private final boolean purgeOnNoConsumers;
    private final int consumersBeforeDispatch;
    private final long delayBeforeDispatch;
+   private final boolean configurationManaged;
 
    public static final class Builder {
 
@@ -61,6 +62,7 @@ public final class QueueConfig {
       private boolean purgeOnNoConsumers;
       private int consumersBeforeDispatch;
       private long delayBeforeDispatch;
+      private boolean configurationManaged;
 
       private Builder(final long id, final SimpleString name) {
          this(id, name, name);
@@ -83,6 +85,7 @@ public final class QueueConfig {
          this.purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
          this.consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
          this.delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
+         this.configurationManaged = false;
          validateState();
       }
 
@@ -97,6 +100,11 @@ public final class QueueConfig {
          if (isEmptyOrNull(this.address)) {
             throw new IllegalStateException("address can't be null or empty!");
          }
+      }
+
+      public Builder configurationManaged(final boolean configurationManaged) {
+         this.configurationManaged = configurationManaged;
+         return this;
       }
 
       public Builder filter(final Filter filter) {
@@ -185,7 +193,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged);
       }
 
    }
@@ -233,7 +241,8 @@ public final class QueueConfig {
                        final boolean lastValue,
                        final int consumersBeforeDispatch,
                        final long delayBeforeDispatch,
-                       final boolean purgeOnNoConsumers) {
+                       final boolean purgeOnNoConsumers,
+                       final boolean configurationManaged) {
       this.id = id;
       this.address = address;
       this.name = name;
@@ -250,6 +259,7 @@ public final class QueueConfig {
       this.maxConsumers = maxConsumers;
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       this.delayBeforeDispatch = delayBeforeDispatch;
+      this.configurationManaged = configurationManaged;
    }
 
    public long id() {
@@ -316,6 +326,10 @@ public final class QueueConfig {
       return delayBeforeDispatch;
    }
 
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o)
@@ -357,6 +371,8 @@ public final class QueueConfig {
          return false;
       if (purgeOnNoConsumers != that.purgeOnNoConsumers)
          return false;
+      if (configurationManaged != that.configurationManaged)
+         return false;
       return user != null ? user.equals(that.user) : that.user == null;
 
    }
@@ -379,6 +395,7 @@ public final class QueueConfig {
       result = 31 * result + consumersBeforeDispatch;
       result = 31 * result + Long.hashCode(delayBeforeDispatch);
       result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
+      result = 31 * result + (configurationManaged ? 1 : 0);
       return result;
    }
 
@@ -400,6 +417,7 @@ public final class QueueConfig {
          + ", lastValue=" + lastValue
          + ", consumersBeforeDispatch=" + consumersBeforeDispatch
          + ", delayBeforeDispatch=" + delayBeforeDispatch
-         + ", purgeOnNoConsumers=" + purgeOnNoConsumers + '}';
+         + ", purgeOnNoConsumers=" + purgeOnNoConsumers
+         + ", configurationManaged=" + configurationManaged + '}';
    }
 }

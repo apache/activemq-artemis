@@ -320,8 +320,15 @@ public class RedeployTest extends ActiveMQTestBase {
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+      try (JMSContext jmsContext = connectionFactory.createContext()) {
+         jmsContext.createSharedDurableConsumer(jmsContext.createTopic("config_test_consumer_created_queues"),"mySub").receive(100);
+      }
+
       try {
          latch.await(10, TimeUnit.SECONDS);
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_consumer_created_queues").contains("mySub"));
+
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal_no_queue"));
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal"));
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_removal"));
@@ -343,6 +350,9 @@ public class RedeployTest extends ActiveMQTestBase {
          latch.setCount(1);
          embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
          latch.await(10, TimeUnit.SECONDS);
+
+         //Ensure queues created by clients (NOT by broker.xml are not removed when we reload).
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_consumer_created_queues").contains("mySub"));
 
          Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal_no_queue"));
          Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal"));
