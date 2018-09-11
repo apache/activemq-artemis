@@ -147,6 +147,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isConfigurationManaged() {
+            return (Boolean) proxy.retrieveAttributeValue("configurationManaged");
+         }
+
+         @Override
          public boolean isExclusive() {
             return (Boolean) proxy.retrieveAttributeValue("exclusive");
          }
