@@ -180,7 +180,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
    public static SimpleString readSimpleString(final ByteBuf buffer, final int length) {
       if (length > buffer.readableBytes()) {
-         throw new IndexOutOfBoundsException();
+         throw new IndexOutOfBoundsException("Error reading in simpleString, length=" + length + " is greater than readableBytes=" + buffer.readableBytes());
       }
       byte[] data = new byte[length];
       buffer.readBytes(data);
