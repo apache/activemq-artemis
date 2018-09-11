@@ -73,32 +73,27 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          ByteBuffer buffer;
          MessageImpl msg;
 
-         connection.lock();
-         try {
-            // Replenish coordinator receiver credit on exhaustion so sender can continue
-            // transaction declare and discahrge operations.
-            if (receiver.getCredit() < amqpLowMark) {
-               receiver.flow(amqpCredit);
-            }
-
-            // Declare is generally 7 bytes and discharge is around 48 depending on the
-            // encoded size of the TXN ID.  Decode buffer has a bit of extra space but if
-            // the incoming request is to big just use a scratch buffer.
-            if (delivery.available() > DECODE_BUFFER.capacity()) {
-               buffer = ByteBuffer.allocate(delivery.available());
-            } else {
-               buffer = (ByteBuffer) DECODE_BUFFER.clear();
-            }
-
-            // Update Buffer for the next incoming command.
-            buffer.limit(receiver.recv(buffer.array(), buffer.arrayOffset(), buffer.capacity()));
-
-            receiver.advance();
-
-            msg = decodeMessage(buffer);
-         } finally {
-            connection.unlock();
+         // Replenish coordinator receiver credit on exhaustion so sender can continue
+         // transaction declare and discahrge operations.
+         if (receiver.getCredit() < amqpLowMark) {
+            receiver.flow(amqpCredit);
          }
+
+         // Declare is generally 7 bytes and discharge is around 48 depending on the
+         // encoded size of the TXN ID.  Decode buffer has a bit of extra space but if
+         // the incoming request is to big just use a scratch buffer.
+         if (delivery.available() > DECODE_BUFFER.capacity()) {
+            buffer = ByteBuffer.allocate(delivery.available());
+         } else {
+            buffer = (ByteBuffer) DECODE_BUFFER.clear();
+         }
+
+         // Update Buffer for the next incoming command.
+         buffer.limit(receiver.recv(buffer.array(), buffer.arrayOffset(), buffer.capacity()));
+
+         receiver.advance();
+
+         msg = decodeMessage(buffer);
 
          Object action = ((AmqpValue) msg.getBody()).getValue();
          if (action instanceof Declare) {
@@ -160,23 +155,13 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          }
       } catch (ActiveMQAMQPException amqpE) {
          log.warn(amqpE.getMessage(), amqpE);
-         connection.lock();
-         try {
-            delivery.settle();
-            delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
-         } finally {
-            connection.unlock();
-         }
+         delivery.settle();
+         delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
          connection.flush();
       } catch (Throwable e) {
          log.warn(e.getMessage(), e);
-         connection.lock();
-         try {
-            delivery.settle();
-            delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
-         } finally {
-            connection.unlock();
-         }
+         delivery.settle();
+         delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
          connection.flush();
       }
    }
