@@ -719,4 +719,15 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       connection.close();
    }
+
+   @Test
+   public void testUseTopologyForLoadBalancing() throws Exception {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0?useTopologyForLoadBalancing=false");
+      Context ctx = new InitialContext(props);
+
+      ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
+      assertFalse(((ActiveMQConnectionFactory)connectionFactory).getServerLocator().getUseTopologyForLoadBalancing());
+   }
 }
