@@ -490,6 +490,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public boolean isConfigurationManaged() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isConfigurationManaged();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public boolean isExclusive() {
       checkStarted();
 

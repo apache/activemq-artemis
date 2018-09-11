@@ -120,6 +120,10 @@ under the License.
       </wildcard-addresses>
 
       <addresses>
+         <address name="config_test_consumer_created_queues">
+            <multicast>
+            </multicast>
+         </address>
          <address name="config_test_queue_removal">
             <multicast>
                <queue name="config_test_queue_removal_queue_1"/>
