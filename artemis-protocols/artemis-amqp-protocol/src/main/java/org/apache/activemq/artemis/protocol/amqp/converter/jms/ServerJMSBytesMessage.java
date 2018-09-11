@@ -54,7 +54,7 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
 
    @Override
    public long getBodyLength() throws JMSException {
-      return message.getReadOnlyBodyBuffer().readableBytes();
+      return message.getBodyBufferSize();
    }
 
    @Override
