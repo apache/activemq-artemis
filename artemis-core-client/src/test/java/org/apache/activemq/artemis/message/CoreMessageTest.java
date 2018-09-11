@@ -82,6 +82,14 @@ public class CoreMessageTest {
       Assert.assertEquals(TEXT, TextMessageUtil.readBodyText(decodedMessage.getReadOnlyBodyBuffer()).toString());
    }
 
+   @Test
+   public void testBodyBufferSize() {
+      final CoreMessage decodedMessage = decodeMessage();
+      final int bodyBufferSize = decodedMessage.getBodyBufferSize();
+      final int readonlyBodyBufferReadableBytes = decodedMessage.getReadOnlyBodyBuffer().readableBytes();
+      Assert.assertEquals(bodyBufferSize, readonlyBodyBufferReadableBytes);
+   }
+
    /** The message is received, then sent to the other side untouched */
    @Test
    public void sendThroughPackets() {

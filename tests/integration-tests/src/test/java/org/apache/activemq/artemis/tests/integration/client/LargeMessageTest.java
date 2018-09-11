@@ -2289,6 +2289,32 @@ public class LargeMessageTest extends LargeMessageTestBase {
       log.debug("Thread done");
    }
 
+   @Test
+   public void testLargeMessageBodySize() throws Exception {
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+      fileMessage.setMessageID(1005);
+
+      Assert.assertEquals(0, fileMessage.getBodyBufferSize());
+
+      for (int i = 0; i < largeMessageSize; i++) {
+         fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+      }
+
+      Assert.assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
+
+      // The server would be doing this
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+
+      fileMessage.releaseResources();
+
+      Assert.assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
+   }
+
    // The ClientConsumer should be able to also send ServerLargeMessages as that's done by the CoreBridge
    @Test
    public void testSendServerMessage() throws Exception {
