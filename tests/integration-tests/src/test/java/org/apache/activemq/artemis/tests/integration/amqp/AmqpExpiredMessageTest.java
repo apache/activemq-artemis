@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -339,11 +339,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          message.setDurable(true);
          message.setText("Test-Message");
          message.setDeliveryAnnotation("shouldDisappear", 1);
-         message.setAbsoluteExpiryTime(System.currentTimeMillis() + 1000);
+         message.setAbsoluteExpiryTime(System.currentTimeMillis() + 250);
          sender.send(message);
 
-         org.apache.activemq.artemis.core.server.Queue dlq = server.locateQueue(SimpleString.toSimpleString(getDeadLetterAddress()));
-
+         Queue dlq = getProxyToQueue(getDeadLetterAddress());
          assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlq.getMessageCount() > 0, 5000, 500));
 
          connection.close();
@@ -361,11 +360,61 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          receiver.flow(20);
 
          message = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(getQueueName(), message.getMessageAnnotation(org.apache.activemq.artemis.api.core.Message.HDR_ORIGINAL_ADDRESS.toString()));
-         Assert.assertNull(message.getDeliveryAnnotation("shouldDisappear"));
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNotNull(message);
+         assertEquals(getQueueName(), message.getMessageAnnotation(org.apache.activemq.artemis.api.core.Message.HDR_ORIGINAL_ADDRESS.toString()));
+         assertNull(message.getDeliveryAnnotation("shouldDisappear"));
+         assertNull(receiver.receiveNoWait());
+      } finally {
+         connection.close();
+      }
+   }
 
+   @Test(timeout = 60000)
+   public void testDLQdMessageCanBeRedeliveredMultipleTimes() throws Throwable {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = client.connect();
+
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getQueueName());
+
+         AmqpMessage message = new AmqpMessage();
+         message.setDurable(true);
+         message.setTimeToLive(250);
+         message.setText("Test-Message");
+         message.setMessageId(UUID.randomUUID().toString());
+         message.setApplicationProperty("key", "value");
+
+         sender.send(message);
+
+         Queue dlqView = getProxyToQueue(getDeadLetterAddress());
+         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlqView.getMessageCount() > 0, 5000, 200));
+
+         // Read and Modify the message for redelivery repeatedly
+         AmqpReceiver receiver = session.createReceiver(getDeadLetterAddress());
+         receiver.flow(20);
+
+         message = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(message);
+         assertEquals(0, message.getWrappedMessage().getDeliveryCount());
+
+         message.modified(true, false);
+
+         message = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(message);
+         assertEquals(1, message.getWrappedMessage().getDeliveryCount());
+
+         message.modified(true, false);
+
+         message = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(message);
+         assertEquals(2, message.getWrappedMessage().getDeliveryCount());
+
+         message.modified(true, false);
+
+         message = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(message);
+         assertEquals(3, message.getWrappedMessage().getDeliveryCount());
       } finally {
          connection.close();
       }
