@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
@@ -28,6 +29,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -175,6 +177,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String kerb5Config;
 
+   private String sniHost;
+
    private final boolean tcpNoDelay;
 
    private final int backlog;
@@ -286,6 +290,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
 
          sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
+
+         sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -300,6 +306,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          wantClientAuth = TransportConstants.DEFAULT_WANT_CLIENT_AUTH;
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
          sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
+         sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -531,6 +538,12 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (verifyHost) {
          SSLParameters sslParameters = engine.getSSLParameters();
          sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+         engine.setSSLParameters(sslParameters);
+      }
+
+      if (sniHost != null) {
+         SSLParameters sslParameters = engine.getSSLParameters();
+         sslParameters.setSNIMatchers(Arrays.asList(SNIHostName.createSNIMatcher(sniHost)));
          engine.setSSLParameters(sslParameters);
       }
 
