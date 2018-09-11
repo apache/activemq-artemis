@@ -804,6 +804,11 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       serverLocator.setCompressLargeMessage(avoidLargeMessages);
    }
 
+   public void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      checkWrite();
+      serverLocator.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
+   }
+
    @Override
    public void close() {
       ServerLocator locator0 = serverLocator;
