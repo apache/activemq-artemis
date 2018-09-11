@@ -694,7 +694,8 @@ public class AMQPMessage extends RefCountMessage {
          getProtonMessage().encode(new NettyWritable(buffer));
          byte[] bytes = new byte[buffer.writerIndex()];
          buffer.readBytes(bytes);
-         this.data = ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(bytes));
+         data = ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(bytes));
+         bufferValid = true;
       } finally {
          buffer.release();
       }
