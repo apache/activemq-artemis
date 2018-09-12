@@ -262,6 +262,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
          delivery.disposition(rejected);
          delivery.settle();
+         flow(amqpCredits, minCreditRefresh);
       }
    }
 
