@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static java.beans.Introspector.getBeanInfo;
@@ -80,6 +81,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    @Test
    public void testCompareConnectionFactoryAndResourceAdapterProperties() throws Exception {
       SortedSet<String> connectionFactoryProperties = findAllPropertyNames(ActiveMQConnectionFactory.class);
+      Assert.assertTrue(connectionFactoryProperties.contains("useTopologyForLoadBalancing"));
       connectionFactoryProperties.removeAll(UNSUPPORTED_CF_PROPERTIES);
       SortedSet<String> raProperties = findAllPropertyNames(ActiveMQResourceAdapter.class);
       raProperties.removeAll(UNSUPPORTED_RA_PROPERTIES);

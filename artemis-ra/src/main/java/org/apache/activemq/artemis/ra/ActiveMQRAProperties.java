@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Hashtable;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 
 /**
@@ -36,6 +37,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
    protected boolean allowLocalTransactions;
+
+   protected boolean useTopologyForLoadBalancing = ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
 
    /**
     * The user name
@@ -248,6 +251,14 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       }
 
       initialized = true;
+   }
+
+   public void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      this.useTopologyForLoadBalancing = useTopologyForLoadBalancing;
+   }
+
+   public boolean isUseTopologyForLoadBalancing() {
+      return useTopologyForLoadBalancing;
    }
 
    public String getCodec() {

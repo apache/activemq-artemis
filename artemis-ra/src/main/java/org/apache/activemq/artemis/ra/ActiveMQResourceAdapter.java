@@ -908,6 +908,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setProducerMaxRate(producerMaxRate);
    }
 
+   public void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      raProperties.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
+   }
+
+   public boolean isUseTopologyForLoadBalancing() {
+      return raProperties.isUseTopologyForLoadBalancing();
+   }
+
    /**
     * Get producer window size
     *
@@ -1791,6 +1799,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       } else {
          throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
       }
+
+      cf.setUseTopologyForLoadBalancing(raProperties.isUseTopologyForLoadBalancing());
 
       cf.setEnableSharedClientID(true);
       cf.setEnable1xPrefixes(raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
