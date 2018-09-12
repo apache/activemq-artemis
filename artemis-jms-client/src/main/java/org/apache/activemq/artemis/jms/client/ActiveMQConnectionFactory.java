@@ -67,14 +67,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private static final long serialVersionUID = 6730844785641767519L;
 
-   public void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
-      serverLocator.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
-   }
-
-   public boolean isUseTopologyForLoadBalancing() {
-      return serverLocator.getUseTopologyForLoadBalancing();
-   }
-
    private ServerLocator serverLocator;
 
    private String clientID;
@@ -541,6 +533,16 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    public synchronized void setCallFailoverTimeout(final long callTimeout) {
       checkWrite();
       serverLocator.setCallFailoverTimeout(callTimeout);
+   }
+
+   public synchronized void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      checkWrite();
+      serverLocator.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
+   }
+
+   public synchronized boolean isUseTopologyForLoadBalancing() {
+      checkWrite();
+      return serverLocator.getUseTopologyForLoadBalancing();
    }
 
    public synchronized int getConsumerWindowSize() {
