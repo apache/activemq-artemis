@@ -49,10 +49,11 @@ public class ProtonServerReceiverContextTest {
       ProtonServerReceiverContext rc = new ProtonServerReceiverContext(null, mockConnContext, null, mockReceiver);
 
       Delivery mockDelivery = mock(Delivery.class);
-      when(mockDelivery.isReadable()).thenReturn(true);
       when(mockDelivery.isAborted()).thenReturn(true);
       when(mockDelivery.isPartial()).thenReturn(true);
       when(mockDelivery.getLink()).thenReturn(mockReceiver);
+
+      when(mockReceiver.current()).thenReturn(mockDelivery);
 
       if (drain) {
          when(mockReceiver.getDrain()).thenReturn(true);
@@ -60,6 +61,7 @@ public class ProtonServerReceiverContextTest {
 
       rc.onMessage(mockDelivery);
 
+      verify(mockReceiver, times(1)).current();
       verify(mockReceiver, times(1)).advance();
       verify(mockDelivery, times(1)).settle();
 
