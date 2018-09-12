@@ -205,23 +205,20 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    }
 
    /*
-   * called when Proton receives a message to be delivered via a Delivery.
-   *
-   * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
-   *
-   * */
+    * called when Proton receives a message to be delivered via a Delivery.
+    *
+    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
+    */
    @Override
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
-      Receiver receiver;
       try {
+         Receiver receiver = ((Receiver) delivery.getLink());
 
-         if (!delivery.isReadable()) {
+         if (receiver.current() != delivery) {
             return;
          }
 
          if (delivery.isAborted()) {
-            receiver = ((Receiver) delivery.getLink());
-
             // Aborting implicitly remotely settles, so advance
             // receiver to the next delivery and settle locally.
             receiver.advance();
@@ -233,16 +230,11 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             }
 
             return;
-         }
-
-         if (delivery.isPartial()) {
+         } else if (delivery.isPartial()) {
             return;
          }
 
-         receiver = ((Receiver) delivery.getLink());
-
          Transaction tx = null;
-
          ReadableBuffer data = receiver.recv();
          receiver.advance();
 
@@ -267,13 +259,9 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
          condition.setDescription(e.getMessage());
          rejected.setError(condition);
-         connection.lock();
-         try {
-            delivery.disposition(rejected);
-            delivery.settle();
-         } finally {
-            connection.unlock();
-         }
+
+         delivery.disposition(rejected);
+         delivery.settle();
       }
    }
 
