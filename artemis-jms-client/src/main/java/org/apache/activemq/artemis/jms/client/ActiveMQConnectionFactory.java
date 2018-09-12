@@ -67,11 +67,11 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private static final long serialVersionUID = 6730844785641767519L;
 
-   public ServerLocator setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
-      return serverLocator.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
+   public void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      serverLocator.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
    }
 
-   public boolean getUseTopologyForLoadBalancing() {
+   public boolean isUseTopologyForLoadBalancing() {
       return serverLocator.getUseTopologyForLoadBalancing();
    }
 

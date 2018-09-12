@@ -420,6 +420,12 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-name>Enable1xPrefixes</config-property-name>" +
       "         <config-property-type>boolean</config-property-type>" +
       "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>***add***</description>" +
+      "         <config-property-name>UseTopologyForLoadBalancing</config-property-name>" +
+      "         <config-property-type>boolean</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
       "      </config-property>";
 
    private static String rootConfig = "<root>" + config + commentedOutConfigs + "</root>";
