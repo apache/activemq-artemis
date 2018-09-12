@@ -85,7 +85,6 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
       Thread.sleep(100);
 
-
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
@@ -343,7 +342,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          sender.send(message);
 
          Queue dlq = getProxyToQueue(getDeadLetterAddress());
-         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlq.getMessageCount() > 0, 5000, 500));
+         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlq.getMessageCount() > 0, 7000, 500));
 
          connection.close();
 
@@ -388,7 +387,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          sender.send(message);
 
          Queue dlqView = getProxyToQueue(getDeadLetterAddress());
-         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlqView.getMessageCount() > 0, 5000, 200));
+         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlqView.getMessageCount() > 0, 7000, 200));
 
          // Read and Modify the message for redelivery repeatedly
          AmqpReceiver receiver = session.createReceiver(getDeadLetterAddress());
