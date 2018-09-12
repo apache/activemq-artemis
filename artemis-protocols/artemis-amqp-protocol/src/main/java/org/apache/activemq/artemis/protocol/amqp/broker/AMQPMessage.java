@@ -53,9 +53,9 @@ import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
-import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.apache.qpid.proton.codec.TypeConstructor;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
@@ -93,6 +93,7 @@ public class AMQPMessage extends RefCountMessage {
    private DeliveryAnnotations _deliveryAnnotations;
    private MessageAnnotations _messageAnnotations;
    private Properties _properties;
+   private int deliveryAnnotationsPosition = -1;
    private int appLocation = -1;
    private ApplicationProperties applicationProperties;
    private long scheduledTime = -1;
@@ -195,14 +196,28 @@ public class AMQPMessage extends RefCountMessage {
          buffer.position(appLocation);
          TLSEncode.getDecoder().setBuffer(buffer);
          Object section = TLSEncode.getDecoder().readObject();
-         if (section instanceof ApplicationProperties) {
-            this.applicationProperties = (ApplicationProperties) section;
-         }
-         this.appLocation = -1;
+         applicationProperties = (ApplicationProperties) section;
+         appLocation = -1;
          TLSEncode.getDecoder().setBuffer(null);
       }
 
       return applicationProperties;
+   }
+
+   private DeliveryAnnotations getDeliveryAnnotations() {
+      parseHeaders();
+
+      if (_deliveryAnnotations == null && deliveryAnnotationsPosition >= 0) {
+         ReadableBuffer buffer = data.duplicate();
+         buffer.position(deliveryAnnotationsPosition);
+         TLSEncode.getDecoder().setBuffer(buffer);
+         Object section = TLSEncode.getDecoder().readObject();
+         _deliveryAnnotations = (DeliveryAnnotations) section;
+         deliveryAnnotationsPosition = -1;
+         TLSEncode.getDecoder().setBuffer(null);
+      }
+
+      return _deliveryAnnotations;
    }
 
    private synchronized void parseHeaders() {
@@ -380,83 +395,63 @@ public class AMQPMessage extends RefCountMessage {
       decoder.setBuffer(buffer.rewind());
 
       _header = null;
+      expiration = 0;
+      headerEnds = 0;
+      messagePaylodStart = 0;
       _deliveryAnnotations = null;
       _messageAnnotations = null;
       _properties = null;
       applicationProperties = null;
-      Section section = null;
+      appLocation = -1;
+      deliveryAnnotationsPosition = -1;
 
       try {
-         if (buffer.hasRemaining()) {
-            section = (Section) decoder.readObject();
-         }
+         while (buffer.hasRemaining()) {
+            int constructorPos = buffer.position();
+            TypeConstructor<?> constructor = decoder.readConstructor();
+            if (Header.class.equals(constructor.getTypeClass())) {
+               _header = (Header) constructor.readValue();
+               headerEnds = messagePaylodStart = buffer.position();
+               durable = _header.getDurable();
+               if (_header.getTtl() != null) {
+                  expiration = System.currentTimeMillis() + _header.getTtl().intValue();
+               }
+            } else if (DeliveryAnnotations.class.equals(constructor.getTypeClass())) {
+               // Don't decode these as they are not used by the broker at all and are
+               // discarded on send, mark for lazy decode if ever needed.
+               constructor.skipValue();
+               deliveryAnnotationsPosition = constructorPos;
+               messagePaylodStart = buffer.position();
+            } else if (MessageAnnotations.class.equals(constructor.getTypeClass())) {
+               _messageAnnotations = (MessageAnnotations) constructor.readValue();
+            } else if (Properties.class.equals(constructor.getTypeClass())) {
+               _properties = (Properties) constructor.readValue();
 
-         if (section instanceof Header) {
-            _header = (Header) section;
-            headerEnds = buffer.position();
-            messagePaylodStart = headerEnds;
-            this.durable = _header.getDurable();
+               if (_properties.getAbsoluteExpiryTime() != null && _properties.getAbsoluteExpiryTime().getTime() > 0) {
+                  expiration = _properties.getAbsoluteExpiryTime().getTime();
+               }
 
-            if (_header.getTtl() != null) {
-               this.expiration = System.currentTimeMillis() + _header.getTtl().intValue();
-            }
-
-            if (buffer.hasRemaining()) {
-               section = (Section) decoder.readObject();
+               // Next is either Application Properties or the rest of the message, leave it for
+               // lazy decode of the ApplicationProperties should there be any.  Check first though
+               // as we don't want to actually decode the body which could be expensive.
+               if (buffer.hasRemaining()) {
+                  constructor = decoder.peekConstructor();
+                  if (ApplicationProperties.class.equals(constructor.getTypeClass())) {
+                     appLocation = buffer.position();
+                  }
+               }
+               break;
+            } else if (ApplicationProperties.class.equals(constructor.getTypeClass())) {
+               // Lazy decoding will start at the TypeConstructor of these ApplicationProperties
+               appLocation = constructorPos;
+               break;
             } else {
-               section = null;
-            }
-
-         } else {
-            // meaning there is no header
-            headerEnds = 0;
-         }
-         if (section instanceof DeliveryAnnotations) {
-            _deliveryAnnotations = (DeliveryAnnotations) section;
-
-            // Advance the start beyond the delivery annotations so they are not written
-            // out on send of the message.
-            messagePaylodStart = buffer.position();
-
-            if (buffer.hasRemaining()) {
-               section = (Section) decoder.readObject();
-            } else {
-               section = null;
-            }
-         }
-         if (section instanceof MessageAnnotations) {
-            _messageAnnotations = (MessageAnnotations) section;
-
-            if (buffer.hasRemaining()) {
-               section = (Section) decoder.readObject();
-            } else {
-               section = null;
-            }
-         }
-         if (section instanceof Properties) {
-            _properties = (Properties) section;
-
-            if (_properties.getAbsoluteExpiryTime() != null && _properties.getAbsoluteExpiryTime().getTime() > 0) {
-               this.expiration = _properties.getAbsoluteExpiryTime().getTime();
-            }
-
-            // We don't read the next section on purpose, as we will parse ApplicationProperties
-            // lazily
-            section = null;
-         }
-
-         if (section instanceof ApplicationProperties) {
-            applicationProperties = (ApplicationProperties) section;
-         } else {
-            if (buffer.hasRemaining()) {
-               this.appLocation = buffer.position();
-            } else {
-               this.appLocation = -1;
+               break;
             }
          }
       } finally {
          decoder.setByteBuffer(null);
-         data.position(0);
+         buffer.position(0);
       }
    }
 
@@ -1082,6 +1077,7 @@ public class AMQPMessage extends RefCountMessage {
    public void reencode() {
       parseHeaders();
       getApplicationProperties();
+      getDeliveryAnnotations();
       if (_header != null) getProtonMessage().setHeader(_header);
       if (_deliveryAnnotations != null) getProtonMessage().setDeliveryAnnotations(_deliveryAnnotations);
       if (_messageAnnotations != null) getProtonMessage().setMessageAnnotations(_messageAnnotations);

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -32,13 +33,20 @@ import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersisterV2;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
+import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.codec.EncoderImpl;
+import org.apache.qpid.proton.codec.EncodingCodes;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
@@ -58,7 +66,7 @@ public class AMQPMessageTest {
       protonMessage.setProperties(properties);
       protonMessage.getHeader().setDeliveryCount(new UnsignedInteger(7));
       protonMessage.getHeader().setDurable(Boolean.TRUE);
-      protonMessage.setApplicationProperties(new ApplicationProperties(new HashMap()));
+      protonMessage.setApplicationProperties(new ApplicationProperties(new HashMap<>()));
 
       AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
 
@@ -76,7 +84,7 @@ public class AMQPMessageTest {
       protonMessage.setProperties(properties);
       protonMessage.getHeader().setDeliveryCount(new UnsignedInteger(7));
       protonMessage.getHeader().setDurable(Boolean.TRUE);
-      HashMap map = new HashMap();
+      HashMap<String, Object> map = new HashMap<>();
       map.put("key", "string1");
       protonMessage.setApplicationProperties(new ApplicationProperties(map));
 
@@ -97,7 +105,6 @@ public class AMQPMessageTest {
       assertEquals(true, newDecoded.getHeader().getDurable());
       assertEquals("newAddress", newDecoded.getAddress());
       assertEquals("string1", newDecoded.getObjectProperty("key"));
-
    }
 
    @Test
@@ -281,7 +288,131 @@ public class AMQPMessageTest {
          Assert.assertEquals("someAddress", readMessage.getAddress());
          Assert.assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
       }
+   }
 
+   private static final UnsignedLong AMQPVALUE_DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000077L);
+   private static final UnsignedLong APPLICATION_PROPERTIES_DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000074L);
+   private static final UnsignedLong DELIVERY_ANNOTATIONS_DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000071L);
+
+   @Test
+   public void testPartialDecodeIgnoresDeliveryAnnotationsByDefault() {
+      Header header = new Header();
+      header.setDurable(true);
+      header.setPriority(UnsignedByte.valueOf((byte) 6));
+
+      ByteBuf encodedBytes = Unpooled.buffer(1024);
+      NettyWritable writable = new NettyWritable(encodedBytes);
+
+      EncoderImpl encoder = TLSEncode.getEncoder();
+      encoder.setByteBuffer(writable);
+      encoder.writeObject(header);
+
+      // Signal body of AmqpValue but write corrupt underlying type info
+      encodedBytes.writeByte(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
+      encodedBytes.writeByte(EncodingCodes.SMALLULONG);
+      encodedBytes.writeByte(DELIVERY_ANNOTATIONS_DESCRIPTOR.byteValue());
+      encodedBytes.writeByte(EncodingCodes.MAP8);
+      encodedBytes.writeByte(2);  // Size
+      encodedBytes.writeByte(2);  // Elements
+      // Use bad encoding code on underlying type of map key which will fail the decode if run
+      encodedBytes.writeByte(255);
+
+      ReadableBuffer readable = new NettyReadable(encodedBytes);
+
+      AMQPMessage message = null;
+      try {
+         message = new AMQPMessage(0, readable, null, null);
+      } catch (Exception decodeError) {
+         fail("Should not have encountered an exception on partial decode: " + decodeError.getMessage());
+      }
+
+      try {
+         // This should perform the lazy decode of the DeliveryAnnotations portion of the message
+         message.reencode();
+         fail("Should have thrown an error when attempting to decode the ApplicationProperties which are malformed.");
+      } catch (Exception ex) {
+         // Expected decode to fail when building full message.
+      }
+   }
+
+   @Test
+   public void testPartialDecodeIgnoresApplicationPropertiesByDefault() {
+      Header header = new Header();
+      header.setDurable(true);
+      header.setPriority(UnsignedByte.valueOf((byte) 6));
+
+      ByteBuf encodedBytes = Unpooled.buffer(1024);
+      NettyWritable writable = new NettyWritable(encodedBytes);
+
+      EncoderImpl encoder = TLSEncode.getEncoder();
+      encoder.setByteBuffer(writable);
+      encoder.writeObject(header);
+
+      // Signal body of AmqpValue but write corrupt underlying type info
+      encodedBytes.writeByte(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
+      encodedBytes.writeByte(EncodingCodes.SMALLULONG);
+      encodedBytes.writeByte(APPLICATION_PROPERTIES_DESCRIPTOR.byteValue());
+      // Use bad encoding code on underlying type
+      encodedBytes.writeByte(255);
+
+      ReadableBuffer readable = new NettyReadable(encodedBytes);
+
+      AMQPMessage message = null;
+      try {
+         message = new AMQPMessage(0, readable, null, null);
+      } catch (Exception decodeError) {
+         fail("Should not have encountered an exception on partial decode: " + decodeError.getMessage());
+      }
+
+      assertTrue(message.isDurable());
+
+      try {
+         // This should perform the lazy decode of the ApplicationProperties portion of the message
+         message.getStringProperty("test");
+         fail("Should have thrown an error when attempting to decode the ApplicationProperties which are malformed.");
+      } catch (Exception ex) {
+         // Expected decode to fail when building full message.
+      }
+   }
+
+   @Test
+   public void testPartialDecodeIgnoresBodyByDefault() {
+      Header header = new Header();
+      header.setDurable(true);
+      header.setPriority(UnsignedByte.valueOf((byte) 6));
+
+      ByteBuf encodedBytes = Unpooled.buffer(1024);
+      NettyWritable writable = new NettyWritable(encodedBytes);
+
+      EncoderImpl encoder = TLSEncode.getEncoder();
+      encoder.setByteBuffer(writable);
+      encoder.writeObject(header);
+
+      // Signal body of AmqpValue but write corrupt underlying type info
+      encodedBytes.writeByte(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
+      encodedBytes.writeByte(EncodingCodes.SMALLULONG);
+      encodedBytes.writeByte(AMQPVALUE_DESCRIPTOR.byteValue());
+      // Use bad encoding code on underlying type
+      encodedBytes.writeByte(255);
+
+      ReadableBuffer readable = new NettyReadable(encodedBytes);
+
+      AMQPMessage message = null;
+      try {
+         message = new AMQPMessage(0, readable, null, null);
+      } catch (Exception decodeError) {
+         fail("Should not have encountered an exception on partial decode: " + decodeError.getMessage());
+      }
+
+      assertTrue(message.isDurable());
+
+      try {
+         // This will decode the body section if present in order to present it as a Proton Message object
+         message.getProtonMessage();
+         fail("Should have thrown an error when attempting to decode the body which is malformed.");
+      } catch (Exception ex) {
+         // Expected decode to fail when building full message.
+      }
    }
 
    private AMQPMessage encodeAndDecodeMessage(MessageImpl message) {
