@@ -99,7 +99,6 @@
             <include>org.jgroups:jgroups</include>
             <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
             <include>org.apache.johnzon:johnzon-core</include>
-            <include>org.hdrhistogram:HdrHistogram</include>
             <include>javax.xml.bind:jaxb-api</include>
             <include>com.sun.xml.bind:jaxb-impl</include>
             <include>com.sun.xml.bind:jaxb-core</include>
