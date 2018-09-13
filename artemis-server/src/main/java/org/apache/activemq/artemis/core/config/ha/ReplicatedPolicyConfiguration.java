@@ -39,6 +39,8 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    private  int quorumVoteWait = ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait();
 
+   private Long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
+
    public ReplicatedPolicyConfiguration() {
    }
 
@@ -128,5 +130,13 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
    public ReplicatedPolicyConfiguration setQuorumVoteWait(int quorumVoteWait) {
       this.quorumVoteWait = quorumVoteWait;
       return this;
+   }
+
+   public void setRetryReplicationWait(Long retryReplicationWait) {
+      this.retryReplicationWait = retryReplicationWait;
+   }
+
+   public Long getRetryReplicationWait() {
+      return retryReplicationWait;
    }
 }

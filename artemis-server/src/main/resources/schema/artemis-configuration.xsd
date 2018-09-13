@@ -2277,6 +2277,13 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  If we start as a replica how long to wait (in milliseconds) before trying to replicate again after failing to find a replica
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
@@ -2377,6 +2384,13 @@
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in milliseconds) between each vote
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How long to wait (in milliseconds) before trying to replicate again after failing to find a replica
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

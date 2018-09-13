@@ -504,6 +504,8 @@ public final class ActiveMQDefaultConfiguration {
    //how long we wait for vote result, 30 secs
    private static int DEFAULT_QUORUM_VOTE_WAIT = 30;
 
+   private static long DEFAULT_RETRY_REPLICATION_WAIT = 2000;
+
    public static int DEFAULT_QUORUM_SIZE = -1;
 
    public static final boolean DEFAULT_ANALYZE_CRITICAL = true;
@@ -1383,5 +1385,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultQuorumVoteWait() {
       return DEFAULT_QUORUM_VOTE_WAIT;
+   }
+
+   public static long getDefaultRetryReplicationWait() {
+      return DEFAULT_RETRY_REPLICATION_WAIT;
    }
 }

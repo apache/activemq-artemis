@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.impl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,14 +41,16 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final ActiveMQServerImpl server;
+   private final long retryReplicationWait;
    Map<String, Pair<TransportConfiguration, TransportConfiguration>> untriedConnectors = new HashMap<>();
    Map<String, Pair<TransportConfiguration, TransportConfiguration>> triedConnectors = new HashMap<>();
 
    private String nodeID;
 
-   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, ActiveMQServerImpl server) {
+   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, ActiveMQServerImpl server, long retryReplicationWait) {
       super(backupQuorum);
       this.server = server;
+      this.retryReplicationWait = retryReplicationWait;
    }
 
    @Override
@@ -66,7 +69,9 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
                   ConcurrentUtil.await(condition, timeout);
                } else {
                   while (untriedConnectors.isEmpty()) {
-                     condition.await();
+                     condition.await(retryReplicationWait, TimeUnit.MILLISECONDS);
+                     untriedConnectors.putAll(triedConnectors);
+                     triedConnectors.clear();
                   }
                }
             } catch (InterruptedException e) {
