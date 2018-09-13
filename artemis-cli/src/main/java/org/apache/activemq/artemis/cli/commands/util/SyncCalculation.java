@@ -24,7 +24,6 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.HdrHistogram.Histogram;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -80,7 +79,6 @@ public class SyncCalculation {
       SequentialFileFactory factory = newFactory(datafolder, fsync, journalType, blockSize * blocks, maxAIO);
       final boolean asyncWrites = journalType == JournalType.ASYNCIO && !syncWrites;
       //the write latencies could be taken only when writes are effectively synchronous
-      final Histogram writeLatencies = (verbose && !asyncWrites) ? new Histogram(MAX_FLUSH_NANOS, 2) : null;
 
       if (journalType == JournalType.ASYNCIO && syncWrites) {
          System.out.println();
@@ -94,9 +92,6 @@ public class SyncCalculation {
 
       if (verbose) {
          System.out.println("Using " + factory.getClass().getName() + " to calculate sync times, alignment=" + factory.getAlignment());
-         if (writeLatencies == null) {
-            System.out.println("*** Use --sync-writes if you want to see a histogram for each write performed ***");
-         }
       }
       SequentialFile file = factory.createSequentialFile(fileName);
       //to be sure that a process/thread crash won't leave the dataFolder with garbage files
@@ -144,17 +139,10 @@ public class SyncCalculation {
                bufferBlock.position(0);
                latch.countUp();
                long startWrite = 0;
-               if (writeLatencies != null) {
-                  startWrite = System.nanoTime();
-               }
                file.writeDirect(bufferBlock, true, callback);
 
                if (syncWrites) {
                   flushLatch(latch);
-               }
-               if (writeLatencies != null) {
-                  final long elapsedWriteNanos = System.nanoTime() - startWrite;
-                  writeLatencies.recordValue(elapsedWriteNanos);
                }
             }
 
@@ -173,28 +161,9 @@ public class SyncCalculation {
             }
             file.close();
 
-            if (ntry == 0 && writeLatencies != null) {
-               writeLatencies.reset(); // discarding the first one.. some warmup time
-            }
          }
 
          factory.releaseDirectBuffer(bufferBlock);
-
-         if (writeLatencies != null) {
-            System.out.println("Write Latencies Percentile Distribution in microseconds");
-            //print latencies in us -> (ns * 1000d)
-
-            System.out.println("*****************************************************************");
-            writeLatencies.outputPercentileDistribution(System.out, 1000d);
-            System.out.println();
-            System.out.println("*****************************************************************");
-            System.out.println("*** this may be useful to generate charts if you like charts: ***");
-            System.out.println("*** http://hdrhistogram.github.io/HdrHistogram/plotFiles.html ***");
-            System.out.println("*****************************************************************");
-            System.out.println();
-
-            writeLatencies.reset();
-         }
 
          long totalTime = Long.MAX_VALUE;
          for (int i = 0; i < tries; i++) {
