@@ -444,7 +444,7 @@ You can also configure the connector using the following:
    
 - `key-store-password`
    
-  The keystore password.
+  The keystore password. This can be [masked](masking-passwords.md).
    
 - `key-store-provider`
 
@@ -456,11 +456,17 @@ You can also configure the connector using the following:
    
 - `trust-store-password`
    
-  The trustore password.
+  The trustore password. This can be [masked](masking-passwords.md).
    
 - `trust-store-provider`
    
   The provider; `JKS` by default.
+
+- `password-codec`
+
+  The fully qualified class name of the password codec to use. See the
+  [password masking](masking-passwords.md) documentation for more details on
+  how this works.
 
 > **Note:**
 >
