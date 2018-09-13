@@ -13,6 +13,7 @@
 
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,10 +36,12 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.network.NetUtil;
@@ -138,8 +141,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          server1Params.put(TransportConstants.HOST_PROP_NAME, "localhost");
       }
 
-      server1Params.put(TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
-
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
 
@@ -151,7 +152,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
-      params.put(TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
       final AtomicInteger countSent = new AtomicInteger(0);
@@ -195,8 +195,8 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       locator.setReconnectAttempts(-1);
       locator.setConfirmationWindowSize(-1);
       locator.setProducerWindowSize(-1);
-      locator.setClientFailureCheckPeriod(100);
       locator.setConnectionTTL(1000);
+      locator.setClientFailureCheckPeriod(100);
       ClientSessionFactoryInternal sfProducer = createSessionFactoryAndWaitForTopology(locator, 2);
       sfProducer.addFailureListener(new SessionFailureListener() {
          @Override
@@ -312,7 +312,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
-      params.put(TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
       final AtomicInteger countSent = new AtomicInteger(0);
@@ -442,7 +441,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
-      params.put(TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
       final AtomicInteger countSent = new AtomicInteger(0);
@@ -459,7 +457,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
                   try {
                      NetUtil.netDown(LIVE_IP);
                      System.out.println("Blocking traffic");
-                     Thread.sleep(3000); // this is important to let stuff to block
                      blockedAt.set(sentMessages.get());
                      latchDown.countDown();
                   } catch (Exception e) {
@@ -555,7 +552,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
-      params.put(TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
       final AtomicInteger countSent = new AtomicInteger(0);
@@ -683,6 +679,24 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       running.set(false);
 
       t.join();
+   }
+
+
+
+   @Override
+   protected ClusterConnectionConfiguration createBasicClusterConfig(String connectorName,
+                                                                         String... connectors) {
+      ArrayList<String> connectors0 = new ArrayList<>();
+      for (String c : connectors) {
+         connectors0.add(c);
+      }
+      ClusterConnectionConfiguration clusterConnectionConfiguration = new ClusterConnectionConfiguration().
+         setName("cluster1").setAddress("jms").setConnectorName(connectorName).
+         setRetryInterval(1000).setDuplicateDetection(false).setMaxHops(1).setClientFailureCheckPeriod(100).setConnectionTTL(1000).
+         setConfirmationWindowSize(1).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).
+         setStaticConnectors(connectors0);
+
+      return clusterConnectionConfiguration;
    }
 
 }
