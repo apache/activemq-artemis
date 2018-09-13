@@ -155,6 +155,29 @@ codec other than the default one. For example
 </web>
 ```
 
+#### Passwords in management.xml
+
+The broker embeds a JMX connector which is used for management. The connector can
+be secured using SSL and it can be configured with a keystore password and/or
+truststore password which by default are specified in plain text forms.
+
+To mask these passwords you need to use `ENC()` syntax. The `mask-password`
+boolean is not supported here.
+
+You can also set the `password-codec` attribute if you want to use a password
+codec other than the default one. For example
+
+```xml
+<connector
+      connector-port="1099"
+      connector-host="localhost"
+      secured="true"
+      key-store-path="myKeystore.jks"
+      key-store-password="ENC(3a34fd21b82bf2a822fa49a8d8fa115d"
+      trust-store-path="myTruststore.jks"
+      trust-store-password="ENC(3a34fd21b82bf2a822fa49a8d8fa115d)"/>
+```
+
 ### Passwords for the JCA Resource Adapter
 
 Both ra.xml and MDB activation configuration have a `password` property that

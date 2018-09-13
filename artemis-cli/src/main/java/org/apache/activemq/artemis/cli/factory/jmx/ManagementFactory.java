@@ -60,7 +60,7 @@ public class ManagementFactory {
       return createJmxAclConfiguration(new URI(configuration), artemisHome, artemisInstance, artemisURIInstance);
    }
 
-   public static ManagementContext create(ManagementContextDTO config) {
+   public static ManagementContext create(ManagementContextDTO config) throws Exception {
       ManagementContext context = new ManagementContext();
 
       if (config.getAuthorisation() != null) {
