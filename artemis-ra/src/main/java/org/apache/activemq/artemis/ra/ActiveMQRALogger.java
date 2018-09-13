@@ -149,4 +149,16 @@ public interface ActiveMQRALogger extends BasicLogger {
 
    @Message(id = 153002, value = "Cannot create a subscriber on the durable subscription since it already has subscriber(s)")
    IllegalStateException canNotCreatedNonSharedSubscriber();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 153003, value = "Unsupported acknowledgement mode {0}", format = Message.Format.MESSAGE_FORMAT)
+   void invalidAcknowledgementMode(String mode);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 153004, value = "Invalid number of session (negative) '{0}', defaulting to '${1}'.", format = Message.Format.MESSAGE_FORMAT)
+   void invalidNumberOfMaxSession(int value, int defaultValue);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 153005, value =  "Unable to retrieve '${0}' from JNDI. Creating a new '${1}' named '${2}' to be used by the MDB.", format = Message.Format.MESSAGE_FORMAT)
+   void unableToRetrieveDestinationName(String destinationName, String name, String calculatedDestinationName);
 }

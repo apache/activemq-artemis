@@ -16,19 +16,13 @@
  */
 package org.apache.activemq.artemis.ra.inflow;
 
-import javax.jms.Queue;
 import javax.jms.Session;
-import javax.jms.Topic;
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.InvalidPropertyException;
 import javax.resource.spi.ResourceAdapter;
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
@@ -401,12 +395,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          logger.trace("setAcknowledgeMode(" + value + ")");
       }
 
-      if ("DUPS_OK_ACKNOWLEDGE".equalsIgnoreCase(value) || "Dups-ok-acknowledge".equalsIgnoreCase(value)) {
-         acknowledgeMode = Session.DUPS_OK_ACKNOWLEDGE;
-      } else if ("AUTO_ACKNOWLEDGE".equalsIgnoreCase(value) || "Auto-acknowledge".equalsIgnoreCase(value)) {
-         acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
-      } else {
-         throw new IllegalArgumentException("Unsupported acknowledgement mode " + value);
+      try {
+         this.acknowledgeMode = ActiveMQActivationValidationUtils.validateAcknowledgeMode(value);
+      } catch ( IllegalArgumentException e ) {
+         ActiveMQRALogger.LOGGER.invalidAcknowledgementMode(value);
+         throw e;
       }
    }
 
@@ -603,7 +596,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          logger.trace("setMaxSession(" + value + ")");
       }
 
-      maxSession = value;
+      if ( value < 1 ) {
+         maxSession = 1;
+         ActiveMQRALogger.LOGGER.invalidNumberOfMaxSession(value, maxSession);
+      } else
+         maxSession = value;
    }
 
    /**
@@ -707,41 +704,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       if (logger.isTraceEnabled()) {
          logger.trace("validate()");
       }
-
-      List<String> errorMessages = new ArrayList<>();
-      List<PropertyDescriptor> propsNotSet = new ArrayList<>();
-
-      try {
-         if (destination == null || destination.trim().equals("")) {
-            propsNotSet.add(new PropertyDescriptor("destination", ActiveMQActivationSpec.class));
-            errorMessages.add("Destination is mandatory.");
-         }
-
-         if (destinationType != null && !Topic.class.getName().equals(destinationType) && !Queue.class.getName().equals(destinationType)) {
-            propsNotSet.add(new PropertyDescriptor("destinationType", ActiveMQActivationSpec.class));
-            errorMessages.add("If set, the destinationType must be either 'javax.jms.Topic' or 'javax.jms.Queue'.");
-         }
-
-         if ((destinationType == null || destinationType.length() == 0 || Topic.class.getName().equals(destinationType)) && isSubscriptionDurable() && (subscriptionName == null || subscriptionName.length() == 0)) {
-            propsNotSet.add(new PropertyDescriptor("subscriptionName", ActiveMQActivationSpec.class));
-            errorMessages.add("If subscription is durable then subscription name must be specified.");
-         }
-      } catch (IntrospectionException e) {
-         ActiveMQRALogger.LOGGER.unableToValidateProperties(e);
-      }
-
-      if (propsNotSet.size() > 0) {
-         StringBuffer b = new StringBuffer();
-         b.append("Invalid settings:");
-         for (String errorMessage : errorMessages) {
-            b.append(" ");
-            b.append(errorMessage);
-         }
-         InvalidPropertyException e = new InvalidPropertyException(b.toString());
-         final PropertyDescriptor[] descriptors = propsNotSet.toArray(new PropertyDescriptor[propsNotSet.size()]);
-         e.setInvalidPropertyDescriptors(descriptors);
-         throw e;
-      }
+      ActiveMQActivationValidationUtils.validate(destination, destinationType, isSubscriptionDurable(), subscriptionName);
    }
 
    public String getConnectorClassName() {
