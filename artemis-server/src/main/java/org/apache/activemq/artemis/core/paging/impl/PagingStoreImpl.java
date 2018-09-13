@@ -658,6 +658,9 @@ public class PagingStoreImpl implements PagingStore {
 
       if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
          if (isFull()) {
+            if (runWhenAvailable != null) {
+               onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+            }
             return false;
          }
       } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
@@ -704,7 +707,7 @@ public class PagingStoreImpl implements PagingStore {
          ActiveMQServerLogger.LOGGER.negativeAddressSize(newSize, address.toString());
       }
 
-      if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
+      if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK || addressFullMessagePolicy == AddressFullMessagePolicy.FAIL) {
          if (usingGlobalMaxSize && !globalFull || maxSize != -1) {
             checkReleaseMemory(globalFull, newSize);
          }
