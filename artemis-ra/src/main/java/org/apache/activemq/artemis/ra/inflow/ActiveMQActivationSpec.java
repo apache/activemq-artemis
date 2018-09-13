@@ -406,7 +406,9 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       } else if ("AUTO_ACKNOWLEDGE".equalsIgnoreCase(value) || "Auto-acknowledge".equalsIgnoreCase(value)) {
          acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
       } else {
-         throw new IllegalArgumentException("Unsupported acknowledgement mode " + value);
+         final String message = "Unsupported acknowledgement mode " + value;
+         logger.warn(message);
+         throw new IllegalArgumentException(message);
       }
    }
 
@@ -603,7 +605,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          logger.trace("setMaxSession(" + value + ")");
       }
 
-      maxSession = value;
+      if ( value < 0 ) {
+         logger.warn("Invalid number of session (negative):" + value +", defaulting to 1.");
+         maxSession = 1;
+      } else
+         maxSession = value;
    }
 
    /**
