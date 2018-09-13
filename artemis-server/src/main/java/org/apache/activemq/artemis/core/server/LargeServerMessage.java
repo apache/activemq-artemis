@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -27,6 +28,8 @@ public interface LargeServerMessage extends ReplicatedLargeMessage, ICoreMessage
 
    @Override
    void addBytes(byte[] bytes) throws Exception;
+
+   void addBytes(ActiveMQBuffer bytes) throws Exception;
 
    /**
     * We have to copy the large message content in case of DLQ and paged messages

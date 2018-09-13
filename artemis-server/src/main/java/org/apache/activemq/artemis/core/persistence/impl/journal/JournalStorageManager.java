@@ -783,6 +783,32 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
+   public final void addBytesToLargeMessage(final SequentialFile file,
+                                            final long messageId,
+                                            final ActiveMQBuffer bytes) throws Exception {
+      readLock();
+      try {
+         file.position(file.size());
+         if (bytes.byteBuf() != null && bytes.byteBuf().nioBufferCount() == 1) {
+            final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
+            file.writeDirect(nioBytes, false);
+
+            if (isReplicated()) {
+               //copy defensively bytes
+               final byte[] bytesCopy = new byte[bytes.readableBytes()];
+               bytes.getBytes(bytes.readerIndex(), bytesCopy);
+               replicator.largeMessageWrite(messageId, bytesCopy);
+            }
+         } else {
+            final byte[] bytesCopy = new byte[bytes.readableBytes()];
+            bytes.readBytes(bytesCopy);
+            addBytesToLargeMessage(file, messageId, bytesCopy);
+         }
+      } finally {
+         readUnLock();
+      }
+   }
+
    @Override
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
