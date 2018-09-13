@@ -18,10 +18,9 @@ package org.apache.activemq.artemis.cli.commands.tools.xml;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
@@ -34,7 +33,7 @@ import org.apache.activemq.artemis.reader.TextMessageUtil;
 /** This is an Utility class that will import the outputs in XML format. */
 public class XMLMessageExporter {
 
-   private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
+   private static final int LARGE_MESSAGE_CHUNK_SIZE = 1000;
 
    private XMLStreamWriter xmlWriter;
 
@@ -70,6 +69,15 @@ public class XMLMessageExporter {
       xmlWriter.writeEndElement(); // end MESSAGE_BODY
    }
 
+   private static ByteBuffer acquireHeapBodyBuffer(ByteBuffer chunkBytes, int requiredCapacity) {
+      if (chunkBytes == null || chunkBytes.capacity() != requiredCapacity) {
+         chunkBytes = ByteBuffer.allocate(requiredCapacity);
+      } else {
+         chunkBytes.clear();
+      }
+      return chunkBytes;
+   }
+
    public void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_IS_LARGE, Boolean.TRUE.toString());
       LargeBodyEncoder encoder = null;
@@ -78,18 +86,19 @@ public class XMLMessageExporter {
          encoder = message.toCore().getBodyEncoder();
          encoder.open();
          long totalBytesWritten = 0;
-         Long bufferSize;
+         int bufferSize;
          long bodySize = encoder.getLargeBodySize();
+         ByteBuffer buffer = null;
          for (long i = 0; i < bodySize; i += LARGE_MESSAGE_CHUNK_SIZE) {
-            Long remainder = bodySize - totalBytesWritten;
+            long remainder = bodySize - totalBytesWritten;
             if (remainder >= LARGE_MESSAGE_CHUNK_SIZE) {
                bufferSize = LARGE_MESSAGE_CHUNK_SIZE;
             } else {
-               bufferSize = remainder;
+               bufferSize = (int) remainder;
             }
-            ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
-            encoder.encode(buffer, bufferSize.intValue());
-            xmlWriter.writeCData(XmlDataExporterUtil.encode(buffer.toByteBuffer().array()));
+            buffer = acquireHeapBodyBuffer(buffer, bufferSize);
+            encoder.encode(buffer);
+            xmlWriter.writeCData(XmlDataExporterUtil.encode(buffer.array()));
             totalBytesWritten += bufferSize;
          }
          encoder.close();
