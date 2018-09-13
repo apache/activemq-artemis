@@ -556,7 +556,7 @@ public class ActiveMQActivation {
                   calculatedDestinationName = spec.getQueuePrefix() + calculatedDestinationName;
                }
 
-               logger.debug("Unable to retrieve " + destinationName + " from JNDI. Creating a new " + destinationType.getName() + " named " + calculatedDestinationName + " to be used by the MDB.");
+               logger.warn("Unable to retrieve " + destinationName + " from JNDI. Creating a new " + destinationType.getName() + " named " + calculatedDestinationName + " to be used by the MDB.");
 
                // If there is no binding on naming, we will just create a new instance
                if (isTopic) {
