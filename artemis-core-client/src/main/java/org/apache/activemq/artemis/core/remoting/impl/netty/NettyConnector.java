@@ -843,6 +843,14 @@ public class NettyConnector extends AbstractConnector {
 
    // Public --------------------------------------------------------
 
+   public int getConnectTimeoutMillis() {
+      return connectTimeoutMillis;
+   }
+
+   public void setConnectTimeoutMillis(int connectTimeoutMillis) {
+      this.connectTimeoutMillis = connectTimeoutMillis;
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

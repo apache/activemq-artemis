@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
@@ -1060,7 +1061,16 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    protected Connector createConnector(ConnectorFactory connectorFactory, TransportConfiguration configuration) {
-      return connectorFactory.createConnector(configuration.getParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
+      Connector connector = connectorFactory.createConnector(configuration.getParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
+      if (connector instanceof NettyConnector) {
+         NettyConnector nettyConnector = (NettyConnector) connector;
+         if (nettyConnector.getConnectTimeoutMillis() < 0) {
+            nettyConnector.setConnectTimeoutMillis((int)serverLocator.getConnectionTTL());
+         }
+
+      }
+
+      return connector;
    }
 
    private void checkTransportKeys(final ConnectorFactory factory, final TransportConfiguration tc) {
