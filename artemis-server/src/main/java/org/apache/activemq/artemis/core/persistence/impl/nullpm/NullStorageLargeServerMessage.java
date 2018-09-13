@@ -49,8 +49,28 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
    }
 
    @Override
+   public synchronized void addBytes(ActiveMQBuffer bytes) {
+      final int readableBytes = bytes.readableBytes();
+      if (buffer == null) {
+         buffer = Unpooled.buffer(readableBytes);
+      }
+
+      // expand the buffer
+      buffer.ensureWritable(readableBytes);
+      assert buffer.hasArray();
+      final int writerIndex = buffer.writerIndex();
+      bytes.readBytes(buffer.array(), buffer.arrayOffset() + writerIndex, readableBytes);
+      buffer.writerIndex(writerIndex + readableBytes);
+   }
+
+   @Override
    public synchronized ActiveMQBuffer getReadOnlyBodyBuffer() {
       return new ChannelBufferWrapper(buffer.slice(0, buffer.writerIndex()).asReadOnly());
+   }
+
+   @Override
+   public synchronized int getBodyBufferSize() {
+      return buffer.writerIndex();
    }
 
    @Override
