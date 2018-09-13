@@ -109,6 +109,8 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
 
+   private CreditRunnable creditRunnable;
+
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
                               AMQPConnectionContext connection,
@@ -580,20 +582,37 @@ public class AMQPSessionCallback implements SessionCallback {
                                    final int threshold,
                                    final Receiver receiver) {
       try {
+         /*
+         * The credit runnable will always be run in this thread unless the address or disc is full. If this is the case the
+         * runnable is run once the memory or disc is free, if this happens we don't want to keep adding runnables as this
+         * may cause a memory leak, one is enough.
+         * */
+         if (creditRunnable != null && !creditRunnable.isRun())
+            return;
          PagingManager pagingManager = manager.getServer().getPagingManager();
-         Runnable creditRunnable = () -> {
-            connection.lock();
-            try {
-               if (receiver.getCredit() <= threshold) {
-                  int topUp = credits - receiver.getCredit();
-                  if (topUp > 0) {
-                     receiver.flow(topUp);
-                  }
-               }
-            } finally {
-               connection.unlock();
+         creditRunnable = new CreditRunnable() {
+            boolean isRun = false;
+            @Override
+            public boolean isRun() {
+               return isRun;
             }
-            connection.flush();
+
+            @Override
+            public void run() {
+               connection.lock();
+               try {
+                  if (receiver.getCredit() <= threshold) {
+                     int topUp = credits - receiver.getCredit();
+                     if (topUp > 0) {
+                        receiver.flow(topUp);
+                     }
+                  }
+               } finally {
+                  isRun = true;
+                  connection.unlock();
+               }
+               connection.flush();
+            }
          };
 
          if (address == null) {
@@ -772,5 +791,7 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
    }
-
+   interface CreditRunnable extends Runnable {
+      boolean isRun();
+   }
 }
