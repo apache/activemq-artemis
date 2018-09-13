@@ -541,7 +541,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    }
 
    public synchronized boolean isUseTopologyForLoadBalancing() {
-      checkWrite();
       return serverLocator.getUseTopologyForLoadBalancing();
    }
 
