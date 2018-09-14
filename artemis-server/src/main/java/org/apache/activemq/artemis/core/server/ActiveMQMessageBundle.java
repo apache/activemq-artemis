@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddr
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -441,4 +442,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229215, value = "Cannot delete queue {0} on binding {1} - it has {2} messages", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException cannotDeleteQueueWithMessages(SimpleString name, SimpleString queueName, long messageCount);
+
+   @Message(id = 119215, value = "Can't write to closed file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIOErrorException cannotWriteToClosedFile(SequentialFile file);
 }
