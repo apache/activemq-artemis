@@ -307,7 +307,7 @@ public class ScaleDownTest extends ClusterTestBase {
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
-      
+
       Assert.assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName2))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
       // get the 1 message from queue 2
       addConsumer(0, 1, queueName2, null);
