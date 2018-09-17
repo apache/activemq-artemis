@@ -2829,7 +2829,8 @@
             <xsd:element name="default-delay-before-dispatch" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     the default delay to wait before dispatching if number of consumers before dispatch is not met for queues under the address.
+                     the default delay (in milliseconds) to wait before dispatching if number of consumers before
+                     dispatch is not met for queues under the address.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
