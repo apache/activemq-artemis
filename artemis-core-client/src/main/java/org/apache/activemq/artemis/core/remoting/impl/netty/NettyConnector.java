@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -28,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +48,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -383,6 +384,7 @@ public class NettyConnector extends AbstractConnector {
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
          trustAll = TransportConstants.DEFAULT_TRUST_ALL;
+         sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
          useDefaultSslContext = TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT;
       }
 
@@ -568,6 +570,12 @@ public class NettyConnector extends AbstractConnector {
                if (verifyHost) {
                   SSLParameters sslParameters = engine.getSSLParameters();
                   sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+                  engine.setSSLParameters(sslParameters);
+               }
+
+               if (sniHost != null) {
+                  SSLParameters sslParameters = engine.getSSLParameters();
+                  sslParameters.setServerNames(Arrays.asList(new SNIHostName(sniHost)));
                   engine.setSSLParameters(sslParameters);
                }
 
