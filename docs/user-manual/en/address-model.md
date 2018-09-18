@@ -583,7 +583,9 @@ that would be found in the `broker.xml` file.
       <message-counter-history-day-limit></message-counter-history-day-limit>
       <last-value-queue>true</last-value-queue> <!-- deprecated! see default-last-value-queue -->
       <default-last-value-queue>true</default-last-value-queue>
-      <default-exclusive-queue></default-exclusive-queue>
+      <default-exclusive-queue>false</default-exclusive-queue>
+      <default-consumers-before-dispatch>0</default-consumers-before-dispatch>
+      <default-delay-before-dispatch>-1</default-delay-before-dispatch>
       <redistribution-delay>0</redistribution-delay>
       <send-to-dla-on-no-route>true</send-to-dla-on-no-route>
       <slow-consumer-threshold>-1</slow-consumer-threshold>
@@ -689,6 +691,17 @@ queues](last-value-queues.md).
 consumer. Default is `false`. This value can be overridden at the queue level
 using the `exclusive` boolean. Read more about [exclusive
 queues](exclusive-queues.md).
+
+`default-consumers-before-dispatch` defines the number of consumers needed on a
+queue bound to the matching address before messages will be dispatched to those
+consumers. Default is `0`. This value can be overridden at the queue level using
+the `consumers-before-dispatch` boolean. This behavior can be tuned using
+`delay-before-dispatch` on the queue itself or by using the
+`default-delay-before-dispatch` address-setting.
+
+`default-delay-before-dispatch` defines the number of milliseconds the broker
+will wait for the configured number of consumers to connect to the matching queue
+before it will begin to dispatch messages. Default is `-1` (wait forever).
 
 `redistribution-delay` defines how long to wait when the last consumer is
 closed on a queue before redistributing any messages. Read more about
