@@ -130,6 +130,13 @@ public class JDBCJournalTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testCleanupTxRecords() throws Exception {
+      journal.appendDeleteRecordTransactional(1, 1);
+      journal.appendCommitRecord(1, true);
+      assertEquals(0, journal.getNumberOfRecords());
+   }
+
+   @Test
    public void testCallbacks() throws Exception {
       final int noRecords = 10;
       final CountDownLatch done = new CountDownLatch(noRecords);
