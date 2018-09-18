@@ -204,6 +204,8 @@ Name | Description | Default
 [last-value-queue](last-value-queues.md) | **deprecated** Queue is a last value queue; see `default-last-value-queue` instead | `false`
 [default-last-value-queue](last-value-queues.md)| `last-value` value if none is set on the queue | `false`
 [default-exclusive-queue](exclusive-queues.md) | `exclusive` value if none is set on the queue | `false`
+[default-consumers-before-dispatch](exclusive-queues.md) | `consumers-before-dispatch` value if none is set on the queue | 0
+[default-delay-before-dispatch](exclusive-queues.md) | `delay-before-dispatch` value if none is set on the queue | -1
 [redistribution-delay](clusters.md) | Timeout before redistributing values after no consumers | -1
 [send-to-dla-on-no-route](address-model.md) | Forward messages to DLA when no queues subscribing | `false`
 [slow-consumer-threshold](slow-consumers.md) | Min rate of msgs/sec consumed before a consumer is considered "slow" | -1
@@ -338,6 +340,8 @@ user | the name of the user to associate with the creation of the queue | n/a
 [purge-on-no-consumers](address-model.md#non-durable-subscription-queue) | whether or not to delete all messages and prevent routing when no consumers are connected | `false`
 [exclusive](exclusive-queues.md) | only deliver messages to one of the connected consumers | `false`
 [last-value](last-value-queues.md) | use last-value semantics | `false`
+consumers-before-dispatch | number of consumers required before dispatching messages | 0
+delay-before-dispatch | milliseconds to wait for `consumers-before-dispatch` to be met before dispatching messages anyway | -1 (wait forever)
 
 
 ## security-setting type
