@@ -154,6 +154,108 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testOneWaySSLwithSNI() throws Exception {
+      createCustomSslServer("myhost\\.com");
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.SNIHOST_PROP_NAME, "myhost.com");
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, false);
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testOneWaySSLwithSNINegative() throws Exception {
+      createCustomSslServer("myhost\\.com");
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.SNIHOST_PROP_NAME, "badhost.com");
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      try {
+         ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+         fail("Should have failed due to unrecognized SNI host name");
+      } catch (Exception e) {
+         // ignore
+      }
+   }
+
+   @Test
+   public void testOneWaySSLwithSNIOnlyOnTheClient() throws Exception {
+      createCustomSslServer();
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.SNIHOST_PROP_NAME, "myhost.com");
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, false);
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testOneWaySSLwithSNIOnlyOnTheBroker() throws Exception {
+      createCustomSslServer("myhost\\.com");
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, false);
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
    public void testOneWaySSLwithURL() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -264,7 +366,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    @Test
    public void testOneWaySSLVerifyHost() throws Exception {
-      createCustomSslServer(null, null, true);
+      createCustomSslServer(true);
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -292,7 +394,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    @Test
    public void testOneWaySSLVerifyHostNegative() throws Exception {
-      createCustomSslServer(null, null, false);
+      createCustomSslServer();
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -763,15 +865,28 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    private void createCustomSslServer(String cipherSuites, String protocols) throws Exception {
-      createCustomSslServer(cipherSuites, protocols, false);
+      createCustomSslServer(cipherSuites, protocols, false, null);
+   }
+
+   private void createCustomSslServer(String sniHost) throws Exception {
+      createCustomSslServer(null, null, false, sniHost);
+   }
+
+   private void createCustomSslServer(boolean useVerifiedKeystore) throws Exception {
+      createCustomSslServer(null, null, useVerifiedKeystore, null);
    }
 
    private void createCustomSslServer(String cipherSuites,
                                       String protocols,
-                                      boolean useVerifiedKeystore) throws Exception {
+                                      boolean useVerifiedKeystore,
+                                      String sniHost) throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
+
+      if (sniHost != null) {
+         params.put(TransportConstants.SNIHOST_PROP_NAME, sniHost);
+      }
 
       if (useVerifiedKeystore) {
          params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "verified-" + SERVER_SIDE_KEYSTORE);
