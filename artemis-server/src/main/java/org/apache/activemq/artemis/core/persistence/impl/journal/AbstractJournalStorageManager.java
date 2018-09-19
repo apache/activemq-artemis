@@ -1155,7 +1155,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   pendingCountEncoding.decode(buff);
                   pendingCountEncoding.setID(record.id);
-
+                  PageSubscription sub = locateSubscription(pendingCountEncoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
+                  if (sub != null) {
+                     sub.notEmpty();
+                  }
                   // This can be null on testcases not interested on this outcome
                   if (pendingNonTXPageCounter != null) {
                      pendingNonTXPageCounter.add(pendingCountEncoding);
