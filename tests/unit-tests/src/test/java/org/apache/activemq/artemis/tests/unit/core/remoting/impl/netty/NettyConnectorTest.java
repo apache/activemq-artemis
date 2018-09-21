@@ -18,13 +18,20 @@ package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
+import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQChannelHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
@@ -32,9 +39,39 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class NettyConnectorTest extends ActiveMQTestBase {
+
+   private ActiveMQServer server;
+   private ExecutorService executorService;
+
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      super.setUp();
+      executorService = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "openssl-server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,  "openssl-server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "nettySSL"));
+      server = createServer(false, config);
+      server.start();
+      waitForServerToStart(server);
+   }
+
+   @Override
+   public void tearDown() throws Exception {
+      executorService.shutdown();
+      super.tearDown();
+   }
 
    private ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
       @Override
@@ -197,4 +234,34 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       connector.close();
       Assert.assertFalse(connector.isStarted());
    }
+
+   @Test
+   public void testChannelHandlerRemovedWhileCreatingConnection() throws Exception {
+      BufferHandler handler = (connectionID, buffer) -> {
+      };
+      Map<String, Object> params = new HashMap<>();
+      final ExecutorService closeExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
+      try {
+         NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+         connector.start();
+         final Connection connection = connector.createConnection(future -> {
+            future.awaitUninterruptibly();
+            Assert.assertTrue(future.isSuccess());
+            final ChannelPipeline pipeline = future.channel().pipeline();
+            final ActiveMQChannelHandler activeMQChannelHandler = pipeline.get(ActiveMQChannelHandler.class);
+            Assert.assertNotNull(activeMQChannelHandler);
+            pipeline.remove(activeMQChannelHandler);
+            Assert.assertNull(pipeline.get(ActiveMQChannelHandler.class));
+         });
+         Assert.assertNull(connection);
+         connector.close();
+      } finally {
+         closeExecutor.shutdownNow();
+         threadPool.shutdownNow();
+         scheduledThreadPool.shutdownNow();
+      }
+   }
+
 }
