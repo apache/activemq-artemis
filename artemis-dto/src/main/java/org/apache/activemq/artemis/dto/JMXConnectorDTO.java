@@ -22,6 +22,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+
 @XmlRootElement(name = "connector")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JMXConnectorDTO {
@@ -62,6 +64,9 @@ public class JMXConnectorDTO {
    @XmlAttribute (name = "trust-store-password")
    String trustStorePassword;
 
+   @XmlAttribute (name = "password-codec")
+   String passwordCodec;
+
    public String getConnectorHost() {
       return connectorHost;
    }
@@ -94,8 +99,8 @@ public class JMXConnectorDTO {
       return keyStorePath;
    }
 
-   public String getKeyStorePassword() {
-      return keyStorePassword;
+   public String getKeyStorePassword() throws Exception {
+      return getPassword(keyStorePassword);
    }
 
    public String getTrustStoreProvider() {
@@ -106,7 +111,11 @@ public class JMXConnectorDTO {
       return trustStorePath;
    }
 
-   public String getTrustStorePassword() {
-      return trustStorePassword;
+   public String getTrustStorePassword() throws Exception {
+      return getPassword(trustStorePassword);
+   }
+
+   private String getPassword(String password) throws Exception {
+      return PasswordMaskingUtil.resolveMask(null, password, this.passwordCodec);
    }
 }
