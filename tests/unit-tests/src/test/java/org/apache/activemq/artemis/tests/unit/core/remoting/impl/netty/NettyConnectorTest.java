@@ -20,11 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
+import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQChannelHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -361,4 +364,34 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       connector.close();
       Assert.assertFalse(connector.isStarted());
    }
+
+   @Test
+   public void testChannelHandlerRemovedWhileCreatingConnection() throws Exception {
+      BufferHandler handler = (connectionID, buffer) -> {
+      };
+      Map<String, Object> params = new HashMap<>();
+      final ExecutorService closeExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
+      try {
+         NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+         connector.start();
+         final Connection connection = connector.createConnection(future -> {
+            future.awaitUninterruptibly();
+            Assert.assertTrue(future.isSuccess());
+            final ChannelPipeline pipeline = future.channel().pipeline();
+            final ActiveMQChannelHandler activeMQChannelHandler = pipeline.get(ActiveMQChannelHandler.class);
+            Assert.assertNotNull(activeMQChannelHandler);
+            pipeline.remove(activeMQChannelHandler);
+            Assert.assertNull(pipeline.get(ActiveMQChannelHandler.class));
+         });
+         Assert.assertNull(connection);
+         connector.close();
+      } finally {
+         closeExecutor.shutdownNow();
+         threadPool.shutdownNow();
+         scheduledThreadPool.shutdownNow();
+      }
+   }
+
 }
