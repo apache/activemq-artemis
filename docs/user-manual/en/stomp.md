@@ -61,7 +61,9 @@ determine the routing type:
    info](address-model.md#using-prefixes-to-determine-routing-type) on
    prefixes.
 
-If no indication of routing type is supplied then anycast semantics are used.
+If no indication of routing type is supplied then the default defined in the
+corresponding `default-address-routing-type` & `default-queue-routing-type`
+address-settings will be used.
 
 The `destination` header maps to an address of the same name. If the
 `destination` header used a prefix then the prefix is stripped.
@@ -81,7 +83,9 @@ information from the frame to determine the routing type:
    info](address-model.md#using-prefixes-to-determine-routing-type) on
    prefixes.
 
-If no indication of routing type is supplied then anycast semantics are used.
+If no indication of routing type is supplied then the default defined in the
+corresponding `default-address-routing-type` & `default-queue-routing-type`
+address-settings will be used.
 
 The `destination` header maps to an address of the same name if multicast is
 used or to a queue of the same name if anycast is used. If the `destination`
