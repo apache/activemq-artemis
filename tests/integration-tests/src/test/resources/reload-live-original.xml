@@ -73,5 +73,19 @@ under the License.
             </anycast>
          </address>
       </addresses>
+
+      <address-settings>
+         <address-setting match="#" >
+            <address-full-policy>BLOCK</address-full-policy>
+            <config-delete-queues>FORCE</config-delete-queues>
+            <config-delete-addresses>FORCE</config-delete-addresses>
+         </address-setting>
+      </address-settings>
+
+      <security-settings>
+         <security-setting match="#" >
+            <permission type="consume" roles="a" />
+         </security-setting>
+      </security-settings>
    </core>
 </configuration>
