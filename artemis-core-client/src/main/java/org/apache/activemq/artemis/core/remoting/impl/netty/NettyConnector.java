@@ -47,6 +47,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import io.netty.bootstrap.Bootstrap;
@@ -604,6 +605,7 @@ public class NettyConnector extends AbstractConnector {
             protocolManager.addChannelHandlers(pipeline);
 
             pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener(), closeExecutor));
+            logger.debugf("Added ActiveMQClientChannelHandler to Channel with id = %s ", channel.id());
          }
       });
 
@@ -737,6 +739,20 @@ public class NettyConnector extends AbstractConnector {
 
    @Override
    public Connection createConnection() {
+      return createConnection(null);
+   }
+
+   /**
+    * Create and return a connection from this connector.
+    * <p>
+    * This method must NOT throw an exception if it fails to create the connection
+    * (e.g. network is not available), in this case it MUST return null.<br>
+    * This version can be used for testing purposes.
+    *
+    * @param onConnect a callback that would be called right after {@link Bootstrap#connect()}
+    * @return The connection, or {@code null} if unable to create a connection (e.g. network is unavailable)
+    */
+   public final Connection createConnection(Consumer<ChannelFuture> onConnect) {
       if (channelClazz == null) {
          return null;
       }
@@ -758,7 +774,9 @@ public class NettyConnector extends AbstractConnector {
       } else {
          future = bootstrap.connect(remoteDestination);
       }
-
+      if (onConnect != null) {
+         onConnect.accept(future);
+      }
       future.awaitUninterruptibly();
 
       if (future.isSuccess()) {
@@ -770,7 +788,15 @@ public class NettyConnector extends AbstractConnector {
                if (handshakeFuture.isSuccess()) {
                   ChannelPipeline channelPipeline = ch.pipeline();
                   ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
-                  channelHandler.active = true;
+                  if (channelHandler != null) {
+                     channelHandler.active = true;
+                  } else {
+                     ch.close().awaitUninterruptibly();
+                     ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(
+                        new IllegalStateException("No ActiveMQChannelHandler has been found while connecting to " +
+                                                     remoteDestination + " from Channel with id = " + ch.id()));
+                     return null;
+                  }
                } else {
                   ch.close().awaitUninterruptibly();
                   ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(handshakeFuture.cause());
@@ -830,7 +856,15 @@ public class NettyConnector extends AbstractConnector {
          } else {
             ChannelPipeline channelPipeline = ch.pipeline();
             ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
-            channelHandler.active = true;
+            if (channelHandler != null) {
+               channelHandler.active = true;
+            } else {
+               ch.close().awaitUninterruptibly();
+               ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(
+                  new IllegalStateException("No ActiveMQChannelHandler has been found while connecting to " +
+                                               remoteDestination + " from Channel with id = " + ch.id()));
+               return null;
+            }
          }
 
          // No acceptor on a client connection
