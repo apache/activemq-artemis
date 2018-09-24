@@ -110,6 +110,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int getConsumerCount();
 
+   long getConsumerRemovedTimestamp();
+
     /**
     * This will set a reference counter for every consumer present on the queue.
     * The ReferenceCounter will know what to do when the counter became zeroed.

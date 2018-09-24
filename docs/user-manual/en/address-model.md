@@ -597,9 +597,11 @@ that would be found in the `broker.xml` file.
       <auto-delete-jms-topics>true</auto-delete-jms-topics> <!-- deprecated! see auto-delete-addresses -->
       <auto-create-queues>true</auto-create-queues>
       <auto-delete-queues>true</auto-delete-queues>
+      <auto-delete-queues-delay>0</auto-delete-queues-delay>
       <config-delete-queues>OFF</config-delete-queues>
       <auto-create-addresses>true</auto-create-addresses>
       <auto-delete-addresses>true</auto-delete-addresses>
+      <auto-delete-addresses-delay>0</auto-delete-addresses-delay>
       <config-delete-addresses>OFF</config-delete-addresses>
       <management-browse-page-size>200</management-browse-page-size>
       <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
@@ -761,6 +763,12 @@ non-temporary, and non-transient. Default is `true`.
 auto-created queues when they have both 0 consumers and 0 messages. Default is
 `true`.
 
+`auto-delete-queues-delay`. How long to wait (in milliseconds) before deleting
+auto-created queues after the queue has 0 consumers and 0 messages. Default is
+`0` (delete immediately). The broker's `address-queue-scan-period` controls
+how often (in milliseconds) queues are scanned for potential deletion. Use `-1`
+to disable scanning. The default scan value is `30000`.
+
 `config-delete-queues`. How the broker should handle queues deleted on config
 reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
 [configuration reload](config-reload.md).
@@ -773,6 +781,12 @@ Default is `true`.
 `auto-delete-addresses`. Whether or not the broker should automatically delete
 auto-created addresses once the address no longer has any queues. Default is
 `true`.
+
+`auto-delete-addresses-delay`. How long to wait (in milliseconds) before
+deleting auto-created addresses after they no longer have any queues. Default
+is `0` (delete immediately). The broker's `address-queue-scan-period` controls
+how often (in milliseconds) addresses are scanned for potential deletion. Use
+`-1` to disable scanning. The default scan value is `30000`.
 
 `config-delete-addresses`. How the broker should handle addresses deleted on
 config reload, by delete policy: `OFF` or `FORCE`. Default is `OFF`. Read more

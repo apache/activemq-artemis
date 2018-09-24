@@ -46,6 +46,8 @@ public class AddressInfo {
 
    private static final AtomicLongFieldUpdater<AddressInfo> unRoutedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "unRoutedMessageCount");
 
+   private long bindingRemovedTimestamp = -1;
+
    public AddressInfo(SimpleString name) {
       this(name, EnumSet.noneOf(RoutingType.class));
    }
@@ -119,6 +121,14 @@ public class AddressInfo {
 
    public RoutingType getRoutingType() {
       return firstSeen;
+   }
+
+   public long getBindingRemovedTimestamp() {
+      return bindingRemovedTimestamp;
+   }
+
+   public void setBindingRemovedTimestamp(long bindingRemovedTimestamp) {
+      this.bindingRemovedTimestamp = bindingRemovedTimestamp;
    }
 
    @Override

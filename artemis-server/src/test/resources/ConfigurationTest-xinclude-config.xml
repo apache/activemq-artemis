@@ -49,6 +49,7 @@
       <transaction-timeout-scan-period>56789</transaction-timeout-scan-period>
       <message-expiry-scan-period>10111213</message-expiry-scan-period>
       <message-expiry-thread-priority>8</message-expiry-thread-priority>
+      <address-queue-scan-period>25000</address-queue-scan-period>
       <id-cache-size>127</id-cache-size>
       <journal-datasync>false</journal-datasync>
       <persist-id-cache>true</persist-id-cache>

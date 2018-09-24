@@ -136,6 +136,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int messageExpiryThreadPriority = ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority();
 
+   private long addressQueueScanPeriod = ActiveMQDefaultConfiguration.getDefaultAddressQueueScanPeriod();
+
    protected int idCacheSize = ActiveMQDefaultConfiguration.getDefaultIdCacheSize();
 
    private boolean persistIDCache = ActiveMQDefaultConfiguration.isDefaultPersistIdCache();
@@ -997,6 +999,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setMessageExpiryThreadPriority(final int messageExpiryThreadPriority) {
       this.messageExpiryThreadPriority = messageExpiryThreadPriority;
+      return this;
+   }
+
+   @Override
+   public long getAddressQueueScanPeriod() {
+      return addressQueueScanPeriod;
+   }
+
+   @Override
+   public ConfigurationImpl setAddressQueueScanPeriod(final long addressQueueScanPeriod) {
+      this.addressQueueScanPeriod = addressQueueScanPeriod;
       return this;
    }
 
