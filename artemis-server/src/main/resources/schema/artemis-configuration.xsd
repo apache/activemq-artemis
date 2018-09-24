@@ -336,6 +336,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="address-queue-scan-period" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how often (in ms) to scan for addresses and queues that need to be deleted
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="id-cache-size" type="xsd:int" default="20000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -2953,6 +2961,15 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="auto-delete-queues-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     how long to wait (in milliseconds) before deleting auto-created queues after the queue has 0
+                     consumers and 0 messages
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="config-delete-queues" default="OFF" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -2974,7 +2991,6 @@
                   <xsd:documentation>
                      whether or not to automatically create addresses when a client sends a message to or attempts to
                      consume a message from a queue mapped to an address that doesn't exist
-                     a queue
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2983,6 +2999,15 @@
                <xsd:annotation>
                   <xsd:documentation>
                      whether or not to delete auto-created addresses when it no longer has any queues
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-addresses-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     how long to wait (in milliseconds) before deleting auto-created addresses after they no longer
+                     have any queues
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

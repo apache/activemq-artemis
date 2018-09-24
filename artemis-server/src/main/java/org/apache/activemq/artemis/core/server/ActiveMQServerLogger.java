@@ -1875,6 +1875,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224069, value = "Change detected in broker configuration file, but reload failed", format = Message.Format.MESSAGE_FORMAT)
    void configurationReloadFailed(@Cause Throwable t);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224070, value = "Failed to remove auto-created address {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorRemovingAutoCreatedAddress(@Cause Exception e, SimpleString addressName);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224072, value = "Message Counter Sample Period too short: {0}", format = Message.Format.MESSAGE_FORMAT)
    void invalidMessageCounterPeriod(long value);

@@ -157,6 +157,8 @@ public interface PostOffice extends ActiveMQComponent {
    // we can't start expiry scanner until the system is load otherwise we may get weird races - https://issues.jboss.org/browse/HORNETQ-1142
    void startExpiryScanner();
 
+   void startAddressQueueScanner();
+
    boolean isAddressBound(SimpleString address) throws Exception;
 
    Set<SimpleString> getAddresses();
