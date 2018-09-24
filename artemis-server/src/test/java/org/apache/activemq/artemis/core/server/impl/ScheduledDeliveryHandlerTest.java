@@ -962,6 +962,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public long getConsumerRemovedTimestamp() {
+         return 0;
+      }
+
+      @Override
       public void setConsumersRefCount(ReferenceCounter referenceCounter) {
 
       }

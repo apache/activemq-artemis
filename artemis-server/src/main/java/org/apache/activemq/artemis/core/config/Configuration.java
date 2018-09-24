@@ -951,6 +951,19 @@ public interface Configuration {
    Configuration setMessageExpiryThreadPriority(int messageExpiryThreadPriority);
 
    /**
+    * Returns the frequency (in milliseconds) to scan addresses and queues to detect which
+    * ones should be deleted. <br>
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD}.
+    */
+   long getAddressQueueScanPeriod();
+
+   /**
+    * Sets the frequency (in milliseconds) to scan addresses and queues to detect which
+    * ones should be deleted.
+    */
+   Configuration setAddressQueueScanPeriod(long addressQueueScanPeriod);
+
+   /**
     * @return A list of AddressSettings per matching to be deployed to the address settings repository
     */
    Map<String, AddressSettings> getAddressesSettings();

@@ -409,6 +409,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public long getConsumerRemovedTimestamp() {
+      return 0;
+   }
+
+   @Override
    public ReferenceCounter getConsumersRefCount() {
       return null;  //To change body of implemented methods use File | Settings | File Templates.
    }

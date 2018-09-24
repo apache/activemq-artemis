@@ -182,6 +182,10 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
+   public void startAddressQueueScanner() {
+   }
+
+   @Override
    public boolean isAddressBound(SimpleString address) throws Exception {
       return false;
    }
