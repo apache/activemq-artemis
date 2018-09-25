@@ -61,7 +61,7 @@ public final class PasswordMaskingUtil {
    }
 
    public static boolean isEncMasked(String password) {
-      return (password.startsWith(BEGIN_ENC) && password.endsWith(END_ENC));
+      return password == null ? false : (password.startsWith(BEGIN_ENC) && password.endsWith(END_ENC));
    }
 
    //remove ENC() from the password body
