@@ -60,7 +60,6 @@ import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
@@ -102,7 +101,7 @@ public class AmqpCoreConverter {
    public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
 
       Section body = message.getProtonMessage().getBody();
-      ServerJMSMessage result;
+      final ServerJMSMessage result;
 
       if (body == null) {
          if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
@@ -131,12 +130,14 @@ public class AmqpCoreConverter {
             if (StandardCharsets.UTF_8.equals(charset)) {
                ByteBuffer buf = ByteBuffer.wrap(payload.getArray(), payload.getArrayOffset(), payload.getLength());
 
+               ServerJMSMessage tmpResult;
                try {
                   CharBuffer chars = charset.newDecoder().decode(buf);
-                  result = createTextMessage(message.getMessageID(), String.valueOf(chars), coreMessageObjectPools);
+                  tmpResult = createTextMessage(message.getMessageID(), String.valueOf(chars), coreMessageObjectPools);
                } catch (CharacterCodingException e) {
-                  result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
+                  tmpResult = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
                }
+               result = tmpResult;
             } else {
                result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
             }
@@ -195,12 +196,11 @@ public class AmqpCoreConverter {
 
       TypedProperties properties = message.getExtraProperties();
       if (properties != null) {
-         for (SimpleString str : properties.getPropertyNames()) {
-            if (str.equals(AMQPMessage.ADDRESS_PROPERTY)) {
-               continue;
+         properties.forEach((str, object) -> {
+            if (!str.equals(AMQPMessage.ADDRESS_PROPERTY)) {
+               result.getInnerMessage().putObjectProperty(str, object);
             }
-            result.getInnerMessage().putObjectProperty(str, properties.getProperty(str));
-         }
+         });
       }
 
       populateMessage(result, message.getProtonMessage());
