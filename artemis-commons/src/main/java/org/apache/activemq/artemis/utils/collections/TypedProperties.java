@@ -19,12 +19,17 @@ package org.apache.activemq.artemis.utils.collections;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.locks.StampedLock;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
@@ -51,13 +56,14 @@ import static org.apache.activemq.artemis.utils.DataConstants.STRING;
  * (Version 1.1 April 12, 2002).
  * <p>
  */
-public class TypedProperties {
+public class TypedProperties extends StampedLock {
 
    private static final SimpleString AMQ_PROPNAME = new SimpleString("_AMQ_");
 
    private Map<SimpleString, PropertyValue> properties;
 
-   private volatile int size;
+   private static final AtomicIntegerFieldUpdater<TypedProperties> ENCODE_SIZE_FIELD_UPDATER = AtomicIntegerFieldUpdater.newUpdater(TypedProperties.class, "encodeSize");
+   private volatile int encodeSize;
 
    private boolean internalProperties;
 
@@ -68,26 +74,48 @@ public class TypedProperties {
     *  Return the number of properties
     * */
    public int size() {
-      return properties.size();
+      long lock = this.readLock();
+      try {
+         return properties == null ? 0 : properties.size();
+      } finally {
+         this.unlockRead(lock);
+      }
    }
 
    public int getMemoryOffset() {
+      long lock = this.readLock();
+      try {
+         return getMemoryOffsetThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private int getMemoryOffsetThreadUnsafe() {
       // The estimate is basically the encode size + 2 object references for each entry in the map
       // Note we don't include the attributes or anything else since they already included in the memory estimate
       // of the ServerMessage
 
-      return properties == null ? 0 : size + 2 * DataConstants.SIZE_INT * properties.size();
+      return properties == null ? 0 : encodeSize + 2 * DataConstants.SIZE_INT * size();
    }
 
    public TypedProperties(final TypedProperties other) {
-      synchronized (other) {
+      long lock = other.readLock();
+      try {
          properties = other.properties == null ? null : new HashMap<>(other.properties);
-         size = other.size;
+         ENCODE_SIZE_FIELD_UPDATER.lazySet(this, other.encodeSize);
+      } finally {
+         other.unlockRead(lock);
       }
    }
 
    public boolean hasInternalProperties() {
-      return internalProperties;
+      long lock = this.readLock();
+      try {
+         return internalProperties;
+      } finally {
+         this.unlockRead(lock);
+      }
    }
 
    public void putBooleanProperty(final SimpleString key, final boolean value) {
@@ -146,15 +174,12 @@ public class TypedProperties {
    }
 
    public void putTypedProperties(final TypedProperties otherProps) {
-      if (otherProps == null || otherProps.properties == null) {
+      if (otherProps == null || otherProps == this || otherProps.properties == null) {
          return;
       }
 
       checkCreateProperties();
-      Set<Entry<SimpleString, PropertyValue>> otherEntries = otherProps.properties.entrySet();
-      for (Entry<SimpleString, PropertyValue> otherEntry : otherEntries) {
-         doPutValue(otherEntry.getKey(), otherEntry.getValue());
-      }
+      otherProps.forEachInternal(this::doPutValue);
    }
 
    public Object getProperty(final SimpleString key) {
@@ -316,26 +341,96 @@ public class TypedProperties {
    }
 
    public boolean containsProperty(final SimpleString key) {
-      if (size == 0) {
+      long lock = this.readLock();
+      try {
+         return containsPropertyThreadUnsafe(key);
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private boolean containsPropertyThreadUnsafe(final SimpleString key) {
+      if (encodeSize == 0) {
          return false;
 
       } else {
          return properties.containsKey(key);
       }
    }
-
    public Set<SimpleString> getPropertyNames() {
-      if (size == 0) {
-         return Collections.emptySet();
-      } else {
-         return properties.keySet();
+      long lock = this.readLock();
+      try {
+         return getPropertyNamesThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
       }
    }
 
-   public synchronized void decode(final ByteBuf buffer,
+   public Set<SimpleString> getPropertyNamesThreadUnsafe() {
+      if (encodeSize == 0) {
+         return Collections.emptySet();
+      } else {
+         return new HashSet<>(properties.keySet());
+      }
+   }
+
+   public void forEachKey(Consumer<SimpleString> action) {
+      long lock = this.readLock();
+      try {
+         forEachKeyThreadUnsafe(action);
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private void forEachKeyThreadUnsafe(Consumer<SimpleString> action) {
+      if (properties != null) {
+         properties.keySet().forEach(action::accept);
+      }
+   }
+
+   public void forEach(BiConsumer<SimpleString, Object> action) {
+      long lock = this.readLock();
+      try {
+         forEachThreadUnsafe(action);
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private void forEachThreadUnsafe(BiConsumer<SimpleString, Object> action) {
+      if (properties != null) {
+         properties.forEach((k, v) -> action.accept(k, v.getValue()));
+      }
+   }
+
+   private void forEachInternal(BiConsumer<SimpleString, PropertyValue> action) {
+      long lock = this.readLock();
+      try {
+         forEachInternalThreadUnsafe(action);
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private void forEachInternalThreadUnsafe(BiConsumer<SimpleString, PropertyValue> action) {
+      if (properties != null) {
+         properties.forEach(action::accept);
+      }
+   }
+
+   public void decode(final ByteBuf buffer, TypedPropertiesDecoderPools keyValuePools) {
+      long lock = this.writeLock();
+      try {
+         decodeThreadUnsafe(buffer, keyValuePools);
+      } finally {
+         this.unlockWrite(lock);
+      }
+   }
+
+   private void decodeThreadUnsafe(final ByteBuf buffer,
                                    final TypedPropertiesDecoderPools keyValuePools) {
       byte b = buffer.readByte();
-
       if (b == DataConstants.NULL) {
          properties = null;
       } else {
@@ -343,7 +438,7 @@ public class TypedProperties {
 
          //optimize the case of no collisions to avoid any resize (it doubles the map size!!!) when load factor is reached
          properties = new HashMap<>(numHeaders, 1.0f);
-         size = 0;
+         encodeSize = 0;
 
          for (int i = 0; i < numHeaders; i++) {
             final SimpleString key = SimpleString.readSimpleString(buffer, keyValuePools == null ? null : keyValuePools.getPropertyKeysPool());
@@ -355,57 +450,57 @@ public class TypedProperties {
             switch (type) {
                case NULL: {
                   val = NullValue.INSTANCE;
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case CHAR: {
                   val = new CharValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case BOOLEAN: {
                   val = BooleanValue.of(buffer.readBoolean());
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case BYTE: {
                   val = ByteValue.valueOf(buffer.readByte());
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case BYTES: {
                   val = new BytesValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case SHORT: {
                   val = new ShortValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case INT: {
                   val = new IntValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case LONG: {
                   val = new LongValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case FLOAT: {
                   val = new FloatValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case DOUBLE: {
                   val = new DoubleValue(buffer);
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                case STRING: {
                   val = StringValue.readStringValue(buffer, keyValuePools == null ? null : keyValuePools.getPropertyValuesPool());
-                  doPutValue(key, val);
+                  doPutValueThreadUnsafe(key, val);
                   break;
                }
                default: {
@@ -416,11 +511,21 @@ public class TypedProperties {
       }
    }
 
-   public synchronized void decode(final ByteBuf buffer) {
+   public void decode(final ByteBuf buffer) {
       decode(buffer, null);
    }
 
-   public synchronized void encode(final ByteBuf buffer) {
+
+   public void encode(final ByteBuf buffer) {
+      long lock = this.readLock();
+      try {
+         encodeThreadUnsafe(buffer);
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private void encodeThreadUnsafe(final ByteBuf buffer) {
       if (properties == null) {
          buffer.writeByte(DataConstants.NULL);
       } else {
@@ -437,27 +542,53 @@ public class TypedProperties {
          });
       }
    }
-
    public int getEncodeSize() {
-      if (properties == null) {
+      long lock = this.readLock();
+      try {
+         return getEncodeSizeThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   public int getEncodeSizeThreadUnsafe() {
+      if (properties == null || encodeSize == 0) {
          return DataConstants.SIZE_BYTE;
       } else {
-         return DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + size;
+         return DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + encodeSize;
       }
    }
 
    public void clear() {
+      long lock = this.writeLock();
+      try {
+         clearThreadUnsafe();
+      } finally {
+         this.unlockWrite(lock);
+      }
+   }
+
+   public void clearThreadUnsafe() {
       if (properties != null) {
          properties.clear();
+         ENCODE_SIZE_FIELD_UPDATER.set(this, 0);
       }
    }
 
    @Override
    public String toString() {
+      long lock = this.readLock();
+      try {
+         return toStringThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private String toStringThreadUnsafe() {
       StringBuilder sb = new StringBuilder("TypedProperties[");
 
       if (properties != null) {
-
          Iterator<Entry<SimpleString, PropertyValue>> iter = properties.entrySet().iterator();
 
          while (iter.hasNext()) {
@@ -506,47 +637,81 @@ public class TypedProperties {
    // Private ------------------------------------------------------------------------------------
 
    private void checkCreateProperties() {
+      long lock = this.writeLock();
+      try {
+         checkCreatePropertiesThreadUnsafe();
+      } finally {
+         this.unlockWrite(lock);
+      }
+   }
+
+   private void checkCreatePropertiesThreadUnsafe() {
       if (properties == null) {
          properties = new HashMap<>();
       }
    }
 
-   private synchronized void doPutValue(final SimpleString key, final PropertyValue value) {
+   private void doPutValue(final SimpleString key, final PropertyValue value) {
+      long lock = this.writeLock();
+      try {
+         doPutValueThreadUnsafe(key, value);
+      } finally {
+         this.unlockWrite(lock);
+      }
+   }
+
+   private PropertyValue doPutValueThreadUnsafe(final SimpleString key, final PropertyValue value) {
       if (key.startsWith(AMQ_PROPNAME)) {
          internalProperties = true;
       }
 
       PropertyValue oldValue = properties.put(key, value);
       if (oldValue != null) {
-         size += value.encodeSize() - oldValue.encodeSize();
+         ENCODE_SIZE_FIELD_UPDATER.getAndAdd(this, value.encodeSize() - oldValue.encodeSize());
       } else {
-         size += SimpleString.sizeofString(key) + value.encodeSize();
+         ENCODE_SIZE_FIELD_UPDATER.getAndAdd(this, SimpleString.sizeofString(key) + value.encodeSize());
+      }
+      return oldValue;
+   }
+
+   private Object doRemoveProperty(final SimpleString key) {
+      long lock = this.writeLock();
+      try {
+         return doRemovePropertyThreadUnsafe(key);
+      } finally {
+         this.unlockWrite(lock);
       }
    }
 
-   private synchronized Object doRemoveProperty(final SimpleString key) {
+   private Object doRemovePropertyThreadUnsafe(final SimpleString key) {
       if (properties == null) {
          return null;
       }
 
       PropertyValue val = properties.remove(key);
-
       if (val == null) {
          return null;
       } else {
-         size -= SimpleString.sizeofString(key) + val.encodeSize();
-
+         ENCODE_SIZE_FIELD_UPDATER.getAndAdd(this, -(SimpleString.sizeofString(key) + val.encodeSize()));
          return val.getValue();
       }
    }
 
-   private synchronized Object doGetProperty(final Object key) {
-      if (size == 0) {
+   private Object doGetProperty(final Object key) {
+      long lock = this.readLock();
+      try {
+         return doGetPropertyThreadUnsafe(key);
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private Object doGetPropertyThreadUnsafe(final Object key) {
+      if (properties == null) {
          return null;
       }
 
       PropertyValue val = properties.get(key);
-
       if (val == null) {
          return null;
       } else {
@@ -1004,11 +1169,46 @@ public class TypedProperties {
    }
 
    public boolean isEmpty() {
+      long lock = this.readLock();
+      try {
+         return isEmptyThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private boolean isEmptyThreadUnsafe() {
       return properties.isEmpty();
    }
 
+   public Set<String> getMapNames() {
+      long lock = this.readLock();
+      try {
+         return getMapNamesThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private Set<String> getMapNamesThreadUnsafe() {
+      Set<String> names = new HashSet<>(properties.size());
+      for (SimpleString name : properties.keySet()) {
+         names.add(name.toString());
+      }
+      return names;
+   }
+
    public Map<String, Object> getMap() {
-      Map<String, Object> m = new HashMap<>();
+      long lock = this.readLock();
+      try {
+         return getMapThreadUnsafe();
+      } finally {
+         this.unlockRead(lock);
+      }
+   }
+
+   private Map<String, Object> getMapThreadUnsafe() {
+      Map<String, Object> m = new HashMap<>(properties.size());
       for (Entry<SimpleString, PropertyValue> entry : properties.entrySet()) {
          Object val = entry.getValue().getValue();
          if (val instanceof SimpleString) {
