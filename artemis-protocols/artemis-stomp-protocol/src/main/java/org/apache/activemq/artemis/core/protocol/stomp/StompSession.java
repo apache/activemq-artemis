@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -268,7 +269,11 @@ public class StompSession implements SessionCallback {
             }
             queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
             if (manager.getServer().locateQueue(queueName) == null) {
-               session.createQueue(address, queueName, selectorSimple, false, true);
+               try {
+                  session.createQueue(address, queueName, selectorSimple, false, true);
+               } catch (ActiveMQQueueExistsException e) {
+                  // ignore; can be caused by concurrent durable subscribers
+               }
             }
          } else {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
