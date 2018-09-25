@@ -842,11 +842,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw new IllegalStateException("Message cannot be routed more than once");
       }
 
-      setPagingStore(context.getAddress(message), message);
+      final SimpleString address = context.getAddress(message);
+
+      setPagingStore(address, message);
 
       AtomicBoolean startedTX = new AtomicBoolean(false);
-
-      final SimpleString address = context.getAddress(message);
 
       applyExpiryDelay(message, address);
 
@@ -856,23 +856,24 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.cleanupInternalProperties();
 
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress(message));
+      Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
 
-      // TODO auto-create queues here?
-      // first check for the auto-queue creation thing
-      if (bindings == null) {
-         // There is no queue with this address, we will check if it needs to be created
-         //         if (queueCreator.create(address)) {
-         // TODO: this is not working!!!!
-         // reassign bindings if it was created
-         //            bindings = addressManager.getBindingsForRoutingAddress(address);
-         //         }
-      }
+      AddressInfo addressInfo = addressManager.getAddressInfo(address);
+
       if (bindingMove != null) {
          bindingMove.route(message, context);
+         if (addressInfo != null) {
+            addressInfo.incrementRoutedMessageCount();
+         }
       } else if (bindings != null) {
          bindings.route(message, context);
+         if (addressInfo != null) {
+            addressInfo.incrementRoutedMessageCount();
+         }
       } else {
+         if (addressInfo != null) {
+            addressInfo.incrementUnRoutedMessageCount();
+         }
          // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't find any bindings for address=" + address + " on message=" + message);
