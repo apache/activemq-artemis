@@ -63,8 +63,21 @@ public final class AMQPMessageSupport {
 
    /**
     * Attribute used to mark the Application defined delivery time assigned to the message
+    *
+    * @deprecated Use the SCHEDULED_DELIVERY_TIME value as this is not JMS specific and will be removed.
     */
+   @Deprecated
    public static final Symbol JMS_DELIVERY_TIME = Symbol.getSymbol("x-opt-delivery-time");
+
+   /**
+    * Attribute used to mark the Application defined delivery time assigned to the message
+    */
+   public static final Symbol SCHEDULED_DELIVERY_TIME = Symbol.getSymbol("x-opt-delivery-time");
+
+   /**
+    * Attribute used to mark the Application defined delivery time assigned to the message
+    */
+   public static final Symbol SCHEDULED_DELIVERY_DELAY = Symbol.getSymbol("x-opt-delivery-delay");
 
    /**
     * Attribute used to mark the Application defined delivery time assigned to the message
@@ -223,6 +236,24 @@ public final class AMQPMessageSupport {
          return message.getContentType() == null;
       } else {
          return contentType.equals(message.getContentType());
+      }
+   }
+
+   /**
+    * Check whether the content-type given matches the expect value.
+    *
+    * @param expected
+    *        content type string to compare against or null if not expected to be set
+    * @param actual
+    *        the AMQP content type symbol from the Properties section
+    *
+    * @return true if content type matches
+    */
+   public static boolean isContentType(String expected, Symbol actual) {
+      if (expected == null) {
+         return actual == null;
+      } else {
+         return expected.equals(actual != null ? actual.toString() : actual);
       }
    }
 

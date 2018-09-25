@@ -22,6 +22,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.junit.Test;
@@ -123,6 +124,28 @@ public class NettyWritableTest {
    public void testPutReadableBuffer() {
       doPutReadableBufferTestImpl(true);
       doPutReadableBufferTestImpl(false);
+   }
+
+   @Test
+   public void testPutReadableBufferWithOffsetAndNonZeroPosition() {
+      ByteBuf buffer = Unpooled.buffer(1024);
+      NettyWritable writable = new NettyWritable(buffer);
+
+      ByteBuffer source = ByteBuffer.allocate(20);
+      source.put(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19});
+
+      source.position(5);
+      source.limit(10);
+
+      writable.put(source);
+
+      assertEquals(5, writable.position());
+      assertEquals(5, buffer.readableBytes());
+
+      byte[] check = new byte[5];
+      buffer.readBytes(check);
+
+      assertTrue(Arrays.equals(new byte[] {5, 6, 7, 8, 9}, check));
    }
 
    private void doPutReadableBufferTestImpl(boolean readOnly) {
