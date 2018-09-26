@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +44,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.junit.Wait;
@@ -205,6 +207,13 @@ public class RedeployTest extends ActiveMQTestBase {
 
    @Test
    public void testRedeployWithFailover() throws Exception {
+      Set<Role> original = new HashSet<>();
+      original.add(new Role("a", false, true, false, false, false, false, false, false, false, false));
+      Set<Role> changed = new HashSet<>();
+      changed.add(new Role("b", false, true, false, false, false, false, false, false, false, false));
+
+
+
       EmbeddedActiveMQ live = new EmbeddedActiveMQ();
       EmbeddedActiveMQ backup = new EmbeddedActiveMQ();
 
@@ -231,6 +240,11 @@ public class RedeployTest extends ActiveMQTestBase {
          backup.start();
 
          assertTrue(Wait.waitFor(() -> backup.getActiveMQServer().isReplicaSync(), 15000, 200));
+
+         assertEquals("Test address settings original - live", AddressFullMessagePolicy.BLOCK, live.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
+         assertEquals("Test address settings original - backup", AddressFullMessagePolicy.BLOCK, backup.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
+         assertEquals("Test security settings original - live", original, live.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
+         assertEquals("Test security settings original - backup", original, backup.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
 
          final ReusableLatch liveReloadLatch = new ReusableLatch(1);
          Runnable liveTick = () -> liveReloadLatch.countDown();
@@ -259,8 +273,12 @@ public class RedeployTest extends ActiveMQTestBase {
             Session session = connection.createSession();
             Queue queue = session.createQueue("myQueue2");
             MessageProducer producer = session.createProducer(queue);
-            producer.send(session.createTextMessage("text"));
+            producer.send(session.createTextMessage("text1"));
          }
+
+         assertFalse(backup.getActiveMQServer().isActive());
+         assertEquals("Test address settings redeploy - live", AddressFullMessagePolicy.PAGE, live.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
+         assertEquals("Test security settings redeploy - live", changed, live.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
 
          live.stop();
 
@@ -277,6 +295,8 @@ public class RedeployTest extends ActiveMQTestBase {
             Assert.assertNotNull("Queue wasn't deployed accordingly", consumer.receive(5000));
             Assert.assertNotNull(consumer.receive(5000));
          }
+         assertEquals("Test address settings redeploy - backup", changed, backup.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
+         assertEquals("Test security settings redeploy - backup", AddressFullMessagePolicy.PAGE, backup.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
       } finally {
          live.stop();
          backup.stop();
