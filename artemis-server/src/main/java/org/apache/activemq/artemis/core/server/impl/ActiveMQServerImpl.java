@@ -2390,15 +2390,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       // Deploy the rest of the stuff
-
-      // Deploy predefined addresses
-      deployAddressesFromConfiguration();
-
-      // Deploy any predefined queues
-      deployQueuesFromConfiguration();
-
-      // Undeploy any addresses and queues not in config
-      undeployAddressesAndQueueNotInConfiguration();
+      deployReloadableConfigFromConfiguration(configuration);
 
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses
       // this needs to be done before clustering is fully activated
@@ -2619,6 +2611,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressSettingsRepository.addMatch(entry.getKey(), entry.getValue(), true);
       }
    }
+
+
 
    private JournalLoadInformation[] loadJournals() throws Exception {
       JournalLoader journalLoader = activation.createJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer);
@@ -3169,30 +3163,36 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       @Override
       public void reload(URL uri) throws Exception {
+         Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
+         configuration.setSecurityRoles(config.getSecurityRoles());
+         configuration.setAddressesSettings(config.getAddressesSettings());
+         configuration.setDivertConfigurations(config.getDivertConfigurations());
+         configuration.setAddressConfigurations(config.getAddressConfigurations());
+         configuration.setQueueConfigurations(config.getQueueConfigurations());
          if (isActive()) {
-            Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
-            ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
-            securityRepository.swap(config.getSecurityRoles().entrySet());
-            configuration.setSecurityRoles(config.getSecurityRoles());
-
-            ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
-            addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
-            configuration.setAddressesSettings(config.getAddressesSettings());
-
-            ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
-            for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
-               if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
-                  deployDivert(divertConfig);
-               }
-            }
-
-            ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
-            undeployAddressesAndQueueNotInConfiguration(config);
-            deployAddressesFromConfiguration(config);
-            configuration.setAddressConfigurations(config.getAddressConfigurations());
-            configuration.setQueueConfigurations(config.getQueueConfigurations());
+            deployReloadableConfigFromConfiguration(configuration);
          }
       }
+   }
+
+   private void deployReloadableConfigFromConfiguration(Configuration config) throws Exception {
+      ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
+      securityRepository.swap(config.getSecurityRoles().entrySet());
+
+      ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
+      addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
+
+      ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+      for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
+         if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
+            deployDivert(divertConfig);
+         }
+      }
+
+      ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
+      undeployAddressesAndQueueNotInConfiguration(config);
+      deployAddressesFromConfiguration(config);
+      deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
    }
 
    public Set<ActivateCallback> getActivateCallbacks() {
