@@ -117,11 +117,9 @@ public class NettyWritable implements WritableBuffer {
    @Override
    public void put(ReadableBuffer buffer) {
       if (buffer.hasArray()) {
-         nettyBuffer.writeBytes(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+         nettyBuffer.writeBytes(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
       } else {
-         while (buffer.hasRemaining()) {
-            nettyBuffer.writeByte(buffer.get());
-         }
+         nettyBuffer.writeBytes(buffer.byteBuffer());
       }
    }
 }
