@@ -551,12 +551,16 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     */
    protected TypedProperties checkProperties() {
       if (properties == null) {
-         TypedProperties properties = new TypedProperties();
-         if (buffer != null && propertiesLocation >= 0) {
-            final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
-            properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+         synchronized (this) {
+            if (properties == null) {
+               TypedProperties properties = new TypedProperties();
+               if (buffer != null && propertiesLocation >= 0) {
+                  final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
+                  properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+               }
+               this.properties = properties;
+            }
          }
-         this.properties = properties;
       }
 
       return this.properties;
