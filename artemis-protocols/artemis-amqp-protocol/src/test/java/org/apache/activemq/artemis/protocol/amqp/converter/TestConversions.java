@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessa
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -39,6 +41,8 @@ import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
+
+import io.netty.buffer.Unpooled;
 
 
 public class TestConversions extends Assert {
@@ -58,12 +62,11 @@ public class TestConversions extends Assert {
 
       message.setBody(new AmqpValue(new Boolean(true)));
 
-      AMQPMessage encodedMessage = new AMQPMessage(message);
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
       verifyProperties(ServerJMSMessage.wrapCoreMessage(serverMessage));
-
    }
 
    @Test
@@ -81,7 +84,7 @@ public class TestConversions extends Assert {
 
       message.setBody(new Data(new Binary(bodyBytes)));
 
-      AMQPMessage encodedMessage = new AMQPMessage(message);
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
@@ -96,7 +99,6 @@ public class TestConversions extends Assert {
       bytesMessage.readBytes(newBodyBytes);
 
       Assert.assertArrayEquals(bodyBytes, newBodyBytes);
-
    }
 
    private void verifyProperties(javax.jms.Message message) throws Exception {
@@ -135,7 +137,7 @@ public class TestConversions extends Assert {
 
       message.setBody(new AmqpValue(mapValues));
 
-      AMQPMessage encodedMessage = new AMQPMessage(message);
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
       serverMessage.getReadOnlyBodyBuffer();
@@ -145,11 +147,11 @@ public class TestConversions extends Assert {
 
       verifyProperties(mapMessage);
 
-      Assert.assertEquals(1, mapMessage.getInt("someint"));
-      Assert.assertEquals("value", mapMessage.getString("somestr"));
+      assertEquals(1, mapMessage.getInt("someint"));
+      assertEquals("value", mapMessage.getString("somestr"));
 
       AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage());
-      System.out.println(newAMQP.getProtonMessage().getBody());
+      assertNotNull(newAMQP.getBody());
    }
 
    @Test
@@ -165,7 +167,7 @@ public class TestConversions extends Assert {
 
       message.setBody(new AmqpSequence(objects));
 
-      AMQPMessage encodedMessage = new AMQPMessage(message);
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
@@ -189,7 +191,7 @@ public class TestConversions extends Assert {
       String text = "someText";
       message.setBody(new AmqpValue(text));
 
-      AMQPMessage encodedMessage = new AMQPMessage(message);
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
@@ -198,8 +200,7 @@ public class TestConversions extends Assert {
 
       verifyProperties(textMessage);
 
-      Assert.assertEquals(text, textMessage.getText());
-
+      assertEquals(text, textMessage.getText());
    }
 
    @Test
@@ -209,7 +210,7 @@ public class TestConversions extends Assert {
       String text = "someText";
       message.setBody(new AmqpValue(text));
 
-      AMQPMessage encodedMessage = new AMQPMessage(message);
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = createTypedPropertiesMap();
       extraProperties.putBytesProperty(new SimpleString("bytesProp"), "value".getBytes());
       encodedMessage.setExtraProperties(extraProperties);
@@ -222,8 +223,15 @@ public class TestConversions extends Assert {
       verifyProperties(textMessage);
       assertEquals("value", new String(((byte[]) textMessage.getObjectProperty("bytesProp"))));
 
-      Assert.assertEquals(text, textMessage.getText());
-
+      assertEquals(text, textMessage.getText());
    }
 
+   private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+      NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
+      message.encode(encoded);
+
+      NettyReadable readable = new NettyReadable(encoded.getByteBuf());
+
+      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+   }
 }

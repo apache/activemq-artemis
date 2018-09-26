@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,20 +28,20 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
-import org.apache.qpid.proton.message.Message;
-import org.junit.Before;
+import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import io.netty.buffer.Unpooled;
 
 /**
  * Tests some basic encode / decode functionality on the transformers.
@@ -46,34 +51,32 @@ public class MessageTransformationTest {
    @Rule
    public TestName test = new TestName();
 
-   @Before
-   public void setUp() {
-   }
-
-
    @Test
    public void testBodyOnlyEncodeDecode() throws Exception {
-
-      Message incomingMessage = Proton.message();
+      MessageImpl incomingMessage = (MessageImpl) Proton.message();
 
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
-      ICoreMessage core = new AMQPMessage(incomingMessage).toCore();
-      Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
+      ICoreMessage core = encodeAndCreateAMQPMessage(incomingMessage).toCore();
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
 
       assertNull(outboudMessage.getHeader());
+
+      Section body = outboudMessage.getBody();
+      assertNotNull(body);
+      assertTrue(body instanceof AmqpValue);
+      assertTrue(((AmqpValue) body).getValue() instanceof String);
    }
 
    @Test
    public void testPropertiesButNoHeadersEncodeDecode() throws Exception {
-
-      Message incomingMessage = Proton.message();
+      MessageImpl incomingMessage = (MessageImpl) Proton.message();
 
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
       incomingMessage.setMessageId("ID:SomeQualifier:0:0:1");
 
-      ICoreMessage core = new AMQPMessage(incomingMessage).toCore();
-      Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
+      ICoreMessage core = encodeAndCreateAMQPMessage(incomingMessage).toCore();
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
 
       assertNull(outboudMessage.getHeader());
       assertNotNull(outboudMessage.getProperties());
@@ -81,20 +84,24 @@ public class MessageTransformationTest {
 
    @Test
    public void testHeaderButNoPropertiesEncodeDecode() throws Exception {
-
-      Message incomingMessage = Proton.message();
+      MessageImpl incomingMessage = (MessageImpl) Proton.message();
 
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
       incomingMessage.setDurable(true);
 
-      ICoreMessage core = new AMQPMessage(incomingMessage).toCore();
-      Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
+      ICoreMessage core = encodeAndCreateAMQPMessage(incomingMessage).toCore();
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
 
+      assertNotNull(outboudMessage.getHeader());
+
+      Section body = outboudMessage.getBody();
+      assertNotNull(body);
+      assertTrue(body instanceof AmqpValue);
+      assertTrue(((AmqpValue) body).getValue() instanceof String);
    }
 
    @Test
    public void testComplexQpidJMSMessageEncodeDecode() throws Exception {
-
       Map<String, Object> applicationProperties = new HashMap<>();
       Map<Symbol, Object> messageAnnotations = new HashMap<>();
 
@@ -113,7 +120,7 @@ public class MessageTransformationTest {
       messageAnnotations.put(Symbol.valueOf("x-opt-jms-reply-to"), 0);
       messageAnnotations.put(Symbol.valueOf("x-opt-delivery-delay"), 2000);
 
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Proton.message();
 
       // Header Values
       message.setPriority((short) 9);
@@ -137,10 +144,19 @@ public class MessageTransformationTest {
       message.setMessageAnnotations(new MessageAnnotations(messageAnnotations));
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
-      ICoreMessage core = new AMQPMessage(message).toCore();
-      Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
+      ICoreMessage core = encodeAndCreateAMQPMessage(message).toCore();
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
 
       assertEquals(10, outboudMessage.getApplicationProperties().getValue().size());
       assertEquals(4, outboudMessage.getMessageAnnotations().getValue().size());
+   }
+
+   private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+      NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
+      message.encode(encoded);
+
+      NettyReadable readable = new NettyReadable(encoded.getByteBuf());
+
+      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 }
