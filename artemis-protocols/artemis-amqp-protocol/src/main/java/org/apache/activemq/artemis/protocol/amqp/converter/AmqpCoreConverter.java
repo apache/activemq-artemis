@@ -51,7 +51,6 @@ import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
@@ -176,22 +175,13 @@ public class AmqpCoreConverter {
          throw new RuntimeException("Unexpected body type: " + body.getClass());
       }
 
-      TypedProperties properties = message.getExtraProperties();
-      if (properties != null) {
-         for (SimpleString str : properties.getPropertyNames()) {
-            if (str.equals(AMQPMessage.ADDRESS_PROPERTY)) {
-               continue;
-            }
-            result.getInnerMessage().putBytesProperty(str, properties.getBytesProperty(str));
-         }
-      }
+      processExtraProperties(result, message.getExtraProperties());
 
       populateMessage(result, message.getProtonMessage());
       result.getInnerMessage().setReplyTo(message.getReplyTo());
       result.getInnerMessage().setDurable(message.isDurable());
       result.getInnerMessage().setPriority(message.getPriority());
       result.getInnerMessage().setAddress(message.getAddressSimpleString());
-
       result.encode();
 
       return result != null ? result.getInnerMessage() : null;
@@ -321,6 +311,18 @@ public class AmqpCoreConverter {
             String key = entry.getKey().toString();
             setProperty(jms, JMS_AMQP_FOOTER_PREFIX + key, entry.getValue());
          }
+      }
+
+      return jms;
+   }
+
+   private static ServerJMSMessage processExtraProperties(ServerJMSMessage jms, TypedProperties properties) {
+      if (properties != null) {
+         properties.forEach((k, v) -> {
+            if (!k.equals(AMQPMessage.ADDRESS_PROPERTY)) {
+               jms.getInnerMessage().putObjectProperty(k, v);
+            }
+         });
       }
 
       return jms;
