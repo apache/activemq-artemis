@@ -60,7 +60,6 @@ import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
@@ -298,12 +297,11 @@ public class AmqpCoreConverter {
 
    private static ServerJMSMessage processExtraProperties(ServerJMSMessage jms, TypedProperties properties) {
       if (properties != null) {
-         for (SimpleString str : properties.getPropertyNames()) {
-            if (str.equals(AMQPMessage.ADDRESS_PROPERTY)) {
-               continue;
+         properties.forEach((k, v) -> {
+            if (!k.equals(AMQPMessage.ADDRESS_PROPERTY)) {
+               jms.getInnerMessage().putObjectProperty(k, v);
             }
-            jms.getInnerMessage().putObjectProperty(str, properties.getProperty(str));
-         }
+         });
       }
 
       return jms;

@@ -21,8 +21,6 @@ import javax.jms.MapMessage;
 import javax.jms.MessageFormatException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -301,14 +299,7 @@ public class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage {
 
    @Override
    public Enumeration getMapNames() throws JMSException {
-      Set<SimpleString> simplePropNames = map.getPropertyNames();
-      Set<String> propNames = new HashSet<>(simplePropNames.size());
-
-      for (SimpleString str : simplePropNames) {
-         propNames.add(str.toString());
-      }
-
-      return Collections.enumeration(propNames);
+      return Collections.enumeration(map.getMapNames());
    }
 
    @Override
