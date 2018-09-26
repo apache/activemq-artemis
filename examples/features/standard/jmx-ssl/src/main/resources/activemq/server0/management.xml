@@ -21,9 +21,9 @@
          connector-host="localhost"
          secured="true"
          key-store-path="${data.dir}/../etc/server-side-keystore.jks"
-         key-store-password="secureexample"
+         key-store-password="ENC(2a7c211d21c295cdbcde3589c205decb)"
          trust-store-path="${data.dir}/../etc/server-side-truststore.jks"
-         trust-store-password="secureexample"/>
+         trust-store-password="ENC(2a7c211d21c295cdbcde3589c205decb)"/>
    <authorisation>
       <whitelist>
          <entry domain="hawtio"/>
