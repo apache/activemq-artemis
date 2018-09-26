@@ -1964,4 +1964,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224095, value = "Error updating Consumer Count: {0}", format = Message.Format.MESSAGE_FORMAT)
    void consumerCountError(String reason);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224096, value = "Error setting up connection from {0} to {1}; protocol {2} not found in map: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void failedToFindProtocolManager(String remoteAddress, String localAddress, String intendedProtocolManager, String protocolMap);
 }
