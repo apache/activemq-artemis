@@ -144,9 +144,8 @@ public class NetworkHealthTest {
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
 
       // using two addresses for URI and localhost
-      check.parseAddressList("localhost, , 127.0.0.2").parseURIList("http://www.redhat.com, , http://www.apache.org");
+      check.parseAddressList("localhost, , 127.0.0.2");
       Assert.assertEquals(2, check.getAddresses().size());
-      Assert.assertEquals(2, check.getUrls().size());
    }
 
    @Test
@@ -154,9 +153,9 @@ public class NetworkHealthTest {
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
 
       // using two addresses for URI and localhost
-      check.parseAddressList("localhost, , 127.0.0.2").parseURIList("http://www.redhat.com, , http://www.apache.org");
+      check.parseAddressList("localhost, , 127.0.0.2");
       Assert.assertEquals(2, check.getAddresses().size());
-      Assert.assertEquals(2, check.getUrls().size());
+      Assert.assertEquals(0, check.getUrls().size());
    }
 
    @Test
