@@ -31,7 +31,9 @@ public class PacketImpl implements Packet {
 
    // 2.0.0
    public static final int ADDRESSING_CHANGE_VERSION = 129;
-   public static final int SHARED_QUEUE_SECURITY_FIX_CHANGE_VERSION = 130;
+
+   // 2.7.0
+   public static final int ASYNC_RESPONSE_CHANGE_VERSION = 130;
 
 
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
@@ -272,6 +274,7 @@ public class PacketImpl implements Packet {
 
    public static final byte SESS_BINDINGQUERY_RESP_V4 = -15;
 
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {
@@ -428,7 +431,7 @@ public class PacketImpl implements Packet {
    }
 
    protected String getParentString() {
-      return "PACKET(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", packetObject=" + this.getClass().getSimpleName();
+      return "PACKET(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", responseAsync=" + isResponseAsync() + ", requiresResponse=" + isRequiresResponse() + ", correlationID=" + getCorrelationID() + ", packetObject=" + this.getClass().getSimpleName();
    }
 
    private int stringEncodeSize(final String str) {
@@ -437,6 +440,25 @@ public class PacketImpl implements Packet {
 
    protected int nullableStringEncodeSize(final String str) {
       return DataConstants.SIZE_BOOLEAN + (str != null ? stringEncodeSize(str) : 0);
+   }
+
+   @Override
+   public boolean isRequiresResponse() {
+      return false;
+   }
+
+   @Override
+   public boolean isResponseAsync() {
+      return false;
+   }
+
+   @Override
+   public long getCorrelationID() {
+      return -1;
+   }
+
+   @Override
+   public void setCorrelationID(long correlationID) {
    }
 
 
