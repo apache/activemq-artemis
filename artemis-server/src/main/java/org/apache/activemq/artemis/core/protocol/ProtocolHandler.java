@@ -196,6 +196,10 @@ public class ProtocolHandler {
          }
 
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
+         if (protocolManagerToUse == null) {
+            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ctx.channel().remoteAddress() == null ? null : ctx.channel().remoteAddress().toString(), ctx.channel() == null ? null : ctx.channel().localAddress() == null ? null : ctx.channel().localAddress().toString(), protocolToUse, protocolMap.keySet().toString());
+            return;
+         }
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();
          ChannelPipeline pipeline = ctx.pipeline();
          protocolManagerToUse.addChannelHandlers(pipeline);
