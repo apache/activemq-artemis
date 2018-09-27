@@ -41,4 +41,13 @@ public interface SendAcknowledgementHandler {
     * @param message message sent asynchronously
     */
    void sendAcknowledged(Message message);
+
+   default void sendFailed(Message message, Exception e) {
+      /**
+       * By default ignore failures to preserve compatibility with existing implementations.
+       * If the message makes it to the broker and a failure occurs sendAcknowledge() will
+       * still be invoked just like it always was.
+       */
+   }
+
 }

@@ -100,6 +100,7 @@ public class CreateQueueMessage extends PacketImpl {
       return temporary;
    }
 
+   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }
