@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -109,13 +110,9 @@ public final class ActiveMQJMSProducer implements JMSProducer {
     * @throws JMSException
     */
    private void setProperties(Message message) throws JMSException {
-      properties.forEach((k, v) -> {
-         try {
-            message.setObjectProperty(k.toString(), v);
-         } catch (JMSException e) {
-            throw JmsExceptionUtils.convertToRuntimeException(e);
-         }
-      });
+      for (SimpleString name : properties.getPropertyNames()) {
+         message.setObjectProperty(name.toString(), properties.getProperty(name));
+      }
    }
 
    @Override
@@ -514,7 +511,13 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public Set<String> getPropertyNames() {
       try {
-         return properties.getMapNames();
+         Set<SimpleString> simplePropNames = properties.getPropertyNames();
+         Set<String> propNames = new HashSet<>(simplePropNames.size());
+
+         for (SimpleString str : simplePropNames) {
+            propNames.add(str.toString());
+         }
+         return propNames;
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       } catch (RuntimeException e) {

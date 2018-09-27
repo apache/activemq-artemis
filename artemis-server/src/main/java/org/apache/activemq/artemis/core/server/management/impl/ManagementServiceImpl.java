@@ -679,7 +679,9 @@ public class ManagementServiceImpl implements ManagementService {
 
                if (notification.getProperties() != null) {
                   TypedProperties props = notification.getProperties();
-                  props.forEach(notificationMessage::putObjectProperty);
+                  for (SimpleString name : notification.getProperties().getPropertyNames()) {
+                     notificationMessage.putObjectProperty(name, props.getProperty(name));
+                  }
                }
 
                notificationMessage.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(notification.getType().toString()));
