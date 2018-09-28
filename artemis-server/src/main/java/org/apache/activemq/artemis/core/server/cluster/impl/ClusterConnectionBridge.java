@@ -350,6 +350,16 @@ public class ClusterConnectionBridge extends BridgeImpl {
       filterString += "!" + storeAndForwardPrefix;
       filterString += ",!" + managementAddress;
       filterString += ",!" + managementNotificationAddress;
+      final String originalFilterString = filterString;
+      for (String ignoredPrefix : clusterManager.getIgnoredAddressPrefixes()) {
+         final String ignoredPrefixPredicate = "!" + ignoredPrefix;
+         if (!originalFilterString.contains(ignoredPrefixPredicate)) {
+            if (originalFilterString.contains(ignoredPrefix)) {
+               logger.warnf("%s will be ignored even if configured differently: please consider removing it from cluster configuration", ignoredPrefix);
+            }
+            filterString += "," + ignoredPrefixPredicate;
+         }
+      }
       return filterString;
    }
 

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire;
 
+import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -23,6 +25,8 @@ import org.apache.activemq.artemis.selector.impl.LRUCache;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +36,18 @@ public class OpenWireProtocolManagerTest {
 
    OpenWireProtocolManager underTest;
    LRUCache lruCacheRef;
+
+   @Test
+   public void testAdvisoryTopicsAddedToIgnoredUponCreation() {
+      final ActiveMQServer server = new DummyServer();
+      final ClusterManager clusterManager = server.getClusterManager();
+      Assert.assertThat(clusterManager.getIgnoredAddressPrefixes(),
+                        CoreMatchers.not(CoreMatchers.hasItem(AdvisorySupport.ADVISORY_TOPIC_PREFIX)));
+      final OpenWireProtocolManager protocolManager = new OpenWireProtocolManager(null, server);
+      Assert.assertTrue(protocolManager.isSupportAdvisory());
+      Assert.assertThat(clusterManager.getIgnoredAddressPrefixes(),
+                        CoreMatchers.hasItem(AdvisorySupport.ADVISORY_TOPIC_PREFIX));
+   }
 
    @Test
    public void testVtAutoConversion() throws Exception {
@@ -68,9 +84,13 @@ public class OpenWireProtocolManagerTest {
 
    static final class DummyServer extends ActiveMQServerImpl {
 
+      private final ClusterManager clusterManager = new ClusterManager(getExecutorFactory(), this, null,
+                                                                       null, null, null,
+                                                                       null, false);
+
       @Override
       public ClusterManager getClusterManager() {
-         return new ClusterManager(getExecutorFactory(), this, null, null, null, null, null, false);
+         return clusterManager;
       }
 
       @Override

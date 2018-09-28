@@ -154,6 +154,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       if (cc != null) {
          cc.addClusterTopologyListener(this);
       }
+      if (supportAdvisory) {
+         clusterManager.addToIgnoredAddressPrefixes(AdvisorySupport.ADVISORY_TOPIC_PREFIX);
+      }
    }
 
    @Override
