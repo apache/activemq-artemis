@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Disconnect
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
@@ -72,7 +71,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQue
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage;
@@ -83,7 +81,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAG
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAJoinMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResumeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
@@ -91,7 +88,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAS
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage_V2;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CHECK_FOR_FAILOVER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY;
@@ -188,23 +184,11 @@ public abstract class PacketDecoder implements Serializable {
             break;
          }
          case EXCEPTION: {
-            if (connection.isVersionBeforeAsyncResponseChange()) {
-               packet = new ActiveMQExceptionMessage();
-            } else {
-               packet = new ActiveMQExceptionMessage_V2();
-            }
+            packet = new ActiveMQExceptionMessage();
             break;
          }
          case PACKETS_CONFIRMED: {
             packet = new PacketsConfirmedMessage();
-            break;
-         }
-         case NULL_RESPONSE: {
-            if (connection.isVersionBeforeAsyncResponseChange()) {
-               packet = new NullResponseMessage();
-            } else {
-               packet = new NullResponseMessage_V2();
-            }
             break;
          }
          case CREATESESSION: {
@@ -332,11 +316,7 @@ public abstract class PacketDecoder implements Serializable {
             break;
          }
          case SESS_XA_RESP: {
-            if (connection.isVersionBeforeAsyncResponseChange()) {
-               packet = new SessionXAResponseMessage();
-            } else {
-               packet = new SessionXAResponseMessage_V2();
-            }
+            packet = new SessionXAResponseMessage();
             break;
          }
          case SESS_XA_ROLLBACK: {
@@ -403,16 +383,16 @@ public abstract class PacketDecoder implements Serializable {
             packet = new SessionIndividualAcknowledgeMessage();
             break;
          }
+         case NULL_RESPONSE: {
+            packet = new NullResponseMessage();
+            break;
+         }
          case SESS_RECEIVE_CONTINUATION: {
             packet = new SessionReceiveContinuationMessage();
             break;
          }
          case SESS_SEND_CONTINUATION: {
-            if (connection.isVersionBeforeAsyncResponseChange()) {
-               packet = new SessionSendContinuationMessage();
-            } else {
-               packet = new SessionSendContinuationMessage_V2();
-            }
+            packet = new SessionSendContinuationMessage();
             break;
          }
          case SESS_PRODUCER_REQUEST_CREDITS: {

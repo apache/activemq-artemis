@@ -167,24 +167,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
 
       @Override
       public void onException(Message message, Exception exception) {
-         latch.countDown();
-         try {
-            switch (call) {
-               case 0:
-                  context.rollback();
-                  break;
-               case 1:
-                  context.commit();
-                  break;
-               case 2:
-                  context.close();
-                  break;
-               default:
-                  throw new IllegalArgumentException("call code " + call);
-            }
-         } catch (Exception error1) {
-            this.error = error1;
-         }
+         // TODO Auto-generated method stub
       }
 
    }

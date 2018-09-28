@@ -60,7 +60,6 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl {
       return messageID;
    }
 
-   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }

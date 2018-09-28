@@ -53,7 +53,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReq
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V2;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
@@ -91,10 +90,8 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
 
       if (connection.isVersionBeforeAddressChange()) {
          sendMessage = new SessionSendMessage_1X(new CoreMessage(this.coreMessageObjectPools));
-      } else if (connection.isVersionBeforeAsyncResponseChange()) {
-         sendMessage = new SessionSendMessage(new CoreMessage(this.coreMessageObjectPools));
       } else {
-         sendMessage = new SessionSendMessage_V2(new CoreMessage(this.coreMessageObjectPools));
+         sendMessage = new SessionSendMessage(new CoreMessage(this.coreMessageObjectPools));
       }
 
       sendMessage.decode(in);

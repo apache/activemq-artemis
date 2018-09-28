@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class ActiveMQExceptionMessage extends PacketImpl {
 
-   protected ActiveMQException exception;
+   private ActiveMQException exception;
 
    // Static --------------------------------------------------------
 

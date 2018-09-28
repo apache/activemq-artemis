@@ -51,7 +51,6 @@ public class SessionAcknowledgeMessage extends PacketImpl {
       return messageID;
    }
 
-   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }

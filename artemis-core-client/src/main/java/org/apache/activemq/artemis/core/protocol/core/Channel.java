@@ -211,9 +211,6 @@ public interface Channel {
     */
    void setCommandConfirmationHandler(CommandConfirmationHandler handler);
 
-   void setResponseHandler(ResponseHandler handler);
-
-
    /**
     * flushes any confirmations on to the connection.
     */

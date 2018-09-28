@@ -80,7 +80,6 @@ public class CreateSharedQueueMessage extends PacketImpl {
       return filterString;
    }
 
-   @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
    }

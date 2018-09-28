@@ -34,8 +34,6 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -566,14 +564,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       private final ActiveMQMessageProducer producer;
 
       /**
-       * It's possible that this SendAcknowledgementHandler might be called twice due to subsequent
-       * packet confirmations on the same connection. Using this boolean avoids that possibility.
-       * A new CompletionListenerWrapper is created for each message sent so once it's called once
-       * it will never be called again.
-       */
-      private AtomicBoolean active = new AtomicBoolean(true);
-
-      /**
        * @param jmsMessage
        * @param producer
        */
@@ -587,62 +577,26 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
       @Override
       public void sendAcknowledged(org.apache.activemq.artemis.api.core.Message clientMessage) {
-         if (active.get()) {
-            if (jmsMessage instanceof StreamMessage) {
-               try {
-                  ((StreamMessage) jmsMessage).reset();
-               } catch (JMSException e) {
-                  // HORNETQ-1209 XXX ignore?
-               }
-            }
-            if (jmsMessage instanceof BytesMessage) {
-               try {
-                  ((BytesMessage) jmsMessage).reset();
-               } catch (JMSException e) {
-                  // HORNETQ-1209 XXX ignore?
-               }
-            }
-
+         if (jmsMessage instanceof StreamMessage) {
             try {
-               producer.connection.getThreadAwareContext().setCurrentThread(true);
-               completionListener.onCompletion(jmsMessage);
-            } finally {
-               producer.connection.getThreadAwareContext().clearCurrentThread(true);
-               active.set(false);
+               ((StreamMessage) jmsMessage).reset();
+            } catch (JMSException e) {
+               // HORNETQ-1209 XXX ignore?
             }
          }
-      }
-
-      @Override
-      public void sendFailed(org.apache.activemq.artemis.api.core.Message clientMessage, Exception exception) {
-         if (active.get()) {
-            if (jmsMessage instanceof StreamMessage) {
-               try {
-                  ((StreamMessage) jmsMessage).reset();
-               } catch (JMSException e) {
-                  // HORNETQ-1209 XXX ignore?
-               }
-            }
-            if (jmsMessage instanceof BytesMessage) {
-               try {
-                  ((BytesMessage) jmsMessage).reset();
-               } catch (JMSException e) {
-                  // HORNETQ-1209 XXX ignore?
-               }
-            }
-
+         if (jmsMessage instanceof BytesMessage) {
             try {
-               producer.connection.getThreadAwareContext().setCurrentThread(true);
-               if (exception instanceof ActiveMQException) {
-                  exception = JMSExceptionHelper.convertFromActiveMQException((ActiveMQException) exception);
-               } else if (exception instanceof ActiveMQInterruptedException) {
-                  exception = JMSExceptionHelper.convertFromActiveMQException((ActiveMQInterruptedException) exception);
-               }
-               completionListener.onException(jmsMessage, exception);
-            } finally {
-               producer.connection.getThreadAwareContext().clearCurrentThread(true);
-               active.set(false);
+               ((BytesMessage) jmsMessage).reset();
+            } catch (JMSException e) {
+               // HORNETQ-1209 XXX ignore?
             }
+         }
+
+         try {
+            producer.connection.getThreadAwareContext().setCurrentThread(true);
+            completionListener.onCompletion(jmsMessage);
+         } finally {
+            producer.connection.getThreadAwareContext().clearCurrentThread(true);
          }
       }
 
