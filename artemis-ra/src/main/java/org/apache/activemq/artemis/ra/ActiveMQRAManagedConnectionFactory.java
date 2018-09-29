@@ -42,10 +42,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * Serial version UID
     */
    static final long serialVersionUID = -1452379518562456741L;
-   /**
-    * Trace enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * The resource adapter
@@ -76,7 +72,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * Constructor
     */
    public ActiveMQRAManagedConnectionFactory() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
 
@@ -93,7 +89,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public Object createConnectionFactory() throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.debug("createConnectionFactory()");
       }
 
@@ -109,7 +105,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public Object createConnectionFactory(final ConnectionManager cxManager) throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("createConnectionFactory(" + cxManager + ")");
       }
 
@@ -117,7 +113,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
 
       ActiveMQRAConnectionFactory cf = new ActiveMQRAConnectionFactoryImpl(this, cm);
 
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("Created connection factory: " + cf +
                                           ", using connection manager: " +
                                           cm);
@@ -136,7 +132,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    @Override
    public ManagedConnection createManagedConnection(final Subject subject,
                                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("createManagedConnection(" + subject + ", " + cxRequestInfo + ")");
       }
 
@@ -144,13 +140,13 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
 
       ActiveMQRACredential credential = ActiveMQRACredential.getCredential(this, subject, cri);
 
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("jms credential: " + credential);
       }
 
       ActiveMQRAManagedConnection mc = new ActiveMQRAManagedConnection(this, cri, ra, credential.getUserName(), credential.getPassword());
 
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("created new managed connection: " + mc);
       }
 
@@ -186,7 +182,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    public ManagedConnection matchManagedConnections(final Set connectionSet,
                                                     final Subject subject,
                                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("matchManagedConnections(" + connectionSet +
                                           ", " +
                                           subject +
@@ -198,7 +194,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       ActiveMQRAConnectionRequestInfo cri = getCRI((ActiveMQRAConnectionRequestInfo) cxRequestInfo);
       ActiveMQRACredential credential = ActiveMQRACredential.getCredential(this, subject, cri);
 
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("Looking for connection matching credentials: " + credential);
       }
 
@@ -209,7 +205,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
 
             if ((mc.getUserName() == null || mc.getUserName() != null && mc.getUserName().equals(credential.getUserName())) && mcf.equals(this)) {
                if (cri.equals(mc.getCRI())) {
-                  if (ActiveMQRAManagedConnectionFactory.trace) {
+                  if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
                      ActiveMQRALogger.LOGGER.trace("Found matching connection: " + mc);
                   }
 
@@ -219,7 +215,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
          }
       }
 
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("No matching connection was found");
       }
 
@@ -234,7 +230,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public void setLogWriter(final PrintWriter out) throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setLogWriter(" + out + ")");
       }
    }
@@ -247,7 +243,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public PrintWriter getLogWriter() throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getLogWriter()");
       }
 
@@ -261,7 +257,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public ResourceAdapter getResourceAdapter() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getResourceAdapter()");
       }
 
@@ -282,7 +278,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setResourceAdapter(" + ra + ")");
       }
 
@@ -302,7 +298,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public boolean equals(final Object obj) {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("equals(" + obj + ")");
       }
 
@@ -326,7 +322,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    @Override
    public int hashCode() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("hashCode()");
       }
 
@@ -342,7 +338,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The value
     */
    public String getSessionDefaultType() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getSessionDefaultType()");
       }
 
@@ -355,7 +351,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param type either javax.jms.Topic or javax.jms.Queue
     */
    public void setSessionDefaultType(final String type) {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setSessionDefaultType(" + type + ")");
       }
 
@@ -639,7 +635,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return the useTryLock.
     */
    public Integer getUseTryLock() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getUseTryLock()");
       }
 
@@ -652,7 +648,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param useTryLock the useTryLock.
     */
    public void setUseTryLock(final Integer useTryLock) {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setUseTryLock(" + useTryLock + ")");
       }
 
@@ -665,7 +661,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The metadata
     */
    public ConnectionMetaData getMetaData() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getMetadata()");
       }
 
@@ -678,7 +674,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The properties
     */
    protected ActiveMQRAMCFProperties getProperties() {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getProperties()");
       }
 
@@ -692,7 +688,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The instance
     */
    private ActiveMQRAConnectionRequestInfo getCRI(final ActiveMQRAConnectionRequestInfo info) {
-      if (ActiveMQRAManagedConnectionFactory.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getCRI(" + info + ")");
       }
 

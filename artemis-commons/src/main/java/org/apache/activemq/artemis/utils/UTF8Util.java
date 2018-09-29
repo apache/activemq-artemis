@@ -32,9 +32,6 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
  */
 public final class UTF8Util {
 
-
-   private static final boolean isTrace = ActiveMQUtilLogger.LOGGER.isTraceEnabled();
-
    private static final ThreadLocal<SoftReference<StringUtilBuffer>> currentBuffer = new ThreadLocal<>();
 
    private UTF8Util() {
@@ -88,7 +85,7 @@ public final class UTF8Util {
 
       final int stringLength = str.length();
 
-      if (UTF8Util.isTrace) {
+      if (ActiveMQUtilLogger.LOGGER.isTraceEnabled()) {
          // This message is too verbose for debug, that's why we are using trace here
          ActiveMQUtilLogger.LOGGER.trace("Saving string with utfSize=" + len + " stringSize=" + stringLength);
       }
@@ -186,7 +183,7 @@ public final class UTF8Util {
 
       final int size = input.readUnsignedShort();
 
-      if (UTF8Util.isTrace) {
+      if (ActiveMQUtilLogger.LOGGER.isTraceEnabled()) {
          // This message is too verbose for debug, that's why we are using trace here
          ActiveMQUtilLogger.LOGGER.trace("Reading string with utfSize=" + size);
       }
