@@ -25,11 +25,6 @@ import javax.jms.MessageListener;
 public class ActiveMQRAMessageListener implements MessageListener {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * The message listener
     */
    private final MessageListener listener;
@@ -46,7 +41,7 @@ public class ActiveMQRAMessageListener implements MessageListener {
     * @param consumer the consumer
     */
    public ActiveMQRAMessageListener(final MessageListener listener, final ActiveMQRAMessageConsumer consumer) {
-      if (ActiveMQRAMessageListener.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + listener + ", " + consumer + ")");
       }
 
@@ -61,7 +56,7 @@ public class ActiveMQRAMessageListener implements MessageListener {
     */
    @Override
    public void onMessage(Message message) {
-      if (ActiveMQRAMessageListener.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("onMessage(" + message + ")");
       }
 
