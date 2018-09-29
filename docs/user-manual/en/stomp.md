@@ -46,50 +46,105 @@ extremely useful for debugging or simply monitoring client activity. Along with
 the STOMP frame itself the remote IP address of the client is logged as well as
 the internal connection ID so that frames from the same client can be correlated.
 
-## Sending
+## Routing Semantics
+
+The STOMP specification is intentionally ambiguous about message routing
+semantics. When providing an overview of the protocol the STOMP 1.2 specification
+[says](https://stomp.github.io/stomp-specification-1.2.html#Protocol_Overview):
+
+```
+A STOMP server is modelled as a set of destinations to which messages can be sent.
+The STOMP protocol treats destinations as opaque string and their syntax is
+server implementation specific. Additionally STOMP does not define what the
+delivery semantics of destinations should be. The delivery, or
+"message exchange", semantics of destinations can vary from server to server and
+even from destination to destination. This allows servers to be creative with the
+semantics that they can support with STOMP.
+```
+
+Therefore, there are a handful of different ways to specify which semantics are
+desired both on the client-side and broker-side.
+
+### Configuring Routing Semantics from the Client Side
+
+#### Sending
 
 When a STOMP client sends a message (using a `SEND` frame), the protocol
-manager looks at the message to determine where to route it and potentially how
-to create the address and/or queue to which it is being sent. The protocol
-manager uses either of the following bits of information from the frame to
-determine the routing type:
+manager looks at the `destination-type` header to determine where to route
+it and potentially how to create the address and/or queue to which it is
+being sent. Valid values are `ANYCAST` and `MULTICAST` (case sensitive).
+If no indication of routing type is supplied (either by the client or the
+broker) then the default defined in the corresponding
+`default-address-routing-type` & `default-queue-routing-type`
+address-settings will be used as necessary.
 
-1. The value of the `destination-type` header. Valid values are `ANYCAST` and
-   `MULTICAST` (case sensitive).
+The `destination` header maps to an address of the same name if `MULTICAST` is
+used and additionally to a queue of the same name if `ANYCAST` is used.
 
-2. The "prefix" on the `destination` header. See [additional
-   info](address-model.md#using-prefixes-to-determine-routing-type) on
-   prefixes.
-
-If no indication of routing type is supplied then the default defined in the
-corresponding `default-address-routing-type` & `default-queue-routing-type`
-address-settings will be used.
-
-The `destination` header maps to an address of the same name. If the
-`destination` header used a prefix then the prefix is stripped.
-
-## Subscribing
+#### Subscribing
 
 When a STOMP client subscribes to a destination (using a `SUBSCRIBE` frame),
-the protocol manager looks at the frame to determine what subscription
-semantics to use and potentially how to create the address and/or queue for the
-subscription. The protocol manager uses either of the following bits of
-information from the frame to determine the routing type:
-
-1. The value of the `subscription-type` header. Valid values are `ANYCAST` and
-   `MULTICAST` (case sensitive).
-
-2. The "prefix" on the `destination` header. See [additional
-   info](address-model.md#using-prefixes-to-determine-routing-type) on
-   prefixes.
-
-If no indication of routing type is supplied then the default defined in the
+the protocol manager looks at the `subscription-type` header frame to determine
+what subscription semantics to use and potentially how to create the address
+and/or queue for the subscription. If no indication of routing type is
+supplied (either by the client or the broker) then the default defined in the
 corresponding `default-address-routing-type` & `default-queue-routing-type`
-address-settings will be used.
+address-settings will be used as necessary.
 
-The `destination` header maps to an address of the same name if multicast is
-used or to a queue of the same name if anycast is used. If the `destination`
-header used a prefix then the prefix is stripped.
+The `destination` header maps to an address of the same name if `MULTICAST` is
+used and additionally to a queue of the same name if `ANYCAST` is used.
+
+### Configuring Routing Semantics from the Broker side
+
+On the broker-side there are two main options for specifying routing semantics -
+prefixes and address settings
+
+#### Prefixes
+
+Using prefixes involves specifying the `anycastPrefix` and/or the
+`multicastPrefix` on the acceptor which the STOMP client is using. For the STOMP
+use-case these prefixes tell the broker that destinations using them should be
+treated as anycast or multicast. For example, if the acceptor has
+`anycastPrefix=queue/` then when a STOMP client sends a message to
+`destination:queue/foo` the broker will auto-create the address `foo` and queue
+`foo` appropriately as anycast and the message will be placed in that queue.
+Additionally, if the acceptor has `multicastPrefix=topic/` then when a STOMP
+client sends a message to `destination:topic/bar` the broker will auto-create
+the address bar as multicast, but it won't create a queue since multicast
+(i.e. pub/sub) semantics require a client to explicitly create a subscription
+to receive those messages.
+
+Note: The `anycastPrefix` and/or `multicastPrefix` on the acceptor will be
+stripped from the `destination` value.
+
+#### Address Settings
+
+Using address settings involves defining address-setting elements whose `match`
+corresponds with the destination names the clients will use along with the proper
+`delimiter` to enabled matching. For example, broker.xml could use the following:
+
+```xml
+<address-settings>
+   <address-setting match="queue/#">
+      <default-address-routing-type>ANYCAST</default-address-routing-type>
+      <default-queue-routing-type>ANYCAST</default-queue-routing-type>
+   </address>
+   <address-setting match="topic/#">
+      <default-address-routing-type>MULTICAST</default-address-routing-type>
+      <default-queue-routing-type>MULTICAST</default-queue-routing-type>
+   </address>
+</address-settings>
+<wildcard-addresses>
+   <delimiter>/</delimiter>
+</wildcard-addresses>
+```
+
+Then if a STOMP client sends a message to `destination:queue/foo` the broker will
+auto-create the address `queue/foo` and queue `queue/foo` appropriately as
+anycast and the message will be placed in that queue. Additionally, if a STOMP
+client sends a message to `destination:topic/bar` the broker will auto-create the
+address `topic/bar` as multicast, but it won't create a queue as previously
+explained.
 
 ## STOMP heart-beating and connection-ttl
 
