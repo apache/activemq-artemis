@@ -329,7 +329,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void removingBackupData(String path);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221056, value = "Reloading configuration ...{0}",
+   @Message(id = 221056, value = "Reloading configuration: {0}",
       format = Message.Format.MESSAGE_FORMAT)
    void reloadingConfiguration(String module);
 
@@ -1602,6 +1602,16 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222275, value = "Failed to deploy queue {0}: {1}",
       format = Message.Format.MESSAGE_FORMAT)
    void problemDeployingQueue(String queueName, String message);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222276, value = "Failed to process changes to the logging configuration file: {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void loggingReloadFailed(String configFile, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222277, value = "Problem initializing automatic logging configuration reload for {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void problemAddingConfigReloadCallback(String propertyName, @Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

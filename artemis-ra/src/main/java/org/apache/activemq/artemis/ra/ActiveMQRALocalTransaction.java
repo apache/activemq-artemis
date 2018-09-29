@@ -26,11 +26,6 @@ import javax.resource.spi.LocalTransaction;
 public class ActiveMQRALocalTransaction implements LocalTransaction {
 
    /**
-    * Trace enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * The managed connection
     */
    private final ActiveMQRAManagedConnection mc;
@@ -41,7 +36,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     * @param mc The managed connection
     */
    public ActiveMQRALocalTransaction(final ActiveMQRAManagedConnection mc) {
-      if (ActiveMQRALocalTransaction.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + mc + ")");
       }
 
@@ -55,7 +50,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void begin() throws ResourceException {
-      if (ActiveMQRALocalTransaction.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("begin()");
       }
 
@@ -69,7 +64,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void commit() throws ResourceException {
-      if (ActiveMQRALocalTransaction.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("commit()");
       }
 
@@ -93,7 +88,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void rollback() throws ResourceException {
-      if (ActiveMQRALocalTransaction.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("rollback()");
       }
 
