@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -124,6 +125,7 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.LoggingConfigurationFileReloader;
 import org.apache.activemq.artemis.core.server.MemoryManager;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -2572,6 +2574,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
          reloadManager.addCallback(configuration.getConfigurationUrl(), new ConfigurationFileReloader());
+      }
+
+      if (System.getProperty("logging.configuration") != null) {
+         try {
+            reloadManager.addCallback(new URI(System.getProperty("logging.configuration")).toURL(), new LoggingConfigurationFileReloader());
+         } catch (Exception e) {
+            // a syntax error with the logging system property shouldn't prevent the server from starting
+            ActiveMQServerLogger.LOGGER.problemAddingConfigReloadCallback(System.getProperty("logging.configuration"), e);
+         }
       }
 
       if (hasBrokerPlugins()) {
