@@ -16,21 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-/**
- * Logger Code 22
- *
- * each message id must be 6 digits long starting with 10, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 101000 to 101999
- */
-
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -68,6 +53,21 @@ import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 import org.w3c.dom.Node;
+
+/**
+ * Logger Code 22
+ *
+ * each message id must be 6 digits long starting with 22, the 3rd digit donates the level so
+ *
+ * INF0  1
+ * WARN  2
+ * DEBUG 3
+ * ERROR 4
+ * TRACE 5
+ * FATAL 6
+ *
+ * so an INFO message would be 221000 to 221999
+ */
 
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQServerLogger extends BasicLogger {
