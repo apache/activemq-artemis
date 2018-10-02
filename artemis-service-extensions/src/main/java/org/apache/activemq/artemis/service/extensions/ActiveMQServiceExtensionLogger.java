@@ -24,9 +24,9 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
- * Logger Code 34
+ * Logger Code 35
  *
- * each message id must be 6 digits long starting with 20, the 3rd digit donates the level so
+ * each message id must be 6 digits long starting with 35, the 3rd digit donates the level so
  *
  * INF0  1
  * WARN  2
@@ -35,7 +35,7 @@ import org.jboss.logging.annotations.MessageLogger;
  * TRACE 5
  * FATAL 6
  *
- * so an INFO message would be 341000 to 341999
+ * so an INFO message would be 351000 to 351999
  */
 
 @MessageLogger(projectCode = "AMQ")
@@ -47,6 +47,6 @@ public interface ActiveMQServiceExtensionLogger extends BasicLogger {
    ActiveMQServiceExtensionLogger LOGGER = Logger.getMessageLogger(ActiveMQServiceExtensionLogger.class, ActiveMQServiceExtensionLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342000, value = "Attempted to locate a Transaction Manager but none found.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 352000, value = "Attempted to locate a Transaction Manager but none found.", format = Message.Format.MESSAGE_FORMAT)
    void transactionManagerNotFound();
 }
