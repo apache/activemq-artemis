@@ -27,7 +27,7 @@ import java.io.File;
 /**
  * Logger Code 24
  *
- * each message id must be 6 digits long starting with 18, the 3rd digit donates the level so
+ * each message id must be 6 digits long starting with 24, the 3rd digit donates the level so
  *
  * INF0  1
  * WARN  2
