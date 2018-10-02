@@ -16,16 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
+import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.command.ActiveMQTopic;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
 
@@ -148,6 +152,30 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
       } finally {
          conn1.close();
          conn2.close();
+      }
+   }
+
+   @Test
+   public void testAdvisoryTopicTempQueueIsNotClustered() throws Exception {
+      final Connection connNode1 = openWireCf1.createConnection();
+      connNode1.start();
+      final Connection connNode2 = openWireCf2.createConnection();
+      connNode2.start();
+      try {
+         final Session sessionNode1 = connNode1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         final Queue tempQueue = sessionNode1.createTemporaryQueue();
+         waitForBindings(0, tempQueue.getQueueName(), 1, 0, true);
+         final ActiveMQTopic advisoryTopic = AdvisorySupport.getDestinationAdvisoryTopic(tempQueue);
+         waitForBindings(0, advisoryTopic.getTopicName(), 1, 1, true);
+         final Session session2 = connNode2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         final MessageConsumer consumer = session2.createConsumer(advisoryTopic);
+         final Queue tempQueue2 = sessionNode1.createTemporaryQueue();
+         waitForBindings(0, tempQueue2.getQueueName(), 1, 0, true);
+         final Message receive = consumer.receive(1000);
+         Assert.assertNull(receive);
+      } finally {
+         connNode1.close();
+         connNode2.close();
       }
    }
 

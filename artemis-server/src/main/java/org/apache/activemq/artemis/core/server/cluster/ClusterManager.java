@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -53,7 +54,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
@@ -61,6 +61,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -147,6 +148,8 @@ public final class ClusterManager implements ActiveMQComponent {
 
    private final NodeManager nodeManager;
 
+   private final CopyOnWriteArraySet<String> ignoredPrefixes;
+
    public ClusterManager(final ExecutorFactory executorFactory,
                          final ActiveMQServer server,
                          final PostOffice postOffice,
@@ -174,6 +177,8 @@ public final class ClusterManager implements ActiveMQComponent {
       clusterController = new ClusterController(server, scheduledExecutor);
 
       haManager = server.getActivation().getHAManager();
+
+      this.ignoredPrefixes = new CopyOnWriteArraySet<>();
    }
 
    public String describe() {
@@ -190,6 +195,27 @@ public final class ClusterManager implements ActiveMQComponent {
       out.println("*******************************************************");
 
       return str.toString();
+   }
+
+   /**
+    * It adds {@code addressPrefix} to the {@link Set} of ignored address prefixes to be used
+    * when creating a cluster connection to filter the addresses that won't be clustered.
+    * <p>
+    * It is safe to call it from different threads.
+    *
+    * @return {@code true} if did not already contain the specified {@code addressPrefix}
+    */
+   public boolean addToIgnoredAddressPrefixes(String addressPrefix) {
+      return ignoredPrefixes.add(addressPrefix);
+   }
+
+   /**
+    * It returns the {@link Set} of ignored address prefixes.
+    * <p>
+    * It's safe to call it from different threads and use it temporarily, but not to modify it.
+    */
+   public Set<String> getIgnoredAddressPrefixes() {
+      return ignoredPrefixes;
    }
 
    /**
