@@ -967,6 +967,13 @@ public class PagingStoreImpl implements PagingStore {
       return;
    }
 
+   @Override
+   public void destroy() throws Exception {
+      if (fileFactory != null) {
+         storeFactory.removeFileFactory(fileFactory);
+      }
+   }
+
    private static class FinishPageMessageOperation implements TransactionOperation {
 
       private final PageTransactionInfo pageTransaction;

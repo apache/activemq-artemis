@@ -2588,6 +2588,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       JournalLoadInformation[] journalInfo = loadJournals();
 
+      removeExtraAddressStores();
+
       final ServerInfo dumper = new ServerInfo(this, pagingManager);
 
       long dumpInfoInterval = configuration.getServerDumpInterval();
@@ -3446,6 +3448,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       AtomicInteger i = connectedClientIds.get(clientId);
       if (i != null && i.decrementAndGet() == 0) {
          connectedClientIds.remove(clientId);
+      }
+   }
+
+   private void removeExtraAddressStores() throws Exception {
+      SimpleString[] storeNames = pagingManager.getStoreNames();
+      if (storeNames != null && storeNames.length > 0) {
+         for (SimpleString storeName : storeNames) {
+            if (getAddressInfo(storeName) == null) {
+               pagingManager.deletePageStore(storeName);
+            }
+         }
       }
    }
 
