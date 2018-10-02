@@ -1920,6 +1920,82 @@ public class AMQPMessageTest {
       }
    }
 
+   @Test
+   public void testGetSendBufferWithoutDeliveryAnnotations() {
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      Header header = new Header();
+      header.setDeliveryCount(new UnsignedInteger(1));
+      protonMessage.setHeader(header);
+      Properties properties = new Properties();
+      properties.setTo("someNiceLocal");
+      protonMessage.setProperties(properties);
+      protonMessage.setBody(new AmqpValue("Sample payload"));
+
+      DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(new HashMap<>());
+      final String annotationKey = "annotationKey";
+      final String annotationValue = "annotationValue";
+      deliveryAnnotations.getValue().put(Symbol.getSymbol(annotationKey), annotationValue);
+      protonMessage.setDeliveryAnnotations(deliveryAnnotations);
+
+      AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
+
+      ReadableBuffer sendBuffer = decoded.getSendBuffer(1);
+      assertEquals(decoded.getEncodeSize(), sendBuffer.capacity());
+      AMQPMessage msgFromSendBuffer = new AMQPMessage(0, sendBuffer, null, null);
+      assertEquals("someNiceLocal", msgFromSendBuffer.getAddress());
+      assertNull(msgFromSendBuffer.getDeliveryAnnotations());
+
+      // again with higher deliveryCount
+      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5);
+      assertEquals(decoded.getEncodeSize(), sendBuffer2.capacity());
+      AMQPMessage msgFromSendBuffer2 = new AMQPMessage(0, sendBuffer2, null, null);
+      assertEquals("someNiceLocal", msgFromSendBuffer2.getAddress());
+      assertNull(msgFromSendBuffer2.getDeliveryAnnotations());
+   }
+
+   @Test
+   public void testGetSendBufferWithDeliveryAnnotations() {
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      Header header = new Header();
+      header.setDeliveryCount(new UnsignedInteger(1));
+      protonMessage.setHeader(header);
+      Properties properties = new Properties();
+      properties.setTo("someNiceLocal");
+      protonMessage.setProperties(properties);
+      protonMessage.setBody(new AmqpValue("Sample payload"));
+
+      AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
+
+      DeliveryAnnotations newDeliveryAnnotations = new DeliveryAnnotations(new HashMap<>());
+      final String annotationKey = "annotationKey";
+      final String annotationValue = "annotationValue";
+      newDeliveryAnnotations.getValue().put(Symbol.getSymbol(annotationKey), annotationValue);
+      decoded.setDeliveryAnnotationsForSendBuffer(newDeliveryAnnotations);
+
+      ReadableBuffer sendBuffer = decoded.getSendBuffer(1);
+      assertEquals(decoded.getEncodeSize(), sendBuffer.capacity());
+      AMQPMessage msgFromSendBuffer = new AMQPMessage(0, sendBuffer, null, null);
+      assertEquals("someNiceLocal", msgFromSendBuffer.getAddress());
+      assertNotNull(msgFromSendBuffer.getDeliveryAnnotations());
+      assertEquals(1, msgFromSendBuffer.getDeliveryAnnotations().getValue().size());
+      assertEquals(annotationValue, msgFromSendBuffer.getDeliveryAnnotations().getValue().get(Symbol.getSymbol(annotationKey)));
+
+      // again with higher deliveryCount
+      DeliveryAnnotations newDeliveryAnnotations2 = new DeliveryAnnotations(new HashMap<>());
+      final String annotationKey2 = "annotationKey2";
+      final String annotationValue2 = "annotationValue2";
+      newDeliveryAnnotations2.getValue().put(Symbol.getSymbol(annotationKey2), annotationValue2);
+      decoded.setDeliveryAnnotationsForSendBuffer(newDeliveryAnnotations2);
+
+      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5);
+      assertEquals(decoded.getEncodeSize(), sendBuffer2.capacity());
+      AMQPMessage msgFromSendBuffer2 = new AMQPMessage(0, sendBuffer2, null, null);
+      assertEquals("someNiceLocal", msgFromSendBuffer2.getAddress());
+      assertNotNull(msgFromSendBuffer2.getDeliveryAnnotations());
+      assertEquals(1, msgFromSendBuffer2.getDeliveryAnnotations().getValue().size());
+      assertEquals(annotationValue2, msgFromSendBuffer2.getDeliveryAnnotations().getValue().get(Symbol.getSymbol(annotationKey2)));
+   }
+
    //----- Test Support ------------------------------------------------------//
 
    private MessageImpl createProtonMessage() {
