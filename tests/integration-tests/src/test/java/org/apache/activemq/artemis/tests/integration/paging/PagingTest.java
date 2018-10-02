@@ -6220,6 +6220,75 @@ public class PagingTest extends ActiveMQTestBase {
       server.stop();
    }
 
+   @Test
+   public void testPagingStoreDestroyed() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+      server.start();
+
+      final int numberOfMessages = 5000;
+
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, false, false);
+
+      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      ClientMessage message = null;
+
+      byte[] body = new byte[MESSAGE_SIZE];
+
+      ByteBuffer bb = ByteBuffer.wrap(body);
+
+      for (int j = 1; j <= MESSAGE_SIZE; j++) {
+         bb.put(getSamplebyte(j));
+      }
+
+      for (int i = 0; i < numberOfMessages; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(body);
+
+         producer.send(message);
+         if (i % 1000 == 0) {
+            session.commit();
+         }
+      }
+      session.commit();
+      producer.close();
+      assertTrue(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      assertTrue(server.getPagingManager().getPageStore(PagingTest.ADDRESS).isPaging());
+
+      session.deleteQueue(PagingTest.ADDRESS);
+      session.close();
+      sf.close();
+      locator.close();
+      locator = null;
+      sf = null;
+      assertFalse(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      // Ensure pagingStore is physically deleted
+      server.getPagingManager().reloadStores();
+      assertFalse(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      server.stop();
+
+      server.start();
+      assertFalse(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      // Ensure pagingStore is physically deleted
+      server.getPagingManager().reloadStores();
+      assertFalse(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      server.stop();
+   }
+
    @Override
    protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
       Configuration configuration = super.createDefaultConfig(serverID, netty);

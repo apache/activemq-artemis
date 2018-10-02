@@ -155,12 +155,12 @@ public class JDBCSequentialFile implements SequentialFile {
       }
    }
 
-   private synchronized int internalWrite(byte[] data, IOCallback callback) {
+   private synchronized int internalWrite(byte[] data, IOCallback callback, boolean append) {
       try {
          open();
          synchronized (writeLock) {
-            int noBytes = dbDriver.writeToFile(this, data);
-            seek(noBytes);
+            int noBytes = dbDriver.writeToFile(this, data, append);
+            seek(append ? writePosition + noBytes : noBytes);
             if (logger.isTraceEnabled()) {
                logger.trace("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
             }
@@ -177,18 +177,22 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback) {
+      return internalWrite(buffer, callback, true);
+   }
+
+   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback, boolean append) {
       byte[] data = new byte[buffer.readableBytes()];
       buffer.readBytes(data);
-      return internalWrite(data, callback);
+      return internalWrite(data, callback, append);
    }
 
    private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) {
-      return internalWrite(buffer.array(), callback);
+      return internalWrite(buffer.array(), callback, true);
    }
 
-   private void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback) {
+   private void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback, boolean append) {
       executor.execute(() -> {
-         internalWrite(bytes, callback);
+         internalWrite(bytes, callback, append);
       });
    }
 
@@ -199,13 +203,17 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    synchronized void seek(long noBytes) {
-      writePosition += noBytes;
+      writePosition = noBytes;
+   }
+
+   public void write(ActiveMQBuffer bytes, boolean sync, IOCallback callback, boolean append) throws Exception {
+      // We ignore sync since we schedule writes straight away.
+      scheduleWrite(bytes, callback, append);
    }
 
    @Override
    public void write(ActiveMQBuffer bytes, boolean sync, IOCallback callback) throws Exception {
-      // We ignore sync since we schedule writes straight away.
-      scheduleWrite(bytes, callback);
+      write(bytes, sync, callback, true);
    }
 
    @Override
@@ -217,7 +225,7 @@ public class JDBCSequentialFile implements SequentialFile {
    public void write(EncodingSupport bytes, boolean sync, IOCallback callback) throws Exception {
       ActiveMQBuffer data = ActiveMQBuffers.fixedBuffer(bytes.getEncodeSize());
       bytes.encode(data);
-      scheduleWrite(data, callback);
+      write(data, sync, callback, true);
    }
 
    @Override
