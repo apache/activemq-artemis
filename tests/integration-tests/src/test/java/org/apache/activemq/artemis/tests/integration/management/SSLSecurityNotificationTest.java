@@ -16,24 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -41,13 +47,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
-import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_PERMISSION_VIOLATION;
 
-public class SecurityNotificationTest extends ActiveMQTestBase {
+public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
+   static {
+      String path = System.getProperty("java.security.auth.login.config");
+      if (path == null) {
+         URL resource = SecurityTest.class.getClassLoader().getResource("login.config");
+         if (resource != null) {
+            path = resource.getFile();
+            System.setProperty("java.security.auth.login.config", path);
+         }
+      }
+   }
 
    private ActiveMQServer server;
 
@@ -57,98 +69,69 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
    private SimpleString notifQueue;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
-
    @Test
    public void testSECURITY_AUTHENTICATION_VIOLATION() throws Exception {
-      String unknownUser = RandomUtil.randomString();
+      SSLSecurityNotificationTest.flush(notifConsumer);
 
-      SecurityNotificationTest.flush(notifConsumer);
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "bad-client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
 
-      ServerLocator locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
       try {
-         sf.createSession(unknownUser, RandomUtil.randomString(), false, true, true, false, 1);
+         sf.createSession();
          Assert.fail("authentication must fail and a notification of security violation must be sent");
       } catch (Exception e) {
       }
 
-      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
+      ClientMessage[] notifications = SSLSecurityNotificationTest.consumeMessages(1, notifConsumer);
       Assert.assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertEquals(unknownUser, notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
-      Assert.assertEquals("unavailable", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
-      Assert.assertEquals("invm:0", notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString());
+      Assert.assertEquals(null, notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
+      Assert.assertEquals("CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      Assert.assertTrue(notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
    }
-
-   @Test
-   public void testSECURITY_PERMISSION_VIOLATION() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
-
-      // guest can not create queue
-      Role role = new Role("roleCanNotCreateQueue", true, true, false, true, false, true, true, true, true, true);
-      Set<Role> roles = new HashSet<>();
-      roles.add(role);
-      server.getSecurityRepository().addMatch(address.toString(), roles);
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.getConfiguration().addRole("guest", "roleCanNotCreateQueue");
-
-      SecurityNotificationTest.flush(notifConsumer);
-
-      ServerLocator locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
-      ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
-
-      try {
-         guestSession.createQueue(address, queue, true);
-         Assert.fail("session creation must fail and a notification of security violation must be sent");
-      } catch (Exception e) {
-      }
-
-      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
-      Assert.assertEquals(SECURITY_PERMISSION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
-      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
-      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
-
-      guestSession.close();
-   }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
-      Configuration config = createDefaultInVMConfig().setSecurityEnabled(true);
-      server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
       server.start();
 
       notifQueue = RandomUtil.randomSimpleString();
-
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.getConfiguration().addUser("admin", "admin");
-      securityManager.getConfiguration().addUser("guest", "guest");
-      securityManager.getConfiguration().setDefaultUser("guest");
 
       Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), roles);
 
-      securityManager.getConfiguration().addRole("admin", "notif");
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
 
-      ServerLocator locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
-      adminSession = sf.createSession("admin", "admin", false, true, true, false, 1);
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      adminSession = sf.createSession(true, true, 1);
       adminSession.start();
 
       adminSession.createTemporaryQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue);
