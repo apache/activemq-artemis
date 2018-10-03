@@ -746,7 +746,7 @@ un-formatted result of a call to `java.lang.System.currentTimeMillis()`.
 
 - `SECURITY_AUTHENTICATION_VIOLATION` (6)
 
-  `_AMQ_User`
+  `_AMQ_User`, `_AMQ_CertSubjectDN`, `_AMQ_RemoteAddress`
 
 - `SECURITY_PERMISSION_VIOLATION` (7)
 
