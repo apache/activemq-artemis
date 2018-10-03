@@ -487,6 +487,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       SERVER_STATE originalState = state;
       try {
          internalStart();
+      } catch (Throwable t) {
+         ActiveMQServerLogger.LOGGER.failedToStartServer(t);
       } finally {
          if (originalState == SERVER_STATE.STOPPED) {
             networkHealthCheck.setTimeUnit(TimeUnit.MILLISECONDS).setPeriod(configuration.getNetworkCheckPeriod()).
