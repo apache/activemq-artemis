@@ -84,4 +84,142 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
          }
       }
    }
+
+   @Test
+   public void testTwoTopicSubsSameNameAutoVirtualTopicFQQN() throws Exception {
+      Connection connection = null;
+
+      SimpleString topic1 = new SimpleString("VirtualTopic.Orders1");
+      SimpleString topic2 = new SimpleString("VirtualTopic.Orders2");
+
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
+
+      try {
+         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(urlString);
+         activeMQConnectionFactory.setWatchTopicAdvisories(false);
+         connection = activeMQConnectionFactory.createConnection();
+         connection.start();
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination1 = session.createTopic(topic1.toString());
+         Destination destination2 = session.createTopic(topic2.toString());
+
+         MessageConsumer messageConsumer1 = session.createConsumer(session.createQueue("Consumer.A." + topic1.toString()));
+         MessageConsumer messageConsumer2 = session.createConsumer(session.createQueue("Consumer.A." + topic2.toString()));
+
+         MessageProducer producer = session.createProducer(null);
+         TextMessage message = session.createTextMessage("This is a text message to 1");
+         producer.send(destination1, message);
+         message = session.createTextMessage("This is a text message to 2");
+         producer.send(destination2, message);
+
+
+         TextMessage messageReceived1 = (TextMessage) messageConsumer1.receive(2000);
+         TextMessage messageReceived2 = (TextMessage) messageConsumer2.receive(2000);
+
+         assertNotNull(messageReceived1);
+         assertNotNull(messageReceived2);
+
+         String text = messageReceived1.getText();
+         assertEquals("This is a text message to 1", text);
+
+         text = messageReceived2.getText();
+         assertEquals("This is a text message to 2", text);
+
+         messageConsumer1.close();
+         messageConsumer2.close();
+
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+
+   @Test
+   public void testAutoVirtualTopicWildcardFQQN() throws Exception {
+      Connection connection = null;
+
+      SimpleString topicA = new SimpleString("VirtualTopic.Orders.A");
+      SimpleString topicB = new SimpleString("VirtualTopic.Orders.B");
+      SimpleString topic = new SimpleString("VirtualTopic.Orders.>");
+
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
+
+      try {
+         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(urlString);
+         activeMQConnectionFactory.setWatchTopicAdvisories(false);
+         connection = activeMQConnectionFactory.createConnection();
+         connection.start();
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createTopic(topicA.toString() + "," + topicB.toString());
+
+         MessageConsumer messageConsumerA = session.createConsumer(session.createQueue("Consumer.A." + topic.toString()));
+        // MessageConsumer messageConsumerB = session.createConsumer(session.createQueue("Consumer.B." + topic.toString()));
+
+         MessageProducer producer = session.createProducer(destination);
+         TextMessage message = session.createTextMessage("This is a text message");
+         producer.send(message);
+
+         TextMessage messageReceivedA = (TextMessage) messageConsumerA.receive(2000);
+         TextMessage messageReceivedB = (TextMessage) messageConsumerA.receive(2000);
+
+         assertTrue((messageReceivedA != null && messageReceivedB != null));
+         String text = messageReceivedA.getText();
+         assertEquals("This is a text message", text);
+
+         messageConsumerA.close();
+
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testAutoVirtualTopicWildcardStarFQQN() throws Exception {
+      Connection connection = null;
+
+      SimpleString topicA = new SimpleString("VirtualTopic.Orders.A");
+      SimpleString topicB = new SimpleString("VirtualTopic.Orders.B");
+      SimpleString topic = new SimpleString("VirtualTopic.Orders.*");
+
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
+      this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
+
+      try {
+         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(urlString);
+         activeMQConnectionFactory.setWatchTopicAdvisories(false);
+         connection = activeMQConnectionFactory.createConnection();
+         connection.start();
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createTopic(topicA.toString() + "," + topicB.toString());
+
+         MessageConsumer messageConsumerA = session.createConsumer(session.createQueue("Consumer.A." + topic.toString()));
+
+         MessageProducer producer = session.createProducer(destination);
+         TextMessage message = session.createTextMessage("This is a text message");
+         producer.send(message);
+
+         TextMessage messageReceivedA = (TextMessage) messageConsumerA.receive(2000);
+         TextMessage messageReceivedB = (TextMessage) messageConsumerA.receive(2000);
+
+         assertTrue((messageReceivedA != null && messageReceivedB != null));
+         String text = messageReceivedA.getText();
+         assertEquals("This is a text message", text);
+
+         messageConsumerA.close();
+
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
 }

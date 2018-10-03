@@ -18,7 +18,7 @@ Address.
 The example sends a message to a topic (using openwire protocol) and an openwire consumer listens on the backing queue
 using the ActiveMQ 5.x virtual topic naming convention. Due to the acceptor url parameter `virtualTopicConsumerWildcards`,
 (see below), Artemis maps the consumer consuming from `Consumer.A.VirtualTopic.Orders` to actually consume from
-FQQN of `VirtualTopic.Orders::Consumer.A`
+FQQN of `VirtualTopic.Orders::Consumer.A.VirtualTopic.Orders`
 
 
 ```xml

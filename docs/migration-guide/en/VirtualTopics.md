@@ -33,7 +33,7 @@ For example, a default 5.x consumer destination for topic `VirtualTopic.Orders` 
 would be replaced with an Artemis FQQN comprised of the address and queue.
 ```
     ...
-    Queue subscriptionQueue = session.createQueue("VirtualTopic.Orders::Consumer.A");
+    Queue subscriptionQueue = session.createQueue("VirtualTopic.Orders::Consumer.A.VirtualTopic.Orders");
     session.createConsumer(subscriptionQueue);
 ```
 
@@ -49,7 +49,7 @@ E.g: For the default 5.x virtual topic consumer prefix of ```Consumer.*.``` the 
 However, there is a caveat because this value needs to be encoded in a uri for the xml configuration. Any unsafe url characters
 , in this case: ```> ;``` need to be escaped with their hex code point representation; leading to a value of ```Consumer.*.%3E%3B2```. 
 In this way a consumer destination of ```Consumer.A.VirtualTopic.Orders``` will be transformed into a FQQN of
-```VirtualTopic.Orders::Consumer.A```. 
+```VirtualTopic.Orders::Consumer.A.VirtualTopic.Orders```.
 
 
 Durable topic subscribers in a network of brokers
