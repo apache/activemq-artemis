@@ -657,8 +657,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
                fqqn.append(paths[i]);
             }
             fqqn.append(CompositeAddress.SEPARATOR);
-            // consumer queue
-            for (int i = 0; i < filterPathTerminus; i++) {
+            // consumer queue - the full vt queue
+            for (int i = 0; i < paths.length; i++) {
                if (i > 0) {
                   fqqn.append(ActiveMQDestination.PATH_SEPERATOR);
                }
