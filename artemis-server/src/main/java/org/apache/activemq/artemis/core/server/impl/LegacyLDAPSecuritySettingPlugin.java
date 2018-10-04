@@ -326,30 +326,46 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          return;
       }
       LdapName searchResultLdapName = new LdapName(searchResult.getName());
-      logger.debug("LDAP search result : " + searchResultLdapName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("LDAP search result : " + searchResultLdapName);
+      }
       String permissionType = null;
       String destination = null;
       String destinationType = "unknown";
-      for (Rdn rdn : searchResultLdapName.getRdns()) {
-         if (rdn.getType().equals("cn")) {
-            logger.debug("\tPermission type: " + rdn.getValue());
-            permissionType = rdn.getValue().toString();
+      List<Rdn> rdns = searchResultLdapName.getRdns();
+      if (rdns.size() != 3) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("\tSkipping unexpected search result with " + rdns.size() + " RDNs.");
          }
-         if (rdn.getType().equals("uid")) {
-            logger.debug("\tDestination name: " + rdn.getValue());
-            destination = rdn.getValue().toString();
-         }
-         if (rdn.getType().equals("ou")) {
-            String rawDestinationType = rdn.getValue().toString();
-            if (rawDestinationType.toLowerCase().contains("queue")) {
-               destinationType = "queue";
-            } else if (rawDestinationType.toLowerCase().contains("topic")) {
-               destinationType = "topic";
-            }
-            logger.debug("\tDestination type: " + destinationType);
-         }
+         return;
       }
-      logger.debug("\tAttributes: " + attrs);
+      // we can count on the RNDs being in order from right to left
+      Rdn rdn = rdns.get(0);
+      String rawDestinationType = rdn.getValue().toString();
+      if (rawDestinationType.toLowerCase().contains("queue")) {
+         destinationType = "queue";
+      } else if (rawDestinationType.toLowerCase().contains("topic")) {
+         destinationType = "topic";
+      }
+      if (logger.isDebugEnabled()) {
+         logger.debug("\tDestination type: " + destinationType);
+      }
+
+      rdn = rdns.get(1);
+      if (logger.isDebugEnabled()) {
+         logger.debug("\tDestination name: " + rdn.getValue());
+      }
+      destination = rdn.getValue().toString();
+
+      rdn = rdns.get(2);
+      if (logger.isDebugEnabled()) {
+         logger.debug("\tPermission type: " + rdn.getValue());
+      }
+      permissionType = rdn.getValue().toString();
+
+      if (logger.isDebugEnabled()) {
+         logger.debug("\tAttributes: " + attrs);
+      }
       Attribute attr = attrs.get(roleAttribute);
       NamingEnumeration<?> e = attr.getAll();
       Set<Role> roles = securityRoles.get(destination);
@@ -363,9 +379,11 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       while (e.hasMore()) {
          String value = (String) e.next();
          LdapName ldapname = new LdapName(value);
-         Rdn rdn = ldapname.getRdn(ldapname.size() - 1);
+         rdn = ldapname.getRdn(ldapname.size() - 1);
          String roleName = rdn.getValue().toString();
-         logger.debug("\tRole name: " + roleName);
+         if (logger.isDebugEnabled()) {
+            logger.debug("\tRole name: " + roleName);
+         }
          Role role = new Role(roleName,
                               permissionType.equalsIgnoreCase(writePermissionValue), // send
                               permissionType.equalsIgnoreCase(readPermissionValue),  // consume
