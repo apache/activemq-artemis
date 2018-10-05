@@ -9,7 +9,7 @@ before_install: rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
 # use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
 script: 
 - set -e
-- mvn -Pfast-tests -Pextra-tests -B install -q
+- mvn -Pfast-tests -Pextra-tests -B install -q -pl '!artemis-web'
 - cd examples
 - mvn install -Prelease install -B -q
 
