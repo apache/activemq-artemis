@@ -1711,7 +1711,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224030, value = "Could not cancel reference {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorCancellingRefOnBridge(@Cause Exception e, MessageReference ref2);
 
-   @LogMessage(level = Logger.Level.ERROR)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 224031, value = "-------------------------------Stomp begin tx: {0}", format = Message.Format.MESSAGE_FORMAT)
    void stompBeginTX(String txID);
 
