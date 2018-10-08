@@ -581,7 +581,7 @@ own `create-next` URL. The `msg-create-with-id` header looks like this
 msg-create-with-id: http://example.com/queues/bar/create/{id}
 ```
 
-You see that it is a regular URL appended with a `{id}`. This `{id}` is
+You see that it is a regular URL appended with an `{id}`. This `{id}` is
 a pattern matching substring. A client would generate its
 `DUPLICATE_DETECTION_ID` and replace `{id}` with that generated id, then
 POST to the new URL. The URL the client creates works exactly like a
