@@ -273,7 +273,7 @@ HA strategy Replication for `slave`:
 
 - `allow-failback`
 
-  Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over
+  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over
 
 - `initial-replication-sync-timeout`
 
@@ -464,7 +464,7 @@ HA strategy Shared Store for `slave`:
 
 - `allow-failback`
 
-  Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over.
+  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over.
 
 #### Colocated Backup Servers
 

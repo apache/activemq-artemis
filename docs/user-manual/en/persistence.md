@@ -3,7 +3,7 @@
 Apache ActiveMQ Artemis ships with two persistence options.  The file journal which is 
 highly optimized for the messaging use case and gives great performance, and also the
 JDBC Store, which uses JDBC to connect to a database of your choice.  The JDBC Store is 
-still under development, but it is possible to use it's journal features, (essentially 
+still under development, but it is possible to use its journal features, (essentially
 everything except for paging and large messages).
 
 ## File Journal (Default)
@@ -114,7 +114,7 @@ The standard Apache ActiveMQ Artemis core server uses two instances of the journ
   fall back to using Java NIO which is available on any Java platform.
 
   The files on this journal are prefixed as `activemq-data`. Each file
-  has a `amq` extension. File size is by the default `10485760`
+  has an `amq` extension. File size is by the default `10485760`
   (configurable), and it is located at the journal folder.
 
 For large messages, Apache ActiveMQ Artemis persists them outside the message journal.
@@ -444,7 +444,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
   
 - `page-store-table-name`
 
-  The name of the table to house the page store directory information.  Note that each address will have it's own page table which will use this name appended with a unique id of up to 20 characters.
+  The name of the table to house the page store directory information.  Note that each address will have its own page table which will use this name appended with a unique id of up to 20 characters.
 
 - `node-manager-store-table-name`
 

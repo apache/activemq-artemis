@@ -920,7 +920,7 @@ The `GSSAPI` SASL mechanism must be enabled  on the AMQP acceptor in
 ```
 
 The GSSAPI mechanism implementation on the server will use a JAAS configuration
-scope named `amqp-sasl-gssapi` to obtain it's Kerberos acceptor credentials. An
+scope named `amqp-sasl-gssapi` to obtain its Kerberos acceptor credentials. An
 alternative configuration scope can be specified on the AMQP acceptor using the
 url parameter: `saslLoginConfigScope=<some other scope>`.
 
