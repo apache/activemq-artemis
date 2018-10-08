@@ -38,14 +38,14 @@ sent or received:
   Guarantees that a particular message is only ever received by the subscriber
   a maximum of one time. This does mean that the message may never arrive.  The
   sender and the receiver will attempt to deliver the message, but if something
-  fails and the message does not reach it's destination (say due to a network
+  fails and the message does not reach its destination (say due to a network
   connection) the message may be lost. This QoS has the least network traffic
   overhead and the least burden on the client and the broker and is often useful
   for telemetry data where it doesn't matter if some of the data is lost.
 
 - QoS 1: `AT LEAST ONCE`
 
-  Guarantees that a message will reach it's intended recipient one or more
+  Guarantees that a message will reach its intended recipient one or more
   times.  The sender will continue to send the message until it receives an
   acknowledgment from the recipient, confirming it has received the message. The
   result of this QoS is that the recipient may receive the message multiple

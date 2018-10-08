@@ -128,7 +128,7 @@ passed to its constructor.
 
   - `ONCE_AND_ONLY_ONCE`
 
-  See Quality Of Service section for a explanation of these modes.
+  See Quality Of Service section for an explanation of these modes.
 
 - Max Batch Size
 
