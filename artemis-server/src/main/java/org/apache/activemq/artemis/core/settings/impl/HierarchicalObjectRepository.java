@@ -150,6 +150,22 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       }
    }
 
+   @Override
+   public Map<String, T> map() {
+      lock.readLock().lock();
+      try {
+         Map<String, T> values = new HashMap<>(matches.size());
+
+         for (Entry<String, Match<T>> entry : matches.entrySet()) {
+            values.put(entry.getKey(), entry.getValue().getValue());
+         }
+
+         return values;
+      } finally {
+         lock.readLock().unlock();
+      }
+   }
+
    /**
     * Add a new match to the repository
     *
@@ -159,6 +175,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    @Override
    public void addMatch(final String match, final T value, final boolean immutableMatch) {
       addMatch(match, value, immutableMatch, true);
+   }
+
+   @Override
+   public void addMatches(final Map<String, T> matches, final boolean immutableMatch) {
+      for (Map.Entry<String, T> entry : matches.entrySet()) {
+         addMatch(entry.getKey(), entry.getValue(), immutableMatch, false);
+      }
+
+      onChange();
    }
 
    private void addMatch(final String match, final T value, final boolean immutableMatch, boolean notifyListeners) {
