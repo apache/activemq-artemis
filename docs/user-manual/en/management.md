@@ -386,7 +386,7 @@ controlled via the `set*`, `get*` and `is*`.  The `*` access is the catch all
 for everything other method that isn't specifically matched.
 
 The `default-access` element is basically the catch all for every method call
-that isn't handled via the `role-access` configuration.  This has teh same
+that isn't handled via the `role-access` configuration.  This has the same
 semantics as a `match` element.
 
 > **Note:**

@@ -488,7 +488,7 @@ If a user requires to pre-create a queue that behaves like a non-durable
 subscription queue the **purge-on-no-consumers** flag can be enabled on the
 queue.  When **purge-on-no-consumers** is set to **true**.  The queue will not
 start receiving messages until a consumer is attached.  When the last consumer
-is detached from the queue.  The queue is purged (it's messages are removed)
+is detached from the queue.  The queue is purged (its messages are removed)
 and will not receive any more messages until a new consumer is attached.
 
 Open the file `<broker-instance>/etc/broker.xml` for editing.

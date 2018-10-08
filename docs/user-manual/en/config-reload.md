@@ -78,7 +78,7 @@ defined.
 > security-sensitive operation.
 
 Below lists the effects of adding, deleting and updating of an
-element/attribute within the `<security-settings>` element, whether an change
+element/attribute within the `<security-settings>` element, whether a change
 can be done or can’t be done.
 
 Operation | Add | Delete | Update
@@ -114,7 +114,7 @@ broker. It contains a list of `<address-setting>` elements.
    > `config-delete-queues` as described in the doc.
 
 Below lists the effects of adding, deleting and updating of an
-element/attribute within the address-settings element, whether an change can be
+element/attribute within the address-settings element, whether a change can be
 done or can’t be done.
 
 Operation | Add | Delete | Update
@@ -166,7 +166,7 @@ and several sub-elements that defines the properties of a divert.
 > this happen you need a restart of the broker.
 
 Below lists the effects of adding, deleting and updating of an
-element/attribute within the diverts element, whether an change can be done or
+element/attribute within the diverts element, whether a change can be done or
 can’t be done.
 
 Operation | Add | Delete | Update
@@ -201,7 +201,7 @@ all `<address>` elements in `<addresses>` will be reloaded.
 > `config-delete-queues` as described in this doc.
 
 Below lists the effects of adding, deleting and updating of an
-element/attribute within the `<addresses>` element, whether an change can be
+element/attribute within the `<addresses>` element, whether a change can be
 done or can’t be done.
 
 Operation | Add | Delete | Update
@@ -210,7 +210,7 @@ Operation | Add | Delete | Update
 `<address>` | A new address will be deployed in the running broker | The corresponding address will be undeployed. | N/A
 attribute `name` | N/A | X | After reloading the address of the old name will be undeployed and the new will be deployed.
 `<anycast>` | X(no more than one is present) | The anycast routing type will be undeployed from this address, as well as its containing queues after reloading | N/A
-`<queue>`(under `<anycast>`) | A anycast queue will be deployed after reloading | The anycast queue will be undeployed | For updating queues please see next section `<queues>`
+`<queue>`(under `<anycast>`) | An anycast queue will be deployed after reloading | The anycast queue will be undeployed | For updating queues please see next section `<queues>`
 `<multicast>` | X(no more than one is present) | The multicast routing type will be undeployed from this address, as well as its containing queues after reloading | N/A
 `<queue>`(under `<multicast>`) | A multicast queue will be deployed after reloading | The multicast queue will be undeployed | For updating queues please see next section `<queues>`
 
@@ -232,7 +232,7 @@ The `<queues>` element contains a list `<queue>` elements. Once changed, all
 > `config-delete-queues` as described in this doc.
 
 Below lists the effects of adding, deleting and updating of an
-element/attribute within the `<queues>` element, and whether an change can be
+element/attribute within the `<queues>` element, and whether a change can be
 done or can’t be done.
 
 Operation | Add | Delete | Update
