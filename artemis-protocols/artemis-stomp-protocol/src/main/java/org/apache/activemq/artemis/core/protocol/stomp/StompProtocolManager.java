@@ -400,7 +400,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
 
    public void beginTransaction(StompConnection connection, String txID) throws Exception {
-      ActiveMQServerLogger.LOGGER.stompBeginTX(txID);
+      ActiveMQServerLogger.LOGGER.debugf("-------------------------------Stomp begin tx: %s", txID);
       if (transactedSessions.containsKey(txID)) {
          ActiveMQServerLogger.LOGGER.stompErrorTXExists(txID);
          throw new ActiveMQStompException(connection, "Transaction already started: " + txID);
