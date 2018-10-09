@@ -183,7 +183,7 @@ codec other than the default one. For example
 Both ra.xml and MDB activation configuration have a `password` property that
 can be masked preferably using `ENC()` syntax.
 
-Alternatively it can use a optional attribute in ra.xml to indicate that a
+Alternatively it can use an optional attribute in ra.xml to indicate that a
 password is masked:
 
 `UseMaskedPassword` -- If setting to "true" the passwords are masked.  Default
