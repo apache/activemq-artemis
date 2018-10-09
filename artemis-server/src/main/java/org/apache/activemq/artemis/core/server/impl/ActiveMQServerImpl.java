@@ -164,6 +164,7 @@ import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
@@ -256,6 +257,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final NetworkHealthCheck networkHealthCheck = new NetworkHealthCheck(ActiveMQDefaultConfiguration.getDefaultNetworkCheckNic(), ActiveMQDefaultConfiguration.getDefaultNetworkCheckPeriod(), ActiveMQDefaultConfiguration.getDefaultNetworkCheckTimeout());
 
    private final HierarchicalRepository<Set<Role>> securityRepository;
+
+   private final SecurityRepositoryChangeListener securityRepositoryChangeListener = new SecurityRepositoryChangeListener();
 
    private volatile ResourceManager resourceManager;
 
@@ -421,7 +424,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       addressSettingsRepository.setDefault(new AddressSettings());
 
       securityRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration());
-
+      securityRepository.registerListener(securityRepositoryChangeListener);
+      securityRepositoryChangeListener.enable();
       securityRepository.setDefault(new HashSet<Role>());
 
       this.parentServer = parentServer;
@@ -2672,9 +2676,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void deploySecurityFromConfiguration() {
-      for (Map.Entry<String, Set<Role>> entry : configuration.getSecurityRoles().entrySet()) {
-         securityRepository.addMatch(entry.getKey(), entry.getValue(), true);
-      }
+      securityRepository.addMatches(configuration.getSecurityRoles(), true);
+
 
       for (SecuritySettingPlugin securitySettingPlugin : configuration.getSecuritySettingPlugins()) {
          securitySettingPlugin.setSecurityRepository(securityRepository);
@@ -2891,12 +2894,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       List<PersistedRoles> roles = storageManager.recoverPersistedRoles();
+      if (!roles.isEmpty()) {
+         Map<String, Set<Role>> matches = new HashMap<>(roles.size());
+         for (PersistedRoles roleItem : roles) {
+            Set<Role> setRoles = SecurityFormatter.createSecurity(roleItem.getSendRoles(), roleItem.getConsumeRoles(), roleItem.getCreateDurableQueueRoles(), roleItem.getDeleteDurableQueueRoles(), roleItem.getCreateNonDurableQueueRoles(), roleItem.getDeleteNonDurableQueueRoles(), roleItem.getManageRoles(), roleItem.getBrowseRoles(), roleItem.getCreateAddressRoles(), roleItem.getDeleteAddressRoles());
 
-      for (PersistedRoles roleItem : roles) {
-         Set<Role> setRoles = SecurityFormatter.createSecurity(roleItem.getSendRoles(), roleItem.getConsumeRoles(), roleItem.getCreateDurableQueueRoles(), roleItem.getDeleteDurableQueueRoles(), roleItem.getCreateNonDurableQueueRoles(), roleItem.getDeleteNonDurableQueueRoles(), roleItem.getManageRoles(), roleItem.getBrowseRoles(), roleItem.getCreateAddressRoles(), roleItem.getDeleteAddressRoles());
-
-         securityRepository.addMatch(roleItem.getAddressMatch().toString(), setRoles);
+            matches.put(roleItem.getAddressMatch().toString(), setRoles);
+         }
+         securityRepository.addMatches(matches, false);
       }
+
+
    }
 
    @Override
@@ -3517,4 +3525,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return externalComponents;
    }
 
+   private class SecurityRepositoryChangeListener implements HierarchicalRepositoryChangeListener {
+
+      private volatile boolean enabled;
+
+      @Override
+      public void onChange() {
+         if (enabled) {
+            configuration.setSecurityRoles(securityRepository.map());
+         }
+      }
+
+      public synchronized void enable() {
+         enabled = true;
+      }
+
+      public synchronized void disable() {
+         enabled = false;
+      }
+   }
 }

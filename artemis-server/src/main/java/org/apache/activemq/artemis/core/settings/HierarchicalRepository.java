@@ -56,6 +56,13 @@ public interface HierarchicalRepository<T> {
    List<T> values();
 
    /**
+    * Return a map of match and values being added
+    *
+    * @return
+    */
+   Map<String, T> map();
+
+   /**
     * set the default value to fallback to if none found
     *
     * @param defaultValue the value
@@ -99,6 +106,8 @@ public interface HierarchicalRepository<T> {
     * Clears the cache.
     */
    void clearCache();
+
+   void addMatches(Map<String, T> matches, boolean immutableMatch);
 
    int getCacheSize();
 }
