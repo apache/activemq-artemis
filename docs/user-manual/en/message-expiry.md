@@ -6,7 +6,7 @@ Apache ActiveMQ Artemis will not deliver a message to a consumer after it's
 time to live has been exceeded. If the message hasn't been delivered by the
 time that time to live is reached the server can discard it.
 
-Apache ActiveMQ Artemis's addresses can be assigned a expiry address so that,
+Apache ActiveMQ Artemis's addresses can be assigned an expiry address so that,
 when messages are expired, they are removed from the queue and sent to the
 expiry address. Many different queues can be bound to an expiry address.  These
 *expired* messages can later be consumed for further inspection.

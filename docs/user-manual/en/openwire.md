@@ -89,7 +89,7 @@ destination into a FQQN address. This address then represents the consumer as a
 multicast binding to an address representing the virtual topic. 
 
 The configuration string property `virtualTopicConsumerWildcards` has two parts
-seperated by a `;`. The first is the 5.x style destination filter that
+separated by a `;`. The first is the 5.x style destination filter that
 identifies the destination as belonging to a virtual topic. The second
 identifies the number of `paths` that identify the consumer queue such that it
 can be parsed from the destination. For example, the default 5.x virtual topic

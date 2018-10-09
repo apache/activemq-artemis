@@ -21,7 +21,7 @@ JMS 2.0 adds the possibility of shared subscriptions with new API's that are ful
 Fully Qualified Queue name (FQQN)
 ---------------------------------
 Secondly, Artemis uses a queue per topic subscriber model internally and it is possibly to directly address the
-subscription queue using it's Fully Qualified Queue name (FQQN).
+subscription queue using its Fully Qualified Queue name (FQQN).
 
 For example, a default 5.x consumer destination for topic `VirtualTopic.Orders` subscription `A`:
 ```
@@ -46,7 +46,7 @@ the virtual topic consumer destination and an int that specifies the number of p
 queue identity.
 
 E.g: For the default 5.x virtual topic consumer prefix of ```Consumer.*.``` the parameter ```virtualTopicConsumerWildcards``` should be: ```Consumer.*.>;2```.
-However, there is a caveat because this value needs to be a encoded in a uri for the xml configuration. Any unsafe url characters
+However, there is a caveat because this value needs to be encoded in a uri for the xml configuration. Any unsafe url characters
 , in this case: ```> ;``` need to be escaped with their hex code point representation; leading to a value of ```Consumer.*.%3E%3B2```. 
 In this way a consumer destination of ```Consumer.A.VirtualTopic.Orders``` will be transformed into a FQQN of
 ```VirtualTopic.Orders::Consumer.A```. 
