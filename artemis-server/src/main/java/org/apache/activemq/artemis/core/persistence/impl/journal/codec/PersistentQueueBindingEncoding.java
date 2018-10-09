@@ -50,6 +50,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public boolean lastValue;
 
+   public SimpleString lastValueKey;
+
+   public boolean nonDestructive;
+
    public int consumersBeforeDispatch;
 
    public long delayBeforeDispatch;
@@ -82,6 +86,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          exclusive +
          ", lastValue=" +
          lastValue +
+         ", lastValueKey=" +
+         lastValueKey +
+         ", nonDestructive=" +
+         nonDestructive +
          ", consumersBeforeDispatch=" +
          consumersBeforeDispatch +
          ", delayBeforeDispatch=" +
@@ -102,6 +110,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final boolean purgeOnNoConsumers,
                                          final boolean exclusive,
                                          final boolean lastValue,
+                                         final SimpleString lastValueKey,
+                                         final boolean nonDestructive,
                                          final int consumersBeforeDispatch,
                                          final long delayBeforeDispatch,
                                          final byte routingType,
@@ -115,6 +125,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
       this.lastValue = lastValue;
+      this.lastValueKey = lastValueKey;
+      this.nonDestructive = nonDestructive;
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       this.delayBeforeDispatch = delayBeforeDispatch;
       this.routingType = routingType;
@@ -224,6 +236,26 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public SimpleString getLastValueKey() {
+      return lastValueKey;
+   }
+
+   @Override
+   public void setLastValueKey(SimpleString lastValueKey) {
+      this.lastValueKey = lastValueKey;
+   }
+
+   @Override
+   public boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
+   @Override
+   public void setNonDestructive(boolean nonDestructive) {
+      this.nonDestructive = nonDestructive;
+   }
+
+   @Override
    public int getConsumersBeforeDispatch() {
       return consumersBeforeDispatch;
    }
@@ -309,6 +341,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          configurationManaged = false;
       }
+      if (buffer.readableBytes() > 0) {
+         lastValueKey = buffer.readNullableSimpleString();
+      } else {
+         lastValueKey = ActiveMQDefaultConfiguration.getDefaultLastValueKey();
+      }
+      if (buffer.readableBytes() > 0) {
+         nonDestructive = buffer.readBoolean();
+      } else {
+         nonDestructive = ActiveMQDefaultConfiguration.getDefaultNonDestructive();
+      }
    }
 
    @Override
@@ -326,6 +368,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeInt(consumersBeforeDispatch);
       buffer.writeLong(delayBeforeDispatch);
       buffer.writeBoolean(configurationManaged);
+      buffer.writeNullableSimpleString(lastValueKey);
+      buffer.writeBoolean(nonDestructive);
    }
 
    @Override
@@ -340,6 +384,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_INT +
          DataConstants.SIZE_LONG +
+         DataConstants.SIZE_BOOLEAN +
+         SimpleString.sizeofNullableString(lastValueKey) +
          DataConstants.SIZE_BOOLEAN;
    }
 

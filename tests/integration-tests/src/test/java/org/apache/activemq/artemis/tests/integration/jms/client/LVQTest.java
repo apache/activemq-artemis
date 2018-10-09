@@ -142,4 +142,98 @@ public class LVQTest extends JMSTestBase {
       }
    }
 
+   @Test
+   public void testLastValueKeyUsingAddressQueueParameters() throws Exception {
+      ActiveMQConnectionFactory fact = (ActiveMQConnectionFactory) getCF();
+
+      //Set the consumer window size to 0 to not buffer any messages client side.
+      fact.setConsumerWindowSize(0);
+      Connection connection = fact.createConnection();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         Queue queue = session.createQueue("random?last-value-key=reuters_code");
+         assertEquals("random", queue.getQueueName());
+
+         ActiveMQDestination a = (ActiveMQDestination) queue;
+         assertEquals("reuters_code", a.getQueueAttributes().getLastValueKey().toString());
+
+         MessageProducer producer = session.createProducer(queue);
+         MessageConsumer consumer1 = session.createConsumer(queue);
+
+         connection.start();
+         for (int j = 0; j < 100; j++) {
+            TextMessage message = session.createTextMessage();
+
+            message.setText("Message" + j);
+            message.setStringProperty("reuters_code", "key");
+            producer.send(message);
+         }
+
+         //Last message only should go to the consumer
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+
+         assertNotNull(tm);
+
+         assertEquals("Message99", tm.getText());
+
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testLastValueKeyTopicConsumerUsingAddressQueueParameters() throws Exception {
+      ActiveMQConnectionFactory fact = (ActiveMQConnectionFactory) getCF();
+
+      //Set the consumer window size to 0 to not buffer any messages client side.
+      fact.setConsumerWindowSize(0);
+      Connection connection = fact.createConnection();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         Topic topic = session.createTopic("topic?last-value-key=reuters_code");
+         assertEquals("topic", topic.getTopicName());
+
+         ActiveMQDestination a = (ActiveMQDestination) topic;
+         assertEquals("reuters_code", a.getQueueAttributes().getLastValueKey().toString());
+
+         MessageProducer producer = session.createProducer(topic);
+         MessageConsumer consumer1 = session.createConsumer(topic);
+         MessageConsumer consumer2 = session.createConsumer(topic);
+
+         connection.start();
+         for (int j = 0; j < 100; j++) {
+            TextMessage message = session.createTextMessage();
+
+            message.setText("Message" + j);
+            message.setStringProperty("reuters_code", "key");
+            producer.send(message);
+         }
+
+
+
+         //Last message only should go to the consumer.
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+
+         assertNotNull(tm);
+
+         assertEquals("Message99", tm.getText());
+
+         //Last message only should go to the other consumer as well.
+         TextMessage tm2 = (TextMessage) consumer2.receive(10000);
+
+         assertNotNull(tm2);
+
+         assertEquals("Message99", tm2.getText());
+
+      } finally {
+         connection.close();
+      }
+   }
+
 }

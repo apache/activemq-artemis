@@ -1454,6 +1454,21 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public SimpleString getLastValueKey() {
+         return null;
+      }
+
+      @Override
+      public boolean isNonDestructive() {
+         return false;
+      }
+
+      @Override
+      public void setNonDestructive(boolean nonDestructive) {
+
+      }
+
+      @Override
       public boolean isExclusive() {
          return false;
       }
