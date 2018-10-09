@@ -53,7 +53,7 @@ public class ProducerThread extends Thread {
 
    int transactions = 0;
    final AtomicInteger sentCount = new AtomicInteger(0);
-   String message;
+   String message = null;
    String messageText = null;
    String payloadUrl = null;
    byte[] payload = null;
