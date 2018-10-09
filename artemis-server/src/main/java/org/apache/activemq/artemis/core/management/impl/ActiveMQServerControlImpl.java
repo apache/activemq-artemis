@@ -41,7 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -669,6 +668,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
             output.append(", purgeOnNoConsumers=").append(queue.isPurgeOnNoConsumers());
             output.append(", autoCreateAddress=").append(queue.isAutoCreated());
+            output.append(", exclusive=").append(queue.isExclusive());
+            output.append(", lastValue=").append(queue.isLastValue());
+            output.append(", lastValueKey=").append(queue.getLastValueKey());
+            output.append(", nonDestructive=").append(queue.isNonDestructive());
+            output.append(", consumersBeforeDispatch=").append(queue.getConsumersBeforeDispatch());
+            output.append(", delayBeforeDispatch=").append(queue.getDelayBeforeDispatch());
+            output.append(", autoCreateAddress=").append(queue.isAutoCreated());
+
             output.append(']');
             return output;
          }
@@ -808,7 +815,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              boolean purgeOnNoConsumers,
                              boolean autoCreateAddress) throws Exception {
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address == null ? name : address);
-      return createQueue(address, routingType, name, filterStr, durable, maxConsumers, purgeOnNoConsumers, addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), Objects.toString(addressSettings.getDefaultLastValueKey()), addressSettings.isDefaultNonDestructive(), addressSettings.getDefaultConsumersBeforeDispatch(), addressSettings.getDefaultDelayBeforeDispatch(), autoCreateAddress);
+      return createQueue(
+              address,
+              routingType,
+              name,
+              filterStr,
+              durable,
+              maxConsumers,
+              purgeOnNoConsumers,
+              addressSettings.isDefaultExclusiveQueue(),
+              addressSettings.isDefaultLastValueQueue(),
+              addressSettings.getDefaultLastValueKey() == null ? null : addressSettings.getDefaultLastValueKey().toString(),
+              addressSettings.isDefaultNonDestructive(),
+              addressSettings.getDefaultConsumersBeforeDispatch(),
+              addressSettings.getDefaultDelayBeforeDispatch(), autoCreateAddress
+      );
    }
 
    @Override

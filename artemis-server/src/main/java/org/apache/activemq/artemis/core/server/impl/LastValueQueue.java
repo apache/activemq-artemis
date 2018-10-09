@@ -194,9 +194,11 @@ public class LastValueQueue extends QueueImpl {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
             SimpleString lastValueProp = getLastValueProperty(ref);
-            MessageReference current = map.get(lastValueProp);
-            if (current == ref) {
-               map.remove(lastValueKey);
+            if (lastValueProp != null) {
+               MessageReference current = map.get(lastValueProp);
+               if (current == ref) {
+                  map.remove(lastValueProp);
+               }
             }
             queueIterateAction.actMessage(tx, ref);
          }
