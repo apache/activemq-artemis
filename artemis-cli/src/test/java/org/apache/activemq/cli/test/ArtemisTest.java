@@ -587,6 +587,8 @@ public class ArtemisTest extends CliTestBase {
          assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
          assertEquals(Integer.valueOf(10), Artemis.internalExecute("producer", "--message-size", "500", "--message-count", "10", "--user", "admin", "--password", "admin"));
          assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("producer", "--message", "message", "--message-count", "10", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
 
          ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
          Connection connection = cf.createConnection("admin", "admin");
