@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.management.MBeanServer;
 import java.io.File;
 import java.io.IOException;
@@ -227,6 +228,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final Configuration configuration;
 
+   private final AtomicBoolean configurationReloadDeployed;
+
    private MBeanServer mbeanServer;
 
    private volatile SecurityStore securityStore;
@@ -411,6 +414,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       version = VersionLoader.getVersion();
 
       this.configuration = configuration;
+
+      this.configurationReloadDeployed = new AtomicBoolean(true);
 
       this.mbeanServer = mbeanServer;
 
@@ -2602,7 +2607,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       // Deploy the rest of the stuff
-      deployReloadableConfigFromConfiguration(configuration);
+
+      // Deploy predefined addresses
+      deployAddressesFromConfiguration();
+      // Deploy any predefined queues
+      deployQueuesFromConfiguration();
+      // Undeploy any addresses and queues not in config
+      undeployAddressesAndQueueNotInConfiguration();
+
+      //deploy any reloaded config
+      deployReloadableConfigFromConfiguration();
 
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses
       // this needs to be done before clustering is fully activated
@@ -3482,30 +3496,33 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          configuration.setDivertConfigurations(config.getDivertConfigurations());
          configuration.setAddressConfigurations(config.getAddressConfigurations());
          configuration.setQueueConfigurations(config.getQueueConfigurations());
+         configurationReloadDeployed.set(false);
          if (isActive()) {
-            deployReloadableConfigFromConfiguration(configuration);
+            deployReloadableConfigFromConfiguration();
          }
       }
    }
 
-   private void deployReloadableConfigFromConfiguration(Configuration config) throws Exception {
-      ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
-      securityRepository.swap(config.getSecurityRoles().entrySet());
+   private void deployReloadableConfigFromConfiguration() throws Exception {
+      if (configurationReloadDeployed.compareAndSet(false, true)) {
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
+         securityRepository.swap(configuration.getSecurityRoles().entrySet());
 
-      ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
-      addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
+         addressSettingsRepository.swap(configuration.getAddressesSettings().entrySet());
 
-      ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
-      for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
-         if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
-            deployDivert(divertConfig);
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+         for (DivertConfiguration divertConfig : configuration.getDivertConfigurations()) {
+            if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
+               deployDivert(divertConfig);
+            }
          }
-      }
 
-      ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
-      undeployAddressesAndQueueNotInConfiguration(config);
-      deployAddressesFromConfiguration(config);
-      deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
+         undeployAddressesAndQueueNotInConfiguration(configuration);
+         deployAddressesFromConfiguration(configuration);
+         deployQueuesFromListCoreQueueConfiguration(configuration.getQueueConfigurations());
+      }
    }
 
    public Set<ActivateCallback> getActivateCallbacks() {
