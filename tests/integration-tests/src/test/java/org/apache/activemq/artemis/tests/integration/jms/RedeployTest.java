@@ -295,8 +295,8 @@ public class RedeployTest extends ActiveMQTestBase {
             Assert.assertNotNull("Queue wasn't deployed accordingly", consumer.receive(5000));
             Assert.assertNotNull(consumer.receive(5000));
          }
-         assertEquals("Test address settings redeploy - backup", changed, backup.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
-         assertEquals("Test security settings redeploy - backup", AddressFullMessagePolicy.PAGE, backup.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
+         assertEquals("Test security settings redeploy - backup", changed, backup.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
+         assertEquals("Test address settings redeploy - backup", AddressFullMessagePolicy.PAGE, backup.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
       } finally {
          live.stop();
          backup.stop();
