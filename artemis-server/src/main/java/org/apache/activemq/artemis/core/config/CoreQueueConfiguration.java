@@ -39,6 +39,10 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Boolean lastValue;
 
+   private String lastValueKey;
+
+   private Boolean nonDestructive;
+
    private Integer maxConsumers;
 
    private Integer consumersBeforeDispatch;
@@ -78,6 +82,14 @@ public class CoreQueueConfiguration implements Serializable {
 
    public Boolean isLastValue() {
       return lastValue;
+   }
+
+   public String getLastValueKey() {
+      return lastValueKey;
+   }
+
+   public Boolean isNonDestructive() {
+      return nonDestructive;
    }
 
    public Integer getConsumersBeforeDispatch() {
@@ -170,6 +182,16 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
+   public CoreQueueConfiguration setLastValueKey(String lastValueKey) {
+      this.lastValueKey = lastValueKey;
+      return this;
+   }
+
+   public CoreQueueConfiguration setNonDestructive(Boolean nonDestructive) {
+      this.nonDestructive = nonDestructive;
+      return this;
+   }
+
    public boolean getPurgeOnNoConsumers() {
       return purgeOnNoConsumers;
    }
@@ -199,6 +221,8 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
       result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
+      result = prime * result + ((lastValueKey == null) ? 0 : lastValueKey.hashCode());
+      result = prime * result + ((nonDestructive == null) ? 0 : nonDestructive.hashCode());
       result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
       result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
       result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
@@ -254,6 +278,18 @@ public class CoreQueueConfiguration implements Serializable {
       } else if (!lastValue.equals(other.lastValue)) {
          return false;
       }
+      if (lastValueKey == null) {
+         if (other.lastValueKey != null)
+            return false;
+      } else if (!lastValueKey.equals(other.lastValueKey)) {
+         return false;
+      }
+      if (nonDestructive == null) {
+         if (other.nonDestructive != null)
+            return false;
+      } else if (!nonDestructive.equals(other.nonDestructive)) {
+         return false;
+      }
       if (consumersBeforeDispatch == null) {
          if (other.consumersBeforeDispatch != null)
             return false;
@@ -287,6 +323,8 @@ public class CoreQueueConfiguration implements Serializable {
          ", purgeOnNoConsumers=" + purgeOnNoConsumers +
          ", exclusive=" + exclusive +
          ", lastValue=" + lastValue +
+         ", lastValueKey=" + lastValueKey +
+         ", nonDestructive=" + nonDestructive +
          ", consumersBeforeDispatch=" + consumersBeforeDispatch +
          ", delayBeforeDispatch=" + delayBeforeDispatch +
          "]";

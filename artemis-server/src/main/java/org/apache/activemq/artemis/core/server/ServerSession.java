@@ -167,6 +167,22 @@ public interface ServerSession extends SecurityAuth {
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable,
+                     int maxConsumers,
+                     boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean lastValue,
+                     SimpleString lastValueKey,
+                     Boolean nonDestructive,
+                     Integer consumersBeforeDispatch,
+                     Long delayBeforeDispatch,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
                      boolean autoCreated) throws Exception;
 
    Queue createQueue(AddressInfo addressInfo,
@@ -285,6 +301,20 @@ public interface ServerSession extends SecurityAuth {
                      Boolean purgeOnNoConsumers,
                      Boolean exclusive,
                      Boolean lastValue) throws Exception;
+
+   void createSharedQueue(SimpleString address,
+                          SimpleString name,
+                          RoutingType routingType,
+                          SimpleString filterString,
+                          boolean durable,
+                          Integer maxConsumers,
+                          Boolean purgeOnNoConsumers,
+                          Boolean exclusive,
+                          Boolean lastValue,
+                          SimpleString lastValueKey,
+                          Boolean nonDestructive,
+                          Integer consumersBeforeDispatch,
+                          Long delayBeforeDispatch) throws Exception;
 
    void createSharedQueue(SimpleString address,
                           SimpleString name,
