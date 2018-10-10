@@ -22,9 +22,9 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 public abstract class AtomicRunnable implements Runnable {
 
 
-   public static Runnable checkAtomic(Runnable run) {
+   public static AtomicRunnable checkAtomic(Runnable run) {
       if (run instanceof AtomicRunnable) {
-         return run;
+         return (AtomicRunnable)run;
       } else {
          return new AtomicRunnableWithDelegate(run);
       }
@@ -34,6 +34,20 @@ public abstract class AtomicRunnable implements Runnable {
 
    private static final AtomicIntegerFieldUpdater<AtomicRunnable> RAN_UPDATE =
       AtomicIntegerFieldUpdater.newUpdater(AtomicRunnable.class, "ran");
+
+   public AtomicRunnable reset() {
+      RAN_UPDATE.set(this, 0);
+      return this;
+   }
+
+   public AtomicRunnable setRan() {
+      RAN_UPDATE.set(this, 1);
+      return this;
+   }
+
+   public boolean isRun() {
+      return RAN_UPDATE.get(this) == 1;
+   }
 
    @Override
    public void run() {

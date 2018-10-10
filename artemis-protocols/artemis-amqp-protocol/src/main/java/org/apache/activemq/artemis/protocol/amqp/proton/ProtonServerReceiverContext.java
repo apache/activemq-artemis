@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMess
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
@@ -60,6 +61,35 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    protected final AMQPSessionCallback sessionSPI;
 
+   /** We create this AtomicRunnable with setRan.
+    *  This is because we always reuse the same instance.
+    *  In case the creditRunnable was run, we reset and send it over.
+    *  We set it as ran as the first one should always go through */
+   protected final AtomicRunnable creditRunnable;
+
+
+   /** This Credit Runnable may be used in Mock tests to simulate the credit semantic here */
+   public static AtomicRunnable createCreditRunnable(int refill, int threshold, Receiver receiver, AMQPConnectionContext connection) {
+      return new AtomicRunnable() {
+         @Override
+         public void atomicRun() {
+            connection.lock();
+            try {
+               if (receiver.getCredit() <= threshold) {
+                  int topUp = refill - receiver.getCredit();
+                  if (topUp > 0) {
+                     receiver.flow(topUp);
+                  }
+               }
+            } finally {
+               connection.unlock();
+            }
+            connection.flush();
+         }
+      };
+   }
+
+
    /*
     The maximum number of credits we will allocate to clients.
     This number is also used by the broker when refresh client credits.
@@ -68,7 +98,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    // Used by the broker to decide when to refresh clients credit.  This is not used when client requests credit.
    private final int minCreditRefresh;
-   private TerminusExpiryPolicy expiryPolicy;
 
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
                                       AMQPConnectionContext connection,
@@ -80,11 +109,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       this.sessionSPI = sessionSPI;
       this.amqpCredits = connection.getAmqpCredits();
       this.minCreditRefresh = connection.getAmqpLowCredits();
+      this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection).setRan();
    }
 
    @Override
    public void onFlow(int credits, boolean drain) {
-      flow(Math.min(credits, amqpCredits), amqpCredits);
+      flow();
    }
 
    @Override
@@ -116,7 +146,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
-            expiryPolicy = target.getExpiryPolicy() != null ? target.getExpiryPolicy() : TerminusExpiryPolicy.LINK_DETACH;
             target.setAddress(address.toString());
          } else {
             // the target will have an address unless the remote is requesting an anonymous
@@ -182,7 +211,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             }
          }
       }
-      flow(amqpCredits, minCreditRefresh);
+      flow();
    }
 
    public RoutingType getRoutingType(Receiver receiver, SimpleString address) {
@@ -245,7 +274,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
          sessionSPI.serverSend(this, tx, receiver, delivery, address, delivery.getMessageFormat(), data);
 
-         flow(amqpCredits, minCreditRefresh);
+         flow();
       } catch (Exception e) {
          log.warn(e.getMessage(), e);
          Rejected rejected = new Rejected();
@@ -262,7 +291,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
          delivery.disposition(rejected);
          delivery.settle();
-         flow(amqpCredits, minCreditRefresh);
+         flow();
       }
    }
 
@@ -285,20 +314,18 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       close(false);
    }
 
-   public void flow(int credits, int threshold) {
+   public void flow() {
+      if (!creditRunnable.isRun()) {
+         return; // nothing to be done as the previous one did not run yet
+      }
+
+      creditRunnable.reset();
+
       // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
       if (sessionSPI != null) {
-         if (receiver.getCredit() <= threshold) {
-            sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
-         }
+         sessionSPI.flow(address, creditRunnable);
       } else {
-         connection.lock();
-         try {
-            receiver.flow(credits);
-         } finally {
-            connection.unlock();
-         }
-         connection.flush();
+         creditRunnable.run();
       }
    }
 
