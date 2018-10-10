@@ -408,9 +408,27 @@ public final class BindingsImpl implements Bindings {
       }
 
       if (messageLoadBalancingType.equals(MessageLoadBalancingType.OFF) && theBinding instanceof RemoteQueueBinding) {
-         theBinding = getNextBinding(message, routingName, bindings);
+         if (exclusivelyRemote(bindings)) {
+            theBinding = null;
+         } else {
+            theBinding = getNextBinding(message, routingName, bindings);
+         }
       }
+
       return theBinding;
+   }
+
+   private boolean exclusivelyRemote(List<Binding> bindings) {
+      boolean result = true;
+
+      for (Binding binding : bindings) {
+         if (!(binding instanceof RemoteQueueBinding)) {
+            result = false;
+            break;
+         }
+      }
+
+      return result;
    }
 
    private void routeUsingStrictOrdering(final Message message,
