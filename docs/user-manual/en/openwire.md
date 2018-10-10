@@ -85,7 +85,7 @@ The two parameters are configured on an OpenWire `acceptor`, e.g.:
 
 For existing OpenWire consumers of virtual topic destinations it is possible to
 configure a mapping function that will translate the virtual topic consumer
-destination into a FQQN address. This address then represents the consumer as a
+destination into a FQQN address. This address will then represents the consumer as a
 multicast binding to an address representing the virtual topic. 
 
 The configuration string property `virtualTopicConsumerWildcards` has two parts
@@ -103,7 +103,7 @@ this transforms to `Consumer.*.%3E%3B2` when the url significant characters
 ```
 
 This will translate `Consumer.A.VirtualTopic.Orders` into a FQQN of
-`VirtualTopic.Orders::Consumer.A` using the int component `2` of the
+`VirtualTopic.Orders::Consumer.A.VirtualTopic.Orders` using the int component `2` of the
 configuration to identify the consumer queue as the first two paths of the
 destination.  `virtualTopicConsumerWildcards` is multi valued using a `,`
 separator.
