@@ -49,6 +49,8 @@ public interface PagingStoreFactory {
 
    SequentialFileFactory newFileFactory(SimpleString address) throws Exception;
 
+   void removeFileFactory(SequentialFileFactory fileFactory) throws Exception;
+
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
 
    default ScheduledExecutorService getScheduledExecutor() {
