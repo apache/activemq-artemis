@@ -26,6 +26,7 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -186,6 +187,19 @@ public abstract class SessionContext {
                                           Boolean exclusive,
                                           Boolean lastValue) throws ActiveMQException;
 
+   /**
+    * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of delivery
+    * then the default delivery mode (MULTICAST) is used.
+    *
+    * @param address
+    * @param queueName
+    * @param queueAttributes
+    * @throws ActiveMQException
+    */
+   public abstract void createSharedQueue(SimpleString address,
+                                          SimpleString queueName,
+                                          QueueAttributes queueAttributes) throws ActiveMQException;
+
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
                                           RoutingType routingType,
@@ -234,6 +248,12 @@ public abstract class SessionContext {
                                     boolean autoCreated,
                                     Boolean exclusive,
                                     Boolean lastVale) throws ActiveMQException;
+
+   public abstract void createQueue(SimpleString address,
+                                    SimpleString queueName,
+                                    boolean temp,
+                                    boolean autoCreated,
+                                    QueueAttributes queueAttributes) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 

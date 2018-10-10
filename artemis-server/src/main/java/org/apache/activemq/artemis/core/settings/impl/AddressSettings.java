@@ -127,6 +127,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean defaultLastValueQueue = null;
 
+   private SimpleString defaultLastValueKey = null;
+
+   private Boolean defaultNonDestructive = null;
+
    private Boolean defaultExclusiveQueue = null;
 
    private Long redistributionDelay = null;
@@ -200,6 +204,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.expiryAddress = other.expiryAddress;
       this.expiryDelay = other.expiryDelay;
       this.defaultLastValueQueue = other.defaultLastValueQueue;
+      this.defaultLastValueKey = other.defaultLastValueKey;
+      this.defaultNonDestructive = other.defaultNonDestructive;
       this.defaultExclusiveQueue = other.defaultExclusiveQueue;
       this.redistributionDelay = other.redistributionDelay;
       this.sendToDLAOnNoRoute = other.sendToDLAOnNoRoute;
@@ -389,6 +395,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setDefaultLastValueQueue(final boolean defaultLastValueQueue) {
       this.defaultLastValueQueue = defaultLastValueQueue;
+      return this;
+   }
+
+   public SimpleString getDefaultLastValueKey() {
+      return defaultLastValueKey != null ? defaultLastValueKey : ActiveMQDefaultConfiguration.getDefaultLastValueKey();
+   }
+
+   public AddressSettings setDefaultLastValueKey(final SimpleString defaultLastValueKey) {
+      this.defaultLastValueKey = defaultLastValueKey;
+      return this;
+   }
+
+   public boolean isDefaultNonDestructive() {
+      return defaultNonDestructive != null ? defaultNonDestructive : ActiveMQDefaultConfiguration.getDefaultNonDestructive();
+   }
+
+   public AddressSettings setDefaultNonDestructive(final boolean defaultNonDestructive) {
+      this.defaultNonDestructive = defaultNonDestructive;
       return this;
    }
 
@@ -719,6 +743,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (defaultLastValueQueue == null) {
          defaultLastValueQueue = merged.defaultLastValueQueue;
       }
+      if (defaultLastValueKey == null) {
+         defaultLastValueKey = merged.defaultLastValueKey;
+      }
+      if (defaultNonDestructive == null) {
+         defaultNonDestructive = merged.defaultNonDestructive;
+      }
       if (defaultConsumersBeforeDispatch == null) {
          defaultConsumersBeforeDispatch = merged.defaultConsumersBeforeDispatch;
       }
@@ -848,6 +878,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          defaultConsumerWindowSize = BufferHelper.readNullableInteger(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultLastValueKey = buffer.readNullableSimpleString();
+      }
+
+      if (buffer.readableBytes() > 0) {
+         defaultNonDestructive = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -889,7 +927,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultExclusiveQueue) +
          BufferHelper.sizeOfNullableInteger(defaultConsumersBeforeDispatch) +
          BufferHelper.sizeOfNullableLong(defaultDelayBeforeDispatch) +
-         BufferHelper.sizeOfNullableInteger(defaultConsumerWindowSize);
+         BufferHelper.sizeOfNullableInteger(defaultConsumerWindowSize) +
+         SimpleString.sizeofNullableString(defaultLastValueKey) +
+         BufferHelper.sizeOfNullableBoolean(defaultNonDestructive);
    }
 
    @Override
@@ -972,6 +1012,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableInteger(buffer, defaultConsumerWindowSize);
 
+      buffer.writeNullableSimpleString(defaultLastValueKey);
+
+      BufferHelper.writeNullableBoolean(buffer, defaultNonDestructive);
+
    }
 
    /* (non-Javadoc)
@@ -987,6 +1031,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((expiryAddress == null) ? 0 : expiryAddress.hashCode());
       result = prime * result + ((expiryDelay == null) ? 0 : expiryDelay.hashCode());
       result = prime * result + ((defaultLastValueQueue == null) ? 0 : defaultLastValueQueue.hashCode());
+      result = prime * result + ((defaultLastValueKey == null) ? 0 : defaultLastValueKey.hashCode());
+      result = prime * result + ((defaultNonDestructive == null) ? 0 : defaultNonDestructive.hashCode());
       result = prime * result + ((defaultExclusiveQueue == null) ? 0 : defaultExclusiveQueue.hashCode());
       result = prime * result + ((maxDeliveryAttempts == null) ? 0 : maxDeliveryAttempts.hashCode());
       result = prime * result + ((maxSizeBytes == null) ? 0 : maxSizeBytes.hashCode());
@@ -1065,6 +1111,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.defaultLastValueQueue != null)
             return false;
       } else if (!defaultLastValueQueue.equals(other.defaultLastValueQueue))
+         return false;
+      if (defaultLastValueKey == null) {
+         if (other.defaultLastValueKey != null)
+            return false;
+      } else if (!defaultLastValueKey.equals(other.defaultLastValueKey))
+         return false;
+      if (defaultNonDestructive == null) {
+         if (other.defaultNonDestructive != null)
+            return false;
+      } else if (!defaultNonDestructive.equals(other.defaultNonDestructive))
          return false;
       if (defaultExclusiveQueue == null) {
          if (other.defaultExclusiveQueue != null)
@@ -1263,6 +1319,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          expiryDelay +
          ", defaultLastValueQueue=" +
          defaultLastValueQueue +
+         ", defaultLastValueKey=" +
+         defaultLastValueKey +
+         ", defaultNonDestructive=" +
+         defaultNonDestructive +
          ", defaultExclusiveQueue=" +
          defaultExclusiveQueue +
          ", maxDeliveryAttempts=" +
