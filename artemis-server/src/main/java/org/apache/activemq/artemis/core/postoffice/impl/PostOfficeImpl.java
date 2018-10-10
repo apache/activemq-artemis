@@ -469,6 +469,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
+                                   Boolean nonDestructive,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,
                                    SimpleString user,
@@ -515,6 +516,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (exclusive != null && queue.isExclusive() != exclusive.booleanValue()) {
             changed = true;
             queue.setExclusive(exclusive);
+         }
+         if (nonDestructive != null && queue.isNonDestructive() != nonDestructive.booleanValue()) {
+            changed = true;
+            queue.setNonDestructive(nonDestructive);
          }
          if (consumersBeforeDispatch != null && !consumersBeforeDispatch.equals(queue.getConsumersBeforeDispatch())) {
             changed = true;

@@ -186,10 +186,12 @@ public interface Message {
       return this;
    }
 
+   @Deprecated
    default SimpleString getLastValueProperty() {
       return null;
    }
 
+   @Deprecated
    default Message setLastValueProperty(SimpleString lastValueName) {
       return this;
    }
@@ -310,11 +312,15 @@ public interface Message {
     * Returns whether this message is expired or not.
     */
    default boolean isExpired() {
-      if (getExpiration() == 0) {
+      return isExpired(getExpiration());
+   }
+
+   static boolean isExpired(final long expirationTime) {
+      if (expirationTime == 0) {
          return false;
       }
 
-      return System.currentTimeMillis() - getExpiration() >= 0;
+      return System.currentTimeMillis() - expirationTime >= 0;
    }
 
 
