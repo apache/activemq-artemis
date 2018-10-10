@@ -46,10 +46,13 @@ public class Producer extends DestAbstract {
    @Option(name = "--message-size", description = "Size of each byteMessage (The producer will use byte message on this case)")
    int messageSize = 0;
 
+   @Option(name = "--message", description = "Content of each textMessage (The producer will use text message on this case)")
+   String message = null;
+
    @Option(name = "--text-size", description = "Size of each textMessage (The producer will use text message on this case)")
    int textMessageSize;
 
-   @Option(name = "--object-size", description = "Size of each ObjectMessage (The producer will use object mesasge on this case)")
+   @Option(name = "--object-size", description = "Size of each ObjectMessage (The producer will use object message on this case)")
    int objectSize;
 
    @Option(name = "--msgttl", description = "TTL for each message")
@@ -121,7 +124,7 @@ public class Producer extends DestAbstract {
                threadsArray[i] = new ProducerThread(session, dest, i);
 
                threadsArray[i].setVerbose(verbose).setSleep(sleep).setPersistent(!nonpersistent).
-                  setMessageSize(messageSize).setTextMessageSize(textMessageSize).setObjectSize(objectSize).
+                  setMessageSize(messageSize).setTextMessageSize(textMessageSize).setMessage(message).setObjectSize(objectSize).
                   setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize).
                   setMessageCount(messageCount).setQueueId(queueId);
             }
