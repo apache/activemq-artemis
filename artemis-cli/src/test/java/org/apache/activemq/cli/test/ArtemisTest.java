@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -55,10 +56,13 @@ import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
@@ -231,6 +235,21 @@ public class ArtemisTest extends CliTestBase {
       assertEquals("etc/truststore", trustPathAttr);
       String trustPass = webElem.getAttribute("trustStorePassword");
       assertEquals("password2", trustPass);
+   }
+
+   @Test
+   public void testStopManagementContext() throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ManagementContext managementContext = ((Pair<ManagementContext, ActiveMQServer>)result).getA();
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      activeMQServer.stop();
+      assertTrue(Wait.waitFor(() -> managementContext.isStarted() == false, 5000, 200));
+      stopServer();
    }
 
    @Test
