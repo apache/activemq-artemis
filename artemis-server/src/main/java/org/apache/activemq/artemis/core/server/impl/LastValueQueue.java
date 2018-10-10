@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
@@ -50,6 +51,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 public class LastValueQueue extends QueueImpl {
 
    private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<>();
+   private final SimpleString lastValueKey;
 
    public LastValueQueue(final long persistenceID,
                          final SimpleString address,
@@ -66,6 +68,8 @@ public class LastValueQueue extends QueueImpl {
                          final Integer consumersBeforeDispatch,
                          final Long delayBeforeDispatch,
                          final Boolean purgeOnNoConsumers,
+                         final SimpleString lastValueKey,
+                         final Boolean nonDestructive,
                          final boolean configurationManaged,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
@@ -74,7 +78,8 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this.lastValueKey = lastValueKey;
    }
 
    @Override
@@ -82,8 +87,7 @@ public class LastValueQueue extends QueueImpl {
       if (scheduleIfPossible(ref)) {
          return;
       }
-
-      SimpleString prop = ref.getMessage().getLastValueProperty();
+      final SimpleString prop = getLastValueProperty(ref);
 
       if (prop != null) {
          HolderReference hr = map.get(prop);
@@ -105,10 +109,18 @@ public class LastValueQueue extends QueueImpl {
       }
    }
 
+   private SimpleString getLastValueProperty(MessageReference ref) {
+      SimpleString lastValue = ref.getMessage().getSimpleStringProperty(lastValueKey);
+      if (lastValue == null) {
+         lastValue = ref.getMessage().getLastValueProperty();
+      }
+      return lastValue;
+   }
+
    @Override
    public synchronized void addHead(final MessageReference ref, boolean scheduling) {
 
-      SimpleString lastValueProp = ref.getMessage().getLastValueProperty();
+      SimpleString lastValueProp = getLastValueProperty(ref);
 
       if (lastValueProp != null) {
          HolderReference hr = map.get(lastValueProp);
@@ -147,7 +159,7 @@ public class LastValueQueue extends QueueImpl {
       referenceHandled(ref);
 
       try {
-         oldRef.acknowledge();
+         oldRef.acknowledge(null, AckReason.REPLACED, null);
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
       }
@@ -156,24 +168,57 @@ public class LastValueQueue extends QueueImpl {
    }
 
    @Override
-   protected void refRemoved(MessageReference ref) {
+   protected void removeMessageReference(ConsumerHolder<? extends Consumer> holder, MessageReference ref) {
+      final SimpleString prop;
       synchronized (this) {
-         SimpleString prop = ref.getMessage().getLastValueProperty();
-
+         prop = getLastValueProperty(ref);
          if (prop != null) {
-            map.remove(prop);
+            if (!isNonDestructive()) {
+               map.remove(prop);
+            }
          }
       }
-
-      super.refRemoved(ref);
+      super.removeMessageReference(holder, ref);
    }
+
+   private void remove(SimpleString prop) {
+      if (!isNonDestructive()) {
+         map.remove(prop);
+      }
+   }
+
+   @Override
+   QueueIterateAction createDeleteMatchingAction(AckReason ackReason) {
+      QueueIterateAction queueIterateAction = super.createDeleteMatchingAction(ackReason);
+      return new QueueIterateAction() {
+         @Override
+         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
+            SimpleString lastValueProp = getLastValueProperty(ref);
+            if (lastValueProp != null) {
+               MessageReference current = map.get(lastValueProp);
+               if (current == ref) {
+                  map.remove(lastValueProp);
+               }
+            }
+            queueIterateAction.actMessage(tx, ref);
+         }
+      };
+   }
+
+
+
 
    @Override
    public boolean isLastValue() {
       return true;
    }
 
-   private class HolderReference implements MessageReference {
+   @Override
+   public SimpleString getLastValueKey() {
+      return lastValueKey;
+   }
+
+   private static class HolderReference implements MessageReference {
 
       private final SimpleString prop;
 
@@ -195,9 +240,9 @@ public class LastValueQueue extends QueueImpl {
 
       @Override
       public void handled() {
-         ref.handled();
          // We need to remove the entry from the map just before it gets delivered
-         map.remove(prop);
+         ref.handled();
+         ((LastValueQueue)ref.getQueue()).remove(prop);
       }
 
       @Override
@@ -246,7 +291,7 @@ public class LastValueQueue extends QueueImpl {
 
       @Override
       public long getMessageID() {
-         return getMessage().getMessageID();
+         return ref.getMessageID();
       }
 
       @Override

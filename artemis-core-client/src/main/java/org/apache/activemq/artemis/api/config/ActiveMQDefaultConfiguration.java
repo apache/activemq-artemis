@@ -471,6 +471,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_LAST_VALUE = false;
 
+   public static final SimpleString DEFAULT_LAST_VALUE_KEY = null;
+
+   public static final boolean DEFAULT_NON_DESTRUCTIVE = false;
+
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
    public static final int DEFAULT_CONSUMERS_BEFORE_DISPATCH = 0;
@@ -1301,7 +1305,15 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    public static boolean getDefaultLastValue() {
-      return DEFAULT_EXCLUSIVE;
+      return DEFAULT_LAST_VALUE;
+   }
+
+   public static SimpleString getDefaultLastValueKey() {
+      return DEFAULT_LAST_VALUE_KEY;
+   }
+
+   public static boolean getDefaultNonDestructive() {
+      return DEFAULT_NON_DESTRUCTIVE;
    }
 
    public static boolean getDefaultPurgeOnNoConsumers() {

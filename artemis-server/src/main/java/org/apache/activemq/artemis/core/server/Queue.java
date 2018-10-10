@@ -90,6 +90,12 @@ public interface Queue extends Bindable,CriticalComponent {
 
    boolean isLastValue();
 
+   SimpleString getLastValueKey();
+
+   boolean isNonDestructive();
+
+   void setNonDestructive(boolean nonDestructive);
+
    int getMaxConsumers();
 
    void setMaxConsumer(int maxConsumers);
@@ -104,7 +110,7 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int getConsumerCount();
 
-   /**
+    /**
     * This will set a reference counter for every consumer present on the queue.
     * The ReferenceCounter will know what to do when the counter became zeroed.
     * This is used to control what to do with temporary queues, especially
@@ -227,7 +233,7 @@ public interface Queue extends Bindable,CriticalComponent {
    int deleteMatchingReferences(Filter filter) throws Exception;
 
    default int deleteMatchingReferences(int flushLImit, Filter filter) throws Exception {
-      return deleteMatchingReferences(flushLImit, filter, AckReason.NORMAL);
+      return deleteMatchingReferences(flushLImit, filter, AckReason.KILLED);
    }
 
    int deleteMatchingReferences(int flushLImit, Filter filter, AckReason ackReason) throws Exception;

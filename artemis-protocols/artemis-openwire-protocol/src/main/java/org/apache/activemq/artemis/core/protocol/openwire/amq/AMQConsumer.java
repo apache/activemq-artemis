@@ -293,7 +293,9 @@ public class AMQConsumer {
       }
 
       boolean removeReferences = !serverConsumer.isBrowseOnly(); // if it's browse only, nothing to be acked, we just remove the lists
-
+      if (serverConsumer.getQueue().isNonDestructive()) {
+         removeReferences = false;
+      }
       if (ack.isRedeliveredAck() || ack.isDeliveredAck() || ack.isExpiredAck()) {
          removeReferences = false;
       }

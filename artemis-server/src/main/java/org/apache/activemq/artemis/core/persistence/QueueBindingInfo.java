@@ -66,6 +66,14 @@ public interface QueueBindingInfo {
 
    void setLastValue(boolean lastValue);
 
+   SimpleString getLastValueKey();
+
+   void setLastValueKey(SimpleString lastValue);
+
+   boolean isNonDestructive();
+
+   void setNonDestructive(boolean nonDestructive);
+
    int getConsumersBeforeDispatch();
 
    void setConsumersBeforeDispatch(int consumersBeforeDispatch);
