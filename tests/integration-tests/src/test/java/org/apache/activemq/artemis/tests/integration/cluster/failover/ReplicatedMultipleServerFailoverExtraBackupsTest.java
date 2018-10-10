@@ -128,6 +128,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       for (TestableServer testableServer : toCrash) {
          testableServer.crash().await(10, TimeUnit.SECONDS);
+         //if we dont stop the server it tries to replicate again and the test becomes non deterministic
+         testableServer.stop();
       }
 
       Assert.assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
