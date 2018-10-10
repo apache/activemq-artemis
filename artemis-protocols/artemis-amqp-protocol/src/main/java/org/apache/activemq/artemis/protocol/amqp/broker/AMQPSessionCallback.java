@@ -109,8 +109,6 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
 
-   private CreditRunnable creditRunnable;
-
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
                               AMQPConnectionContext connection,
@@ -577,49 +575,17 @@ public class AMQPSessionCallback implements SessionCallback {
       });
    }
 
-   public void offerProducerCredit(final SimpleString address,
-                                   final int credits,
-                                   final int threshold,
-                                   final Receiver receiver) {
+   /** Will execute a Runnable on an Address when there's space in memory*/
+   public void flow(final SimpleString address,
+                    Runnable runnable) {
       try {
-         /*
-         * The credit runnable will always be run in this thread unless the address or disc is full. If this is the case the
-         * runnable is run once the memory or disc is free, if this happens we don't want to keep adding runnables as this
-         * may cause a memory leak, one is enough.
-         * */
-         if (creditRunnable != null && !creditRunnable.isRun())
-            return;
          PagingManager pagingManager = manager.getServer().getPagingManager();
-         creditRunnable = new CreditRunnable() {
-            boolean isRun = false;
-            @Override
-            public boolean isRun() {
-               return isRun;
-            }
-
-            @Override
-            public void run() {
-               connection.lock();
-               try {
-                  if (receiver.getCredit() <= threshold) {
-                     int topUp = credits - receiver.getCredit();
-                     if (topUp > 0) {
-                        receiver.flow(topUp);
-                     }
-                  }
-               } finally {
-                  isRun = true;
-                  connection.unlock();
-               }
-               connection.flush();
-            }
-         };
 
          if (address == null) {
-            pagingManager.checkMemory(creditRunnable);
+            pagingManager.checkMemory(runnable);
          } else {
             final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
-            store.checkMemory(creditRunnable);
+            store.checkMemory(runnable);
          }
       } catch (Exception e) {
          throw new RuntimeException(e);
@@ -790,8 +756,5 @@ public class AMQPSessionCallback implements SessionCallback {
          this.result = result;
       }
 
-   }
-   interface CreditRunnable extends Runnable {
-      boolean isRun();
    }
 }
