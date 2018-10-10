@@ -202,6 +202,32 @@ public class JDBCSequentialFileFactoryTest {
    }
 
    @Test
+   public void testWriteToFile() throws Exception {
+      JDBCSequentialFile file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
+      file.open();
+
+      ActiveMQBuffer src = ActiveMQBuffers.fixedBuffer(1);
+      src.writeByte((byte)7);
+
+      file.internalWrite(src, null);
+      checkData(file, src);
+      assertEquals(1, file.size());
+      file.close();
+
+      file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
+      file.open();
+
+      int bufferSize = 1024;
+      src = ActiveMQBuffers.fixedBuffer(bufferSize);
+      for (int i = 0; i < bufferSize; i++) {
+         src.writeByte((byte)i);
+      }
+      file.internalWrite(src, null, false);
+      checkData(file, src);
+      assertEquals(bufferSize, file.size());
+   }
+
+   @Test
    public void testCopyFile() throws Exception {
       JDBCSequentialFile file = (JDBCSequentialFile) factory.createSequentialFile("test.txt");
       file.open();

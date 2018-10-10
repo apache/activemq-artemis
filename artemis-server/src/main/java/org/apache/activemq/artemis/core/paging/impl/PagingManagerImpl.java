@@ -317,6 +317,7 @@ public final class PagingManagerImpl implements PagingManager {
          PagingStore store = stores.remove(storeName);
          if (store != null) {
             store.stop();
+            store.destroy();
          }
       } finally {
          syncLock.readLock().unlock();

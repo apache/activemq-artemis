@@ -803,6 +803,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void removeFileFactory(SequentialFileFactory fileFactory) throws Exception {
+      }
+
+      @Override
       public PagingStore newStore(final SimpleString destinationName, final AddressSettings addressSettings) {
          return null;
       }
