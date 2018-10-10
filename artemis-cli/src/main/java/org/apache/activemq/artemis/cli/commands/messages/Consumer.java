@@ -55,8 +55,6 @@ public class Consumer extends DestAbstract {
 
       System.out.println("Consumer:: filter = " + filter);
 
-      ConnectionFactory factory = createConnectionFactory();
-
       SerialiserMessageListener listener = null;
       MessageSerializer messageSerializer = null;
       if (file != null) {
@@ -82,6 +80,8 @@ public class Consumer extends DestAbstract {
       }
 
       if (messageSerializer != null) messageSerializer.start();
+
+      ConnectionFactory factory = createConnectionFactory();
 
       try (Connection connection = factory.createConnection()) {
          // We read messages in a single thread when persisting to file.
@@ -118,6 +118,10 @@ public class Consumer extends DestAbstract {
          if (messageSerializer != null) messageSerializer.stop();
 
          return received;
+      } finally {
+         if (factory instanceof AutoCloseable) {
+            ((AutoCloseable) factory).close();
+         }
       }
    }
 
