@@ -497,7 +497,7 @@ public class AMQPMessage extends RefCountMessage {
 
       // Copy the full message contents with delivery annotations as they will
       // be trimmed on send and may become useful on the broker at a later time.
-      data.get(newData);
+      view.get(newData);
 
       AMQPMessage newEncode = new AMQPMessage(this.messageFormat, newData, extraProperties, coreMessageObjectPools);
       newEncode.setMessageID(this.getMessageID());
