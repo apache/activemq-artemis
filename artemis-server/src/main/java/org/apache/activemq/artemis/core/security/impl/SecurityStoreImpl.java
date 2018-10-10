@@ -141,18 +141,21 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          if (!userIsValid && validatedUser == null) {
-            if (notificationService != null) {
-               TypedProperties props = new TypedProperties();
-
-               Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
-
-               notificationService.sendNotification(notification);
-            }
-
             String certSubjectDN = "unavailable";
             X509Certificate[] certs = CertificateUtil.getCertsFromConnection(connection);
             if (certs != null && certs.length > 0 && certs[0] != null) {
                certSubjectDN = certs[0].getSubjectDN().getName();
+            }
+
+            if (notificationService != null) {
+               TypedProperties props = new TypedProperties();
+               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
+               props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
+               props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
+
+               Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
+
+               notificationService.sendNotification(notification);
             }
 
             Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
