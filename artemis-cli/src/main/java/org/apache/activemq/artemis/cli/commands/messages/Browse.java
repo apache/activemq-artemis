@@ -69,6 +69,10 @@ public class Browse extends DestAbstract {
          }
 
          return received;
+      } finally {
+         if (factory instanceof AutoCloseable) {
+            ((AutoCloseable) factory).close();
+         }
       }
    }
 
