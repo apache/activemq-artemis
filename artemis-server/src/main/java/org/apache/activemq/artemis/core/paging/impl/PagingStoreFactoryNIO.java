@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
@@ -171,6 +172,14 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       }
 
       return factory;
+   }
+
+   @Override
+   public synchronized void removeFileFactory(SequentialFileFactory fileFactory) throws Exception {
+      File directory = fileFactory.getDirectory();
+      if (directory.exists()) {
+         FileUtil.deleteDirectory(directory);
+      }
    }
 
    @Override

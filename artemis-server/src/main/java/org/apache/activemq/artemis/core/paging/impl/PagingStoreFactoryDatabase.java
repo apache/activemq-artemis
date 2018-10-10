@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.core.paging.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -94,6 +96,8 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
 
    private final IOCriticalErrorListener criticalErrorListener;
 
+   private final Map<SequentialFileFactory, String> factoryToTableName;
+
    public PagingStoreFactoryDatabase(final DatabaseStorageConfiguration dbConf,
                                      final StorageManager storageManager,
                                      final long syncTimeout,
@@ -108,6 +112,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       this.syncTimeout = syncTimeout;
       this.dbConf = dbConf;
       this.criticalErrorListener = critialErrorListener;
+      this.factoryToTableName = new HashMap<>();
       start();
    }
 
@@ -181,6 +186,32 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    }
 
    @Override
+   public synchronized void removeFileFactory(SequentialFileFactory fileFactory) throws Exception {
+      ((JDBCSequentialFileFactory)fileFactory).destroy();
+      String tableName = factoryToTableName.remove(fileFactory);
+      if (tableName != null) {
+         SimpleString removeTableName = SimpleString.toSimpleString(tableName);
+         JDBCSequentialFile directoryList = (JDBCSequentialFile) pagingFactoryFileFactory.createSequentialFile(DIRECTORY_NAME);
+         directoryList.open();
+
+         int size = ((Long) directoryList.size()).intValue();
+         ActiveMQBuffer buffer = readActiveMQBuffer(directoryList, size);
+
+         ActiveMQBuffer writeBuffer = ActiveMQBuffers.fixedBuffer(size);
+
+         while (buffer.readableBytes() > 0) {
+            SimpleString table = buffer.readSimpleString();
+            if (!removeTableName.equals(table)) {
+               writeBuffer.writeSimpleString(table);
+            }
+         }
+
+         directoryList.write(writeBuffer, true, null, false);
+         directoryList.close();
+      }
+   }
+
+   @Override
    public void setPagingManager(final PagingManager pagingManager) {
       this.pagingManager = pagingManager;
    }
@@ -249,6 +280,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       if (jdbcNetworkTimeout >= 0) {
          fileFactory.setNetworkTimeout(this.executorFactory.getExecutor(), jdbcNetworkTimeout);
       }
+      factoryToTableName.put(fileFactory, directoryName);
       return fileFactory;
    }
 
