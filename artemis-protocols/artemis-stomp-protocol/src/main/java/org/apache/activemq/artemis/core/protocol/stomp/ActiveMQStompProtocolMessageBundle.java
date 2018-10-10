@@ -24,7 +24,7 @@ import org.jboss.logging.annotations.MessageBundle;
 /**
  * Logger Code 33
  * <p>
- * Each message id must be 6 digits long starting with 10, the 3rd digit should be 9. So the range
+ * Each message id must be 6 digits long starting with 33, the 3rd digit should be 9. So the range
  * is from 339000 to 339999.
  * <p>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
