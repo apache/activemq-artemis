@@ -137,6 +137,10 @@ public class Producer extends DestAbstract {
             }
             return messagesProduced;
          }
+      } finally {
+         if (factory instanceof AutoCloseable) {
+            ((AutoCloseable) factory).close();
+         }
       }
    }
 
