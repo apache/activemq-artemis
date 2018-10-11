@@ -97,20 +97,6 @@ public class DestAbstract extends ConnectionAbstract {
       return new XMLMessageSerializer();
    }
 
-   // FIXME We currently do not support producing to FQQN.  This is a work around.
-   private ClientSession getManagementSession() throws Exception {
-      ServerLocator serverLocator = ActiveMQClient.createServerLocator(brokerURL);
-      ClientSessionFactory sf = serverLocator.createSessionFactory();
-
-      ClientSession managementSession;
-      if (user != null || password != null) {
-         managementSession = sf.createSession(user, password, false, true, true, false, 0);
-      } else {
-         managementSession = sf.createSession(false, true, true);
-      }
-      return managementSession;
-   }
-
    public byte[] getQueueIdFromName(String queueName) throws Exception {
       try {
          ClientMessage message = getQueueAttribute(queueName, "ID");
@@ -124,17 +110,26 @@ public class DestAbstract extends ConnectionAbstract {
    }
 
    protected ClientMessage getQueueAttribute(String queueName, String attribute) throws Exception {
-      ClientSession managementSession = getManagementSession();
-      managementSession.start();
+      try (ServerLocator serverLocator = ActiveMQClient.createServerLocator(brokerURL)) {
+         try (ClientSessionFactory sf = serverLocator.createSessionFactory()) {
+            ClientSession managementSession;
+            if (user != null || password != null) {
+               managementSession = sf.createSession(user, password, false, true, true, false, 0);
+            } else {
+               managementSession = sf.createSession(false, true, true);
+            }
+            managementSession.start();
 
-      try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
-         ClientMessage managementMessage = managementSession.createMessage(false);
-         ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queueName, attribute);
-         managementSession.start();
-         ClientMessage reply = requestor.request(managementMessage);
-         return reply;
-      } finally {
-         managementSession.stop();
+            try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
+               ClientMessage managementMessage = managementSession.createMessage(false);
+               ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queueName, attribute);
+               managementSession.start();
+               ClientMessage reply = requestor.request(managementMessage);
+               return reply;
+            } finally {
+               managementSession.stop();
+            }
+         }
       }
    }
 
