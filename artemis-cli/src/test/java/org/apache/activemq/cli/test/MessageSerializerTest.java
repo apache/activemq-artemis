@@ -58,6 +58,7 @@ import static org.junit.Assert.assertTrue;
 public class MessageSerializerTest extends CliTestBase {
 
    private Connection connection;
+   private ActiveMQConnectionFactory cf;
 
    @Before
    @Override
@@ -65,7 +66,7 @@ public class MessageSerializerTest extends CliTestBase {
       setupAuth();
       super.setup();
       startServer();
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connection = cf.createConnection("admin", "admin");
    }
 
@@ -74,6 +75,7 @@ public class MessageSerializerTest extends CliTestBase {
    public void tearDown() throws Exception {
       try {
          connection.close();
+         cf.close();
       } finally {
          stopServer();
          super.tearDown();
