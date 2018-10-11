@@ -1722,10 +1722,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorCancellingRefOnBridge(@Cause Exception e, MessageReference ref2);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224031, value = "-------------------------------Stomp begin tx: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void stompBeginTX(String txID);
-
-   @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224032, value = "Failed to pause bridge", format = Message.Format.MESSAGE_FORMAT)
    void errorPausingBridge(@Cause Exception e);
 
