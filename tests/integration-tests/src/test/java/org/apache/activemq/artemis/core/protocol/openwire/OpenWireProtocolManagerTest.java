@@ -50,13 +50,13 @@ public class OpenWireProtocolManagerTest {
       underTest.setVirtualTopicConsumerWildcards("A.>;1,B.*.>;2,C.*.*.*.EE;3");
 
       ActiveMQDestination A = new org.apache.activemq.command.ActiveMQQueue("A.SomeTopic");
-      assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic::A"), underTest.virtualTopicConsumerToFQQN(A));
+      assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic::A.SomeTopic"), underTest.virtualTopicConsumerToFQQN(A));
 
       ActiveMQDestination B = new org.apache.activemq.command.ActiveMQQueue("B.b.SomeTopic.B");
-      assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic.B::B.b"), underTest.virtualTopicConsumerToFQQN(B));
+      assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic.B::B.b.SomeTopic.B"), underTest.virtualTopicConsumerToFQQN(B));
 
       ActiveMQDestination C = new org.apache.activemq.command.ActiveMQQueue("C.c.c.SomeTopic.EE");
-      assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic.EE::C.c.c"), underTest.virtualTopicConsumerToFQQN(C));
+      assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic.EE::C.c.c.SomeTopic.EE"), underTest.virtualTopicConsumerToFQQN(C));
 
       for (int i = 0; i < maxCacheSize; i++) {
          ActiveMQDestination identity = new org.apache.activemq.command.ActiveMQQueue("Identity" + i);
