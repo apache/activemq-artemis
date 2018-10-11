@@ -25,11 +25,6 @@ import javax.resource.spi.ManagedConnectionMetaData;
 public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
 
    /**
-    * Trace enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * The managed connection
     */
    private final ActiveMQRAManagedConnection mc;
@@ -40,7 +35,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     * @param mc The managed connection
     */
    public ActiveMQRAMetaData(final ActiveMQRAManagedConnection mc) {
-      if (ActiveMQRAMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + mc + ")");
       }
 
@@ -55,7 +50,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public String getEISProductName() throws ResourceException {
-      if (ActiveMQRAMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getEISProductName()");
       }
 
@@ -70,7 +65,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public String getEISProductVersion() throws ResourceException {
-      if (ActiveMQRAMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getEISProductVersion()");
       }
 
@@ -85,7 +80,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public String getUserName() throws ResourceException {
-      if (ActiveMQRAMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -100,7 +95,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public int getMaxConnections() throws ResourceException {
-      if (ActiveMQRAMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getMaxConnections()");
       }
 
