@@ -259,4 +259,8 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
       return connection;
    }
+
+   interface ConnectionSupplier {
+      Connection createConnection() throws JMSException;
+   }
 }
