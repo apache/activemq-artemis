@@ -599,6 +599,8 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
                       @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") boolean exclusive,
                       @Parameter(name = "lastValue", desc = "Use last-value semantics") boolean lastValue,
+                      @Parameter(name = "lastValueKey", desc = "Use the specified property key for the last value") String lastValueKey,
+                      @Parameter(name = "nonDestructive", desc = "If the queue is non-destructive") boolean nonDestructive,
                       @Parameter(name = "consumersBeforeDispatch", desc = "Number of consumers needed before dispatch can start") int consumersBeforeDispatch,
                       @Parameter(name = "delayBeforeDispatch", desc = "Delay to wait before dispatching if number of consumers before dispatch is not met") long delayBeforeDispatch,
                       @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
@@ -696,6 +698,7 @@ public interface ActiveMQServerControl {
     * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @param exclusive          if the queue should route exclusively to one consumer
+    * @param nonDestructive     If the queue is non-destructive
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
     * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
     * @param user               the user associated with this queue
@@ -709,6 +712,7 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
                       @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive,
+                      @Parameter(name = "nonDestructive", desc = "If the queue is non-destructive") Boolean nonDestructive,
                       @Parameter(name = "consumersBeforeDispatch", desc = "Number of consumers needed before dispatch can start") Integer consumersBeforeDispatch,
                       @Parameter(name = "delayBeforeDispatch", desc = "Delay to wait before dispatching if number of consumers before dispatch is not met") Long delayBeforeDispatch,
                       @Parameter(name = "user", desc = "The user associated with this queue") String user) throws Exception;

@@ -41,6 +41,14 @@ public class BindingQueryResult {
 
    private boolean defaultLastValue;
 
+   private SimpleString defaultLastValueKey;
+
+   private Boolean defaultNonDestructive;
+
+   private Integer defaultConsumersBeforeDispatch;
+
+   private Long defaultDelayBeforeDispatch;
+
    public BindingQueryResult(final boolean exists,
                              final AddressInfo addressInfo,
                              final List<SimpleString> queueNames,
@@ -49,7 +57,11 @@ public class BindingQueryResult {
                              final boolean defaultPurgeOnNoConsumers,
                              final int defaultMaxConsumers,
                              final boolean defaultExclusive,
-                             final boolean defaultLastValue) {
+                             final boolean defaultLastValue,
+                             final SimpleString defaultLastValueKey,
+                             final Boolean defaultNonDestructive,
+                             final Integer defaultConsumersBeforeDispatch,
+                             final Long defaultDelayBeforeDispatch) {
       this.addressInfo = addressInfo;
 
       this.exists = exists;
@@ -67,6 +79,14 @@ public class BindingQueryResult {
       this.defaultExclusive = defaultExclusive;
 
       this.defaultLastValue = defaultLastValue;
+
+      this.defaultLastValueKey = defaultLastValueKey;
+
+      this.defaultNonDestructive = defaultNonDestructive;
+
+      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
+
+      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
    }
 
    public boolean isExists() {
@@ -103,5 +123,21 @@ public class BindingQueryResult {
 
    public boolean isDefaultLastValue() {
       return defaultLastValue;
+   }
+
+   public SimpleString getDefaultLastValueKey() {
+      return defaultLastValueKey;
+   }
+
+   public Boolean isDefaultNonDestructive() {
+      return defaultNonDestructive;
+   }
+
+   public Integer getDefaultConsumersBeforeDispatch() {
+      return defaultConsumersBeforeDispatch;
+   }
+
+   public Long getDefaultDelayBeforeDispatch() {
+      return defaultDelayBeforeDispatch;
    }
 }
