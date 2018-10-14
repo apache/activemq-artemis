@@ -51,6 +51,14 @@ public class QueueQueryResult {
 
    private Boolean lastValue;
 
+   private SimpleString lastValueKey;
+
+   private Boolean nonDestructive;
+
+   private Integer consumersBeforeDispatch;
+
+   private Long delayBeforeDispatch;
+
    private Integer defaultConsumerWindowSize;
 
    public QueueQueryResult(final SimpleString name,
@@ -68,6 +76,10 @@ public class QueueQueryResult {
                            final int maxConsumers,
                            final Boolean exclusive,
                            final Boolean lastValue,
+                           final SimpleString lastValueKey,
+                           final Boolean nonDestructive,
+                           final Integer consumersBeforeDispatch,
+                           final Long delayBeforeDispatch,
                            final Integer defaultConsumerWindowSize) {
       this.durable = durable;
 
@@ -98,6 +110,14 @@ public class QueueQueryResult {
       this.exclusive = exclusive;
 
       this.lastValue = lastValue;
+
+      this.lastValueKey = lastValueKey;
+
+      this.nonDestructive = nonDestructive;
+
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+
+      this.delayBeforeDispatch = delayBeforeDispatch;
 
       this.defaultConsumerWindowSize = defaultConsumerWindowSize;
    }
@@ -164,6 +184,22 @@ public class QueueQueryResult {
 
    public Boolean isLastValue() {
       return lastValue;
+   }
+
+   public SimpleString getLastValueKey() {
+      return lastValueKey;
+   }
+
+   public Boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
+   public Integer getConsumersBeforeDispatch() {
+      return consumersBeforeDispatch;
+   }
+
+   public Long getDelayBeforeDispatch() {
+      return delayBeforeDispatch;
    }
 
    public Integer getDefaultConsumerWindowSize() {

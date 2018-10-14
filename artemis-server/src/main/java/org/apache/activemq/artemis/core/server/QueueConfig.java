@@ -43,6 +43,8 @@ public final class QueueConfig {
    private final int consumersBeforeDispatch;
    private final long delayBeforeDispatch;
    private final boolean configurationManaged;
+   private final SimpleString lastValueKey;
+   private final boolean nonDestructive;
 
    public static final class Builder {
 
@@ -59,6 +61,8 @@ public final class QueueConfig {
       private int maxConsumers;
       private boolean exclusive;
       private boolean lastValue;
+      private SimpleString lastValueKey;
+      private boolean nonDestructive;
       private boolean purgeOnNoConsumers;
       private int consumersBeforeDispatch;
       private long delayBeforeDispatch;
@@ -82,6 +86,8 @@ public final class QueueConfig {
          this.maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
          this.exclusive = ActiveMQDefaultConfiguration.getDefaultExclusive();
          this.lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
+         this.lastValueKey = ActiveMQDefaultConfiguration.getDefaultLastValueKey();
+         this.nonDestructive = ActiveMQDefaultConfiguration.getDefaultNonDestructive();
          this.purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
          this.consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
          this.delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
@@ -152,6 +158,16 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder lastValueKey(SimpleString lastValueKey) {
+         this.lastValueKey = lastValueKey;
+         return this;
+      }
+
+      public Builder nonDestructive(boolean nonDestructive) {
+         this.nonDestructive = nonDestructive;
+         return this;
+      }
+
       public Builder consumersBeforeDispatch(final int consumersBeforeDispatch) {
          this.consumersBeforeDispatch = consumersBeforeDispatch;
          return this;
@@ -193,7 +209,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged);
       }
 
    }
@@ -239,6 +255,8 @@ public final class QueueConfig {
                        final int maxConsumers,
                        final boolean exclusive,
                        final boolean lastValue,
+                       final SimpleString lastValueKey,
+                       final boolean nonDestructive,
                        final int consumersBeforeDispatch,
                        final long delayBeforeDispatch,
                        final boolean purgeOnNoConsumers,
@@ -256,6 +274,8 @@ public final class QueueConfig {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
       this.lastValue = lastValue;
+      this.lastValueKey = lastValueKey;
+      this.nonDestructive = nonDestructive;
       this.maxConsumers = maxConsumers;
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       this.delayBeforeDispatch = delayBeforeDispatch;
@@ -314,6 +334,14 @@ public final class QueueConfig {
       return lastValue;
    }
 
+   public SimpleString lastValueKey() {
+      return lastValueKey;
+   }
+
+   public boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
    public RoutingType deliveryMode() {
       return routingType;
    }
@@ -363,6 +391,10 @@ public final class QueueConfig {
          return false;
       if (lastValue != that.lastValue)
          return false;
+      if (lastValueKey != null ? !lastValueKey.equals(that.lastValueKey) : that.lastValueKey != null)
+         return false;
+      if (nonDestructive != that.nonDestructive)
+         return false;
       if (purgeOnNoConsumers != that.purgeOnNoConsumers)
          return false;
       if (consumersBeforeDispatch != that.consumersBeforeDispatch)
@@ -392,6 +424,8 @@ public final class QueueConfig {
       result = 31 * result + maxConsumers;
       result = 31 * result + (exclusive ? 1 : 0);
       result = 31 * result + (lastValue ? 1 : 0);
+      result = 31 * result + (lastValueKey != null ? lastValueKey.hashCode() : 0);
+      result = 31 * result + (nonDestructive ? 1 : 0);
       result = 31 * result + consumersBeforeDispatch;
       result = 31 * result + Long.hashCode(delayBeforeDispatch);
       result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
@@ -415,6 +449,8 @@ public final class QueueConfig {
          + ", maxConsumers=" + maxConsumers
          + ", exclusive=" + exclusive
          + ", lastValue=" + lastValue
+         + ", lastValueKey=" + lastValueKey
+         + ", nonDestructive=" + nonDestructive
          + ", consumersBeforeDispatch=" + consumersBeforeDispatch
          + ", delayBeforeDispatch=" + delayBeforeDispatch
          + ", purgeOnNoConsumers=" + purgeOnNoConsumers

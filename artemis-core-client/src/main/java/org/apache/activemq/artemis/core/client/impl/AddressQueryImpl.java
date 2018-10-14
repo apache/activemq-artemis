@@ -40,6 +40,14 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
 
    private final Boolean defaultLastValue;
 
+   private final SimpleString defaultLastValueKey;
+
+   private final Boolean defaultNonDestructive;
+
+   private final Integer defaultConsumersBeforeDispatch;
+
+   private final Long defaultDelayBeforeDispatch;
+
    public AddressQueryImpl(final boolean exists,
                            final List<SimpleString> queueNames,
                            final boolean autoCreateQueues,
@@ -47,7 +55,11 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
                            final boolean defaultPurgeOnNoConsumers,
                            final int defaultMaxConsumers,
                            final Boolean defaultExclusive,
-                           final Boolean defaultLastValue) {
+                           final Boolean defaultLastValue,
+                           final SimpleString defaultLastValueKey,
+                           final Boolean defaultNonDestructive,
+                           final Integer defaultConsumersBeforeDispatch,
+                           final Long defaultDelayBeforeDispatch) {
       this.exists = exists;
       this.queueNames = new ArrayList<>(queueNames);
       this.autoCreateQueues = autoCreateQueues;
@@ -56,6 +68,10 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
       this.defaultMaxConsumers = defaultMaxConsumers;
       this.defaultExclusive = defaultExclusive;
       this.defaultLastValue = defaultLastValue;
+      this.defaultLastValueKey = defaultLastValueKey;
+      this.defaultNonDestructive = defaultNonDestructive;
+      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
+      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
    }
 
    @Override
@@ -96,5 +112,25 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    @Override
    public Boolean isDefaultExclusive() {
       return defaultExclusive;
+   }
+
+   @Override
+   public SimpleString getDefaultLastValueKey() {
+      return defaultLastValueKey;
+   }
+
+   @Override
+   public Boolean isDefaultNonDestructive() {
+      return defaultNonDestructive;
+   }
+
+   @Override
+   public Integer getDefaultConsumersBeforeDispatch() {
+      return defaultConsumersBeforeDispatch;
+   }
+
+   @Override
+   public Long getDefaultDelayBeforeDispatch() {
+      return defaultDelayBeforeDispatch;
    }
 }
