@@ -122,6 +122,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
                                    String password) throws Exception {
             return (String) proxy.invokeOperation("sendMessage", headers, type, body, durable, user, password);
          }
+
+         @Override
+         public void blockSending(boolean block) throws Exception {
+            proxy.invokeOperation("blockSending", block);
+         }
       };
    }
 

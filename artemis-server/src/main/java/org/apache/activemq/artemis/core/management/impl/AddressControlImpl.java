@@ -327,6 +327,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public void blockSending(boolean block) {
+      postOffice.blockSendingOnAddress(block, this.getAddress());
+   }
+
+
+   @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(AddressControl.class);
    }

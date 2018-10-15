@@ -255,6 +255,12 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQShutdownException(msg);
       }
+   },
+   ADDRESS_BLOCKED(220) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQAddressBlockedException(msg);
+      }
    };
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;

@@ -392,6 +392,10 @@ public class AddressControlTest extends ManagementTestBase {
       assertEquals("test", new String(buffer));
    }
 
+   @Test
+   public void testBlockingSendMessage() throws Exception {
+
+   }
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

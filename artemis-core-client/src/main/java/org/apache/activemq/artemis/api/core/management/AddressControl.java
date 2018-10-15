@@ -133,4 +133,7 @@ public interface AddressControl {
                       @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
                       @Parameter(name = "user", desc = "The user to authenticate with") String user,
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
+
+   @Operation(desc = "blocking/unblocking message sending to this address")
+   void blockSending(@Parameter(name = "block", desc = "Whether to block or unblock message sending on the address") boolean block) throws Exception;
 }

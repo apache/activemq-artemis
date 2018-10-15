@@ -1331,5 +1331,9 @@ public interface ActiveMQServerControl {
     */
    @Operation(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)", impact = MBeanOperationInfo.INFO)
    String[] getQueueNames(@Parameter(name = "routingType", desc = "The routing type, MULTICAST or ANYCAST") String routingType);
+
+   @Operation(desc = "Block sending on multiple addresses", impact = MBeanOperationInfo.ACTION)
+   void blockSendingOnAddresses(@Parameter(name = "blocking", desc = "Whether to block or to unblock") boolean blocking,
+                                @Parameter(name = "addresses", desc = "The target addresses to block or unblock") String... addresses) throws Exception;
 }
 
