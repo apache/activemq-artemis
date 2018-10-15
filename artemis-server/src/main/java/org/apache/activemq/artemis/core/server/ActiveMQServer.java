@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -81,7 +82,6 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
  * This is not part of our public API.
  */
 public interface ActiveMQServer extends ServiceComponent {
-
 
    enum SERVER_STATE {
       /**
@@ -636,4 +636,20 @@ public interface ActiveMQServer extends ServiceComponent {
 
    String getInternalNamingPrefix();
 
+   /**
+    * Block message sending on the address. Clients
+    * sending messages to this address will be blocked
+    * untill it is unblocked.
+    * @param blocking whether to block or unblock the address
+    * @param address the target address
+    */
+   void blockSendingOnSingleAddress(boolean blocking, String address) throws Exception;
+
+   default void blockSendingOnAddresses(boolean blocking, String... addresses) throws Exception {
+      for (String address : addresses) {
+         blockSendingOnSingleAddress(blocking, address);
+      }
+   }
+
+   List<Pair<String, Boolean>> getAddressBlockRules();
 }

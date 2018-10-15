@@ -81,6 +81,21 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
+   public void blockSendingOnAddress(boolean blocking, String address) {
+
+   }
+
+   @Override
+   public boolean isAddressBlocked(SimpleString address) {
+      return false;
+   }
+
+   @Override
+   public List<Pair<String, Boolean>> getAddressBlockRules() {
+      return null;
+   }
+
+   @Override
    public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) {
 
       return null;

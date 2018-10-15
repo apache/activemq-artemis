@@ -161,4 +161,10 @@ public interface PostOffice extends ActiveMQComponent {
    Set<SimpleString> getAddresses();
 
    void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception;
+
+   void blockSendingOnAddress(boolean blocking, String address);
+
+   boolean isAddressBlocked(SimpleString address);
+
+   List<Pair<String, Boolean>> getAddressBlockRules();
 }

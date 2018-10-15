@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.Closeable;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressBlockedException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
@@ -1788,6 +1789,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          } */
 
       AddressInfo art = getAddressAndRoutingType(new AddressInfo(msg.getAddressSimpleString(), routingType));
+
+      if (postOffice.isAddressBlocked(msg.getAddressSimpleString())) {
+         //throw an exception telling clients that it's blocked
+         throw new ActiveMQAddressBlockedException(msg.getAddress());
+      }
 
       // Consumer
       // check the user has write access to this address.

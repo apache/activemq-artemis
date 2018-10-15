@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -134,6 +135,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    private final ActiveMQServer server;
 
    private final Object addressLock = new Object();
+
+   //this stores a list of address -> isblock rules
+   //order is significant.
+   ArrayList<Pair<AddressImpl, Boolean>> addressBlockRules = null;
+
+   Map<SimpleString, Boolean> blockCache = new HashMap<>();
 
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
@@ -1079,6 +1086,152 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       addressManager.updateMessageLoadBalancingTypeForAddress(address, messageLoadBalancingType);
+   }
+
+   @Override
+   public boolean isAddressBlocked(SimpleString address) {
+      synchronized (addressLock) {
+         if (addressBlockRules == null) {
+            return false;
+         }
+         Boolean blocked = blockCache.get(address);
+         if (blocked != null) {
+            return blocked;
+         }
+         AddressInfo addressInfo = getAddressInfo(address);
+         if (addressInfo != null && addressInfo.isInternal()) {
+            //don't block internal address
+            return false;
+         }
+         AddressImpl theAddress = new AddressImpl(address);
+
+         for (Pair<AddressImpl, Boolean> rule : addressBlockRules) {
+            if (theAddress.matches(rule.getA())) {
+               blocked = rule.getB();
+            }
+         }
+         boolean result = blocked == null ? false : blocked;
+         blockCache.put(address, result);
+         return result;
+      }
+   }
+
+   @Override
+   public List<Pair<String, Boolean>> getAddressBlockRules() {
+      synchronized (addressLock) {
+         if (this.addressBlockRules == null) {
+            return null;
+         }
+         ArrayList<Pair<String, Boolean>> list = new ArrayList<>();
+         for (Pair<AddressImpl, Boolean> p : this.addressBlockRules) {
+            list.add(new Pair(p.getA().getAddress().toString(), p.getB()));
+         }
+         return list;
+      }
+   }
+
+   @Override
+   public void blockSendingOnAddress(boolean blocking, String address) {
+      if (blocking) {
+         blockAddress(address);
+      } else {
+         unblockAddress(address);
+      }
+   }
+
+   private void blockAddress(String address) {
+      synchronized (addressLock) {
+
+         blockCache.clear();
+         AddressImpl toBlock = new AddressImpl(new SimpleString(address));
+
+         BlockState blockState = BlockState.UNKNOWN;
+         if (addressBlockRules != null) {
+            ListIterator<Pair<AddressImpl, Boolean>> iter = addressBlockRules.listIterator();
+
+            while (iter.hasNext()) {
+               Pair<AddressImpl, Boolean> pair = iter.next();
+               if (toBlock.matches(pair.getA())) {
+                  if (pair.getB() && blockState != BlockState.BLOCKED) {
+                     blockState = BlockState.BLOCKED;
+                  }
+                  if (!pair.getB()) {
+                     if (toBlock.equals(pair.getA())) {
+                        if (blockState != BlockState.UNBLOCKED) {
+                           //redundant
+                           iter.remove();
+                        } else {
+                           pair.setB(true);
+                           blockState = BlockState.BLOCKED;
+                        }
+                     } else {
+                        blockState = BlockState.UNBLOCKED;
+                     }
+                  }
+               } else if (pair.getA().matches(toBlock)) {
+                  //toBlock is super set, redundant
+                  iter.remove();
+               }
+            }
+         }
+         if (blockState != BlockState.BLOCKED) {
+            //not blocked yet.
+            if (addressBlockRules == null) {
+               addressBlockRules = new ArrayList<>();
+            }
+            addressBlockRules.add(new Pair(toBlock, Boolean.TRUE));
+            logger.warn("Sending is blocked on address: " + toBlock.getAddress());
+         }
+      }
+   }
+
+   private void unblockAddress(String address) {
+      synchronized (addressLock) {
+         blockCache.clear();
+         //donot do anything if addressBlockRules is null
+         if (addressBlockRules != null) {
+            BlockState blockState = BlockState.UNKNOWN;
+            AddressImpl toUnblock = new AddressImpl(new SimpleString(address));
+            ListIterator<Pair<AddressImpl, Boolean>> iter = addressBlockRules.listIterator();
+
+            while (iter.hasNext()) {
+               Pair<AddressImpl, Boolean> pair = iter.next();
+               if (toUnblock.matches(pair.getA())) {
+                  if (!pair.getB() && blockState != BlockState.UNBLOCKED) {
+                     blockState = BlockState.UNBLOCKED;
+                  }
+                  if (pair.getB()) {
+                     if (toUnblock.equals(pair.getA())) {
+                        if (blockState == BlockState.BLOCKED) {
+                           pair.setB(false);
+                           blockState = BlockState.UNBLOCKED;
+                        } else {
+                           //just remove it.
+                           iter.remove();
+                        }
+                     } else {
+                        blockState = BlockState.BLOCKED;
+                     }
+                  }
+               } else if (pair.getA().matches(toUnblock)) {
+                  //toUnblock is a super set
+                  iter.remove();
+               }
+            }
+            if (blockState == BlockState.BLOCKED) {
+               addressBlockRules.add(new Pair(toUnblock, Boolean.FALSE));
+            } else if (addressBlockRules.size() == 0) {
+               addressBlockRules = null;
+            }
+            logger.warn("Unblocking address: " + toUnblock.getAddress());
+         }
+      }
+   }
+
+   private enum BlockState {
+      UNKNOWN,
+      BLOCKED,
+      UNBLOCKED;
    }
 
    @Override

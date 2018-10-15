@@ -926,6 +926,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public void blockSendingOnAddresses(boolean blocking, String... addresses) throws Exception {
+      server.blockSendingOnAddresses(blocking, addresses);
+   }
+
+   @Override
    public String getUptime() {
       checkStarted();
 

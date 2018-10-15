@@ -324,6 +324,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void blockSendingOnAddresses(boolean blocking, String... addresses) throws Exception {
+
+         }
+
+         @Override
          public String getUptime() {
             return null;
          }

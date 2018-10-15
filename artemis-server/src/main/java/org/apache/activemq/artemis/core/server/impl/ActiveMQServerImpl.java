@@ -2990,6 +2990,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public void blockSendingOnSingleAddress(boolean blocking, String address) throws Exception {
+      postOffice.blockSendingOnAddress(blocking, address);
+   }
+
+   @Override
+   public List<Pair<String, Boolean>> getAddressBlockRules() {
+      return postOffice.getAddressBlockRules();
+   }
+
+   @Override
    public AddressInfo getAddressInfo(SimpleString address) {
       return postOffice.getAddressInfo(address);
    }
