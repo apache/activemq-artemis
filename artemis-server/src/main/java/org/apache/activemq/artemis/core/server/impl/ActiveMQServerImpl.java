@@ -977,7 +977,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
-   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) {
+   public void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) {
       this.stop(failoverOnServerShutdown, criticalIOError, restarting, false);
    }
 
@@ -1178,7 +1178,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (ActiveMQComponent externalComponent : externalComponents) {
          try {
             if (externalComponent instanceof ServiceComponent) {
-               ((ServiceComponent)externalComponent).stop(isShutdown);
+               ((ServiceComponent)externalComponent).stop(isShutdown || criticalIOError);
             } else {
                externalComponent.stop();
             }
