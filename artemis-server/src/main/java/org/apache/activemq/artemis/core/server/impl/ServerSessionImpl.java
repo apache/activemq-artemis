@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.security.cert.X509Certificate;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -498,6 +500,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          // HORNETQ-946
          props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(username));
+
+         props.putSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
+
+         String certSubjectDN = "unavailable";
+         X509Certificate[] certs = CertificateUtil.getCertsFromConnection(this.remotingConnection);
+         if (certs != null && certs.length > 0 && certs[0] != null) {
+            certSubjectDN = certs[0].getSubjectDN().getName();
+         }
+
+         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
 
          props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(this.remotingConnection.getRemoteAddress()));
 
