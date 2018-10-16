@@ -2489,7 +2489,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                   refRemoved(ref);
 
-                  if (groupID != null && groupConsumer == null) {
+                  if (groupID != null && groupConsumer == null && redistributor == null) {
                      groups.put(groupID, consumer);
                   }
 
@@ -3061,7 +3061,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             HandleStatus status = handle(ref, consumer);
 
             if (status == HandleStatus.HANDLED) {
-               if (groupID != null && groupConsumer == null) {
+               if (groupID != null && groupConsumer == null && redistributor == null) {
                   groups.put(groupID, consumer);
                }
 
