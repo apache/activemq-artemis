@@ -62,6 +62,8 @@ public final class ManagementHelper {
 
    public static final SimpleString HDR_USER = new SimpleString("_AMQ_User");
 
+   public static final SimpleString HDR_VALIDATED_USER = new SimpleString("_AMQ_ValidatedUser");
+
    public static final SimpleString HDR_CERT_SUBJECT_DN = new SimpleString("_AMQ_CertSubjectDN");
 
    public static final SimpleString HDR_CHECK_TYPE = new SimpleString("_AMQ_CheckType");

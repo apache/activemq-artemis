@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -40,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_PERMISSION_VIOLATION;
 
@@ -115,6 +117,36 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
       Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
       Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
+
+      guestSession.close();
+   }
+
+   @Test
+   public void testCONSUMER_CREATED() throws Exception {
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomSimpleString();
+
+      Role role = new Role("role", true, true, true, true, false, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch(address.toString(), roles);
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
+      securityManager.getConfiguration().addRole("guest", "role");
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
+
+      guestSession.createQueue(address, RoutingType.ANYCAST, queue, true);
+      SecurityNotificationTest.flush(notifConsumer);
+      guestSession.createConsumer(queue);
+
+      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
+      Assert.assertEquals(CONSUMER_CREATED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
+      Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_VALIDATED_USER).toString());
+      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+      Assert.assertEquals(SimpleString.toSimpleString("unavailable"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
 
       guestSession.close();
    }

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -46,6 +47,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 
 public class SSLSecurityNotificationTest extends ActiveMQTestBase {
@@ -94,6 +96,43 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals(null, notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
       Assert.assertEquals("CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
       Assert.assertTrue(notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
+   }
+
+   @Test
+   public void testCONSUMER_CREATED() throws Exception {
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomSimpleString();
+
+      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+
+      server.getSecurityRepository().addMatch("#", roles);
+
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
+
+      guestSession.createQueue(address, RoutingType.ANYCAST, queue, true);
+      SSLSecurityNotificationTest.flush(notifConsumer);
+      guestSession.createConsumer(queue);
+
+      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
+      Assert.assertEquals(CONSUMER_CREATED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
+      Assert.assertEquals("first", notifications[0].getObjectProperty(ManagementHelper.HDR_VALIDATED_USER).toString());
+      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+      Assert.assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+
+      guestSession.close();
    }
 
    @Override

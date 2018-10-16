@@ -735,8 +735,8 @@ un-formatted result of a call to `java.lang.System.currentTimeMillis()`.
 - `CONSUMER_CREATED` (2)
 
   `_AMQ_Address`, `_AMQ_ClusterName`, `_AMQ_RoutingName`, `_AMQ_Distance`,
-  `_AMQ_ConsumerCount`, `_AMQ_User`, `_AMQ_RemoteAddress`,
-  `_AMQ_SessionName`, `_AMQ_FilterString`
+  `_AMQ_ConsumerCount`, `_AMQ_User`, `_AMQ_ValidatedUser`, `_AMQ_RemoteAddress`,
+  `_AMQ_SessionName`, `_AMQ_FilterString`, `_AMQ_CertSubjectDN`
 
 - `CONSUMER_CLOSED` (3)
 
