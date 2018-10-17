@@ -362,7 +362,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
       workspace.subLevelTabs = subLevelTabs;
 
-      preLogoutTasks.addTask("clearArtemisCredentials", () => {
+      preLogoutTasks.addTask("clearArtemisCredentials", function () {
           localStorage.removeItem('artemisUserName');
           localStorage.removeItem('artemisPassword');
       });
