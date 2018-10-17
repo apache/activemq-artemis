@@ -141,7 +141,7 @@ public class AMQPMessage extends RefCountMessage {
       this(0, message);
    }
 
-   public MessageImpl getProtonMessage() {
+   public synchronized MessageImpl getProtonMessage() {
       if (protonMessage == null) {
          protonMessage = (MessageImpl) Message.Factory.create();
 
