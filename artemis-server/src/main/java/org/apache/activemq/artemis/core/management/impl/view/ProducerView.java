@@ -52,7 +52,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
 
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID()))
          .add("session", toString(session.getName()))
-         .add("clientID", toString(session.getRemotingConnection().getClientID()))
+         .add("clientID", toString(session.getMetaData("jms-client-id") == null ? session.getRemotingConnection().getClientID() : session.getMetaData("jms-client-id")))
          .add("user", toString(session.getUsername()))
          .add("protocol", toString(session.getRemotingConnection().getProtocolName()))
          .add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
@@ -79,7 +79,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          case "user":
             return session.getUsername();
          case "clientID":
-            return session.getRemotingConnection().getClientID();
+            return session.getMetaData("jms-client-id") == null ? session.getRemotingConnection().getClientID() : session.getMetaData("jms-client-id");
          case "protocol":
             return session.getRemotingConnection().getProtocolName();
          case "address":

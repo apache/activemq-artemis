@@ -51,10 +51,14 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
       Set<String> users = new HashSet<>();
+      String clientID = null;
 
       for (ServerSession session : sessions) {
          String username = session.getUsername() == null ? "" : session.getUsername();
          users.add(username);
+         if (clientID == null) {
+            clientID = session.getMetaData("jms-client-id") == null ? connection.getClientID() : session.getMetaData("jms-client-id");
+         }
       }
 
       return JsonLoader.createObjectBuilder().add("connectionID", toString(connection.getID()))
@@ -63,7 +67,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add("creationTime", new Date(connection.getCreationTime()).toString())
          .add("implementation", toString(connection.getClass().getSimpleName()))
          .add("protocol", toString(connection.getProtocolName()))
-         .add("clientID", toString(connection.getClientID()))
+         .add("clientID", toString(clientID))
          .add("localAddress", toString(connection.getTransportLocalAddress()))
          .add("sessionCount", server.getSessions(connection.getID().toString()).size());
    }
@@ -91,7 +95,14 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          case "protocol":
             return connection.getProtocolName();
          case "clientID":
-            return connection.getClientID();
+            String clientID = null;
+            for (ServerSession session : sessions) {
+               if (clientID == null) {
+                  clientID = session.getMetaData("jms-client-id") == null ? connection.getClientID() : session.getMetaData("jms-client-id");
+                  break;
+               }
+            }
+            return clientID;
          case "localAddress":
             return connection.getTransportLocalAddress();
          case "sessionCount":

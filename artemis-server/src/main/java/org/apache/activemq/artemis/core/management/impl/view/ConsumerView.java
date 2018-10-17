@@ -53,7 +53,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.getSequentialID()))
          .add("session", toString(consumer.getSessionName()))
-         .add("clientID", toString(consumer.getConnectionClientID()))
+         .add("clientID", toString(session.getMetaData("jms-client-id") == null ? consumer.getConnectionClientID() : session.getMetaData("jms-client-id")))
          .add("user", toString(session.getUsername()))
          .add("protocol", toString(consumer.getConnectionProtocolName()))
          .add("queue", toString(consumer.getQueueName()))
@@ -82,7 +82,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          case "user":
             return session.getUsername();
          case "clientID":
-            return consumer.getConnectionClientID();
+            return session.getMetaData("jms-client-id") == null ? consumer.getConnectionClientID() : session.getMetaData("jms-client-id");
          case "protocol":
             return consumer.getConnectionProtocolName();
          case "queue":
