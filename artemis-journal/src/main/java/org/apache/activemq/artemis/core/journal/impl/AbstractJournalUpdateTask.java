@@ -56,6 +56,8 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
    private ActiveMQBuffer writingChannel;
 
+   private ByteBuffer bufferWrite;
+
    private final ConcurrentLongHashSet recordsSnapshot;
 
    protected final List<JournalFile> newDataFiles = new ArrayList<>();
@@ -214,10 +216,16 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
          // To Fix the size of the file
          writingChannel.writerIndex(writingChannel.capacity());
 
-         sequentialFile.writeDirect(writingChannel.toByteBuffer(), true);
+         bufferWrite.clear()
+            .position(writingChannel.readerIndex())
+            .limit(writingChannel.readableBytes());
+
+         sequentialFile.writeDirect(bufferWrite, true);
          sequentialFile.close();
          newDataFiles.add(currentFile);
       }
+
+      bufferWrite = null;
 
       writingChannel = null;
    }
@@ -237,7 +245,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    protected void openFile() throws Exception {
       flush();
 
-      ByteBuffer bufferWrite = fileFactory.newBuffer(journal.getFileSize());
+      bufferWrite = fileFactory.newBuffer(journal.getFileSize());
 
       writingChannel = ActiveMQBuffers.wrappedBuffer(bufferWrite);
 
