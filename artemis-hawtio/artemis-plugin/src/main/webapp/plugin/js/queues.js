@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "queue";
         var method = 'listQueues(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'manage',
                 displayName: 'manage',
@@ -148,6 +148,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 visible: false
             }
         ];
+        ARTEMIS.log.debug('sessionStorage: queuesColumnDefs =', sessionStorage.getItem('queuesColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('queuesColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('queuesColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('queuesColumnDefs', JSON.stringify(attributes));
+        });
 
         $scope.filter = {
             fieldOptions: [

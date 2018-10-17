@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "sessions"
         var method = 'listSessions(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'id',
                 displayName: 'ID',
@@ -64,6 +64,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
         ];
+        ARTEMIS.log.debug('sessionStorage: sessionsColumnDefs =', sessionStorage.getItem('sessionsColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('sessionsColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('sessionsColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('sessionsColumnDefs', JSON.stringify(attributes));
+        });
         $scope.filter = {
             fieldOptions: [
                 {id: 'ID', name: 'ID'},
