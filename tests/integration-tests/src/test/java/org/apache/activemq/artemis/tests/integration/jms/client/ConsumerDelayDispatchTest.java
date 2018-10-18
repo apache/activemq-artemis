@@ -46,8 +46,8 @@ public class ConsumerDelayDispatchTest extends JMSTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, -1, false, true, false, 2, DELAY_BEFORE_DISPATCH, true);
-      server.createQueue(normalQueueName, RoutingType.ANYCAST, normalQueueName, null, null, true, false, false, false, false, -1, false, true, false, 0, -1, true);
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, -1, false, true, false, null, false, 2, DELAY_BEFORE_DISPATCH, true);
+      server.createQueue(normalQueueName, RoutingType.ANYCAST, normalQueueName, null, null, true, false, false, false, false, -1, false, true, false, null, false, 0, -1, true);
 
    }
 
