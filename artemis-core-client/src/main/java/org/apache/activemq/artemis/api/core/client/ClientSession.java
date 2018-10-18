@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
@@ -79,6 +80,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Boolean isDefaultLastValueQueue();
 
       Boolean isDefaultExclusive();
+
+      SimpleString getDefaultLastValueKey();
+
+      Boolean isDefaultNonDestructive();
+
+      Integer getDefaultConsumersBeforeDispatch();
+
+      Long getDefaultDelayBeforeDispatch();
    }
 
    /**
@@ -147,6 +156,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Boolean isExclusive();
 
       Boolean isLastValue();
+
+      SimpleString getLastValueKey();
+
+      Boolean isNonDestructive();
+
+      Integer getConsumersBeforeDispatch();
+
+      Long getDelayBeforeDispatch();
 
       Integer getDefaultConsumerWindowSize();
    }
@@ -482,6 +499,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
                           boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
 
    /**
+    * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
+    *
+    * @param address   the queue will be bound to this address
+    * @param queueName the name of the queue
+    * @param queueAttributes attributes for the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createSharedQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException;
+
+
+   /**
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
@@ -586,6 +614,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
                     boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
 
    /**
+    * Creates a <em>non-temporary</em> queue.
+    *
+    * @param address      the queue will be bound to this address
+    * @param queueName    the name of the queue
+    * @param autoCreated  whether to mark this queue as autoCreated or not
+    * @param queueAttributes attributes for the queue
+    * @throws ActiveMQException
+    */
+   void createQueue(SimpleString address, SimpleString queueName, boolean autoCreated, QueueAttributes queueAttributes) throws ActiveMQException;
+
+   /**
     * Creates a <em>non-temporary</em>queue.
     *
     * @param address     the queue will be bound to this address
@@ -667,6 +706,16 @@ public interface ClientSession extends XAResource, AutoCloseable {
     */
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter, int maxConsumers,
                              boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
+
+   /**
+    * Creates a <em>temporary</em> queue with a filter.
+    *
+    * @param address   the queue will be bound to this address
+    * @param queueName the name of the queue
+    * @param queueAttributes attributes for the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createTemporaryQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue with a filter.

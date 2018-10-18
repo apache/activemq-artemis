@@ -32,6 +32,14 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
    private Boolean defaultLastValue;
 
+   private SimpleString defaultLastValueKey;
+
+   private Boolean defaultNonDestructive;
+
+   private Integer defaultConsumersBeforeDispatch;
+
+   private Long defaultDelayBeforeDispatch;
+
    public SessionBindingQueryResponseMessage_V4(final boolean exists,
                                                 final List<SimpleString> queueNames,
                                                 final boolean autoCreateQueues,
@@ -39,7 +47,11 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
                                                 final boolean defaultPurgeOnNoConsumers,
                                                 final int defaultMaxConsumers,
                                                 final Boolean defaultExclusive,
-                                                final Boolean defaultLastValue) {
+                                                final Boolean defaultLastValue,
+                                                final SimpleString defaultLastValueKey,
+                                                final Boolean defaultNonDestructive,
+                                                final Integer defaultConsumersBeforeDispatch,
+                                                final Long defaultDelayBeforeDispatch) {
       super(SESS_BINDINGQUERY_RESP_V4);
 
       this.exists = exists;
@@ -57,6 +69,14 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       this.defaultExclusive = defaultExclusive;
 
       this.defaultLastValue = defaultLastValue;
+
+      this.defaultLastValueKey = defaultLastValueKey;
+
+      this.defaultNonDestructive = defaultNonDestructive;
+
+      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
+
+      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
    }
 
    public SessionBindingQueryResponseMessage_V4() {
@@ -79,6 +99,22 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       return defaultLastValue;
    }
 
+   public SimpleString getDefaultLastValueKey() {
+      return defaultLastValueKey;
+   }
+
+   public Boolean isDefaultNonDestructive() {
+      return defaultNonDestructive;
+   }
+
+   public Integer getDefaultConsumersBeforeDispatch() {
+      return defaultConsumersBeforeDispatch;
+   }
+
+   public Long getDefaultDelayBeforeDispatch() {
+      return defaultDelayBeforeDispatch;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
@@ -86,6 +122,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       buffer.writeInt(defaultMaxConsumers);
       BufferHelper.writeNullableBoolean(buffer, defaultExclusive);
       BufferHelper.writeNullableBoolean(buffer, defaultLastValue);
+      buffer.writeNullableSimpleString(defaultLastValueKey);
+      BufferHelper.writeNullableBoolean(buffer, defaultNonDestructive);
+      BufferHelper.writeNullableInteger(buffer, defaultConsumersBeforeDispatch);
+      BufferHelper.writeNullableLong(buffer, defaultDelayBeforeDispatch);
    }
 
    @Override
@@ -97,6 +137,12 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
          defaultExclusive = BufferHelper.readNullableBoolean(buffer);
          defaultLastValue = BufferHelper.readNullableBoolean(buffer);
       }
+      if (buffer.readableBytes() > 0) {
+         defaultLastValueKey = buffer.readNullableSimpleString();
+         defaultNonDestructive = BufferHelper.readNullableBoolean(buffer);
+         defaultConsumersBeforeDispatch = BufferHelper.readNullableInteger(buffer);
+         defaultDelayBeforeDispatch = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -107,6 +153,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       result = prime * result + defaultMaxConsumers;
       result = prime * result + (defaultExclusive == null ? 0 : defaultExclusive ? 1231 : 1237);
       result = prime * result + (defaultLastValue == null ? 0 : defaultLastValue ? 1231 : 1237);
+      result = prime * result + (defaultLastValueKey == null ? 0 : defaultLastValueKey.hashCode());
+      result = prime * result + (defaultNonDestructive == null ? 0 : defaultNonDestructive ? 1231 : 1237);
+      result = prime * result + (defaultConsumersBeforeDispatch == null ? 0 : defaultConsumersBeforeDispatch.hashCode());
+      result = prime * result + (defaultDelayBeforeDispatch == null ? 0 : defaultDelayBeforeDispatch.hashCode());
       return result;
    }
 
@@ -124,6 +174,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       buff.append(", defaultMaxConsumers=" + defaultMaxConsumers);
       buff.append(", defaultExclusive=" + defaultExclusive);
       buff.append(", defaultLastValue=" + defaultLastValue);
+      buff.append(", defaultLastValueKey=" + defaultLastValueKey);
+      buff.append(", defaultNonDestructive=" + defaultNonDestructive);
+      buff.append(", defaultConsumersBeforeDispatch=" + defaultConsumersBeforeDispatch);
+      buff.append(", defaultDelayBeforeDispatch=" + defaultDelayBeforeDispatch);
       return buff.toString();
    }
 
@@ -149,6 +203,26 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
          if (other.defaultLastValue != null)
             return false;
       } else if (!defaultLastValue.equals(other.defaultLastValue))
+         return false;
+      if (defaultLastValueKey == null) {
+         if (other.defaultLastValueKey != null)
+            return false;
+      } else if (!defaultLastValueKey.equals(other.defaultLastValueKey))
+         return false;
+      if (defaultNonDestructive == null) {
+         if (other.defaultNonDestructive != null)
+            return false;
+      } else if (!defaultNonDestructive.equals(other.defaultNonDestructive))
+         return false;
+      if (defaultConsumersBeforeDispatch == null) {
+         if (other.defaultConsumersBeforeDispatch != null)
+            return false;
+      } else if (!defaultConsumersBeforeDispatch.equals(other.defaultConsumersBeforeDispatch))
+         return false;
+      if (defaultDelayBeforeDispatch == null) {
+         if (other.defaultDelayBeforeDispatch != null)
+            return false;
+      } else if (!defaultDelayBeforeDispatch.equals(other.defaultDelayBeforeDispatch))
          return false;
       return true;
    }

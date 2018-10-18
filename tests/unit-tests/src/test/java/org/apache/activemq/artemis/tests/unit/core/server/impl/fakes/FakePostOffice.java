@@ -51,6 +51,7 @@ public class FakePostOffice implements PostOffice {
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
+                                   Boolean lastValue,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,
                                    SimpleString user,
@@ -66,7 +67,6 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public boolean isStarted() {
-
       return false;
    }
 

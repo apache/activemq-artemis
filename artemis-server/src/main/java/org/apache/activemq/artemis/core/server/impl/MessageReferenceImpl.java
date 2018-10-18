@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -230,6 +231,15 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
          throw new IllegalStateException("consumerID isn't specified: please check hasConsumerId first");
       }
       return this.consumerID;
+   }
+
+   @Override
+   public SimpleString getLastValueProperty() {
+      SimpleString lastValue = message.getSimpleStringProperty(queue.getLastValueKey());
+      if (lastValue == null) {
+         lastValue = message.getLastValueProperty();
+      }
+      return lastValue;
    }
 
    @Override
