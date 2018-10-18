@@ -213,14 +213,12 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
       checkEncode();
-      internalWritableBuffer();
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
    }
 
    @Override
    public int getBodyBufferSize() {
       checkEncode();
-      internalWritableBuffer();
       return endOfBodyPosition - BUFFER_HEADER_SPACE;
    }
 
@@ -319,6 +317,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       if (!validBuffer) {
          encode();
       }
+      internalWritableBuffer();
    }
 
    @Override
@@ -362,7 +361,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return writableBuffer;
    }
 
-   private void internalWritableBuffer() {
+   private synchronized void internalWritableBuffer() {
       if (writableBuffer == null) {
          writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
          if (endOfBodyPosition > 0) {
@@ -404,22 +403,27 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    protected CoreMessage(CoreMessage other, TypedProperties copyProperties) {
-      this.body = other.body;
-      this.endOfBodyPosition = other.endOfBodyPosition;
-      this.messageID = other.messageID;
-      this.address = other.address;
-      this.type = other.type;
-      this.durable = other.durable;
-      this.expiration = other.expiration;
-      this.timestamp = other.timestamp;
-      this.priority = other.priority;
-      this.userID = other.userID;
-      this.coreMessageObjectPools = other.coreMessageObjectPools;
-      if (copyProperties != null) {
-         this.properties = new TypedProperties(copyProperties);
-      }
-      if (other.buffer != null) {
-         this.buffer = other.buffer.copy();
+      // This MUST be synchronized using the monitor on the other message to prevent it running concurrently
+      // with getEncodedBuffer(), otherwise can introduce race condition when delivering concurrently to
+      // many subscriptions and bridging to other nodes in a cluster
+      synchronized (other) {
+         this.body = other.body;
+         this.endOfBodyPosition = other.endOfBodyPosition;
+         this.messageID = other.messageID;
+         this.address = other.address;
+         this.type = other.type;
+         this.durable = other.durable;
+         this.expiration = other.expiration;
+         this.timestamp = other.timestamp;
+         this.priority = other.priority;
+         this.userID = other.userID;
+         this.coreMessageObjectPools = other.coreMessageObjectPools;
+         if (copyProperties != null) {
+            this.properties = new TypedProperties(copyProperties);
+         }
+         if (other.buffer != null) {
+            this.buffer = other.buffer.copy();
+         }
       }
    }
 
