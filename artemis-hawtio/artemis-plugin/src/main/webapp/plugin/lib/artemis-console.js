@@ -56,7 +56,7 @@ function ArtemisConsole() {
    };
 
    this.retryMessage = function (mbean, jolokia, id, method) {
-      jolokia.execute(mbean, "retryMessage(java.lang.String)", id,  method);
+      jolokia.execute(mbean, "retryMessage(long)", id,  method);
    };
 
    this.sendMessage = function (mbean, jolokia, headers, type, body, durable, user, pwd, method) {
