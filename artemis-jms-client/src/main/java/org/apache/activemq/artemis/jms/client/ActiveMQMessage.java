@@ -46,8 +46,10 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.UUID;
 
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
@@ -66,10 +68,8 @@ public class ActiveMQMessage implements javax.jms.Message {
    // Constants -----------------------------------------------------
    public static final byte TYPE = org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
 
-   public static final SimpleString OLD_QUEUE_QUALIFIED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + PacketImpl.OLD_QUEUE_PREFIX);
-   public static final SimpleString OLD_TEMP_QUEUE_QUALIFED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_QUEUE_PREFIX);
-   public static final SimpleString OLD_TOPIC_QUALIFIED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + PacketImpl.OLD_TOPIC_PREFIX);
-   public static final SimpleString OLD_TEMP_TOPIC_QUALIFED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_TOPIC_PREFIX);
+   public static final String QUEUE_PREFIX = PacketImpl.OLD_QUEUE_PREFIX.toString();
+   public static final String TOPIC_PREFIX = PacketImpl.OLD_TOPIC_PREFIX.toString();
 
    public static Map<String, Object> coreMaptoJMSMap(final Map<String, Object> coreMessage) {
       Map<String, Object> jmsMessage = new HashMap<>();
@@ -372,14 +372,20 @@ public class ActiveMQMessage implements javax.jms.Message {
 
             // swap the old prefixes for the new ones so the proper destination type gets created
             if (enable1xPrefixes) {
-               if (address.startsWith(OLD_QUEUE_QUALIFIED_PREFIX)) {
-                  name = address.subSeq(OLD_QUEUE_QUALIFIED_PREFIX.length(), address.length()).toString();
-               } else if (address.startsWith(OLD_TEMP_QUEUE_QUALIFED_PREFIX)) {
-                  name = address.subSeq(OLD_TEMP_QUEUE_QUALIFED_PREFIX.length(), address.length()).toString();
-               } else if (address.startsWith(OLD_TOPIC_QUALIFIED_PREFIX)) {
-                  name = address.subSeq(OLD_TOPIC_QUALIFIED_PREFIX.length(), address.length()).toString();
-               } else if (address.startsWith(OLD_TEMP_TOPIC_QUALIFED_PREFIX)) {
-                  name = address.subSeq(OLD_TEMP_TOPIC_QUALIFED_PREFIX.length(), address.length()).toString();
+               if (name.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
+                  name = name.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
+               } else if (name.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
+                  name = name.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
+               } else if (name.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
+                  name = name.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
+               } else if (name.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
+                  name = name.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
+               }
+
+               if (name.startsWith(QUEUE_PREFIX)) {
+                  name = ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + name.substring(QUEUE_PREFIX.length());
+               } else if (name.startsWith(TOPIC_PREFIX)) {
+                  name = ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + name.substring(TOPIC_PREFIX.length());
                }
             }
             replyTo = ActiveMQDestination.fromPrefixedName(address.toString(), name);
