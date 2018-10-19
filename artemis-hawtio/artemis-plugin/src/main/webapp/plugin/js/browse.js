@@ -194,12 +194,10 @@ var ARTEMIS = (function(ARTEMIS) {
           if (mbean && selection) {
              var selectedItems = $scope.gridOptions.selectedItems;
              $scope.message = "Retry " + Core.maybePlural(selectedItems.length, "message");
-             var operation = "retryMessage(java.lang.String)";
              angular.forEach(selectedItems, function (item, idx) {
                 var id = item.messageID;
                 if (id) {
                    var callback = (idx + 1 < selectedItems.length) ? intermediateResult : operationSuccess;
-                   jolokia.execute(mbean, operation, id, onSuccess(callback));
                    ARTEMISService.artemisConsole.retryMessage(mbean, jolokia, id, onSuccess(callback));
                 }
              });
