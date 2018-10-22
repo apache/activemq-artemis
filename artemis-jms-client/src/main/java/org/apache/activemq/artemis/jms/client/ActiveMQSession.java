@@ -62,12 +62,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQBytesCompatibleMessage;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQMapCompatibleMessage;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQObjectCompatibleMessage;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQStreamCompatibleMessage;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQTextCompabileMessage;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
@@ -150,12 +144,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public BytesMessage createBytesMessage() throws JMSException {
       checkClosed();
 
-      ActiveMQBytesMessage message;
-      if (enable1xPrefixes) {
-         message = new ActiveMQBytesCompatibleMessage(session);
-      } else {
-         message = new ActiveMQBytesMessage(session);
-      }
+      ActiveMQBytesMessage message = new ActiveMQBytesMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -163,12 +153,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public MapMessage createMapMessage() throws JMSException {
       checkClosed();
 
-      ActiveMQMapMessage message;
-      if (enable1xPrefixes) {
-         message = new ActiveMQMapCompatibleMessage(session);
-      } else {
-         message = new ActiveMQMapMessage(session);
-      }
+      ActiveMQMapMessage message = new ActiveMQMapMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -176,12 +162,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public Message createMessage() throws JMSException {
       checkClosed();
 
-      ActiveMQMessage message;
-      if (enable1xPrefixes) {
-         message = new ActiveMQCompatibleMessage(session);
-      } else {
-         message = new ActiveMQMessage(session);
-      }
+      ActiveMQMessage message = new ActiveMQMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -189,12 +171,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public ObjectMessage createObjectMessage() throws JMSException {
       checkClosed();
 
-      ActiveMQObjectMessage message;
-      if (enable1xPrefixes) {
-         message = new ActiveMQObjectCompatibleMessage(session, options);
-      } else {
-         message = new ActiveMQObjectMessage(session, options);
-      }
+      ActiveMQObjectMessage message = new ActiveMQObjectMessage(session, options);
+      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -202,13 +180,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public ObjectMessage createObjectMessage(final Serializable object) throws JMSException {
       checkClosed();
 
-      ActiveMQObjectMessage msg;
-      if (enable1xPrefixes) {
-         msg = new ActiveMQObjectCompatibleMessage(session, options);
-      } else {
-         msg = new ActiveMQObjectMessage(session, options);
-      }
+      ActiveMQObjectMessage msg = new ActiveMQObjectMessage(session, options);
       msg.setObject(object);
+      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -217,12 +191,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public StreamMessage createStreamMessage() throws JMSException {
       checkClosed();
 
-      ActiveMQStreamMessage message;
-      if (enable1xPrefixes) {
-         message = new ActiveMQStreamMessage(session);
-      } else {
-         message = new ActiveMQStreamCompatibleMessage(session);
-      }
+      ActiveMQStreamMessage message = new ActiveMQStreamMessage(session);
+      message.setEnable1xPrefixes(enable1xPrefixes);
       return message;
    }
 
@@ -230,13 +200,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public TextMessage createTextMessage() throws JMSException {
       checkClosed();
 
-      ActiveMQTextMessage msg;
-      if (enable1xPrefixes) {
-         msg = new ActiveMQTextCompabileMessage(session);
-      } else {
-         msg = new ActiveMQTextMessage(session);
-      }
+      ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
       msg.setText(null);
+      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
@@ -245,13 +211,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public TextMessage createTextMessage(final String text) throws JMSException {
       checkClosed();
 
-      ActiveMQTextMessage msg;
-      if (enable1xPrefixes) {
-         msg = new ActiveMQTextCompabileMessage(session);
-      } else {
-         msg = new ActiveMQTextMessage(session);
-      }
+      ActiveMQTextMessage msg = new ActiveMQTextMessage(session);
       msg.setText(text);
+      msg.setEnable1xPrefixes(enable1xPrefixes);
 
       return msg;
    }
