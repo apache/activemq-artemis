@@ -113,6 +113,8 @@ public interface Message {
     */
    SimpleString HDR_GROUP_ID = new SimpleString("_AMQ_GROUP_ID");
 
+   SimpleString HDR_GROUP_SEQUENCE = new SimpleString("_AMQ_GROUP_SEQUENCE");
+
    /**
     * to determine if the Large Message was compressed.
     */
@@ -246,6 +248,10 @@ public interface Message {
 
    default SimpleString getGroupID() {
       return null;
+   }
+
+   default int getGroupSequence() {
+      return 0;
    }
 
    SimpleString getReplyTo();
