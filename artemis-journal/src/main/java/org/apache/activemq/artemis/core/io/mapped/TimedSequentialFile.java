@@ -97,6 +97,11 @@ final class TimedSequentialFile implements SequentialFile {
    }
 
    @Override
+   public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
+      this.sequentialFile.blockingWriteDirect(bytes, sync, releaseBuffer);
+   }
+
+   @Override
    public void write(ActiveMQBuffer bytes, boolean sync, IOCallback callback) throws Exception {
       if (this.timedBuffer != null) {
          this.timedBuffer.addBytes(bytes, sync, callback);

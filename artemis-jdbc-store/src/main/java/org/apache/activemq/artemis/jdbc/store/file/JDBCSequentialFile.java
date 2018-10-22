@@ -251,6 +251,11 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    @Override
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) {
+      writeDirect(bytes, sync, null);
+   }
+
+   @Override
    public void writeDirect(ByteBuffer bytes, boolean sync) throws Exception {
       writeDirect(bytes, sync, null);
       // Are we meant to block here?

@@ -78,6 +78,20 @@ public interface SequentialFile {
    void writeDirect(ByteBuffer bytes, boolean sync) throws Exception;
 
    /**
+    * Write directly to the file without using any intermediate buffer and wait completion.<br>
+    * If {@code releaseBuffer} is {@code true} the provided {@code bytes} should be released
+    * through {@link SequentialFileFactory#releaseBuffer(ByteBuffer)}, if supported.
+    *
+    * @param bytes         the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
+    *                      NIO). If {@code releaseBuffer} is {@code true} use a buffer from
+    *                      {@link SequentialFileFactory#newBuffer(int)}, {@link SequentialFileFactory#allocateDirectBuffer(int)}
+    *                      otherwise.
+    * @param sync          if {@code true} will durable flush the written data on the file, {@code false} otherwise
+    * @param releaseBuffer if {@code true} will release the buffer, {@code false} otherwise
+    */
+   void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception;
+
+   /**
     * @param bytes the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
     *              NIO). To be safe, use a buffer from the corresponding
     *              {@link SequentialFileFactory#newBuffer(int)}.
