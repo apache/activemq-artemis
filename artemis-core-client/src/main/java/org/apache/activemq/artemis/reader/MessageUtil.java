@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -48,6 +47,8 @@ public class MessageUtil {
    public static final String JMSXDELIVERYCOUNT = "JMSXDeliveryCount";
 
    public static final String JMSXGROUPID = "JMSXGroupID";
+
+   public static final String JMSXGROUPSEQ = "JMSXGroupSeq";
 
    public static final String JMSXUSERID = "JMSXUserID";
 
@@ -154,6 +155,8 @@ public class MessageUtil {
       for (SimpleString propName : message.getPropertyNames()) {
          if (propName.equals(Message.HDR_GROUP_ID)) {
             set.add(MessageUtil.JMSXGROUPID);
+         } else if (propName.equals(Message.HDR_GROUP_SEQUENCE)) {
+            set.add(MessageUtil.JMSXGROUPSEQ);
          } else if (propName.equals(Message.HDR_VALIDATED_USER)) {
             set.add(MessageUtil.JMSXUSERID);
          } else if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) || propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME) && !propName.equals(Message.HDR_ROUTING_TYPE) && !propName.startsWith(Message.HDR_ROUTE_TO_IDS)) {
@@ -169,6 +172,7 @@ public class MessageUtil {
    public static boolean propertyExists(Message message, String name) {
       return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
          (MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID)) ||
+         (MessageUtil.JMSXGROUPSEQ.equals(name) && message.containsProperty(Message.HDR_GROUP_SEQUENCE)) ||
          (MessageUtil.JMSXUSERID.equals(name) && message.containsProperty(Message.HDR_VALIDATED_USER));
    }
 }
