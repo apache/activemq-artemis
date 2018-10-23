@@ -119,6 +119,9 @@ public class Create extends InputAbstract {
    @Option(name = "--http-host", description = "The host name to use for embedded web server (Default: localhost)")
    private String httpHost = HTTP_HOST;
 
+   @Option(name = "--relax-jolokia", description = "disable strict checking on jolokia-access.xml")
+   private boolean relaxJolokia;
+
    @Option(name = "--ping", description = "A comma separated string to be passed on to the broker config as network-check-list. The broker will shutdown when all these addresses are unreachable.")
    private String ping;
 
@@ -774,6 +777,13 @@ public class Create extends InputAbstract {
       filters.remove("${artemis.instance}");
       writeEtc(ETC_BOOTSTRAP_XML, etcFolder, filters, false);
       writeEtc(ETC_MANAGEMENT_XML, etcFolder, filters, false);
+
+      if (relaxJolokia) {
+         filters.put("${jolokia.options}", "<!-- option relax-jolokia used, so strict-checking will be removed here -->");
+      } else {
+         filters.put("${jolokia.options}", "<!-- Check for the proper origin on the server side, too -->\n" +
+                     "        <strict-checking/>");
+      }
       writeEtc(ETC_JOLOKIA_ACCESS_XML, etcFolder, filters, false);
 
       context.out.println("");
