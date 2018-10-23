@@ -242,7 +242,7 @@
             <artifactId>maven-assembly-plugin</artifactId>
             <version>${maven.assembly.plugin.version}</version>
             <executions>
-               <execution>
+              <execution>
                   <id>source</id>
                   <configuration>
                      <descriptor>src/main/assembly/source-assembly.xml</descriptor>
@@ -254,9 +254,20 @@
                   </goals>
                </execution>
                <execution>
-                 <id>bin</id>
+                  <id>bin</id>
                   <configuration>
                      <descriptor>src/main/assembly/dep.xml</descriptor>
+                     <tarLongFileMode>gnu</tarLongFileMode>
+                  </configuration>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>docker</id>
+                  <configuration>
+                     <descriptor>src/main/assembly/docker-assembly.xml</descriptor>
                      <tarLongFileMode>gnu</tarLongFileMode>
                   </configuration>
                   <phase>package</phase>
