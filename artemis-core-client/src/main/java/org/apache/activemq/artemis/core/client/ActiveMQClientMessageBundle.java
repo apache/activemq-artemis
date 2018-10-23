@@ -228,4 +228,10 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219062, value = "Multi-packet transmission (e.g. Large Messages) interrupted because of a reconnection.")
    ActiveMQInterruptedException packetTransmissionInterrupted();
+
+   @Message(id = 219064, value = "Invalide packet: {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException invalidPacket(byte type);
+
+   @Message(id = 219065, value = "Failed to handle packet.")
+   RuntimeException failedToHandlePacket(@Cause Exception e);
 }
