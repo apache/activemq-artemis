@@ -349,7 +349,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
-      if (callback != null && !callback.hasCredits(this) || availableCredits != null && availableCredits.get() <= 0) {
+      // available credits can be set back to null with a flow control option.
+      AtomicInteger checkInteger = availableCredits;
+      if (callback != null && !callback.hasCredits(this) || checkInteger != null && checkInteger.get() <= 0) {
          if (logger.isDebugEnabled()) {
             logger.debug(this + " is busy for the lack of credits. Current credits = " +
                             availableCredits +
