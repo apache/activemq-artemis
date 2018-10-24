@@ -23,10 +23,10 @@ import javax.jms.InvalidClientIDException;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
          public void beforeSessionMetadataAdded(ServerSession session, String key, String data)
                throws ActiveMQException {
 
-            if (ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY.equals(key)) {
+            if (ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY.equals(key)) {
                if ("invalid".equals(data)) {
                   throw new ActiveMQException("Invalid clientId");
                }
