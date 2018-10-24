@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.ra;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -32,6 +33,9 @@ import javax.transaction.xa.XAResource;
  * To change this template use File | Settings | File Templates.
  */
 class DummyTransaction implements Transaction {
+   public boolean rollbackOnly = false;
+
+   public int status = Status.STATUS_ACTIVE;
 
    @Override
    public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, SystemException {
@@ -43,11 +47,12 @@ class DummyTransaction implements Transaction {
 
    @Override
    public void setRollbackOnly() throws IllegalStateException, SystemException {
+      rollbackOnly = true;
    }
 
    @Override
    public int getStatus() throws SystemException {
-      return 0;
+      return status;
    }
 
    @Override
