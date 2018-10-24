@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.ra.ActiveMQRABundle;
@@ -492,7 +493,7 @@ public class ActiveMQActivation {
          result.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
          String clientID = ra.getClientID() == null ? spec.getClientID() : ra.getClientID();
          if (clientID != null) {
-            result.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+            result.addMetaData(ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
          }
 
          logger.debug("Using queue connection " + result);
