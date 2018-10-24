@@ -1572,7 +1572,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());
       JsonObject obj = lookupSession(array, ((ActiveMQConnection)con).getInitialSession());
-      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
+      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
       Assert.assertNotNull(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
    }
 
