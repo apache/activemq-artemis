@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsumer> {
 
    enum Field {
-      ID, SESSION_ID, QUEUE, ADDRESS, USER, PROTOCOL, CLIENT_ID, LOCAL_ADDRESS, REMOTE_ADDRESS
+      ID, SESSION_ID, QUEUE, FILTER, ADDRESS, USER, PROTOCOL, CLIENT_ID, LOCAL_ADDRESS, REMOTE_ADDRESS
    }
 
    private Field f;
@@ -50,6 +50,8 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
             return matches(consumer.getQueue().getAddress());
          case QUEUE:
             return matches(consumer.getQueue().getName());
+         case FILTER:
+            return matches(consumer.getFilterString());
          case PROTOCOL:
             return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getProtocolName());
          case CLIENT_ID:

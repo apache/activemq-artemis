@@ -27,11 +27,13 @@ public interface ConsumerInfo {
    /** @return name of the queue that is being consumed */
    SimpleString getQueueName();
 
-   /** @return name of the queue that is being consumed */
+   /** @return routing type of the queue that is being consumed */
    RoutingType getQueueType();
 
-   /** @return name of the queue that is being consumed */
+   /** @return address of the queue that is being consumed */
    SimpleString getQueueAddress();
+
+   SimpleString getFilterString();
 
    String getSessionName();
 
