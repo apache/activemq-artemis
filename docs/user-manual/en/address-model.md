@@ -2,7 +2,7 @@
 
 Apache ActiveMQ Artemis has a unique addressing model that is both powerful and
 flexible and that offers great performance. The addressing model comprises
-three main concepts: **addresses**, **queues** and **routing types**.
+three main concepts: **addresses**, **queues**, and **routing types**.
 
 ### Address
 
@@ -140,7 +140,7 @@ anycast routing type. When messages are received on such an address, they are
 firstly distributed evenly across all the defined queues. Using [Fully
 Qualified Queue names](#fully-qualified-queue-names), clients are able to
 select the queue that they would like to subscribe to. Should more than one
-consumer connect direct to a single queue, Apache ActiveMQ Artemis will take
+consumer connect directly to a single queue, Apache ActiveMQ Artemis will take
 care of distributing messages between them, as in the example above.
 
 ![Point to Point](images/addressing-model-p2p2.png)
@@ -214,7 +214,7 @@ Filters can be applied in two places, on a queue and on a consumer.
 
 ### Queue Filter
 
-When a filter is applied to a queue, messages are filter before they sent to
+When a filter is applied to a queue, messages are filtered before they are sent to
 the queue.  To add a queue filter use the filter element when configuring a
 queue.  Open up `<broker-instance>/etc/broker.xml` and add an address with a
 queue, using the filter element to configure a filter on this queue.
@@ -235,7 +235,7 @@ The filter defined above ensures that only messages with an attribute
 ### Consumer Filters
 
 Consumer filters are applied after messages have reached a queue and are
-defined using the appropriate client APIs.  The follow JMS example shows how to
+defined using the appropriate client APIs. The following JMS example shows how
 consumer filters work.
 
 1. Define an address with a single queue, with no filter applied.
@@ -352,11 +352,11 @@ Internally the broker maps a client’s request for an address to specific
 queues. The broker decides on behalf of the client which queues to send
 messages to or from which queue to receive messages. However, more advanced use
 cases might require that the client specify a queue directly. In these
-situations the client and use a fully qualified queue name, by specifying both
+situations the client uses a fully qualified queue name, by specifying both
 the address name and the queue name, separated by a ::.
 
 Currently Artemis supports fully qualified queue names on Core, AMQP, JMS,
-OpenWire, MQTT and Stomp protocols for receiving messages only.
+OpenWire, MQTT and STOMP protocols for receiving messages only.
 
 ### Specifying a Fully Qualified Queue Name
 
