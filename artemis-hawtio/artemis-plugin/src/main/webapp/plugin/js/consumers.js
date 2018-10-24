@@ -63,6 +63,11 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
+                field: 'filter',
+                displayName: 'Filter',
+                width: '*'
+            },
+            {
                 field: 'address',
                 displayName: 'Address',
                 width: '*',

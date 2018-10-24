@@ -480,6 +480,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
+   public SimpleString getFilterString() {
+      return filter == null ? null : filter.getFilterString();
+   }
+
+   @Override
    public synchronized void close(final boolean failed) throws Exception {
 
       // Close should only ever be done once per consumer.
