@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
@@ -1594,10 +1593,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          data = metaData.get(key);
       }
 
-      if (key.equals(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY)) {
-         // we know it's a JMS Session, we now install JMS Hooks of any kind
-         installJMSHooks();
-      }
       return data;
    }
 
@@ -1716,9 +1711,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
       connectionFailed(me, failedOver);
-   }
-
-   private void installJMSHooks() {
    }
 
    private Map<SimpleString, Pair<Object, AtomicLong>> cloneTargetAddresses() {
