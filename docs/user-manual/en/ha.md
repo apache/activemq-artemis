@@ -362,7 +362,7 @@ duties, you may want to restart the live server and have clients fail
 back.
 
 In case of "shared disk", simply restart the original live server and
-kill the new live server by can do this by killing the process itself.
+kill the new live server. You can do this by killing the process itself.
 Alternatively you can set `allow-fail-back` to `true` on the slave
 config which will force the backup that has become live to automatically
 stop. This configuration would look like:
