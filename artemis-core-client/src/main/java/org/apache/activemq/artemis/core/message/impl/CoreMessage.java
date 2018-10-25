@@ -985,7 +985,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      messageChanged();
       checkProperties();
       return properties.getDoubleProperty(key);
    }
