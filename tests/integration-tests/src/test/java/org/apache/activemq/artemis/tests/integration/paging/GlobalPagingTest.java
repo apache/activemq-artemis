@@ -20,12 +20,18 @@ package org.apache.activemq.artemis.tests.integration.paging;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -79,6 +85,87 @@ public class GlobalPagingTest extends PagingTest {
    // test doesn't make sense on GlobalPaging due to configuration issues
    @Test @Ignore @Override
    public void testPurge() throws Exception {
+   }
+
+   @Test
+   public void testManagementAddressPagingWithFailPolicyIgnoreGlobalMaxSize() throws Exception {
+      testManagementAddressPagingWithFailPolicy(true);
+   }
+
+   @Test
+   public void testManagementAddressPagingWithFailPolicyDoNotIgnoreGlobalMaxSize() throws Exception {
+      testManagementAddressPagingWithFailPolicy(false);
+   }
+
+   private void testManagementAddressPagingWithFailPolicy(boolean ignoreGlobalMaxSize) throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+
+      final ActiveMQServer server = createServer(true, config, PagingTest.PAGE_SIZE, -1);
+
+      try {
+         final SimpleString managementAddress = config.getManagementAddress();
+         final AddressSettings managementAddressSetting = new AddressSettings()
+            .setPageSizeBytes(PagingTest.PAGE_SIZE)
+            .setMaxSizeBytes(-1)
+            .setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+         server.getAddressSettingsRepository().addMatch(managementAddress.toString(), managementAddressSetting);
+         server.getConfiguration().setGlobalMaxSize(1);
+         server.getConfiguration().setManagementAddressIgnoreGlobalMaxSize(ignoreGlobalMaxSize);
+         server.start();
+
+         final ServerLocator locator = createInVMNonHALocator()
+            .setBlockOnNonDurableSend(true)
+            .setBlockOnDurableSend(true)
+            .setBlockOnAcknowledge(true);
+
+         try (ClientSessionFactory sf = createSessionFactory(locator);
+
+              ClientSession session = sf.createSession(false, true, true)) {
+
+            session.start();
+
+            if (server.locateQueue(managementAddress) == null) {
+
+               session.createQueue(managementAddress, managementAddress, null, true);
+            }
+
+            final SimpleString address = SimpleString.toSimpleString("queue");
+
+            if (server.locateQueue(address) == null) {
+
+               session.createQueue(address, address, null, true);
+            }
+
+            try (ClientRequestor requestor = new ClientRequestor(session, managementAddress)) {
+
+               ClientMessage message = session.createMessage(false);
+
+               ManagementHelper.putAttribute(message, "queue." + address.toString(), "messageCount");
+
+               Assert.assertTrue("bodySize = " + message.getBodySize() + " must be > of globalMaxSize = " + server.getConfiguration().getGlobalMaxSize(), message.getBodySize() > server.getConfiguration().getGlobalMaxSize());
+
+               for (int i = 0; i < 10; i++) {
+
+                  try {
+                     ClientMessage reply = requestor.request(message);
+                     Assert.assertEquals(0L, ManagementHelper.getResult(reply));
+                  } catch (ActiveMQAddressFullException e) {
+                     Assert.assertFalse(ignoreGlobalMaxSize);
+                     return;
+                  }
+               }
+
+               Assert.assertTrue(ignoreGlobalMaxSize);
+
+            }
+
+         }
+
+      } finally {
+         server.stop(true);
+      }
    }
 
    @Test

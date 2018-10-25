@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -164,9 +165,11 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    }
 
    @Override
-   public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
+   public synchronized PagingStore newStore(final SimpleString address,
+                                            final AddressSettings settings,
+                                            final boolean ignoreGlobalMaxSize) {
 
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional, ignoreGlobalMaxSize);
    }
 
    @Override
@@ -217,7 +220,8 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    }
 
    @Override
-   public synchronized List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
+   public synchronized List<PagingStore> reloadStores(HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                                      Predicate<? super SimpleString> ignoreGlobalMaxSize) throws Exception {
       // We assume the directory list < Integer.MAX_VALUE (this is only a list of addresses).
       JDBCSequentialFile directoryList = (JDBCSequentialFile) pagingFactoryFileFactory.createSequentialFile(DIRECTORY_NAME);
       directoryList.open();
@@ -245,8 +249,8 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
          SimpleString address = addrBuffer.readSimpleString();
 
          AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
-
-         PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+         final boolean isIgnoreGlobalMaxSize = ignoreGlobalMaxSize.test(address);
+         PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional, isIgnoreGlobalMaxSize);
 
          storesReturn.add(store);
       }

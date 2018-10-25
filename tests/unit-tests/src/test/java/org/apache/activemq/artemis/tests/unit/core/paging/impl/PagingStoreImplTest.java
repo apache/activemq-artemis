@@ -29,7 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.function.Predicate;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
@@ -133,6 +135,78 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testPageWithNIO() throws Exception {
       ActiveMQTestBase.recreateDirectory(getTestDir());
       testConcurrentPaging(new NIOSequentialFileFactory(new File(getTestDir()), 1), 1);
+   }
+
+   private static final class GlobalFullFakePagingManager extends FakePagingManager {
+
+      @Override
+      public boolean isUsingGlobalSize() {
+         return true;
+      }
+
+      @Override
+      public boolean isGlobalFull() {
+         return true;
+      }
+   }
+
+   @Test(expected = ActiveMQAddressFullException.class)
+   public void testFailWithExceptionWhileHittingGlobalMaxSize() throws Exception {
+      testFailPolicyWhileHittingGlobalMaxSize(false);
+   }
+
+   @Test
+   public void testDoNotFailWhileIgnoringGlobalMaxSize() throws Exception {
+      testFailPolicyWhileHittingGlobalMaxSize(true);
+   }
+
+   private void testFailPolicyWhileHittingGlobalMaxSize(boolean ignoreGlobalMaxSize) throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      AddressSettings addressSettings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+
+      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, new GlobalFullFakePagingManager(), createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, getExecutorFactory().getExecutor(), true, ignoreGlobalMaxSize);
+
+      storeImpl.start();
+
+      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+
+      Assert.assertTrue(storeImpl.startPaging());
+
+      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+
+      List<ActiveMQBuffer> buffers = new ArrayList<>();
+
+      ActiveMQBuffer buffer = createRandomBuffer(0, 10);
+
+      buffers.add(buffer);
+      SimpleString destination = new SimpleString("test");
+
+      Message msg = createMessage(1, storeImpl, destination, buffer);
+
+      if (ignoreGlobalMaxSize) {
+
+         Assert.assertFalse(storeImpl.isPaging());
+      } else {
+
+         Assert.assertTrue(storeImpl.isPaging());
+      }
+
+      final RoutingContextImpl ctx = new RoutingContextImpl(null);
+
+      Assert.assertFalse(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName()), lock));
+
+      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+
+      storeImpl.sync();
+
+      storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, new GlobalFullFakePagingManager(), createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, getExecutorFactory().getExecutor(), true, ignoreGlobalMaxSize);
+
+      storeImpl.start();
+
+      Assert.assertEquals(1, storeImpl.getNumberOfPages());
    }
 
    @Test
@@ -807,12 +881,13 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public PagingStore newStore(final SimpleString destinationName, final AddressSettings addressSettings) {
+      public PagingStore newStore(final SimpleString destinationName, final AddressSettings addressSettings, boolean ignoreGlobalMaxSize) {
          return null;
       }
 
       @Override
-      public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
+      public List<PagingStore> reloadStores(HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                            Predicate<? super SimpleString> ignoreGlobalMaxSize) {
          return null;
       }
 

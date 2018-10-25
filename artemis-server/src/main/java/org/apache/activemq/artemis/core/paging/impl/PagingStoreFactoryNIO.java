@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -150,9 +151,11 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    }
 
    @Override
-   public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
+   public synchronized PagingStore newStore(final SimpleString address,
+                                            final AddressSettings settings,
+                                            final boolean ignoreGlobalMaxSize) {
 
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional, ignoreGlobalMaxSize);
    }
 
    @Override
@@ -188,7 +191,8 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    }
 
    @Override
-   public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
+   public List<PagingStore> reloadStores(HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                         Predicate<? super SimpleString> ignoreGlobalMaxSize) throws Exception {
       File[] files = directory.listFiles();
 
       if (files == null) {
@@ -223,7 +227,9 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+            final boolean isIgnoreGlobalMaxSize = ignoreGlobalMaxSize.test(address);
+
+            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional, isIgnoreGlobalMaxSize);
 
             storesReturn.add(store);
          }

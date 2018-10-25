@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -86,6 +87,8 @@ public final class PagingManagerImpl implements PagingManager {
 
    private ActiveMQScheduledComponent scheduledComponent = null;
 
+   private final SimpleString addressPrefixIgnoringGlobalMaxSize;
+
    // Static
    // --------------------------------------------------------------------------------------------------------------------------
 
@@ -105,12 +108,22 @@ public final class PagingManagerImpl implements PagingManager {
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                            final long maxSize) {
+                            final long maxSize,
+                            final SimpleString addressPrefixIgnoringGlobalMaxSize) {
       pagingStoreFactory = pagingSPI;
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
       this.memoryExecutor = pagingSPI.newExecutor();
+      this.addressPrefixIgnoringGlobalMaxSize = addressPrefixIgnoringGlobalMaxSize;
+   }
+
+   public PagingManagerImpl(final PagingStoreFactory pagingSPI,
+                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                            final long maxSize) {
+      this(pagingSPI, addressSettingsRepository, maxSize,
+           ActiveMQDefaultConfiguration.isDefaultManagementAddressIgnoreGlobalMaxSize() ?
+              ActiveMQDefaultConfiguration.getDefaultManagementAddress() : null);
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
@@ -291,7 +304,7 @@ public final class PagingManagerImpl implements PagingManager {
    public void reloadStores() throws Exception {
       lock();
       try {
-         List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository);
+         List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository, this::ignoreGlobalMaxSize);
 
          for (PagingStore store : reloadedStores) {
             // when reloading, we need to close the previously loaded version of this
@@ -437,12 +450,21 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   private boolean ignoreGlobalMaxSize(SimpleString address) {
+      if (this.addressPrefixIgnoringGlobalMaxSize == null) {
+         return false;
+      } else {
+         return address.startsWith(this.addressPrefixIgnoringGlobalMaxSize);
+      }
+   }
+
    private PagingStore newStore(final SimpleString address) throws Exception {
       syncLock.readLock().lock();
       try {
          PagingStore store = stores.get(address);
          if (store == null) {
-            store = pagingStoreFactory.newStore(address, addressSettingsRepository.getMatch(address.toString()));
+            final boolean ignoreGlobalMaxSize = ignoreGlobalMaxSize(address);
+            store = pagingStoreFactory.newStore(address, addressSettingsRepository.getMatch(address.toString()), ignoreGlobalMaxSize);
             store.start();
             if (!cleanupEnabled) {
                store.disableCleanup();

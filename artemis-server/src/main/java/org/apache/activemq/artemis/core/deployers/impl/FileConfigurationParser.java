@@ -350,6 +350,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setManagementAddress(new SimpleString(getString(e, "management-address", config.getManagementAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
 
+      config.setManagementAddressIgnoreGlobalMaxSize(getBoolean(e, "management-address-ignore-global-max-size", config.isManagementAddressIgnoreGlobalMaxSize()));
+
       config.setManagementNotificationAddress(new SimpleString(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
 
       config.setMaskPassword(getBoolean(e, "mask-password", null));

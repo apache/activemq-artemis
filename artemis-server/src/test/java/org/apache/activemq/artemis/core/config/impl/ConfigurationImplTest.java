@@ -60,6 +60,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(), conf.getMessageExpiryThreadPriority()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(), conf.getTransactionTimeoutScanPeriod()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress()); // OK
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultManagementAddressIgnoreGlobalMaxSize(), conf.isManagementAddressIgnoreGlobalMaxSize()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword()); // OK
@@ -158,6 +159,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          s = RandomUtil.randomString();
          conf.setManagementAddress(new SimpleString(s));
          Assert.assertEquals(s, conf.getManagementAddress().toString());
+
+         b = RandomUtil.randomBoolean();
+         conf.setManagementAddressIgnoreGlobalMaxSize(b);
+         Assert.assertEquals(b, conf.isManagementAddressIgnoreGlobalMaxSize());
 
          i = RandomUtil.randomInt();
          conf.setMessageExpiryThreadPriority(i);
@@ -356,6 +361,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       s = RandomUtil.randomString();
       conf.setManagementAddress(new SimpleString(s));
       Assert.assertEquals(s, conf.getManagementAddress().toString());
+
+      b = RandomUtil.randomBoolean();
+      conf.setManagementAddressIgnoreGlobalMaxSize(b);
+      Assert.assertEquals(b, conf.isManagementAddressIgnoreGlobalMaxSize());
 
       i = RandomUtil.randomInt();
       conf.setMessageExpiryThreadPriority(i);

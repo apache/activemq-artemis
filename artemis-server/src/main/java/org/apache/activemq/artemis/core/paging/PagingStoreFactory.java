@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.paging;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -34,7 +35,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
  */
 public interface PagingStoreFactory {
 
-   PagingStore newStore(SimpleString address, AddressSettings addressSettings);
+   PagingStore newStore(SimpleString address, AddressSettings addressSettings, boolean ignoreGlobalMaxSize);
 
    PageCursorProvider newCursorProvider(PagingStore store,
                                         StorageManager storageManager,
@@ -45,7 +46,8 @@ public interface PagingStoreFactory {
 
    void setPagingManager(PagingManager manager);
 
-   List<PagingStore> reloadStores(HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception;
+   List<PagingStore> reloadStores(HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                  Predicate<? super SimpleString> ignoreGlobalMaxSize) throws Exception;
 
    SequentialFileFactory newFileFactory(SimpleString address) throws Exception;
 

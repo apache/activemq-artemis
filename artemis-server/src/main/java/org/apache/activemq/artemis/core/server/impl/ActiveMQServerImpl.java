@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.management.MBeanServer;
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +47,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -2368,7 +2368,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public PagingManager createPagingManager() throws Exception {
-      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository, configuration.getGlobalMaxSize());
+      final SimpleString addressPrefixIgnoringGlobalMaxSize;
+      if (configuration.isManagementAddressIgnoreGlobalMaxSize()) {
+         addressPrefixIgnoringGlobalMaxSize = configuration.getManagementAddress();
+      } else {
+         addressPrefixIgnoringGlobalMaxSize = null;
+      }
+      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository, configuration.getGlobalMaxSize(), addressPrefixIgnoringGlobalMaxSize);
    }
 
    protected PagingStoreFactory getPagingStoreFactory() throws Exception {

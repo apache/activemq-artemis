@@ -228,6 +228,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private SimpleString managementAddress = ActiveMQDefaultConfiguration.getDefaultManagementAddress();
 
+   private boolean managementAddressIgnoreGlobalMaxSize = ActiveMQDefaultConfiguration.isDefaultManagementAddressIgnoreGlobalMaxSize();
+
    private SimpleString managementNotificationAddress = ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress();
 
    protected String clusterUser = ActiveMQDefaultConfiguration.getDefaultClusterUser();
@@ -1124,6 +1126,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public ConfigurationImpl setManagementAddress(final SimpleString address) {
       managementAddress = address;
       return this;
+   }
+
+   @Override
+   public Configuration setManagementAddressIgnoreGlobalMaxSize(boolean managementAddressIgnoreGlobalMaxSize) {
+      this.managementAddressIgnoreGlobalMaxSize = managementAddressIgnoreGlobalMaxSize;
+      return this;
+   }
+
+   @Override
+   public boolean isManagementAddressIgnoreGlobalMaxSize() {
+      return managementAddressIgnoreGlobalMaxSize;
    }
 
    @Override

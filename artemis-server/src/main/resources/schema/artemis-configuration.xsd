@@ -165,6 +165,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="management-address-ignore-global-max-size" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  true means that the server allow to the management addresses to exceed the global max size limit
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="management-notification-address" type="xsd:string" default="activemq.notifications"
                       maxOccurs="1" minOccurs="0">
             <xsd:annotation>

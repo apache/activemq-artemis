@@ -629,6 +629,12 @@ broker.xml:
    <permission type="manage" roles="admin" />
 </security-setting>
 ```
+To allow the broker to perform management operations even if `global-max-size`
+is reached is possible to configure in `broker.xml`:
+```xml
+<management-address-ignore-global-max-size>true</management-address-ignore-global-max-size>
+```
+
 
 ### Example
 

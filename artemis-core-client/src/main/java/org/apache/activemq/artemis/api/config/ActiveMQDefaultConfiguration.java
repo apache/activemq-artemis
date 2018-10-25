@@ -518,6 +518,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final CriticalAnalyzerPolicy DEFAULT_ANALYZE_CRITICAL_POLICY = CriticalAnalyzerPolicy.LOG;
 
+   private static final boolean DEFAULT_MANAGEMENT_ADDRESS_IGNORE_GLOBAL_MAX_SIZE = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1401,5 +1403,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultRetryReplicationWait() {
       return DEFAULT_RETRY_REPLICATION_WAIT;
+   }
+
+   public static boolean isDefaultManagementAddressIgnoreGlobalMaxSize() {
+      return DEFAULT_MANAGEMENT_ADDRESS_IGNORE_GLOBAL_MAX_SIZE;
    }
 }

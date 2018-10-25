@@ -132,6 +132,7 @@ Name | Description | Default
 [large-messages-directory](large-messages.md) | the directory to store large messages. | `data/largemessages`
 log-delegate-factory-class-name | **deprecated** the name of the factory class to use for log delegation. | n/a
 [management-address](management.md#configuring-management)| the name of the management address to send management messages to. | `activemq.management`
+[management-address-ignore-global-max-size](management.md#configuring-management)| It will control if management messages would ignore `global-max-size` limits. | `false`
 [management-notification-address](management.md#configuring-the-management-notification-address) | the name of the address that consumers bind to receive management notifications. | `activemq.notifications`
 [mask-password](masking-passwords.md) | This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. | `false`
 [max-saved-replicated-journals-size](ha.md#data-replication) | This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back. -1 Means no Limit; 0 don't keep a copy at all. | 2

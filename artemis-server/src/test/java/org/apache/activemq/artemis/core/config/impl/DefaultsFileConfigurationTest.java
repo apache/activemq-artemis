@@ -68,6 +68,8 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress());
 
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultManagementAddressIgnoreGlobalMaxSize(), conf.isManagementAddressIgnoreGlobalMaxSize());
+
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser());

@@ -129,6 +129,8 @@ public class PagingStoreImpl implements PagingStore {
 
    private long rejectThreshold;
 
+   private final boolean ignoreGlobalMaxSize;
+
    public PagingStoreImpl(final SimpleString address,
                           final ScheduledExecutorService scheduledExecutor,
                           final long syncTimeout,
@@ -140,6 +142,22 @@ public class PagingStoreImpl implements PagingStore {
                           final AddressSettings addressSettings,
                           final ArtemisExecutor executor,
                           final boolean syncNonTransactional) {
+      this(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory,
+           storeFactory, storeName,addressSettings, executor, syncNonTransactional, false);
+   }
+
+   public PagingStoreImpl(final SimpleString address,
+                          final ScheduledExecutorService scheduledExecutor,
+                          final long syncTimeout,
+                          final PagingManager pagingManager,
+                          final StorageManager storageManager,
+                          final SequentialFileFactory fileFactory,
+                          final PagingStoreFactory storeFactory,
+                          final SimpleString storeName,
+                          final AddressSettings addressSettings,
+                          final ArtemisExecutor executor,
+                          final boolean syncNonTransactional,
+                          final boolean ignoreGlobalMaxSize) {
       if (pagingManager == null) {
          throw new IllegalStateException("Paging Manager can't be null");
       }
@@ -180,6 +198,8 @@ public class PagingStoreImpl implements PagingStore {
       this.cursorProvider = storeFactory.newCursorProvider(this, this.storageManager, addressSettings, executor);
 
       this.usingGlobalMaxSize = pagingManager.isUsingGlobalSize();
+
+      this.ignoreGlobalMaxSize = ignoreGlobalMaxSize;
    }
 
    /**
@@ -664,7 +684,7 @@ public class PagingStoreImpl implements PagingStore {
             return false;
          }
       } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
-         if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() > maxSize || pagingManager.isGlobalFull()) {
+         if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() > maxSize || (!ignoreGlobalMaxSize && pagingManager.isGlobalFull())) {
 
             onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
 
@@ -672,7 +692,7 @@ public class PagingStoreImpl implements PagingStore {
             // has been added, but the check to execute was done before the element was added
             // NOTE! We do not fix this race by locking the whole thing, doing this check provides
             // MUCH better performance in a highly concurrent environment
-            if (!pagingManager.isGlobalFull() && (sizeInBytes.get() <= maxSize || maxSize < 0)) {
+            if (!(!ignoreGlobalMaxSize && pagingManager.isGlobalFull()) && (sizeInBytes.get() <= maxSize || maxSize < 0)) {
                // run it now
                runWhenAvailable.run();
             } else {
@@ -700,7 +720,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void addSize(final int size) {
-      boolean globalFull = pagingManager.addSize(size).isGlobalFull();
+      boolean globalFull = pagingManager.addSize(size).isGlobalFull() && !ignoreGlobalMaxSize;
       long newSize = sizeInBytes.addAndGet(size);
 
       if (newSize < 0) {
@@ -728,7 +748,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public boolean checkReleasedMemory() {
-      return checkReleaseMemory(pagingManager.isGlobalFull(), sizeInBytes.get());
+      return checkReleaseMemory(!ignoreGlobalMaxSize && pagingManager.isGlobalFull(), sizeInBytes.get());
    }
 
    public boolean checkReleaseMemory(boolean globalOversized, long newSize) {
@@ -1118,7 +1138,7 @@ public class PagingStoreImpl implements PagingStore {
    // To be used on isDropMessagesWhenFull
    @Override
    public boolean isFull() {
-      return maxSize > 0 && getAddressSize() > maxSize || pagingManager.isGlobalFull();
+      return maxSize > 0 && getAddressSize() > maxSize || (!ignoreGlobalMaxSize && pagingManager.isGlobalFull());
    }
 
    @Override

@@ -494,6 +494,17 @@ public interface Configuration {
    Configuration setManagementAddress(SimpleString address);
 
    /**
+    * Sets whether {@link #getManagementAddress()} ignores Global Max Size limit.
+    */
+   Configuration setManagementAddressIgnoreGlobalMaxSize(boolean value);
+
+   /**
+    * Returns {@code true} if {@link #getManagementAddress()} ignores Global Max Size limit.
+    */
+   boolean isManagementAddressIgnoreGlobalMaxSize();
+
+
+   /**
     * Returns the management notification address of this server. <br>
     * Clients can bind queues to this address to receive management notifications emitted by this
     * server. <br>

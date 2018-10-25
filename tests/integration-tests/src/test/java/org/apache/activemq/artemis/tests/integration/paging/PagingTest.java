@@ -6099,8 +6099,9 @@ public class PagingTest extends ActiveMQTestBase {
                                             SimpleString storeName,
                                             AddressSettings addressSettings,
                                             ArtemisExecutor executor,
-                                            boolean syncNonTransactional) {
-            super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional);
+                                            boolean syncNonTransactional,
+                                            boolean ignoreGlobalMaxSize) {
+            super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional, ignoreGlobalMaxSize);
          }
 
          /**
@@ -6119,8 +6120,8 @@ public class PagingTest extends ActiveMQTestBase {
             protected PagingStoreFactoryDatabase getPagingStoreFactory() throws Exception {
                return new PagingStoreFactoryDatabase((DatabaseStorageConfiguration) this.getConfiguration().getStoreConfiguration(), this.getStorageManager(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                   @Override
-                  public synchronized PagingStore newStore(SimpleString address, AddressSettings settings) {
-                     return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.syncNonTransactional);
+                  public synchronized PagingStore newStore(SimpleString address, AddressSettings settings, boolean ignoreGlobalMaxSize) {
+                     return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.syncNonTransactional, ignoreGlobalMaxSize);
                   }
                };
             }
@@ -6131,8 +6132,8 @@ public class PagingTest extends ActiveMQTestBase {
             protected PagingStoreFactoryNIO getPagingStoreFactory() {
                return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                   @Override
-                  public synchronized PagingStore newStore(SimpleString address, AddressSettings settings) {
-                     return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.isSyncNonTransactional());
+                  public synchronized PagingStore newStore(SimpleString address, AddressSettings settings, boolean ignoreGlobalMaxSize) {
+                     return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.isSyncNonTransactional(), ignoreGlobalMaxSize);
                   }
                };
             }
