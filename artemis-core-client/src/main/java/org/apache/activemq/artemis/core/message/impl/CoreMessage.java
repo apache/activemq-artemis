@@ -294,7 +294,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * @param deliveryCount Some protocols (AMQP) will have this as part of the message. ignored on core
     */
    @Override
-   public void sendBuffer(ByteBuf sendBuffer, int deliveryCount) {
+   public synchronized void sendBuffer(ByteBuf sendBuffer, int deliveryCount) {
       checkEncode();
       sendBuffer.writeBytes(buffer, 0, buffer.writerIndex());
    }
@@ -303,7 +303,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * Recast the message as an 1.4 message
     */
    @Override
-   public void sendBuffer_1X(ByteBuf sendBuffer) {
+   public synchronized void sendBuffer_1X(ByteBuf sendBuffer) {
       checkEncode();
       ByteBuf tmpBuffer = buffer.duplicate();
       sendBuffer.writeInt(endOfBodyPosition + DataConstants.SIZE_INT);
