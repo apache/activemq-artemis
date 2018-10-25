@@ -25,6 +25,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -558,20 +559,33 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * I am keeping this synchronized as the decode of the Properties is lazy
     */
    protected TypedProperties checkProperties() {
-      if (properties == null) {
-         synchronized (this) {
-            if (properties == null) {
-               TypedProperties properties = new TypedProperties();
-               if (buffer != null && propertiesLocation >= 0) {
-                  final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
-                  properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+      try {
+         if (properties == null) {
+            synchronized (this) {
+               if (properties == null) {
+                  TypedProperties properties = new TypedProperties();
+                  if (buffer != null && propertiesLocation >= 0) {
+                     final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
+                     properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+                  }
+                  this.properties = properties;
                }
-               this.properties = properties;
             }
          }
-      }
 
-      return this.properties;
+         return this.properties;
+      } catch (Throwable e) {
+         ByteBuf duplicatebuffer = buffer.duplicate();
+         duplicatebuffer.readerIndex(0);
+
+         // This is not an expected error, hence no specific logger created
+         logger.warn("Could not decode properties for CoreMessage[messageID=" + messageID + ",durable=" + durable + ",userID=" + userID + ",priority=" + priority +
+            ", timestamp=" + timestamp + ",expiration=" + expiration + ",address=" + address + ", propertiesLocation=" + propertiesLocation, e);
+         logger.warn("Failed message has messageID=" + messageID + " and the following buffer:\n" + ByteBufUtil.prettyHexDump(duplicatebuffer));
+
+         throw new RuntimeException(e.getMessage(), e);
+
+      }
    }
 
    @Override
