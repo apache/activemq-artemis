@@ -91,24 +91,39 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return fromPrefixedName(name, name);
    }
 
-   public static Destination fromPrefixedName(final String addr, String name) {
+   public static Destination fromPrefixedName(final String addr, final String name) {
 
       ActiveMQDestination destination;
-      if (name.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
-         name = name.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
-         destination = createQueue(addr, name);
-      } else if (name.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
-         name = name.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
-         destination = createTopic(addr, name);
-      } else if (name.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
-         name = name.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
-         destination = new ActiveMQTemporaryQueue(addr, null);
-      } else if (name.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
-         name = name.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
-         destination = new ActiveMQTemporaryTopic(addr, null);
+      if (addr.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
+         String address = addr.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
+         destination = createQueue(address);
+      } else if (addr.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
+         String address = addr.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
+         destination = createTopic(address);
+      } else if (addr.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
+         String address = addr.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
+         destination = new ActiveMQTemporaryQueue(address, null);
+      } else if (addr.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
+         String address = addr.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
+         destination = new ActiveMQTemporaryTopic(address, null);
       } else {
          destination = new ActiveMQDestination(addr, TYPE.DESTINATION, null);
       }
+
+      String unprefixedName = name;
+
+      if (name.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
+         unprefixedName = name.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
+      } else if (name.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
+         unprefixedName = name.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
+      } else if (name.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
+         unprefixedName = name.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
+      } else if (name.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
+         unprefixedName = name.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
+      }
+
+      destination.setName(unprefixedName);
+
       return destination;
    }
 
