@@ -757,12 +757,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             result.put(null, Long.valueOf(getDeliveringCount()));
          } else {
             Map<String, List<MessageReference>> deliveringMessages = queue.getDeliveringMessages();
-            deliveringMessages.forEach(
-                    (s, messageReferenceList) ->
+            deliveringMessages.forEach((s, messageReferenceList) ->
                             messageReferenceList.forEach(messageReference ->
                                     internalComputeMessage(result, filter, groupByProperty, messageReference.getMessage())
-                            )
-            );
+                            ));
          }
          return result;
       } finally {
