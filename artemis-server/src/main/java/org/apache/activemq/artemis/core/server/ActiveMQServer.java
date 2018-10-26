@@ -173,12 +173,6 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    ActiveMQServerControlImpl getActiveMQServerControl();
 
-   void destroyQueue(SimpleString queueName,
-                     SecurityAuth session,
-                     boolean checkConsumerCount,
-                     boolean removeConsumers,
-                     boolean autoDeleteAddress) throws Exception;
-
    void registerActivateCallback(ActivateCallback callback);
 
    void unregisterActivateCallback(ActivateCallback callback);
@@ -476,6 +470,19 @@ public interface ActiveMQServer extends ServiceComponent {
                      SecurityAuth session,
                      boolean checkConsumerCount,
                      boolean removeConsumers) throws Exception;
+
+   void destroyQueue(SimpleString queueName,
+                     SecurityAuth session,
+                     boolean checkConsumerCount,
+                     boolean removeConsumers,
+                     boolean autoDeleteAddress) throws Exception;
+
+   void destroyQueue(SimpleString queueName,
+                     SecurityAuth session,
+                     boolean checkConsumerCount,
+                     boolean removeConsumers,
+                     boolean autoDeleteAddress,
+                     boolean checkMessageCount) throws Exception;
 
    String destroyConnectionWithSessionMetadata(String metaKey, String metaValue) throws Exception;
 

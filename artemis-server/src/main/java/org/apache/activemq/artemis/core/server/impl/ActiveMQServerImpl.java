@@ -1934,6 +1934,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean checkConsumerCount,
                             final boolean removeConsumers,
                             final boolean autoDeleteAddress) throws Exception {
+      destroyQueue(queueName, session, checkConsumerCount, removeConsumers, autoDeleteAddress, false);
+   }
+
+   @Override
+   public void destroyQueue(final SimpleString queueName,
+                            final SecurityAuth session,
+                            final boolean checkConsumerCount,
+                            final boolean removeConsumers,
+                            final boolean autoDeleteAddress,
+                            final boolean checkMessageCount) throws Exception {
       if (postOffice == null) {
          return;
       }
@@ -1955,11 +1965,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       Queue queue = (Queue) binding.getBindable();
 
-      // This check is only valid if checkConsumerCount == true
-      if (checkConsumerCount && queue.getConsumerCount() != 0) {
-         throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueue(queue.getName(), queueName, binding.getClass().getName());
-      }
-
       if (session != null) {
 
          if (queue.isDurable()) {
@@ -1970,6 +1975,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
+      // This check is only valid if checkConsumerCount == true
+      if (checkConsumerCount && queue.getConsumerCount() != 0) {
+         throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithConsumers(queue.getName(), queueName, binding.getClass().getName());
+      }
+
+      // This check is only valid if checkMessageCount == true
+      long messageCount = queue.getMessageCount();
+      if (checkMessageCount && messageCount != 0) {
+         throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithMessages(queue.getName(), queueName, messageCount);
+      }
+
       queue.deleteQueue(removeConsumers);
 
       if (hasBrokerQueuePlugins()) {
@@ -1978,7 +1994,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
       AddressInfo addressInfo = getAddressInfo(address);
 
-      if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated()) {
+      if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString()) && addressSettingsRepository.getMatch(address.toString()).getAutoDeleteAddressesDelay() == 0) {
          try {
             removeAddressInfo(address, session);
          } catch (ActiveMQDeleteAddressException e) {
@@ -2539,7 +2555,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       pagingManager = createPagingManager();
 
       resourceManager = new ResourceManagerImpl((int) (configuration.getTransactionTimeout() / 1000), configuration.getTransactionTimeoutScanPeriod(), scheduledPool);
-      postOffice = new PostOfficeImpl(this, storageManager, pagingManager, queueFactory, managementService, configuration.getMessageExpiryScanPeriod(), configuration.getMessageExpiryThreadPriority(), configuration.getWildcardConfiguration(), configuration.getIDCacheSize(), configuration.isPersistIDCache(), addressSettingsRepository);
+      postOffice = new PostOfficeImpl(this, storageManager, pagingManager, queueFactory, managementService, configuration.getMessageExpiryScanPeriod(), configuration.getAddressQueueScanPeriod(), configuration.getWildcardConfiguration(), configuration.getIDCacheSize(), configuration.isPersistIDCache(), addressSettingsRepository);
 
       // This can't be created until node id is set
       clusterManager = new ClusterManager(executorFactory, this, postOffice, scheduledPool, managementService, configuration, nodeManager, haPolicy.isBackup());
@@ -2680,6 +2696,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          // We can only do this after everything is started otherwise we may get nasty races with expired messages
          postOffice.startExpiryScanner();
+
+         postOffice.startAddressQueueScanner();
       }
 
       if (configuration.getMaxDiskUsage() != -1) {
