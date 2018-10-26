@@ -107,6 +107,16 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long countDeliveringMessages(final String filter) throws Exception {
+            return (Long) proxy.invokeOperation(Long.class, "countDeliveringMessages", filter);
+         }
+
+         @Override
+         public String countDeliveringMessages(final String filter, final String groupByFilter) throws Exception {
+            return (String) proxy.invokeOperation(String.class, "countDeliveringProperty", filter, groupByFilter);
+         }
+
+         @Override
          public boolean expireMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("expireMessage", messageID);
          }
