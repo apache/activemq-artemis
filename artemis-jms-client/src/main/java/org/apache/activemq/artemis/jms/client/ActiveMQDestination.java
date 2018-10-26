@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.api.core.ParameterisedAddress;
 
@@ -94,24 +95,24 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    public static Destination fromPrefixedName(final String addr, final String name) {
 
       ActiveMQDestination destination;
+      String address = addr;
       if (addr.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
-         String address = addr.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
+         address = addr.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
          destination = createQueue(address);
       } else if (addr.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
-         String address = addr.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
+         address = addr.substring(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX.length());
          destination = createTopic(address);
       } else if (addr.startsWith(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX)) {
-         String address = addr.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
+         address = addr.substring(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX.length());
          destination = new ActiveMQTemporaryQueue(address, null);
       } else if (addr.startsWith(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX)) {
-         String address = addr.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
+         address = addr.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
          destination = new ActiveMQTemporaryTopic(address, null);
       } else {
          destination = new ActiveMQDestination(addr, TYPE.DESTINATION, null);
       }
 
       String unprefixedName = name;
-
       if (name.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
          unprefixedName = name.substring(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX.length());
       } else if (name.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
@@ -122,6 +123,15 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          unprefixedName = name.substring(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX.length());
       }
 
+      if (unprefixedName.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+         unprefixedName = unprefixedName.substring(PacketImpl.OLD_QUEUE_PREFIX.length());
+      } else if (unprefixedName.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+         unprefixedName = unprefixedName.substring(PacketImpl.OLD_TOPIC_PREFIX.length());
+      } else if (unprefixedName.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
+         unprefixedName = unprefixedName.substring(PacketImpl.OLD_QUEUE_PREFIX.length());
+      } else if (unprefixedName.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
+         unprefixedName = unprefixedName.substring(PacketImpl.OLD_TEMP_TOPIC_PREFIX.length());
+      }
       destination.setName(unprefixedName);
 
       return destination;
