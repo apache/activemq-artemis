@@ -1704,6 +1704,189 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testCountDeliveringMessageCountWithFilter() throws Exception {
+      SimpleString key = new SimpleString("key");
+      long matchingValue = RandomUtil.randomPositiveLong();
+      long unmatchingValue = matchingValue + 1;
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      ClientMessage matchingMessage = session.createMessage(false);
+      matchingMessage.putLongProperty(key, matchingValue);
+      ClientMessage unmatchingMessage = session.createMessage(false);
+      unmatchingMessage.putLongProperty(key, unmatchingValue);
+      producer.send(matchingMessage);
+      producer.send(unmatchingMessage);
+      producer.send(matchingMessage);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.countDeliveringMessages(null));
+      Assert.assertEquals(0, queueControl.countDeliveringMessages(key + " =" + matchingValue));
+      Assert.assertEquals(0, queueControl.countDeliveringMessages(key + " =" + unmatchingValue));
+
+      ClientConsumer consumer = session.createConsumer(queue, null, 1024 * 1024, 1, false);
+      ClientMessage message = consumer.receive(500);
+      Assert.assertNotNull(message);
+      Assert.assertEquals(3, queueControl.countDeliveringMessages(null));
+      Assert.assertEquals(2, queueControl.countDeliveringMessages(key + " =" + matchingValue));
+      Assert.assertEquals(1, queueControl.countDeliveringMessages(key + " =" + unmatchingValue));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testCountDeliveringMessageCountNoFilter() throws Exception {
+      SimpleString key = new SimpleString("key");
+      long matchingValue = RandomUtil.randomLong();
+      long unmatchingValue = matchingValue + 1;
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      ClientMessage matchingMessage = session.createMessage(false);
+      matchingMessage.putLongProperty(key, matchingValue);
+      ClientMessage unmatchingMessage = session.createMessage(false);
+      unmatchingMessage.putLongProperty(key, unmatchingValue);
+      producer.send(matchingMessage);
+      producer.send(unmatchingMessage);
+      producer.send(matchingMessage);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.countDeliveringMessages(null));
+
+      ClientConsumer consumer = session.createConsumer(queue, null, 1024 * 1024, 1, false);
+      ClientMessage message = consumer.receive(500);
+      Assert.assertNotNull(message);
+      Assert.assertEquals(3, queueControl.countDeliveringMessages(null));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testCountDeliveringMessageCountNoGroupNoFilter() throws Exception {
+      SimpleString key = new SimpleString("key");
+      long matchingValue = RandomUtil.randomLong();
+      long unmatchingValue = matchingValue + 1;
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      ClientMessage matchingMessage = session.createMessage(false);
+      matchingMessage.putLongProperty(key, matchingValue);
+      ClientMessage unmatchingMessage = session.createMessage(false);
+      unmatchingMessage.putLongProperty(key, unmatchingValue);
+      producer.send(matchingMessage);
+      producer.send(unmatchingMessage);
+      producer.send(matchingMessage);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      String result = queueControl.countDeliveringMessages(null, null);
+      JsonObject jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertEquals(0, jsonObject.getInt("null"));
+
+      ClientConsumer consumer = session.createConsumer(queue, null, 1024 * 1024, 1, false);
+      ClientMessage message = consumer.receive(500);
+      Assert.assertNotNull(message);
+
+      result = queueControl.countDeliveringMessages(null, null);
+      jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertEquals(3, jsonObject.getInt("null"));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testCountDeliveringMessageCountGroupNoFilter() throws Exception {
+      String key = new String("key_group");
+      String valueGroup1 = "group_1";
+      String valueGroup2 = "group_2";
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      ClientMessage message1 = session.createMessage(false);
+      message1.putStringProperty(key, valueGroup1);
+      ClientMessage message2 = session.createMessage(false);
+      message2.putStringProperty(key, valueGroup2);
+      producer.send(message1);
+      producer.send(message2);
+      producer.send(message1);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      String result = queueControl.countDeliveringMessages(null, key);
+      JsonObject jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertTrue(jsonObject.isEmpty());
+
+      ClientConsumer consumer = session.createConsumer(queue, null, 1024 * 1024, 1, false);
+      ClientMessage message = consumer.receive(500);
+      Assert.assertNotNull(message);
+
+      result = queueControl.countDeliveringMessages(null, key);
+      jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertEquals(2, jsonObject.getInt(valueGroup1));
+      Assert.assertEquals(1, jsonObject.getInt(valueGroup2));
+      Assert.assertFalse(jsonObject.containsKey(null));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testCountDeliveringMessageCountGroupFilter() throws Exception {
+      String key = new String("key_group");
+      long valueGroup1 = RandomUtil.randomLong();
+      long valueGroup2 = valueGroup1 + 1;
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      ClientMessage message1 = session.createMessage(false);
+      message1.putLongProperty(key, valueGroup1);
+      ClientMessage message2 = session.createMessage(false);
+      message2.putLongProperty(key, valueGroup2);
+      producer.send(message1);
+      producer.send(message2);
+      producer.send(message1);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      String result = queueControl.countDeliveringMessages(key + " =" + valueGroup1, key);
+      JsonObject jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertTrue(jsonObject.isEmpty());
+
+      ClientConsumer consumer = session.createConsumer(queue, null, 1024 * 1024, 1, false);
+      ClientMessage message = consumer.receive(500);
+      Assert.assertNotNull(message);
+
+      result = queueControl.countDeliveringMessages(key + " =" + valueGroup1, key);
+      jsonObject = JsonUtil.readJsonObject(result);
+      Assert.assertEquals(2, jsonObject.getInt(String.valueOf(valueGroup1)));
+      Assert.assertFalse(jsonObject.containsKey(String.valueOf(valueGroup2)));
+      Assert.assertFalse(jsonObject.containsKey(null));
+
+      consumer.close();
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testCountMessagesWithFilter() throws Exception {
       SimpleString key = new SimpleString("key");
       long matchingValue = RandomUtil.randomLong();
