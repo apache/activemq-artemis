@@ -17,8 +17,12 @@
 package org.apache.activemq.cli.test;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
@@ -26,7 +30,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class CliTestBase {
 
@@ -64,6 +80,71 @@ public class CliTestBase {
       }
 
       LockAbstract.unlock();
+   }
+
+   protected void startServer() throws Exception {
+      File rootDirectory = new File(temporaryFolder.getRoot(), "broker");
+      setupAuth(rootDirectory);
+      Run.setEmbedded(true);
+      Artemis.main("create", rootDirectory.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", rootDirectory.getAbsolutePath());
+      Artemis.internalExecute("run");
+   }
+
+   protected void setupAuth() throws Exception {
+      setupAuth(temporaryFolder.getRoot());
+   }
+
+   protected void setupAuth(File folder) throws Exception {
+      System.setProperty("java.security.auth.login.config", folder.getAbsolutePath() + "/etc/login.config");
+   }
+
+   protected void stopServer() throws Exception {
+      Artemis.internalExecute("stop");
+      assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
+      assertEquals(0, LibaioContext.getTotalMaxIO());
+   }
+
+   protected ActiveMQConnectionFactory getConnectionFactory(int serverPort) throws Exception {
+      return new ActiveMQConnectionFactory("tcp://localhost:" + String.valueOf(serverPort));
+   }
+
+   protected void createQueue(String routingTypeOption, String address, String queueName) throws Exception {
+      Artemis.main("queue", "create",
+              "--user", "admin",
+              "--password", "admin",
+              "--address", address,
+              "--name", queueName,
+              routingTypeOption,
+              "--durable",
+              "--preserve-on-no-consumers",
+              "--auto-create-address");
+   }
+
+   protected void closeConnection(ActiveMQConnectionFactory cf, Connection connection) throws Exception {
+      try {
+         connection.close();
+         cf.close();
+      } finally {
+         stopServer();
+      }
+   }
+
+   protected List<Message> consumeMessages(Session session, String address, int noMessages, boolean fqqn) throws Exception {
+      Destination destination = fqqn ? session.createQueue(address) : getDestination(address);
+      MessageConsumer consumer = session.createConsumer(destination);
+
+      List<Message> messages = new ArrayList<>();
+      for (int i = 0; i < noMessages; i++) {
+         Message m = consumer.receive(1000);
+         assertNotNull(m);
+         messages.add(m);
+      }
+      return messages;
+   }
+
+   protected Destination getDestination(String queueName) {
+      return ActiveMQDestination.createDestination("queue://" + queueName, ActiveMQDestination.TYPE.QUEUE);
    }
 
 }
