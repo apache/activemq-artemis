@@ -126,6 +126,8 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod());
 
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultAddressQueueScanPeriod(), conf.getAddressQueueScanPeriod());
+
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(), conf.getMessageExpiryThreadPriority());
 
       Assert.assertTrue(conf.getHAPolicyConfiguration() instanceof LiveOnlyPolicyConfiguration);

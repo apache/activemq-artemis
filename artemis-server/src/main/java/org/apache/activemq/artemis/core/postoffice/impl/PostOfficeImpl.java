@@ -113,11 +113,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ManagementService managementService;
 
-   private Reaper reaperRunnable;
+   private ExpiryReaper expiryReaperRunnable;
 
-   private final long reaperPeriod;
+   private final long expiryReaperPeriod;
 
-   private final int reaperPriority;
+   private AddressQueueReaper addressQueueReaperRunnable;
+
+   private final long addressQueueReaperPeriod;
 
    private final ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = new ConcurrentHashMap<>();
 
@@ -140,8 +142,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                          final PagingManager pagingManager,
                          final QueueFactory bindableFactory,
                          final ManagementService managementService,
-                         final long reaperPeriod,
-                         final int reaperPriority,
+                         final long expiryReaperPeriod,
+                         final long addressQueueReaperPeriod,
                          final WildcardConfiguration wildcardConfiguration,
                          final int idCacheSize,
                          final boolean persistIDCache,
@@ -154,9 +156,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       this.pagingManager = pagingManager;
 
-      this.reaperPeriod = reaperPeriod;
+      this.expiryReaperPeriod = expiryReaperPeriod;
 
-      this.reaperPriority = reaperPriority;
+      this.addressQueueReaperPeriod = addressQueueReaperPeriod;
 
       if (wildcardConfiguration.isRoutingEnabled()) {
          addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager);
@@ -197,8 +199,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       managementService.removeNotificationListener(this);
 
-      if (reaperRunnable != null)
-         reaperRunnable.stop();
+      if (expiryReaperRunnable != null)
+         expiryReaperRunnable.stop();
+
+      if (addressQueueReaperRunnable != null)
+         addressQueueReaperRunnable.stop();
 
       addressManager.clear();
 
@@ -711,6 +716,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          managementService.unregisterQueue(uniqueName, binding.getAddress(), queue.getRoutingType());
       } else if (binding.getType() == BindingType.DIVERT) {
          managementService.unregisterDivert(uniqueName, binding.getAddress());
+      }
+
+      AddressInfo addressInfo = getAddressInfo(binding.getAddress());
+      if (addressInfo != null) {
+         addressInfo.setBindingRemovedTimestamp(System.currentTimeMillis());
       }
 
       if (binding.getType() != BindingType.DIVERT) {
@@ -1480,12 +1490,23 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
     */
    @Override
    public synchronized void startExpiryScanner() {
-      if (reaperPeriod > 0) {
-         if (reaperRunnable != null)
-            reaperRunnable.stop();
-         reaperRunnable = new Reaper(server.getScheduledPool(), server.getExecutorFactory().getExecutor(), reaperPeriod, TimeUnit.MILLISECONDS, false);
+      if (expiryReaperPeriod > 0) {
+         if (expiryReaperRunnable != null)
+            expiryReaperRunnable.stop();
+         expiryReaperRunnable = new ExpiryReaper(server.getScheduledPool(), server.getExecutorFactory().getExecutor(), expiryReaperPeriod, TimeUnit.MILLISECONDS, false);
 
-         reaperRunnable.start();
+         expiryReaperRunnable.start();
+      }
+   }
+
+   @Override
+   public synchronized void startAddressQueueScanner() {
+      if (addressQueueReaperPeriod > 0) {
+         if (addressQueueReaperRunnable != null)
+            addressQueueReaperRunnable.stop();
+         addressQueueReaperRunnable = new AddressQueueReaper(server.getScheduledPool(), server.getExecutorFactory().getExecutor(), addressQueueReaperPeriod, TimeUnit.MILLISECONDS, false);
+
+         addressQueueReaperRunnable.start();
       }
    }
 
@@ -1504,13 +1525,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return message;
    }
 
-   private final class Reaper extends ActiveMQScheduledComponent {
+   private final class ExpiryReaper extends ActiveMQScheduledComponent {
 
-      Reaper(ScheduledExecutorService scheduledExecutorService,
-             Executor executor,
-             long checkPeriod,
-             TimeUnit timeUnit,
-             boolean onDemand) {
+      ExpiryReaper(ScheduledExecutorService scheduledExecutorService,
+                   Executor executor,
+                   long checkPeriod,
+                   TimeUnit timeUnit,
+                   boolean onDemand) {
          super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
       }
 
@@ -1535,6 +1556,75 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                queue.expireReferences();
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorExpiringMessages(e);
+            }
+         }
+      }
+   }
+
+   private final class AddressQueueReaper extends ActiveMQScheduledComponent {
+
+      AddressQueueReaper(ScheduledExecutorService scheduledExecutorService,
+                         Executor executor,
+                         long checkPeriod,
+                         TimeUnit timeUnit,
+                         boolean onDemand) {
+         super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
+      }
+
+      @Override
+      public void run() {
+         Map<SimpleString, Binding> nameMap = addressManager.getBindings();
+
+         List<Queue> queues = new ArrayList<>();
+
+         for (Binding binding : nameMap.values()) {
+            if (binding.getType() == BindingType.LOCAL_QUEUE) {
+               Queue queue = (Queue) binding.getBindable();
+
+               queues.add(queue);
+            }
+         }
+
+         for (Queue queue : queues) {
+            int consumerCount = queue.getConsumerCount();
+            long messageCount = queue.getMessageCount();
+            boolean autoCreated = queue.isAutoCreated();
+            long consumerRemovedTimestamp =  queue.getConsumerRemovedTimestamp();
+
+            if (!queue.isInternalQueue() && autoCreated && messageCount == 0 && consumerCount == 0 && consumerRemovedTimestamp != -1) {
+               SimpleString queueName = queue.getName();
+               AddressSettings settings = addressSettingsRepository.getMatch(queue.getAddress().toString());
+               if (settings.isAutoDeleteQueues() && (System.currentTimeMillis() - consumerRemovedTimestamp >= settings.getAutoDeleteQueuesDelay())) {
+                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+                     ActiveMQServerLogger.LOGGER.info("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteQueues = " + settings.isAutoDeleteQueues());
+                  }
+
+                  try {
+                     server.destroyQueue(queueName, null, true, false, settings.isAutoDeleteAddresses(), true);
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
+                  }
+               }
+            }
+         }
+
+         Set<SimpleString> addresses = addressManager.getAddresses();
+
+         for (SimpleString address : addresses) {
+            AddressInfo addressInfo = getAddressInfo(address);
+            AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
+
+            try {
+               if (addressInfo != null && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
+
+                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+                     ActiveMQServerLogger.LOGGER.info("deleting auto-created address \"" + address + ".\"");
+                  }
+
+                  server.removeAddressInfo(address, null);
+               }
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, address);
             }
          }
       }

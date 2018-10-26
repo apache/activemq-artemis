@@ -119,6 +119,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private static final Logger logger = Logger.getLogger(QueueImpl.class);
    private static final AtomicIntegerFieldUpdater dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
    private static final AtomicLongFieldUpdater dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
+   private static final AtomicLongFieldUpdater consumerRemovedTimestampUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "consumerRemovedTimestamp");
    private static final AtomicReferenceFieldUpdater<QueueImpl, Filter> filterUpdater = AtomicReferenceFieldUpdater.newUpdater(QueueImpl.class, Filter.class, "filter");
 
    public static final int REDISTRIBUTOR_BATCH_SIZE = 100;
@@ -232,6 +233,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // We cache the consumers here since we don't want to include the redistributor
 
    private final AtomicInteger consumersCount = new AtomicInteger();
+
+   private volatile long consumerRemovedTimestamp = -1;
 
    private final Set<Consumer> consumerSet = new HashSet<>();
 
@@ -1082,6 +1085,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (consumerSet.remove(consumer)) {
                int currentConsumerCount = consumersCount.decrementAndGet();
+               consumerRemovedTimestampUpdater.set(this, System.currentTimeMillis());
                boolean stopped = dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(true), BooleanUtil.toInt(currentConsumerCount != 0));
                if (stopped) {
                   dispatchStartTimeUpdater.set(this, -1);
@@ -1181,6 +1185,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public int getConsumerCount() {
       return consumersCount.get();
+   }
+
+   @Override
+   public long getConsumerRemovedTimestamp() {
+      return consumerRemovedTimestampUpdater.get(this);
    }
 
    @Override

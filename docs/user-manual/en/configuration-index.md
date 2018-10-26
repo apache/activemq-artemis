@@ -143,6 +143,7 @@ log-delegate-factory-class-name | **deprecated** the name of the factory class t
 [message-counter-sample-period](management.md#message-counters) | the sample period (in ms) to use for message counters. | 10000
 [message-expiry-scan-period](message-expiry.md#configuring-the-expiry-reaper-thread) | how often (in ms) to scan for expired messages. | 30000
 [message-expiry-thread-priority](message-expiry.md#configuring-the-expiry-reaper-thread)| the priority of the thread expiring messages. | 3
+[address-queue-scan-period](address-model.md#configuring-addresses-and-queues-via-address-settings) | how often (in ms) to scan for addresses & queues that should be removed. | 30000
 name | node name; used in topology notifications if set. | n/a
 [password-codec](masking-passwords.md) | the name of the class (and optional configuration properties) used to decode masked passwords. Only valid when `mask-password` is `true`. | n/a
 [page-max-concurrent-io](paging.md) | The max number of concurrent reads allowed on paging. | 5
@@ -216,10 +217,12 @@ Name | Description | Default
 [auto-create-jms-topics](address-model.md#configuring-addresses-and-queues-via-address-settings)| **deprecated** Create JMS topics automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
 [auto-delete-jms-topics](address-model.md#configuring-addresses-and-queues-via-address-settings)| **deprecated** Delete JMS topics automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
 [auto-create-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Create queues automatically | `true`
-[auto-delete-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete queues automatically | `true`
+[auto-delete-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created queues automatically | `true`
+[auto-delete-queues-delay](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delay for deleting auto-created queues | 0
 [config-delete-queues](config-reload.md)| How to deal with queues deleted from XML at runtime| `OFF`
 [auto-create-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Create addresses automatically | `true`
-[auto-delete-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete addresses automatically | `true`
+[auto-delete-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created addresses automatically | `true`
+[auto-delete-addresses-delay](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delay for deleting auto-created addresses | 0
 [config-delete-addresses](config-reload.md) | How to deal with addresses deleted from XML at runtime | `OFF`
 [management-browse-page-size]() | Number of messages a management resource can browse| 200
 [default-purge-on-no-consumers](address-model.md#non-durable-subscription-queue) | `purge-on-no-consumers` value if none is set on the queue | `false`

@@ -140,7 +140,7 @@ public interface ActiveMQMessageBundle {
    ActiveMQIllegalStateException alreadyHaveReplicationServer();
 
    @Message(id = 229025, value = "Cannot delete queue {0} on binding {1} - it has consumers = {2}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQIllegalStateException cannotDeleteQueue(SimpleString name, SimpleString queueName, String s);
+   ActiveMQIllegalStateException cannotDeleteQueueWithConsumers(SimpleString name, SimpleString queueName, String s);
 
    @Message(id = 229026, value = "Backup Server was not yet in sync with live")
    ActiveMQIllegalStateException backupServerNotInSync();
@@ -438,4 +438,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229214, value = "{0} must be a valid percentage value between 0 and 100 or -1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException notPercentOrMinusOne(String name, Number val);
+
+   @Message(id = 229215, value = "Cannot delete queue {0} on binding {1} - it has {2} messages", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException cannotDeleteQueueWithMessages(SimpleString name, SimpleString queueName, long messageCount);
 }

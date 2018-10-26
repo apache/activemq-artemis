@@ -90,6 +90,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(56789, conf.getTransactionTimeoutScanPeriod());
       Assert.assertEquals(10111213, conf.getMessageExpiryScanPeriod());
       Assert.assertEquals(8, conf.getMessageExpiryThreadPriority());
+      Assert.assertEquals(25000, conf.getAddressQueueScanPeriod());
       Assert.assertEquals(127, conf.getIDCacheSize());
       Assert.assertEquals(true, conf.isPersistIDCache());
       Assert.assertEquals(true, conf.isPersistDeliveryCountBeforeDelivery());
@@ -324,6 +325,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsQueues());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoCreateJmsTopics());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsTopics());
+      assertEquals(0, conf.getAddressesSettings().get("a1").getAutoDeleteQueuesDelay());
+      assertEquals(0, conf.getAddressesSettings().get("a1").getAutoDeleteAddressesDelay());
       assertEquals(false, conf.getAddressesSettings().get("a1").isDefaultPurgeOnNoConsumers());
       assertEquals(5, conf.getAddressesSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a1").getDefaultQueueRoutingType());
@@ -343,6 +346,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsQueues());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsTopics());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsTopics());
+      assertEquals(500, conf.getAddressesSettings().get("a2").getAutoDeleteQueuesDelay());
+      assertEquals(1000, conf.getAddressesSettings().get("a2").getAutoDeleteAddressesDelay());
       assertEquals(true, conf.getAddressesSettings().get("a2").isDefaultPurgeOnNoConsumers());
       assertEquals(15, conf.getAddressesSettings().get("a2").getDefaultMaxConsumers());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a2").getDefaultQueueRoutingType());
