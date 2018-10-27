@@ -706,9 +706,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    private Map<String, Long> intenalCountMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
       checkStarted();
-      clearIO();
-      Map<String, Long> result = new HashMap<>();
 
+      clearIO();
+
+      Map<String, Long> result = new HashMap<>();
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
          SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
@@ -719,15 +720,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                try {
                   while (iterator.hasNext()) {
                      Message message = iterator.next().getMessage();
-                     if (filter == null || filter.match(message)) {
-                        if (groupByProperty == null) {
-                           result.compute(null, (k,v) -> v == null ? 1 : ++v);
-                        } else {
-                           Object value = message.getObjectProperty(groupByProperty);
-                           String valueStr = value == null ? null : value.toString();
-                           result.compute(valueStr, (k,v) -> v == null ? 1 : ++v);
-                        }
-                     }
+                     internalComputeMessage(result, filter, groupByProperty, message);
                   }
                } catch (NoSuchElementException ignored) {
                   // this could happen through paging browsing
@@ -739,6 +732,54 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          blockOnIO();
       }
    }
+
+   @Override
+   public long countDeliveringMessages(final String filterStr) throws Exception {
+      Long value = intenalCountDeliveryMessages(filterStr, null).get(null);
+      return value == null ? 0 : value;
+   }
+
+   @Override
+   public String countDeliveringMessages(final String filterStr, final String groupByProperty) throws Exception {
+      return JsonUtil.toJsonObject(intenalCountDeliveryMessages(filterStr, groupByProperty)).toString();
+   }
+
+   private Map<String, Long> intenalCountDeliveryMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      Map<String, Long> result = new HashMap<>();
+      try {
+         Filter filter = FilterImpl.createFilter(filterStr);
+         SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+         if (filter == null && groupByProperty == null) {
+            result.put(null, Long.valueOf(getDeliveringCount()));
+         } else {
+            Map<String, List<MessageReference>> deliveringMessages = queue.getDeliveringMessages();
+            deliveringMessages.forEach((s, messageReferenceList) ->
+                            messageReferenceList.forEach(messageReference ->
+                                    internalComputeMessage(result, filter, groupByProperty, messageReference.getMessage())
+                            ));
+         }
+         return result;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   private void internalComputeMessage(Map<String, Long> result, Filter filter, SimpleString groupByProperty, Message message) {
+      if (filter == null || filter.match(message)) {
+         if (groupByProperty == null) {
+            result.compute(null, (k, v) -> v == null ? 1 : ++v);
+         } else {
+            Object value = message.getObjectProperty(groupByProperty);
+            String valueStr = value == null ? null : value.toString();
+            result.compute(valueStr, (k, v) -> v == null ? 1 : ++v);
+         }
+      }
+   }
+
 
    @Override
    public boolean removeMessage(final long messageID) throws Exception {
