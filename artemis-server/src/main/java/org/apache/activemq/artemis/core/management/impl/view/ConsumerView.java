@@ -58,6 +58,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add("protocol", toString(consumer.getConnectionProtocolName()))
          .add("queue", toString(consumer.getQueueName()))
          .add("queueType", toString(consumer.getQueueType()).toLowerCase())
+         .add("filter", toString(consumer.getFilterString()))
          .add("address", toString(consumer.getQueueAddress()))
          .add("localAddress", toString(consumer.getConnectionLocalAddress()))
          .add("remoteAddress", toString(consumer.getConnectionRemoteAddress()))
@@ -89,6 +90,8 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
             return consumer.getQueueName();
          case "queueType":
             return consumer.getQueueType();
+         case "filter":
+            return consumer.getFilterString();
          case "localAddress":
             return consumer.getConnectionLocalAddress();
          case "remoteAddress":
