@@ -48,6 +48,7 @@ public class SelectorTranslator {
       filterString = SelectorTranslator.parse(filterString, "JMSTimestamp", "AMQTimestamp");
       filterString = SelectorTranslator.parse(filterString, "JMSMessageID", "AMQUserID");
       filterString = SelectorTranslator.parse(filterString, "JMSExpiration", "AMQExpiration");
+      filterString = SelectorTranslator.parse(filterString, "JMSXGroupID", "AMQGroupID");
 
       return filterString;
 
