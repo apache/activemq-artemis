@@ -266,6 +266,9 @@ The message journal is configured using the following attributes in
   nanoseconds - 300 times per second, default for ASYNCIO is 500000
   nanoseconds - ie. 2000 times per second).
 
+  Setting this property to 0 will disable the internal buffer and writes will
+  be directly written to the journal file immediately.
+  
   > **Note:**
   >
   > By increasing the timeout, you may be able to increase system
