@@ -19,29 +19,68 @@ package org.apache.activemq.artemis.utils.critical;
 
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
+import org.jboss.logging.Logger;
+
 public class CriticalMeasure {
 
+   private static final Logger logger = Logger.getLogger(CriticalMeasure.class);
+
+   // this is used on enterCritical, if the logger is in trace mode
+   private volatile Exception traceEnter;
+
    //uses updaters to avoid creates many AtomicLong instances
-   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_ENTER_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeEnter");
-   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_LEFT_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeLeft");
+   static final AtomicLongFieldUpdater<CriticalMeasure> TIME_ENTER_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeEnter");
+   static final AtomicLongFieldUpdater<CriticalMeasure> TIME_LEFT_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeLeft");
 
    private volatile long timeEnter;
    private volatile long timeLeft;
 
-   public CriticalMeasure() {
+   private final int id;
+   private final CriticalComponent component;
+
+   public CriticalMeasure(CriticalComponent component, int id) {
+      this.id = id;
+      this.component = component;
       //prefer this approach instead of using some fixed value because System::nanoTime could change sign
       //with long running processes
-      enterCritical();
-      leaveCritical();
+      long time = System.nanoTime();
+      TIME_LEFT_UPDATER.set(this, time);
+      TIME_ENTER_UPDATER.set(this, time);
    }
 
    public void enterCritical() {
       //prefer lazySet in order to avoid heavy-weight full barriers on x86
       TIME_ENTER_UPDATER.lazySet(this, System.nanoTime());
+
+      if (logger.isTraceEnabled()) {
+         traceEnter = new Exception("entered");
+      }
    }
 
    public void leaveCritical() {
+
+      if (logger.isTraceEnabled()) {
+
+         CriticalAnalyzer analyzer = component != null ? component.getCriticalAnalyzer() : null;
+         if (analyzer != null) {
+            long nanoTimeout = analyzer.getTimeoutNanoSeconds();
+            if (isExpired(nanoTimeout)) {
+               logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, leaving at", new Exception("entered"));
+               logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, entered at", traceEnter);
+            }
+         }
+         traceEnter = null;
+      }
+
       TIME_LEFT_UPDATER.lazySet(this, System.nanoTime());
+   }
+
+   protected String getComponentName() {
+      if (component == null) {
+         return "null";
+      } else {
+         return component.getClass().getName();
+      }
    }
 
    public boolean isExpired(long timeout) {
@@ -49,7 +88,18 @@ public class CriticalMeasure {
       final long timeEnter = TIME_ENTER_UPDATER.get(this);
       //due to how System::nanoTime works is better to use differences to prevent numerical overflow while comparing
       if (timeLeft - timeEnter < 0) {
-         return System.nanoTime() - timeEnter > timeout;
+         boolean expired = System.nanoTime() - timeEnter > timeout;
+
+         if (expired) {
+
+            Exception thistraceEnter = this.traceEnter;
+            if (thistraceEnter != null) {
+               logger.warn("Component " + getComponentName() + " is expired on path " + id, thistraceEnter);
+            } else {
+               logger.warn("Component " + getComponentName() + " is expired on path " + id);
+            }
+         }
+         return expired;
       }
       return false;
    }

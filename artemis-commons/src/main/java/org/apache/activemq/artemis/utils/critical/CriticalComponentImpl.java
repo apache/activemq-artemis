@@ -25,6 +25,7 @@ public class CriticalComponentImpl implements CriticalComponent {
    private final CriticalMeasure[] measures;
    private final CriticalAnalyzer analyzer;
 
+   @Override
    public CriticalAnalyzer getCriticalAnalyzer() {
       return analyzer;
    }
@@ -38,7 +39,7 @@ public class CriticalComponentImpl implements CriticalComponent {
       if (analyzer.isMeasuring()) {
          measures = new CriticalMeasure[numberOfPaths];
          for (int i = 0; i < numberOfPaths; i++) {
-            measures[i] = new CriticalMeasure();
+            measures[i] = new CriticalMeasure(this, i);
          }
       } else {
          measures = null;
