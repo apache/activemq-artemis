@@ -289,6 +289,12 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this.getSimpleStringProperty(Message.HDR_GROUP_ID);
    }
 
+   @Override
+   public int getGroupSequence() {
+      final Integer integer = this.getIntProperty(Message.HDR_GROUP_SEQUENCE);
+      return integer == null ? 0 : integer;
+   }
+
    /**
     * @param sendBuffer
     * @param deliveryCount Some protocols (AMQP) will have this as part of the message. ignored on core

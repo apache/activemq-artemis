@@ -1100,6 +1100,17 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
+   public int getGroupSequence() {
+      ensureMessageDataScanned();
+
+      if (properties != null && properties.getGroupSequence() != null) {
+         return properties.getGroupSequence().intValue();
+      } else {
+         return 0;
+      }
+   }
+
+   @Override
    public Long getScheduledDeliveryTime() {
       if (scheduledTime < 0) {
          Object objscheduledTime = getMessageAnnotation(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME);
