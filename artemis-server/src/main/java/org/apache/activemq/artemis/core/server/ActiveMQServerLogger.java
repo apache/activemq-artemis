@@ -1613,6 +1613,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void problemAddingConfigReloadCallback(String propertyName, @Cause Exception e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222278, value = "Unable to extract GroupSequence from message", format = Message.Format.MESSAGE_FORMAT)
+   void unableToExtractGroupSequence(@Cause Throwable e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
