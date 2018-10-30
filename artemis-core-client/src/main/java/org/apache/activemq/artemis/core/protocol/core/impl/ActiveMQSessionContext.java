@@ -1082,11 +1082,11 @@ public class ActiveMQSessionContext extends SessionContext {
                   break;
                }
                default: {
-                  throw new IllegalStateException("Invalid packet: " + type);
+                  throw ActiveMQClientMessageBundle.BUNDLE.invalidPacket(type);
                }
             }
          } catch (Exception e) {
-            ActiveMQClientLogger.LOGGER.failedToHandlePacket(e);
+            throw ActiveMQClientMessageBundle.BUNDLE.failedToHandlePacket(e);
          }
 
          sessionChannel.confirm(packet);
