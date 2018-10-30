@@ -231,4 +231,10 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219063, value = "Cannot send a packet while response cache is full.")
    IllegalStateException cannotSendPacketWhilstResponseCacheFull();
+
+   @Message(id = 219064, value = "Invalide packet: {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException invalidPacket(byte type);
+
+   @Message(id = 219065, value = "Failed to handle packet.")
+   RuntimeException failedToHandlePacket(@Cause Exception e);
 }
