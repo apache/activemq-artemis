@@ -21,7 +21,9 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -67,7 +69,9 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
       Configuration serverConfig = server.getConfiguration();
 
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
+      Map<String, AddressSettings> addressSettingsMap = serverConfig.getAddressesSettings();
+
+      configureAddressSettings(addressSettingsMap);
 
       serverConfig.setSecurityEnabled(enableSecurity);
 
@@ -115,6 +119,10 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
       registerConnectionFactory();
       System.out.println("debug: server started");
+   }
+
+   protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
+      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
    }
 
    //override this to add extra server configs
