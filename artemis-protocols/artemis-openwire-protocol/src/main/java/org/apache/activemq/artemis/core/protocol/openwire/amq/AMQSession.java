@@ -443,63 +443,63 @@ public class AMQSession implements SessionCallback {
                                         final AtomicInteger count,
                                         final org.apache.activemq.artemis.api.core.Message coreMsg,
                                         final SimpleString address) throws ResourceAllocationException {
-      if (!store.checkMemory(() -> {
-         Exception exceptionToSend = null;
-
-         try {
-            getCoreSession().send(coreMsg, false, dest.isTemporary());
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-            exceptionToSend = e;
-         }
-         connection.enableTtl();
-         if (count == null || count.decrementAndGet() == 0) {
-            if (exceptionToSend != null) {
-               this.connection.getContext().setDontSendReponse(false);
-               connection.sendException(exceptionToSend);
-            } else {
-               server.getStorageManager().afterCompleteOperations(new IOCallback() {
-                  @Override
-                  public void done() {
-                     if (sendProducerAck) {
-                        try {
-                           ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
-                           connection.dispatchAsync(ack);
-                        } catch (Exception e) {
-                           connection.getContext().setDontSendReponse(false);
-                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-                           connection.sendException(e);
-                        }
-                     } else {
-                        connection.getContext().setDontSendReponse(false);
-                        try {
-                           Response response = new Response();
-                           response.setCorrelationId(messageSend.getCommandId());
-                           connection.dispatchAsync(response);
-                        } catch (Exception e) {
-                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-                           connection.sendException(e);
-                        }
-                     }
-                  }
-
-                  @Override
-                  public void onError(int errorCode, String errorMessage) {
-                     try {
-                        final IOException e = new IOException(errorMessage);
-                        ActiveMQServerLogger.LOGGER.warn(errorMessage);
-                        connection.serviceException(e);
-                     } catch (Exception ex) {
-                        ActiveMQServerLogger.LOGGER.debug(ex);
-                     }
-                  }
-               });
-            }
-         }
-      })) {
+      if (!store.checkMemory(null)) {
          this.connection.getContext().setDontSendReponse(false);
          connection.enableTtl();
          throw new ResourceAllocationException("Queue is full " + address);
+      }
+
+      Exception exceptionToSend = null;
+
+      try {
+         getCoreSession().send(coreMsg, false, dest.isTemporary());
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         exceptionToSend = e;
+      }
+      connection.enableTtl();
+      if (count == null || count.decrementAndGet() == 0) {
+         if (exceptionToSend != null) {
+            this.connection.getContext().setDontSendReponse(false);
+            connection.sendException(exceptionToSend);
+         } else {
+            server.getStorageManager().afterCompleteOperations(new IOCallback() {
+               @Override
+               public void done() {
+                  if (sendProducerAck) {
+                     try {
+                        ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                        connection.dispatchAsync(ack);
+                     } catch (Exception e) {
+                        connection.getContext().setDontSendReponse(false);
+                        ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                        connection.sendException(e);
+                     }
+                  } else {
+                     connection.getContext().setDontSendReponse(false);
+                     try {
+                        Response response = new Response();
+                        response.setCorrelationId(messageSend.getCommandId());
+                        connection.dispatchAsync(response);
+                     } catch (Exception e) {
+                        ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                        connection.sendException(e);
+                     }
+                  }
+               }
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+                  try {
+                     final IOException e = new IOException(errorMessage);
+                     ActiveMQServerLogger.LOGGER.warn(errorMessage);
+                     connection.serviceException(e);
+                  } catch (Exception ex) {
+                     ActiveMQServerLogger.LOGGER.debug(ex);
+                  }
+               }
+            });
+         }
       }
    }
 
