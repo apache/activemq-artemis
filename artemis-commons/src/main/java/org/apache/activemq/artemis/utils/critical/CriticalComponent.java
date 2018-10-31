@@ -27,6 +27,9 @@ package org.apache.activemq.artemis.utils.critical;
  */
 public interface CriticalComponent {
 
+   default CriticalAnalyzer getCriticalAnalyzer() {
+      return null;
+   }
    /**
     * please save the time you entered here.
     * Use volatile variables.

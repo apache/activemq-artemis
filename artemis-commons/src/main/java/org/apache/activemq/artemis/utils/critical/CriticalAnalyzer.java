@@ -43,6 +43,8 @@ public interface CriticalAnalyzer extends ActiveMQComponent {
 
    long getTimeout(TimeUnit unit);
 
+   long getTimeoutNanoSeconds();
+
    CriticalAnalyzer addAction(CriticalAction action);
 
    void check();
