@@ -91,6 +91,12 @@
          </modules>
       </profile>
       <profile>
+         <id>integration-tests</id>
+         <modules>
+            <module>integration-tests</module>
+         </modules>
+      </profile>
+      <profile>
          <!-- deprecated: use openwire-tests -->
          <id>activemq5-unit-tests</id>
          <modules>
@@ -125,7 +131,6 @@
       <module>joram-tests</module>
       <module>timing-tests</module>
       <module>jms-tests</module>
-      <module>integration-tests</module>
       <module>karaf-client-integration-tests</module>
       <module>compatibility-tests</module>
       <module>soak-tests</module>
