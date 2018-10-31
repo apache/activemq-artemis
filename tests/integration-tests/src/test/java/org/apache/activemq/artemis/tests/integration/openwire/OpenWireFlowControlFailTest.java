@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -58,34 +59,49 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
          textBody.append(" ");
       }
       ConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
+      int numberOfMessage = 0;
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session.createQueue(addressInfo.getName().toString());
          MessageProducer producer = session.createProducer(queue);
-         int numberOfMessage = 0;
          boolean failed = false;
          try {
             for (int i = 0; i < 1000; i++) {
-               producer.send(session.createTextMessage(textBody.toString()));
+               TextMessage message = session.createTextMessage(textBody.toString());
+               message.setIntProperty("i", i);
+
+               producer.send(message);
                numberOfMessage++;
             }
          } catch (Exception e) {
             e.printStackTrace(System.out);
             failed = true;
+            try {
+               producer.send(session.createTextMessage(textBody.toString()));
+               Assert.fail("Exception expected");
+            } catch (JMSException expected) {
+               expected.printStackTrace();
+
+            }
          }
-
-         System.out.println("Message failed with " + numberOfMessage);
-
          Assert.assertTrue(failed);
-         MessageConsumer consumer = session.createConsumer(queue);
-         connection.start();
+      }
+
+      factory = new ActiveMQConnectionFactory(urlString);
+      try (Connection connection2 = factory.createConnection()) {
+         Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session2.createQueue(addressInfo.getName().toString());
+
+         MessageConsumer consumer = session2.createConsumer(queue);
+         connection2.start();
          for (int i = 0; i < numberOfMessage; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
             Assert.assertNotNull(message);
             Assert.assertEquals(textBody.toString(), message.getText());
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         TextMessage msg = (TextMessage)consumer.receive(500);
+         Assert.assertNull(msg);
       }
    }
 }
