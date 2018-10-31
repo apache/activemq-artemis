@@ -693,7 +693,9 @@ public class PagingStoreImpl implements PagingStore {
          }
       }
 
-      runWhenAvailable.run();
+      if (runWhenAvailable != null) {
+         runWhenAvailable.run();
+      }
 
       return true;
    }
