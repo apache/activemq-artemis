@@ -176,6 +176,8 @@ public class FilterImpl implements Filter {
          return msg.getEncodeSize();
       } else if (FilterConstants.ACTIVEMQ_ADDRESS.equals(fieldName)) {
          return msg.getAddress();
+      } else if (FilterConstants.ACTIVEMQ_GROUP_ID.equals(fieldName)) {
+         return msg.getGroupID();
       } else {
          return null;
       }
