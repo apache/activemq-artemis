@@ -185,8 +185,11 @@ public class ClusterController implements ActiveMQComponent {
       serverLocator.setConnectionTTL(config.getConnectionTTL());
       serverLocator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
       //if the cluster isn't available we want to hang around until it is
-      serverLocator.setReconnectAttempts(-1);
-      serverLocator.setInitialConnectAttempts(-1);
+      serverLocator.setReconnectAttempts(config.getReconnectAttempts());
+      serverLocator.setInitialConnectAttempts(config.getInitialConnectAttempts());
+      serverLocator.setRetryInterval(config.getRetryInterval());
+      serverLocator.setRetryIntervalMultiplier(config.getRetryIntervalMultiplier());
+      serverLocator.setMaxRetryInterval(config.getMaxRetryInterval());
       //this is used for replication so need to use the server packet decoder
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
       serverLocator.setThreadPools(server.getThreadPool(), server.getScheduledPool());
@@ -436,6 +439,10 @@ public class ClusterController implements ActiveMQComponent {
 
    public ServerLocator getReplicationLocator() {
       return this.replicationLocator;
+   }
+
+   public ServerLocator getServerLocator(SimpleString name) {
+      return locators.get(name);
    }
 
 }
