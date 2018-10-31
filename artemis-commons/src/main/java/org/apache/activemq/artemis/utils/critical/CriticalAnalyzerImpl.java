@@ -119,6 +119,11 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    }
 
    @Override
+   public long getTimeoutNanoSeconds() {
+      return timeoutNanoSeconds;
+   }
+
+   @Override
    public CriticalAnalyzer addAction(CriticalAction action) {
       this.actions.add(action);
       return this;

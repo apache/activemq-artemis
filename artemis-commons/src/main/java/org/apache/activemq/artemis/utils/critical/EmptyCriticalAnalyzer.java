@@ -56,6 +56,11 @@ public class EmptyCriticalAnalyzer implements CriticalAnalyzer {
    }
 
    @Override
+   public long getTimeoutNanoSeconds() {
+      return 0;
+   }
+
+   @Override
    public boolean isStarted() {
       return false;
    }
