@@ -68,7 +68,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    private static final byte UNDEFINED_IS_LARGE_MESSAGE = 2;
    private byte largeMessage;
 
-   private long transactionID = -1;
+   private long transactionID = -2;
 
    private long messageID = -1;
 
@@ -125,7 +125,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          getPersistentSize();
       } else {
          this.largeMessage = UNDEFINED_IS_LARGE_MESSAGE;
-         this.transactionID = -1;
+         this.transactionID = -2;
          this.messageID = -1;
          this.messageSize = -1;
       }
@@ -318,7 +318,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public long getTransactionID() {
-      if (transactionID < 0) {
+      if (transactionID < -1) {
          transactionID = getPagedMessage().getTransactionID();
       }
       return transactionID;
