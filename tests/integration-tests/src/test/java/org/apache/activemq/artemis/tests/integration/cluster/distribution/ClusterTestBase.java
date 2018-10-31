@@ -1755,6 +1755,36 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       setupClusterConnection(name, address, messageLoadBalancingType, maxHops, netty, null, nodeFrom, nodesTo);
    }
 
+   private List<String> getClusterConnectionTCNames(boolean netty, ActiveMQServer serverFrom, int[] nodesTo) {
+      List<String> pairs = new ArrayList<>();
+      for (int element : nodesTo) {
+         TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
+         serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
+         pairs.add(serverTotc.getName());
+      }
+      return pairs;
+   }
+
+   protected void setupClusterConnection(ClusterConnectionConfiguration clusterConf,
+                                         final boolean netty,
+                                         final int nodeFrom,
+                                         final int... nodesTo) {
+      ActiveMQServer serverFrom = servers[nodeFrom];
+
+      if (serverFrom == null) {
+         throw new IllegalStateException("No server at node " + nodeFrom);
+      }
+
+      TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
+      serverFrom.getConfiguration().getConnectorConfigurations().put(connectorFrom.getName(), connectorFrom);
+
+      List<String> pairs = getClusterConnectionTCNames(netty, serverFrom, nodesTo);
+      Configuration config = serverFrom.getConfiguration();
+      clusterConf.setConnectorName(connectorFrom.getName()).setConfirmationWindowSize(1024).setStaticConnectors(pairs);
+
+      config.getClusterConfigurations().add(clusterConf);
+   }
+
    protected void setupClusterConnection(final String name,
                                          final String address,
                                          final MessageLoadBalancingType messageLoadBalancingType,
@@ -1772,12 +1802,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
       serverFrom.getConfiguration().getConnectorConfigurations().put(connectorFrom.getName(), connectorFrom);
 
-      List<String> pairs = new ArrayList<>();
-      for (int element : nodesTo) {
-         TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
-         serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
-         pairs.add(serverTotc.getName());
-      }
+      List<String> pairs = getClusterConnectionTCNames(netty, serverFrom, nodesTo);
       Configuration config = serverFrom.getConfiguration();
       ClusterConnectionConfiguration clusterConf = createClusterConfig(name, address, messageLoadBalancingType, maxHops, connectorFrom, pairs);
 
@@ -1805,15 +1830,21 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
       serverFrom.getConfiguration().getConnectorConfigurations().put(connectorFrom.getName(), connectorFrom);
 
-      List<String> pairs = new ArrayList<>();
-      for (int element : nodesTo) {
-         TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
-         serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
-         pairs.add(serverTotc.getName());
-      }
+      List<String> pairs = getClusterConnectionTCNames(netty, serverFrom, nodesTo);
       Configuration config = serverFrom.getConfiguration();
 
-      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorFrom.getName()).setRetryInterval(retryInterval).setReconnectAttempts(reconnectAttempts).setCallTimeout(100).setCallFailoverTimeout(100).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs);
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(connectorFrom.getName())
+         .setRetryInterval(retryInterval)
+         .setReconnectAttempts(reconnectAttempts)
+         .setCallTimeout(100)
+         .setCallFailoverTimeout(100)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs);
 
       config.getClusterConfigurations().add(clusterConf);
    }
@@ -1824,7 +1855,15 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                                               final int maxHops,
                                                               TransportConfiguration connectorFrom,
                                                               List<String> pairs) {
-      return new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorFrom.getName()).setRetryInterval(250).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs);
+      return new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(connectorFrom.getName())
+         .setRetryInterval(250)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs);
    }
 
    protected void setupClusterConnectionWithBackups(final String name,
@@ -1843,12 +1882,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
       serverFrom.getConfiguration().getConnectorConfigurations().put(name, connectorFrom);
 
-      List<String> pairs = new ArrayList<>();
-      for (int element : nodesTo) {
-         TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
-         serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
-         pairs.add(serverTotc.getName());
-      }
+      List<String> pairs = getClusterConnectionTCNames(netty, serverFrom, nodesTo);
       Configuration config = serverFrom.getConfiguration();
 
       ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setRetryInterval(250).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs);
