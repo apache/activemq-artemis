@@ -364,6 +364,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             ArrayList<PageSubscription> cursorList = cloneSubscriptions();
 
             long minPage = checkMinPage(cursorList);
+            deliverIfNecessary(cursorList, minPage);
 
             logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
 
@@ -597,6 +598,24 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       return minPage;
 
+   }
+
+   private void deliverIfNecessary(Collection<PageSubscription> cursorList, long minPage) {
+      boolean currentWriting = minPage == pagingStore.getCurrentWritingPage() ? true : false;
+      for (PageSubscription cursor : cursorList) {
+         long firstPage = cursor.getFirstPage();
+         if (firstPage == minPage) {
+            /**
+             * if first page is current writing page and it's not complete, or
+             * first page is before the current writing page, we need to trigger
+             * deliverAsync to delete messages in the pages.
+             */
+            if (cursor.getQueue().getMessageCount() == 0 && (!currentWriting || !cursor.isComplete(firstPage))) {
+               cursor.getQueue().deliverAsync();
+               break;
+            }
+         }
+      }
    }
 
    // Inner classes -------------------------------------------------
