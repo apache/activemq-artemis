@@ -128,7 +128,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       } else if (unprefixedName.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
          unprefixedName = unprefixedName.substring(PacketImpl.OLD_TOPIC_PREFIX.length());
       } else if (unprefixedName.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
-         unprefixedName = unprefixedName.substring(PacketImpl.OLD_QUEUE_PREFIX.length());
+         unprefixedName = unprefixedName.substring(PacketImpl.OLD_TEMP_QUEUE_PREFIX.length());
       } else if (unprefixedName.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
          unprefixedName = unprefixedName.substring(PacketImpl.OLD_TEMP_TOPIC_PREFIX.length());
       }
