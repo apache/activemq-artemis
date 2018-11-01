@@ -127,6 +127,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    boolean checkMemory(Runnable runnable);
 
+   boolean checkMemory(boolean runOnFailure, Runnable runnable);
+
    boolean isFull();
 
    boolean isRejectingMessages();

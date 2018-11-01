@@ -652,13 +652,17 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
-
    @Override
    public boolean checkMemory(final Runnable runWhenAvailable) {
+      return checkMemory(true, runWhenAvailable);
+   }
+
+   @Override
+   public boolean checkMemory(boolean runOnFailure, final Runnable runWhenAvailable) {
 
       if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
          if (isFull()) {
-            if (runWhenAvailable != null) {
+            if (runOnFailure && runWhenAvailable != null) {
                onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
             }
             return false;
