@@ -34,7 +34,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -92,14 +91,6 @@ public class ArtemisTest extends CliTestBase {
    public void setup() throws Exception {
       setupAuth();
       super.setup();
-   }
-
-   public void setupAuth() throws Exception {
-      setupAuth(temporaryFolder.getRoot());
-   }
-
-   public void setupAuth(File folder) throws Exception {
-      System.setProperty("java.security.auth.login.config", folder.getAbsolutePath() + "/etc/login.config");
    }
 
    @Test
@@ -1048,12 +1039,6 @@ public class ArtemisTest extends CliTestBase {
 
    public boolean isWindows() {
       return System.getProperty("os.name", "null").toLowerCase().indexOf("win") >= 0;
-   }
-
-   private void stopServer() throws Exception {
-      Artemis.internalExecute("stop");
-      assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
-      assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
    private static Document parseXml(File xmlFile) throws ParserConfigurationException, IOException, SAXException {
