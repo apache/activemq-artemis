@@ -1790,6 +1790,7 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(matchingMessage);
       producer.send(unmatchingMessage);
       producer.send(matchingMessage);
+      session.commit();
 
       QueueControl queueControl = createManagementControl(address, queue);
       String result = queueControl.countDeliveringMessages(null, null);
@@ -1866,6 +1867,7 @@ public class QueueControlTest extends ManagementTestBase {
       producer.send(message1);
       producer.send(message2);
       producer.send(message1);
+      session.commit();
 
       QueueControl queueControl = createManagementControl(address, queue);
       String result = queueControl.countDeliveringMessages(key + " =" + valueGroup1, key);
