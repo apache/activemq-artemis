@@ -349,7 +349,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_QUEUE: {
                   CreateQueueMessage request = (CreateQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createQueue(request.getAddress(), request.getQueueName(), RoutingType.MULTICAST, request.getFilterString(), request.isTemporary(), request.isDurable());
+                  session.createQueue(request.getAddress(), request.getQueueName(), getRoutingTypeFromAddress(request.getAddress()), request.getFilterString(), request.isTemporary(), request.isDurable());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -631,6 +631,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       } finally {
          storageManager.clearContext();
       }
+   }
+
+   private RoutingType getRoutingTypeFromAddress(SimpleString address) {
+      if (address.startsWith(PacketImpl.OLD_QUEUE_PREFIX) || address.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX)) {
+         return RoutingType.ANYCAST;
+      }
+      return RoutingType.MULTICAST;
    }
 
    private void onSessionAcknowledge(Packet packet) {

@@ -40,6 +40,11 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
    // Public --------------------------------------------------------
 
    @Override
+   public String toString() {
+      return "ActiveMQTemporaryTopic[" + getAddress() + "]";
+   }
+
+   @Override
    public boolean equals(final Object o) {
       if (this == o) {
          return true;
