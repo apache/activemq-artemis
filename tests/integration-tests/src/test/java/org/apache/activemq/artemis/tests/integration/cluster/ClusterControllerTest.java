@@ -16,18 +16,28 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
+import java.util.List;
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ClusterControllerTest extends ClusterTestBase {
+
+   private ClusterConnectionConfiguration clusterConf0;
+   private ClusterConnectionConfiguration clusterConf1;
 
    @Override
    @Before
@@ -45,11 +55,72 @@ public class ClusterControllerTest extends ClusterTestBase {
 
       getServer(1).getConfiguration().setClusterPassword("something different");
 
-      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, true, 0);
-      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, true, 1);
+      clusterConf0 = new ClusterConnectionConfiguration()
+         .setName("cluster0")
+         .setAddress("queues")
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
+         .setMaxHops(1)
+         .setInitialConnectAttempts(8)
+         .setReconnectAttempts(10)
+         .setRetryInterval(250)
+         .setMaxRetryInterval(4000)
+         .setRetryIntervalMultiplier(2.0);
+
+      clusterConf1 = new ClusterConnectionConfiguration()
+         .setName("cluster0")
+         .setAddress("queues")
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
+         .setMaxHops(1)
+         .setInitialConnectAttempts(8)
+         .setReconnectAttempts(10)
+         .setRetryInterval(250)
+         .setMaxRetryInterval(4000)
+         .setRetryIntervalMultiplier(2.0);
+
+      setupClusterConnection(clusterConf0, true, 0);
+      setupClusterConnection(clusterConf1, true, 1);
 
       startServers(0);
       startServers(1);
+   }
+
+   private boolean clusterConnectionConfigurationIsSameBeforeAfterStart(ClusterConnectionConfiguration clusterConnectionConfigurationBeforeStart, int node) {
+      boolean clusterConnectionConfigurationIsSame = false;
+
+      Configuration serverNodeConfiguration = getServer(node).getConfiguration();
+      ActiveMQServer serverNode = getServer(node);
+      ClusterManager clusterManager = serverNode.getClusterManager();
+      ClusterController clusterController = clusterManager.getClusterController();
+      ServerLocator serverNodeLocator = clusterController.getServerLocator(new SimpleString(clusterConnectionConfigurationBeforeStart.getName()));
+      List<ClusterConnectionConfiguration> serverNodeClusterConnectionConfigurations = serverNodeConfiguration.getClusterConfigurations();
+
+      do {
+         if (serverNodeLocator.getInitialConnectAttempts() != clusterConnectionConfigurationBeforeStart.getInitialConnectAttempts()) {
+            break;
+         }
+
+         if (serverNodeLocator.getReconnectAttempts() != clusterConnectionConfigurationBeforeStart.getReconnectAttempts()) {
+            break;
+         }
+
+         if (serverNodeLocator.getRetryInterval() != clusterConnectionConfigurationBeforeStart.getRetryInterval()) {
+            break;
+         }
+         if (serverNodeLocator.getMaxRetryInterval() != clusterConnectionConfigurationBeforeStart.getMaxRetryInterval()) {
+            break;
+         }
+
+         Double serverNodeClusterConnectionConfigurationRIM = serverNodeLocator.getRetryIntervalMultiplier();
+         Double clusterConnectionConfigurationBeforeStartRIM = clusterConnectionConfigurationBeforeStart.getRetryIntervalMultiplier();
+         if (0 != serverNodeClusterConnectionConfigurationRIM.compareTo(clusterConnectionConfigurationBeforeStartRIM)) {
+            break;
+         }
+
+         clusterConnectionConfigurationIsSame = true;
+      }
+      while (false);
+
+      return clusterConnectionConfigurationIsSame;
    }
 
    @Test
@@ -74,6 +145,16 @@ public class ClusterControllerTest extends ClusterTestBase {
          } catch (Exception e) {
             assertTrue("should throw ActiveMQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
          }
+      }
+   }
+
+   @Test
+   public void verifyServerLocatorsClusterConfiguration() {
+      if (false == clusterConnectionConfigurationIsSameBeforeAfterStart(clusterConf0, 0)) {
+         fail("serverLocator is not configured as per clusterConf0");
+      }
+      if (false == clusterConnectionConfigurationIsSameBeforeAfterStart(clusterConf1, 1)) {
+         fail("serverLocator is not configured as per clusterConf1");
       }
    }
 }
