@@ -20,6 +20,67 @@
 var ARTEMIS = (function(ARTEMIS) {
 
     ARTEMIS.BrowseQueueController = function ($scope, workspace, ARTEMISService, jolokia, localStorage, artemisMessage, $location, $timeout) {
+
+    var defaultAttributes = [
+      {
+         field: 'messageID',
+         displayName: 'Message ID',
+         cellTemplate: '<div class="ngCellText"><a ng-click="openMessageDialog(row)">{{row.entity.messageID}}</a></div>',
+         // for ng-grid
+         width: '10%'
+      },
+      {
+         field: 'userID',
+         displayName: 'User ID',
+         width: '10%'
+      },
+      {
+         field: 'type',
+         displayName: 'Type',
+         width: '10%'
+      },
+      {
+         field: 'durable',
+         displayName: 'Durable',
+         width: '10%'
+      },
+      {
+         field: 'priority',
+         displayName: 'Priority',
+         width: '7%'
+      },
+      {
+         field: 'timestamp',
+         displayName: 'Timestamp',
+         width: '19%'
+      },
+      {
+         field: 'expiration',
+         displayName: 'Expires',
+         width: '10%'
+      },
+      {
+         field: 'redelivered',
+         displayName: 'Redelivered',
+         width: '10%'
+      }
+    ];
+   var attributes = defaultAttributes;
+   if (sessionStorage.getItem('browseColumnDefs')) {
+      attributes = JSON.parse(sessionStorage.getItem('browseColumnDefs'));
+   }
+   $scope.$on('ngGridEventColumns', function (newColumns) {
+      ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+      var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+          visibles[column.field] = column.visible;
+          return visibles;
+      }, {});
+      ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+      attributes.forEach(function (attribute) {
+          attribute.visible = visibles[attribute.field];
+      });
+      sessionStorage.setItem('browseColumnDefs', JSON.stringify(attributes));
+   });
     $scope.pagingOptions = {
           pageSizes: [50, 100, 200],
           pageSize: 100,
@@ -53,50 +114,7 @@ var ARTEMIS = (function(ARTEMIS) {
           selectWithCheckboxOnly: true,
           showSelectionCheckbox: true,
           maintainColumnRatios: false,
-          columnDefs: [
-             {
-                field: 'messageID',
-                displayName: 'Message ID',
-                cellTemplate: '<div class="ngCellText"><a ng-click="openMessageDialog(row)">{{row.entity.messageID}}</a></div>',
-                // for ng-grid
-                width: '10%'
-             },
-             {
-                field: 'userID',
-                displayName: 'User ID',
-                width: '10%'
-             },
-             {
-                field: 'type',
-                displayName: 'Type',
-                width: '10%'
-             },
-             {
-                field: 'durable',
-                displayName: 'Durable',
-                width: '10%'
-             },
-             {
-                field: 'priority',
-                displayName: 'Priority',
-                width: '7%'
-             },
-             {
-                field: 'timestamp',
-                displayName: 'Timestamp',
-                width: '19%'
-             },
-             {
-                field: 'expiration',
-                displayName: 'Expires',
-                width: '10%'
-             },
-              {
-                 field: 'redelivered',
-                 displayName: 'Redelivered',
-                 width: '10%'
-              }
-          ],
+          columnDefs: attributes,
           afterSelectionChange: afterSelectionChange
        };
        $scope.showMessageDetails = false;
