@@ -205,14 +205,7 @@ from other providers (e.g. IBM or JRockit)
   heap size (`-Xmx`) for the JVM is set at least to 5 x the `global-max-size` of
   the broker.  As an example, in a situation where the broker is under high load
   and running with a `global-max-size` of 1GB, it is recommended the the max heap
-  size is set to 5GB.  
-
-- Aggressive options. Different JVMs provide different sets of JVM tuning
-  parameters, for the Sun Hotspot JVM the full list of options is available
-  [here](http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html).
-  We recommend at least using `-XX:+AggressiveOpts`.  You may get some mileage
-  with the other tuning parameters depending on your OS platform and application
-  usage patterns.
+  size is set to 5GB.
 
 ## Avoiding Anti-Patterns
 
