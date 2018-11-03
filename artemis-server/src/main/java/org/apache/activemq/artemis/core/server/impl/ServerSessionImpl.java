@@ -1536,7 +1536,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       final SimpleString addr = removePrefix(address);
       PagingStore store = server.getPagingManager().getPageStore(addr);
 
-      if (!store.checkMemory(new Runnable() {
+      if (store == null) {
+         callback.sendProducerCreditsMessage(credits, address);
+      } else if (!store.checkMemory(new Runnable() {
          @Override
          public void run() {
             callback.sendProducerCreditsMessage(credits, address);
