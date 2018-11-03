@@ -1252,7 +1252,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
          PagingStore store = pagingManager.getPageStore(entry.getKey());
 
-         if (storageManager.addToPage(store, message, context.getTransaction(), entry.getValue())) {
+         if (store != null && storageManager.addToPage(store, message, context.getTransaction(), entry.getValue())) {
             if (message.isLargeMessage()) {
                confirmLargeMessageSend(tx, message);
             }
@@ -1696,9 +1696,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public Bindings createBindings(final SimpleString address) throws Exception {
+   public Bindings createBindings(final SimpleString address) {
       GroupingHandler groupingHandler = server.getGroupingHandler();
-      BindingsImpl bindings = new BindingsImpl(address, groupingHandler, pagingManager.getPageStore(address));
+      BindingsImpl bindings = new BindingsImpl(address, groupingHandler);
       if (groupingHandler != null) {
          groupingHandler.addListener(bindings);
       }

@@ -70,7 +70,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
    private void internalTest(final boolean route) throws Exception {
       final FakeBinding fake = new FakeBinding(new SimpleString("a"));
 
-      final Bindings bind = new BindingsImpl(null, null, null);
+      final Bindings bind = new BindingsImpl(null, null);
       bind.addBinding(fake);
       bind.addBinding(new FakeBinding(new SimpleString("a")));
       bind.addBinding(new FakeBinding(new SimpleString("a")));

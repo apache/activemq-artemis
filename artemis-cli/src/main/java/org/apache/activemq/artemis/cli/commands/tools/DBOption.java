@@ -241,11 +241,11 @@ public class DBOption extends OptionalLocking {
                                                                               storageManager, 1000L,
                                                                               scheduledExecutorService, executorFactory,
                                                                              false, null);
-         pagingmanager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
+         pagingmanager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository, configuration.getManagementAddress());
       } else {
          storageManager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), executorFactory, executorFactory);
          PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduledExecutorService, executorFactory, true, null);
-         pagingmanager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
+         pagingmanager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository, configuration.getManagementAddress());
 
       }
 

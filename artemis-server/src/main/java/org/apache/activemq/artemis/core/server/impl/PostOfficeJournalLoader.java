@@ -363,7 +363,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             // This can't be true!
             assert (perQueue != null);
 
-            if (store.checkPageFileExists(pageId.intValue())) {
+            if (store != null && store.checkPageFileExists(pageId.intValue())) {
                // on this case we need to recalculate the records
                Page pg = store.createPage(pageId.intValue());
                pg.open();
