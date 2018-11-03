@@ -30,7 +30,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -62,13 +61,10 @@ public final class BindingsImpl implements Bindings {
 
    private final GroupingHandler groupingHandler;
 
-   private final PagingStore pageStore;
-
    private final SimpleString name;
 
-   public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler, final PagingStore pageStore) {
+   public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler) {
       this.groupingHandler = groupingHandler;
-      this.pageStore = pageStore;
       this.name = name;
    }
 

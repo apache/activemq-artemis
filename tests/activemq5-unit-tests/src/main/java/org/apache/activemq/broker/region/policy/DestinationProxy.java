@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.broker.region.policy;
 
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.broker.ConnectionContext;
@@ -153,7 +154,11 @@ public class DestinationProxy implements Destination {
          @Override
          public long getUsage() {
             try {
-               return server.getPagingManager().getPageStore(view.getAddress()).getAddressSize();
+               final PagingStore pageStore = server.getPagingManager().getPageStore(view.getAddress());
+               if (pageStore == null) {
+                  return 0;
+               }
+               return pageStore.getAddressSize();
             } catch (Exception e) {
                throw new RuntimeException(e);
             }
@@ -221,9 +226,13 @@ public class DestinationProxy implements Destination {
 
          @Override
          public int getPercentUsage() {
-            long total = 0;
+            final long total;
             try {
-               total = server.getPagingManager().getPageStore(view.getAddress()).getMaxSize();
+               final PagingStore pageStore = server.getPagingManager().getPageStore(view.getAddress());
+               if (pageStore == null) {
+                  return 0;
+               }
+               total = pageStore.getMaxSize();
             } catch (Exception e) {
                throw new RuntimeException(e);
             }

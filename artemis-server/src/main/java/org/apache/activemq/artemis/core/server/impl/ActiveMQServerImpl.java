@@ -2144,7 +2144,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public PagingManager createPagingManager() throws Exception {
-      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository, configuration.getGlobalMaxSize());
+      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository, configuration.getGlobalMaxSize(), configuration.getManagementAddress());
    }
 
    protected PagingStoreFactory getPagingStoreFactory() throws Exception {
