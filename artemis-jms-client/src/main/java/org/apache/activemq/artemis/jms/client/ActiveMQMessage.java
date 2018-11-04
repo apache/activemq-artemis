@@ -388,10 +388,6 @@ public class ActiveMQMessage implements javax.jms.Message {
          if (!address.startsWith(TOPIC_QUALIFIED_PREFIX + PacketImpl.OLD_TOPIC_PREFIX.toString())) {
             address = TOPIC_QUALIFIED_PREFIX + PacketImpl.OLD_TOPIC_PREFIX + address.substring(TOPIC_QUALIFIED_PREFIX.length());
          }
-      } else if (address.startsWith(TEMP_QUEUE_QUALIFED_PREFIX)) {
-         if (!address.startsWith(TEMP_QUEUE_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
-            address = TEMP_QUEUE_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_QUEUE_PREFIX + address.substring(TEMP_QUEUE_QUALIFED_PREFIX.length());
-         }
       } else if (address.startsWith(TEMP_TOPIC_QUALIFED_PREFIX)) {
          if (!address.startsWith(TEMP_TOPIC_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
             address = TEMP_TOPIC_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_TOPIC_PREFIX + address.substring(TEMP_TOPIC_QUALIFED_PREFIX.length());
