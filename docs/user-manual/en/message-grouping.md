@@ -81,6 +81,23 @@ java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialCont
 connectionFactory.myConnectionFactory=tcp://localhost:61616?groupID=Group-0
 ```
 
+
+#### Closing a Message Group
+You generally don't need to close a message group, you just keep using it. 
+
+However if you really do want to close a group you can add a negative sequence number.
+
+Example:
+```java
+Mesasge message = session.createTextMessage("<foo>hey</foo>");
+message.setStringProperty("JMSXGroupID", "Group-0");
+message.setIntProperty("JMSXGroupSeq", -1);
+...
+producer.send(message);
+```
+
+This then closes the message group so if another message is sent in the future with the same message group ID it will be reassigned to a new consumer.
+
 ## Example
 
 See the [Message Group Example](examples.md#message-group) which shows how

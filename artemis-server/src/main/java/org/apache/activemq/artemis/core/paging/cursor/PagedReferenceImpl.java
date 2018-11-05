@@ -20,6 +20,7 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -329,6 +330,15 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          messageID = getPagedMessage().getMessage().getMessageID();
       }
       return messageID;
+   }
+
+   @Override
+   public SimpleString getLastValueProperty() {
+      SimpleString lastValue = getMessage().getSimpleStringProperty(getQueue().getLastValueKey());
+      if (lastValue == null) {
+         lastValue = getMessage().getLastValueProperty();
+      }
+      return lastValue;
    }
 
    @Override

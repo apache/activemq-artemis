@@ -168,7 +168,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
          final SimpleString queueName = new SimpleString("DuplicateDetectionTestQueue_" + i);
 
          if (temporary) {
-            session.createTemporaryQueue(addressName, queueName, null);
+            session.createTemporaryQueue(addressName, queueName, (SimpleString) null);
          } else {
             session.createQueue(addressName, queueName, null, true);
          }

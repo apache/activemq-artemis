@@ -23,9 +23,9 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
- * Logger Code 14
+ * Logger Code 16
  *
- * each message id must be 6 digits long starting with 14, the 3rd digit denotes the level so
+ * each message id must be 6 digits long starting with 16, the 3rd digit denotes the level so
  *
  * INF0  1
  * WARN  2
@@ -34,7 +34,7 @@ import org.jboss.logging.annotations.MessageLogger;
  * TRACE 5
  * FATAL 6
  *
- * so an INFO message would be 141000 to 141999
+ * so an INFO message would be 161000 to 161999
  */
 @MessageLogger(projectCode = "jlibaio")
 public interface NativeLogger extends BasicLogger {
@@ -45,6 +45,6 @@ public interface NativeLogger extends BasicLogger {
    NativeLogger LOGGER = Logger.getMessageLogger(NativeLogger.class, NativeLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 143001, value = "You have a native library with a different version than expected", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 163001, value = "You have a native library with a different version than expected", format = Message.Format.MESSAGE_FORMAT)
    void incompatibleNativeLibrary();
 }

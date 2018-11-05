@@ -31,7 +31,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  * The example sends a message to a topic (using openwire protocol) and an openwire consumer listens on the backing queue
  * using the ActiveMQ 5.x virtual topic naming convention. Due to the acceptor parameter virtualTopicConsumerWildcards
  * Artemis maps the consumer consuming from "Consumer.A.VirtualTopic.Orders" to actually consume from
- * FQQN  "VirtualTopic.Orders::Consumer.A"
+ * FQQN  "VirtualTopic.Orders::Consumer.A.VirtualTopic.Orders"
  */
 public class VirtualTopicMappingExample {
 

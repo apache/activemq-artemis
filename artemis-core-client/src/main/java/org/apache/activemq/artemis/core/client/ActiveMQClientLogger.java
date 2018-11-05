@@ -32,7 +32,7 @@ import java.net.UnknownHostException;
 /**
  * Logger Code 21
  * <p>
- * Each message id must be 6 digits long starting with 10, the 3rd digit donates the level so
+ * Each message id must be 6 digits long starting with 21, the 3rd digit donates the level so
  *
  * <pre>
  * INF0  1
@@ -43,7 +43,7 @@ import java.net.UnknownHostException;
  * FATAL 6
  * </pre>
  *
- * so an INFO message would be 101000 to 101999.
+ * so an INFO message would be 211000 to 211999.
  * <p>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.

@@ -35,22 +35,22 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       //the queue may already have been deleted and this is a result of that
       if (queue == null) {
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("pno queue to delete \"" + queueName + ".\"");
+            ActiveMQServerLogger.LOGGER.debug("no queue to delete \"" + queueName + ".\"");
          }
          return;
       }
-      SimpleString address = queue.getAddress();
-      AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+
+      AddressSettings settings = server.getAddressSettingsRepository().getMatch(queue.getAddress().toString());
       long consumerCount = queue.getConsumerCount();
       long messageCount = queue.getMessageCount();
 
-      if (queue.isAutoCreated() && settings.isAutoDeleteQueues() && queue.getMessageCount() == 0 && queue.getConsumerCount() == 0) {
+      if (queue.isAutoCreated() && settings.isAutoDeleteQueues() && queue.getMessageCount() == 0 && queue.getConsumerCount() == 0 && settings.getAutoDeleteQueuesDelay() == 0) {
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("deleting " + (queue.isAutoCreated() ? "auto-created " : "") + "queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteQueues = " + settings.isAutoDeleteQueues());
          }
 
          try {
-            server.destroyQueue(queueName, null, true, false);
+            server.destroyQueue(queueName, null, true, false, settings.isAutoDeleteAddresses(), true);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
          }

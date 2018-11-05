@@ -497,7 +497,7 @@ public class AMQPMessage extends RefCountMessage {
 
       // Copy the full message contents with delivery annotations as they will
       // be trimmed on send and may become useful on the broker at a later time.
-      data.get(newData);
+      view.get(newData);
 
       AMQPMessage newEncode = new AMQPMessage(this.messageFormat, newData, extraProperties, coreMessageObjectPools);
       newEncode.setMessageID(this.getMessageID());
@@ -1096,6 +1096,17 @@ public class AMQPMessage extends RefCountMessage {
             coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool());
       } else {
          return null;
+      }
+   }
+
+   @Override
+   public int getGroupSequence() {
+      ensureMessageDataScanned();
+
+      if (properties != null && properties.getGroupSequence() != null) {
+         return properties.getGroupSequence().intValue();
+      } else {
+         return 0;
       }
    }
 

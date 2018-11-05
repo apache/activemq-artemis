@@ -214,6 +214,9 @@ public final class ActiveMQDefaultConfiguration {
    // how often (in ms) to scan for expired messages
    private static long DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD = 30000;
 
+   // how often (in ms) to scan for addresses and queues which should be deleted
+   private static long DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD = 30000;
+
    // the priority of the thread expiring messages
    private static int DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY = 3;
 
@@ -471,6 +474,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_LAST_VALUE = false;
 
+   public static final SimpleString DEFAULT_LAST_VALUE_KEY = null;
+
+   public static final boolean DEFAULT_NON_DESTRUCTIVE = false;
+
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
    public static final int DEFAULT_CONSUMERS_BEFORE_DISPATCH = 0;
@@ -720,6 +727,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getDefaultMessageExpiryThreadPriority() {
       return DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY;
+   }
+
+   /**
+    * how often (in ms) to scan for addresses and queues which should be deleted
+    */
+   public static long getDefaultAddressQueueScanPeriod() {
+      return DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD;
    }
 
    /**
@@ -1301,7 +1315,15 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    public static boolean getDefaultLastValue() {
-      return DEFAULT_EXCLUSIVE;
+      return DEFAULT_LAST_VALUE;
+   }
+
+   public static SimpleString getDefaultLastValueKey() {
+      return DEFAULT_LAST_VALUE_KEY;
+   }
+
+   public static boolean getDefaultNonDestructive() {
+      return DEFAULT_NON_DESTRUCTIVE;
    }
 
    public static boolean getDefaultPurgeOnNoConsumers() {

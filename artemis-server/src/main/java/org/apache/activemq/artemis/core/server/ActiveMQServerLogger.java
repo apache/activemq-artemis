@@ -16,21 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-/**
- * Logger Code 22
- *
- * each message id must be 6 digits long starting with 10, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 101000 to 101999
- */
-
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -68,6 +53,21 @@ import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 import org.w3c.dom.Node;
+
+/**
+ * Logger Code 22
+ *
+ * each message id must be 6 digits long starting with 22, the 3rd digit donates the level so
+ *
+ * INF0  1
+ * WARN  2
+ * DEBUG 3
+ * ERROR 4
+ * TRACE 5
+ * FATAL 6
+ *
+ * so an INFO message would be 221000 to 221999
+ */
 
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQServerLogger extends BasicLogger {
@@ -329,7 +329,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void removingBackupData(String path);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221056, value = "Reloading configuration ...{0}",
+   @Message(id = 221056, value = "Reloading configuration: {0}",
       format = Message.Format.MESSAGE_FORMAT)
    void reloadingConfiguration(String module);
 
@@ -1603,6 +1603,20 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void problemDeployingQueue(String queueName, String message);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222276, value = "Failed to process changes to the logging configuration file: {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void loggingReloadFailed(String configFile, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222277, value = "Problem initializing automatic logging configuration reload for {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void problemAddingConfigReloadCallback(String propertyName, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222278, value = "Unable to extract GroupSequence from message", format = Message.Format.MESSAGE_FORMAT)
+   void unableToExtractGroupSequence(@Cause Throwable e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
@@ -1710,10 +1724,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224030, value = "Could not cancel reference {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorCancellingRefOnBridge(@Cause Exception e, MessageReference ref2);
-
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224031, value = "-------------------------------Stomp begin tx: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void stompBeginTX(String txID);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224032, value = "Failed to pause bridge", format = Message.Format.MESSAGE_FORMAT)
@@ -1869,6 +1879,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224069, value = "Change detected in broker configuration file, but reload failed", format = Message.Format.MESSAGE_FORMAT)
    void configurationReloadFailed(@Cause Throwable t);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224070, value = "Failed to remove auto-created address {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorRemovingAutoCreatedAddress(@Cause Exception e, SimpleString addressName);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224072, value = "Message Counter Sample Period too short: {0}", format = Message.Format.MESSAGE_FORMAT)
    void invalidMessageCounterPeriod(long value);
@@ -1968,4 +1982,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224096, value = "Error setting up connection from {0} to {1}; protocol {2} not found in map: {3}", format = Message.Format.MESSAGE_FORMAT)
    void failedToFindProtocolManager(String remoteAddress, String localAddress, String intendedProtocolManager, String protocolMap);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224097, value = "Failed to start server", format = Message.Format.MESSAGE_FORMAT)
+   void failedToStartServer(@Cause Throwable t);
 }

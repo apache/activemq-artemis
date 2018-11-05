@@ -248,7 +248,7 @@ Please see [Stomp](stomp.md) for using STOMP with Apache ActiveMQ Artemis.
 
 ### OpenWire
 
-ActiveMQ 5.x defines it's own wire protocol: OpenWire.  In order to support
+ActiveMQ 5.x defines its own wire protocol: OpenWire.  In order to support
 ActiveMQ 5.x clients, Apache ActiveMQ Artemis supports OpenWire.  Any ActiveMQ
 5.12.x or higher can be used with Apache ActiveMQ Artemis.
 

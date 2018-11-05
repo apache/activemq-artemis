@@ -6,7 +6,7 @@ Apache ActiveMQ Artemis will not deliver a message to a consumer after it's
 time to live has been exceeded. If the message hasn't been delivered by the
 time that time to live is reached the server can discard it.
 
-Apache ActiveMQ Artemis's addresses can be assigned a expiry address so that,
+Apache ActiveMQ Artemis's addresses can be assigned an expiry address so that,
 when messages are expired, they are removed from the queue and sent to the
 expiry address. Many different queues can be bound to an expiry address.  These
 *expired* messages can later be consumed for further inspection.
@@ -45,6 +45,27 @@ properties:
 
   a Long property containing the *actual expiration time* of the
   expired message
+  
+## Configuring Expiry Delay
+
+Default Expiry delay can be configured in the address-setting configuration:
+
+```xml
+<!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
+<address-setting match="exampleQueue">
+   <expiry-delay>10</expiry-delay>
+</address-setting>
+```
+
+`expiry-delay` defines the expiration time in milliseconds that will be used for messages 
+which are using the default expiration time (i.e. 0). 
+  
+For example, if `expiry-delay` is set to "10" and a message which is using the default 
+expiration time (i.e.10) arrives then its expiration time of "0" will be changed to "10." 
+However, if a message which is using an expiration time of "20" arrives then its expiration
+time will remain unchanged. Setting `expiry-delay` to "-1" will disable this feature. 
+  
+The default is "-1".
 
 ## Configuring Expiry Addresses
 

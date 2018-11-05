@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -169,6 +172,66 @@ public class AMQPMessageTest {
    }
 
    //----- Test Connection ID access -----------------------------------------//
+
+
+   @Test
+   public void testDecodeMultiThreaded() throws Exception {
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      protonMessage.setHeader( new Header());
+      Properties properties = new Properties();
+      properties.setTo("someNiceLocal");
+      protonMessage.setProperties(properties);
+      protonMessage.getHeader().setDeliveryCount(new UnsignedInteger(7));
+      protonMessage.getHeader().setDurable(Boolean.TRUE);
+      protonMessage.setApplicationProperties(new ApplicationProperties(new HashMap<>()));
+
+      final AtomicInteger failures = new AtomicInteger(0);
+
+
+      for (int testTry = 0; testTry < 100; testTry++) {
+         AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
+         Thread[] threads = new Thread[100];
+
+         CountDownLatch latchAlign = new CountDownLatch(threads.length);
+         CountDownLatch go = new CountDownLatch(1);
+
+         Runnable run = new Runnable() {
+            @Override
+            public void run() {
+               try {
+
+                  latchAlign.countDown();
+                  go.await();
+
+                  Assert.assertNotNull(decoded.getHeader());
+                  // this is a method used by Core Converter
+                  decoded.getProtonMessage();
+                  Assert.assertNotNull(decoded.getHeader());
+
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  failures.incrementAndGet();
+               }
+            }
+         };
+
+         for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(run);
+            threads[i].start();
+         }
+
+         Assert.assertTrue(latchAlign.await(10, TimeUnit.SECONDS));
+         go.countDown();
+
+         for (Thread thread : threads) {
+            thread.join(5000);
+            Assert.assertFalse(thread.isAlive());
+         }
+
+         Assert.assertEquals(0, failures.get());
+      }
+   }
+
 
    @Test
    public void testGetConnectionID() {

@@ -72,11 +72,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_AUTO_DELETE_QUEUES = true;
 
+   public static final long DEFAULT_AUTO_DELETE_QUEUES_DELAY = 0;
+
    public static final DeletionPolicy DEFAULT_CONFIG_DELETE_QUEUES = DeletionPolicy.OFF;
 
    public static final boolean DEFAULT_AUTO_CREATE_ADDRESSES = true;
 
    public static final boolean DEFAULT_AUTO_DELETE_ADDRESSES = true;
+
+   public static final long DEFAULT_AUTO_DELETE_ADDRESSES_DELAY = 0;
 
    public static final DeletionPolicy DEFAULT_CONFIG_DELETE_ADDRESSES = DeletionPolicy.OFF;
 
@@ -127,6 +131,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean defaultLastValueQueue = null;
 
+   private SimpleString defaultLastValueKey = null;
+
+   private Boolean defaultNonDestructive = null;
+
    private Boolean defaultExclusiveQueue = null;
 
    private Long redistributionDelay = null;
@@ -155,11 +163,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean autoDeleteQueues = null;
 
+   private Long autoDeleteQueuesDelay = null;
+
    private DeletionPolicy configDeleteQueues = null;
 
    private Boolean autoCreateAddresses = null;
 
    private Boolean autoDeleteAddresses = null;
+
+   private Long autoDeleteAddressesDelay = null;
 
    private DeletionPolicy configDeleteAddresses = null;
 
@@ -200,6 +212,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.expiryAddress = other.expiryAddress;
       this.expiryDelay = other.expiryDelay;
       this.defaultLastValueQueue = other.defaultLastValueQueue;
+      this.defaultLastValueKey = other.defaultLastValueKey;
+      this.defaultNonDestructive = other.defaultNonDestructive;
       this.defaultExclusiveQueue = other.defaultExclusiveQueue;
       this.redistributionDelay = other.redistributionDelay;
       this.sendToDLAOnNoRoute = other.sendToDLAOnNoRoute;
@@ -212,9 +226,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.autoDeleteJmsTopics = other.autoDeleteJmsTopics;
       this.autoCreateQueues = other.autoCreateQueues;
       this.autoDeleteQueues = other.autoDeleteQueues;
+      this.autoDeleteQueuesDelay = other.autoDeleteQueuesDelay;
       this.configDeleteQueues = other.configDeleteQueues;
       this.autoCreateAddresses = other.autoCreateAddresses;
       this.autoDeleteAddresses = other.autoDeleteAddresses;
+      this.autoDeleteAddressesDelay = other.autoDeleteAddressesDelay;
       this.configDeleteAddresses = other.configDeleteAddresses;
       this.managementBrowsePageSize = other.managementBrowsePageSize;
       this.queuePrefetch = other.queuePrefetch;
@@ -293,6 +309,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public long getAutoDeleteQueuesDelay() {
+      return autoDeleteQueuesDelay != null ? autoDeleteQueuesDelay : AddressSettings.DEFAULT_AUTO_DELETE_QUEUES_DELAY;
+   }
+
+   public AddressSettings setAutoDeleteQueuesDelay(final long autoDeleteQueuesDelay) {
+      this.autoDeleteQueuesDelay = autoDeleteQueuesDelay;
+      return this;
+   }
+
    public DeletionPolicy getConfigDeleteQueues() {
       return configDeleteQueues != null ? configDeleteQueues : AddressSettings.DEFAULT_CONFIG_DELETE_QUEUES;
    }
@@ -317,6 +342,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setAutoDeleteAddresses(Boolean autoDeleteAddresses) {
       this.autoDeleteAddresses = autoDeleteAddresses;
+      return this;
+   }
+
+   public long getAutoDeleteAddressesDelay() {
+      return autoDeleteAddressesDelay != null ? autoDeleteAddressesDelay : AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES_DELAY;
+   }
+
+   public AddressSettings setAutoDeleteAddressesDelay(final long autoDeleteAddressesDelay) {
+      this.autoDeleteAddressesDelay = autoDeleteAddressesDelay;
       return this;
    }
 
@@ -389,6 +423,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setDefaultLastValueQueue(final boolean defaultLastValueQueue) {
       this.defaultLastValueQueue = defaultLastValueQueue;
+      return this;
+   }
+
+   public SimpleString getDefaultLastValueKey() {
+      return defaultLastValueKey != null ? defaultLastValueKey : ActiveMQDefaultConfiguration.getDefaultLastValueKey();
+   }
+
+   public AddressSettings setDefaultLastValueKey(final SimpleString defaultLastValueKey) {
+      this.defaultLastValueKey = defaultLastValueKey;
+      return this;
+   }
+
+   public boolean isDefaultNonDestructive() {
+      return defaultNonDestructive != null ? defaultNonDestructive : ActiveMQDefaultConfiguration.getDefaultNonDestructive();
+   }
+
+   public AddressSettings setDefaultNonDestructive(final boolean defaultNonDestructive) {
+      this.defaultNonDestructive = defaultNonDestructive;
       return this;
    }
 
@@ -677,6 +729,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (autoDeleteQueues == null) {
          autoDeleteQueues = merged.autoDeleteQueues;
       }
+      if (autoDeleteQueuesDelay == null) {
+         autoDeleteQueuesDelay = merged.autoDeleteQueuesDelay;
+      }
       if (configDeleteQueues == null) {
          configDeleteQueues = merged.configDeleteQueues;
       }
@@ -685,6 +740,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (autoDeleteAddresses == null) {
          autoDeleteAddresses = merged.autoDeleteAddresses;
+      }
+      if (autoDeleteAddressesDelay == null) {
+         autoDeleteAddressesDelay = merged.autoDeleteAddressesDelay;
       }
       if (configDeleteAddresses == null) {
          configDeleteAddresses = merged.configDeleteAddresses;
@@ -718,6 +776,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (defaultLastValueQueue == null) {
          defaultLastValueQueue = merged.defaultLastValueQueue;
+      }
+      if (defaultLastValueKey == null) {
+         defaultLastValueKey = merged.defaultLastValueKey;
+      }
+      if (defaultNonDestructive == null) {
+         defaultNonDestructive = merged.defaultNonDestructive;
       }
       if (defaultConsumersBeforeDispatch == null) {
          defaultConsumersBeforeDispatch = merged.defaultConsumersBeforeDispatch;
@@ -848,6 +912,22 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          defaultConsumerWindowSize = BufferHelper.readNullableInteger(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultLastValueKey = buffer.readNullableSimpleString();
+      }
+
+      if (buffer.readableBytes() > 0) {
+         defaultNonDestructive = BufferHelper.readNullableBoolean(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         autoDeleteQueuesDelay = BufferHelper.readNullableLong(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         autoDeleteAddressesDelay = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -889,7 +969,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultExclusiveQueue) +
          BufferHelper.sizeOfNullableInteger(defaultConsumersBeforeDispatch) +
          BufferHelper.sizeOfNullableLong(defaultDelayBeforeDispatch) +
-         BufferHelper.sizeOfNullableInteger(defaultConsumerWindowSize);
+         BufferHelper.sizeOfNullableInteger(defaultConsumerWindowSize) +
+         SimpleString.sizeofNullableString(defaultLastValueKey) +
+         BufferHelper.sizeOfNullableBoolean(defaultNonDestructive) +
+         BufferHelper.sizeOfNullableLong(autoDeleteQueuesDelay) +
+         BufferHelper.sizeOfNullableLong(autoDeleteAddressesDelay);
    }
 
    @Override
@@ -972,6 +1056,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableInteger(buffer, defaultConsumerWindowSize);
 
+      buffer.writeNullableSimpleString(defaultLastValueKey);
+
+      BufferHelper.writeNullableBoolean(buffer, defaultNonDestructive);
+
+      BufferHelper.writeNullableLong(buffer, autoDeleteQueuesDelay);
+
+      BufferHelper.writeNullableLong(buffer, autoDeleteAddressesDelay);
+
    }
 
    /* (non-Javadoc)
@@ -987,6 +1079,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((expiryAddress == null) ? 0 : expiryAddress.hashCode());
       result = prime * result + ((expiryDelay == null) ? 0 : expiryDelay.hashCode());
       result = prime * result + ((defaultLastValueQueue == null) ? 0 : defaultLastValueQueue.hashCode());
+      result = prime * result + ((defaultLastValueKey == null) ? 0 : defaultLastValueKey.hashCode());
+      result = prime * result + ((defaultNonDestructive == null) ? 0 : defaultNonDestructive.hashCode());
       result = prime * result + ((defaultExclusiveQueue == null) ? 0 : defaultExclusiveQueue.hashCode());
       result = prime * result + ((maxDeliveryAttempts == null) ? 0 : maxDeliveryAttempts.hashCode());
       result = prime * result + ((maxSizeBytes == null) ? 0 : maxSizeBytes.hashCode());
@@ -1007,9 +1101,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoDeleteJmsTopics == null) ? 0 : autoDeleteJmsTopics.hashCode());
       result = prime * result + ((autoCreateQueues == null) ? 0 : autoCreateQueues.hashCode());
       result = prime * result + ((autoDeleteQueues == null) ? 0 : autoDeleteQueues.hashCode());
+      result = prime * result + ((autoDeleteQueuesDelay == null) ? 0 : autoDeleteQueuesDelay.hashCode());
       result = prime * result + ((configDeleteQueues == null) ? 0 : configDeleteQueues.hashCode());
       result = prime * result + ((autoCreateAddresses == null) ? 0 : autoCreateAddresses.hashCode());
       result = prime * result + ((autoDeleteAddresses == null) ? 0 : autoDeleteAddresses.hashCode());
+      result = prime * result + ((autoDeleteAddressesDelay == null) ? 0 : autoDeleteAddressesDelay.hashCode());
       result = prime * result + ((configDeleteAddresses == null) ? 0 : configDeleteAddresses.hashCode());
       result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
       result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
@@ -1065,6 +1161,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.defaultLastValueQueue != null)
             return false;
       } else if (!defaultLastValueQueue.equals(other.defaultLastValueQueue))
+         return false;
+      if (defaultLastValueKey == null) {
+         if (other.defaultLastValueKey != null)
+            return false;
+      } else if (!defaultLastValueKey.equals(other.defaultLastValueKey))
+         return false;
+      if (defaultNonDestructive == null) {
+         if (other.defaultNonDestructive != null)
+            return false;
+      } else if (!defaultNonDestructive.equals(other.defaultNonDestructive))
          return false;
       if (defaultExclusiveQueue == null) {
          if (other.defaultExclusiveQueue != null)
@@ -1166,6 +1272,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!autoDeleteQueues.equals(other.autoDeleteQueues))
          return false;
+      if (autoDeleteQueuesDelay == null) {
+         if (other.autoDeleteQueuesDelay != null)
+            return false;
+      } else if (!autoDeleteQueuesDelay.equals(other.autoDeleteQueuesDelay))
+         return false;
       if (configDeleteQueues == null) {
          if (other.configDeleteQueues != null)
             return false;
@@ -1180,6 +1291,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.autoDeleteAddresses != null)
             return false;
       } else if (!autoDeleteAddresses.equals(other.autoDeleteAddresses))
+         return false;
+      if (autoDeleteAddressesDelay == null) {
+         if (other.autoDeleteAddressesDelay != null)
+            return false;
+      } else if (!autoDeleteAddressesDelay.equals(other.autoDeleteAddressesDelay))
          return false;
       if (configDeleteAddresses == null) {
          if (other.configDeleteAddresses != null)
@@ -1263,6 +1379,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          expiryDelay +
          ", defaultLastValueQueue=" +
          defaultLastValueQueue +
+         ", defaultLastValueKey=" +
+         defaultLastValueKey +
+         ", defaultNonDestructive=" +
+         defaultNonDestructive +
          ", defaultExclusiveQueue=" +
          defaultExclusiveQueue +
          ", maxDeliveryAttempts=" +
@@ -1305,12 +1425,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          autoCreateQueues +
          ", autoDeleteQueues=" +
          autoDeleteQueues +
+         ", autoDeleteQueuesDelay=" +
+         autoDeleteQueuesDelay +
          ", configDeleteQueues=" +
          configDeleteQueues +
          ", autoCreateAddresses=" +
          autoCreateAddresses +
          ", autoDeleteAddresses=" +
          autoDeleteAddresses +
+         ", autoDeleteAddressesDelay=" +
+         autoDeleteAddressesDelay +
          ", configDeleteAddresses=" +
          configDeleteAddresses +
          ", managementBrowsePageSize=" +

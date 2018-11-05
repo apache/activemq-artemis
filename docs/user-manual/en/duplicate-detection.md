@@ -128,7 +128,7 @@ value for this parameter is `true`.
 
 Core bridges can be configured to automatically add a unique duplicate
 id value (if there isn't already one in the message) before forwarding
-the message to it's target. This ensures that if the target server
+the message to its target. This ensures that if the target server
 crashes or the connection is interrupted and the bridge resends the
 message, then if it has already been received by the target server, it
 will be ignored.

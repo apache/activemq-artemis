@@ -2,7 +2,7 @@
 
 Apache ActiveMQ Artemis has a unique addressing model that is both powerful and
 flexible and that offers great performance. The addressing model comprises
-three main concepts: **addresses**, **queues** and **routing types**.
+three main concepts: **addresses**, **queues**, and **routing types**.
 
 ### Address
 
@@ -140,7 +140,7 @@ anycast routing type. When messages are received on such an address, they are
 firstly distributed evenly across all the defined queues. Using [Fully
 Qualified Queue names](#fully-qualified-queue-names), clients are able to
 select the queue that they would like to subscribe to. Should more than one
-consumer connect direct to a single queue, Apache ActiveMQ Artemis will take
+consumer connect directly to a single queue, Apache ActiveMQ Artemis will take
 care of distributing messages between them, as in the example above.
 
 ![Point to Point](images/addressing-model-p2p2.png)
@@ -214,7 +214,7 @@ Filters can be applied in two places, on a queue and on a consumer.
 
 ### Queue Filter
 
-When a filter is applied to a queue, messages are filter before they sent to
+When a filter is applied to a queue, messages are filtered before they are sent to
 the queue.  To add a queue filter use the filter element when configuring a
 queue.  Open up `<broker-instance>/etc/broker.xml` and add an address with a
 queue, using the filter element to configure a filter on this queue.
@@ -235,7 +235,7 @@ The filter defined above ensures that only messages with an attribute
 ### Consumer Filters
 
 Consumer filters are applied after messages have reached a queue and are
-defined using the appropriate client APIs.  The follow JMS example shows how to
+defined using the appropriate client APIs. The following JMS example shows how
 consumer filters work.
 
 1. Define an address with a single queue, with no filter applied.
@@ -352,11 +352,11 @@ Internally the broker maps a client’s request for an address to specific
 queues. The broker decides on behalf of the client which queues to send
 messages to or from which queue to receive messages. However, more advanced use
 cases might require that the client specify a queue directly. In these
-situations the client and use a fully qualified queue name, by specifying both
+situations the client uses a fully qualified queue name, by specifying both
 the address name and the queue name, separated by a ::.
 
 Currently Artemis supports fully qualified queue names on Core, AMQP, JMS,
-OpenWire, MQTT and Stomp protocols for receiving messages only.
+OpenWire, MQTT and STOMP protocols for receiving messages only.
 
 ### Specifying a Fully Qualified Queue Name
 
@@ -488,7 +488,7 @@ If a user requires to pre-create a queue that behaves like a non-durable
 subscription queue the **purge-on-no-consumers** flag can be enabled on the
 queue.  When **purge-on-no-consumers** is set to **true**.  The queue will not
 start receiving messages until a consumer is attached.  When the last consumer
-is detached from the queue.  The queue is purged (it's messages are removed)
+is detached from the queue.  The queue is purged (its messages are removed)
 and will not receive any more messages until a new consumer is attached.
 
 Open the file `<broker-instance>/etc/broker.xml` for editing.
@@ -597,9 +597,11 @@ that would be found in the `broker.xml` file.
       <auto-delete-jms-topics>true</auto-delete-jms-topics> <!-- deprecated! see auto-delete-addresses -->
       <auto-create-queues>true</auto-create-queues>
       <auto-delete-queues>true</auto-delete-queues>
+      <auto-delete-queues-delay>0</auto-delete-queues-delay>
       <config-delete-queues>OFF</config-delete-queues>
       <auto-create-addresses>true</auto-create-addresses>
       <auto-delete-addresses>true</auto-delete-addresses>
+      <auto-delete-addresses-delay>0</auto-delete-addresses-delay>
       <config-delete-addresses>OFF</config-delete-addresses>
       <management-browse-page-size>200</management-browse-page-size>
       <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
@@ -761,6 +763,12 @@ non-temporary, and non-transient. Default is `true`.
 auto-created queues when they have both 0 consumers and 0 messages. Default is
 `true`.
 
+`auto-delete-queues-delay`. How long to wait (in milliseconds) before deleting
+auto-created queues after the queue has 0 consumers and 0 messages. Default is
+`0` (delete immediately). The broker's `address-queue-scan-period` controls
+how often (in milliseconds) queues are scanned for potential deletion. Use `-1`
+to disable scanning. The default scan value is `30000`.
+
 `config-delete-queues`. How the broker should handle queues deleted on config
 reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
 [configuration reload](config-reload.md).
@@ -773,6 +781,12 @@ Default is `true`.
 `auto-delete-addresses`. Whether or not the broker should automatically delete
 auto-created addresses once the address no longer has any queues. Default is
 `true`.
+
+`auto-delete-addresses-delay`. How long to wait (in milliseconds) before
+deleting auto-created addresses after they no longer have any queues. Default
+is `0` (delete immediately). The broker's `address-queue-scan-period` controls
+how often (in milliseconds) addresses are scanned for potential deletion. Use
+`-1` to disable scanning. The default scan value is `30000`.
 
 `config-delete-addresses`. How the broker should handle addresses deleted on
 config reload, by delete policy: `OFF` or `FORCE`. Default is `OFF`. Read more

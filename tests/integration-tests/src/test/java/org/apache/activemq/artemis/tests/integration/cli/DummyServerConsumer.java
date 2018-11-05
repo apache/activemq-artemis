@@ -195,6 +195,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public SimpleString getFilterString() {
+      return null;
+   }
+
+   @Override
    public List<MessageReference> getDeliveringMessages() {
       return null;
    }

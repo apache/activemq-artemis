@@ -119,6 +119,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private static final Logger logger = Logger.getLogger(QueueImpl.class);
    private static final AtomicIntegerFieldUpdater dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
    private static final AtomicLongFieldUpdater dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
+   private static final AtomicLongFieldUpdater consumerRemovedTimestampUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "consumerRemovedTimestamp");
    private static final AtomicReferenceFieldUpdater<QueueImpl, Filter> filterUpdater = AtomicReferenceFieldUpdater.newUpdater(QueueImpl.class, Filter.class, "filter");
 
    public static final int REDISTRIBUTOR_BATCH_SIZE = 100;
@@ -198,6 +199,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private AtomicLong messagesKilled = new AtomicLong(0);
 
+   private AtomicLong messagesReplaced = new AtomicLong(0);
+
    private boolean paused;
 
    private long pauseStatusRecord = -1;
@@ -230,6 +233,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // We cache the consumers here since we don't want to include the redistributor
 
    private final AtomicInteger consumersCount = new AtomicInteger();
+
+   private volatile long consumerRemovedTimestamp = -1;
 
    private final Set<Consumer> consumerSet = new HashSet<>();
 
@@ -285,6 +290,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean configurationManaged;
 
+   private volatile boolean nonDestructive;
 
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
@@ -353,110 +359,111 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    public QueueImpl(final long id,
-                    final SimpleString address,
-                    final SimpleString name,
-                    final Filter filter,
-                    final SimpleString user,
-                    final boolean durable,
-                    final boolean temporary,
-                    final boolean autoCreated,
-                    final ScheduledExecutorService scheduledExecutor,
-                    final PostOffice postOffice,
-                    final StorageManager storageManager,
-                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final ArtemisExecutor executor,
-                    final ActiveMQServer server,
-                    final QueueFactory factory) {
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
       this(id, address, name, filter, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
-                    final SimpleString address,
-                    final SimpleString name,
-                    final Filter filter,
-                    final PageSubscription pageSubscription,
-                    final SimpleString user,
-                    final boolean durable,
-                    final boolean temporary,
-                    final boolean autoCreated,
-                    final ScheduledExecutorService scheduledExecutor,
-                    final PostOffice postOffice,
-                    final StorageManager storageManager,
-                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final ArtemisExecutor executor,
-                    final ActiveMQServer server,
-                    final QueueFactory factory) {
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final PageSubscription pageSubscription,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
       this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
-                    final SimpleString address,
-                    final SimpleString name,
-                    final Filter filter,
-                    final PageSubscription pageSubscription,
-                    final SimpleString user,
-                    final boolean durable,
-                    final boolean temporary,
-                    final boolean autoCreated,
-                    final RoutingType routingType,
-                    final Integer maxConsumers,
-                    final Boolean purgeOnNoConsumers,
-                    final ScheduledExecutorService scheduledExecutor,
-                    final PostOffice postOffice,
-                    final StorageManager storageManager,
-                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final ArtemisExecutor executor,
-                    final ActiveMQServer server,
-                    final QueueFactory factory) {
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final PageSubscription pageSubscription,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final RoutingType routingType,
+                     final Integer maxConsumers,
+                     final Boolean purgeOnNoConsumers,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
       this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
-                    final SimpleString address,
-                    final SimpleString name,
-                    final Filter filter,
-                    final PageSubscription pageSubscription,
-                    final SimpleString user,
-                    final boolean durable,
-                    final boolean temporary,
-                    final boolean autoCreated,
-                    final RoutingType routingType,
-                    final Integer maxConsumers,
-                    final Boolean exclusive,
-                    final Boolean purgeOnNoConsumers,
-                    final ScheduledExecutorService scheduledExecutor,
-                    final PostOffice postOffice,
-                    final StorageManager storageManager,
-                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final ArtemisExecutor executor,
-                    final ActiveMQServer server,
-                    final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, purgeOnNoConsumers, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final PageSubscription pageSubscription,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final RoutingType routingType,
+                     final Integer maxConsumers,
+                     final Boolean exclusive,
+                     final Boolean purgeOnNoConsumers,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, false, null, null, purgeOnNoConsumers, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
-                    final SimpleString address,
-                    final SimpleString name,
-                    final Filter filter,
-                    final PageSubscription pageSubscription,
-                    final SimpleString user,
-                    final boolean durable,
-                    final boolean temporary,
-                    final boolean autoCreated,
-                    final RoutingType routingType,
-                    final Integer maxConsumers,
-                    final Boolean exclusive,
-                    final Integer consumersBeforeDispatch,
-                    final Long delayBeforeDispatch,
-                    final Boolean purgeOnNoConsumers,
-                    final boolean configurationManaged,
-                    final ScheduledExecutorService scheduledExecutor,
-                    final PostOffice postOffice,
-                    final StorageManager storageManager,
-                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final ArtemisExecutor executor,
-                    final ActiveMQServer server,
-                    final QueueFactory factory) {
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final PageSubscription pageSubscription,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final RoutingType routingType,
+                     final Integer maxConsumers,
+                     final Boolean exclusive,
+                     final Boolean nonDestructive,
+                     final Integer consumersBeforeDispatch,
+                     final Long delayBeforeDispatch,
+                     final Boolean purgeOnNoConsumers,
+                     final boolean configurationManaged,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
       this.id = id;
@@ -482,6 +489,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.maxConsumers = maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers;
 
       this.exclusive = exclusive == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : exclusive;
+
+      this.nonDestructive = nonDestructive == null ? ActiveMQDefaultConfiguration.getDefaultNonDestructive() : nonDestructive;
 
       this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
 
@@ -599,6 +608,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public boolean isLastValue() {
       return false;
+   }
+
+   @Override
+   public SimpleString getLastValueKey() {
+      return null;
+   }
+
+   @Override
+   public boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
+   @Override
+   public synchronized void setNonDestructive(boolean nonDestructive) {
+      this.nonDestructive = nonDestructive;
    }
 
    @Override
@@ -1061,6 +1085,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (consumerSet.remove(consumer)) {
                int currentConsumerCount = consumersCount.decrementAndGet();
+               consumerRemovedTimestampUpdater.set(this, System.currentTimeMillis());
                boolean stopped = dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(true), BooleanUtil.toInt(currentConsumerCount != 0));
                if (stopped) {
                   dispatchStartTimeUpdater.set(this, -1);
@@ -1160,6 +1185,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public int getConsumerCount() {
       return consumersCount.get();
+   }
+
+   @Override
+   public long getConsumerRemovedTimestamp() {
+      return consumerRemovedTimestampUpdater.get(this);
    }
 
    @Override
@@ -1383,30 +1413,38 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
-      if (ref.isPaged()) {
-         pageSubscription.ack((PagedReference) ref);
-         postAcknowledge(ref);
-      } else {
-         Message message = ref.getMessage();
-
-         boolean durableRef = message.isDurable() && isDurableMessage();
-
-         if (durableRef) {
-            storageManager.storeAcknowledge(id, message.getMessageID());
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("acknowledge ignored nonDestructive=true and reason=NORMAL");
          }
-         postAcknowledge(ref);
-      }
-
-      if (reason == AckReason.EXPIRED) {
-         messagesExpired.incrementAndGet();
-      } else if (reason == AckReason.KILLED) {
-         messagesKilled.incrementAndGet();
       } else {
-         messagesAcknowledged.incrementAndGet();
-      }
+         if (ref.isPaged()) {
+            pageSubscription.ack((PagedReference) ref);
+            postAcknowledge(ref);
+         } else {
+            Message message = ref.getMessage();
 
-      if (server != null && server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+            boolean durableRef = message.isDurable() && isDurableMessage();
+
+            if (durableRef) {
+               storageManager.storeAcknowledge(id, message.getMessageID());
+            }
+            postAcknowledge(ref);
+         }
+
+         if (reason == AckReason.EXPIRED) {
+            messagesExpired.incrementAndGet();
+         } else if (reason == AckReason.KILLED) {
+            messagesKilled.incrementAndGet();
+         } else if (reason == AckReason.REPLACED) {
+            messagesReplaced.incrementAndGet();
+         } else {
+            messagesAcknowledged.incrementAndGet();
+         }
+
+         if (server != null && server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+         }
       }
    }
 
@@ -1641,7 +1679,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter1, AckReason ackReason) throws Exception {
-      return iterQueue(flushLimit, filter1, new QueueIterateAction() {
+      return iterQueue(flushLimit, filter1, createDeleteMatchingAction(ackReason));
+   }
+
+   QueueIterateAction createDeleteMatchingAction(AckReason ackReason) {
+      return new QueueIterateAction() {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
             actMessage(tx, ref, true);
@@ -1655,7 +1697,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refRemoved(ref);
             }
          }
-      });
+      };
    }
 
    /**
@@ -1930,7 +1972,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (queueDestroyed) {
                return;
             }
-            logger.debug("Scanning for expires on " + QueueImpl.this.getName());
+            if (logger.isDebugEnabled()) {
+               logger.debug("Scanning for expires on " + QueueImpl.this.getName());
+            }
 
             LinkedListIterator<MessageReference> iter = iterator();
 
@@ -2448,9 +2492,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   if (logger.isTraceEnabled()) {
                      logger.trace("Reference " + ref + " being expired");
                   }
-                  holder.iter.remove();
+                  removeMessageReference(holder, ref);
 
-                  refRemoved(ref);
+
 
                   handled++;
 
@@ -2485,12 +2529,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                   handledconsumer = consumer;
 
-                  holder.iter.remove();
+                  removeMessageReference(holder, ref);
 
-                  refRemoved(ref);
-
-                  if (groupID != null && groupConsumer == null) {
-                     groups.put(groupID, consumer);
+                  if (redistributor == null) {
+                     handleMessageGroup(ref, consumer, groupConsumer, groupID);
                   }
 
                   handled++;
@@ -2554,6 +2596,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       checkDepage();
    }
 
+   protected void removeMessageReference(ConsumerHolder<? extends Consumer> holder, MessageReference ref) {
+      if (!nonDestructive) {
+         holder.iter.remove();
+         refRemoved(ref);
+      }
+   }
+
    private void checkDepage() {
       if (pageIterator != null && pageSubscription.isPaging() && !depagePending && needsDepage() && pageIterator.hasNext()) {
          scheduleDepage(false);
@@ -2582,6 +2631,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.unableToExtractGroupID(e);
             return null;
+         }
+      }
+   }
+
+   private int extractGroupSequence(MessageReference ref) {
+      if (internalQueue) {
+         return 0;
+      } else {
+         try {
+            // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
+            return ref.getMessage().getGroupSequence();
+         } catch (Throwable e) {
+            ActiveMQServerLogger.LOGGER.unableToExtractGroupSequence(e);
+            return 0;
          }
       }
    }
@@ -3061,8 +3124,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             HandleStatus status = handle(ref, consumer);
 
             if (status == HandleStatus.HANDLED) {
-               if (groupID != null && groupConsumer == null) {
-                  groups.put(groupID, consumer);
+
+               if (redistributor == null) {
+                  handleMessageGroup(ref, consumer, groupConsumer, groupID);
                }
 
                messagesAdded.incrementAndGet();
@@ -3078,6 +3142,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
          }
          return false;
+      }
+   }
+
+   private void handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
+      if (groupID != null) {
+         if (extractGroupSequence(ref) == -1) {
+            groups.remove(groupID);
+         }
+         if (groupConsumer == null) {
+            groups.put(groupID, consumer);
+         }
       }
    }
 
@@ -3312,7 +3387,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // Inner classes
    // --------------------------------------------------------------------------
 
-   private static class ConsumerHolder<T extends  Consumer> {
+   protected static class ConsumerHolder<T extends  Consumer> {
 
       ConsumerHolder(final T consumer) {
          this.consumer = consumer;

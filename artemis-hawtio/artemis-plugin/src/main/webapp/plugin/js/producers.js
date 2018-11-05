@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "producer";
         var method = 'listProducers(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'id',
                 displayName: 'ID',
@@ -79,6 +79,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 sortable: false
             }
         ];
+        ARTEMIS.log.debug('sessionStorage: producersColumnDefs =', sessionStorage.getItem('producersColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('producersColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('producersColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('producersColumnDefs', JSON.stringify(attributes));
+        });
         $scope.filter = {
             fieldOptions: [
                 {id: 'ID', name: 'ID'},

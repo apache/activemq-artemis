@@ -273,7 +273,7 @@ HA strategy Replication for `slave`:
 
 - `allow-failback`
 
-  Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over
+  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over
 
 - `initial-replication-sync-timeout`
 
@@ -362,7 +362,7 @@ duties, you may want to restart the live server and have clients fail
 back.
 
 In case of "shared disk", simply restart the original live server and
-kill the new live server by can do this by killing the process itself.
+kill the new live server. You can do this by killing the process itself.
 Alternatively you can set `allow-fail-back` to `true` on the slave
 config which will force the backup that has become live to automatically
 stop. This configuration would look like:
@@ -464,7 +464,7 @@ HA strategy Shared Store for `slave`:
 
 - `allow-failback`
 
-  Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over.
+  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over.
 
 #### Colocated Backup Servers
 

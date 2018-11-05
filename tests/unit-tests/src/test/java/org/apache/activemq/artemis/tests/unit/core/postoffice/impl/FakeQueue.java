@@ -101,6 +101,21 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public SimpleString getLastValueKey() {
+      return null;
+   }
+
+   @Override
+   public boolean isNonDestructive() {
+      return false;
+   }
+
+   @Override
+   public void setNonDestructive(boolean nonDestructive) {
+
+   }
+
+   @Override
    public void setMaxConsumer(int maxConsumers) {
 
    }
@@ -390,6 +405,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    public int getConsumerCount() {
       // no-op
+      return 0;
+   }
+
+   @Override
+   public long getConsumerRemovedTimestamp() {
       return 0;
    }
 

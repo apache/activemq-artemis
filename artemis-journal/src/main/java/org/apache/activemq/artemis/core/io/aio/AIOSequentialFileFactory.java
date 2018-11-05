@@ -286,7 +286,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       String errorMessage;
       int errorCode = -1;
       long writeSequence;
-
+      boolean releaseBuffer;
       long position;
       int bytes;
 
@@ -297,6 +297,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
             ", errorMessage='" + errorMessage + '\'' +
             ", errorCode=" + errorCode +
             ", writeSequence=" + writeSequence +
+            ", releaseBuffer=" + releaseBuffer +
             ", position=" + position +
             '}';
       }
@@ -332,7 +333,8 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                         IOCallback IOCallback,
                                         LibaioFile libaioFile,
                                         AIOSequentialFile sequentialFile,
-                                        ByteBuffer usedBuffer) {
+                                        ByteBuffer usedBuffer,
+                                        boolean releaseBuffer) {
          this.callback = IOCallback;
          this.sequentialFile = sequentialFile;
          this.error = false;
@@ -340,6 +342,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          this.libaioFile = libaioFile;
          this.writeSequence = writeSequence;
          this.errorMessage = null;
+         this.releaseBuffer = releaseBuffer;
          return this;
       }
 
@@ -375,7 +378,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                callback.done();
             }
 
-            if (buffer != null && reuseBuffers) {
+            if (buffer != null && reuseBuffers && releaseBuffer) {
                buffersControl.bufferDone(buffer);
             }
 

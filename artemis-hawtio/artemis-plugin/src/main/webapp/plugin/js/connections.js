@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "connection"
         var method = 'listConnections(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'connectionID',
                 displayName: 'ID',
@@ -73,6 +73,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             }
         ];
+        ARTEMIS.log.debug('sessionStorage: connectionsColumnDefs =', sessionStorage.getItem('connectionsColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('connectionsColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('connectionsColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('connectionsColumnDefs', JSON.stringify(attributes));
+        });
         $scope.filter = {
             fieldOptions: [
                 {id: 'CONNECTION_ID', name: 'Connection ID'},

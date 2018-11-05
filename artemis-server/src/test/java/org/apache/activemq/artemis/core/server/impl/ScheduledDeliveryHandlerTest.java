@@ -962,6 +962,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public long getConsumerRemovedTimestamp() {
+         return 0;
+      }
+
+      @Override
       public void setConsumersRefCount(ReferenceCounter referenceCounter) {
 
       }
@@ -1451,6 +1456,21 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public boolean isLastValue() {
          return false;
+      }
+
+      @Override
+      public SimpleString getLastValueKey() {
+         return null;
+      }
+
+      @Override
+      public boolean isNonDestructive() {
+         return false;
+      }
+
+      @Override
+      public void setNonDestructive(boolean nonDestructive) {
+
       }
 
       @Override

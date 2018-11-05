@@ -32,6 +32,7 @@ public class AddressInfo {
 
    private boolean autoCreated = false;
 
+   private static final EnumSet<RoutingType> EMPTY_ROUTING_TYPES = EnumSet.noneOf(RoutingType.class);
    private EnumSet<RoutingType> routingTypes;
    private RoutingType firstSeen;
 
@@ -44,6 +45,8 @@ public class AddressInfo {
    private volatile long unRoutedMessageCount = 0;
 
    private static final AtomicLongFieldUpdater<AddressInfo> unRoutedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "unRoutedMessageCount");
+
+   private long bindingRemovedTimestamp = -1;
 
    public AddressInfo(SimpleString name) {
       this(name, EnumSet.noneOf(RoutingType.class));
@@ -91,26 +94,25 @@ public class AddressInfo {
    }
 
    public EnumSet<RoutingType> getRoutingTypes() {
-      return routingTypes;
+      return routingTypes == null ? EMPTY_ROUTING_TYPES : routingTypes;
    }
 
-   public AddressInfo setRoutingTypes(EnumSet<RoutingType> routingTypes) {
+   public AddressInfo setRoutingTypes(final EnumSet<RoutingType> routingTypes) {
       this.routingTypes = routingTypes;
-      if (!routingTypes.isEmpty()) {
-         this.firstSeen = this.routingTypes.iterator().next();
+      if (routingTypes != null && !routingTypes.isEmpty()) {
+         this.firstSeen = routingTypes.iterator().next();
+      } else {
+         this.firstSeen = null;
       }
       return this;
    }
 
-   public AddressInfo addRoutingType(RoutingType routingType) {
+   public AddressInfo addRoutingType(final RoutingType routingType) {
       if (routingType != null) {
-         if (routingTypes == null) {
+         if (routingTypes == null || routingTypes.isEmpty()) {
             routingTypes = EnumSet.of(routingType);
             firstSeen = routingType;
          } else {
-            if (routingTypes.isEmpty()) {
-               firstSeen = routingType;
-            }
             routingTypes.add(routingType);
          }
       }
@@ -121,13 +123,21 @@ public class AddressInfo {
       return firstSeen;
    }
 
+   public long getBindingRemovedTimestamp() {
+      return bindingRemovedTimestamp;
+   }
+
+   public void setBindingRemovedTimestamp(long bindingRemovedTimestamp) {
+      this.bindingRemovedTimestamp = bindingRemovedTimestamp;
+   }
+
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer();
       buff.append("Address [name=" + name);
       buff.append(", id=" + id);
       buff.append(", routingTypes={");
-      for (RoutingType routingType : routingTypes) {
+      for (RoutingType routingType : getRoutingTypes()) {
          buff.append(routingType.toString() + ",");
       }
       // delete hanging comma

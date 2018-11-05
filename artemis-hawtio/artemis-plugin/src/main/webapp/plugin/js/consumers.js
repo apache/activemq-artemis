@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "consumer";
         var method = 'listConsumers(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'id',
                 displayName: 'ID',
@@ -63,6 +63,11 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             },
             {
+                field: 'filter',
+                displayName: 'Filter',
+                width: '*'
+            },
+            {
                 field: 'address',
                 displayName: 'Address',
                 width: '*',
@@ -84,6 +89,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             }
         ];
+        ARTEMIS.log.debug('sessionStorage: consumersColumnDefs =', sessionStorage.getItem('consumersColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('consumersColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('consumersColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('consumersColumnDefs', JSON.stringify(attributes));
+        });
         $scope.filter = {
             fieldOptions: [
                 {id: 'ID', name: 'ID'},

@@ -25,6 +25,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -213,14 +214,12 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
       checkEncode();
-      internalWritableBuffer();
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
    }
 
    @Override
    public int getBodyBufferSize() {
       checkEncode();
-      internalWritableBuffer();
       return endOfBodyPosition - BUFFER_HEADER_SPACE;
    }
 
@@ -290,12 +289,18 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this.getSimpleStringProperty(Message.HDR_GROUP_ID);
    }
 
+   @Override
+   public int getGroupSequence() {
+      final Integer integer = this.getIntProperty(Message.HDR_GROUP_SEQUENCE);
+      return integer == null ? 0 : integer;
+   }
+
    /**
     * @param sendBuffer
     * @param deliveryCount Some protocols (AMQP) will have this as part of the message. ignored on core
     */
    @Override
-   public void sendBuffer(ByteBuf sendBuffer, int deliveryCount) {
+   public synchronized void sendBuffer(ByteBuf sendBuffer, int deliveryCount) {
       checkEncode();
       sendBuffer.writeBytes(buffer, 0, buffer.writerIndex());
    }
@@ -304,7 +309,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * Recast the message as an 1.4 message
     */
    @Override
-   public void sendBuffer_1X(ByteBuf sendBuffer) {
+   public synchronized void sendBuffer_1X(ByteBuf sendBuffer) {
       checkEncode();
       ByteBuf tmpBuffer = buffer.duplicate();
       sendBuffer.writeInt(endOfBodyPosition + DataConstants.SIZE_INT);
@@ -319,6 +324,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       if (!validBuffer) {
          encode();
       }
+      internalWritableBuffer();
    }
 
    @Override
@@ -364,10 +370,14 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    private void internalWritableBuffer() {
       if (writableBuffer == null) {
-         writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
-         if (endOfBodyPosition > 0) {
-            writableBuffer.byteBuf().setIndex(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE + BODY_OFFSET);
-            writableBuffer.resetReaderIndex();
+         synchronized (this) {
+            if (writableBuffer == null) {
+               writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
+               if (endOfBodyPosition > 0) {
+                  writableBuffer.byteBuf().setIndex(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE + BODY_OFFSET);
+                  writableBuffer.resetReaderIndex();
+               }
+            }
          }
       }
    }
@@ -404,22 +414,27 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    protected CoreMessage(CoreMessage other, TypedProperties copyProperties) {
-      this.body = other.body;
-      this.endOfBodyPosition = other.endOfBodyPosition;
-      this.messageID = other.messageID;
-      this.address = other.address;
-      this.type = other.type;
-      this.durable = other.durable;
-      this.expiration = other.expiration;
-      this.timestamp = other.timestamp;
-      this.priority = other.priority;
-      this.userID = other.userID;
-      this.coreMessageObjectPools = other.coreMessageObjectPools;
-      if (copyProperties != null) {
-         this.properties = new TypedProperties(copyProperties);
-      }
-      if (other.buffer != null) {
-         this.buffer = other.buffer.copy();
+      // This MUST be synchronized using the monitor on the other message to prevent it running concurrently
+      // with getEncodedBuffer(), otherwise can introduce race condition when delivering concurrently to
+      // many subscriptions and bridging to other nodes in a cluster
+      synchronized (other) {
+         this.body = other.body;
+         this.endOfBodyPosition = other.endOfBodyPosition;
+         this.messageID = other.messageID;
+         this.address = other.address;
+         this.type = other.type;
+         this.durable = other.durable;
+         this.expiration = other.expiration;
+         this.timestamp = other.timestamp;
+         this.priority = other.priority;
+         this.userID = other.userID;
+         this.coreMessageObjectPools = other.coreMessageObjectPools;
+         if (copyProperties != null) {
+            this.properties = new TypedProperties(copyProperties);
+         }
+         if (other.buffer != null) {
+            this.buffer = other.buffer.copy();
+         }
       }
    }
 
@@ -550,20 +565,33 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * I am keeping this synchronized as the decode of the Properties is lazy
     */
    protected TypedProperties checkProperties() {
-      if (properties == null) {
-         synchronized (this) {
-            if (properties == null) {
-               TypedProperties properties = new TypedProperties();
-               if (buffer != null && propertiesLocation >= 0) {
-                  final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
-                  properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+      try {
+         if (properties == null) {
+            synchronized (this) {
+               if (properties == null) {
+                  TypedProperties properties = new TypedProperties();
+                  if (buffer != null && propertiesLocation >= 0) {
+                     final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
+                     properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+                  }
+                  this.properties = properties;
                }
-               this.properties = properties;
             }
          }
-      }
 
-      return this.properties;
+         return this.properties;
+      } catch (Throwable e) {
+         ByteBuf duplicatebuffer = buffer.duplicate();
+         duplicatebuffer.readerIndex(0);
+
+         // This is not an expected error, hence no specific logger created
+         logger.warn("Could not decode properties for CoreMessage[messageID=" + messageID + ",durable=" + durable + ",userID=" + userID + ",priority=" + priority +
+            ", timestamp=" + timestamp + ",expiration=" + expiration + ",address=" + address + ", propertiesLocation=" + propertiesLocation, e);
+         logger.warn("Failed message has messageID=" + messageID + " and the following buffer:\n" + ByteBufUtil.prettyHexDump(duplicatebuffer));
+
+         throw new RuntimeException(e.getMessage(), e);
+
+      }
    }
 
    @Override
@@ -977,7 +1005,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      messageChanged();
       checkProperties();
       return properties.getDoubleProperty(key);
    }

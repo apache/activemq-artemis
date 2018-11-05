@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -30,11 +36,6 @@ import javax.management.openmbean.CompositeDataSupport;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -561,12 +562,14 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public int getIntProperty(final String name) throws JMSException {
-      if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         return message.getDeliveryCount();
-      }
-
       try {
-         return message.getIntProperty(name);
+         if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
+            return message.getDeliveryCount();
+         } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+            return message.getGroupSequence();
+         } else {
+            return message.getIntProperty(name);
+         }
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -574,12 +577,14 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public long getLongProperty(final String name) throws JMSException {
-      if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         return message.getDeliveryCount();
-      }
-
       try {
-         return message.getLongProperty(name);
+         if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
+            return message.getDeliveryCount();
+         } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+            return message.getGroupSequence();
+         } else {
+            return message.getLongProperty(name);
+         }
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -611,7 +616,9 @@ public class ActiveMQMessage implements javax.jms.Message {
 
       try {
          if (MessageUtil.JMSXGROUPID.equals(name)) {
-            return message.getStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID);
+            return Objects.toString(message.getGroupID(), null);
+         } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+            return Integer.toString(message.getGroupSequence());
          } else if (MessageUtil.JMSXUSERID.equals(name)) {
             return message.getValidatedUserID();
          } else {
@@ -624,13 +631,20 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public Object getObjectProperty(final String name) throws JMSException {
+      final Object val;
       if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         return String.valueOf(message.getDeliveryCount());
+         val = message.getDeliveryCount();
+      } else if (MessageUtil.JMSXGROUPID.equals(name)) {
+         val = message.getGroupID();
+      } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         val = message.getGroupSequence();
+      } else if (MessageUtil.JMSXUSERID.equals(name)) {
+         val = message.getValidatedUserID();
+      } else {
+         val = message.getObjectProperty(name);
       }
-
-      Object val = message.getObjectProperty(name);
       if (val instanceof SimpleString) {
-         val = val.toString();
+         return val.toString();
       }
       return val;
    }
@@ -662,12 +676,18 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
       checkProperty(name);
+      if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
+         return;
+      }
       message.putIntProperty(name, value);
    }
 
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
       checkProperty(name);
+      if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
+         return;
+      }
       message.putLongProperty(name, value);
    }
 
@@ -687,9 +707,11 @@ public class ActiveMQMessage implements javax.jms.Message {
    public void setStringProperty(final String name, final String value) throws JMSException {
       checkProperty(name);
 
-      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
+      if (handleCoreStringProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
          return;
-      } else if (handleCoreProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
+      } else if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
+         return;
+      } else if (handleCoreStringProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
          return;
       } else {
          message.putStringProperty(name, value);
@@ -698,11 +720,13 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
-      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
+      if (handleCoreStringProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
          return;
       }
-
-      if (handleCoreProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
+      if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
+         return;
+      }
+      if (handleCoreStringProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
          return;
       }
 
@@ -716,13 +740,13 @@ public class ActiveMQMessage implements javax.jms.Message {
          return;
       }
 
-      checkProperty(name);
-
       if (ActiveMQJMSConstants.JMS_ACTIVEMQ_INPUT_STREAM.equals(name)) {
          setInputStream((InputStream) value);
 
          return;
       }
+
+      checkProperty(name);
 
       try {
          message.putObjectProperty(name, value);
@@ -979,10 +1003,47 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
-   private boolean handleCoreProperty(final String name,
-                                      final Object value,
-                                      String jmsPropertyName,
-                                      SimpleString corePropertyName) {
+   private boolean handleCoreIntegerProperty(final String name,
+                                            final Object value,
+                                            String jmsPropertyName,
+                                            SimpleString corePropertyName) {
+      if (jmsPropertyName.equals(name)) {
+         return handleCoreIntegerProperty(name, getInteger(value), jmsPropertyName, corePropertyName);
+      }
+      return false;
+   }
+
+   private boolean handleCoreIntegerProperty(final String name,
+                                             final int value,
+                                             String jmsPropertyName,
+                                             SimpleString corePropertyName) {
+      boolean result = false;
+
+      if (jmsPropertyName.equals(name)) {
+         message.putIntProperty(corePropertyName, value);
+         result = true;
+      }
+
+      return result;
+   }
+
+   private static int getInteger(final Object value) {
+      Objects.requireNonNull(value);
+      final int integer;
+      if (value instanceof Integer) {
+         integer = (Integer) value;
+      } else if (value instanceof Number) {
+         integer = ((Number) value).intValue();
+      } else {
+         integer = Integer.parseInt(value.toString());
+      }
+      return integer;
+   }
+
+   private boolean handleCoreStringProperty(final String name,
+                                            final Object value,
+                                            String jmsPropertyName,
+                                            SimpleString corePropertyName) {
       boolean result = false;
 
       if (jmsPropertyName.equals(name)) {

@@ -27,11 +27,6 @@ import javax.jms.TopicPublisher;
 public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implements TopicPublisher {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Create a new wrapper
     *
     * @param producer the producer
@@ -40,7 +35,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    public ActiveMQRATopicPublisher(final TopicPublisher producer, final ActiveMQRASession session) {
       super(producer, session);
 
-      if (ActiveMQRATopicPublisher.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + producer + ", " + session + ")");
       }
    }
@@ -53,7 +48,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     */
    @Override
    public Topic getTopic() throws JMSException {
-      if (ActiveMQRATopicPublisher.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getTopic()");
       }
 
@@ -76,7 +71,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
                        final long timeToLive) throws JMSException {
       session.lock();
       try {
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("send " + this +
                                              " message=" +
                                              message +
@@ -92,7 +87,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
 
          ((TopicPublisher) producer).publish(message, deliveryMode, priority, timeToLive);
 
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       } finally {
@@ -110,7 +105,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    public void publish(final Message message) throws JMSException {
       session.lock();
       try {
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("send " + this + " message=" + message);
          }
 
@@ -118,7 +113,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
 
          ((TopicPublisher) producer).publish(message);
 
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       } finally {
@@ -144,7 +139,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
                        final long timeToLive) throws JMSException {
       session.lock();
       try {
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("send " + this +
                                              " destination=" +
                                              destination +
@@ -162,7 +157,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
 
          ((TopicPublisher) producer).publish(destination, message, deliveryMode, priority, timeToLive);
 
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       } finally {
@@ -181,7 +176,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    public void publish(final Topic destination, final Message message) throws JMSException {
       session.lock();
       try {
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("send " + this + " destination=" + destination + " message=" + message);
          }
 
@@ -189,7 +184,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
 
          ((TopicPublisher) producer).publish(destination, message);
 
-         if (ActiveMQRATopicPublisher.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       } finally {

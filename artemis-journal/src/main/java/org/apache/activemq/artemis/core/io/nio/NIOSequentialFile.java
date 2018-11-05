@@ -244,7 +244,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       }
 
       try {
-         internalWrite(bytes, sync, callback);
+         internalWrite(bytes, sync, callback, true);
       } catch (Exception e) {
          callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
       }
@@ -252,7 +252,12 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception {
-      internalWrite(bytes, sync, null);
+      internalWrite(bytes, sync, null, true);
+   }
+
+   @Override
+   public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
+      internalWrite(bytes, sync, null, releaseBuffer);
    }
 
    @Override
@@ -266,7 +271,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    private void internalWrite(final ByteBuffer bytes,
                               final boolean sync,
-                              final IOCallback callback) throws IOException, ActiveMQIOErrorException, InterruptedException {
+                              final IOCallback callback,
+                              boolean releaseBuffer) throws IOException, ActiveMQIOErrorException, InterruptedException {
       if (!isOpen()) {
          if (callback != null) {
             callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened");
@@ -279,7 +285,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       position.addAndGet(bytes.limit());
 
       try {
-         doInternalWrite(bytes, sync, callback);
+         doInternalWrite(bytes, sync, callback, releaseBuffer);
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
@@ -296,7 +302,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
     */
    private void doInternalWrite(final ByteBuffer bytes,
                                 final boolean sync,
-                                final IOCallback callback) throws IOException {
+                                final IOCallback callback,
+                                boolean releaseBuffer) throws IOException {
       try {
          channel.write(bytes);
 
@@ -308,8 +315,10 @@ public class NIOSequentialFile extends AbstractSequentialFile {
             callback.done();
          }
       } finally {
-         //release it to recycle the write buffer if big enough
-         this.factory.releaseBuffer(bytes);
+         if (releaseBuffer) {
+            //release it to recycle the write buffer if big enough
+            this.factory.releaseBuffer(bytes);
+         }
       }
    }
 

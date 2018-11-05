@@ -39,7 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -61,7 +60,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    private final SimpleString connID;
 
    private final ClientProducer clientProducer;
-   private final ClientSession clientSession;
+   private final ActiveMQSession session;
 
    private boolean disableMessageID = false;
 
@@ -78,7 +77,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    protected ActiveMQMessageProducer(final ActiveMQConnection connection,
                                      final ClientProducer producer,
                                      final ActiveMQDestination defaultDestination,
-                                     final ClientSession clientSession,
+                                     final ActiveMQSession session,
                                      final ConnectionFactoryOptions options) throws JMSException {
       this.options = options;
       this.connection = connection;
@@ -89,7 +88,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
       this.defaultDestination = defaultDestination;
 
-      this.clientSession = clientSession;
+      this.session = session;
    }
 
    // MessageProducer implementation --------------------------------
@@ -388,6 +387,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       }
 
       SimpleString address = null;
+      ClientSession clientSession = session.getCoreSession();
 
       if (destination == null) {
          if (defaultDestination == null) {
@@ -413,9 +413,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                      clientSession.createAddress(address, RoutingType.ANYCAST, true);
                      if (destination.isTemporary()) {
                         // TODO is it right to use the address for the queue name here?
-                        clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
+                        session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
                      } else {
-                        createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers(), query.isDefaultExclusive(), query.isDefaultLastValueQueue());
+                        session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
                      }
                   } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
                      clientSession.createAddress(address, RoutingType.MULTICAST, true);
@@ -428,9 +428,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                      connection.addKnownDestination(address);
                   } else if (destination.isQueue() && query.isAutoCreateQueues()) {
                      if (destination.isTemporary()) {
-                        clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
+                        session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
                      } else {
-                        createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers(), query.isDefaultExclusive(), query.isDefaultLastValueQueue());
+                        session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
                      }
                   }
                }
@@ -450,7 +450,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       if (!(jmsMessage instanceof ActiveMQMessage)) {
          // JMS 1.1 Sect. 3.11.4: A provider must be prepared to accept, from a client,
          // a message whose implementation is not one of its own.
-
          if (jmsMessage instanceof BytesMessage) {
             activeMQJmsMessage = new ActiveMQBytesMessage((BytesMessage) jmsMessage, clientSession);
          } else if (jmsMessage instanceof MapMessage) {
@@ -533,29 +532,10 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    }
 
    private void checkClosed() throws JMSException {
-      if (clientProducer.isClosed() || clientSession.isClosed()) {
+      if (clientProducer.isClosed()) {
          throw new IllegalStateException("Producer is closed");
       }
-   }
-
-   private void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
-      QueueAttributes queueAttributes = destination.getQueueAttributes();
-      if (queueAttributes == null) {
-         clientSession.createQueue(destination.getSimpleAddress(), routingType, queueName, filter, durable, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue);
-      } else {
-         clientSession.createQueue(
-            destination.getSimpleAddress(),
-            routingType,
-            queueName,
-            filter,
-            durable,
-            autoCreated,
-            queueAttributes.getMaxConsumers() == null ? maxConsumers : queueAttributes.getMaxConsumers(),
-            queueAttributes.getPurgeOnNoConsumers() == null ? purgeOnNoConsumers : queueAttributes.getPurgeOnNoConsumers(),
-            queueAttributes.getExclusive() == null ? exclusive : queueAttributes.getExclusive(),
-            queueAttributes.getLastValue() == null ? lastValue : queueAttributes.getLastValue()
-         );
-      }
+      session.checkClosed();
    }
 
 

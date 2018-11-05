@@ -79,6 +79,14 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public static final SimpleString CONNECTION_ID_PROPERTY_NAME = MessageUtil.CONNECTION_ID_PROPERTY_NAME;
 
+   /**
+    * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
+    * used to identify the ClientID over JMS Session.
+    * However this is only used when the JMS Session.clientID is set (which is optional).
+    * With this property management tools and the server can identify the jms-client-id used over JMS
+    */
+   public static String JMS_SESSION_CLIENT_ID_PROPERTY = "jms-client-id";
+
    // Static ---------------------------------------------------------------------------------------
 
    // Attributes -----------------------------------------------------------------------------------
@@ -265,7 +273,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    private void validateClientID(ClientSession validateSession, String clientID)
          throws InvalidClientIDException, ActiveMQException {
       try {
-         validateSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+         validateSession.addUniqueMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA) {
             throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
@@ -690,7 +698,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
             if (validateClientId) {
                validateClientID(initialSession, clientID);
             } else {
-               initialSession.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+               initialSession.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
             }
          }
 
@@ -706,7 +714,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    private void addSessionMetaData(ClientSession session) throws ActiveMQException {
       session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
       if (clientID != null) {
-         session.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+         session.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       }
    }
 
