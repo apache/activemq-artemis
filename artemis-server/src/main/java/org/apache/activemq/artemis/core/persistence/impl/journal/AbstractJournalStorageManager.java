@@ -1244,6 +1244,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          if (queueInfo != null) {
             SimpleString address = queueInfo.getAddress();
             PagingStore store = pagingManager.getPageStore(address);
+            if (store == null) {
+               return null;
+            }
             subs = store.getCursorProvider().getSubscription(queueID);
             pageSubscriptions.put(queueID, subs);
          }

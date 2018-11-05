@@ -201,17 +201,29 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public long getNumberOfBytesPerPage() throws Exception {
       clearIO();
       try {
-         return pagingManager.getPageStore(addressInfo.getName()).getPageSizeBytes();
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getPageSizeBytes();
       } finally {
          blockOnIO();
       }
+   }
+
+   private PagingStore getPagingStore() throws Exception {
+      return pagingManager.getPageStore(addressInfo.getName());
    }
 
    @Override
    public long getAddressSize() throws Exception {
       clearIO();
       try {
-         return pagingManager.getPageStore(addressInfo.getName()).getAddressSize();
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getAddressSize();
       } finally {
          blockOnIO();
       }
@@ -240,7 +252,11 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public boolean isPaging() throws Exception {
       clearIO();
       try {
-         return pagingManager.getPageStore(addressInfo.getName()).isPaging();
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return false;
+         }
+         return pagingStore.isPaging();
       } finally {
          blockOnIO();
       }
@@ -250,12 +266,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public int getNumberOfPages() throws Exception {
       clearIO();
       try {
-         PagingStore pageStore = pagingManager.getPageStore(addressInfo.getName());
+         final PagingStore pageStore = getPagingStore();
 
-         if (!pageStore.isPaging()) {
+         if (pageStore == null || !pageStore.isPaging()) {
             return 0;
          } else {
-            return pagingManager.getPageStore(addressInfo.getName()).getNumberOfPages();
+            return pageStore.getNumberOfPages();
          }
       } finally {
          blockOnIO();

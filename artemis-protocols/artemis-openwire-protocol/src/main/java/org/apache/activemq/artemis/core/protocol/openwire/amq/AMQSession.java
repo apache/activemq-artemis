@@ -418,9 +418,13 @@ public class AMQSession implements SessionCallback {
             //non-persistent messages goes here, by default we stop reading from
             //transport
             connection.getTransportConnection().setAutoRead(false);
-            if (!store.checkMemory(enableAutoReadAndTtl)) {
-               enableAutoReadAndTtl();
-               throw new ResourceAllocationException("Queue is full " + address);
+            if (store != null) {
+               if (!store.checkMemory(enableAutoReadAndTtl)) {
+                  enableAutoReadAndTtl();
+                  throw new ResourceAllocationException("Queue is full " + address);
+               }
+            } else {
+               enableAutoReadAndTtl.run();
             }
 
             getCoreSession().send(coreMsg, false, dest.isTemporary());
@@ -443,7 +447,7 @@ public class AMQSession implements SessionCallback {
                                         final AtomicInteger count,
                                         final org.apache.activemq.artemis.api.core.Message coreMsg,
                                         final SimpleString address) throws ResourceAllocationException {
-      if (!store.checkMemory(false, () -> {
+      final Runnable task = () -> {
          Exception exceptionToSend = null;
 
          try {
@@ -496,10 +500,15 @@ public class AMQSession implements SessionCallback {
                });
             }
          }
-      })) {
-         this.connection.getContext().setDontSendReponse(false);
-         connection.enableTtl();
-         throw new ResourceAllocationException("Queue is full " + address);
+      };
+      if (store != null) {
+         if (!store.checkMemory(false, task)) {
+            this.connection.getContext().setDontSendReponse(false);
+            connection.enableTtl();
+            throw new ResourceAllocationException("Queue is full " + address);
+         }
+      } else {
+         task.run();
       }
    }
 

@@ -19,15 +19,23 @@ package org.apache.activemq.artemis.tests.integration.paging;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -190,6 +198,93 @@ public class GlobalPagingTest extends PagingTest {
          }
       }
       session.commit();
+   }
+
+   @Test
+   public void testManagementAddressCannotPageOrChangeGlobalSize() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+
+      final ActiveMQServer server = createServer(true, config, PagingTest.PAGE_SIZE, -1);
+
+      try {
+         final SimpleString managementAddress = server.getConfiguration().getManagementAddress();
+         server.getConfiguration().setGlobalMaxSize(1);
+         server.start();
+
+         final ServerLocator locator = createInVMNonHALocator()
+            .setBlockOnNonDurableSend(true)
+            .setBlockOnDurableSend(true)
+            .setBlockOnAcknowledge(true);
+
+         try (ClientSessionFactory sf = createSessionFactory(locator);
+
+              ClientSession session = sf.createSession(false, true, true)) {
+
+            session.start();
+
+            if (server.locateQueue(managementAddress) == null) {
+
+               session.createQueue(managementAddress, managementAddress, null, true);
+            }
+
+            final Queue managementQueue = server.locateQueue(managementAddress);
+
+            Assert.assertNull(managementQueue.getPageSubscription());
+
+            Assert.assertNull(server.getPagingManager().getPageStore(managementAddress));
+
+            final SimpleString address = SimpleString.toSimpleString("queue");
+
+            if (server.locateQueue(address) == null) {
+
+               session.createQueue(address, address, null, true);
+            }
+
+            final CountDownLatch startSendMessages = new CountDownLatch(1);
+
+            final PagingManager pagingManager = server.getPagingManager();
+
+            final long globalSize = pagingManager.getGlobalSize();
+
+            final Thread globalSizeChecker = new Thread(() -> {
+               startSendMessages.countDown();
+               while (!Thread.currentThread().isInterrupted()) {
+                  Assert.assertEquals(globalSize, pagingManager.getGlobalSize());
+               }
+            });
+
+            globalSizeChecker.start();
+
+            try (ClientRequestor requestor = new ClientRequestor(session, managementAddress)) {
+
+               ClientMessage message = session.createMessage(false);
+
+               ManagementHelper.putAttribute(message, "queue." + address.toString(), "messageCount");
+
+               Assert.assertTrue("bodySize = " + message.getBodySize() + " must be > of globalMaxSize = " + server.getConfiguration().getGlobalMaxSize(), message.getBodySize() > server.getConfiguration().getGlobalMaxSize());
+
+               startSendMessages.await();
+
+               for (int i = 0; i < 100; i++) {
+                  try {
+                     ClientMessage reply = requestor.request(message);
+                     Assert.assertEquals(0L, ManagementHelper.getResult(reply));
+                  } catch (ActiveMQAddressFullException e) {
+                     Assert.fail(e.getMessage());
+                     return;
+                  }
+               }
+
+            } finally {
+               globalSizeChecker.interrupt();
+            }
+         }
+
+      } finally {
+         server.stop(true);
+      }
    }
 
 }
