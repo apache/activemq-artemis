@@ -62,6 +62,8 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    private final int distance;
 
+   private final MessageLoadBalancingType messageLoadBalancingType;
+
    private boolean connected = true;
 
    public RemoteQueueBindingImpl(final long id,
@@ -72,7 +74,8 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
                                  final SimpleString filterString,
                                  final Queue storeAndForwardQueue,
                                  final SimpleString bridgeName,
-                                 final int distance) throws Exception {
+                                 final int distance,
+                                 final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       this.id = id;
 
       this.address = address;
@@ -90,6 +93,8 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       idsHeaderName = Message.HDR_ROUTE_TO_IDS.concat(bridgeName);
 
       this.distance = distance;
+
+      this.messageLoadBalancingType = messageLoadBalancingType;
    }
 
    @Override
@@ -149,7 +154,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    @Override
    public synchronized boolean isHighAcceptPriority(final Message message) {
-      if (consumerCount == 0) {
+      if (consumerCount == 0 || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF)) {
          return false;
       }
 

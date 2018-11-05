@@ -16,7 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +67,37 @@ public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 1, 0, false);
 
       send(1, "queues.testaddress", 1, false, null);
+   }
+
+   @Test
+   public void testStackOverflowJMS() throws Exception {
+      final String QUEUE_NAME = "queues.queue0";
+
+      setupCluster();
+
+      startServers();
+
+      ConnectionFactory cf1 = new ActiveMQConnectionFactory("vm://0");
+      Connection c1 = cf1.createConnection();
+      c1.start();
+      Session s1 = c1.createSession();
+      MessageConsumer mc1 = s1.createConsumer(s1.createQueue(QUEUE_NAME));
+
+      waitForBindings(0, QUEUE_NAME, 1, 1, true);
+      waitForBindings(1, QUEUE_NAME, 1, 1, false);
+
+      ConnectionFactory cf2 = new ActiveMQConnectionFactory("vm://1");
+      Connection c2 = cf2.createConnection();
+      Session s2 = c2.createSession();
+      MessageProducer mp2 = s2.createProducer(s2.createQueue(QUEUE_NAME));
+      mp2.send(s2.createMessage());
+
+      waitForBindings(1, QUEUE_NAME, 1, 0, true);
+
+      assertTrue(Wait.waitFor(() -> servers[1].locateQueue(SimpleString.toSimpleString(QUEUE_NAME)).getMessageCount() == 1, 2000, 100));
+
+      c1.close();
+      c2.close();
    }
 
    protected void setupCluster() throws Exception {
