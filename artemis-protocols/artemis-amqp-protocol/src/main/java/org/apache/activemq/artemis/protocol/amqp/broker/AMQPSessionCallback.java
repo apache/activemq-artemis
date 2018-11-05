@@ -486,7 +486,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       try {
          PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddressSimpleString());
-         if (store.isRejectingMessages()) {
+         if (store != null && store.isRejectingMessages()) {
             // We drop pre-settled messages (and abort any associated Tx)
             if (delivery.remotelySettled()) {
                if (transaction != null) {
@@ -585,7 +585,11 @@ public class AMQPSessionCallback implements SessionCallback {
             pagingManager.checkMemory(runnable);
          } else {
             final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
-            store.checkMemory(runnable);
+            if (store != null) {
+               store.checkMemory(runnable);
+            } else {
+               runnable.run();
+            }
          }
       } catch (Exception e) {
          throw new RuntimeException(e);

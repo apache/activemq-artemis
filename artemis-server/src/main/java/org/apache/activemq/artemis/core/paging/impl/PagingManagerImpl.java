@@ -86,6 +86,8 @@ public final class PagingManagerImpl implements PagingManager {
 
    private ActiveMQScheduledComponent scheduledComponent = null;
 
+   private final SimpleString managementAddress;
+
    // Static
    // --------------------------------------------------------------------------------------------------------------------------
 
@@ -105,17 +107,25 @@ public final class PagingManagerImpl implements PagingManager {
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                            final long maxSize) {
+                            final long maxSize,
+                            final SimpleString managementAddress) {
       pagingStoreFactory = pagingSPI;
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
       this.memoryExecutor = pagingSPI.newExecutor();
+      this.managementAddress = managementAddress;
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
-      this(pagingSPI, addressSettingsRepository, -1);
+      this(pagingSPI, addressSettingsRepository, -1, null);
+   }
+
+   public PagingManagerImpl(final PagingStoreFactory pagingSPI,
+                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                            final SimpleString managementAddress) {
+      this(pagingSPI, addressSettingsRepository, -1, managementAddress);
    }
 
    @Override
@@ -329,6 +339,9 @@ public final class PagingManagerImpl implements PagingManager {
     */
    @Override
    public PagingStore getPageStore(final SimpleString storeName) throws Exception {
+      if (managementAddress != null && storeName.startsWith(managementAddress)) {
+         return null;
+      }
       PagingStore store = stores.get(storeName);
 
       if (store != null) {
@@ -438,6 +451,7 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    private PagingStore newStore(final SimpleString address) throws Exception {
+      assert managementAddress == null || (managementAddress != null && !address.startsWith(managementAddress));
       syncLock.readLock().lock();
       try {
          PagingStore store = stores.get(address);

@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.FilterUtils;
 import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 
 public final class QueueConfig {
@@ -202,7 +203,12 @@ public final class QueueConfig {
          final PageSubscription pageSubscription;
          if (pagingManager != null && !FilterUtils.isTopicIdentification(filter)) {
             try {
-               pageSubscription = this.pagingManager.getPageStore(address).getCursorProvider().createSubscription(id, filter, durable);
+               final PagingStore pageStore = this.pagingManager.getPageStore(address);
+               if (pageStore != null) {
+                  pageSubscription = pageStore.getCursorProvider().createSubscription(id, filter, durable);
+               } else {
+                  pageSubscription = null;
+               }
             } catch (Exception e) {
                throw new IllegalStateException(e);
             }

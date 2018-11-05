@@ -154,7 +154,9 @@ public class ScaleDownHandler {
 
       Transaction tx = new TransactionImpl(storageManager);
 
-      pageStore.disableCleanup();
+      if (pageStore != null) {
+         pageStore.disableCleanup();
+      }
 
       try {
 
@@ -240,8 +242,10 @@ public class ScaleDownHandler {
 
          return messageCount;
       } finally {
-         pageStore.enableCleanup();
-         pageStore.getCursorProvider().scheduleCleanup();
+         if (pageStore != null) {
+            pageStore.enableCleanup();
+            pageStore.getCursorProvider().scheduleCleanup();
+         }
       }
    }
 
@@ -556,6 +560,9 @@ public class ScaleDownHandler {
       public boolean lookup(MessageReference reference) throws Exception {
 
          if (reference.isPaged()) {
+            if (store == null) {
+               return false;
+            }
             PageSubscription subscription = store.getCursorProvider().getSubscription(queue.getID());
             if (subscription.contains((PagedReference) reference)) {
                return true;
