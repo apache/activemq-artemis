@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.server.cluster.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -48,7 +49,7 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase {
       final Queue storeAndForwardQueue = new FakeQueue(null);
       final SimpleString bridgeName = RandomUtil.randomSimpleString();
       final int distance = 0;
-      RemoteQueueBindingImpl binding = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance);
+      RemoteQueueBindingImpl binding = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.ON_DEMAND);
 
       for (int i = 0; i < 100; i++) {
          binding.addConsumer(new SimpleString("B" + i + "<A"));
