@@ -1239,7 +1239,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             return;
          }
 
-         RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), queueAddress, clusterName, routingName, queueID, filterString, queue, bridge.getName(), distance + 1);
+         RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), queueAddress, clusterName, routingName, queueID, filterString, queue, bridge.getName(), distance + 1, messageLoadBalancingType);
 
          if (logger.isTraceEnabled()) {
             logger.trace("Adding binding " + clusterName + " into " + ClusterConnectionImpl.this);
