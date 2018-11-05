@@ -35,7 +35,11 @@ public final class ClassloadingUtil {
    private static final String INSTANTIATION_EXCEPTION_MESSAGE = "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
 
    public static Object newInstanceFromClassLoader(final String className) {
-      ClassLoader loader = ClassloadingUtil.class.getClassLoader();
+      return newInstanceFromClassLoader(ClassloadingUtil.class, className);
+   }
+
+   public static Object newInstanceFromClassLoader(final Class<?> classOwner, final String className) {
+      ClassLoader loader = classOwner.getClassLoader();
       try {
          Class<?> clazz = loader.loadClass(className);
          return clazz.newInstance();
@@ -60,7 +64,11 @@ public final class ClassloadingUtil {
    }
 
    public static Object newInstanceFromClassLoader(final String className, Object... objs) {
-      ClassLoader loader = ClassloadingUtil.class.getClassLoader();
+      return newInstanceFromClassLoader(ClassloadingUtil.class, className, objs);
+   }
+
+   public static Object newInstanceFromClassLoader(final Class<?> classOwner, final String className, Object... objs) {
+      ClassLoader loader = classOwner.getClassLoader();
       try {
          Class<?>[] parametersType = new Class<?>[objs.length];
          for (int i = 0; i < objs.length; i++) {
