@@ -290,9 +290,23 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public int getGroupSequence() {
-      final Integer integer = this.getIntProperty(Message.HDR_GROUP_SEQUENCE);
-      return integer == null ? 0 : integer;
+   public CoreMessage setGroupID(SimpleString groupId) {
+      return this.putStringProperty(Message.HDR_GROUP_ID, groupId);
+   }
+
+   @Override
+   public CoreMessage setGroupID(String groupId) {
+      return this.setGroupID(SimpleString.toSimpleString(groupId, coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool()));
+   }
+
+   @Override
+   public Integer getGroupSequence() {
+      return containsProperty(Message.HDR_GROUP_SEQUENCE) ? getIntProperty(Message.HDR_GROUP_SEQUENCE) : null;
+   }
+
+   @Override
+   public CoreMessage setGroupSequence(int sequence) {
+      return this.putIntProperty(Message.HDR_GROUP_SEQUENCE, sequence);
    }
 
    /**

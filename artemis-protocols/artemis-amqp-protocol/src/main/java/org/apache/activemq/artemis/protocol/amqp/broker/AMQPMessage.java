@@ -918,7 +918,7 @@ public class AMQPMessage extends RefCountMessage {
     *
     * @return the UserID value in the AMQP Properties if one is present.
     */
-   public Object getAMQPUserID() {
+   public String getAMQPUserID() {
       if (properties != null && properties.getUserId() != null) {
          Binary binary = properties.getUserId();
          return new String(binary.getArray(), binary.getArrayOffset(), binary.getLength(), StandardCharsets.UTF_8);
@@ -928,8 +928,13 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
+   public String getValidatedUserID() {
+      return getAMQPUserID();
+   }
+
+   @Override
    public org.apache.activemq.artemis.api.core.Message setUserID(Object userID) {
-      return null;
+      return this;
    }
 
    @Override
@@ -1100,13 +1105,13 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public int getGroupSequence() {
+   public Integer getGroupSequence() {
       ensureMessageDataScanned();
 
       if (properties != null && properties.getGroupSequence() != null) {
          return properties.getGroupSequence().intValue();
       } else {
-         return 0;
+         return null;
       }
    }
 
@@ -1219,6 +1224,8 @@ public class AMQPMessage extends RefCountMessage {
          return getConnectionID();
       } else if (key.equals(MessageUtil.JMSXGROUPID)) {
          return getGroupID();
+      } else if (key.equals(MessageUtil.JMSXGROUPSEQ)) {
+         return getGroupSequence();
       } else if (key.equals(MessageUtil.JMSXUSERID)) {
          return getAMQPUserID();
       } else if (key.equals(MessageUtil.CORRELATIONID_HEADER_NAME.toString())) {

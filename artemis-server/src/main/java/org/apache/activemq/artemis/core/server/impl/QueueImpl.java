@@ -2635,16 +2635,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   private int extractGroupSequence(MessageReference ref) {
+   private Integer extractGroupSequence(MessageReference ref) {
       if (internalQueue) {
-         return 0;
+         return null;
       } else {
          try {
             // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
             return ref.getMessage().getGroupSequence();
          } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.unableToExtractGroupSequence(e);
-            return 0;
+            return null;
          }
       }
    }
@@ -3147,7 +3147,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
       if (groupID != null) {
-         if (extractGroupSequence(ref) == -1) {
+         Integer groupSequence = extractGroupSequence(ref);
+         if (groupSequence != null && groupSequence == -1) {
             groups.remove(groupID);
          }
          if (groupConsumer == null) {
