@@ -423,7 +423,13 @@ You can also configure the connector using the following:
 - `connector-port`
    
   The port to expose the agent on.
-   
+
+- `rmi-registry-port`
+
+  The port that the RMI registry binds to. If not set, the port is
+  always random. Set to avoid problems with remote JMX connections
+  tunnelled through firewall.
+
 - `jmx-realm`
    
   The jmx realm to use for authentication, defaults to `activemq` to match the

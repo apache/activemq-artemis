@@ -96,6 +96,9 @@ public class ManagementFactory {
          if (jmxConnector.getConnectorHost() != null) {
             jmxConnectorConfiguration.setConnectorHost(jmxConnector.getConnectorHost());
          }
+         if (jmxConnector.getRmiRegistryPort() != null) {
+            jmxConnectorConfiguration.setRmiRegistryPort(jmxConnector.getRmiRegistryPort());
+         }
          if (jmxConnector.getJmxRealm() != null) {
             jmxConnectorConfiguration.setJmxRealm(jmxConnector.getJmxRealm());
          }
