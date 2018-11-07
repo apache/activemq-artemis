@@ -1884,6 +1884,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             return oper.getListOnConsumer(consumerId);
          }
       } else {
+         //amqp handles the transaction in callback
+         if (callback != null) {
+            Transaction transaction = callback.getCurrentTransaction();
+            if (transaction != null) {
+               RefsOperation operation = (RefsOperation) transaction.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
+               if (operation != null) {
+                  return operation.getListOnConsumer(consumerId);
+               }
+            }
+         }
          return Collections.emptyList();
       }
    }
