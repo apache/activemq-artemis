@@ -34,6 +34,9 @@ public class JMXConnectorDTO {
    @XmlAttribute  (name = "connector-port", required = true)
    Integer connectorPort;
 
+   @XmlAttribute  (name = "rmi-registry-port")
+   Integer rmiRegistryPort;
+
    @XmlAttribute  (name = "jmx-realm")
    String jmxRealm;
 
@@ -73,6 +76,10 @@ public class JMXConnectorDTO {
 
    public int getConnectorPort() {
       return connectorPort;
+   }
+
+   public Integer getRmiRegistryPort() {
+      return rmiRegistryPort;
    }
 
    public String getJmxRealm() {
