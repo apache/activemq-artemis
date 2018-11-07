@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
@@ -47,6 +48,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
    private final int amqpCredit;
    private final int amqpLowMark;
+   private Transaction currentTx;
 
    final AMQPSessionCallback sessionSPI;
    final AMQPConnectionContext connection;
@@ -58,6 +60,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       this.connection = connection;
       this.amqpCredit = connection.getAmqpCredits();
       this.amqpLowMark = connection.getAmqpLowCredits();
+      this.sessionSPI.setTransactionHandler(this);
    }
 
    @Override
@@ -100,6 +103,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             Binary txID = sessionSPI.newTransaction();
             Declared declared = new Declared();
             declared.setTxnId(txID);
+            currentTx = sessionSPI.getTransaction(txID, false);
             IOCallback ioAction = new IOCallback() {
                @Override
                public void done() {
@@ -115,7 +119,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
                @Override
                public void onError(int errorCode, String errorMessage) {
-
+                  currentTx = null;
                }
             };
             sessionSPI.afterIO(ioAction);
@@ -133,6 +137,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
                   try {
                      delivery.settle();
                      delivery.disposition(new Accepted());
+                     currentTx = null;
                   } finally {
                      connection.unlock();
                      connection.flush();
@@ -191,5 +196,9 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       MessageImpl message = (MessageImpl) Message.Factory.create();
       message.decode(encoded);
       return message;
+   }
+
+   public Transaction getCurrentTransaction() {
+      return currentTx;
    }
 }

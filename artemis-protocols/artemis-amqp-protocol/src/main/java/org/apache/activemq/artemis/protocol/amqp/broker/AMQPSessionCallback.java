@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -108,6 +109,8 @@ public class AMQPSessionCallback implements SessionCallback {
    private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
+
+   private ProtonTransactionHandler transactionHandler;
 
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
@@ -690,6 +693,14 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
+   @Override
+   public Transaction getCurrentTransaction() {
+      if (this.transactionHandler != null) {
+         return this.transactionHandler.getCurrentTransaction();
+      }
+      return null;
+   }
+
    public Transaction getTransaction(Binary txid, boolean remove) throws ActiveMQAMQPException {
       return protonSPI.getTransaction(txid, remove);
    }
@@ -738,6 +749,14 @@ public class AMQPSessionCallback implements SessionCallback {
 
    public void removeProducer(String name) {
       serverSession.removeProducer(name);
+   }
+
+   public void setTransactionHandler(ProtonTransactionHandler transactionHandler) {
+      this.transactionHandler = transactionHandler;
+   }
+
+   public ProtonTransactionHandler getTransactionHandler() {
+      return this.transactionHandler;
    }
 
 
