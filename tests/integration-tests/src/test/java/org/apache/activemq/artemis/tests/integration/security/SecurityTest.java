@@ -23,6 +23,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
@@ -56,6 +61,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -64,6 +70,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -136,6 +143,115 @@ public class SecurityTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true));
          session.commit();
          producer.close();
+         ClientConsumer consumer = session.createConsumer("queue");
+         session.start();
+         ClientMessage message = consumer.receive(1000);
+         assertNotNull(message);
+         assertEquals("first", message.getValidatedUserID());
+         session.close();
+      } catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception");
+      }
+   }
+
+   private JmsConnectionFactory amqpCF() {
+      return new JmsConnectionFactory("amqp://localhost:61616");
+   }
+
+   private ActiveMQConnectionFactory coreCF() {
+      return new ActiveMQConnectionFactory("tcp://localhost:61616");
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUserJMS_CoreProducerCoreConsumer() throws Exception {
+      testJAASSecurityManagerAuthenticationWithValidateUser(coreCF(), coreCF());
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUserJMS_CoreProducerAMQPConsumer() throws Exception {
+      testJAASSecurityManagerAuthenticationWithValidateUser(coreCF(), amqpCF());
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUserJMS_AMQPProducerCoreConsumer() throws Exception {
+      testJAASSecurityManagerAuthenticationWithValidateUser(amqpCF(), coreCF());
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUserJMS_AMQPProducerAMQPConsumer() throws Exception {
+      testJAASSecurityManagerAuthenticationWithValidateUser(amqpCF(), amqpCF());
+   }
+
+   private void testJAASSecurityManagerAuthenticationWithValidateUser(ConnectionFactory producerCF, ConnectionFactory consumerCF) throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(true).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.getConfiguration().setPopulateValidatedUser(true);
+      server.start();
+      Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch("#", roles);
+      server.createQueue(SimpleString.toSimpleString("address"), RoutingType.ANYCAST, SimpleString.toSimpleString("address"), null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try (Connection connection = producerCF.createConnection("first", "secret")) {
+
+         Session session = connection.createSession();
+         MessageProducer messageProducer = session.createProducer(session.createQueue("address"));
+         messageProducer.send(session.createMessage());
+         messageProducer.close();
+      }
+
+      try (Connection connection = consumerCF.createConnection("first", "secret")) {
+         Session session = connection.createSession();
+         MessageConsumer messageConsumer = session.createConsumer(session.createQueue("address"));
+         connection.start();
+         Message message = messageConsumer.receive(1000);
+         assertNotNull(message);
+         assertEquals("first", message.getStringProperty("JMSXUserID"));
+         session.close();
+      } catch (JMSException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception");
+      }
+   }
+
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUserJMSCore() throws Exception {
+      testJAASSecurityManagerAuthenticationWithValidateUser(coreCF());
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUserJMSAMQP() throws Exception {
+      testJAASSecurityManagerAuthenticationWithValidateUser(amqpCF());
+   }
+
+   private void testJAASSecurityManagerAuthenticationWithValidateUser(ConnectionFactory connectionFactory) throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(true).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.getConfiguration().setPopulateValidatedUser(true);
+      server.start();
+      Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch("#", roles);
+      server.createQueue(SimpleString.toSimpleString("address"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue"), null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try (Connection connection = connectionFactory.createConnection("first", "secret")) {
+
+         Session session = connection.createSession();
+         MessageProducer messageProducer = session.createProducer(session.createQueue("address"));
+         messageProducer.send(session.createMessage());
+         messageProducer.close();
+      }
+
+      try {
+         ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
          ClientConsumer consumer = session.createConsumer("queue");
          session.start();
          ClientMessage message = consumer.receive(1000);

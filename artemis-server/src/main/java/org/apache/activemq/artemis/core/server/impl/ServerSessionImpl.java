@@ -1844,8 +1844,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw e;
       }
 
+      final Message message;
       if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
-         msg.setValidatedUserID(validatedUser);
+         message = msg.toCore();
+         message.setValidatedUserID(validatedUser);
+      } else {
+         message = msg;
       }
 
       if (tx == null || autoCommitSends) {
@@ -1857,14 +1861,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          routingContext.setAddress(art.getName());
          routingContext.setRoutingType(art.getRoutingType());
 
-         result = postOffice.route(msg, routingContext, direct);
+         result = postOffice.route(message, routingContext, direct);
 
-         Pair<Object, AtomicLong> value = targetAddressInfos.get(msg.getAddressSimpleString());
+         Pair<Object, AtomicLong> value = targetAddressInfos.get(message.getAddressSimpleString());
 
          if (value == null) {
-            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>(msg.getUserID(), new AtomicLong(1)));
+            targetAddressInfos.put(message.getAddressSimpleString(), new Pair<>(message.getUserID(), new AtomicLong(1)));
          } else {
-            value.setA(msg.getUserID());
+            value.setA(message.getUserID());
             value.getB().incrementAndGet();
          }
       } finally {
