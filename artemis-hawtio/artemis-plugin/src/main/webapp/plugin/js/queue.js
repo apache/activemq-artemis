@@ -102,7 +102,6 @@ var ARTEMIS = (function(ARTEMIS) {
                 if (selection && jolokia && entries) {
                     var domain = selection.domain;
                     var name = entries["Destination"] || entries["destinationName"] || selection.title;
-                    name = name.replace(/['"]+/g, '');
                     name = ARTEMISService.artemisConsole.ownUnescape(name);
                     ARTEMIS.log.info(name);
                     var operation;
