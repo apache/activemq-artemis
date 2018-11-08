@@ -76,6 +76,16 @@ Configuration is done at the address settings in `broker.xml`.
 </address-settings>
 ```
 
+> **Note:**
+> The [management-address](management.md#configuring-management)
+> settings cannot be changed or overridden ie management
+> messages aren't allowed to page/block/fail and are considered
+> an internal broker management mechanism.
+> The memory occupation of the [management-address](management.md#configuring-management)
+> is not considered while evaluating if [global-max-size](#global-max-size)
+> is hit and can't cause other non-management addresses to trigger a
+> configured `address-full-policy`.
+
 This is the list of available parameters on the address settings.
 
 Property Name|Description|Default
