@@ -933,6 +933,16 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
+   public AMQPMessage setValidatedUserID(String validatedUserID) {
+      if (properties == null) {
+         properties = new Properties();
+      }
+      properties.setUserId(Binary.create(StandardCharsets.UTF_8.encode(validatedUserID)));
+      messageChanged();
+      return this;
+   }
+
+   @Override
    public org.apache.activemq.artemis.api.core.Message setUserID(Object userID) {
       return this;
    }
