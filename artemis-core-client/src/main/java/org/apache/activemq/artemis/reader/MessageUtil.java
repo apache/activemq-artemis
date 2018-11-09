@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -174,5 +175,104 @@ public class MessageUtil {
          (MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID)) ||
          (MessageUtil.JMSXGROUPSEQ.equals(name) && message.containsProperty(Message.HDR_GROUP_SEQUENCE)) ||
          (MessageUtil.JMSXUSERID.equals(name) && message.containsProperty(Message.HDR_VALIDATED_USER));
+   }
+
+
+   public static String getStringProperty(final Message message, final String name) {
+      if (MessageUtil.JMSXGROUPID.equals(name)) {
+         return Objects.toString(message.getGroupID(), null);
+      } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         return Integer.toString(message.getGroupSequence());
+      } else if (MessageUtil.JMSXUSERID.equals(name)) {
+         return message.getValidatedUserID();
+      } else {
+         return message.getStringProperty(name);
+      }
+   }
+
+   public static Object getObjectProperty(final Message message, final String name) {
+      final Object val;
+      if (MessageUtil.JMSXGROUPID.equals(name)) {
+         val = message.getGroupID();
+      } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         val = message.getGroupSequence();
+      } else if (MessageUtil.JMSXUSERID.equals(name)) {
+         val = message.getValidatedUserID();
+      } else {
+         val = message.getObjectProperty(name);
+      }
+      if (val instanceof SimpleString) {
+         return val.toString();
+      }
+      return val;
+   }
+
+   public static long getLongProperty(final Message message, final String name) {
+      if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         return message.getGroupSequence();
+      } else {
+         return message.getLongProperty(name);
+      }
+   }
+
+   public static int getIntProperty(final Message message, final String name) {
+      if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         return message.getGroupSequence();
+      } else {
+         return message.getIntProperty(name);
+      }
+   }
+
+   public static void setIntProperty(final Message message, final String name, final int value) {
+      if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         message.setGroupSequence(value);
+      } else {
+         message.putIntProperty(name, value);
+      }
+   }
+
+   public static void setLongProperty(final Message message, final String name, final long value) {
+      if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         message.setGroupSequence((int) value);
+      } else {
+         message.putLongProperty(name, value);
+      }
+   }
+
+   public static void setStringProperty(final Message message, final String name, final String value) {
+      if (MessageUtil.JMSXGROUPID.equals(name)) {
+         message.setGroupID(value);
+      } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         message.setGroupSequence(getInteger(value));
+      } else if (MessageUtil.JMSXUSERID.equals(name)) {
+         message.setValidatedUserID(value);
+      } else {
+         message.putStringProperty(name, value);
+      }
+   }
+
+   public static void setObjectProperty(final Message message,  final String name, final Object value) {
+      if (MessageUtil.JMSXGROUPID.equals(name)) {
+         message.setGroupID(value == null ? null : value.toString());
+      } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         message.setGroupSequence(getInteger(value));
+      } else if (MessageUtil.JMSXUSERID.equals(name)) {
+         message.setValidatedUserID(value == null ? null : value.toString());
+      } else {
+         message.putObjectProperty(name, value);
+      }
+   }
+
+   private static int getInteger(final Object value) {
+      Objects.requireNonNull(value);
+      final int integer;
+      if (value instanceof Integer) {
+         integer = (Integer) value;
+      } else if (value instanceof Number) {
+         integer = ((Number) value).intValue();
+      } else {
+         integer = Integer.parseInt(value.toString());
+      }
+      return integer;
    }
 }
