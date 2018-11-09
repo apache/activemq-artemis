@@ -75,6 +75,11 @@ function ArtemisConsole() {
       //simple return unescape(name); does not work for this :(
       return name.replace(/\\\\/g, "\\").replace(/\\\*/g, "*").replace(/\\\?/g, "?");
    };
+
+   this.isBackup = function (jolokia, mBean) {
+      var req1 = { type: "read", mbean: mBean, attribute: "Backup"};
+      return jolokia.request(req1, {method: "get"});
+   };
 }
 
 function getServerAttributes() {
