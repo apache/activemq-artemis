@@ -250,8 +250,20 @@ public interface Message {
       return null;
    }
 
+   default Message setGroupID(SimpleString groupID) {
+      return this;
+   }
+
+   default Message setGroupID(String groupID) {
+      return this;
+   }
+
    default int getGroupSequence() {
       return 0;
+   }
+
+   default Message setGroupSequence(int sequence) {
+      return this;
    }
 
    SimpleString getReplyTo();

@@ -929,7 +929,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public org.apache.activemq.artemis.api.core.Message setUserID(Object userID) {
-      return null;
+      return this;
    }
 
    @Override
@@ -1219,6 +1219,8 @@ public class AMQPMessage extends RefCountMessage {
          return getConnectionID();
       } else if (key.equals(MessageUtil.JMSXGROUPID)) {
          return getGroupID();
+      } else if (key.equals(MessageUtil.JMSXGROUPSEQ)) {
+         return getGroupSequence();
       } else if (key.equals(MessageUtil.JMSXUSERID)) {
          return getAMQPUserID();
       } else if (key.equals(MessageUtil.CORRELATIONID_HEADER_NAME.toString())) {
