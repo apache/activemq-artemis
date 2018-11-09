@@ -309,8 +309,10 @@ var ARTEMIS = (function(ARTEMIS) {
                   var properties = details['attributes'];
                   ARTEMIS.log.info("Got broker: " + objectName + " on container: " + containerId + " properties: " + angular.toJson(properties, true));
                   if (properties) {
-                     var master = true;
                      var brokerId = properties["broker"] || "unknown";
+                     var brokerName = artemisJmxDomain + ":broker=" + brokerId;
+                     var backupRes = ARTEMISService.artemisConsole.isBackup(jolokia, brokerName);
+                     var isBackup = backupRes.value;
                      var nodeId = val["NodeID"];
                      var theBroker = {
                         brokerId: brokerId,
@@ -318,7 +320,7 @@ var ARTEMIS = (function(ARTEMIS) {
                      };
                      brokers.push(theBroker);
                      if ($scope.viewSettings.broker) {
-                        var broker = getOrAddBroker(master, brokerId, nodeId, containerId, container, properties);
+                        var broker = getOrAddBroker(!isBackup, brokerId, nodeId, containerId, container, properties);
                      }
                   }
                }
@@ -461,10 +463,18 @@ var ARTEMIS = (function(ARTEMIS) {
                               }
                            }
                            else {
-                              var backup = remoteBroker.backup;
-                              if (backup) {
-                                 getOrAddBroker(false, "\"" + remoteBroker.backup + "\"", remoteBroker.nodeID, "remote", null, properties);
-                                 addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.backup + "\"", "network");
+                              var newBackReq = ARTEMISService.artemisConsole.isBackup(jolokia, mBean);
+                              var newBackup = newBackReq.value;
+                              if (!newBackup) {
+                                 if (remoteBroker.backup) {
+                                    getOrAddBroker(false, "\"" + remoteBroker.backup + "\"", remoteBroker.nodeID, "remote", null, properties);
+                                    addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.backup + "\"", "network");
+                                 }
+                              }
+                              else {
+                                 //I am backup
+                                 getOrAddBroker(true, "\"" + remoteBroker.live + "\"", remoteBroker.nodeID, "remote", null, properties);
+                                 addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.live + "\"", "network");
                               }
                            }
                         }
