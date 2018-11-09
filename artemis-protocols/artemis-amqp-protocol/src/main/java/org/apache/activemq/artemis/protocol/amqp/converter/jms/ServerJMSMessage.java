@@ -266,7 +266,11 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final int getIntProperty(String name) throws JMSException {
-      return message.getIntProperty(name);
+      if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
+         return message.getGroupSequence();
+      } else {
+         return message.getIntProperty(name);
+      }
    }
 
    @Override
