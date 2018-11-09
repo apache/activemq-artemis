@@ -21,7 +21,10 @@ import java.util.Enumeration;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -35,6 +38,7 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -835,5 +839,32 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       } finally {
          connection.close();
       }
+   }
+
+   @Test
+   public void testConcurrentSharedConsumerConnections() throws Exception {
+      final int concurrentConnections = 20;
+      final ExecutorService executorService = Executors.newFixedThreadPool(concurrentConnections);
+
+      final AtomicBoolean failedToSubscribe = new AtomicBoolean(false);
+      for (int i = 1; i < concurrentConnections; i++) {
+         executorService.submit(() -> {
+            try (Connection connection = createConnection()) {
+               connection.start();
+               @SuppressWarnings("resource")
+               final Session session = connection.createSession();
+               final Topic topic = session.createTopic("topics.foo");
+               session.createSharedConsumer(topic, "MY_SUB");
+               Thread.sleep(100);
+            } catch (final Exception ex) {
+               ex.printStackTrace();
+               failedToSubscribe.set(true);
+            }
+         });
+      }
+      executorService.shutdown();
+      executorService.awaitTermination(30, TimeUnit.SECONDS);
+
+      assertFalse(failedToSubscribe.get());
    }
 }
