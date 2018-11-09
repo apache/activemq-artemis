@@ -266,16 +266,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final int getIntProperty(String name) throws JMSException {
-      if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
-         return message.getGroupSequence();
-      } else {
-         return message.getIntProperty(name);
-      }
+      return MessageUtil.getIntProperty(message, name);
    }
 
    @Override
    public final long getLongProperty(String name) throws JMSException {
-      return message.getLongProperty(name);
+      return MessageUtil.getLongProperty(message, name);
    }
 
    @Override
@@ -290,16 +286,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final String getStringProperty(String name) throws JMSException {
-      return message.getStringProperty(name);
+      return MessageUtil.getStringProperty(message, name);
    }
 
    @Override
    public final Object getObjectProperty(String name) throws JMSException {
-      Object val = message.getObjectProperty(name);
-      if (val instanceof SimpleString) {
-         val = ((SimpleString) val).toString();
-      }
-      return val;
+      return MessageUtil.getObjectProperty(message, name);
    }
 
    @Override
@@ -324,12 +316,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final void setIntProperty(String name, int value) throws JMSException {
-      message.putIntProperty(name, value);
+      MessageUtil.setIntProperty(message, name, value);
    }
 
    @Override
    public final void setLongProperty(String name, long value) throws JMSException {
-      message.putLongProperty(name, value);
+      MessageUtil.setLongProperty(message, name, value);
    }
 
    @Override
@@ -344,12 +336,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final void setStringProperty(String name, String value) throws JMSException {
-      message.putStringProperty(name, value);
+      MessageUtil.setStringProperty(message, name, value);
    }
 
    @Override
    public final void setObjectProperty(String name, Object value) throws JMSException {
-      message.putObjectProperty(name, value);
+      MessageUtil.setObjectProperty(message, name, value);
    }
 
    @Override
