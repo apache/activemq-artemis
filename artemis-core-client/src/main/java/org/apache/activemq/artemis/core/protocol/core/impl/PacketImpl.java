@@ -361,7 +361,7 @@ public class PacketImpl implements Packet {
       size = buffer.readerIndex();
    }
 
-   protected ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
+   protected static ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
 
       ByteBuf newNettyBuffer = Unpooled.buffer(buffer.capacity() - PACKET_HEADERS_SIZE - skipBytes);
 

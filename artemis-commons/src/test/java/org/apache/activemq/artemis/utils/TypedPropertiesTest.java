@@ -226,6 +226,29 @@ public class TypedPropertiesTest {
       TypedPropertiesTest.assertEqualsTypeProperties(emptyProps, decodedProps);
    }
 
+   private static final SimpleString PROP_NAME = SimpleString.toSimpleString("TEST_PROP");
+
+   @Test
+   public void testRemovePropertyIfEmpty() {
+      TypedProperties properties = new TypedProperties();
+      Assert.assertFalse(properties.removeProperty(PROP_NAME::equals));
+   }
+
+   @Test
+   public void testRemovePropertyWithoutMatch() {
+      TypedProperties properties = new TypedProperties();
+      properties.putBooleanProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBoolean());
+      Assert.assertFalse(properties.removeProperty(PROP_NAME::equals));
+   }
+
+   @Test
+   public void testRemovePropertyWithMatch() {
+      TypedProperties properties = new TypedProperties();
+      properties.putBooleanProperty(PROP_NAME, true);
+      Assert.assertTrue(properties.removeProperty(PROP_NAME::equals));
+      Assert.assertFalse(properties.containsProperty(PROP_NAME));
+   }
+
    @Before
    public void setUp() throws Exception {
       props = new TypedProperties();
