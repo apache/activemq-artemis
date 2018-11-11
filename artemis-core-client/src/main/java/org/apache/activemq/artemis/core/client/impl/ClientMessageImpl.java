@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
-import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 /**
  * A ClientMessageImpl
@@ -113,11 +112,6 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
                             final byte priority,
                             final int initialMessageBufferSize) {
       this(type, durable, expiration, timestamp, priority, initialMessageBufferSize, null);
-   }
-
-   @Override
-   public TypedProperties getProperties() {
-      return this.checkProperties();
    }
 
    @Override

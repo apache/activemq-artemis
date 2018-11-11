@@ -167,11 +167,6 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
    }
 
    @Override
-   public boolean hasInternalProperties() {
-      return message.getTypedProperties().hasInternalProperties();
-   }
-
-   @Override
    public boolean storeIsPaging() {
       throw new UnsupportedOperationException();
    }
