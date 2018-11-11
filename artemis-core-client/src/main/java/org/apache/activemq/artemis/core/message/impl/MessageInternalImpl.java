@@ -692,7 +692,7 @@ public class MessageInternalImpl implements MessageInternal {
 
    @Override
    public TypedProperties getTypedProperties() {
-      return new TypedProperties(message.getTypedProperties());
+      return new TypedProperties(message.getProperties());
    }
 
    @Override

@@ -47,9 +47,6 @@ public interface ServerMessage extends MessageInternal {
 
    PagingStore getPagingStore();
 
-   // Is there any _AMQ_ property being used
-   boolean hasInternalProperties();
-
    boolean storeIsPaging();
 
    void encodeMessageIDToBuffer();
