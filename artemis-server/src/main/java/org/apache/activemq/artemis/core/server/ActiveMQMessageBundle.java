@@ -441,4 +441,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229215, value = "Cannot delete queue {0} on binding {1} - it has {2} messages", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException cannotDeleteQueueWithMessages(SimpleString name, SimpleString queueName, long messageCount);
+
+   @Message(id = 229216, value = "Invalid queue name: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException invalidQueueName(SimpleString queueName);
 }

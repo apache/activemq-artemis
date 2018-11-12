@@ -89,6 +89,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -733,7 +734,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public AddressInfo createAddress(final SimpleString address,
                                     EnumSet<RoutingType> routingTypes,
                                     final boolean autoCreated) throws Exception {
-      Pair<SimpleString, EnumSet<RoutingType>> art = getAddressAndRoutingTypes(address, routingTypes);
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Pair<SimpleString, EnumSet<RoutingType>> art = getAddressAndRoutingTypes(realAddress, routingTypes);
       securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
       server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
       return server.getAddressInfo(art.getA());

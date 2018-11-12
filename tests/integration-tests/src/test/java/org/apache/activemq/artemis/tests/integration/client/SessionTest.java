@@ -236,7 +236,7 @@ public class SessionTest extends ActiveMQTestBase {
       QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
       Assert.assertFalse(resp.isExists());
       Assert.assertFalse(resp.isAutoCreateQueues());
-      Assert.assertEquals(null, resp.getAddress());
+      Assert.assertEquals(queueName, resp.getAddress().toString());
       clientSession.close();
    }
 

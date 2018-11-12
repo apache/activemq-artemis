@@ -73,7 +73,7 @@ public class MQTTFQQNTest extends MQTTTestSupport {
          result = server.queueQuery(new SimpleString("foo.bah::" + b.getUniqueName()));
          assertTrue(result.isExists());
          assertEquals(new SimpleString("foo.bah"), result.getAddress());
-         assertEquals(new SimpleString("foo.bah::" + b.getUniqueName()), result.getName());
+         assertEquals(b.getUniqueName(), result.getName());
       } finally {
          subscriptionProvider.disconnect();
       }
@@ -162,7 +162,7 @@ public class MQTTFQQNTest extends MQTTTestSupport {
          QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));
          assertTrue(result.isExists());
          assertEquals(new SimpleString("foo.bah"), result.getAddress());
-         assertEquals(new SimpleString("::" + b.getUniqueName()), result.getName());
+         assertEquals(b.getUniqueName(), result.getName());
 
          //check queue::
          result = server.queueQuery(new SimpleString(b.getUniqueName() + "::"));
