@@ -317,9 +317,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          //find out if we have an address made up of the address and queue name, if yes then set queue name
          if (CompositeAddress.isFullyQualified(source.getAddress())) {
-            CompositeAddress compositeAddress = CompositeAddress.getQueueName(source.getAddress());
-            addressToUse = new SimpleString(compositeAddress.getAddress());
-            queueNameToUse = new SimpleString(compositeAddress.getQueueName());
+            addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
+            queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
          } else {
             addressToUse = new SimpleString(source.getAddress());
          }

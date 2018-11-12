@@ -71,6 +71,8 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     */
    private final MatchComparator matchComparator;
 
+   private final MatchModifier matchModifier;
+
    private final WildcardConfiguration wildcardConfiguration;
 
    /**
@@ -104,8 +106,13 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration) {
+      this(wildcardConfiguration, new MatchModifier() { });
+   }
+
+   public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration, final MatchModifier matchModifier) {
       this.wildcardConfiguration = wildcardConfiguration == null ? DEFAULT_WILDCARD_CONFIGURATION : wildcardConfiguration;
       this.matchComparator = new MatchComparator(this.wildcardConfiguration);
+      this.matchModifier = matchModifier;
    }
 
    @Override
@@ -164,14 +171,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private void addMatch(final String match, final T value, final boolean immutableMatch, boolean notifyListeners) {
       lock.writeLock().lock();
       try {
+         String modifiedMatch = matchModifier.modify(match);
          clearCache();
 
          if (immutableMatch) {
-            immutables.add(match);
+            immutables.add(modifiedMatch);
          }
-         Match.verify(match, wildcardConfiguration);
-         Match<T> match1 = new Match<>(match, value, wildcardConfiguration);
-         matches.put(match, match1);
+         Match.verify(modifiedMatch, wildcardConfiguration);
+         Match<T> match1 = new Match<>(modifiedMatch, value, wildcardConfiguration);
+         matches.put(modifiedMatch, match1);
       } finally {
          lock.writeLock().unlock();
       }
@@ -195,19 +203,20 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     */
    @Override
    public T getMatch(final String match) {
-      T cacheResult = cache.get(match);
+      String modifiedMatch = matchModifier.modify(match);
+      T cacheResult = cache.get(modifiedMatch);
       if (cacheResult != null) {
          return cacheResult;
       }
       lock.readLock().lock();
       try {
          T actualMatch;
-         Map<String, Match<T>> possibleMatches = getPossibleMatches(match);
+         Map<String, Match<T>> possibleMatches = getPossibleMatches(modifiedMatch);
          Collection<Match<T>> orderedMatches = sort(possibleMatches);
          actualMatch = merge(orderedMatches);
          T value = actualMatch != null ? actualMatch : defaultmatch;
          if (value != null) {
-            cache.put(match, value);
+            cache.put(modifiedMatch, value);
          }
          return value;
       } finally {
@@ -262,16 +271,17 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    public void removeMatch(final String match) {
       lock.writeLock().lock();
       try {
-         boolean isImmutable = immutables.contains(match);
+         String modMatch = matchModifier.modify(match);
+         boolean isImmutable = immutables.contains(modMatch);
          if (isImmutable) {
-            logger.debug("Cannot remove match " + match + " since it came from a main config");
+            logger.debug("Cannot remove match " + modMatch + " since it came from a main config");
          } else {
             /**
              * clear the cache before removing the match. This will force any thread at
              * {@link #getMatch(String)} to get the lock to recompute.
              */
             clearCache();
-            matches.remove(match);
+            matches.remove(modMatch);
             onChange();
          }
       } finally {
@@ -385,6 +395,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          }
       }
       return possibleMatches;
+   }
+
+   /**
+    * Modifies the match String for any add or get from the repository
+    */
+   public interface MatchModifier {
+      default String modify(String input) {
+         return input;
+      }
    }
 
    /**
