@@ -83,8 +83,8 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
 
          openwireConnection.start();
 
-         Queue q1 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue1"));
-         Queue q2 = session.createQueue(CompositeAddress.toFullQN(forwardAddress, "queue2"));
+         Queue q1 = session.createQueue(CompositeAddress.toFullyQualified(testAddress, "queue1"));
+         Queue q2 = session.createQueue(CompositeAddress.toFullyQualified(forwardAddress, "queue2"));
 
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);
@@ -153,8 +153,8 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
             producer.send(message);
          }
 
-         Queue q1 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue1"));
-         Queue q2 = session.createQueue(CompositeAddress.toFullQN(forwardAddress, "queue2"));
+         Queue q1 = session.createQueue(CompositeAddress.toFullyQualified(testAddress, "queue1"));
+         Queue q2 = session.createQueue(CompositeAddress.toFullyQualified(forwardAddress, "queue2"));
 
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);

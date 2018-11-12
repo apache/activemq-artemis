@@ -200,7 +200,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       @Override
       public Bindings createBindings(SimpleString address) throws Exception {
-         return new BindignsFake();
+         return new BindingsFake();
       }
    }
 
@@ -302,7 +302,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
    }
 
-   class BindignsFake implements Bindings {
+   class BindingsFake implements Bindings {
 
       ArrayList<Binding> bindings = new ArrayList<>();
 
