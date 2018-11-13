@@ -501,11 +501,13 @@ public final class JMSBridgeImpl implements JMSBridge {
             }
          }
 
-         try {
-            sourceConn.close();
-         } catch (Exception ignore) {
-            if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to close source conn", ignore);
+         if (sourceConn != null) {
+            try {
+               sourceConn.close();
+            } catch (Exception ignore) {
+               if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
+                  ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to close source conn", ignore);
+               }
             }
          }
 
@@ -517,6 +519,12 @@ public final class JMSBridgeImpl implements JMSBridge {
                   ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to close target conn", ignore);
                }
             }
+         }
+
+         if (messages.size() > 0) {
+            // Clear outstanding messages so they don't get retransmitted and duplicated on the other side of the bridge
+            ActiveMQJMSBridgeLogger.LOGGER.trace("Clearing up messages before stopping...");
+            messages.clear();
          }
 
          if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
@@ -1189,11 +1197,13 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private void cleanup() {
       // Stop the source connection
-      try {
-         sourceConn.stop();
-      } catch (Throwable ignore) {
-         if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to stop source connection", ignore);
+      if (sourceConn != null) {
+         try {
+            sourceConn.stop();
+         } catch (Throwable ignore) {
+            if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
+               ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to stop source connection", ignore);
+            }
          }
       }
 
@@ -1217,11 +1227,13 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
 
       // Close the old objects
-      try {
-         sourceConn.close();
-      } catch (Throwable ignore) {
-         if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to close source connection", ignore);
+      if (sourceConn != null) {
+         try {
+            sourceConn.close();
+         } catch (Throwable ignore) {
+            if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
+               ActiveMQJMSBridgeLogger.LOGGER.trace("Failed to close source connection", ignore);
+            }
          }
       }
       try {

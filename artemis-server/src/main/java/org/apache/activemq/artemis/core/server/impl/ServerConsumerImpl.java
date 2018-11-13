@@ -1200,6 +1200,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          this.chunkBytes = null;
       }
 
+      @Override
+      public String toString() {
+         return "ServerConsumerImpl$LargeMessageDeliverer[ref=[" + ref + "]]";
+      }
+
       private ByteBuffer acquireHeapBodyBuffer(int requiredCapacity) {
          if (this.chunkBytes == null || this.chunkBytes.capacity() != requiredCapacity) {
             this.chunkBytes = ByteBuffer.allocate(requiredCapacity);
