@@ -797,6 +797,40 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       }
    }
 
+   @Test
+   public void testConnectionFactoryPropertiesApplyToRecoveryConfig() throws Exception {
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession(false, false, false);
+      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
+      session.createQueue(queue.getSimpleAddress(), queue.getSimpleAddress(), true);
+      session.close();
+
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+      ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      ra.setUserName("userGlobal");
+      ra.setPassword("passwordGlobal");
+      ra.setConnectionTTL(100L);
+      ra.setCallFailoverTimeout(100L);
+      ra.start(new BootstrapContext());
+
+      Set<XARecoveryConfig> resources = ra.getRecoveryManager().getResources();
+      assertEquals(100L, ra.getDefaultActiveMQConnectionFactory().getServerLocator().getConnectionTTL());
+      assertEquals(100L, ra.getDefaultActiveMQConnectionFactory().getServerLocator().getCallFailoverTimeout());
+
+
+      for (XARecoveryConfig resource : resources) {
+         assertEquals(100L, resource.createServerLocator().getConnectionTTL());
+         assertEquals(100L, resource.createServerLocator().getCallFailoverTimeout());
+      }
+
+      ra.stop();
+      assertEquals(0, resources.size());
+      locator.close();
+
+   }
+
    @Override
    public boolean useSecurity() {
       return false;
