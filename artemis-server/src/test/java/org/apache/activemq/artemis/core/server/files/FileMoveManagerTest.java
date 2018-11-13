@@ -352,11 +352,12 @@ public class FileMoveManagerTest {
 
    private void checkFile(File bkpFolder, String file) throws IOException {
       File fileRead = new File(bkpFolder, file);
-      InputStreamReader stream = new InputStreamReader(new FileInputStream(fileRead));
-      BufferedReader reader = new BufferedReader(stream);
-      String valueRead = reader.readLine();
-      int id = Integer.parseInt(file.substring(0, file.indexOf('.')));
-      Assert.assertEquals("content of the file wasn't the expected", id, Integer.parseInt(valueRead));
+      try (InputStreamReader stream = new InputStreamReader(new FileInputStream(fileRead))) {
+         BufferedReader reader = new BufferedReader(stream);
+         String valueRead = reader.readLine();
+         int id = Integer.parseInt(file.substring(0, file.indexOf('.')));
+         Assert.assertEquals("content of the file wasn't the expected", id, Integer.parseInt(valueRead));
+      }
    }
 
 }
