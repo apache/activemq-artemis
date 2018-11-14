@@ -1403,8 +1403,9 @@
                <executions>
                   <execution>
                      <id>attach-sources</id>
+                     <phase>verify</phase>
                      <goals>
-                        <goal>jar</goal>
+                        <goal>jar-no-fork</goal>
                      </goals>
                   </execution>
                </executions>
@@ -1518,14 +1519,6 @@
          </plugin>
          <plugin>
             <artifactId>maven-source-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>verify</phase>
-                  <goals>
-                     <goal>jar</goal>
-                  </goals>
-               </execution>
-            </executions>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
