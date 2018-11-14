@@ -311,6 +311,10 @@ public class ClusterController implements ActiveMQComponent {
       this.replicatedClusterName = new SimpleString(replicatedClusterName);
    }
 
+   public Map<SimpleString, ServerLocatorInternal> getLocators() {
+      return this.locators;
+   }
+
    /**
     * a handler for handling packets sent between the cluster.
     */
