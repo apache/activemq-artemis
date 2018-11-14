@@ -291,8 +291,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public int getGroupSequence() {
-      final Integer integer = this.getIntProperty(Message.HDR_GROUP_SEQUENCE);
-      return integer == null ? 0 : integer;
+      return containsProperty(Message.HDR_GROUP_SEQUENCE) ? getIntProperty(Message.HDR_GROUP_SEQUENCE) : 0;
    }
 
    /**
