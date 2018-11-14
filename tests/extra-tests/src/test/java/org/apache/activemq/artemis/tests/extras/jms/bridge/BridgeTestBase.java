@@ -459,7 +459,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
          // Consume the messages
 
          for (int i = 0; i < numMessages; i++) {
-            Message tm = cons.receive(30000);
+            Message tm = cons.receive(3000);
 
             Assert.assertNotNull(tm);
 
@@ -517,7 +517,9 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
          managementService = server1.getManagementService();
       }
       QueueControl queueControl = (QueueControl) managementService.getResource("queue." + queueName);
-      queueControl.removeMessages(null);
+      if (queueControl != null) {
+         queueControl.removeMessages(null);
+      }
    }
 
    protected TransactionManager newTransactionManager() {
