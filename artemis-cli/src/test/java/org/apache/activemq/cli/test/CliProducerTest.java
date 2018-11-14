@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.jms.Connection;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -75,7 +74,7 @@ public class CliProducerTest extends CliTestBase {
    private void checkSentMessages(Session session, String address, String messageBody) throws Exception {
       final boolean isCustomMessageBody = messageBody != null;
       boolean fqqn = false;
-      if (address.startsWith("fqqn://")) fqqn = true;
+      if (address.contains("::")) fqqn = true;
 
       List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, fqqn);
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
@@ -84,17 +83,10 @@ public class CliProducerTest extends CliTestBase {
       }
    }
 
-   private Session createSession() throws JMSException {
-      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      connection.start();
-
-      return session;
-   }
-
    @Test
    public void testSendMessage() throws Exception {
       String address = "test";
-      Session session = createSession();
+      Session session = createSession(connection);
 
       produceMessages(address, TEST_MESSAGE_COUNT);
 
@@ -108,7 +100,7 @@ public class CliProducerTest extends CliTestBase {
       String fqqn = address + "::" + queue;
 
       createQueue("--multicast", address, queue);
-      Session session = createSession();
+      Session session = createSession(connection);
 
       produceMessages("topic://" + address, TEST_MESSAGE_COUNT);
 
@@ -123,7 +115,7 @@ public class CliProducerTest extends CliTestBase {
       String messageBody = new StringGenerator().generateRandomString(20);
 
       createQueue("--multicast", address, queue);
-      Session session = createSession();
+      Session session = createSession(connection);
 
       produceMessages("topic://" + address, messageBody, TEST_MESSAGE_COUNT);
 
@@ -135,7 +127,7 @@ public class CliProducerTest extends CliTestBase {
       String address = "test";
       String messageBody = new StringGenerator().generateRandomString(20);
 
-      Session session = createSession();
+      Session session = createSession(connection);
 
       produceMessages(address, messageBody, TEST_MESSAGE_COUNT);
 
@@ -147,7 +139,7 @@ public class CliProducerTest extends CliTestBase {
       String address = "test";
       String messageBody = new StringGenerator().generateRandomString(500000);
 
-      Session session = createSession();
+      Session session = createSession(connection);
 
       produceMessages(address, messageBody, TEST_MESSAGE_COUNT);
 
