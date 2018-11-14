@@ -209,15 +209,17 @@ public class CoreAmqpConverter {
          if (key.startsWith("JMSX")) {
             if (key.equals("JMSXUserID")) {
                String value = message.getStringProperty(key);
-               properties.setUserId(new Binary(value.getBytes(StandardCharsets.UTF_8)));
+               if (value != null) {
+                  properties.setUserId(Binary.create(StandardCharsets.UTF_8.encode(value)));
+               }
                continue;
             } else if (key.equals("JMSXGroupID")) {
                String value = message.getStringProperty(key);
                properties.setGroupId(value);
                continue;
             } else if (key.equals("JMSXGroupSeq")) {
-               UnsignedInteger value = new UnsignedInteger(message.getIntProperty(key));
-               properties.setGroupSequence(value);
+               int value = message.getIntProperty(key);
+               properties.setGroupSequence(UnsignedInteger.valueOf(value));
                continue;
             }
          } else if (key.startsWith(JMS_AMQP_PREFIX)) {
@@ -281,9 +283,13 @@ public class CoreAmqpConverter {
                footerMap.put(name, message.getObjectProperty(key));
                continue;
             }
-         } else if (key.equals("_AMQ_GROUP_ID")) {
+         } else if (key.equals(Message.HDR_GROUP_ID)) {
             String value = message.getStringProperty(key);
             properties.setGroupId(value);
+            continue;
+         } else if (key.equals(Message.HDR_GROUP_SEQUENCE)) {
+            int value = message.getIntProperty(key);
+            properties.setGroupSequence(UnsignedInteger.valueOf(value));
             continue;
          } else if (key.equals(NATIVE_MESSAGE_ID)) {
             // skip..internal use only

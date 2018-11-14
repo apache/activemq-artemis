@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -565,10 +564,8 @@ public class ActiveMQMessage implements javax.jms.Message {
       try {
          if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
             return message.getDeliveryCount();
-         } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
-            return message.getGroupSequence();
          } else {
-            return message.getIntProperty(name);
+            return MessageUtil.getIntProperty(message, name);
          }
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
@@ -580,10 +577,8 @@ public class ActiveMQMessage implements javax.jms.Message {
       try {
          if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
             return message.getDeliveryCount();
-         } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
-            return message.getGroupSequence();
          } else {
-            return message.getLongProperty(name);
+            return MessageUtil.getLongProperty(message, name);
          }
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
@@ -613,17 +608,8 @@ public class ActiveMQMessage implements javax.jms.Message {
       if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
          return String.valueOf(message.getDeliveryCount());
       }
-
       try {
-         if (MessageUtil.JMSXGROUPID.equals(name)) {
-            return Objects.toString(message.getGroupID(), null);
-         } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
-            return Integer.toString(message.getGroupSequence());
-         } else if (MessageUtil.JMSXUSERID.equals(name)) {
-            return message.getValidatedUserID();
-         } else {
-            return message.getStringProperty(name);
-         }
+         return MessageUtil.getStringProperty(message, name);
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -631,22 +617,10 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public Object getObjectProperty(final String name) throws JMSException {
-      final Object val;
       if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         val = message.getDeliveryCount();
-      } else if (MessageUtil.JMSXGROUPID.equals(name)) {
-         val = message.getGroupID();
-      } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
-         val = message.getGroupSequence();
-      } else if (MessageUtil.JMSXUSERID.equals(name)) {
-         val = message.getValidatedUserID();
-      } else {
-         val = message.getObjectProperty(name);
+         return message.getDeliveryCount();
       }
-      if (val instanceof SimpleString) {
-         return val.toString();
-      }
-      return val;
+      return MessageUtil.getObjectProperty(message, name);
    }
 
    @Override
@@ -676,19 +650,13 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
       checkProperty(name);
-      if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
-         return;
-      }
-      message.putIntProperty(name, value);
+      MessageUtil.setIntProperty(message, name, value);
    }
 
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
       checkProperty(name);
-      if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
-         return;
-      }
-      message.putLongProperty(name, value);
+      MessageUtil.setLongProperty(message, name, value);
    }
 
    @Override
@@ -706,29 +674,12 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public void setStringProperty(final String name, final String value) throws JMSException {
       checkProperty(name);
-
-      if (handleCoreStringProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
-         return;
-      } else if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
-         return;
-      } else if (handleCoreStringProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
-         return;
-      } else {
-         message.putStringProperty(name, value);
-      }
+      MessageUtil.setStringProperty(message, name, value);
    }
 
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
-      if (handleCoreStringProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
-         return;
-      }
-      if (handleCoreIntegerProperty(name, value, MessageUtil.JMSXGROUPSEQ, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE)) {
-         return;
-      }
-      if (handleCoreStringProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
-         return;
-      }
+
 
       if (ActiveMQJMSConstants.JMS_ACTIVEMQ_OUTPUT_STREAM.equals(name)) {
          setOutputStream((OutputStream) value);
@@ -749,7 +700,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       checkProperty(name);
 
       try {
-         message.putObjectProperty(name, value);
+         MessageUtil.setObjectProperty(message, name, value);
       } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
@@ -1001,58 +952,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       if (priority < 0 || priority > 9) {
          throw new JMSException(priority + " is not valid: priority must be between 0 and 9");
       }
-   }
-
-   private boolean handleCoreIntegerProperty(final String name,
-                                            final Object value,
-                                            String jmsPropertyName,
-                                            SimpleString corePropertyName) {
-      if (jmsPropertyName.equals(name)) {
-         return handleCoreIntegerProperty(name, getInteger(value), jmsPropertyName, corePropertyName);
-      }
-      return false;
-   }
-
-   private boolean handleCoreIntegerProperty(final String name,
-                                             final int value,
-                                             String jmsPropertyName,
-                                             SimpleString corePropertyName) {
-      boolean result = false;
-
-      if (jmsPropertyName.equals(name)) {
-         message.putIntProperty(corePropertyName, value);
-         result = true;
-      }
-
-      return result;
-   }
-
-   private static int getInteger(final Object value) {
-      Objects.requireNonNull(value);
-      final int integer;
-      if (value instanceof Integer) {
-         integer = (Integer) value;
-      } else if (value instanceof Number) {
-         integer = ((Number) value).intValue();
-      } else {
-         integer = Integer.parseInt(value.toString());
-      }
-      return integer;
-   }
-
-   private boolean handleCoreStringProperty(final String name,
-                                            final Object value,
-                                            String jmsPropertyName,
-                                            SimpleString corePropertyName) {
-      boolean result = false;
-
-      if (jmsPropertyName.equals(name)) {
-         message.putStringProperty(corePropertyName, value == null ? null : value.toString());
-
-         result = true;
-      }
-
-      return result;
    }
 
    // Inner classes -------------------------------------------------
