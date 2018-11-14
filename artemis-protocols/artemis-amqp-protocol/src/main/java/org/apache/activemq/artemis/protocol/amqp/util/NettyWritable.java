@@ -86,6 +86,11 @@ public class NettyWritable implements WritableBuffer {
    }
 
    @Override
+   public void ensureRemaining(int remaining) {
+      nettyBuffer.ensureWritable(remaining);
+   }
+
+   @Override
    public int position() {
       return nettyBuffer.writerIndex();
    }
