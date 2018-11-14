@@ -173,9 +173,9 @@ public final class OpenWireMessageConverter {
       }
       final String groupId = messageSend.getGroupID();
       if (groupId != null) {
-         coreMessage.putStringProperty(AMQ_MSG_GROUP_ID, coreMessageObjectPools.getGroupIdStringSimpleStringPool().getOrCreate(groupId));
+         coreMessage.setGroupID(groupId);
       }
-      coreMessage.putIntProperty(AMQ_MSG_GROUP_SEQUENCE, messageSend.getGroupSequence());
+      coreMessage.setGroupSequence(messageSend.getGroupSequence());
 
       final MessageId messageId = messageSend.getMessageId();
 
@@ -614,11 +614,7 @@ public final class OpenWireMessageConverter {
          amqMsg.setGroupID(groupId);
       }
 
-      Integer groupSequence = (Integer) coreMessage.getObjectProperty(AMQ_MSG_GROUP_SEQUENCE);
-      if (groupSequence == null) {
-         groupSequence = 0;
-      }
-      amqMsg.setGroupSequence(groupSequence);
+      amqMsg.setGroupSequence(coreMessage.getGroupSequence());
 
       final MessageId mid;
       final byte[] midBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_MESSAGE_ID);
