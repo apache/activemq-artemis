@@ -1164,7 +1164,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          Assert.assertEquals(0, tm.getJMSExpiration());
 
-         m = cons.receive(5000);
+         m = cons.receive(500);
 
          Assert.assertNull(m);
 
@@ -1615,7 +1615,7 @@ public class JMSBridgeTest extends BridgeTestBase {
       try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, NUM_MESSAGES, -1, null, null, false).setBridgeName("test-bridge");
+         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 500, 10, qosMode, NUM_MESSAGES, -1, null, null, false).setBridgeName("test-bridge");
 
          bridge.start();
 
