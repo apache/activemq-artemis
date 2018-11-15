@@ -723,7 +723,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQServerPlugin>() {
          @Override
          public ActiveMQServerPlugin run() {
-            return (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(clazz);
+            return (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
          }
       });
 
@@ -926,7 +926,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged(new PrivilegedAction<SecuritySettingPlugin>() {
          @Override
          public SecuritySettingPlugin run() {
-            return (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(clazz);
+            return (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
          }
       });
 
