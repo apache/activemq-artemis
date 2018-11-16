@@ -113,7 +113,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public String countDeliveringMessages(final String filter, final String groupByFilter) throws Exception {
-            return (String) proxy.invokeOperation(String.class, "countDeliveringProperty", filter, groupByFilter);
+            return (String) proxy.invokeOperation(String.class, "countDeliveringMessages", filter, groupByFilter);
          }
 
          @Override
