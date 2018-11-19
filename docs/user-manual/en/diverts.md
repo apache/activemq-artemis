@@ -14,12 +14,22 @@ and a *copy* of it is also sent to the new address. Non-exclusive
 diverts can therefore be used for *splitting* message flows, e.g. there
 may be a requirement to monitor every order sent to an order queue.
 
-Diverts can also be configured to have an optional message filter. If
-specified then only messages that match the filter will be diverted.
-
 When an address has both exclusive and non-exclusive diverts configured,
 the exclusive ones are processed first. If any of the exclusive diverts
 diverted the message, the non-exclusive ones are not processed.
+
+Diverts can also be configured to have an optional message filter. If
+specified then only messages that match the filter will be diverted.
+
+Diverts can apply a particular routing-type to the message, strip the
+existing routing type, or simply pass the existing routing-type through.
+This is useful in situations where the message may have its routing-type
+set but you want to divert it to an address using a different routing-type.
+It's important to keep in mind that a message with the `anycast`
+routing-type will not actually be routed to queues using `multicast` and
+vice-versa. By configuring the `routing-type` of the divert you have the
+flexibility to deal with any situation. Valid values are `ANYCAST`,
+`MULTICAST`, `PASS`, & `STRIP`. The default is `STRIP`.
 
 Diverts can also be configured to apply a `Transformer`. If specified,
 all diverted messages will have the opportunity of being transformed by
