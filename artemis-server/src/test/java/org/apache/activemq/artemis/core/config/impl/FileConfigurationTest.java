@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
@@ -246,6 +247,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
             Assert.assertEquals(444, bc.getProducerWindowSize());
             Assert.assertEquals(1073741824, bc.getConfirmationWindowSize());
+            Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, bc.getRoutingType());
          } else if (bc.getName().equals("bridge2")) {
             Assert.assertEquals("bridge2", bc.getName());
             Assert.assertEquals("queue2", bc.getQueueName());
@@ -255,6 +257,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(null, bc.getStaticConnectors());
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
             Assert.assertEquals(568320, bc.getProducerWindowSize());
+            Assert.assertEquals(ComponentConfigurationRoutingType.PASS, bc.getRoutingType());
          } else {
             Assert.assertEquals("bridge3", bc.getName());
             Assert.assertEquals("org.foo.BridgeTransformer3", bc.getTransformerConfiguration().getClassName());

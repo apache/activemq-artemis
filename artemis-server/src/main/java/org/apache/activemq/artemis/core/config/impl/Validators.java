@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.config.impl;
 import java.util.EnumSet;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -200,14 +200,14 @@ public final class Validators {
       }
    };
 
-   public static final Validator DIVERT_ROUTING_TYPE = new Validator() {
+   public static final Validator COMPONENT_ROUTING_TYPE = new Validator() {
       @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
-         if (val == null || !val.equals(DivertConfigurationRoutingType.ANYCAST.toString()) &&
-            !val.equals(DivertConfigurationRoutingType.MULTICAST.toString()) &&
-            !val.equals(DivertConfigurationRoutingType.PASS.toString()) &&
-            !val.equals(DivertConfigurationRoutingType.STRIP.toString())) {
+         if (val == null || !val.equals(ComponentConfigurationRoutingType.ANYCAST.toString()) &&
+            !val.equals(ComponentConfigurationRoutingType.MULTICAST.toString()) &&
+            !val.equals(ComponentConfigurationRoutingType.PASS.toString()) &&
+            !val.equals(ComponentConfigurationRoutingType.STRIP.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
          }
       }
