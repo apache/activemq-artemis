@@ -65,7 +65,7 @@ import org.apache.activemq.artemis.core.config.storage.FileStorageConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -1781,6 +1781,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String user = getString(brNode, "user", ActiveMQDefaultConfiguration.getDefaultClusterUser(), Validators.NO_CHECK);
 
+      ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(brNode, "routing-type", ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType(), Validators.COMPONENT_ROUTING_TYPE));
+
+
       NodeList clusterPassNodes = brNode.getElementsByTagName("password");
       String password = null;
 
@@ -1825,7 +1828,28 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          transformerConfiguration = getTransformerConfiguration(transformerClassName);
       }
 
-      BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setMaxRetryInterval(maxRetryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setHA(ha).setUser(user).setPassword(password);
+      BridgeConfiguration config = new BridgeConfiguration()
+         .setName(name)
+         .setQueueName(queueName)
+         .setForwardingAddress(forwardingAddress)
+         .setFilterString(filterString)
+         .setTransformerConfiguration(transformerConfiguration)
+         .setMinLargeMessageSize(minLargeMessageSize)
+         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+         .setConnectionTTL(connectionTTL)
+         .setRetryInterval(retryInterval)
+         .setMaxRetryInterval(maxRetryInterval)
+         .setRetryIntervalMultiplier(retryIntervalMultiplier)
+         .setInitialConnectAttempts(initialConnectAttempts)
+         .setReconnectAttempts(reconnectAttempts)
+         .setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode)
+         .setUseDuplicateDetection(useDuplicateDetection)
+         .setConfirmationWindowSize(confirmationWindowSize)
+         .setProducerWindowSize(producerWindowSize)
+         .setHA(ha)
+         .setUser(user)
+         .setPassword(password)
+         .setRoutingType(routingType);
 
       if (!staticConnectorNames.isEmpty()) {
          config.setStaticConnectors(staticConnectorNames);
@@ -1861,7 +1885,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String transformerClassName = getString(e, "transformer-class-name", null, Validators.NO_CHECK);
 
-      DivertConfigurationRoutingType routingType = DivertConfigurationRoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), Validators.DIVERT_ROUTING_TYPE));
+      ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), Validators.COMPONENT_ROUTING_TYPE));
 
       TransformerConfiguration transformerConfiguration = null;
 
