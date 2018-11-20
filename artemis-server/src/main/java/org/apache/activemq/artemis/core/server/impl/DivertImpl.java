@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Divert;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.jboss.logging.Logger;
@@ -51,7 +51,7 @@ public class DivertImpl implements Divert {
 
    private final StorageManager storageManager;
 
-   private final DivertConfigurationRoutingType routingType;
+   private final ComponentConfigurationRoutingType routingType;
 
    public DivertImpl(final SimpleString forwardAddress,
                      final SimpleString uniqueName,
@@ -61,7 +61,7 @@ public class DivertImpl implements Divert {
                      final Transformer transformer,
                      final PostOffice postOffice,
                      final StorageManager storageManager,
-                     final DivertConfigurationRoutingType routingType) {
+                     final ComponentConfigurationRoutingType routingType) {
       this.forwardAddress = forwardAddress;
 
       this.uniqueName = uniqueName;

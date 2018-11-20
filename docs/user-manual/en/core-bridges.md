@@ -60,6 +60,7 @@ actually from the bridge example):
    <confirmation-window-size>10000000</confirmation-window-size>
    <user>foouser</user>
    <password>foopassword</password>
+   <routing-type>PASS</routing-type>
    <static-connectors>
       <connector-ref>remote-connector</connector-ref>
    </static-connectors>
@@ -193,6 +194,16 @@ Let's take a look at all the parameters in turn:
   creating the bridge connection to the remote server. If it is not specified
   the default cluster password specified by `cluster-password` in `broker.xml`
   will be used.
+
+- `routing-type`. Bridges can apply a particular routing-type to the messages it
+  forwards, strip the existing routing type, or simply pass the existing
+  routing-type through. This is useful in situations where the message may have
+  its routing-type set but you want to bridge it to an address using a different
+  routing-type. It's important to keep in mind that a message with the `anycast`
+  routing-type will not actually be routed to queues using `multicast` and
+  vice-versa. By configuring the `routing-type` of the bridge you have the
+  flexibility to deal with any situation. Valid values are `ANYCAST`,
+  `MULTICAST`, `PASS`, & `STRIP`. The default is `PASS`.
 
 - `static-connectors` or `discovery-group-ref`. Pick either of these options to
   connect the bridge to the target server.
