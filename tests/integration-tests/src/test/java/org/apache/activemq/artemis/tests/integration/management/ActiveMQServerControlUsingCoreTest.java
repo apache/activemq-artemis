@@ -325,6 +325,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String[] getClusterConnectionNames() {
+            try {
+               return (String[]) proxy.invokeOperation(String.class, "getClusterConnectionNames");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+
+            return null;
+         }
+
+         @Override
          public String getUptime() {
             return null;
          }
