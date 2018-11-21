@@ -1335,5 +1335,11 @@ public interface ActiveMQServerControl {
     */
    @Operation(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)", impact = MBeanOperationInfo.INFO)
    String[] getQueueNames(@Parameter(name = "routingType", desc = "The routing type, MULTICAST or ANYCAST") String routingType);
+
+   /**
+    * Returns the names of the cluster-connections deployed on this server.
+    */
+   @Operation(desc = "Names of the cluster-connections deployed on this server", impact = MBeanOperationInfo.INFO)
+   String[] getClusterConnectionNames();
 }
 
