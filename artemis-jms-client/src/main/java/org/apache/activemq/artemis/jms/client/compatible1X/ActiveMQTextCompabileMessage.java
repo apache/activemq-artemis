@@ -27,6 +27,10 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 public class ActiveMQTextCompabileMessage extends ActiveMQTextMessage {
 
+   @Override
+   public void setJMSReplyTo(Destination dest) throws JMSException {
+      replyTo = ActiveMQCompatibleMessage.setCompatibleReplyTo(dest, message);
+   }
 
    @Override
    public Destination getJMSReplyTo() throws JMSException {

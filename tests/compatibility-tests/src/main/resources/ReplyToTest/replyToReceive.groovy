@@ -76,7 +76,7 @@ void check(List<Message> messages) {
     checkMessage(streamMessage);
 
     TextMessage textMessage = iterator.next();
-    checkMessage(objectMessage);
+    checkMessage(textMessage);
 }
 
 

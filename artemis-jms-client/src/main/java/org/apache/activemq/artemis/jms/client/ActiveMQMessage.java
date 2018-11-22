@@ -385,22 +385,27 @@ public class ActiveMQMessage implements javax.jms.Message {
             throw new InvalidDestinationException("Foreign destination " + dest);
          }
 
-         String prefix = "";
-         if (dest instanceof ActiveMQTemporaryQueue) {
-            prefix = TEMP_QUEUE_QUALIFED_PREFIX;
-         } else if (dest instanceof ActiveMQQueue) {
-            prefix = QUEUE_QUALIFIED_PREFIX;
-         } else if (dest instanceof ActiveMQTemporaryTopic) {
-            prefix = TEMP_TOPIC_QUALIFED_PREFIX;
-         } else if (dest instanceof ActiveMQTopic) {
-            prefix = TOPIC_QUALIFIED_PREFIX;
-         }
+         String prefix = prefixOf(dest);
          ActiveMQDestination jbd = (ActiveMQDestination) dest;
 
          MessageUtil.setJMSReplyTo(message, prefix + jbd.getAddress());
 
          replyTo = jbd;
       }
+   }
+
+   protected static String prefixOf(Destination dest) {
+      String prefix = "";
+      if (dest instanceof ActiveMQTemporaryQueue) {
+         prefix = TEMP_QUEUE_QUALIFED_PREFIX;
+      } else if (dest instanceof ActiveMQQueue) {
+         prefix = QUEUE_QUALIFIED_PREFIX;
+      } else if (dest instanceof ActiveMQTemporaryTopic) {
+         prefix = TEMP_TOPIC_QUALIFED_PREFIX;
+      } else if (dest instanceof ActiveMQTopic) {
+         prefix = TOPIC_QUALIFIED_PREFIX;
+      }
+      return prefix;
    }
 
    protected SimpleString checkPrefix(SimpleString address) {

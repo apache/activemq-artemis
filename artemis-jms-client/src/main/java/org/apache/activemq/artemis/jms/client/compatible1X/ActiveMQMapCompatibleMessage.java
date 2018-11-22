@@ -34,6 +34,11 @@ public class ActiveMQMapCompatibleMessage extends ActiveMQMapMessage {
    }
 
    @Override
+   public void setJMSReplyTo(Destination dest) throws JMSException {
+      replyTo = ActiveMQCompatibleMessage.setCompatibleReplyTo(dest, message);
+   }
+
+   @Override
    public Destination getJMSReplyTo() throws JMSException {
       if (replyTo == null) {
          replyTo = ActiveMQCompatibleMessage.findCompatibleReplyTo(message);
