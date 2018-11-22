@@ -219,9 +219,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQStreamMessage message;
       if (enable1xPrefixes) {
-         message = new ActiveMQStreamMessage(session);
-      } else {
          message = new ActiveMQStreamCompatibleMessage(session);
+      } else {
+         message = new ActiveMQStreamMessage(session);
       }
       return message;
    }

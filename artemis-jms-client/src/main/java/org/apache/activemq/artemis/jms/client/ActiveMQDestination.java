@@ -24,10 +24,11 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.ParameterisedAddress;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
-import org.apache.activemq.artemis.api.core.ParameterisedAddress;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Destination.
@@ -126,6 +127,40 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
       return destination;
    }
+
+   public static Destination fromPrefixed1XName(final String addr, final String name) {
+      ActiveMQDestination destination;
+      if (addr.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+         destination = createQueue(addr);
+      } else if (addr.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+         destination = createTopic(addr);
+      } else if (addr.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
+         destination = new ActiveMQTemporaryQueue(addr, null);
+      } else if (addr.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
+         destination = new ActiveMQTemporaryTopic(addr, null);
+      } else {
+         destination = new ActiveMQDestination(addr, TYPE.DESTINATION, null);
+      }
+
+      String unprefixedName = name;
+
+      if (name.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+         unprefixedName = name.substring(PacketImpl.OLD_QUEUE_PREFIX.length());
+      } else if (name.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+         unprefixedName = name.substring(PacketImpl.OLD_TOPIC_PREFIX.length());
+      } else if (name.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
+         unprefixedName = name.substring(PacketImpl.OLD_TEMP_QUEUE_PREFIX.length());
+      } else if (name.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
+         unprefixedName = name.substring(PacketImpl.OLD_TEMP_TOPIC_PREFIX.length());
+      }
+
+      destination.setName(unprefixedName);
+
+      return destination;
+   }
+
+
+
 
    public static SimpleString createQueueNameForSubscription(final boolean isDurable,
                                                        final String clientID,

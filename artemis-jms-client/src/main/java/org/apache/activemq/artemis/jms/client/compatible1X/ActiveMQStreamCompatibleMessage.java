@@ -33,6 +33,10 @@ public class ActiveMQStreamCompatibleMessage extends ActiveMQStreamMessage {
       return ActiveMQCompatibleMessage.checkPrefix1X(address);
    }
 
+   @Override
+   public void setJMSReplyTo(Destination dest) throws JMSException {
+      replyTo = ActiveMQCompatibleMessage.setCompatibleReplyTo(dest, message);
+   }
 
    @Override
    public Destination getJMSReplyTo() throws JMSException {
