@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -1465,7 +1466,7 @@ public class AMQPMessageTest {
          AMQPMessage readMessage = (AMQPMessage)decoded.getPersister().decode(buffer, null);
          Assert.assertEquals(33, readMessage.getMessageID());
          Assert.assertEquals("someAddress", readMessage.getAddress());
-         Assert.assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
+         assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
       } finally {
          buffer.release();
       }
@@ -1475,7 +1476,7 @@ public class AMQPMessageTest {
          AMQPMessage readMessage = (AMQPMessage) EmbedMessageUtil.extractEmbedded(embeddedMessage);
          Assert.assertEquals(33, readMessage.getMessageID());
          Assert.assertEquals("someAddress", readMessage.getAddress());
-         Assert.assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
+         assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
       }
    }
 
@@ -2231,14 +2232,14 @@ public class AMQPMessageTest {
          byte[] leftArray = leftValue.getValue().getArray();
          byte[] rightArray = rightValue.getValue().getArray();
 
-         if (leftArray == null && leftArray == null) {
+         if (leftArray == null && rightArray == null) {
             return true;
          }
          if (!isNullnessEquals(leftArray, rightArray)) {
             return false;
          }
 
-         assertTrue(Arrays.equals(leftArray, rightArray));
+         assertArrayEquals(leftArray, rightArray);
       } else {
          return false;
       }
