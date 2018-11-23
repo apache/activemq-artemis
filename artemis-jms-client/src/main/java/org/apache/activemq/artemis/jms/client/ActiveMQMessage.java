@@ -414,23 +414,42 @@ public class ActiveMQMessage implements javax.jms.Message {
          if (dest instanceof ActiveMQDestination == false) {
             throw new InvalidDestinationException("Foreign destination " + dest);
          }
-
-         String prefix = "";
-         if (dest instanceof ActiveMQTemporaryQueue) {
-            prefix = TEMP_QUEUE_QUALIFED_PREFIX;
-         } else if (dest instanceof ActiveMQQueue) {
-            prefix = QUEUE_QUALIFIED_PREFIX;
-         } else if (dest instanceof ActiveMQTemporaryTopic) {
-            prefix = TEMP_TOPIC_QUALIFED_PREFIX;
-         } else if (dest instanceof ActiveMQTopic) {
-            prefix = TOPIC_QUALIFIED_PREFIX;
-         }
          ActiveMQDestination jbd = (ActiveMQDestination) dest;
+         final String address = jbd.getAddress();
+         if (enable1xPrefixes && hasPrefix1X(address)) {
+            MessageUtil.setJMSReplyTo(message, jbd.getAddress());
+         } else {
+            String prefix = "";
+            if (dest instanceof ActiveMQTemporaryQueue) {
+               prefix = TEMP_QUEUE_QUALIFED_PREFIX;
+            } else if (dest instanceof ActiveMQQueue) {
+               prefix = QUEUE_QUALIFIED_PREFIX;
+            } else if (dest instanceof ActiveMQTemporaryTopic) {
+               prefix = TEMP_TOPIC_QUALIFED_PREFIX;
+            } else if (dest instanceof ActiveMQTopic) {
+               prefix = TOPIC_QUALIFIED_PREFIX;
+            }
 
-         MessageUtil.setJMSReplyTo(message, prefix + jbd.getAddress());
+            MessageUtil.setJMSReplyTo(message, prefix + jbd.getAddress());
+         }
 
          replyTo = jbd;
       }
+   }
+
+   private static boolean hasPrefix1X(String address) {
+      if (address != null) {
+         if (address.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+            return true;
+         } else if (address.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
+            return true;
+         } else if (address.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+            return true;
+         } else if (address.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
+            return true;
+         }
+      }
+      return false;
    }
 
    @Override
