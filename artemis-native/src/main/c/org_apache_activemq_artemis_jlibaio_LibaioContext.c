@@ -231,7 +231,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     }
 }
 
-inline void closeDumbHandlers() {
+static inline void closeDumbHandlers() {
     if (dumbWriteHandler != 0) {
         #ifdef DEBUG
            fprintf (stdout, "Closing and removing dump handler %s\n", dumbPath);
