@@ -19,13 +19,11 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -231,15 +229,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             }
          }
       }
-      final AddressInfo addressInfo = sessionSPI.getAddress(address);
-      if (addressInfo != null && !addressInfo.getRoutingTypes().isEmpty()) {
-         if (addressInfo.getRoutingTypes().size() == 1) {
-            return addressInfo.getRoutingType();
-         }
-      }
-      RoutingType defaultRoutingType = sessionSPI.getDefaultRoutingType(address);
-      defaultRoutingType = defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
-      return defaultRoutingType;
+
+      return sessionSPI.getDefaultRoutingType(address);
    }
 
    /*

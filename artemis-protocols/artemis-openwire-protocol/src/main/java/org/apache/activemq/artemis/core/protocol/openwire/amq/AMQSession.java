@@ -443,7 +443,7 @@ public class AMQSession implements SessionCallback {
                                         final AtomicInteger count,
                                         final org.apache.activemq.artemis.api.core.Message coreMsg,
                                         final SimpleString address) throws ResourceAllocationException {
-      if (!store.checkMemory(() -> {
+      if (!store.checkMemory(false, () -> {
          Exception exceptionToSend = null;
 
          try {
