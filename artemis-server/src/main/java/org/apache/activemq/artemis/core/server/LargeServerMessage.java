@@ -31,6 +31,8 @@ public interface LargeServerMessage extends ReplicatedLargeMessage, ICoreMessage
 
    void addBytes(ActiveMQBuffer bytes) throws Exception;
 
+   void sync() throws Exception;
+
    /**
     * We have to copy the large message content in case of DLQ and paged messages
     * For that we need to pre-mark the LargeMessage with a flag when it is paged

@@ -64,6 +64,10 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
    }
 
    @Override
+   public void sync() throws Exception {
+   }
+
+   @Override
    public synchronized ActiveMQBuffer getReadOnlyBodyBuffer() {
       return new ChannelBufferWrapper(buffer.slice(0, buffer.writerIndex()).asReadOnly());
    }

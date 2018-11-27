@@ -1018,6 +1018,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          currentLargeMessage.addBytes(body);
 
          if (!continues) {
+            currentLargeMessage.sync();
             currentLargeMessage.releaseResources();
 
             if (messageBodySize >= 0) {

@@ -143,6 +143,13 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    }
 
    @Override
+   public void sync() throws Exception {
+      if (file != null && file.isOpen()) {
+         file.sync();
+      }
+   }
+
+   @Override
    public synchronized int getEncodeSize() {
       return getHeadersAndPropertiesEncodeSize();
    }
