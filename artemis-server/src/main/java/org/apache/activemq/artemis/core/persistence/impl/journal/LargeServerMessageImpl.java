@@ -327,6 +327,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    public synchronized void releaseResources() {
       if (file != null && file.isOpen()) {
          try {
+            file.sync();
             file.close();
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
