@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
@@ -161,7 +162,15 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    public synchronized void incrementDelayDeletionCount() {
       delayDeletionCount.incrementAndGet();
       try {
-         incrementRefCount();
+         if (paged) {
+            RefCountMessageListener tmpContext = super.getContext();
+            setContext(null);
+            incrementRefCount();
+            setContext(tmpContext);
+         } else {
+            incrementRefCount();
+         }
+
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorIncrementDelayDeletionCount(e);
       }
@@ -200,7 +209,15 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
 
    @Override
    public synchronized int decrementRefCount() throws Exception {
-      int currentRefCount = super.decrementRefCount();
+      int currentRefCount;
+      if (paged) {
+         RefCountMessageListener tmpContext = super.getContext();
+         setContext(null);
+         currentRefCount = super.decrementRefCount();
+         setContext(tmpContext);
+      } else {
+         currentRefCount = super.decrementRefCount();
+      }
 
       // We use <= as this could be used by load.
       // because of a failure, no references were loaded, so we have 0... and we still need to delete the associated
@@ -208,7 +225,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       if (delayDeletionCount.get() <= 0) {
          checkDelete();
       }
-
       return currentRefCount;
    }
 
@@ -507,6 +523,5 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          return getBodySize();
       }
    }
-
 
 }
