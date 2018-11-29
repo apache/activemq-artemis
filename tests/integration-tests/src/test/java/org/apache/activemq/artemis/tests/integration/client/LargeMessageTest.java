@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -2473,6 +2474,84 @@ public class LargeMessageTest extends LargeMessageTestBase {
       // printBuffer("message received : ", message2.getBody());
 
       session.close();
+   }
+
+   @Test
+   public void testGlobalSizeBytesAndAddressSizeOnPage() throws Exception {
+      testGlobalSizeBytesAndAddressSize(true);
+   }
+
+   @Test
+   public void testGlobalSizeBytesAndAddressSize() throws Exception {
+      testGlobalSizeBytesAndAddressSize(false);
+   }
+
+   public void testGlobalSizeBytesAndAddressSize(boolean isPage) throws Exception {
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(false, false);
+
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+      fileMessage.setMessageID(1005);
+
+      for (int i = 0; i < largeMessageSize; i++) {
+         fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+      }
+
+      fileMessage.releaseResources();
+
+      session.createQueue(ADDRESS, ADDRESS, true);
+
+      PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
+
+      if (isPage) {
+         store.startPaging();
+      }
+
+      ClientProducer prod = session.createProducer(ADDRESS);
+
+      prod.send(fileMessage);
+
+      fileMessage.deleteFile();
+
+      session.commit();
+
+      if (isPage) {
+         server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().clearCache();
+      }
+
+      if (isPage) {
+         Assert.assertEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
+         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+      } else {
+         Assert.assertNotEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
+         Assert.assertNotEquals(0, server.getPagingManager().getGlobalSize());
+      }
+
+      session.start();
+
+      ClientConsumer cons = session.createConsumer(ADDRESS);
+
+      ClientMessage msg = cons.receive(5000);
+
+      Assert.assertNotNull(msg);
+
+      msg.acknowledge();
+
+      session.commit();
+
+      Assert.assertEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
+
+      Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+
+      session.close();
+
+      cons.close();
    }
 
    // Private -------------------------------------------------------
