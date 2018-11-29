@@ -473,11 +473,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             }
 
             depagedPage.delete(pgdMessages);
-            onDeletePage(depagedPage);
-
             synchronized (softCache) {
                softCache.remove((long) depagedPage.getPageId());
             }
+            onDeletePage(depagedPage);
          }
       } catch (Exception ex) {
          ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
