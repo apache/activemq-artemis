@@ -386,14 +386,19 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
    public void delete() throws JMSException {
       if (session != null) {
-         if (session.getCoreSession().isClosed()) {
-            // Temporary queues will be deleted when the connection is closed.. nothing to be done then!
-            return;
-         }
-         if (isQueue()) {
-            session.deleteTemporaryQueue(this);
-         } else {
-            session.deleteTemporaryTopic(this);
+         /**
+          * The status of the session used to create the temporary destination is uncertain, but the JMS spec states
+          * that the lifetime of the temporary destination is tied to the connection so even if the originating
+          * session is closed the temporary destination should still be deleted. Therefore, just create a new one
+          * and close it after the temporary destination is deleted. This is necessary because the Core API is
+          * predicated on having a Core ClientSession which is encapsulated by the JMS session implementation.
+          */
+         try (ActiveMQSession sessionToUse = (ActiveMQSession) session.getConnection().createSession()) {
+            if (isQueue()) {
+               sessionToUse.deleteTemporaryQueue(this);
+            } else {
+               sessionToUse.deleteTemporaryTopic(this);
+            }
          }
       }
    }
