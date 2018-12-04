@@ -548,6 +548,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public void removeTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.remove(queueAddress);
+      knownDestinations.remove(queueAddress);
    }
 
    public void addKnownDestination(final SimpleString address) {
