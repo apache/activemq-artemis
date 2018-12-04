@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1017,7 +1016,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (message.getExpiration() == 0) {
          message.setExpiration(System.currentTimeMillis() + expiryDelay);
       }
-      ;
    }
 
    @Override
@@ -1275,7 +1273,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public void processRoute(final Message message,
                             final RoutingContext context,
                             final boolean direct) throws Exception {
-      final List<MessageReference> refs = new ArrayList<>();
+      ArrayList<MessageReference> refs = null;
 
       Transaction tx = context.getTransaction();
 
@@ -1283,7 +1281,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
          PagingStore store = pagingManager.getPageStore(entry.getKey());
-
          if (store != null && storageManager.addToPage(store, message, context.getTransaction(), entry.getValue())) {
             if (message.isLargeMessage()) {
                confirmLargeMessageSend(tx, message);
@@ -1293,89 +1290,148 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             schedulePageDelivery(tx, entry);
             continue;
          }
+         final RouteContextList routeContextList = entry.getValue();
+         final List<Queue> nonDurableQueues = routeContextList.getNonDurableQueues();
+         final int nonDurableQueuesSize = nonDurableQueues.size();
+         if (nonDurableQueuesSize > 0) {
+            refs = addRefsToNonDurableQueues(message, deliveryTime, nonDurableQueues, refs, nonDurableQueuesSize);
+         }
+         final List<Queue> durableQueues = routeContextList.getDurableQueues();
+         final int durableQueuesSize = durableQueues.size();
+         if (durableQueuesSize > 0) {
+            refs = addRefsToDurableQueues(message, context, tx, deliveryTime, durableQueues, refs, durableQueuesSize);
+         }
+      }
 
-         for (Queue queue : entry.getValue().getNonDurableQueues()) {
-            MessageReference reference = MessageReference.Factory.createReference(message, queue);
+      final List<MessageReference> msgRefs = refs != null ? refs : Collections.emptyList();
+      if (tx != null) {
+         tx.addOperation(new AddOperation(msgRefs));
+      } else {
+         // This will use the same thread if there are no pending operations
+         // avoiding a context switch on this case
+         storageManager.afterCompleteOperations(transactionalIOCallback(msgRefs, direct));
+      }
+   }
 
-            if (deliveryTime != null) {
-               reference.setScheduledDeliveryTime(deliveryTime);
-            }
-            refs.add(reference);
-
-            message.incrementRefCount();
+   private IOCallback transactionalIOCallback(List<MessageReference> refs, boolean direct) {
+      return new IOCallback() {
+         @Override
+         public void onError(final int errorCode, final String errorMessage) {
+            ActiveMQServerLogger.LOGGER.ioErrorAddingReferences(errorCode, errorMessage);
          }
 
-         Iterator<Queue> iter = entry.getValue().getDurableQueues().iterator();
+         @Override
+         public void done() {
+            addReferences(refs, direct);
+         }
+      };
+   }
 
-         while (iter.hasNext()) {
-            Queue queue = iter.next();
+   private static ArrayList<MessageReference> addRefsToNonDurableQueues(Message message,
+                                                                        Long deliveryTime,
+                                                                        List<Queue> nonDurableQueues,
+                                                                        ArrayList<MessageReference> refs,
+                                                                        int nonDurableQueuesSize) throws Exception {
+      assert nonDurableQueuesSize > 0;
+      if (refs == null) {
+         refs = new ArrayList<>(nonDurableQueuesSize);
+      } else {
+         refs.ensureCapacity(nonDurableQueuesSize);
+      }
+      for (int i = 0; i < nonDurableQueuesSize; i++) {
+         final Queue queue = nonDurableQueues.get(i);
 
-            MessageReference reference = MessageReference.Factory.createReference(message, queue);
+         MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
-            if (context.isAlreadyAcked(context.getAddress(message), queue)) {
-               reference.setAlreadyAcked();
-               if (tx != null) {
-                  queue.acknowledge(tx, reference);
-               }
+         if (deliveryTime != null) {
+            reference.setScheduledDeliveryTime(deliveryTime);
+         }
+         refs.add(reference);
+         message.incrementRefCount();
+      }
+      return refs;
+   }
+
+   private ArrayList<MessageReference> addRefsToDurableQueues(Message message,
+                                                              final RoutingContext context,
+                                                              Transaction tx,
+                                                              Long deliveryTime,
+                                                              List<Queue> durableQueues,
+                                                              ArrayList<MessageReference> refs,
+                                                              int durableQueuesSize) throws Exception {
+      assert durableQueuesSize > 0;
+      if (refs == null) {
+         refs = new ArrayList<>(durableQueuesSize);
+      } else {
+         refs.ensureCapacity(durableQueuesSize);
+      }
+
+      final SimpleString address = context.getAddress(message);
+
+      for (int i = 0; i < durableQueuesSize; i++) {
+
+         final Queue queue = durableQueues.get(i);
+
+         MessageReference reference = MessageReference.Factory.createReference(message, queue);
+
+         if (context.isAlreadyAcked(address, queue)) {
+            reference.setAlreadyAcked();
+            if (tx != null) {
+               queue.acknowledge(tx, reference);
             }
+         }
 
-            if (deliveryTime != null) {
-               reference.setScheduledDeliveryTime(deliveryTime);
-            }
-            refs.add(reference);
+         if (deliveryTime != null) {
+            reference.setScheduledDeliveryTime(deliveryTime);
+         }
+         refs.add(reference);
 
-            if (message.isDurable()) {
-               int durableRefCount = message.incrementDurableRefCount();
+         if (message.isDurable()) {
+            final boolean last = i == durableQueuesSize - 1;
+            final boolean updateDeliveryTime = deliveryTime != null && deliveryTime > 0;
+            storeDurableMessage(message, tx, queue, reference, last, updateDeliveryTime);
+         }
+         message.incrementRefCount();
+      }
+      return refs;
+   }
 
-               if (durableRefCount == 1) {
-                  if (tx != null) {
-                     storageManager.storeMessageTransactional(tx.getID(), message);
-                  } else {
-                     storageManager.storeMessage(message);
-                  }
+   private void storeDurableMessage(Message message,
+                                    Transaction tx,
+                                    Queue queue,
+                                    MessageReference reference,
+                                    boolean last,
+                                    boolean updateDeliveryTime) throws Exception {
+      assert message.isDurable();
 
-                  if (message.isLargeMessage()) {
-                     confirmLargeMessageSend(tx, message);
-                  }
-               }
+      int durableRefCount = message.incrementDurableRefCount();
 
-               if (tx != null) {
-                  storageManager.storeReferenceTransactional(tx.getID(), queue.getID(), message.getMessageID());
+      if (durableRefCount == 1) {
+         if (tx != null) {
+            storageManager.storeMessageTransactional(tx.getID(), message);
+         } else {
+            storageManager.storeMessage(message);
+         }
 
-                  tx.setContainsPersistent();
-               } else {
-                  storageManager.storeReference(queue.getID(), message.getMessageID(), !iter.hasNext());
-               }
-
-               if (deliveryTime > 0) {
-                  if (tx != null) {
-                     storageManager.updateScheduledDeliveryTimeTransactional(tx.getID(), reference);
-                  } else {
-                     storageManager.updateScheduledDeliveryTime(reference);
-                  }
-               }
-            }
-
-            message.incrementRefCount();
+         if (message.isLargeMessage()) {
+            confirmLargeMessageSend(tx, message);
          }
       }
 
       if (tx != null) {
-         tx.addOperation(new AddOperation(refs));
-      } else {
-         // This will use the same thread if there are no pending operations
-         // avoiding a context switch on this case
-         storageManager.afterCompleteOperations(new IOCallback() {
-            @Override
-            public void onError(final int errorCode, final String errorMessage) {
-               ActiveMQServerLogger.LOGGER.ioErrorAddingReferences(errorCode, errorMessage);
-            }
+         storageManager.storeReferenceTransactional(tx.getID(), queue.getID(), message.getMessageID());
 
-            @Override
-            public void done() {
-               addReferences(refs, direct);
-            }
-         });
+         tx.setContainsPersistent();
+      } else {
+         storageManager.storeReference(queue.getID(), message.getMessageID(), last);
+      }
+
+      if (updateDeliveryTime) {
+         if (tx != null) {
+            storageManager.updateScheduledDeliveryTimeTransactional(tx.getID(), reference);
+         } else {
+            storageManager.updateScheduledDeliveryTime(reference);
+         }
       }
    }
 
@@ -1527,8 +1583,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    /**
     * @param refs
     */
-   private void addReferences(final List<MessageReference> refs, final boolean direct) {
-      for (MessageReference ref : refs) {
+   private static void addReferences(final List<MessageReference> refs, final boolean direct) {
+      for (int i = 0, size = refs.size(); i < size; i++) {
+         final MessageReference ref = refs.get(i);
          ref.getQueue().addTail(ref, direct);
       }
    }
