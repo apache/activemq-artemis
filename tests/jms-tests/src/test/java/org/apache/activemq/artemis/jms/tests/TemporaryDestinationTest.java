@@ -28,6 +28,8 @@ import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -120,6 +122,51 @@ public class TemporaryDestinationTest extends JMSTestCase {
          ProxyAssertSupport.assertNotNull(m2);
 
          ProxyAssertSupport.assertEquals(messageText, m2.getText());
+      } finally {
+         if (conn != null) {
+            conn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testTemporaryQueueLeak() throws Exception {
+      ActiveMQConnection conn = null;
+
+      try {
+         conn = (ActiveMQConnection) createConnection();
+
+         Session producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Session consumerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         TemporaryQueue tempQueue = producerSession.createTemporaryQueue();
+
+         MessageProducer producer = producerSession.createProducer(tempQueue);
+
+         MessageConsumer consumer = consumerSession.createConsumer(tempQueue);
+
+         conn.start();
+
+         final String messageText = "This is a message";
+
+         Message m = producerSession.createTextMessage(messageText);
+
+         producer.send(m);
+
+         TextMessage m2 = (TextMessage) consumer.receive(2000);
+
+         ProxyAssertSupport.assertNotNull(m2);
+
+         ProxyAssertSupport.assertEquals(messageText, m2.getText());
+
+         consumer.close();
+
+         tempQueue.delete();
+
+         ProxyAssertSupport.assertFalse(conn.containsKnownDestination(SimpleString.toSimpleString(tempQueue.getQueueName())));
+
+         ProxyAssertSupport.assertFalse(conn.containsTemporaryQueue(SimpleString.toSimpleString(tempQueue.getQueueName())));
       } finally {
          if (conn != null) {
             conn.close();
