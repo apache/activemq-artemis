@@ -867,15 +867,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          applyExpiryDelay(message, expirationOverride);
       }
 
-      final Boolean checkDuplicateID = checkDuplicateID(message, context, address, rejectDuplicates);
+      final Boolean hasStartedTx = checkDuplicateID(message, context, address, rejectDuplicates);
 
-      if (checkDuplicateID == null) {
+      if (hasStartedTx == null) {
          return RoutingStatus.DUPLICATED_ID;
       }
 
-      assert checkDuplicateID != null;
+      assert hasStartedTx != null;
 
-      final boolean startedTX = checkDuplicateID.booleanValue();
+      final boolean startedTX = hasStartedTx.booleanValue();
 
       message.cleanupInternalProperties();
 
@@ -1504,54 +1504,56 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                     final SimpleString address,
                                     boolean rejectDuplicates) throws Exception {
       // Check the DuplicateCache for the Bridge first
-      Boolean response = Boolean.FALSE;
+      Boolean startedTx = Boolean.FALSE;
       Object bridgeDup = message.removeExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID);
       if (bridgeDup != null) {
-         response = checkBridgeDuplicateID(message, context, address, (byte[]) bridgeDup);
-         if (response == null) {
-            return null;
-         }
+         startedTx = checkBridgeDuplicateID(message, context, address, (byte[]) bridgeDup);
       } else {
          // if used BridgeDuplicate, it's not going to use the regular duplicate
          // since this will would break redistribution (re-setting the duplicateId)
          byte[] duplicateIDBytes = message.getDuplicateIDBytes();
-
-         DuplicateIDCache cache = null;
-
-         boolean isDuplicate = false;
-
          if (duplicateIDBytes != null) {
-            cache = getDuplicateIDCache(address);
-
-            isDuplicate = cache.contains(duplicateIDBytes);
-
-            if (rejectDuplicates && isDuplicate) {
-               rejectDuplicate(message, context);
-               return null;
-            }
-         }
-
-         if (cache != null && !isDuplicate) {
-            if (context.getTransaction() == null) {
-               // We need to store the duplicate id atomically with the message storage, so we need to create a tx for this
-               context.setTransaction(new TransactionImpl(storageManager));
-
-               response = Boolean.TRUE;
-            }
-
-            cache.addToCache(duplicateIDBytes, context.getTransaction(), false);
+            startedTx = checkDuplicateIDBytes(message, context, address, duplicateIDBytes, rejectDuplicates);
          }
       }
+      return startedTx;
+   }
 
-      return response;
+   private Boolean checkDuplicateIDBytes(final Message message,
+                                         final RoutingContext context,
+                                         final SimpleString address,
+                                         byte[] duplicateIDBytes,
+                                         boolean rejectDuplicates) throws Exception {
+      assert duplicateIDBytes != null;
+
+      Boolean startedTx = Boolean.FALSE;
+
+      final DuplicateIDCache cache = getDuplicateIDCache(address);
+
+      final boolean isDuplicate = cache.contains(duplicateIDBytes);
+
+      if (rejectDuplicates && isDuplicate) {
+         rejectDuplicate(message, context);
+         return null;
+      }
+
+      if (!isDuplicate) {
+         if (context.getTransaction() == null) {
+            // We need to store the duplicate id atomically with the message storage, so we need to create a tx for this
+            context.setTransaction(new TransactionImpl(storageManager));
+            startedTx = Boolean.TRUE;
+         }
+
+         cache.addToCache(duplicateIDBytes, context.getTransaction(), false);
+      }
+      return startedTx;
    }
 
    private static void rejectDuplicate(final Message message, final RoutingContext context) throws Exception {
       ActiveMQServerLogger.LOGGER.duplicateMessageDetected(message);
 
-      String warnMessage = "Duplicate message detected - message will not be routed. Message information:" + message.toString();
-
       if (context.getTransaction() != null) {
+         String warnMessage = "Duplicate message detected - message will not be routed. Message information:" + message.toString();
          context.getTransaction().markAsRollbackOnly(new ActiveMQDuplicateIdException(warnMessage));
       }
 
@@ -1563,13 +1565,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                           SimpleString address,
                                           byte[] bridgeDupBytes) throws Exception {
       // if the message is being sent from the bridge, we just ignore the duplicate id, and use the internal one
-      Boolean response = Boolean.FALSE;
+      Boolean startedTx = Boolean.FALSE;
 
       DuplicateIDCache cacheBridge = getDuplicateIDCache(BRIDGE_CACHE_STR.concat(address.toString()));
 
       if (context.getTransaction() == null) {
          context.setTransaction(new TransactionImpl(storageManager));
-         response = Boolean.TRUE;
+         startedTx = Boolean.TRUE;
       }
 
       if (!cacheBridge.atomicVerify(bridgeDupBytes, context.getTransaction())) {
@@ -1577,7 +1579,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          message.decrementRefCount();
          return null;
       }
-      return response;
+      return startedTx;
    }
 
    /**
