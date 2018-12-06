@@ -320,6 +320,7 @@ Name | Description
 [address](diverts.md) | the address this divert will divert from
 [forwarding-address](diverts.md) | the forwarding address for the divert
 [filter](diverts.md) | optional core filter expression
+[routing-type](diverts.md) | how to set the routing-type on the diverted message. Default=`STRIP`
 
 
 ## address type
