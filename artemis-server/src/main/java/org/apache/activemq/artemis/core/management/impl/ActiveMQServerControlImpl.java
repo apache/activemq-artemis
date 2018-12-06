@@ -951,6 +951,24 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public String[] getClusterConnectionNames() {
+      checkStarted();
+
+      clearIO();
+      try {
+         List<String> names = new ArrayList<>();
+         for (ClusterConnection clusterConnection : server.getClusterManager().getClusterConnections()) {
+            names.add(clusterConnection.getName().toString());
+         }
+
+         String[] result = new String[names.size()];
+         return names.toArray(result);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String getUptime() {
       checkStarted();
 
