@@ -21,11 +21,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -1149,8 +1149,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
       private final File cachedFile;
 
-      private volatile RandomAccessFile cachedRAFile;
-
       private volatile FileChannel cachedChannel;
 
       private synchronized void readCache(final long position) {
@@ -1158,7 +1156,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          try {
             if (position < readCachePositionStart || position > readCachePositionEnd) {
 
-               checkOpen();
+               final FileChannel cachedChannel = checkOpen();
 
                if (position > cachedChannel.size()) {
                   throw new ArrayIndexOutOfBoundsException("position > " + cachedChannel.size());
@@ -1192,7 +1190,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
 
       public void cachePackage(final byte[] body) throws Exception {
-         checkOpen();
+         final FileChannel cachedChannel = checkOpen();
 
          cachedChannel.position(cachedChannel.size());
          cachedChannel.write(ByteBuffer.wrap(body));
@@ -1203,33 +1201,25 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       /**
        * @throws FileNotFoundException
        */
-      public void checkOpen() throws FileNotFoundException {
-         if (cachedFile != null || !cachedChannel.isOpen()) {
-            cachedRAFile = new RandomAccessFile(cachedFile, "rw");
-
-            cachedChannel = cachedRAFile.getChannel();
+      private FileChannel checkOpen() throws IOException {
+         FileChannel channel = cachedChannel;
+         if (cachedFile != null || !channel.isOpen()) {
+            channel = FileChannel.open(cachedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            cachedChannel = channel;
          }
+         return channel;
       }
 
       public void close() {
+         FileChannel cachedChannel = this.cachedChannel;
          if (cachedChannel != null && cachedChannel.isOpen()) {
+            this.cachedChannel = null;
             try {
                cachedChannel.close();
             } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorClosingCache(e);
             }
-            cachedChannel = null;
          }
-
-         if (cachedRAFile != null) {
-            try {
-               cachedRAFile.close();
-            } catch (Exception e) {
-               ActiveMQClientLogger.LOGGER.errorClosingCache(e);
-            }
-            cachedRAFile = null;
-         }
-
       }
 
       @Override
