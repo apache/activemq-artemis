@@ -974,6 +974,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             } catch (Throwable e) {
                result.fail(e);
                logger.error("appendDeleteRecord:" + e, e);
+               setErrorCondition(callback, null, e);
             } finally {
                journalLock.readLock().unlock();
             }
