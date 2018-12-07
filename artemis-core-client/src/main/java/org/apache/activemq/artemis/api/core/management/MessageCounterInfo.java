@@ -42,7 +42,7 @@ public final class MessageCounterInfo {
 
    private final String lastAddTimestamp;
 
-   private final String udpateTimestamp;
+   private final String updateTimestamp;
 
    /**
     * Returns a MessageCounterInfo corresponding to the JSON serialization returned
@@ -82,7 +82,7 @@ public final class MessageCounterInfo {
       this.depth = depth;
       this.depthDelta = depthDelta;
       this.lastAddTimestamp = lastAddTimestamp;
-      this.udpateTimestamp = udpateTimestamp;
+      this.updateTimestamp = udpateTimestamp;
    }
 
    // Public --------------------------------------------------------
@@ -146,7 +146,15 @@ public final class MessageCounterInfo {
    /**
     * Returns the timestamp of the last time the queue was updated.
     */
+   public String getUpdateTimestamp() {
+      return updateTimestamp;
+   }
+
+   /**
+    * Spelling error in public API. Remove in next major release.
+    */
+   @Deprecated
    public String getUdpateTimestamp() {
-      return udpateTimestamp;
+      return updateTimestamp;
    }
 }
