@@ -19,6 +19,10 @@ package org.apache.activemq.artemis.core.io;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -135,4 +139,24 @@ public interface SequentialFile {
     * Returns a native File of the file underlying this sequential file.
     */
    File getJavaFile();
+
+   static long appendTo(Path src, Path dst) throws IOException {
+      try (FileChannel srcChannel = FileChannel.open(src, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+           FileLock srcLock = srcChannel.lock()) {
+         final long readableBytes = srcChannel.size();
+         if (readableBytes > 0) {
+            try (FileChannel dstChannel = FileChannel.open(dst, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+                 FileLock dstLock = dstChannel.lock()) {
+               final long oldLength = dstChannel.size();
+               final long transferred = dstChannel.transferFrom(srcChannel, oldLength, readableBytes);
+               if (transferred != readableBytes) {
+                  dstChannel.truncate(oldLength);
+                  throw new IOException("copied less then expected");
+               }
+               return transferred;
+            }
+         }
+         return 0;
+      }
+   }
 }
