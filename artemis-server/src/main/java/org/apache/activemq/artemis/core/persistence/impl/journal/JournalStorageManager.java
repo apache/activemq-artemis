@@ -454,15 +454,17 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    // This should be accessed from this package only
    void deleteLargeMessageFile(final LargeServerMessage largeServerMessage) throws ActiveMQException {
-      if (largeServerMessage.getPendingRecordID() < 0) {
-         try {
-            // The delete file happens asynchronously
-            // And the client won't be waiting for the actual file to be deleted.
-            // We set a temporary record (short lived) on the journal
-            // to avoid a situation where the server is restarted and pending large message stays on forever
-            largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID()));
-         } catch (Exception e) {
-            throw new ActiveMQInternalErrorException(e.getMessage(), e);
+      synchronized (largeServerMessage) {
+         if (largeServerMessage.getPendingRecordID() < 0) {
+            try {
+               // The delete file happens asynchronously
+               // And the client won't be waiting for the actual file to be deleted.
+               // We set a temporary record (short lived) on the journal
+               // to avoid a situation where the server is restarted and pending large message stays on forever
+               largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID()));
+            } catch (Exception e) {
+               throw new ActiveMQInternalErrorException(e.getMessage(), e);
+            }
          }
       }
       final SequentialFile file = largeServerMessage.getFile();
