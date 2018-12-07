@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.paging.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -160,7 +160,7 @@ public final class Page implements Comparable<Page> {
    }
 
    private static MappedByteBuffer mapFileForRead(File file, int fileSize) {
-      try (RandomAccessFile raf = new RandomAccessFile(file, "rw"); FileChannel channel = raf.getChannel()) {
+      try (FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE)) {
          return channel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize);
       } catch (Exception e) {
          throw new IllegalStateException(e);

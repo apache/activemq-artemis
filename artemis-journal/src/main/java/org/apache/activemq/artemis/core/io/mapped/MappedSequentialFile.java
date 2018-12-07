@@ -18,10 +18,7 @@ package org.apache.activemq.artemis.core.io.mapped;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -416,21 +413,7 @@ final class MappedSequentialFile implements SequentialFile {
       if (dstFile.isOpen()) {
          throw new IllegalArgumentException("dstFile must be closed too");
       }
-      try (RandomAccessFile src = new RandomAccessFile(file, "rw"); FileChannel srcChannel = src.getChannel(); FileLock srcLock = srcChannel.lock()) {
-         final long readableBytes = srcChannel.size();
-         if (readableBytes > 0) {
-            try (RandomAccessFile dst = new RandomAccessFile(dstFile.getJavaFile(), "rw"); FileChannel dstChannel = dst.getChannel(); FileLock dstLock = dstChannel.lock()) {
-               final long oldLength = dst.length();
-               final long newLength = oldLength + readableBytes;
-               dst.setLength(newLength);
-               final long transferred = dstChannel.transferFrom(srcChannel, oldLength, readableBytes);
-               if (transferred != readableBytes) {
-                  dstChannel.truncate(oldLength);
-                  throw new IOException("copied less then expected");
-               }
-            }
-         }
-      }
+      SequentialFile.appendTo(file.toPath(), dstFile.getJavaFile().toPath());
    }
 
    @Override
