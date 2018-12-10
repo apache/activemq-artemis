@@ -51,6 +51,7 @@ public class JournalFileRepositoryOrderTest extends ActiveMQTestBase {
 
          // this is simulating how compating would return files into the journal
          t = new Thread() {
+            @Override
             public void run() {
                while (running.get()) {
                   try {
