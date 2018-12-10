@@ -26,7 +26,9 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
+import java.util.Arrays;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -119,6 +121,27 @@ public class TemporaryDestinationTest extends JMSTestCase {
          ProxyAssertSupport.assertNotNull(m2);
 
          ProxyAssertSupport.assertEquals(messageText, m2.getText());
+      } finally {
+         if (conn != null) {
+            conn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testTemporaryQueuePagingStoreLeak() throws Exception {
+      Connection conn = null;
+
+      try {
+         conn = createConnection();
+
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         TemporaryQueue tempQueue = session.createTemporaryQueue();
+
+         tempQueue.delete();
+
+         ProxyAssertSupport.assertFalse(Arrays.asList(servers.get(0).getActiveMQServer().getPagingManager().getStoreNames()).contains(((ActiveMQTemporaryQueue)tempQueue).getSimpleAddress()));
       } finally {
          if (conn != null) {
             conn.close();
