@@ -170,4 +170,5 @@ public interface PageSubscription {
 
    void incrementDeliveredSize(long size);
 
+   void removePendingDelivery(PagePosition position);
 }

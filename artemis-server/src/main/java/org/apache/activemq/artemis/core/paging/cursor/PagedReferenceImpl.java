@@ -325,6 +325,16 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    }
 
    @Override
+   public void addPendingFlag() {
+      subscription.addPendingDelivery(position);
+   }
+
+   @Override
+   public void removePendingFlag() {
+      subscription.removePendingDelivery(position);
+   }
+
+   @Override
    public long getMessageID() {
       if (messageID < 0) {
          messageID = getPagedMessage().getMessage().getMessageID();
