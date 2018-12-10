@@ -28,4 +28,12 @@ public interface PagedReference extends MessageReference {
    boolean isLargeMessage();
 
    long getTransactionID();
+
+   //this method affects paging clean up
+   //It adds to the flag that prevents its page from cleanup
+   void addPendingFlag();
+
+   //this method afftects paging clean up
+   //It decrements from the flag so that the cleanup will be done.
+   void removePendingFlag();
 }
