@@ -29,7 +29,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -670,10 +672,43 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue("check failed, " + defaultConfirmationWinSize + ":" + defaultIdCacheSize, ConfigurationImpl.checkoutDupCacheSize(defaultConfirmationWinSize, defaultIdCacheSize));
    }
 
+   @Test
+   public void testJournalFileOpenTimeoutDefaultValue() throws Exception {
+      ActiveMQServerImpl server = new ActiveMQServerImpl();
+      try {
+         server.start();
+         Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileOpenTimeout(), server.getConfiguration().getJournalFileOpenTimeout());
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testJournalFileOpenTimeoutValue() throws Exception {
+      int timeout = RandomUtil.randomInt();
+      Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
+      configuration.setJournalFileOpenTimeout(timeout);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
+      try {
+         server.start();
+         Assert.assertEquals(timeout, server.getConfiguration().getJournalFileOpenTimeout());
+      } finally {
+         server.stop();
+      }
+   }
+
    @Override
    protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      return fc;
+   }
+
+   private Configuration createConfiguration(String filename) throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
       return fc;
