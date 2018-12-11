@@ -23,6 +23,9 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -63,6 +66,40 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       assertEquals(numMsgs, queue.getMessagesAdded());
    }
 
+   @Test
+   public void testReceiveTx() throws Exception {
+      receiveAllMessagesTxAndPageCheckPendingTx();
+   }
+
+   private void receiveAllMessagesTxAndPageCheckPendingTx() throws Exception {
+      final ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(null, null, false, true, false, false, 0);
+
+      session.start();
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+      for (int i = 0; i < numMsgs; i++) {
+         ClientMessage message = consumer.receive(2000);
+         assertNotNull(message);
+         message.acknowledge();
+      }
+
+      //before committing the pendingTx should be positive.
+      PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
+      long qid = server.locateQueue(ADDRESS).getID();
+      PageSubscription pageSub = store.getCursorProvider().getSubscription(qid);
+      long pageNr = store.getCurrentWritingPage();
+
+      PageSubscriptionImpl.PageCursorInfo info = ((PageSubscriptionImpl)pageSub).getPageInfo(pageNr);
+
+      System.out.println("pendingTx: " + info.getPendingTx());
+
+      //The positive pendingTx will prevent a page being removed
+      //before ResOperation is completed.
+      assertTrue(info.getPendingTx() > 0);
+
+      session.commit();
+      session.close();
+   }
 
    @Override
    @Before
