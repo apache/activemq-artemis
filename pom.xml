@@ -92,10 +92,10 @@
       <mockito.version>2.8.47</mockito.version>
       <netty.version>4.1.28.Final</netty.version>
       <netty-tcnative-version>2.0.12.Final</netty-tcnative-version>
-      <proton.version>0.30.0</proton.version>
+      <proton.version>0.31.0</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.37.0</qpid.jms.version>
+      <qpid.jms.version>0.39.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
