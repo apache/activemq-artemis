@@ -169,10 +169,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             Lock lock = getChannel1().getLock();
 
             // Lock it - this must be done while the failoverLock is held
-            while (isAlive() && !lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+            while (isAlive()) {
+               if (lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+                  return lock;
+               }
             }
 
-            return lock;
+            return null;
          } finally {
             localFailoverLock.unlock();
          }
