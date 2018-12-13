@@ -150,6 +150,7 @@ public class JMSMappingInboundTransformerTest {
     * @throws Exception
     *         if an error occurs during the test.
     */
+   @Test
    public void testCreateBytesMessageFromDataWithUnknownContentType() throws Exception {
       MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
