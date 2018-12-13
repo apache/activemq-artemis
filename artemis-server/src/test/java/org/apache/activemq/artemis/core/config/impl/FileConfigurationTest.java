@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -677,6 +678,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       ActiveMQServerImpl server = new ActiveMQServerImpl();
       try {
          server.start();
+         JournalImpl journal = (JournalImpl) server.getStorageManager().getBindingsJournal();
+         Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileOpenTimeout(), journal.getFilesRepository().getJournalFileOpenTimeout());
          Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileOpenTimeout(), server.getConfiguration().getJournalFileOpenTimeout());
       } finally {
          server.stop();
@@ -685,12 +688,14 @@ public class FileConfigurationTest extends ConfigurationImplTest {
 
    @Test
    public void testJournalFileOpenTimeoutValue() throws Exception {
-      int timeout = RandomUtil.randomInt();
+      int timeout = RandomUtil.randomPositiveInt();
       Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
       configuration.setJournalFileOpenTimeout(timeout);
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
+         JournalImpl journal = (JournalImpl) server.getStorageManager().getBindingsJournal();
+         Assert.assertEquals(timeout, journal.getFilesRepository().getJournalFileOpenTimeout());
          Assert.assertEquals(timeout, server.getConfiguration().getJournalFileOpenTimeout());
       } finally {
          server.stop();
