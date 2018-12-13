@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -27,7 +28,9 @@ import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
@@ -216,9 +219,23 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       flow();
    }
 
-   public RoutingType getRoutingType(Receiver receiver, SimpleString address) {
+   public RoutingType getRoutingType(Receiver receiver, SimpleString address, AMQPMessage message) {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
-      return target != null ? getRoutingType(target.getCapabilities(), address) : getRoutingType((Symbol[]) null, address);
+      // the target may be null or have no capabilities in the case of an anonymous producer
+      if (target != null && target.getCapabilities() != null) {
+         return getRoutingType(target.getCapabilities(), address);
+      }
+
+      Map<Symbol, Object> messageAnnotationSymbols = message.getMessageAnnotations().getValue();
+      Object jmsDestination = messageAnnotationSymbols.get(AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
+
+      if (jmsDestination != null && (jmsDestination.equals(AMQPMessageSupport.QUEUE_TYPE) || jmsDestination.equals(AMQPMessageSupport.TEMP_QUEUE_TYPE))) {
+         return RoutingType.ANYCAST;
+      } else if (jmsDestination != null && (jmsDestination.equals(AMQPMessageSupport.TOPIC_TYPE) || jmsDestination.equals(AMQPMessageSupport.TEMP_TOPIC_TYPE))) {
+         return RoutingType.MULTICAST;
+      } else {
+         return getRoutingType(null, address);
+      }
    }
 
    private RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
