@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.jms.client.compatible1X;
 
 import javax.jms.Destination;
+import javax.jms.InvalidDestinationException;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
@@ -69,11 +70,39 @@ public class ActiveMQCompatibleMessage extends ActiveMQMessage {
       return replyTo;
    }
 
-   public static Destination findCompatibleReplyTo(ClientMessage message) {
+   @Override
+   public void setJMSReplyTo(Destination dest) throws JMSException {
+      replyTo = setCompatibleReplyTo(dest, message);
+   }
+
+   static Destination setCompatibleReplyTo(Destination dest, ClientMessage message) throws InvalidDestinationException {
+      if (dest == null) {
+         MessageUtil.setJMSReplyTo(message, (String) null);
+         return null;
+      } else {
+         if (dest instanceof ActiveMQDestination == false) {
+            throw new InvalidDestinationException("Foreign destination " + dest);
+         }
+         ActiveMQDestination jbd = (ActiveMQDestination) dest;
+         final String address = jbd.getAddress();
+         if (hasPrefix1X(address)) {
+            MessageUtil.setJMSReplyTo(message, jbd.getAddress());
+         } else {
+            String prefix = prefixOf(dest);
+            MessageUtil.setJMSReplyTo(message, prefix + jbd.getAddress());
+         }
+         return jbd;
+      }
+   }
+
+   static Destination findCompatibleReplyTo(ClientMessage message) {
       SimpleString address = MessageUtil.getJMSReplyTo(message);
       if (address != null) {
+         final SimpleString checkedAddress = checkPrefix1X(address);
+         if (checkedAddress != null) {
+            return ActiveMQDestination.fromPrefixed1XName(address.toString(), checkedAddress.toString());
+         }
          String name = address.toString();
-
          // swap the old prefixes for the new ones so the proper destination type gets created
          if (address.startsWith(OLD_QUEUE_QUALIFIED_PREFIX)) {
             name = address.subSeq(OLD_QUEUE_QUALIFIED_PREFIX.length(), address.length()).toString();
@@ -93,6 +122,22 @@ public class ActiveMQCompatibleMessage extends ActiveMQMessage {
    @Override
    public SimpleString checkPrefix(SimpleString address) {
       return checkPrefix1X(address);
+   }
+
+   private static boolean hasPrefix1X(String address) {
+      if (address != null) {
+         if (address.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+            return true;
+         } else if (address.startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString())) {
+            return true;
+         } else if (address.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+            return true;
+         } else if (address.startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString())) {
+            return true;
+         }
+      }
+
+      return false;
    }
 
    protected static SimpleString checkPrefix1X(SimpleString address) {
