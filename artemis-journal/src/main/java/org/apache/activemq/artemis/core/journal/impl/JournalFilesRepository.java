@@ -242,6 +242,10 @@ public class JournalFilesRepository {
       return dataFiles.size();
    }
 
+   public int getJournalFileOpenTimeout() {
+      return journalFileOpenTimeout;
+   }
+
    public Collection<JournalFile> getDataFiles() {
       return dataFiles;
    }
