@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
@@ -91,7 +92,10 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          close();
       }
 
-      if (file.exists() && !file.delete()) {
+      try {
+         Files.deleteIfExists(file.toPath());
+      } catch (Throwable t) {
+         logger.trace("Fine error while deleting file", t);
          ActiveMQJournalLogger.LOGGER.errorDeletingFile(this);
       }
    }
