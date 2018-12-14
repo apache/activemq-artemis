@@ -18,11 +18,10 @@ package org.apache.activemq.artemis.core.io.nio;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -40,8 +39,6 @@ import org.apache.activemq.artemis.utils.Env;
 public class NIOSequentialFile extends AbstractSequentialFile {
 
    private FileChannel channel;
-
-   private RandomAccessFile rfile;
 
    private final int maxIO;
 
@@ -76,9 +73,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    @Override
    public void open(final int maxIO, final boolean useExecutor) throws IOException {
       try {
-         rfile = new RandomAccessFile(getFile(), "rw");
-
-         channel = rfile.getChannel();
+         channel = FileChannel.open(getFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
 
          fileSize = channel.size();
       } catch (ClosedChannelException e) {
@@ -133,10 +128,6 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          if (channel != null) {
             channel.close();
          }
-
-         if (rfile != null) {
-            rfile.close();
-         }
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
@@ -144,8 +135,6 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          throw e;
       }
       channel = null;
-
-      rfile = null;
 
       notifyAll();
    }
@@ -333,24 +322,6 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       if (dstFile.isOpen()) {
          throw new IllegalArgumentException("dstFile must be closed too");
       }
-      try (RandomAccessFile src = new RandomAccessFile(getFile(), "rw");
-           FileChannel srcChannel = src.getChannel();
-           FileLock srcLock = srcChannel.lock()) {
-         final long readableBytes = srcChannel.size();
-         if (readableBytes > 0) {
-            try (RandomAccessFile dst = new RandomAccessFile(dstFile.getJavaFile(), "rw");
-                 FileChannel dstChannel = dst.getChannel();
-                 FileLock dstLock = dstChannel.lock()) {
-               final long oldLength = dst.length();
-               final long newLength = oldLength + readableBytes;
-               dst.setLength(newLength);
-               final long transferred = dstChannel.transferFrom(srcChannel, oldLength, readableBytes);
-               if (transferred != readableBytes) {
-                  dstChannel.truncate(oldLength);
-                  throw new IOException("copied less then expected");
-               }
-            }
-         }
-      }
+      SequentialFile.appendTo(getFile().toPath(), dstFile.getJavaFile().toPath());
    }
 }
