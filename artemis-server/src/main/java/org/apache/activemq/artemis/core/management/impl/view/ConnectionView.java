@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -51,10 +52,14 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
       Set<String> users = new HashSet<>();
-
+      String jmsSessionClientID = null;
       for (ServerSession session : sessions) {
          String username = session.getUsername() == null ? "" : session.getUsername();
          users.add(username);
+         //for the special case for JMS
+         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+            jmsSessionClientID = session.getMetaData("jms-client-id");
+         }
       }
 
       return JsonLoader.createObjectBuilder().add("connectionID", toString(connection.getID()))
@@ -63,7 +68,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add("creationTime", new Date(connection.getCreationTime()).toString())
          .add("implementation", toString(connection.getClass().getSimpleName()))
          .add("protocol", toString(connection.getProtocolName()))
-         .add("clientID", toString(connection.getClientID()))
+         .add("clientID", toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
          .add("localAddress", toString(connection.getTransportLocalAddress()))
          .add("sessionCount", server.getSessions(connection.getID().toString()).size());
    }

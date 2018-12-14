@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
 
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ProducerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
@@ -50,9 +51,15 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          return null;
       }
 
+      String jmsSessionClientID = null;
+      //for the special case for JMS
+      if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+         jmsSessionClientID = session.getMetaData("jms-client-id");
+      }
+
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID()))
          .add("session", toString(session.getName()))
-         .add("clientID", toString(session.getRemotingConnection().getClientID()))
+         .add("clientID", toString(session.getRemotingConnection().getClientID() != null ? session.getRemotingConnection().getClientID() : jmsSessionClientID))
          .add("user", toString(session.getUsername()))
          .add("protocol", toString(session.getRemotingConnection().getProtocolName()))
          .add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
