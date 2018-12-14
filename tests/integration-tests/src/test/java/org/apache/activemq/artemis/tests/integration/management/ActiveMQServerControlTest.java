@@ -86,6 +86,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.jms.client.ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY;
+
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
@@ -2465,6 +2467,44 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             csf.close();
          }
          if (csf3 != null) {
+            csf.close();
+         }
+      }
+   }
+
+   @Test
+   public void testListConnectionsClientID() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      ClientSessionFactoryImpl csf = null;
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator()) {
+         //sleep as test compares creationTime
+         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         ClientSession session1_c1 = csf.createSession();
+         ClientSession session2_c1 = csf.createSession();
+         session1_c1.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
+         session1_c1.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, "MYClientID");
+
+         String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
+         String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 1, array.size());
+         JsonObject jsonConnection = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertEquals("clientID", "MYClientID", jsonConnection.getString("clientID"));
+      } finally {
+         if (csf != null) {
             csf.close();
          }
       }
