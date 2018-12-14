@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.transaction.impl;
 
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class TransactionImpl implements Transaction {
 
    private static final int INITIAL_NUM_PROPERTIES = 10;
 
-   private Object[] properties = new Object[TransactionImpl.INITIAL_NUM_PROPERTIES];
+   private Object[] properties = null;
 
    protected final StorageManager storageManager;
 
@@ -66,6 +67,22 @@ public class TransactionImpl implements Transaction {
    private int timeoutSeconds = -1;
 
    private Object protocolData;
+
+   private void ensurePropertiesCapacity(int capacity) {
+      if (properties != null && properties.length >= capacity) {
+         return;
+      }
+      createOrEnlargeProperties(capacity);
+   }
+
+   private void createOrEnlargeProperties(int capacity) {
+      if (properties == null) {
+         properties = new Object[Math.min(TransactionImpl.INITIAL_NUM_PROPERTIES, capacity)];
+      } else {
+         assert properties.length < capacity;
+         properties = Arrays.copyOf(properties, capacity);
+      }
+   }
 
    @Override
    public Object getProtocolData() {
@@ -509,20 +526,14 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void putProperty(final int index, final Object property) {
-      if (index >= properties.length) {
-         Object[] newProperties = new Object[index];
-
-         System.arraycopy(properties, 0, newProperties, 0, properties.length);
-
-         properties = newProperties;
-      }
+      ensurePropertiesCapacity(index + 1);
 
       properties[index] = property;
    }
 
    @Override
    public Object getProperty(final int index) {
-      return properties[index];
+      return properties == null ? null : (index < properties.length ? properties[index] : null);
    }
 
    // Private
