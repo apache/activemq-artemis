@@ -37,6 +37,11 @@ under the License.
 
    <dependencies>
       <dependency>
+          <groupId>org.apache.activemq.examples.broker</groupId>
+          <artifactId>interceptor</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client-all</artifactId>
          <version>${project.version}</version>
