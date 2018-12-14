@@ -113,8 +113,9 @@ public class ReplyToTest extends ServerBase {
       combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       combinations.add(new Object[]{ONE_FIVE, SNAPSHOT, SNAPSHOT});
 
-      // TODO: It's not currently possible to mix reply to between 1.x and SNAPSHOT. Both sides need to be on the same version!
-      // combinations.addAll(combinatory(SNAPSHOT, new Object[]{SNAPSHOT, ONE_FIVE}, new Object[]{SNAPSHOT, ONE_FIVE}, new Object[]{SNAPSHOT, ONE_FIVE}));
+      combinations.add(new Object[]{ONE_FIVE, SNAPSHOT, ONE_FIVE});
+      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, SNAPSHOT});
+
       return combinations;
    }
 
