@@ -37,6 +37,14 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
    ServerLocator serverLocator;
    ClientSessionFactory sessionFactory;
    ClientSession session;
+   String username;
+   String password;
+
+   public AbstractActiveMQClientResource(String url, String username, String password) {
+      this(url);
+      this.username = username;
+      this.password = password;
+   }
 
    public AbstractActiveMQClientResource(String url) {
       if (url == null) {
@@ -48,6 +56,12 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       } catch (Exception ex) {
          throw new RuntimeException(String.format("Error creating %s - createServerLocator( %s ) failed", this.getClass().getSimpleName(), url), ex);
       }
+   }
+
+   public AbstractActiveMQClientResource(ServerLocator serverLocator, String username, String password) {
+      this(serverLocator);
+      this.username = username;
+      this.password = password;
    }
 
    public AbstractActiveMQClientResource(ServerLocator serverLocator) {
@@ -88,7 +102,7 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       log.info("Starting {}", this.getClass().getSimpleName());
       try {
          sessionFactory = serverLocator.createSessionFactory();
-         session = sessionFactory.createSession();
+         session = sessionFactory.createSession(username, password, false, true, true, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
       } catch (RuntimeException runtimeEx) {
          throw runtimeEx;
       } catch (Exception ex) {
