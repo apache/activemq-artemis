@@ -18,13 +18,13 @@ package org.apache.activemq.artemis.core.paging.cursor;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.MessageReferenceCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
@@ -75,7 +75,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private long messageSize = -1;
 
-   private MessageReferenceCallback callback;
+   private Consumer<? super MessageReference> onDelivery;
 
    @Override
    public Object getProtocolData() {
@@ -93,22 +93,26 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    }
 
    @Override
-   public void setCallback(MessageReferenceCallback callback) {
-      this.callback = callback;
+   public void onDelivery(Consumer<? super MessageReference> onDelivery) {
+      assert this.onDelivery == null;
+      this.onDelivery = onDelivery;
    }
 
+   /**
+    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in {@link #onDelivery(Consumer)}, if any.
+    */
    @Override
    public void run() {
-      MessageReferenceCallback callback = this.callback;
-
-      try {
-         if (callback != null) {
-            callback.executeDelivery(this);
+      final Consumer<? super MessageReference> onDelivery = this.onDelivery;
+      if (onDelivery != null) {
+         try {
+            onDelivery.accept(this);
+         } finally {
+            this.onDelivery = null;
          }
-      } finally {
-         this.callback = null;
       }
    }
+
    @Override
    public synchronized PagedMessage getPagedMessage() {
       PagedMessage returnMessage = message != null ? message.get() : null;
