@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.MessageReferenceCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -55,7 +55,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    private Object protocolData;
 
-   private MessageReferenceCallback callback;
+   private Consumer<? super MessageReference> onDelivery;
 
    // Static --------------------------------------------------------
 
@@ -88,20 +88,23 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    // MessageReference implementation -------------------------------
 
    @Override
-   public void setCallback(MessageReferenceCallback callback) {
-      this.callback = callback;
+   public void onDelivery(Consumer<? super MessageReference> onDelivery) {
+      assert this.onDelivery == null;
+      this.onDelivery = onDelivery;
    }
 
+   /**
+    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in {@link #onDelivery(Consumer)}, if any.
+    */
    @Override
    public void run() {
-      MessageReferenceCallback callback = this.callback;
-
-      try {
-         if (callback != null) {
-            callback.executeDelivery(this);
+      final Consumer<? super MessageReference> onDelivery = this.onDelivery;
+      if (onDelivery != null) {
+         try {
+            onDelivery.accept(this);
+         } finally {
+            this.onDelivery = null;
          }
-      } finally {
-         this.callback = null;
       }
    }
 

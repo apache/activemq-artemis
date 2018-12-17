@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -33,7 +34,6 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.MessageReferenceCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
  * This is useful for example, for stock prices, where you're only interested in the latest value
  * for a particular stock
  */
+@SuppressWarnings("ALL")
 public class LastValueQueue extends QueueImpl {
 
    private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<>();
@@ -238,7 +239,7 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
-      public void setCallback(MessageReferenceCallback callback) {
+      public void onDelivery(Consumer<? super MessageReference> callback) {
          // HolderReference may be reused among different consumers, so we don't set a callback and won't support Runnables
       }
 
