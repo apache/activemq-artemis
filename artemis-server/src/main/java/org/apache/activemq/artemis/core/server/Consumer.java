@@ -46,6 +46,10 @@ public interface Consumer {
     */
    HandleStatus handle(MessageReference reference) throws Exception;
 
+   /** wakes up internal threads to deliver more messages */
+   default void promptDelivery() {
+   }
+
    /**
     * This will proceed with the actual delivery.
     * Notice that handle should hold a readLock and proceedDelivery should release the readLock
@@ -80,4 +84,8 @@ public interface Consumer {
 
    /** an unique sequential ID for this consumer */
    long sequentialID();
+
+   default void errorProcessing(Throwable e, MessageReference reference) {
+
+   }
 }

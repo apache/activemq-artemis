@@ -84,6 +84,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean allowsReferenceCallback() {
+      return false;
+   }
+
+   @Override
    public boolean isExclusive() {
       // no-op
       return false;

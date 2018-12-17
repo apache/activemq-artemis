@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -40,19 +42,68 @@ public final class RoutingContextImpl implements RoutingContext {
 
    private SimpleString address;
 
+   private SimpleString previousAddress;
+
+   private RoutingType previousRoutingType;
+
    private RoutingType routingType;
 
+   Boolean reusable = null;
+
+   volatile int version;
+
+   private final Executor executor;
+
    public RoutingContextImpl(final Transaction transaction) {
+      this(transaction, null);
+   }
+
+   public RoutingContextImpl(final Transaction transaction, Executor executor) {
       this.transaction = transaction;
+      this.executor = executor;
+   }
+
+   @Override
+   public boolean isReusable() {
+      return reusable != null && reusable;
+   }
+
+   @Override
+   public int getPreviousBindingsVersion() {
+      return version;
+   }
+
+   @Override
+   public SimpleString getPreviousAddress() {
+      return previousAddress;
+   }
+
+   @Override
+   public void setReusable(boolean reusable) {
+      this.reusable = reusable;
+   }
+   @Override
+   public RoutingContext setReusable(boolean reusable, int previousBindings) {
+      this.version = previousBindings;
+      this.previousAddress = address;
+      this.previousRoutingType = routingType;
+      if (this.reusable != null && !this.reusable.booleanValue()) {
+         // cannot set to Reusable once it was set to false
+         return this;
+      }
+      this.reusable = reusable;
+      return this;
    }
 
    @Override
    public void clear() {
-      transaction = null;
-
       map.clear();
 
       queueCount = 0;
+
+      this.version = 0;
+
+      this.reusable = null;
    }
 
    @Override
@@ -70,6 +121,18 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
+   public void processReferences(final List<MessageReference> refs, final boolean direct) {
+      internalprocessReferences(refs, direct);
+   }
+
+   private void internalprocessReferences(final List<MessageReference> refs, final boolean direct) {
+      for (MessageReference ref : refs) {
+         ref.getQueue().addTail(ref, direct);
+      }
+   }
+
+
+   @Override
    public void addQueueWithAck(SimpleString address, Queue queue) {
       addQueue(address, queue);
       RouteContextList listing = getContextListing(address);
@@ -80,6 +143,11 @@ public final class RoutingContextImpl implements RoutingContext {
    public boolean isAlreadyAcked(SimpleString address, Queue queue) {
       RouteContextList listing = map.get(address);
       return listing == null ? false : listing.isAlreadyAcked(queue);
+   }
+
+   @Override
+   public boolean isReusable(Message message, int version) {
+      return isReusable() && queueCount > 0 && address.equals(previousAddress) && previousRoutingType == routingType && getPreviousBindingsVersion() == version;
    }
 
    @Override
@@ -101,8 +169,18 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
+   public SimpleString getAddress() {
+      return address;
+   }
+
+   @Override
    public RoutingType getRoutingType() {
       return routingType;
+   }
+
+   @Override
+   public RoutingType getPreviousRoutingType() {
+      return previousRoutingType;
    }
 
    @Override

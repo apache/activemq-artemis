@@ -16,22 +16,24 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton.handler;
 
+import javax.security.auth.Subject;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
-import javax.security.auth.Subject;
-
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.EventLoop;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonInitializable;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
@@ -45,9 +47,6 @@ import org.apache.qpid.proton.engine.SaslListener;
 import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.engine.impl.TransportInternal;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 
 public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
@@ -68,8 +67,6 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    private ServerSASL chosenMechanism;
    private ClientSASL clientSASLMechanism;
 
-   private final ReentrantLock lock = new ReentrantLock();
-
    private final long creationTime;
 
    private final boolean isServer;
@@ -80,17 +77,20 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    protected boolean receivedFirstPacket = false;
 
-   private final Executor flushExecutor;
+   private final EventLoop workerExecutor;
+
+   private final ArtemisExecutor poolExecutor;
 
    protected final ReadyListener readyListener;
 
    boolean inDispatch = false;
 
-   public ProtonHandler(Executor flushExecutor, boolean isServer) {
-      this.flushExecutor = flushExecutor;
-      this.readyListener = () -> this.flushExecutor.execute(() -> {
-         flush();
-      });
+   boolean scheduledFlush = false;
+
+   public ProtonHandler(EventLoop workerExecutor, ArtemisExecutor poolExecutor, boolean isServer) {
+      this.workerExecutor = workerExecutor;
+      this.poolExecutor = poolExecutor;
+      this.readyListener = () -> runLater(this::flush);
       this.creationTime = System.currentTimeMillis();
       this.isServer = isServer;
 
@@ -106,45 +106,33 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    public Long tick(boolean firstTick) {
-      if (firstTick) {
-         // the first tick needs to guarantee a lock here
-         lock.lock();
-      } else {
-         if (!lock.tryLock()) {
-            log.debug("Cannot hold a lock on ProtonHandler for Tick, it will retry shortly");
-            // if we can't lock the scheduler will retry in a very short period of time instead of holding the lock here
-            return null;
-         }
-      }
-      try {
-         if (!firstTick) {
-            try {
-               if (connection.getLocalState() != EndpointState.CLOSED) {
-                  long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-                  if (transport.isClosed()) {
-                     throw new IllegalStateException("Channel was inactive for to long");
-                  }
-                  return rescheduleAt;
+      requireHandler();
+      if (!firstTick) {
+         try {
+            if (connection.getLocalState() != EndpointState.CLOSED) {
+               long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+               if (transport.isClosed()) {
+                  throw new IllegalStateException("Channel was inactive for to long");
                }
-            } catch (Exception e) {
-               log.warn(e.getMessage(), e);
-               transport.close();
-               connection.setCondition(new ErrorCondition());
+               return rescheduleAt;
             }
-            return 0L;
+         } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+            transport.close();
+            connection.setCondition(new ErrorCondition());
+         } finally {
+            flush();
          }
-         return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-      } finally {
-         lock.unlock();
-         flushBytes();
+         return 0L;
       }
+      return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
    }
 
    /**
     * We cannot flush until the initial handshake was finished.
     * If this happens before the handshake, the connection response will happen without SASL
     * and the client will respond and fail with an invalid code.
-    * */
+    */
    public void scheduledFlush() {
       if (receivedFirstPacket) {
          flush();
@@ -152,29 +140,17 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    public int capacity() {
-      lock.lock();
-      try {
-         return transport.capacity();
-      } finally {
-         lock.unlock();
-      }
+      requireHandler();
+      return transport.capacity();
    }
 
-   public void lock() {
-      lock.lock();
-   }
-
-   public void unlock() {
-      lock.unlock();
-   }
-
-   public boolean tryLock(long time, TimeUnit timeUnit) {
-      try {
-         return lock.tryLock(time, timeUnit);
-      } catch (InterruptedException e) {
-
-         Thread.currentThread().interrupt();
-         return false;
+   public void requireHandler() {
+      if (!workerExecutor.inEventLoop()) {
+         new Exception("saco!!!").printStackTrace();
+         // this should not happen unless there is an obvious programming error
+         log.warn("Using inHandler is required", new Exception("trace"));
+         System.exit(-1);
+         throw new IllegalStateException("this method requires to be called within the handler, use the executor");
       }
    }
 
@@ -192,21 +168,34 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    public void createServerSASL(String[] mechanisms) {
+      requireHandler();
       Sasl sasl = transport.sasl();
       sasl.server();
       sasl.setMechanisms(mechanisms);
       sasl.setListener(this);
    }
 
+
+
    public void flushBytes() {
+      requireHandler();
+
+      if (!scheduledFlush) {
+         scheduledFlush = true;
+         workerExecutor.execute(this::actualFlush);
+      }
+   }
+
+   private void actualFlush() {
+      requireHandler();
 
       for (EventHandler handler : handlers) {
          if (!handler.flowControl(readyListener)) {
+            scheduledFlush = false;
             return;
          }
       }
 
-      lock.lock();
       try {
          while (true) {
             ByteBuffer head = transport.head();
@@ -227,7 +216,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
             transport.pop(pending);
          }
       } finally {
-         lock.unlock();
+         scheduledFlush = false;
       }
    }
 
@@ -236,36 +225,32 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    public void inputBuffer(ByteBuf buffer) {
+      requireHandler();
       dataReceived = true;
-      lock.lock();
-      try {
-         while (buffer.readableBytes() > 0) {
-            int capacity = transport.capacity();
+      while (buffer.readableBytes() > 0) {
+         int capacity = transport.capacity();
 
-            if (!receivedFirstPacket) {
-               handleFirstPacket(buffer);
-               // there is a chance that if SASL Handshake has been carried out that the capacity may change.
-               capacity = transport.capacity();
-            }
-
-            if (capacity > 0) {
-               ByteBuffer tail = transport.tail();
-               int min = Math.min(capacity, buffer.readableBytes());
-               tail.limit(min);
-               buffer.readBytes(tail);
-
-               flush();
-            } else {
-               if (capacity == 0) {
-                  log.debugf("abandoning: readableBytes=%d", buffer.readableBytes());
-               } else {
-                  log.debugf("transport closed, discarding: readableBytes=%d, capacity=%d", buffer.readableBytes(), transport.capacity());
-               }
-               break;
-            }
+         if (!receivedFirstPacket) {
+            handleFirstPacket(buffer);
+            // there is a chance that if SASL Handshake has been carried out that the capacity may change.
+            capacity = transport.capacity();
          }
-      } finally {
-         lock.unlock();
+
+         if (capacity > 0) {
+            ByteBuffer tail = transport.tail();
+            int min = Math.min(capacity, buffer.readableBytes());
+            tail.limit(min);
+            buffer.readBytes(tail);
+
+            flush();
+         } else {
+            if (capacity == 0) {
+               log.debugf("abandoning: readableBytes=%d", buffer.readableBytes());
+            } else {
+               log.debugf("transport closed, discarding: readableBytes=%d, capacity=%d", buffer.readableBytes(), transport.capacity());
+            }
+            break;
+         }
       }
    }
 
@@ -281,29 +266,55 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       return creationTime;
    }
 
-   public void flush() {
-      lock.lock();
-      try {
-         transport.process();
-      } finally {
-         lock.unlock();
-      }
-
-      dispatch();
+   public void runOnPool(Runnable runnable) {
+      poolExecutor.execute(runnable);
    }
 
-   public void close(ErrorCondition errorCondition) {
-      lock.lock();
-      try {
+   public void runNow(Runnable runnable) {
+      if (workerExecutor.inEventLoop()) {
+         runnable.run();
+      } else {
+         workerExecutor.execute(runnable);
+      }
+   }
+
+   public void runLater(Runnable runnable) {
+      workerExecutor.execute(runnable);
+   }
+
+   public void flush() {
+      if (workerExecutor.inEventLoop()) {
+         transport.process();
+         dispatch();
+      } else {
+         runLater(() -> {
+            transport.process();
+            dispatch();
+         });
+      }
+   }
+
+   public void close(ErrorCondition errorCondition, AMQPConnectionContext connectionContext) {
+      runNow(() -> {
          if (errorCondition != null) {
             connection.setCondition(errorCondition);
          }
          connection.close();
-      } finally {
-         lock.unlock();
-      }
+         flush();
+      });
 
-      flush();
+      /*try {
+         Thread.sleep(1000);
+      } catch (Exception e) {
+         e.printStackTrace();
+      } */
+      // this needs to be done in two steps
+      // we first flush what we have to the client
+      // after flushed, we close the local connection
+      // otherwise this could close the netty connection before the Writable is complete
+      runLater(() -> {
+         connectionContext.getConnectionCallback().getTransportConnection().close();
+      });
    }
 
    // server side SASL Listener
@@ -462,44 +473,58 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    private void dispatch() {
       Event ev;
 
-      lock.lock();
+      if (inDispatch) {
+         // Avoid recursion from events
+         return;
+      }
       try {
-         if (inDispatch) {
-            // Avoid recursion from events
-            return;
-         }
-         try {
-            inDispatch = true;
-            while ((ev = collector.peek()) != null) {
-               for (EventHandler h : handlers) {
-                  if (log.isTraceEnabled()) {
-                     log.trace("Handling " + ev + " towards " + h);
-                  }
-                  try {
-                     Events.dispatch(ev, h);
-                  } catch (Exception e) {
-                     log.warn(e.getMessage(), e);
-                     ErrorCondition error = new ErrorCondition();
-                     error.setCondition(AmqpError.INTERNAL_ERROR);
-                     error.setDescription("Unrecoverable error: " +
-                        (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
-                     connection.setCondition(error);
-                     connection.close();
-                  }
+         inDispatch = true;
+         while ((ev = collector.peek()) != null) {
+            for (EventHandler h : handlers) {
+               if (log.isTraceEnabled()) {
+                  log.trace("Handling " + ev + " towards " + h);
                }
-
-               collector.pop();
+               try {
+                  Events.dispatch(ev, h);
+               } catch (Exception e) {
+                  log.warn(e.getMessage(), e);
+                  ErrorCondition error = new ErrorCondition();
+                  error.setCondition(AmqpError.INTERNAL_ERROR);
+                  error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+                  connection.setCondition(error);
+                  connection.close();
+               }
             }
 
-         } finally {
-            inDispatch = false;
+            collector.pop();
          }
+
       } finally {
-         lock.unlock();
+         inDispatch = false;
       }
 
       flushBytes();
    }
+
+
+   public void handleError(Exception e) {
+      if (workerExecutor.inEventLoop()) {
+         internalHandlerError(e);
+      } else {
+         runLater(() -> internalHandlerError(e));
+      }
+   }
+
+   private void internalHandlerError(Exception e) {
+      log.warn(e.getMessage(), e);
+      ErrorCondition error = new ErrorCondition();
+      error.setCondition(AmqpError.INTERNAL_ERROR);
+      error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+      connection.setCondition(error);
+      connection.close();
+      flush();
+   }
+
 
    public void open(String containerId, Map<Symbol, Object> connectionProperties) {
       this.transport.open();

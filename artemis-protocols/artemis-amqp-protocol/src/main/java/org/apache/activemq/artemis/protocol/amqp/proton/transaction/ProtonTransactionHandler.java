@@ -107,14 +107,11 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             IOCallback ioAction = new IOCallback() {
                @Override
                public void done() {
-                  connection.lock();
-                  try {
+                  connection.runLater(() -> {
                      delivery.settle();
                      delivery.disposition(declared);
-                  } finally {
-                     connection.unlock();
                      connection.flush();
-                  }
+                  });
                }
 
                @Override
@@ -133,15 +130,12 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             IOCallback ioAction = new IOCallback() {
                @Override
                public void done() {
-                  connection.lock();
-                  try {
+                  connection.runLater(() -> {
                      delivery.settle();
                      delivery.disposition(new Accepted());
                      currentTx = null;
-                  } finally {
-                     connection.unlock();
                      connection.flush();
-                  }
+                  });
                }
 
                @Override

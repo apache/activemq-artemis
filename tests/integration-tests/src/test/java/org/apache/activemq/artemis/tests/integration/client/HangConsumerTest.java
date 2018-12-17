@@ -242,6 +242,11 @@ public class HangConsumerTest extends ActiveMQTestBase {
          }
 
          @Override
+         public boolean allowsReferenceCallback() {
+            return false;
+         }
+
+         @Override
          public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter) throws Exception {
             latchDelete.countDown();
             blocked.acquire();

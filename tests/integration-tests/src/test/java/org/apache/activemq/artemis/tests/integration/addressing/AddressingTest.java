@@ -250,7 +250,7 @@ public class AddressingTest extends ActiveMQTestBase {
 
       // there are no consumers so no messages should be routed to the queue
       producer.send(session.createMessage(true));
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test

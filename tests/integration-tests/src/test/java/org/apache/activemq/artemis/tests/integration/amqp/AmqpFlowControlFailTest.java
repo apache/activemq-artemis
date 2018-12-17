@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -74,7 +75,8 @@ public class AmqpFlowControlFailTest extends JMSClientTestSupport {
          }
          receiver.close();
          session2.close();
-         assertEquals(1000, sender.getSender().getCredit());
+
+         Wait.assertEquals(1000, sender.getSender()::getCredit);
          for (int i = 0; i < 1000; i++) {
             final AmqpMessage message = new AmqpMessage();
             byte[] payload = new byte[100];

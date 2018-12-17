@@ -500,10 +500,16 @@ public class ConsumerTest extends ActiveMQTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session.createQueue(QUEUE.toString());
          MessageProducer producer = session.createProducer(queue);
-         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+         if (durable) {
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         } else {
+
+            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+         }
 
          long time = System.currentTimeMillis();
-         int NUMBER_OF_MESSAGES = 100;
+         int NUMBER_OF_MESSAGES = durable ? 500 : 5000;
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage msg = session.createTextMessage("hello " + i);
             msg.setIntProperty("mycount", i);

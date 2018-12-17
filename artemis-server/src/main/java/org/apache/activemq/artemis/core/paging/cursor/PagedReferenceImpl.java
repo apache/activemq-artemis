@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.MessageReferenceCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
@@ -31,7 +32,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.jboss.logging.Logger;
 
-public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> implements PagedReference {
+public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> implements PagedReference, Runnable {
 
    private static final Logger logger = Logger.getLogger(PagedReferenceImpl.class);
 
@@ -74,6 +75,8 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private long messageSize = -1;
 
+   private MessageReferenceCallback callback;
+
    @Override
    public Object getProtocolData() {
       return protocolData;
@@ -89,6 +92,23 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
       return getPagedMessage().getMessage();
    }
 
+   @Override
+   public void setCallback(MessageReferenceCallback callback) {
+      this.callback = callback;
+   }
+
+   @Override
+   public void run() {
+      MessageReferenceCallback callback = this.callback;
+
+      try {
+         if (callback != null) {
+            callback.executeDelivery(this);
+         }
+      } finally {
+         this.callback = null;
+      }
+   }
    @Override
    public synchronized PagedMessage getPagedMessage() {
       PagedMessage returnMessage = message != null ? message.get() : null;
