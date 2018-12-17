@@ -67,6 +67,9 @@ public class RefsOperation extends TransactionOperationAbstract {
             pagedMessagesToPostACK = new ArrayList<>();
          }
          pagedMessagesToPostACK.add(ref);
+         //here we do something to prevent page file
+         //from being deleted until the operation is done.
+         ((PagedReference)ref).addPendingFlag();
       }
    }
 
@@ -133,6 +136,12 @@ public class RefsOperation extends TransactionOperationAbstract {
             ActiveMQServerLogger.LOGGER.failedToProcessMessageReferenceAfterRollback(e);
          }
       }
+
+      if (pagedMessagesToPostACK != null) {
+         for (MessageReference refmsg : pagedMessagesToPostACK) {
+            ((PagedReference)refmsg).removePendingFlag();
+         }
+      }
    }
 
    protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
@@ -160,6 +169,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
       if (pagedMessagesToPostACK != null) {
          for (MessageReference refmsg : pagedMessagesToPostACK) {
+            ((PagedReference)refmsg).removePendingFlag();
             if (((PagedReference) refmsg).isLargeMessage()) {
                decrementRefCount(refmsg);
             }
