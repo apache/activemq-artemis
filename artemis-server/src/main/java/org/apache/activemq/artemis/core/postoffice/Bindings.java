@@ -26,6 +26,9 @@ import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
 public interface Bindings extends UnproposalListener {
 
+   // this is to inform the parent there was an udpate on the bindings
+   void updated(QueueBinding binding);
+
    Collection<Binding> getBindings();
 
    void addBinding(Binding binding);

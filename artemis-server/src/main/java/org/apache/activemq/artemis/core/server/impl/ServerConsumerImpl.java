@@ -257,6 +257,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
 
    @Override
+   public boolean allowReferenceCallback() {
+      if (browseOnly) {
+         return false;
+      } else {
+         return messageQueue.allowsReferenceCallback();
+      }
+   }
+
+   @Override
    public long sequentialID() {
       return sequentialID;
    }
@@ -346,6 +355,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return callback.supportsDirectDelivery();
    }
 
+   @Override
+   public void errorProcessing(Throwable e, MessageReference deliveryObject) {
+      messageQueue.errorProcessing(this, e, deliveryObject);
+   }
 
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
@@ -582,13 +595,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    public void forceDelivery(final long sequence)  {
       forceDelivery(sequence, () -> {
          Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50);
+         MessageReference reference = MessageReference.Factory.createReference(forcedDeliveryMessage, messageQueue);
+         reference.setDeliveryCount(0);
 
          forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
          forcedDeliveryMessage.setAddress(messageQueue.getName());
 
          applyPrefixForLegacyConsumer(forcedDeliveryMessage);
-         callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
-
+         callback.sendMessage(reference, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
       });
    }
 
@@ -949,7 +963,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       } catch (ActiveMQException e) {
          if (startedTransaction) {
             tx.rollback();
-         } else {
+         } else if (tx != null) {
             tx.markAsRollbackOnly(e);
          }
          throw e;
@@ -958,7 +972,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          ActiveMQIllegalStateException hqex = new ActiveMQIllegalStateException(e.getMessage());
          if (startedTransaction) {
             tx.rollback();
-         } else {
+         } else if (tx != null) {
             tx.markAsRollbackOnly(hqex);
          }
          throw hqex;

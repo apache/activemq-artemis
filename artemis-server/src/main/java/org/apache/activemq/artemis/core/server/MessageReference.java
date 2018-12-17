@@ -44,6 +44,8 @@ public interface MessageReference {
 
    SimpleString getLastValueProperty();
 
+   void setCallback(MessageReferenceCallback callback);
+
    /**
     * We define this method aggregation here because on paging we need to hold the original estimate,
     * so we need to perform some extra steps on paging.

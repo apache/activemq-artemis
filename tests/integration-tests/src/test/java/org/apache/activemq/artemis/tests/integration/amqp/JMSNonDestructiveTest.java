@@ -324,7 +324,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue consumerQueue = consumerSession.createQueue(queueName);
          MessageConsumer consumer = consumerSession.createConsumer(consumerQueue);
-         TextMessage msg = (TextMessage) consumer.receive(200);
+         TextMessage msg = (TextMessage) consumer.receive(2000);
          assertNotNull(msg);
          consumer.close();
       }
@@ -336,7 +336,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue consumerQueue = consumerSession.createQueue(queueName);
          MessageConsumer consumer = consumerSession.createConsumer(consumerQueue);
-         TextMessage msg = (TextMessage) consumer.receive(200);
+         TextMessage msg = (TextMessage) consumer.receive(2000);
          assertNull(msg);
          consumer.close();
       }
@@ -349,8 +349,8 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          MessageConsumer consumer = createConsumer(consumerConnection, queueName);
          MessageConsumer consumer2 = createConsumer(consumerConnection2, queueName);
 
-         TextMessage msg = (TextMessage) consumer.receive(200);
-         TextMessage msg2 = (TextMessage) consumer2.receive(200);
+         TextMessage msg = (TextMessage) consumer.receive(2000);
+         TextMessage msg2 = (TextMessage) consumer2.receive(2000);
 
          assertNotNull(msg);
          assertNotNull(msg2);

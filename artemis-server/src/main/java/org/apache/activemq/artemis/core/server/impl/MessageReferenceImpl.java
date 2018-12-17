@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.MessageReferenceCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -30,7 +31,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 /**
  * Implementation of a MessageReference
  */
-public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
+public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference, Runnable {
 
    private static final AtomicIntegerFieldUpdater<MessageReferenceImpl> DELIVERY_COUNT_UPDATER = AtomicIntegerFieldUpdater
       .newUpdater(MessageReferenceImpl.class, "deliveryCount");
@@ -53,6 +54,8 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    private boolean alreadyAcked;
 
    private Object protocolData;
+
+   private MessageReferenceCallback callback;
 
    // Static --------------------------------------------------------
 
@@ -83,6 +86,24 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    }
 
    // MessageReference implementation -------------------------------
+
+   @Override
+   public void setCallback(MessageReferenceCallback callback) {
+      this.callback = callback;
+   }
+
+   @Override
+   public void run() {
+      MessageReferenceCallback callback = this.callback;
+
+      try {
+         if (callback != null) {
+            callback.executeDelivery(this);
+         }
+      } finally {
+         this.callback = null;
+      }
+   }
 
    @Override
    public Object getProtocolData() {

@@ -1048,7 +1048,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222151, value = "removing consumer which did not handle a message, consumer={0}, message={1}",
       format = Message.Format.MESSAGE_FORMAT)
-   void removingBadConsumer(@Cause Throwable e, Consumer consumer, MessageReference reference);
+   void removingBadConsumer(@Cause Throwable e, Consumer consumer, Object reference);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222152, value = "Unable to decrement reference counting on queue",

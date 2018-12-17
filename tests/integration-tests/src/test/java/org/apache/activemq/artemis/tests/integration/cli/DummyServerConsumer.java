@@ -46,6 +46,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public boolean allowReferenceCallback() {
+      return false;
+   }
+
+   @Override
    public Object getProtocolData() {
       return null;
    }
