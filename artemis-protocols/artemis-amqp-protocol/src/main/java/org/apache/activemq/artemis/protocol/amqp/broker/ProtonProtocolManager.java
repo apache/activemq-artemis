@@ -77,6 +77,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private Long amqpIdleTimeout;
 
+   private boolean directDeliver = true;
+
 
    /*
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
@@ -131,6 +133,14 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return this;
    }
 
+   public boolean isDirectDeliver() {
+      return directDeliver;
+   }
+
+   public ProtonProtocolManager setDirectDeliver(boolean directDeliver) {
+      this.directDeliver = directDeliver;
+      return this;
+   }
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {

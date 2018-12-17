@@ -766,7 +766,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
          // We should have now drained the Queue
          receiver.flow(1);
-         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         AmqpMessage message = receiver.receive(1, TimeUnit.SECONDS);
          if (message != null) {
             System.out.println("Read message: " + message.getApplicationProperty("msgId"));
          }

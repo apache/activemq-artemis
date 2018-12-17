@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.MessageReferenceCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -146,6 +147,11 @@ public class LastValueQueue extends QueueImpl {
       }
    }
 
+   @Override
+   public boolean allowsReferenceCallback() {
+      return false;
+   }
+
    private void replaceLVQMessage(MessageReference ref, HolderReference hr) {
       MessageReference oldRef = hr.getReference();
 
@@ -229,6 +235,11 @@ public class LastValueQueue extends QueueImpl {
          this.prop = prop;
 
          this.ref = ref;
+      }
+
+      @Override
+      public void setCallback(MessageReferenceCallback callback) {
+         // HolderReference may be reused among different consumers, so we don't set a callback and won't support Runnables
       }
 
       MessageReference getReference() {

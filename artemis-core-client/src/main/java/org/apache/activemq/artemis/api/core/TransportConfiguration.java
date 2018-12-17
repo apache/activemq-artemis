@@ -183,6 +183,17 @@ public class TransportConfiguration implements Serializable {
       return extraProps;
    }
 
+   public Map<String, Object> getCombinedParams() {
+      Map<String, Object> combined = new HashMap<>();
+      if (params != null) {
+         combined.putAll(params);
+      }
+      if (extraProps != null) {
+         combined.putAll(extraProps);
+      }
+      return combined;
+   }
+
    @Override
    public int hashCode() {
       int result = name != null ? name.hashCode() : 0;

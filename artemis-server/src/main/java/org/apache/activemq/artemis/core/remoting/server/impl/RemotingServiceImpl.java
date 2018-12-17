@@ -263,7 +263,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
          Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
          for (Entry<String, ProtocolManagerFactory> entry : selectedProtocolFactories.entrySet()) {
-            selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
+            selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getCombinedParams(), incomingInterceptors, outgoingInterceptors));
          }
 
          acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
