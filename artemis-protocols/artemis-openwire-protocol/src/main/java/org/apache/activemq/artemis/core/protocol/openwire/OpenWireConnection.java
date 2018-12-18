@@ -1033,17 +1033,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
 
       } else {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(dest.getPhysicalName()));
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(new SimpleString(dest.getPhysicalName()));
 
-         for (Binding binding : bindings.getBindings()) {
-            Queue b = (Queue) binding.getBindable();
-            if (b.getConsumerCount() > 0) {
-               throw new Exception("Destination still has an active subscription: " + dest.getPhysicalName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               Queue b = (Queue) binding.getBindable();
+               if (b.getConsumerCount() > 0) {
+                  throw new Exception("Destination still has an active subscription: " + dest.getPhysicalName());
+               }
+               if (b.isDurable()) {
+                  throw new Exception("Destination still has durable subscription: " + dest.getPhysicalName());
+               }
+               b.deleteQueue();
             }
-            if (b.isDurable()) {
-               throw new Exception("Destination still has durable subscription: " + dest.getPhysicalName());
-            }
-            b.deleteQueue();
          }
       }
 
