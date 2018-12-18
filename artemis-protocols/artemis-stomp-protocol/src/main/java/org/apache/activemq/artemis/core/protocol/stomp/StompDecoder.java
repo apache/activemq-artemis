@@ -527,7 +527,7 @@ public class StompDecoder {
       }
 
       // Sanity check
-      if (workingBuffer[pos - 1] != NEW_LINE) {
+      if (workingBuffer[pos - 1] != NEW_LINE && workingBuffer[pos - 1] != CR) {
          //give a signal to try other versions
          ActiveMQStompException error = BUNDLE.notValidNewLine(workingBuffer[pos - 1]).setHandler(handler);
          error.setCode(ActiveMQStompException.INVALID_EOL_V10);
