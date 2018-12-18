@@ -1069,8 +1069,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         final Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(address));
-         return bindings.getBindings().stream().map(Binding::toManagementString).collect(Collectors.joining(","));
+         final Bindings bindings = server.getPostOffice().lookupBindingsForAddress(new SimpleString(address));
+         return bindings == null ? "" : bindings.getBindings().stream().map(Binding::toManagementString).collect(Collectors.joining(","));
       } finally {
          blockOnIO();
       }

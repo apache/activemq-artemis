@@ -2999,9 +2999,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       SimpleString expiryAddress = addressSettingsRepository.getMatch(address.toString()).getExpiryAddress();
 
       if (expiryAddress != null) {
-         Bindings bindingList = postOffice.getBindingsForAddress(expiryAddress);
+         Bindings bindingList = postOffice.lookupBindingsForAddress(expiryAddress);
 
-         if (bindingList.getBindings().isEmpty()) {
+         if (bindingList == null || bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
             acknowledge(tx, ref, AckReason.EXPIRED, null);
          } else {
@@ -3027,9 +3027,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                         final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
-         Bindings bindingList = postOffice.getBindingsForAddress(deadLetterAddress);
+         Bindings bindingList = postOffice.lookupBindingsForAddress(deadLetterAddress);
 
-         if (bindingList.getBindings().isEmpty()) {
+         if (bindingList == null || bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
             ref.acknowledge(tx, AckReason.KILLED, null);
          } else {

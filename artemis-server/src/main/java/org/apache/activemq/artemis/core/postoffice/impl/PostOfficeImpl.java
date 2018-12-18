@@ -639,12 +639,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public List<Queue> listQueuesForAddress(SimpleString address) throws Exception {
-      Bindings bindingsForAddress = getBindingsForAddress(address);
+      Bindings bindingsForAddress = lookupBindingsForAddress(address);
       List<Queue> queues = new ArrayList<>();
-      for (Binding b : bindingsForAddress.getBindings()) {
-         if (b instanceof QueueBinding) {
-            Queue q = ((QueueBinding) b).getQueue();
-            queues.add(q);
+      if (bindingsForAddress != null) {
+         for (Binding b : bindingsForAddress.getBindings()) {
+            if (b instanceof QueueBinding) {
+               Queue q = ((QueueBinding) b).getQueue();
+               queues.add(q);
+            }
          }
       }
       return queues;
@@ -779,7 +781,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public boolean isAddressBound(final SimpleString address) throws Exception {
-      Bindings bindings = getBindingsForAddress(address);
+      Bindings bindings = lookupBindingsForAddress(address);
       return bindings != null && !bindings.getBindings().isEmpty();
    }
 

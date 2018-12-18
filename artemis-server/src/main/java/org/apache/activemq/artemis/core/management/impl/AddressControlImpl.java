@@ -123,14 +123,18 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getQueueNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(addressInfo.getName());
-         List<String> queueNames = new ArrayList<>();
-         for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding) {
-               queueNames.add(binding.getUniqueName().toString());
+         Bindings bindings = postOffice.lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            List<String> queueNames = new ArrayList<>();
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  queueNames.add(binding.getUniqueName().toString());
+               }
             }
+            return queueNames.toArray(new String[queueNames.size()]);
+         } else {
+            return new String[0];
          }
-         return queueNames.toArray(new String[queueNames.size()]);
       } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       } finally {
@@ -142,13 +146,17 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getBindingNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(addressInfo.getName());
-         String[] bindingNames = new String[bindings.getBindings().size()];
-         int i = 0;
-         for (Binding binding : bindings.getBindings()) {
-            bindingNames[i++] = binding.getUniqueName().toString();
+         Bindings bindings = postOffice.lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            String[] bindingNames = new String[bindings.getBindings().size()];
+            int i = 0;
+            for (Binding binding : bindings.getBindings()) {
+               bindingNames[i++] = binding.getUniqueName().toString();
+            }
+            return bindingNames;
+         } else {
+            return new String[0];
          }
-         return bindingNames;
       } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       } finally {
@@ -227,10 +235,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       long totalMsgs = 0;
       try {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(addressInfo.getName());
-         for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding) {
-               totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
+         Bindings bindings = postOffice.lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
+               }
             }
          }
          return totalMsgs;
