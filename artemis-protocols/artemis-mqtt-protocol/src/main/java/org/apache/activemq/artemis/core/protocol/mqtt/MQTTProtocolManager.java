@@ -179,7 +179,10 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
    }
 
    public boolean isClientConnected(String clientId, MQTTConnection connection) {
-      return connectedClients.get(clientId).equals(connection);
+      MQTTConnection connectedClient = connectedClients.get(clientId);
+      if (connectedClient != null)
+         return connectedClients.get(clientId).equals(connection);
+      return false;
    }
 
    public void removeConnectedClient(String clientId) {

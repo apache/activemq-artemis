@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -182,24 +183,37 @@ public class MQTTSubscriptionManager {
    }
 
    void removeSubscriptions(List<String> topics) throws Exception {
-      for (String topic : topics) {
-         removeSubscription(topic);
+      synchronized (session.getSessionState()) {
+         for (String topic : topics) {
+            removeSubscription(topic);
+         }
       }
    }
 
-   // FIXME: Do we need this synchronzied?
-   private synchronized void removeSubscription(String address) throws Exception {
+   private void removeSubscription(String address) throws Exception {
       String internalAddress = MQTTUtil.convertMQTTAddressFilterToCore(address, session.getWildcardConfiguration());
-
       SimpleString internalQueueName = getQueueNameForTopic(internalAddress);
       session.getSessionState().removeSubscription(address);
 
-
-      ServerConsumer consumer = consumers.get(address);
-      consumers.remove(address);
-      if (consumer != null) {
-         consumer.close(false);
-         consumerQoSLevels.remove(consumer.getID());
+      SimpleString sAddress = SimpleString.toSimpleString(internalAddress);
+      AddressInfo addressInfo = session.getServerSession().getAddress(sAddress);
+      if (addressInfo != null && addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
+         ServerConsumer consumer = consumers.get(address);
+         consumers.remove(address);
+         if (consumer != null) {
+            consumer.close(false);
+            consumerQoSLevels.remove(consumer.getID());
+         }
+      } else {
+         consumers.remove(address);
+         Queue queue = session.getServer().locateQueue(internalQueueName);
+         Set<Consumer> queueConsumers;
+         if (queue != null && (queueConsumers = (Set<Consumer>) queue.getConsumers()) != null) {
+            for (Consumer consumer : queueConsumers) {
+               ((ServerConsumer) consumer).close(false);
+               consumerQoSLevels.remove(((ServerConsumer) consumer).getID());
+            }
+         }
       }
 
       if (session.getServerSession().executeQueueQuery(internalQueueName).isExists()) {
@@ -219,13 +233,15 @@ public class MQTTSubscriptionManager {
     * @throws Exception
     */
    int[] addSubscriptions(List<MqttTopicSubscription> subscriptions) throws Exception {
-      int[] qos = new int[subscriptions.size()];
+      synchronized (session.getSessionState()) {
+         int[] qos = new int[subscriptions.size()];
 
-      for (int i = 0; i < subscriptions.size(); i++) {
-         addSubscription(subscriptions.get(i));
-         qos[i] = subscriptions.get(i).qualityOfService().value();
+         for (int i = 0; i < subscriptions.size(); i++) {
+            addSubscription(subscriptions.get(i));
+            qos[i] = subscriptions.get(i).qualityOfService().value();
+         }
+         return qos;
       }
-      return qos;
    }
 
    Map<Long, Integer> getConsumerQoSLevels() {
