@@ -18,20 +18,21 @@ package org.apache.activemq.artemis.core.io.mapped;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.util.ByteBufferPool;
+import org.apache.activemq.artemis.utils.PowerOf2Util;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.Env;
 
 public final class MappedSequentialFileFactory extends AbstractSequentialFileFactory {
 
    private int capacity;
    private boolean bufferPooling;
-   //pools only the biggest one -> optimized for the common case
-   private final ThreadLocal<ByteBuffer> bytesPool;
+   private final ByteBufferPool bytesPool;
 
    public MappedSequentialFileFactory(File directory,
                                        int capacity,
@@ -47,7 +48,7 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
       this.capacity = capacity;
       this.setDatasync(true);
       this.bufferPooling = true;
-      this.bytesPool = new ThreadLocal<>();
+      this.bytesPool = ByteBufferPool.threadLocal(true);
    }
 
    public MappedSequentialFileFactory capacity(int capacity) {
@@ -76,7 +77,7 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
 
    @Override
    public ByteBuffer allocateDirectBuffer(final int size) {
-      final int requiredCapacity = (int) BytesUtils.align(size, Env.osPageSize());
+      final int requiredCapacity = PowerOf2Util.align(size, Env.osPageSize());
       final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
       byteBuffer.limit(size);
       return byteBuffer;
@@ -98,43 +99,18 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
    }
 
    @Override
-   public ByteBuffer newBuffer(final int size) {
+   public ByteBuffer newBuffer(int size) {
       if (!this.bufferPooling) {
          return allocateDirectBuffer(size);
       } else {
-         final int requiredCapacity = (int) BytesUtils.align(size, Env.osPageSize());
-         ByteBuffer byteBuffer = bytesPool.get();
-         if (byteBuffer == null || requiredCapacity > byteBuffer.capacity()) {
-            //do not free the old one (if any) until the new one will be released into the pool!
-            byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
-         } else {
-            bytesPool.set(null);
-            PlatformDependent.setMemory(PlatformDependent.directBufferAddress(byteBuffer), size, (byte) 0);
-            byteBuffer.clear();
-         }
-         byteBuffer.limit(size);
-         return byteBuffer;
+         return bytesPool.borrow(size, true);
       }
    }
 
    @Override
    public void releaseBuffer(ByteBuffer buffer) {
       if (this.bufferPooling) {
-         if (buffer.isDirect()) {
-            final ByteBuffer byteBuffer = bytesPool.get();
-            if (byteBuffer != buffer) {
-               //replace with the current pooled only if greater or null
-               if (byteBuffer == null || buffer.capacity() > byteBuffer.capacity()) {
-                  if (byteBuffer != null) {
-                     //free the smaller one
-                     PlatformDependent.freeDirectBuffer(byteBuffer);
-                  }
-                  bytesPool.set(buffer);
-               } else {
-                  PlatformDependent.freeDirectBuffer(buffer);
-               }
-            }
-         }
+         bytesPool.release(buffer);
       }
    }
 
@@ -168,18 +144,7 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
 
    @Override
    public void clearBuffer(final ByteBuffer buffer) {
-      if (buffer.isDirect()) {
-         BytesUtils.zerosDirect(buffer);
-      } else if (buffer.hasArray()) {
-         final byte[] array = buffer.array();
-         //SIMD OPTIMIZATION
-         Arrays.fill(array, (byte) 0);
-      } else {
-         final int capacity = buffer.capacity();
-         for (int i = 0; i < capacity; i++) {
-            buffer.put(i, (byte) 0);
-         }
-      }
+      ByteUtil.zeros(buffer);
       buffer.rewind();
    }
 
