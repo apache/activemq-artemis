@@ -14,19 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.io.mapped;
+package org.apache.activemq.artemis.utils;
 
-import java.nio.ByteBuffer;
+/**
+ * Collection of bit-tricks for power of 2 cases.
+ */
+public final class PowerOf2Util {
 
-import io.netty.util.internal.PlatformDependent;
-
-final class BytesUtils {
-
-   private BytesUtils() {
+   private PowerOf2Util() {
    }
 
-   public static long align(final long value, final long alignment) {
-      return (value + (alignment - 1)) & ~(alignment - 1);
+   /**
+    * Fast alignment operation with power of 2 {@code alignment} and {@code value >=0} and {@code value <}{@link Integer#MAX_VALUE}.<br>
+    * In order to be fast is up to the caller to check arguments correctness.
+    * Original algorithm is on https://en.wikipedia.org/wiki/Data_structure_alignment.
+    */
+   public static int align(final int value, final int pow2alignment) {
+      return (value + (pow2alignment - 1)) & ~(pow2alignment - 1);
    }
 
    /**
@@ -52,22 +56,6 @@ final class BytesUtils {
          throw new IllegalArgumentException("Alignment must be a power of 2");
       }
       return (value & (pow2alignment - 1)) == 0;
-   }
-
-   public static void zerosDirect(final ByteBuffer buffer) {
-      //DANGEROUS!! erases bound-checking using directly addresses -> safe only if it use counted loops
-      int remaining = buffer.capacity();
-      long address = PlatformDependent.directBufferAddress(buffer);
-      while (remaining >= 8) {
-         PlatformDependent.putLong(address, 0L);
-         address += 8;
-         remaining -= 8;
-      }
-      while (remaining > 0) {
-         PlatformDependent.putByte(address, (byte) 0);
-         address++;
-         remaining--;
-      }
    }
 
 }

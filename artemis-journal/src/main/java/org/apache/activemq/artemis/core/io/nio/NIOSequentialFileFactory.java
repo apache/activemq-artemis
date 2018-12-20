@@ -26,6 +26,8 @@ import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.util.ByteBufferPool;
+import org.apache.activemq.artemis.utils.PowerOf2Util;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
@@ -35,8 +37,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
    private boolean bufferPooling;
 
-   //pools only the biggest one -> optimized for the common case
-   private final ThreadLocal<ByteBuffer> bytesPool;
+   private final ByteBufferPool bytesPool;
 
    public NIOSequentialFileFactory(final File journalDir, final int maxIO) {
       this(journalDir, null, maxIO);
@@ -76,7 +77,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
                                    final CriticalAnalyzer analyzer) {
       super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener, analyzer);
       this.bufferPooling = true;
-      this.bytesPool = new ThreadLocal<>();
+      this.bytesPool = ByteBufferPool.threadLocal(true);
    }
 
    public static ByteBuffer allocateDirectByteBuffer(final int size) {
@@ -123,13 +124,9 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       return timedBuffer != null;
    }
 
-   private static int align(final int value, final int pow2alignment) {
-      return (value + (pow2alignment - 1)) & ~(pow2alignment - 1);
-   }
-
    @Override
    public ByteBuffer allocateDirectBuffer(final int size) {
-      final int requiredCapacity = align(size, DEFAULT_CAPACITY_ALIGNMENT);
+      final int requiredCapacity = PowerOf2Util.align(size, DEFAULT_CAPACITY_ALIGNMENT);
       final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
       byteBuffer.limit(size);
       return byteBuffer;
@@ -141,43 +138,18 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
    }
 
    @Override
-   public ByteBuffer newBuffer(final int size) {
+   public ByteBuffer newBuffer(int size) {
       if (!this.bufferPooling) {
          return allocateDirectBuffer(size);
       } else {
-         final int requiredCapacity = align(size, DEFAULT_CAPACITY_ALIGNMENT);
-         ByteBuffer byteBuffer = bytesPool.get();
-         if (byteBuffer == null || requiredCapacity > byteBuffer.capacity()) {
-            //do not free the old one (if any) until the new one will be released into the pool!
-            byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
-         } else {
-            bytesPool.set(null);
-            PlatformDependent.setMemory(PlatformDependent.directBufferAddress(byteBuffer), size, (byte) 0);
-            byteBuffer.clear();
-         }
-         byteBuffer.limit(size);
-         return byteBuffer;
+         return bytesPool.borrow(size, true);
       }
    }
 
    @Override
    public void releaseBuffer(ByteBuffer buffer) {
       if (this.bufferPooling) {
-         if (buffer.isDirect()) {
-            final ByteBuffer byteBuffer = bytesPool.get();
-            if (byteBuffer != buffer) {
-               //replace with the current pooled only if greater or null
-               if (byteBuffer == null || buffer.capacity() > byteBuffer.capacity()) {
-                  if (byteBuffer != null) {
-                     //free the smaller one
-                     PlatformDependent.freeDirectBuffer(byteBuffer);
-                  }
-                  bytesPool.set(buffer);
-               } else {
-                  PlatformDependent.freeDirectBuffer(buffer);
-               }
-            }
-         }
+         bytesPool.release(buffer);
       }
    }
 

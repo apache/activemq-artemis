@@ -28,6 +28,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.utils.PowerOf2Util;
 import org.apache.activemq.artemis.utils.Env;
 
 final class MappedFile implements AutoCloseable {
@@ -196,7 +197,7 @@ final class MappedFile implements AutoCloseable {
       }
       //any that will enter has lastZeroed OS page aligned
       while (toZeros >= OS_PAGE_SIZE) {
-         assert BytesUtils.isAligned(lastZeroed, OS_PAGE_SIZE);/**/
+         assert PowerOf2Util.isAligned(lastZeroed, OS_PAGE_SIZE);/**/
          final long startPage = lastZeroed - OS_PAGE_SIZE;
          PlatformDependent.setMemory(startPage, OS_PAGE_SIZE, (byte) 0);
          lastZeroed = startPage;
