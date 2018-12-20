@@ -160,16 +160,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       journalFF.setDatasync(config.isJournalDatasync());
 
 
-      int fileSize = config.getJournalFileSize();
-      // we need to correct the file size if its not a multiple of the alignement
-      int modulus = fileSize % journalFF.getAlignment();
-      if (modulus != 0) {
-         int difference = modulus;
-         int low = config.getJournalFileSize() - difference;
-         int high = low + journalFF.getAlignment();
-         fileSize = difference < journalFF.getAlignment() / 2 ? low : high;
-         ActiveMQServerLogger.LOGGER.invalidJournalFileSize(config.getJournalFileSize(), fileSize, journalFF.getAlignment());
-      }
+      int fileSize = fixJournalFileSize(config.getJournalFileSize(), journalFF.getAlignment());
       Journal localMessage = createMessageJournal(config, criticalErrorListener, fileSize);
 
       messageJournal = localMessage;
@@ -184,6 +175,29 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       } else {
          pageMaxConcurrentIO = null;
       }
+   }
+
+   /**
+    * We need to correct the file size if its not a multiple of the alignement
+    * @param fileSize : the configured file size.
+    * @param alignment : the alignment.
+    * @return the fixed file size.
+    */
+   protected int fixJournalFileSize(int fileSize, int alignment) {
+      int size = fileSize;
+      if (fileSize <= alignment) {
+         size = alignment;
+      } else {
+         int modulus = fileSize % alignment;
+         if (modulus != 0) {
+            int difference = modulus;
+            int low = fileSize - difference;
+            int high = low + alignment;
+            size = difference < alignment / 2 ? low : high;
+            ActiveMQServerLogger.LOGGER.invalidJournalFileSize(fileSize, size, alignment);
+         }
+      }
+      return size;
    }
 
    protected Journal createMessageJournal(Configuration config,
