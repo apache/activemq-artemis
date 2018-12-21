@@ -27,9 +27,6 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -128,52 +125,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
          }
       }
    }
-
-   @Test
-   public void testTemporaryQueueLeak() throws Exception {
-      ActiveMQConnection conn = null;
-
-      try {
-         conn = (ActiveMQConnection) createConnection();
-
-         Session producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         Session consumerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         TemporaryQueue tempQueue = producerSession.createTemporaryQueue();
-
-         MessageProducer producer = producerSession.createProducer(tempQueue);
-
-         MessageConsumer consumer = consumerSession.createConsumer(tempQueue);
-
-         conn.start();
-
-         final String messageText = "This is a message";
-
-         Message m = producerSession.createTextMessage(messageText);
-
-         producer.send(m);
-
-         TextMessage m2 = (TextMessage) consumer.receive(2000);
-
-         ProxyAssertSupport.assertNotNull(m2);
-
-         ProxyAssertSupport.assertEquals(messageText, m2.getText());
-
-         consumer.close();
-
-         tempQueue.delete();
-
-         ProxyAssertSupport.assertFalse(conn.containsKnownDestination(SimpleString.toSimpleString(tempQueue.getQueueName())));
-
-         ProxyAssertSupport.assertFalse(conn.containsTemporaryQueue(SimpleString.toSimpleString(tempQueue.getQueueName())));
-      } finally {
-         if (conn != null) {
-            conn.close();
-         }
-      }
-   }
-
    /**
     * http://jira.jboss.com/jira/browse/JBMESSAGING-93
     */
@@ -302,126 +253,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
          conn.close();
          conn = createConnection("guest", "guest");
          try {
-            producer.send(m);
-            ProxyAssertSupport.fail();
-         } catch (JMSException e) {
-         }
-      } finally {
-         if (conn != null) {
-            conn.close();
-         }
-      }
-   }
-
-   @Test
-   public void testTemporaryQueueDeletedAfterSessionClosed() throws Exception {
-      servers.get(0).getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
-
-      Connection conn = null;
-
-      try {
-         conn = createConnection();
-
-         Session producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         Session consumerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         // Make sure temporary queue cannot be used after it has been deleted
-
-         TemporaryQueue tempQueue = producerSession.createTemporaryQueue();
-
-         MessageProducer producer = producerSession.createProducer(tempQueue);
-
-         MessageConsumer consumer = consumerSession.createConsumer(tempQueue);
-
-         conn.start();
-
-         final String messageText = "This is a message";
-
-         Message m = producerSession.createTextMessage(messageText);
-
-         producer.send(m);
-
-         TextMessage m2 = (TextMessage) consumer.receive(2000);
-
-         ProxyAssertSupport.assertNotNull(m2);
-
-         ProxyAssertSupport.assertEquals(messageText, m2.getText());
-
-         consumer.close();
-
-         consumerSession.close();
-
-         producer.close();
-
-         producerSession.close();
-
-         tempQueue.delete();
-
-         producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         try {
-            producer = producerSession.createProducer(tempQueue);
-            producer.send(m);
-            ProxyAssertSupport.fail();
-         } catch (JMSException e) {
-         }
-      } finally {
-         if (conn != null) {
-            conn.close();
-         }
-      }
-   }
-
-   @Test
-   public void testTemporaryTopicDeletedAfterSessionClosed() throws Exception {
-      servers.get(0).getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
-
-      Connection conn = null;
-
-      try {
-         conn = createConnection();
-
-         Session producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         Session consumerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         // Make sure temporary topic cannot be used after it has been deleted
-
-         TemporaryTopic tempTopic = producerSession.createTemporaryTopic();
-
-         MessageProducer producer = producerSession.createProducer(tempTopic);
-
-         MessageConsumer consumer = consumerSession.createConsumer(tempTopic);
-
-         conn.start();
-
-         final String messageText = "This is a message";
-
-         Message m = producerSession.createTextMessage(messageText);
-
-         producer.send(m);
-
-         TextMessage m2 = (TextMessage) consumer.receive(2000);
-
-         ProxyAssertSupport.assertNotNull(m2);
-
-         ProxyAssertSupport.assertEquals(messageText, m2.getText());
-
-         consumer.close();
-
-         consumerSession.close();
-
-         producer.close();
-
-         producerSession.close();
-
-         tempTopic.delete();
-
-         producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         try {
-            producer = producerSession.createProducer(tempTopic);
             producer.send(m);
             ProxyAssertSupport.fail();
          } catch (JMSException e) {
