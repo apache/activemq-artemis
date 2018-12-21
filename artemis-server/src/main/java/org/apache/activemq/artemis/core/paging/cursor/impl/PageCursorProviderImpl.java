@@ -352,6 +352,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       logger.tracef("%s locked", this);
 
       synchronized (this) {
+         PageSubscription minSubscription = null;
          try {
             if (!pagingStore.isStarted()) {
                return;
@@ -364,7 +365,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             ArrayList<PageSubscription> cursorList = cloneSubscriptions();
 
             long minPage = checkMinPage(cursorList);
-            deliverIfNecessary(cursorList, minPage);
+            minSubscription = getMinSubscription(cursorList, minPage);
 
             logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
 
@@ -411,6 +412,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             return;
          } finally {
             pagingStore.unlock();
+         }
+         if (minSubscription != null && minSubscription.getQueue().getMessageCount() == 0) {
+            minSubscription.getQueue().deliverAsync();
          }
       }
       finishCleanup(depagedPages);
@@ -600,7 +604,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    }
 
-   private void deliverIfNecessary(Collection<PageSubscription> cursorList, long minPage) {
+   private PageSubscription getMinSubscription(Collection<PageSubscription> cursorList, long minPage) {
       boolean currentWriting = minPage == pagingStore.getCurrentWritingPage() ? true : false;
       for (PageSubscription cursor : cursorList) {
          long firstPage = cursor.getFirstPage();
@@ -610,12 +614,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
              * first page is before the current writing page, we need to trigger
              * deliverAsync to delete messages in the pages.
              */
-            if (cursor.getQueue().getMessageCount() == 0 && (!currentWriting || !cursor.isComplete(firstPage))) {
-               cursor.getQueue().deliverAsync();
-               break;
+            if (!currentWriting || !cursor.isComplete(firstPage)) {
+               return cursor;
             }
          }
       }
+      return null;
    }
 
    // Inner classes -------------------------------------------------
