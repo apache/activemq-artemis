@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.utils.critical;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.jboss.logging.Logger;
@@ -31,9 +32,11 @@ public class CriticalMeasure {
    //uses updaters to avoid creates many AtomicLong instances
    static final AtomicLongFieldUpdater<CriticalMeasure> TIME_ENTER_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeEnter");
    static final AtomicLongFieldUpdater<CriticalMeasure> TIME_LEFT_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeLeft");
+   static final AtomicIntegerFieldUpdater<CriticalMeasure> PENDING_UPDATE = AtomicIntegerFieldUpdater.newUpdater(CriticalMeasure.class, "pending");
 
    private volatile long timeEnter;
    private volatile long timeLeft;
+   private volatile int pending;
 
    private final int id;
    private final CriticalComponent component;
@@ -55,10 +58,11 @@ public class CriticalMeasure {
       if (logger.isTraceEnabled()) {
          traceEnter = new Exception("entered");
       }
+
+      PENDING_UPDATE.getAndIncrement(this);
    }
 
    public void leaveCritical() {
-
       if (logger.isTraceEnabled()) {
 
          CriticalAnalyzer analyzer = component != null ? component.getCriticalAnalyzer() : null;
@@ -71,6 +75,8 @@ public class CriticalMeasure {
          }
          traceEnter = null;
       }
+
+      PENDING_UPDATE.getAndDecrement(this);
 
       TIME_LEFT_UPDATER.lazySet(this, System.nanoTime());
    }
@@ -88,7 +94,7 @@ public class CriticalMeasure {
       final long timeEnter = TIME_ENTER_UPDATER.get(this);
       //due to how System::nanoTime works is better to use differences to prevent numerical overflow while comparing
       if (timeLeft - timeEnter < 0) {
-         boolean expired = System.nanoTime() - timeEnter > timeout;
+         boolean expired = PENDING_UPDATE.get(this) > 0 && System.nanoTime() - TIME_ENTER_UPDATER.get(this) > timeout;
 
          if (expired) {
 

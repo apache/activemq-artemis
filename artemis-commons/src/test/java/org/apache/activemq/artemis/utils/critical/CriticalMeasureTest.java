@@ -56,4 +56,24 @@ public class CriticalMeasureTest {
       Assert.assertTrue(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
       measure.leaveCritical();
    }
+
+   @Test
+   public void testCriticalMeasureClockDrift() {
+      CriticalAnalyzer analyzer = new CriticalAnalyzerImpl();
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 5);
+      CriticalMeasure measure = new CriticalMeasure(component, 1);
+      long time = System.nanoTime();
+
+      CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(5));
+      CriticalMeasure.TIME_LEFT_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(6));
+      Assert.assertFalse(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
+
+      measure.enterCritical();
+      Assert.assertFalse(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
+
+      CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(5));
+      Assert.assertTrue(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
+      measure.leaveCritical();
+      Assert.assertTrue(CriticalMeasure.PENDING_UPDATE.get(measure) == 0);
+   }
 }
