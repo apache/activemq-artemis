@@ -106,7 +106,7 @@ public class MQTTSession {
          }
 
          if (isClean()) {
-            clean();
+            clean(true);
          }
       }
       stopped = true;
@@ -123,7 +123,7 @@ public class MQTTSession {
    void setIsClean(boolean isClean) throws Exception {
       this.isClean = isClean;
       if (isClean) {
-         clean();
+         clean(false);
       }
    }
 
@@ -184,10 +184,13 @@ public class MQTTSession {
       return protocolManager;
    }
 
-   void clean() throws Exception {
+   void clean(boolean isCleanSessionState) throws Exception {
       subscriptionManager.clean();
       mqttPublishManager.clean();
       state.clear();
+      //when cleanSession is true,MQTTSessionState should be removed
+      if (isCleanSessionState)
+         SESSIONS.remove(connection.getClientID());
    }
 
    public WildcardConfiguration getWildcardConfiguration() {
