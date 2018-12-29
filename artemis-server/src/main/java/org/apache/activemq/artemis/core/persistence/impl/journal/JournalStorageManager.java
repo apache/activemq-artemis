@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -309,17 +308,18 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     */
    @Override
    protected void performCachedLargeMessageDeletes() {
-      for (Long largeMsgId : largeMessagesToDelete) {
-         SequentialFile msg = createFileForLargeMessage(largeMsgId, LargeMessageExtension.DURABLE);
+      largeMessagesToDelete.forEach((messageId, largeServerMessage) -> {
+         SequentialFile msg = createFileForLargeMessage(messageId, LargeMessageExtension.DURABLE);
          try {
             msg.delete();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeMsgId);
+            ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, messageId);
          }
          if (replicator != null) {
-            replicator.largeMessageDelete(largeMsgId, JournalStorageManager.this);
+            replicator.largeMessageDelete(messageId, JournalStorageManager.this);
          }
-      }
+         confirmLargeMessage(largeServerMessage);
+      });
       largeMessagesToDelete.clear();
    }
 
@@ -460,10 +460,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          readLock();
          try {
             if (isReplicated() && replicator.isSynchronizing()) {
-               synchronized (largeMessagesToDelete) {
-                  largeMessagesToDelete.add(Long.valueOf(largeServerMessage.getMessageID()));
-                  confirmLargeMessage(largeServerMessage);
-               }
+               largeMessagesToDelete.put(largeServerMessage.getMessageID(), largeServerMessage);
                return;
             }
          } finally {
@@ -724,11 +721,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       // only send durable messages... // listFiles append a "." to anything...
       List<String> filenames = largeMessagesFactory.listFiles("msg");
 
-      List<Long> idList = new ArrayList<>();
       for (String filename : filenames) {
-         Long id = getLargeMessageIdFromFilename(filename);
-         if (!largeMessagesToDelete.contains(id)) {
-            idList.add(id);
+         long id = getLargeMessageIdFromFilename(filename);
+         if (!largeMessagesToDelete.containsKey(id)) {
             SequentialFile seqFile = largeMessagesFactory.createSequentialFile(filename);
             long size = seqFile.size();
             largeMessages.put(id, new Pair<>(filename, size));
