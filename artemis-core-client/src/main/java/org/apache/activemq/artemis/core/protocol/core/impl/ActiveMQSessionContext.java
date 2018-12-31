@@ -367,6 +367,7 @@ public class ActiveMQSessionContext extends SessionContext {
    @Override
    public ClientConsumerInternal createConsumer(SimpleString queueName,
                                                 SimpleString filterString,
+                                                int priority,
                                                 int windowSize,
                                                 int maxRate,
                                                 int ackBatchSize,
@@ -377,7 +378,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
       ActiveMQConsumerContext consumerContext = new ActiveMQConsumerContext(consumerID);
 
-      SessionCreateConsumerMessage request = new SessionCreateConsumerMessage(consumerID, queueName, filterString, browseOnly, true);
+      SessionCreateConsumerMessage request = new SessionCreateConsumerMessage(consumerID, queueName, filterString, priority, browseOnly, true);
 
       SessionQueueQueryResponseMessage queueInfo;
 
@@ -392,7 +393,7 @@ public class ActiveMQSessionContext extends SessionContext {
       // The value we send is just a hint
       final int consumerWindowSize = windowSize == ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE ? this.getDefaultConsumerWindowSize(queueInfo) : windowSize;
 
-      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, browseOnly, consumerWindowSize, calcWindowSize(consumerWindowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
+      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, consumerWindowSize, calcWindowSize(consumerWindowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
    }
 
    @Override
@@ -875,7 +876,7 @@ public class ActiveMQSessionContext extends SessionContext {
          sendPacketWithoutLock(sessionChannel, createQueueRequest);
       }
 
-      SessionCreateConsumerMessage createConsumerRequest = new SessionCreateConsumerMessage(getConsumerID(consumerInternal), consumerInternal.getQueueName(), consumerInternal.getFilterString(), consumerInternal.isBrowseOnly(), false);
+      SessionCreateConsumerMessage createConsumerRequest = new SessionCreateConsumerMessage(getConsumerID(consumerInternal), consumerInternal.getQueueName(), consumerInternal.getFilterString(), consumerInternal.getPriority(), consumerInternal.isBrowseOnly(), false);
 
       sendPacketWithoutLock(sessionChannel, createConsumerRequest);
 
