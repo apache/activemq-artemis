@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -83,6 +85,8 @@ import org.jboss.logging.Logger;
 public class AMQPSessionCallback implements SessionCallback {
 
    private static final Logger logger = Logger.getLogger(AMQPSessionCallback.class);
+
+   private static final Symbol PRIORITY = Symbol.getSymbol("priority");
 
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
@@ -223,7 +227,9 @@ public class AMQPSessionCallback implements SessionCallback {
 
       filter = SelectorTranslator.convertToActiveMQFilterString(filter);
 
-      ServerConsumer consumer = serverSession.createConsumer(consumerID, queue, SimpleString.toSimpleString(filter), browserOnly, false, null);
+      int priority = getPriority(protonSender.getSender().getRemoteProperties());
+
+      ServerConsumer consumer = serverSession.createConsumer(consumerID, queue, SimpleString.toSimpleString(filter), priority, browserOnly, false, null);
 
       // AMQP handles its own flow control for when it's started
       consumer.setStarted(true);
@@ -231,6 +237,11 @@ public class AMQPSessionCallback implements SessionCallback {
       consumer.setProtocolContext(protonSender);
 
       return consumer;
+   }
+
+   private int getPriority(Map<Symbol, Object> properties) {
+      Integer value = properties == null ? null : (Integer) properties.get(PRIORITY);
+      return value == null ? ActiveMQDefaultConfiguration.getDefaultConsumerPriority() : value;
    }
 
    public void startSender(Object brokerConsumer) throws Exception {

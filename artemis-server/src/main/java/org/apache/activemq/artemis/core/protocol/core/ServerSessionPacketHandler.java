@@ -323,7 +323,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_CREATECONSUMER: {
                   SessionCreateConsumerMessage request = (SessionCreateConsumerMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createConsumer(request.getID(), request.getQueueName(), request.getFilterString(), request.isBrowseOnly());
+                  session.createConsumer(request.getID(), request.getQueueName(), request.getFilterString(), request.getPriority(), request.isBrowseOnly(), true, null);
                   if (requiresResponse) {
                      // We send back queue information on the queue as a response- this allows the queue to
                      // be automatically recreated on failover

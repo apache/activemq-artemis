@@ -314,6 +314,7 @@ public abstract class SessionContext {
 
    public abstract ClientConsumerInternal createConsumer(SimpleString queueName,
                                                          SimpleString filterString,
+                                                         int priority,
                                                          int windowSize,
                                                          int maxRate,
                                                          int ackBatchSize,
