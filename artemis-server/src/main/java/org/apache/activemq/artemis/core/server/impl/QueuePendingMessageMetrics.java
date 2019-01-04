@@ -58,7 +58,7 @@ public class QueuePendingMessageMetrics {
       long size = getPersistentSize(reference);
       COUNT_UPDATER.incrementAndGet(this);
       SIZE_UPDATER.addAndGet(this, size);
-      if (queue.isDurable() && reference.getMessage().isDurable()) {
+      if (queue.isDurable() && reference.isDurable()) {
          DURABLE_COUNT_UPDATER.incrementAndGet(this);
          DURABLE_SIZE_UPDATER.addAndGet(this, size);
       }
@@ -68,7 +68,7 @@ public class QueuePendingMessageMetrics {
       long size = -getPersistentSize(reference);
       COUNT_UPDATER.decrementAndGet(this);
       SIZE_UPDATER.addAndGet(this, size);
-      if (queue.isDurable() && reference.getMessage().isDurable()) {
+      if (queue.isDurable() && reference.isDurable()) {
          DURABLE_COUNT_UPDATER.decrementAndGet(this);
          DURABLE_SIZE_UPDATER.addAndGet(this, size);
       }
