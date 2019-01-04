@@ -735,6 +735,9 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    public void setPageSubscription(PageSubscription sub) {
       this.subs = sub;
+      if (subs != null) {
+         sub.setQueue(this);
+      }
    }
 
    @Override
