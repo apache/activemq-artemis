@@ -77,6 +77,12 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private Consumer<? super MessageReference> onDelivery;
 
+   //Durable field : 0 is false, 1 is true, -1 not defined
+   private static final byte IS_NOT_DURABLE = 0;
+   private static final byte IS_DURABLE = 1;
+   private static final byte UNDEFINED_IS_DURABLE = -1;
+   private byte durable = UNDEFINED_IS_DURABLE;
+
    @Override
    public Object getProtocolData() {
       return protocolData;
@@ -144,7 +150,8 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          this.largeMessage = message.getMessage().isLargeMessage() ? IS_LARGE_MESSAGE : IS_NOT_LARGE_MESSAGE;
          this.transactionID = message.getTransactionID();
          this.messageID = message.getMessage().getMessageID();
-
+         this.durable = message.getMessage().isDurable() ? IS_DURABLE : IS_NOT_DURABLE;
+         this.deliveryTime = message.getMessage().getScheduledDeliveryTime();
          //pre-cache the message size so we don't have to reload the message later if it is GC'd
          getPersistentSize();
       } else {
@@ -152,6 +159,8 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          this.transactionID = -2;
          this.messageID = -1;
          this.messageSize = -1;
+         this.durable = UNDEFINED_IS_DURABLE;
+         this.deliveryTime = UNDEFINED_DELIVERY_TIME;
       }
    }
 
@@ -385,6 +394,14 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          }
       }
       return messageSize;
+   }
+
+   @Override
+   public boolean isDurable() {
+      if (durable == UNDEFINED_IS_DURABLE) {
+         durable = getMessage().isDurable() ? IS_DURABLE : IS_NOT_DURABLE;
+      }
+      return durable == IS_DURABLE;
    }
 
 }

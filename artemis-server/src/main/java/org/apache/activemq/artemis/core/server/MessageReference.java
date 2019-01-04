@@ -44,6 +44,8 @@ public interface MessageReference {
 
    long getMessageID();
 
+   boolean isDurable();
+
    SimpleString getLastValueProperty();
 
    /**
