@@ -190,6 +190,11 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    }
 
    @Override
+   public boolean isDurable() {
+      return getMessage().isDurable();
+   }
+
+   @Override
    public void handled() {
       queue.referenceHandled(this);
    }
