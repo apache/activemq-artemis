@@ -140,6 +140,21 @@ public class PagingStoreImpl implements PagingStore {
                           final AddressSettings addressSettings,
                           final ArtemisExecutor executor,
                           final boolean syncNonTransactional) {
+      this(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, executor, syncNonTransactional);
+   }
+
+   public PagingStoreImpl(final SimpleString address,
+                          final ScheduledExecutorService scheduledExecutor,
+                          final long syncTimeout,
+                          final PagingManager pagingManager,
+                          final StorageManager storageManager,
+                          final SequentialFileFactory fileFactory,
+                          final PagingStoreFactory storeFactory,
+                          final SimpleString storeName,
+                          final AddressSettings addressSettings,
+                          final ArtemisExecutor executor,
+                          final ArtemisExecutor ioExecutor,
+                          final boolean syncNonTransactional) {
       if (pagingManager == null) {
          throw new IllegalStateException("Paging Manager can't be null");
       }
@@ -172,7 +187,7 @@ public class PagingStoreImpl implements PagingStore {
       this.syncNonTransactional = syncNonTransactional;
 
       if (scheduledExecutor != null && syncTimeout > 0) {
-         this.syncTimer = new PageSyncTimer(this, scheduledExecutor, executor, syncTimeout);
+         this.syncTimer = new PageSyncTimer(this, scheduledExecutor, ioExecutor, syncTimeout);
       } else {
          this.syncTimer = null;
       }
@@ -275,22 +290,17 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public boolean isPaging() {
-      lock.readLock().lock();
-
-      try {
-         if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
-            return false;
-         }
-         if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL) {
-            return isFull();
-         }
-         if (addressFullMessagePolicy == AddressFullMessagePolicy.DROP) {
-            return isFull();
-         }
-         return paging;
-      } finally {
-         lock.readLock().unlock();
+      AddressFullMessagePolicy policy = this.addressFullMessagePolicy;
+      if (policy == AddressFullMessagePolicy.BLOCK) {
+         return false;
       }
+      if (policy == AddressFullMessagePolicy.FAIL) {
+         return isFull();
+      }
+      if (policy == AddressFullMessagePolicy.DROP) {
+         return isFull();
+      }
+      return paging;
    }
 
    @Override
