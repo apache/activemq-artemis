@@ -1090,7 +1090,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 60 * 1000)
-   public void testCleanSession() throws Exception {
+   public void testCleanSessionForSubscriptions() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
       BlockingConnection notClean = mqttNotClean.blockingConnection();
@@ -1100,7 +1100,9 @@ public class MQTTTest extends MQTTTestSupport {
       notClean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       notClean.disconnect();
 
-      // MUST receive message from previous not clean session
+      assertEquals(1, MQTTSession.getSessions().size());
+
+      // MUST receive message from existing subscription from previous not clean session
       notClean = mqttNotClean.blockingConnection();
       notClean.connect();
       Message msg = notClean.receive(10000, TimeUnit.MILLISECONDS);
@@ -1110,7 +1112,9 @@ public class MQTTTest extends MQTTTestSupport {
       notClean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       notClean.disconnect();
 
-      // MUST NOT receive message from previous not clean session
+      assertEquals(1, MQTTSession.getSessions().size());
+
+      // MUST NOT receive message from previous not clean session as existing subscription should be gone
       final MQTT mqttClean = createMQTTConnection(CLIENTID, true);
       final BlockingConnection clean = mqttClean.blockingConnection();
       clean.connect();
@@ -1120,12 +1124,42 @@ public class MQTTTest extends MQTTTestSupport {
       clean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       clean.disconnect();
 
-      // MUST NOT receive message from previous clean session
+      assertEquals(0, MQTTSession.getSessions().size());
+
+      // MUST NOT receive message from previous clean session as existing subscription should be gone
       notClean = mqttNotClean.blockingConnection();
       notClean.connect();
       msg = notClean.receive(1000, TimeUnit.MILLISECONDS);
       assertNull(msg);
       notClean.disconnect();
+
+      assertEquals(1, MQTTSession.getSessions().size());
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testCleanSessionForMessages() throws Exception {
+      final String CLIENTID = "cleansession";
+      final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
+      BlockingConnection notClean = mqttNotClean.blockingConnection();
+      final String TOPIC = "TopicA";
+      notClean.connect();
+      notClean.subscribe(new Topic[]{new Topic(TOPIC, QoS.EXACTLY_ONCE)});
+      notClean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
+      notClean.disconnect();
+
+      assertEquals(1, MQTTSession.getSessions().size());
+
+      // MUST NOT receive message from previous not clean session even when creating a new subscription
+      final MQTT mqttClean = createMQTTConnection(CLIENTID, true);
+      final BlockingConnection clean = mqttClean.blockingConnection();
+      clean.connect();
+      clean.subscribe(new Topic[]{new Topic(TOPIC, QoS.EXACTLY_ONCE)});
+      Message msg = clean.receive(10000, TimeUnit.MILLISECONDS);
+      assertNull(msg);
+      clean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
+      clean.disconnect();
+
+      assertEquals(0, MQTTSession.getSessions().size());
    }
 
    @Test(timeout = 60 * 1000)
