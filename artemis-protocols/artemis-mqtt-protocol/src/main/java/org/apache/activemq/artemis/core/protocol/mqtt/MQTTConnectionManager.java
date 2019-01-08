@@ -74,14 +74,21 @@ public class MQTTConnectionManager {
          return;
       }
 
-      session.setSessionState(getSessionState(clientId));
       String password = passwordInBytes == null ? null : new String(passwordInBytes, CharsetUtil.UTF_8);
       session.getConnection().setClientID(clientId);
       ServerSessionImpl serverSession = createServerSession(username, password);
       serverSession.start();
-
       session.setServerSession(serverSession);
-      session.setIsClean(cleanSession);
+
+      session.setSessionState(getSessionState(clientId));
+
+      if (cleanSession) {
+         /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
+          * start a new one. This Session lasts as long as the Network Connection. State data associated with this Session
+          * MUST NOT be reused in any subsequent Session */
+         session.clean();
+         session.setClean(true);
+      }
 
       if (will) {
          isWill = true;
@@ -154,21 +161,15 @@ public class MQTTConnectionManager {
       }
    }
 
-   private MQTTSessionState getSessionState(String clientId) throws InterruptedException {
-      /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
-       * start a new one  This Session lasts as long as the Network Connection. State data associated with this Session
-       * MUST NOT be reused in any subsequent Session */
-
-      /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
-      a new one. */
+   private MQTTSessionState getSessionState(String clientId) {
+      /* [MQTT-3.1.2-4] Attach an existing session if one exists otherwise create a new one. */
       MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
-      if (state != null) {
-         return state;
-      } else {
+      if (state == null) {
          state = new MQTTSessionState(clientId);
          MQTTSession.SESSIONS.put(clientId, state);
-         return state;
       }
+
+      return state;
    }
 
    private String validateClientId(String clientId, boolean cleanSession) {
