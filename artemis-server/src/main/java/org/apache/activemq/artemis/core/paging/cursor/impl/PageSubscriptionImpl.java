@@ -1315,9 +1315,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   }
                }
 
-               if (!ignored) {
-                  position = message.getPosition();
-               }
+               position = message.getPosition();
 
                if (valid) {
                   match = match(message.getMessage());
