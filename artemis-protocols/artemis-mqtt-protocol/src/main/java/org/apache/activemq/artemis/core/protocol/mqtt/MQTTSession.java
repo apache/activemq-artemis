@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,7 +58,7 @@ public class MQTTSession {
 
    private MQTTProtocolManager protocolManager;
 
-   private boolean isClean;
+   private boolean clean;
 
    private WildcardConfiguration wildcardConfiguration;
 
@@ -107,6 +108,7 @@ public class MQTTSession {
 
          if (isClean()) {
             clean();
+            SESSIONS.remove(connection.getClientID());
          }
       }
       stopped = true;
@@ -117,14 +119,11 @@ public class MQTTSession {
    }
 
    boolean isClean() {
-      return isClean;
+      return clean;
    }
 
-   void setIsClean(boolean isClean) throws Exception {
-      this.isClean = isClean;
-      if (isClean) {
-         clean();
-      }
+   void setClean(boolean clean) {
+      this.clean = clean;
    }
 
    MQTTPublishManager getMqttPublishManager() {
@@ -200,5 +199,9 @@ public class MQTTSession {
 
    public CoreMessageObjectPools getCoreMessageObjectPools() {
       return coreMessageObjectPools;
+   }
+
+   public static Map<String, MQTTSessionState> getSessions() {
+      return new HashMap<>(SESSIONS);
    }
 }
