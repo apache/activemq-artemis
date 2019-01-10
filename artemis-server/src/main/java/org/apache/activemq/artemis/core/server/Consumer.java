@@ -18,10 +18,12 @@ package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.PriorityAware;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
-public interface Consumer {
+public interface Consumer extends PriorityAware {
 
    /**
     *
@@ -84,6 +86,11 @@ public interface Consumer {
 
    /** an unique sequential ID for this consumer */
    long sequentialID();
+
+   @Override
+   default int getPriority() {
+      return ActiveMQDefaultConfiguration.getDefaultConsumerPriority();
+   }
 
    default void errorProcessing(Throwable e, MessageReference reference) {
 
