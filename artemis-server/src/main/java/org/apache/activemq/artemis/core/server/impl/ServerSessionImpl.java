@@ -35,6 +35,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.Closeable;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -455,6 +456,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                         final boolean browseOnly,
                                         final boolean supportLargeMessage,
                                         final Integer credits) throws Exception {
+      return this.createConsumer(consumerID, queueName, filterString, ActiveMQDefaultConfiguration.getDefaultConsumerPriority(), browseOnly, supportLargeMessage, credits);
+   }
+
+   @Override
+   public ServerConsumer createConsumer(final long consumerID,
+                                        final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final int priority,
+                                        final boolean browseOnly,
+                                        final boolean supportLargeMessage,
+                                        final Integer credits) throws Exception {
       final SimpleString unPrefixedQueueName = removePrefix(queueName);
 
       Binding binding = postOffice.getBinding(unPrefixedQueueName);
@@ -485,7 +497,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                filterString, browseOnly, supportLargeMessage));
       }
 
-      ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
+      ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
       consumers.put(consumer.getID(), consumer);
 
       if (server.hasBrokerConsumerPlugins()) {

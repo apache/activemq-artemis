@@ -70,6 +70,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private final SimpleString filterString;
 
+   private final int priority;
+
    private final SimpleString queueName;
 
    private final boolean browseOnly;
@@ -141,6 +143,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                              final ConsumerContext consumerContext,
                              final SimpleString queueName,
                              final SimpleString filterString,
+                             final int priority,
                              final boolean browseOnly,
                              final int initialWindow,
                              final int clientWindowSize,
@@ -156,6 +159,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       this.queueName = queueName;
 
       this.filterString = filterString;
+
+      this.priority = priority;
 
       this.browseOnly = browseOnly;
 
@@ -560,6 +565,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    @Override
    public SimpleString getFilterString() {
       return filterString;
+   }
+
+   @Override
+   public int getPriority() {
+      return priority;
    }
 
    @Override
