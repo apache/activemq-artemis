@@ -473,6 +473,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final int DEFAULT_MAX_QUEUE_CONSUMERS = -1;
 
+   public static final int DEFAULT_CONSUMER_PRIORITY = 0;
+
    public static final boolean DEFAULT_EXCLUSIVE = false;
 
    public static final boolean DEFAULT_LAST_VALUE = false;
@@ -1318,6 +1320,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultMaxQueueConsumers() {
       return DEFAULT_MAX_QUEUE_CONSUMERS;
+   }
+
+   public static int getDefaultConsumerPriority() {
+      return DEFAULT_CONSUMER_PRIORITY;
    }
 
    public static boolean getDefaultExclusive() {

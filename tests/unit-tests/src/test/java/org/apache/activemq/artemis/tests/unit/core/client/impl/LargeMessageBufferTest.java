@@ -746,6 +746,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          return null;
       }
 
+      @Override
+      public int getPriority() {
+         return 0;
+      }
+
       public long getID() {
 
          return 0;

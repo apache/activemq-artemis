@@ -879,6 +879,30 @@ public interface ClientSession extends XAResource, AutoCloseable {
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
+    * @param priority   the consumer priority
+    * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
+    * @return a ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
+    */
+   ClientConsumer createConsumer(SimpleString queueName,
+                                 SimpleString filter,
+                                 int priority,
+                                 boolean browseOnly) throws ActiveMQException;
+
+   /**
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
+    * the given name.
+    * <p>
+    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
+    * from the queue but they will not be consumed (the messages will remain in the queue). Note
+    * that paged messages will not be in the queue, and will therefore not be visible if
+    * {@code browseOnly} is {@code true}.
+    * <p>
+    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
+    * the messages from the queue and the messages will effectively be removed from the queue.
+    *
+    * @param queueName  name of the queue to consume messages from
+    * @param filter     only messages which match this filter will be consumed
     * @param windowSize the consumer window size
     * @param maxRate    the maximum rate to consume messages
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
@@ -887,6 +911,35 @@ public interface ClientSession extends XAResource, AutoCloseable {
     */
    ClientConsumer createConsumer(SimpleString queueName,
                                  SimpleString filter,
+                                 int windowSize,
+                                 int maxRate,
+                                 boolean browseOnly) throws ActiveMQException;
+
+
+   /**
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
+    * the given name.
+    * <p>
+    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
+    * from the queue but they will not be consumed (the messages will remain in the queue). Note
+    * that paged messages will not be in the queue, and will therefore not be visible if
+    * {@code browseOnly} is {@code true}.
+    * <p>
+    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
+    * the messages from the queue and the messages will effectively be removed from the queue.
+    *
+    * @param queueName  name of the queue to consume messages from
+    * @param filter     only messages which match this filter will be consumed
+    * @param priority   the consumer priority
+    * @param windowSize the consumer window size
+    * @param maxRate    the maximum rate to consume messages
+    * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
+    * @return a ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
+    */
+   ClientConsumer createConsumer(SimpleString queueName,
+                                 SimpleString filter,
+                                 int priority,
                                  int windowSize,
                                  int maxRate,
                                  boolean browseOnly) throws ActiveMQException;

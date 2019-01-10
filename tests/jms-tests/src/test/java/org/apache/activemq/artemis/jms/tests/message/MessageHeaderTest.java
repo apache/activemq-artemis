@@ -1175,11 +1175,21 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       }
 
       @Override
+      public ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, int priority, boolean browseOnly) throws ActiveMQException {
+         return null;
+      }
+
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString,
                                            final int windowSize,
                                            final int maxRate,
                                            final boolean browseOnly) throws ActiveMQException {
+         return null;
+      }
+
+      @Override
+      public ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, int priority, int windowSize, int maxRate, boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
