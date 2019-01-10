@@ -31,6 +31,10 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void fireSlowConsumer();
 
+   /** the current queue settings will allow use of the Reference Execution and callback.
+    *  This is because  */
+   boolean allowReferenceCallback();
+
    /**
     * this is to be used with anything specific on a protocol head.
     */
@@ -105,6 +109,4 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
    long getCreationTime();
 
    String getSessionID();
-
-   void promptDelivery();
 }

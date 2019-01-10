@@ -94,7 +94,12 @@ public class Wait {
 
 
    public static void assertTrue(String failureMessage, Condition condition) throws Exception {
-      boolean result = waitFor(condition);
+      assertTrue(failureMessage, condition, MAX_WAIT_MILLIS);
+   }
+
+   public static void assertTrue(String failureMessage, Condition condition, final long duration) throws Exception {
+
+      boolean result = waitFor(condition, duration);
 
       if (!result) {
          Assert.fail(failureMessage);

@@ -53,6 +53,10 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setRoutingType(RoutingType routingType);
 
+   /** the current queue and consumer settings will allow use of the Reference Execution and callback.
+    *  This is because  */
+   boolean allowsReferenceCallback();
+
    boolean isDurable();
 
    /**
@@ -391,5 +395,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    /** This is to perform a check on the counter again */
    void recheckRefCount(OperationContext context);
+
+   default void errorProcessing(Consumer consumer, Throwable t, MessageReference messageReference) {
+
+   }
 
 }

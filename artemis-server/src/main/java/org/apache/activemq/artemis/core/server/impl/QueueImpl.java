@@ -535,6 +535,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    // Bindable implementation -------------------------------------------------------------------------------------
 
+   @Override
+   public boolean allowsReferenceCallback() {
+      // non descructive queues will reuse the same reference between multiple consumers
+      // so you cannot really use the callback from the MessageReference
+      return !nonDestructive;
+   }
+
    public SimpleString getRoutingName() {
       return name;
    }
@@ -627,8 +634,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
-      if (purgeOnNoConsumers && getConsumerCount() == 0) {
-         return;
+      if (purgeOnNoConsumers) {
+         context.setReusable(false);
+         if (getConsumerCount() == 0) {
+            return;
+         }
       }
       context.addQueue(address, this);
    }
@@ -849,11 +859,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   // Go into direct delivery mode
                   directDeliver = supportsDirectDeliver;
                   if (logger.isTraceEnabled()) {
-                     logger.trace("Setting direct deliverer to " + supportsDirectDeliver);
+                     logger.trace("Setting direct deliverer to " + supportsDirectDeliver + " on queue " + this.getName());
                   }
                } else {
                   if (logger.isTraceEnabled()) {
-                     logger.trace("Couldn't set direct deliver back");
+                     logger.trace("Couldn't set direct deliver back on queue " + this.getName());
                   }
                }
             }
@@ -1414,6 +1424,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
       if (nonDestructive && reason == AckReason.NORMAL) {
+         decDelivering(ref);
          if (logger.isDebugEnabled()) {
             logger.debug("acknowledge ignored nonDestructive=true and reason=NORMAL");
          }
@@ -3141,6 +3152,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                break;
             }
          }
+
+         if (logger.isTraceEnabled()) {
+            logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
+         }
          return false;
       }
    }
@@ -3160,21 +3175,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          consumer.proceedDeliver(reference);
       } catch (Throwable t) {
-         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
-
-         synchronized (this) {
-            // If the consumer throws an exception we remove the consumer
-            try {
-               removeConsumer(consumer);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
-            }
-
-            // The message failed to be delivered, hence we try again
-            addHead(reference, false);
-         }
+         errorProcessing(consumer, t, reference);
       } finally {
          deliveriesInTransit.countDown();
+      }
+   }
+
+   /** This will print errors and decide what to do with the errored consumer from the protocol layer. */
+   @Override
+   public void errorProcessing(Consumer consumer, Throwable t, MessageReference reference) {
+      synchronized (this) {
+         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
+         // If the consumer throws an exception we remove the consumer
+         try {
+            removeConsumer(consumer);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
+         }
+
+         // The message failed to be delivered, hence we try again
+         addHead(reference, false);
       }
    }
 

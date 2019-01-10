@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.server;
 
 
+import java.util.function.Consumer;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -43,6 +45,15 @@ public interface MessageReference {
    long getMessageID();
 
    SimpleString getLastValueProperty();
+
+   /**
+    * This is to be used in cases where a message delivery happens on an executor.
+    * Most MessageReference implementations will allow execution, and if it does,
+    * and the protocol requires an execution per message, this callback may be used.
+    *
+    * At the time of this implementation only AMQP was used.
+    */
+   void onDelivery(Consumer<? super MessageReference> callback);
 
    /**
     * We define this method aggregation here because on paging we need to hold the original estimate,
