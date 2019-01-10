@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_CREDITS_DEFAULT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.never;
-
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -34,29 +27,65 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.qpid.proton.engine.Receiver;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+import org.mockito.stubbing.Answer;
+
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_CREDITS_DEFAULT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
 
 public class AMQPSessionCallbackTest {
 
-   @Rule public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
+   @Rule
+   public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
 
-   @Mock private AMQPConnectionCallback protonSPI;
-   @Mock private ProtonProtocolManager manager;
-   @Mock private AMQPConnectionContext connection;
-   @Mock private Connection transportConnection;
-   @Mock private Executor executor;
-   @Mock private OperationContext operationContext;
-   @Mock private Receiver receiver;
-   @Mock private ActiveMQServer server;
-   @Mock private PagingManager pagingManager;
-   @Mock private PagingStore pagingStore;
+   @Mock
+   private AMQPConnectionCallback protonSPI;
+   @Mock
+   private ProtonProtocolManager manager;
+   @Mock
+   private AMQPConnectionContext connection;
+   @Mock
+   private Connection transportConnection;
+   @Mock
+   private Executor executor;
+   @Mock
+   private OperationContext operationContext;
+   @Mock
+   private Receiver receiver;
+   @Mock
+   private ActiveMQServer server;
+   @Mock
+   private PagingManager pagingManager;
+   @Mock
+   private PagingStore pagingStore;
+
+
+   @Before
+   public void setRule() {
+
+      // The connection will call the runnable now on this mock, as these would happen on a different thread.
+      Mockito.doAnswer(new Answer() {
+         @Override
+         public Void answer(InvocationOnMock invocation) throws Throwable {
+            ((Runnable) invocation.getArguments()[0]).run();
+            return null;
+         }
+      }).when(connection).runNow(Mockito.isA(Runnable.class));
+
+   }
 
    /**
     * Test that the AMQPSessionCallback grants no credit when not at threshold
@@ -69,8 +98,7 @@ public class AMQPSessionCallbackTest {
 
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
-      AMQPSessionCallback session = new AMQPSessionCallback(
-         protonSPI, manager, connection, transportConnection, executor, operationContext);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
 
       // Credit is above threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT + 1);
@@ -100,8 +128,7 @@ public class AMQPSessionCallbackTest {
 
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
-      AMQPSessionCallback session = new AMQPSessionCallback(
-         protonSPI, manager, connection, transportConnection, executor, operationContext);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
@@ -132,8 +159,7 @@ public class AMQPSessionCallbackTest {
 
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
-      AMQPSessionCallback session = new AMQPSessionCallback(
-         protonSPI, manager, connection, transportConnection, executor, operationContext);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
 
       // Credit is above threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT + 1);
@@ -164,8 +190,7 @@ public class AMQPSessionCallbackTest {
 
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
-      AMQPSessionCallback session = new AMQPSessionCallback(
-         protonSPI, manager, connection, transportConnection, executor, operationContext);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
@@ -195,8 +220,7 @@ public class AMQPSessionCallbackTest {
 
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
-      AMQPSessionCallback session = new AMQPSessionCallback(
-         protonSPI, manager, connection, transportConnection, executor, operationContext);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
@@ -227,8 +251,7 @@ public class AMQPSessionCallbackTest {
 
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
-      AMQPSessionCallback session = new AMQPSessionCallback(
-         protonSPI, manager, connection, transportConnection, executor, operationContext);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);

@@ -794,6 +794,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean allowsReferenceCallback() {
+         return false;
+      }
+
+      @Override
       public int getConsumersBeforeDispatch() {
          return 0;
       }

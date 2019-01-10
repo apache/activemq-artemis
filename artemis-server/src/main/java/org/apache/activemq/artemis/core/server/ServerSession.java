@@ -22,6 +22,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.Message;
@@ -42,6 +43,8 @@ public interface ServerSession extends SecurityAuth {
    int getMinLargeMessageSize();
 
    Object getConnectionID();
+
+   Executor getSessionExecutor();
 
    /**
     * Certain protocols may create an internal session that shouldn't go through security checks.
@@ -241,11 +244,25 @@ public interface ServerSession extends SecurityAuth {
                       boolean direct,
                       boolean noAutoCreateQueue) throws Exception;
 
+   RoutingStatus send(Transaction tx,
+                      Message message,
+                      boolean direct,
+                      boolean noAutoCreateQueue,
+                      RoutingContext routingContext) throws Exception;
+
+
    RoutingStatus doSend(Transaction tx,
                         Message msg,
                         SimpleString originalAddress,
                         boolean direct,
                         boolean noAutoCreateQueue) throws Exception;
+
+   RoutingStatus doSend(Transaction tx,
+                        Message msg,
+                        SimpleString originalAddress,
+                        boolean direct,
+                        boolean noAutoCreateQueue,
+                        RoutingContext routingContext) throws Exception;
 
    RoutingStatus send(Message message, boolean direct, boolean noAutoCreateQueue) throws Exception;
 

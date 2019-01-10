@@ -26,12 +26,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -63,6 +65,13 @@ public final class BindingsImpl implements Bindings {
 
    private final SimpleString name;
 
+   private static final AtomicInteger sequenceVersion = new AtomicInteger(Integer.MIN_VALUE);
+
+   /**
+    * This has a version about adds and removes
+    */
+   private final AtomicInteger version = new AtomicInteger(sequenceVersion.incrementAndGet());
+
    public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler) {
       this.groupingHandler = groupingHandler;
       this.name = name;
@@ -92,61 +101,78 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public void addBinding(final Binding binding) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("addBinding(" + binding + ") being called");
-      }
-      if (binding.isExclusive()) {
-         exclusiveBindings.add(binding);
-      } else {
-         SimpleString routingName = binding.getRoutingName();
+      try {
+         if (logger.isTraceEnabled()) {
+            logger.trace("addBinding(" + binding + ") being called");
+         }
+         if (binding.isExclusive()) {
+            exclusiveBindings.add(binding);
+         } else {
+            SimpleString routingName = binding.getRoutingName();
 
-         List<Binding> bindings = routingNameBindingMap.get(routingName);
+            List<Binding> bindings = routingNameBindingMap.get(routingName);
 
-         if (bindings == null) {
-            bindings = new CopyOnWriteArrayList<>();
+            if (bindings == null) {
+               bindings = new CopyOnWriteArrayList<>();
 
-            List<Binding> oldBindings = routingNameBindingMap.putIfAbsent(routingName, bindings);
+               List<Binding> oldBindings = routingNameBindingMap.putIfAbsent(routingName, bindings);
 
-            if (oldBindings != null) {
-               bindings = oldBindings;
+               if (oldBindings != null) {
+                  bindings = oldBindings;
+               }
+            }
+
+            if (!bindings.contains(binding)) {
+               bindings.add(binding);
             }
          }
 
-         if (!bindings.contains(binding)) {
-            bindings.add(binding);
+         bindingsMap.put(binding.getID(), binding);
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
          }
-      }
-
-      bindingsMap.put(binding.getID(), binding);
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
+      } finally {
+         updated();
       }
 
    }
 
    @Override
+   public void updated(QueueBinding binding) {
+      updated();
+   }
+
+   private void updated() {
+      version.set(sequenceVersion.incrementAndGet());
+   }
+
+   @Override
    public void removeBinding(final Binding binding) {
-      if (binding.isExclusive()) {
-         exclusiveBindings.remove(binding);
-      } else {
-         SimpleString routingName = binding.getRoutingName();
+      try {
+         if (binding.isExclusive()) {
+            exclusiveBindings.remove(binding);
+         } else {
+            SimpleString routingName = binding.getRoutingName();
 
-         List<Binding> bindings = routingNameBindingMap.get(routingName);
+            List<Binding> bindings = routingNameBindingMap.get(routingName);
 
-         if (bindings != null) {
-            bindings.remove(binding);
+            if (bindings != null) {
+               bindings.remove(binding);
 
-            if (bindings.isEmpty()) {
-               routingNameBindingMap.remove(routingName);
+               if (bindings.isEmpty()) {
+                  routingNameBindingMap.remove(routingName);
+               }
             }
          }
-      }
 
-      bindingsMap.remove(binding.getID());
+         bindingsMap.remove(binding.getID());
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
+         if (logger.isTraceEnabled()) {
+            logger.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
+         }
+      } finally {
+         updated();
       }
    }
 
@@ -267,11 +293,9 @@ public final class BindingsImpl implements Bindings {
 
          if (binding.getFilter() == null || binding.getFilter().match(message)) {
             binding.getBindable().route(message, context);
-
             routed = true;
          }
       }
-
       if (!routed) {
          // Remove the ids now, in order to avoid double check
          ids = message.removeExtraBytesProperty(Message.HDR_ROUTE_TO_IDS);
@@ -280,30 +304,53 @@ public final class BindingsImpl implements Bindings {
          SimpleString groupId = message.getGroupID();
 
          if (ids != null) {
+            context.clear();
             routeFromCluster(message, context, ids);
          } else if (groupingHandler != null && groupRouting && groupId != null) {
+            context.clear();
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
          } else {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Routing message " + message + " on binding=" + this);
+            // in a optimization, we are reusing the previous context if everything is right for it
+            // so the simpleRouting will only happen if neededk
+            if (!context.isReusable(message, version.get())) {
+               context.clear();
+               simpleRouting(message, context);
             }
-            for (Map.Entry<SimpleString, List<Binding>> entry : routingNameBindingMap.entrySet()) {
-               SimpleString routingName = entry.getKey();
+         }
+      }
+   }
 
-               List<Binding> bindings = entry.getValue();
+   private void simpleRouting(Message message, RoutingContext context) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Routing message " + message + " on binding=" + this);
+      }
 
-               if (bindings == null) {
-                  // The value can become null if it's concurrently removed while we're iterating - this is expected
-                  // ConcurrentHashMap behaviour!
-                  continue;
-               }
+      // We check at the version before we started routing,
+      // this is because if something changed in between we want to check the correct version
+      int currentVersion = version.get();
 
-               Binding theBinding = getNextBinding(message, routingName, bindings);
+      for (Map.Entry<SimpleString, List<Binding>> entry : routingNameBindingMap.entrySet()) {
+         SimpleString routingName = entry.getKey();
 
-               if (theBinding != null) {
-                  theBinding.route(message, context);
-               }
-            }
+         List<Binding> bindings = entry.getValue();
+
+         if (bindings == null) {
+            // The value can become null if it's concurrently removed while we're iterating - this is expected
+            // ConcurrentHashMap behaviour!
+            continue;
+         }
+
+         Binding theBinding = getNextBinding(message, routingName, bindings);
+
+         if (theBinding != null && theBinding.getFilter() == null && bindings.size() == 1 && theBinding.isLocal()) {
+            context.setReusable(true, currentVersion);
+         } else {
+            // notice that once this is set to false, any calls to setReusable(true) will be moot as the context will ignore it
+            context.setReusable(false, currentVersion);
+         }
+
+         if (theBinding != null) {
+            theBinding.route(message, context);
          }
       }
    }

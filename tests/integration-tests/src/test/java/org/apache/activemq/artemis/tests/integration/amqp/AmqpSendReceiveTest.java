@@ -47,6 +47,7 @@ import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Sender;
 import org.jgroups.util.UUID;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1154,4 +1155,52 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver.close();
       connection.close();
    }
+
+
+
+   @Test(timeout = 60000)
+   public void testReceiveRejecting() throws Exception {
+      final int MSG_COUNT = 1000;
+
+      AmqpClient client = createAmqpClient();
+
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      final String address = getQueueName();
+
+
+      AmqpSender sender = session.createSender(address);
+      for (int i = 0; i < MSG_COUNT; i++) {
+         AmqpMessage message = new AmqpMessage();
+         message.setMessageId("msg" + i);
+         sender.send(message);
+      }
+
+
+
+      Queue queueView = getProxyToQueue(address);
+
+      for (int i = 0; i < MSG_COUNT; i++) {
+         final AmqpReceiver receiver = session.createReceiver(address);
+
+         receiver.flow(MSG_COUNT);
+         AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+         Assert.assertNotNull(received);
+         Assert.assertEquals("msg" + i, received.getMessageId());
+         received.accept();
+         receiver.close();
+      }
+      final AmqpReceiver receiver = session.createReceiver(address);
+      receiver.flow(MSG_COUNT);
+
+      Assert.assertNull(receiver.receive(1, TimeUnit.MILLISECONDS));
+
+
+      Wait.assertEquals(0, queueView::getDeliveringCount);
+
+      connection.close();
+   }
+
+
 }

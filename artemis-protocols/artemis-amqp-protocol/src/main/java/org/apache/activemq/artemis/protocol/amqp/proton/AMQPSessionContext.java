@@ -150,13 +150,11 @@ public class AMQPSessionContext extends ProtonInitializable {
       coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"), Symbol.getSymbol("amqp:multi-txns-per-ssn"), Symbol.getSymbol("amqp:multi-ssns-per-txn"));
 
       receiver.setContext(transactionHandler);
-      connection.lock();
-      try {
+      connection.runNow(() -> {
          receiver.open();
          receiver.flow(connection.getAmqpCredits());
-      } finally {
-         connection.unlock();
-      }
+         connection.flush();
+      });
    }
 
    public void addSender(Sender sender) throws Exception {
@@ -169,24 +167,20 @@ public class AMQPSessionContext extends ProtonInitializable {
          senders.put(sender, protonSender);
          serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             sender.open();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
 
          protonSender.start();
       } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
          sender.setSource(null);
          sender.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             sender.close();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
       }
    }
 
@@ -206,22 +200,18 @@ public class AMQPSessionContext extends ProtonInitializable {
          ServerProducer serverProducer = new ServerProducerImpl(receiver.getName(), "AMQP", receiver.getTarget().getAddress());
          sessionSPI.addProducer(serverProducer);
          receiver.setContext(protonReceiver);
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             receiver.open();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
       } catch (ActiveMQAMQPException e) {
          receivers.remove(receiver);
          receiver.setTarget(null);
          receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             receiver.close();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
       }
    }
 }

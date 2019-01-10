@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -49,6 +50,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
  * This is useful for example, for stock prices, where you're only interested in the latest value
  * for a particular stock
  */
+@SuppressWarnings("ALL")
 public class LastValueQueue extends QueueImpl {
 
    private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<>();
@@ -146,6 +148,11 @@ public class LastValueQueue extends QueueImpl {
       }
    }
 
+   @Override
+   public boolean allowsReferenceCallback() {
+      return false;
+   }
+
    private void replaceLVQMessage(MessageReference ref, HolderReference hr) {
       MessageReference oldRef = hr.getReference();
 
@@ -229,6 +236,11 @@ public class LastValueQueue extends QueueImpl {
          this.prop = prop;
 
          this.ref = ref;
+      }
+
+      @Override
+      public void onDelivery(Consumer<? super MessageReference> callback) {
+         // HolderReference may be reused among different consumers, so we don't set a callback and won't support Runnables
       }
 
       MessageReference getReference() {

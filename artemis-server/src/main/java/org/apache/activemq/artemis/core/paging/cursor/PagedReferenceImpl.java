@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging.cursor;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,7 +32,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.jboss.logging.Logger;
 
-public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> implements PagedReference {
+public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> implements PagedReference, Runnable {
 
    private static final Logger logger = Logger.getLogger(PagedReferenceImpl.class);
 
@@ -74,6 +75,8 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private long messageSize = -1;
 
+   private Consumer<? super MessageReference> onDelivery;
+
    @Override
    public Object getProtocolData() {
       return protocolData;
@@ -87,6 +90,27 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    @Override
    public Message getMessage() {
       return getPagedMessage().getMessage();
+   }
+
+   @Override
+   public void onDelivery(Consumer<? super MessageReference> onDelivery) {
+      assert this.onDelivery == null;
+      this.onDelivery = onDelivery;
+   }
+
+   /**
+    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in {@link #onDelivery(Consumer)}, if any.
+    */
+   @Override
+   public void run() {
+      final Consumer<? super MessageReference> onDelivery = this.onDelivery;
+      if (onDelivery != null) {
+         try {
+            onDelivery.accept(this);
+         } finally {
+            this.onDelivery = null;
+         }
+      }
    }
 
    @Override

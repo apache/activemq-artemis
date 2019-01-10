@@ -47,6 +47,11 @@ public class LocalQueueBinding implements QueueBinding {
    }
 
    @Override
+   public boolean isLocal() {
+      return true;
+   }
+
+   @Override
    public long getID() {
       return queue.getID();
    }
