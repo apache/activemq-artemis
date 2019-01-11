@@ -47,60 +47,63 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class LiveCrashOnBackupSyncTest {
+public class LiveCrashOnBackupSyncTest extends ActiveMQTestBase {
 
    static int OK = 2;
-   public static String instancePth = System.getProperty("java.io.tmpdir");
+
+   public File liveDir;
+   public File backupDir;
 
    @Before
-   public void setUp() throws Exception {
-      deleteFile(new File(instancePth + "live"));
-      deleteFile(new File(instancePth + "backup"));
+   public void setupDirectories() throws Exception {
+
+      liveDir = temporaryFolder.newFolder("live");
+      backupDir = temporaryFolder.newFolder("backup");
+      liveDir.mkdirs();
+      backupDir.mkdirs();
    }
 
    @Test
    public void liveCrashOnBackupSyncLargeMessageTest() throws Exception {
-      Process process = SpawnedVMSupport.spawnVM(LiveCrashOnBackupSyncTest.class.getCanonicalName());
-      Assert.assertEquals(OK, process.waitFor());
+      Process process = SpawnedVMSupport.spawnVM(LiveCrashOnBackupSyncTest.class.getCanonicalName(), backupDir.getAbsolutePath(), liveDir.getAbsolutePath());
+      try {
+         Assert.assertEquals(OK, process.waitFor());
 
-      Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = ActiveMQServers.newActiveMQServer(liveConfiguration);
-      liveServer.start();
-      Wait.waitFor(() -> liveServer.isStarted());
+         Configuration liveConfiguration = createLiveConfiguration();
+         ActiveMQServer liveServer = ActiveMQServers.newActiveMQServer(liveConfiguration);
+         liveServer.start();
+         Wait.waitFor(() -> liveServer.isStarted());
 
-      File liveLMDir = liveServer.getConfiguration().getLargeMessagesLocation();
-      Set<Long> liveLM = getAllMessageFileIds(liveLMDir);
-      Assert.assertEquals("we really ought to delete these after delivery", 0, liveLM.size());
-      liveServer.stop();
-   }
-
-   @After
-   public void tearDown() throws FileNotFoundException {
-      deleteFile(new File(instancePth + "live"));
-      deleteFile(new File(instancePth + "backup"));
+         File liveLMDir = liveServer.getConfiguration().getLargeMessagesLocation();
+         Set<Long> liveLM = getAllMessageFileIds(liveLMDir);
+         Assert.assertEquals("we really ought to delete these after delivery", 0, liveLM.size());
+         liveServer.stop();
+      } finally {
+         process.destroy();
+         Assert.assertTrue(process.waitFor(5, TimeUnit.SECONDS));
+         Assert.assertFalse(process.isAlive());
+      }
    }
 
    private Configuration createLiveConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
       conf.setName("localhost::live");
-      File liveDir = newFolder("live");
       conf.setBrokerInstance(liveDir);
       conf.addAcceptorConfiguration("live", "tcp://localhost:61616");
       conf.addConnectorConfiguration("backup", "tcp://localhost:61617");
@@ -124,7 +127,6 @@ public class LiveCrashOnBackupSyncTest {
    private Configuration createBackupConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
       conf.setName("localhost::backup");
-      File backupDir = newFolder("backup");
       conf.setBrokerInstance(backupDir);
       ReplicaPolicyConfiguration haPolicy = new ReplicaPolicyConfiguration();
       haPolicy.setClusterName("cluster");
@@ -142,25 +144,6 @@ public class LiveCrashOnBackupSyncTest {
 
       conf.setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);
       return conf;
-   }
-
-   private File newFolder(String live) throws IOException {
-      File file = new File(instancePth + live);
-      if (!file.exists()) {
-         file.mkdirs();
-      }
-      return file;
-   }
-
-   private void deleteFile(File path) throws FileNotFoundException {
-      if (!path.exists())
-         return;
-      if (path.isDirectory()) {
-         for (File f : path.listFiles()) {
-            deleteFile(f);
-         }
-      }
-      path.delete();
    }
 
    private void createProducerSendSomeLargeMessages(int msgCount) throws Exception {
@@ -214,7 +197,13 @@ public class LiveCrashOnBackupSyncTest {
 
    public static void main(String[] arg) {
       try {
+         if (arg.length < 2) {
+            System.err.println("Expected backup and live as parameters");
+            System.exit(-1);
+         }
          LiveCrashOnBackupSyncTest stop = new LiveCrashOnBackupSyncTest();
+         stop.backupDir = new File(arg[0]);
+         stop.liveDir = new File(arg[1]);
          Configuration liveConfiguration = stop.createLiveConfiguration();
          ActiveMQServer liveServer = new ActiveMQServerImpl(liveConfiguration, ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration())) {
             @Override
