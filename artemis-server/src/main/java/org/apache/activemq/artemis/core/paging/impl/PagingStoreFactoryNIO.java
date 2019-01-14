@@ -152,7 +152,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), executorFactory.getExecutor(), syncNonTransactional);
    }
 
    @Override
@@ -223,7 +223,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), executorFactory.getExecutor(), syncNonTransactional);
 
             storesReturn.add(store);
          }
