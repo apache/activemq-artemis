@@ -216,7 +216,7 @@ public class ManagementServiceImpl implements ManagementService {
    @Override
    public void registerAddress(AddressInfo addressInfo) throws Exception {
       ObjectName objectName = objectNameBuilder.getAddressObjectName(addressInfo.getName());
-      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, postOffice, pagingManager, storageManager, securityRepository, securityStore, this);
+      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, messagingServer, pagingManager, storageManager, securityRepository, securityStore, this);
 
       registerInJMX(objectName, addressControl);
 
@@ -246,7 +246,7 @@ public class ManagementServiceImpl implements ManagementService {
          return;
       }
 
-      QueueControlImpl queueControl = new QueueControlImpl(queue, addressInfo.getName().toString(), postOffice, storageManager, securityStore, addressSettingsRepository);
+      QueueControlImpl queueControl = new QueueControlImpl(queue, addressInfo.getName().toString(), messagingServer, storageManager, securityStore, addressSettingsRepository);
       if (messageCounterManager != null) {
          MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurableMessage(), messageCounterManager.getMaxDayCount());
          queueControl.setMessageCounter(counter);
