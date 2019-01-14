@@ -35,12 +35,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.Closeable;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -55,6 +53,7 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -71,7 +70,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -1465,18 +1463,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return send(getCurrentTransaction(), message, direct, noAutoCreateQueue);
    }
 
-
-   private LargeServerMessage messageToLargeMessage(Message message) throws Exception {
-      ICoreMessage coreMessage = message.toCore();
-      LargeServerMessage lsm = getStorageManager().createLargeMessage(storageManager.generateID(), coreMessage);
-      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
-      final int readableBytes = buffer.readableBytes();
-      lsm.addBytes(buffer);
-      lsm.releaseResources();
-      lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);
-      return lsm;
-   }
-
    @Override
    public synchronized RoutingStatus send(Transaction tx,
                                           Message msg,
@@ -1487,17 +1473,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized RoutingStatus send(Transaction tx,
-                                          Message msg,
+                                          Message messageParameter,
                                           final boolean direct,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
 
-      final Message message;
-      if ((msg.getEncodeSize() > storageManager.getMaxRecordSize()) && !msg.isLargeMessage()) {
-         message = messageToLargeMessage(msg);
-      } else {
-         message = msg;
-      }
+      final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
 
       if (server.hasBrokerMessagePlugins()) {
          server.callBrokerMessagePlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
