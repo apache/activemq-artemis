@@ -69,6 +69,11 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    void applySetting(AddressSettings addressSettings);
 
+   /** This method will look if the current state of paging is not paging,
+    * without using a lock.
+    * For cases where you need absolutely atomic results, check it directly on the internal variables while requiring a readLock.
+    *
+    * It's ok to look for this with an estimate on starting a task or not, but you will need to recheck on actual paging operations. */
    boolean isPaging();
 
    /**

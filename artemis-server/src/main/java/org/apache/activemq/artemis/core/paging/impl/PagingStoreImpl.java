@@ -493,12 +493,7 @@ public class PagingStoreImpl implements PagingStore {
 
       lock.readLock().lock();
       try {
-         // I'm not calling isPaging() here because
-         // isPaging will perform extra steps.
-         // at this context it doesn't really matter what policy we are using
-         // since this method is only called when paging.
-         // Besides that isPaging() will perform lock.readLock() again which is not needed here
-         // for that reason the attribute is used directly here.
+         // I'm not calling isPaging() here because i need to be atomic and hold a lock.
          if (paging) {
             return false;
          }
