@@ -22,7 +22,11 @@ import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public abstract class AbstractControl extends StandardMBean {
 
@@ -65,6 +69,23 @@ public abstract class AbstractControl extends StandardMBean {
          }
       }
 
+   }
+
+   /**
+    * This is used to limit the size of message that can be sent over
+    * management api. The message size shall be less than the journal
+    * buffer size.
+    * @param postOffice the PostOffice
+    * @param message the message to be checked
+    * @throws Exception if message size is over the limit.
+    */
+   protected void checkMessageSize(PostOffice postOffice, CoreMessage message) throws Exception {
+      int msize = message.getPersistSize();
+      ActiveMQServer server = postOffice.getServer();
+      int journalBufferSize = server.getConfiguration().getJournalBufferSize_AIO();
+      if (msize >= journalBufferSize) {
+         throw ActiveMQMessageBundle.BUNDLE.rejectOverSizeMessage(journalBufferSize);
+      }
    }
 
    protected abstract MBeanOperationInfo[] fillMBeanOperationInfo();

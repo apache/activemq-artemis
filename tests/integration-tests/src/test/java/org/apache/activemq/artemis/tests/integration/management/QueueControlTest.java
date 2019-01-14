@@ -56,13 +56,10 @@ import org.apache.activemq.artemis.api.core.management.DayCounterInfo;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -79,7 +76,6 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class QueueControlTest extends ManagementTestBase {
 
-   private ActiveMQServer server;
    private ClientSession session;
    private ServerLocator locator;
    private final boolean durable;
@@ -2840,10 +2836,7 @@ public class QueueControlTest extends ManagementTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      Configuration conf = createDefaultInVMConfig().setJMXManagementEnabled(true);
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
-
-      server.start();
+      createManageableServer(false, true);
 
       locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setConsumerWindowSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -2898,4 +2891,5 @@ public class QueueControlTest extends ManagementTestBase {
          Wait.assertEquals(0L, () -> durableSize.get().longValue(), 3 * 1000, 100);
       }
    }
+
 }

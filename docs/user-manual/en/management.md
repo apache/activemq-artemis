@@ -205,6 +205,13 @@ a given property.)
   paused, it will receive messages but will not deliver them.  When it's resumed,
   it'll begin delivering the queued messages, if any.
 
+#### Size limit of messages sent over QueueControl and AddressControl
+
+Both `QueueControl` and `AddressControl` provide `sendMessage()` operation which
+allows user to send messages to broker. The total size of each message should
+be less than the broker's journal-buffer-size (see [Persistence](persistence.md)).
+Messages larger than that will be rejected.
+
 #### Other Resources Management
 
 Apache ActiveMQ Artemis allows to start and stop its remote resources

@@ -36,10 +36,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -53,7 +51,6 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class AddressControlTest extends ManagementTestBase {
 
-   private ActiveMQServer server;
    protected ClientSession session;
    private ServerLocator locator;
    private ClientSessionFactory sf;
@@ -401,20 +398,13 @@ public class AddressControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
-      server = createServer(false, config);
-      server.setMBeanServer(mbeanServer);
-      server.start();
+      createManageableServer(false, true);
 
       locator = createInVMNonHALocator().setBlockOnNonDurableSend(true);
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
       addClientSession(session);
-   }
-
-   protected AddressControl createManagementControl(final SimpleString address) throws Exception {
-      return ManagementControlHelper.createAddressControl(address, mbeanServer);
    }
 
    // Private -------------------------------------------------------

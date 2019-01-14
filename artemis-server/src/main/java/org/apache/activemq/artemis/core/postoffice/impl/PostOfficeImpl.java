@@ -1711,6 +1711,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return addressManager;
    }
 
+   @Override
    public ActiveMQServer getServer() {
       return server;
    }

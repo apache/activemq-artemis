@@ -335,6 +335,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             }
          }
          message.setAddress(addressInfo.getName());
+         checkMessageSize(postOffice, message);
          postOffice.route(message, true);
          return "" + message.getMessageID();
       } catch (ActiveMQException e) {

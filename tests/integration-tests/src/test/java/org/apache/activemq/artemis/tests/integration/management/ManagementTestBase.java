@@ -25,7 +25,11 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,6 +41,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
 
    // Attributes ----------------------------------------------------
 
+   protected ActiveMQServer server;
    protected MBeanServer mbeanServer;
 
    // Static --------------------------------------------------------
@@ -79,6 +84,14 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
       createMBeanServer();
    }
 
+   protected void createManageableServer(boolean enablePersistence, boolean startServer) throws Exception {
+      Configuration conf = createDefaultInVMConfig().setJMXManagementEnabled(true);
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, enablePersistence));
+      if (startServer) {
+         server.start();
+      }
+   }
+
    protected void createMBeanServer() {
       mbeanServer = MBeanServerFactory.createMBeanServer();
    }
@@ -115,6 +128,10 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, routingType, mbeanServer);
 
       return queueControl;
+   }
+
+   protected AddressControl createManagementControl(final SimpleString address) throws Exception {
+      return ManagementControlHelper.createAddressControl(address, mbeanServer);
    }
 
    protected long getMessageCount(QueueControl control) throws Exception {
