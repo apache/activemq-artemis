@@ -64,6 +64,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    private final Set<JMSContext> contextSet = new HashSet<>();
    private final Random random = new Random();
    protected InVMNamingContext namingContext;
+   private final Set<Connection> connectionsSet = new HashSet<>();
 
    protected boolean useSecurity() {
       return false;
@@ -176,6 +177,15 @@ public class JMSTestBase extends ActiveMQTestBase {
       } catch (Exception e) {
          // no-op
       }
+      try {
+         for (Connection localConn : connectionsSet) {
+            localConn.close();
+         }
+      } catch (Exception ignored) {
+         // no-op
+      } finally {
+         connectionsSet.clear();
+      }
 
       namingContext.close();
       jmsServer.stop();
@@ -273,6 +283,16 @@ public class JMSTestBase extends ActiveMQTestBase {
       } catch (JMSException cause) {
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
+   }
+
+   protected final Connection createConnection() throws JMSException {
+      Connection c = cf.createConnection();
+      return addConnection(c);
+   }
+
+   protected final Connection addConnection(Connection conn) {
+      connectionsSet.add(conn);
+      return conn;
    }
 
 }
