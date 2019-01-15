@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 
-final class DummyOperationContext implements OperationContext {
+public final class DummyOperationContext implements OperationContext {
 
    private static DummyOperationContext instance = new DummyOperationContext();
 

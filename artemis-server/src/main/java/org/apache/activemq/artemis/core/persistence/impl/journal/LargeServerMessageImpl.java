@@ -24,11 +24,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -38,6 +40,30 @@ import org.jboss.logging.Logger;
 import io.netty.buffer.Unpooled;
 
 public final class LargeServerMessageImpl extends CoreMessage implements LargeServerMessage {
+
+   /** This will check if a regular message needs to be converted as large message */
+   public static Message checkLargeMessage(Message message, StorageManager storageManager) throws Exception {
+      if (message.isLargeMessage()) {
+         return message; // nothing to be done on this case
+      }
+
+      if (message.getEncodeSize() > storageManager.getMaxRecordSize()) {
+         return asLargeMessage(message, storageManager);
+      } else {
+         return message;
+      }
+   }
+
+   private static Message asLargeMessage(Message message, StorageManager storageManager) throws Exception {
+      ICoreMessage coreMessage = message.toCore();
+      LargeServerMessage lsm = storageManager.createLargeMessage(storageManager.generateID(), coreMessage);
+      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      final int readableBytes = buffer.readableBytes();
+      lsm.addBytes(buffer);
+      lsm.releaseResources();
+      lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);
+      return lsm;
+   }
 
    // Constants -----------------------------------------------------
    private static final Logger logger = Logger.getLogger(LargeServerMessageImpl.class);
