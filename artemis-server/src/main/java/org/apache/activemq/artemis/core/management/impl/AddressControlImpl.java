@@ -26,30 +26,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
@@ -60,7 +53,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    private AddressInfo addressInfo;
 
-   private final PostOffice postOffice;
+   private final ActiveMQServer server;
 
    private final PagingManager pagingManager;
 
@@ -75,15 +68,15 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    // Constructors --------------------------------------------------
 
    public AddressControlImpl(AddressInfo addressInfo,
-                             final PostOffice postOffice,
+                             final ActiveMQServer server,
                              final PagingManager pagingManager,
                              final StorageManager storageManager,
                              final HierarchicalRepository<Set<Role>> securityRepository,
                              final SecurityStore securityStore,
                              final ManagementService managementService)throws Exception {
       super(AddressControl.class, storageManager);
+      this.server = server;
       this.addressInfo = addressInfo;
-      this.postOffice = postOffice;
       this.pagingManager = pagingManager;
       this.securityRepository = securityRepository;
       this.securityStore = securityStore;
@@ -130,7 +123,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getQueueNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(addressInfo.getName());
          List<String> queueNames = new ArrayList<>();
          for (Binding binding : bindings.getBindings()) {
             if (binding instanceof QueueBinding) {
@@ -149,7 +142,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getBindingNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(addressInfo.getName());
          String[] bindingNames = new String[bindings.getBindings().size()];
          int i = 0;
          for (Binding binding : bindings.getBindings()) {
@@ -234,7 +227,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       long totalMsgs = 0;
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(addressInfo.getName());
          for (Binding binding : bindings.getBindings()) {
             if (binding instanceof QueueBinding) {
                totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
@@ -302,45 +295,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              final String user,
                              final String password) throws Exception {
       try {
-         securityStore.check(addressInfo.getName(), CheckType.SEND, new SecurityAuth() {
-            @Override
-            public String getUsername() {
-               return user;
-            }
-
-            @Override
-            public String getPassword() {
-               return password;
-            }
-
-            @Override
-            public RemotingConnection getRemotingConnection() {
-               return null;
-            }
-         });
-         CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-         if (headers != null) {
-            for (String header : headers.keySet()) {
-               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
-            }
-         }
-         message.setType((byte) type);
-         message.setDurable(durable);
-         message.setTimestamp(System.currentTimeMillis());
-         if (body != null) {
-            if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
-            } else {
-               message.getBodyBuffer().writeBytes(Base64.decode(body));
-            }
-         }
-         message.setAddress(addressInfo.getName());
-         postOffice.route(message, true);
-         return "" + message.getMessageID();
-      } catch (ActiveMQException e) {
+         return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password);
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
+
 
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {

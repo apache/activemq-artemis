@@ -22,7 +22,6 @@ import javax.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -39,24 +38,19 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.security.CheckType;
-import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
@@ -72,7 +66,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    private final String address;
 
-   private final PostOffice postOffice;
+   private final ActiveMQServer server;
 
    private final StorageManager storageManager;
    private final SecurityStore securityStore;
@@ -111,14 +105,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    public QueueControlImpl(final Queue queue,
                            final String address,
-                           final PostOffice postOffice,
+                           final ActiveMQServer server,
                            final StorageManager storageManager,
                            final SecurityStore securityStore,
                            final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
       super(QueueControl.class, storageManager);
       this.queue = queue;
       this.address = address;
-      this.postOffice = postOffice;
+      this.server = server;
       this.storageManager = storageManager;
       this.securityStore = securityStore;
       this.addressSettingsRepository = addressSettingsRepository;
@@ -896,7 +890,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
+         Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
 
          if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
@@ -925,7 +919,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
-         Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
+         Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
 
          if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
@@ -969,45 +963,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              final String user,
                              final String password) throws Exception {
       try {
-         securityStore.check(queue.getAddress(), queue.getName(), CheckType.SEND, new SecurityAuth() {
-            @Override
-            public String getUsername() {
-               return user;
-            }
-
-            @Override
-            public String getPassword() {
-               return password;
-            }
-
-            @Override
-            public RemotingConnection getRemotingConnection() {
-               return null;
-            }
-         });
-         CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-         if (headers != null) {
-            for (String header : headers.keySet()) {
-               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
-            }
-         }
-         message.setType((byte) type);
-         message.setDurable(durable);
-         message.setTimestamp(System.currentTimeMillis());
-         if (body != null) {
-            if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
-            } else {
-               message.getBodyBuffer().writeBytes(Base64.decode(body));
-            }
-         }
-         message.setAddress(queue.getAddress());
-         ByteBuffer buffer = ByteBuffer.allocate(8);
-         buffer.putLong(queue.getID());
-         message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-         postOffice.route(message, true);
-         return "" + message.getMessageID();
-      } catch (ActiveMQException e) {
+         return sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
@@ -1419,7 +1376,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    // Private -------------------------------------------------------
 
    private void checkStarted() {
-      if (!postOffice.isStarted()) {
+      if (!server.getPostOffice().isStarted()) {
          throw new IllegalStateException("Broker is not started. Queue can not be managed yet");
       }
    }
