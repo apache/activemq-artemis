@@ -2767,7 +2767,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return true;
       }
 
-      if (!internalQueue && message.isDurable() && isDurableMessage() && !reference.isPaged()) {
+      if (!internalQueue && reference.isDurable() && isDurableMessage() && !reference.isPaged()) {
          storageManager.updateDeliveryCount(reference);
       }
 
@@ -2796,7 +2796,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             reference.setScheduledDeliveryTime(timeBase + redeliveryDelay);
 
-            if (!reference.isPaged() && message.isDurable() && isDurableMessage()) {
+            if (!reference.isPaged() && reference.isDurable() && isDurableMessage()) {
                storageManager.updateScheduledDeliveryTime(reference);
             }
          }
