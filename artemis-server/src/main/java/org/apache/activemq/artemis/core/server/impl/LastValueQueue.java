@@ -306,6 +306,11 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
+      public boolean isDurable() {
+         return getMessage().isDurable();
+      }
+
+      @Override
       public SimpleString getLastValueProperty() {
          return prop;
       }
