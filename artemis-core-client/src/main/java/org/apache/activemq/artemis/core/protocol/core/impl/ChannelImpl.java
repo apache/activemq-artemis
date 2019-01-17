@@ -695,7 +695,7 @@ public final class ChannelImpl implements Channel {
             clearUpTo(msg.getCommandID());
          }
 
-         if (!connection.isClient()) {
+         if (!connection.isClient() && handler != null) {
             handler.handlePacket(packet);
          }
 

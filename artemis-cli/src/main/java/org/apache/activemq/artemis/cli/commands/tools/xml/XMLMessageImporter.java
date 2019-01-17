@@ -71,9 +71,9 @@ public class XMLMessageImporter {
 
       Byte type = 0;
       Byte priority = 0;
-      Long expiration = 0L;
-      Long timestamp = 0L;
-      Long id = 0L;
+      long expiration = 0L;
+      long timestamp = 0L;
+      long id = 0L;
       org.apache.activemq.artemis.utils.UUID userId = null;
       ArrayList<String> queues = new ArrayList<>();
 
@@ -276,7 +276,7 @@ public class XMLMessageImporter {
     * CDATA has to be decoded in its entirety.
     *
     * @param processor used to deal with the decoded CDATA elements
-    * @param textMessage If this a text message we decode UTF8 and encode as a simple string
+    * @param decodeTextMessage If this a text message we decode UTF8 and encode as a simple string
     */
    private void getMessageBodyBytes(MessageBodyBytesProcessor processor, boolean decodeTextMessage) throws IOException, XMLStreamException {
       int currentEventType;

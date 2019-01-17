@@ -216,63 +216,63 @@ public class PrintData extends DBOption {
 
          if (pgStore != null) {
             folder = pgStore.getFolder();
-         }
-         out.println("####################################################################################################");
-         out.println("Exploring store " + store + " folder = " + folder);
-         int pgid = (int) pgStore.getFirstPage();
-         for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
-            out.println("*******   Page " + pgid);
-            Page page = pgStore.createPage(pgid);
-            page.open();
-            List<PagedMessage> msgs = page.read(sm);
-            page.close();
+            out.println("####################################################################################################");
+            out.println("Exploring store " + store + " folder = " + folder);
+            int pgid = (int) pgStore.getFirstPage();
+            for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
+               out.println("*******   Page " + pgid);
+               Page page = pgStore.createPage(pgid);
+               page.open();
+               List<PagedMessage> msgs = page.read(sm);
+               page.close();
 
-            int msgID = 0;
+               int msgID = 0;
 
-            for (PagedMessage msg : msgs) {
-               msg.initMessage(sm);
-               if (safe) {
-                  try {
-                     out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data, size=" + msg.getMessage().getPersistentSize() + ")");
-                  } catch (Exception e) {
-                     out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data)");
+               for (PagedMessage msg : msgs) {
+                  msg.initMessage(sm);
+                  if (safe) {
+                     try {
+                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data, size=" + msg.getMessage().getPersistentSize() + ")");
+                     } catch (Exception e) {
+                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data)");
+                     }
+                  } else {
+                     out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
                   }
-               } else {
-                  out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
+                  out.print(",Queues = ");
+                  long[] q = msg.getQueueIDs();
+                  for (int i = 0; i < q.length; i++) {
+                     out.print(q[i]);
+
+                     PagePosition posCheck = new PagePositionImpl(pgid, msgID);
+
+                     boolean acked = false;
+
+                     Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
+                     if (positions != null) {
+                        acked = positions.contains(posCheck);
+                     }
+
+                     if (acked) {
+                        out.print(" (ACK)");
+                     }
+
+                     if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
+                        out.println(" (PG-COMPLETE)");
+                     }
+
+                     if (i + 1 < q.length) {
+                        out.print(",");
+                     }
+                  }
+                  if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
+                     out.print(", **PG_TX_NOT_FOUND**");
+                  }
+                  out.println();
+                  msgID++;
                }
-               out.print(",Queues = ");
-               long[] q = msg.getQueueIDs();
-               for (int i = 0; i < q.length; i++) {
-                  out.print(q[i]);
-
-                  PagePosition posCheck = new PagePositionImpl(pgid, msgID);
-
-                  boolean acked = false;
-
-                  Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
-                  if (positions != null) {
-                     acked = positions.contains(posCheck);
-                  }
-
-                  if (acked) {
-                     out.print(" (ACK)");
-                  }
-
-                  if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
-                     out.println(" (PG-COMPLETE)");
-                  }
-
-                  if (i + 1 < q.length) {
-                     out.print(",");
-                  }
-               }
-               if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
-                  out.print(", **PG_TX_NOT_FOUND**");
-               }
-               out.println();
-               msgID++;
+               pgid++;
             }
-            pgid++;
          }
       }
    }

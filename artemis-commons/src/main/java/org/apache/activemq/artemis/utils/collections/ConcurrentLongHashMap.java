@@ -295,12 +295,12 @@ public class ConcurrentLongHashMap<V> {
 
                if (storedKey == key) {
                   if (storedValue == EmptyValue) {
-                     values[bucket] = value != null ? value : valueProvider.apply(key);
+                     values[bucket] = value != null ? value : (valueProvider != null ? valueProvider.apply(key) : null);
                      ++size;
                      ++usedBuckets;
                      return valueProvider != null ? values[bucket] : null;
                   } else if (storedValue == DeletedValue) {
-                     values[bucket] = value != null ? value : valueProvider.apply(key);
+                     values[bucket] = value != null ? value : (valueProvider != null ? valueProvider.apply(key) : null);
                      ++size;
                      return valueProvider != null ? values[bucket] : null;
                   } else if (!onlyIfAbsent) {
@@ -320,7 +320,7 @@ public class ConcurrentLongHashMap<V> {
                   }
 
                   keys[bucket] = key;
-                  values[bucket] = value != null ? value : valueProvider.apply(key);
+                  values[bucket] = value != null ? value : (valueProvider != null ? valueProvider.apply(key) : null);
                   ++size;
                   return valueProvider != null ? values[bucket] : null;
                } else if (storedValue == DeletedValue) {

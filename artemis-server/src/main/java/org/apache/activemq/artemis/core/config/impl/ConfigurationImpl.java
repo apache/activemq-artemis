@@ -2044,9 +2044,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (diskScanPeriod != other.diskScanPeriod) {
          return false;
       }
-      if (connectionTtlCheckInterval != other.connectionTtlCheckInterval) {
-         return false;
-      }
 
       return true;
    }

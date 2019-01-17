@@ -469,8 +469,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2) {
             ClusterTopologyChangeMessage_V2 topMessage = (ClusterTopologyChangeMessage_V2) packet;
             notifyTopologyChange(updateTransportConfiguration(topMessage));
-         } else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
-            ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
+         } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
+            ClusterTopologyChangeMessage_V3 topMessage = (ClusterTopologyChangeMessage_V3) packet;
             notifyTopologyChange(updateTransportConfiguration(topMessage));
          } else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
