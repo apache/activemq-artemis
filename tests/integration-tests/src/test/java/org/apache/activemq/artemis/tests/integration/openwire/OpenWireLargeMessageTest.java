@@ -167,7 +167,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
          }
          server.stop();
          Assert.assertFalse(AssertionLoggerHandler.findText("NullPointerException"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("Cannot find record"));
+         Assert.assertFalse(AssertionLoggerHandler.findText("It was not possible to delete message"));
       } finally {
          AssertionLoggerHandler.stopCapture();
       }

@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
@@ -27,6 +29,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -437,7 +440,10 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    /**
     * Use: calculateNumberOfFiles (fileSize, numberOfRecords, recordSize,  numberOfRecords2, recordSize2, , ...., numberOfRecordsN, recordSizeN);
     */
-   private int calculateNumberOfFiles(TestableJournal journal, final int fileSize, final int alignment, final int... record) throws Exception {
+   private int calculateNumberOfFiles(TestableJournal journal,
+                                      final int fileSize,
+                                      final int alignment,
+                                      final int... record) throws Exception {
       if (journal != null) {
          journal.flush();
       }
@@ -1413,8 +1419,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
    @Test
    public void testCommitRecordsInFileNoReclaim() throws Exception {
-      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) +
-         512, true);
+      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) + 512, true);
       createJournal();
       startJournal();
       load();
@@ -1497,8 +1502,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
    @Test
    public void testRollbackRecordsInFileNoReclaim() throws Exception {
-      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) +
-         512, true);
+      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) + 512, true);
       createJournal();
       startJournal();
       load();
@@ -1589,8 +1593,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
    @Test
    public void testEmptyPrepare() throws Exception {
-      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) +
-         512, true);
+      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) + 512, true);
       createJournal();
       startJournal();
       load();
@@ -1624,8 +1627,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
    @Test
    public void testPrepareNoReclaim() throws Exception {
-      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) +
-         512, true);
+      setup(2, calculateRecordSize(JournalImpl.SIZE_HEADER, getAlignment()) + calculateRecordSize(recordLength, getAlignment()) + 512, true);
       createJournal();
       startJournal();
       load();
@@ -1996,6 +1998,60 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       createJournal();
       startJournal();
       loadAndCheck();
+   }
+
+   @Test
+   public void testDoubleDelete() throws Exception {
+
+      AssertionLoggerHandler.startCapture();
+      try {
+         setup(10, 10 * 1024, true);
+         createJournal();
+         startJournal();
+         load();
+
+         byte[] record = generateRecord(100);
+
+         add(1);
+
+         // I'm not adding that to the test assertion, as it will be deleted anyway.
+         // the test assertion doesn't support multi-thread, so I'm calling the journal directly here
+         journal.appendAddRecord(2, (byte) 0, record, sync);
+
+         Thread[] threads = new Thread[100];
+         CountDownLatch alignLatch = new CountDownLatch(threads.length);
+         CountDownLatch startFlag = new CountDownLatch(1);
+         for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(() -> {
+               alignLatch.countDown();
+               try {
+                  startFlag.await(5, TimeUnit.SECONDS);
+                  journal.appendDeleteRecord(2, false);
+               } catch (java.lang.IllegalStateException expected) {
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+            });
+            threads[i].start();
+         }
+
+         Assert.assertTrue(alignLatch.await(5, TimeUnit.SECONDS));
+         startFlag.countDown();
+
+         for (Thread t : threads) {
+            t.join(TimeUnit.SECONDS.toMillis(10));
+            Assert.assertFalse(t.isAlive());
+         }
+         journal.flush();
+
+         Assert.assertFalse(AssertionLoggerHandler.findText("NullPointerException"));
+         stopJournal();
+         createJournal();
+         startJournal();
+         loadAndCheck();
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
    }
 
    @Test
