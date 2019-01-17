@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -33,7 +33,7 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testQueueReceiverReadMessageWithDivert() throws Exception {
-      runQueueReceiverReadMessageWithDivert(DivertConfigurationRoutingType.ANYCAST.toString());
+      runQueueReceiverReadMessageWithDivert(ComponentConfigurationRoutingType.ANYCAST.toString());
    }
 
    @Test(timeout = 60000)

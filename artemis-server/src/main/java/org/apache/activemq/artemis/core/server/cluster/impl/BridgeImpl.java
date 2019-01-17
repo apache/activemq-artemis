@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -50,6 +51,7 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -161,6 +163,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final BridgeMetrics metrics = new BridgeMetrics();
 
+   private final ComponentConfigurationRoutingType routingType;
+
    public BridgeImpl(final ServerLocatorInternal serverLocator,
                      final int initialConnectAttempts,
                      final int reconnectAttempts,
@@ -179,7 +183,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                      final boolean useDuplicateDetection,
                      final String user,
                      final String password,
-                     final ActiveMQServer server) {
+                     final ActiveMQServer server,
+                     final ComponentConfigurationRoutingType routingType) {
 
       this.sequentialID = server.getStorageManager().generateID();
 
@@ -220,6 +225,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       this.password = password;
 
       this.server = server;
+
+      this.routingType = routingType;
    }
 
    /** For tests mainly */
@@ -548,6 +555,20 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       if (forwardingAddress != null) {
          // for AMQP messages this modification will be transient
          message.setAddress(forwardingAddress);
+      }
+
+      switch (routingType) {
+         case ANYCAST:
+            message.setRoutingType(RoutingType.ANYCAST);
+            break;
+         case MULTICAST:
+            message.setRoutingType(RoutingType.MULTICAST);
+            break;
+         case STRIP:
+            message.setRoutingType(null);
+            break;
+         case PASS:
+            break;
       }
 
       if (transformer != null) {

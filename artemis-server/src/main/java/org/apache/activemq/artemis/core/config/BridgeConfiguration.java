@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 
 public final class BridgeConfiguration implements Serializable {
 
@@ -74,6 +75,8 @@ public final class BridgeConfiguration implements Serializable {
    // At this point this is only changed on testcases
    // The bridge shouldn't be sending blocking anyways
    private long callTimeout = ActiveMQClient.DEFAULT_CALL_TIMEOUT;
+
+   private ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType());
 
    public BridgeConfiguration() {
    }
@@ -334,6 +337,15 @@ public final class BridgeConfiguration implements Serializable {
 
    public BridgeConfiguration setReconnectAttemptsOnSameNode(int reconnectAttemptsOnSameNode) {
       this.reconnectAttemptsOnSameNode = reconnectAttemptsOnSameNode;
+      return this;
+   }
+
+   public ComponentConfigurationRoutingType getRoutingType() {
+      return routingType;
+   }
+
+   public BridgeConfiguration setRoutingType(ComponentConfigurationRoutingType routingType) {
+      this.routingType = routingType;
       return this;
    }
 

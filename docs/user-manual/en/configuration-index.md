@@ -254,6 +254,7 @@ Name | Description | Default
 [user](core-bridges.md) | Username for the bridge, the default is the cluster username. | n/a
 [password](core-bridges.md)| Password for the bridge, default is the cluster password. | n/a
 [reconnect-attempts-same-node](core-bridges.md) | Number of retries before trying another node. | 10
+[routing-type](core-bridges.md) | how to set the routing-type on the bridged message | `PASS`
 
 ## broadcast-group type
 

@@ -178,6 +178,7 @@
             <use-duplicate-detection>true</use-duplicate-detection>
             <confirmation-window-size>1G</confirmation-window-size>
             <producer-window-size>444</producer-window-size>
+            <routing-type>STRIP</routing-type>
             <static-connectors>
                <connector-ref>connector1</connector-ref>
             </static-connectors>
