@@ -123,7 +123,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getQueueNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = postOffice.lookupBindingsForAddress(addressInfo.getName());
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
          if (bindings != null) {
             List<String> queueNames = new ArrayList<>();
             for (Binding binding : bindings.getBindings()) {
@@ -146,7 +146,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getBindingNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = postOffice.lookupBindingsForAddress(addressInfo.getName());
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
          if (bindings != null) {
             String[] bindingNames = new String[bindings.getBindings().size()];
             int i = 0;
@@ -235,7 +235,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       long totalMsgs = 0;
       try {
-         Bindings bindings = postOffice.lookupBindingsForAddress(addressInfo.getName());
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
                if (binding instanceof QueueBinding) {
