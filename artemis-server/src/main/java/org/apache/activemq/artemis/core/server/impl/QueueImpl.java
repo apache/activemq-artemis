@@ -3685,7 +3685,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (slowConsumerReaperRunnable == null) {
             scheduleSlowConsumerReaper(settings);
          } else if (slowConsumerReaperRunnable.checkPeriod != settings.getSlowConsumerCheckPeriod() || slowConsumerReaperRunnable.threshold != settings.getSlowConsumerThreshold() || !slowConsumerReaperRunnable.policy.equals(settings.getSlowConsumerPolicy())) {
-            slowConsumerReaperFuture.cancel(false);
+            if (slowConsumerReaperFuture != null) {
+               slowConsumerReaperFuture.cancel(false);
+               slowConsumerReaperFuture = null;
+            }
             scheduleSlowConsumerReaper(settings);
          }
       }

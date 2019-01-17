@@ -291,8 +291,8 @@ public class ColocatedHAManager implements HAManager {
          }
          Object serverId = params.get(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME);
          if (serverId != null) {
-            Integer newid = Integer.parseInt(serverId.toString()) + portOffset;
-            params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, newid.toString());
+            int newid = Integer.parseInt(serverId.toString()) + portOffset;
+            params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, newid);
          }
          params.put(TransportConstants.ACTIVEMQ_SERVER_NAME, name);
       }

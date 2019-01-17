@@ -40,6 +40,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.UPDATE_DELIVERY_COUNT;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
@@ -113,10 +114,11 @@ public final class DescribeJournal {
          configuration = new FileConfiguration();
          File configFile = new File(instanceFolder + "/etc/broker.xml");
          URL url;
+         Reader reader = null;
 
          try {
             url = configFile.toURI().toURL();
-            Reader reader = new InputStreamReader(url.openStream());
+            reader = new InputStreamReader(url.openStream());
             String xml = XMLUtil.readerToString(reader);
             xml = XMLUtil.replaceSystemProps(xml);
             Element e = XMLUtil.stringToElement(xml);
@@ -130,6 +132,14 @@ public final class DescribeJournal {
             }
          } catch (Exception e) {
             logger.error("failed to load broker.xml", e);
+         } finally {
+            if (reader != null) {
+               try {
+                  reader.close();
+               } catch (IOException e) {
+                  // ignore
+               }
+            }
          }
       } else {
          configuration = new ConfigurationImpl();

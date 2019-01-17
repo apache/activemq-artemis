@@ -196,16 +196,16 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    private void setupNotificationConsumer() throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
-                         " and " +
-                         flowRecord.getBridge().getForwardingConnection() +
-                         " clusterConnection = " +
-                         this.clusterConnection.getName() +
-                         " on server " +
-                         clusterConnection.getServer());
-      }
       if (flowRecord != null) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
+                            " and " +
+                            flowRecord.getBridge().getForwardingConnection() +
+                            " clusterConnection = " +
+                            this.clusterConnection.getName() +
+                            " on server " +
+                            clusterConnection.getServer());
+         }
          flowRecord.reset();
 
          if (notifConsumer != null) {

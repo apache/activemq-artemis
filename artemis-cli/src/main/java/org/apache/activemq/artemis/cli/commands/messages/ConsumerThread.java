@@ -201,7 +201,7 @@ public class ConsumerThread extends Thread {
                   System.out.println(threadName + " Committing transaction: " + transactions++);
                   session.commit();
                }
-            } else if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE) {
+            } else if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE && msg != null) {
                if (batchSize > 0 && received > 0 && received % batchSize == 0) {
                   System.out.println("Acknowledging last " + batchSize + " messages; messages so far = " + received);
                   msg.acknowledge();

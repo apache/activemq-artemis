@@ -215,7 +215,7 @@ public final class SharedNothingBackupActivation extends Activation {
 
             try {
                if (logger.isTraceEnabled()) {
-                  logger.trace("Calling clusterController.connectToNodeInReplicatedCluster(" + possibleLive.getA() + ")");
+                  logger.trace("Calling clusterController.connectToNodeInReplicatedCluster(" + possibleLive != null ? possibleLive.getA() : null + ")");
                }
                clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getA());
             } catch (Exception e) {

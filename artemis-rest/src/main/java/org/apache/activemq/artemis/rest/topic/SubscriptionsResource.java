@@ -148,7 +148,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       if (timeout == null)
-         timeout = Long.valueOf(consumerTimeoutSeconds * 1000);
+         timeout = Long.valueOf((long) consumerTimeoutSeconds * 1000);
       boolean deleteWhenIdle = !durable; // default is true if non-durable
       if (destroyWhenIdle != null)
          deleteWhenIdle = destroyWhenIdle.booleanValue();

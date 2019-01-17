@@ -69,21 +69,22 @@ public class FileDeploymentManager {
          url = new URL(configurationUrl);
       }
       // create a reader
-      Reader reader = new InputStreamReader(url.openStream());
-      String xml = XMLUtil.readerToString(reader);
-      //replace any system props
-      xml = XMLUtil.replaceSystemProps(xml);
-      Element e = XMLUtil.stringToElement(xml);
+      try (Reader reader = new InputStreamReader(url.openStream())) {
+         String xml = XMLUtil.readerToString(reader);
+         //replace any system props
+         xml = XMLUtil.replaceSystemProps(xml);
+         Element e = XMLUtil.stringToElement(xml);
 
-      //iterate around all the deployables
-      for (Deployable deployable : deployables.values()) {
-         String root = deployable.getRootElement();
-         NodeList children = e.getElementsByTagName(root);
-         //if the root element exists then parse it
-         if (root != null && children.getLength() > 0) {
-            Node item = children.item(0);
-            XMLUtil.validate(item, deployable.getSchema());
-            deployable.parse((Element) item, url);
+         //iterate around all the deployables
+         for (Deployable deployable : deployables.values()) {
+            String root = deployable.getRootElement();
+            NodeList children = e.getElementsByTagName(root);
+            //if the root element exists then parse it
+            if (root != null && children.getLength() > 0) {
+               Node item = children.item(0);
+               XMLUtil.validate(item, deployable.getSchema());
+               deployable.parse((Element) item, url);
+            }
          }
       }
    }
