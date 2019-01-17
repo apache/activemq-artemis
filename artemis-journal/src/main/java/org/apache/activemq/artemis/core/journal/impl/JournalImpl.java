@@ -964,6 +964,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                // computing the delete should be done after compacting is done
                if (record == null) {
                   compactor.addCommandDelete(id, usedFile);
+                  // JournalImplTestUni::testDoubleDelete was written to validate this condition:
+                  if (compactor == null) {
+                     logger.debug("Record " + id + " had been deleted already from a different call");
+                  } else {
+                     compactor.addCommandDelete(id, usedFile);
+                  }
                } else {
                   record.delete(usedFile);
                }
