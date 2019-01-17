@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 
 /**
@@ -367,7 +367,10 @@ public final class ActiveMQDefaultConfiguration {
    private static boolean DEFAULT_DIVERT_EXCLUSIVE = false;
 
    // how the divert should handle the message's routing type
-   private static String DEFAULT_DIVERT_ROUTING_TYPE = DivertConfigurationRoutingType.STRIP.toString();
+   private static String DEFAULT_DIVERT_ROUTING_TYPE = ComponentConfigurationRoutingType.STRIP.toString();
+
+   // how the bridge should handle the message's routing type
+   private static String DEFAULT_BRIDGE_ROUTING_TYPE = ComponentConfigurationRoutingType.PASS.toString();
 
    // If true then the server will request a backup on another node
    private static boolean DEFAULT_HAPOLICY_REQUEST_BACKUP = false;
@@ -1087,6 +1090,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static String getDefaultDivertRoutingType() {
       return DEFAULT_DIVERT_ROUTING_TYPE;
+   }
+
+   /**
+    * how the bridge should handle the message's routing type
+    */
+   public static String getDefaultBridgeRoutingType() {
+      return DEFAULT_BRIDGE_ROUTING_TYPE;
    }
 
    /**

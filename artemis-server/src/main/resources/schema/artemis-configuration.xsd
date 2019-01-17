@@ -1460,6 +1460,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="routing-type" type="component-routing-type" default="PASS" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how should the routing-type on the bridged messages be set?
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:choice>
             <xsd:element name="static-connectors" maxOccurs="1" minOccurs="1">
                <xsd:complexType>
@@ -1868,7 +1876,7 @@
 
          <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="routing-type" type="divert-routing-type" default="STRIP" maxOccurs="1" minOccurs="0">
+         <xsd:element name="routing-type" type="component-routing-type" default="STRIP" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   how should the routing-type on the diverted messages be set?
@@ -3183,7 +3191,7 @@
       </xsd:restriction>
    </xsd:simpleType>
 
-   <xsd:simpleType name="divert-routing-type">
+   <xsd:simpleType name="component-routing-type">
       <xsd:restriction base="xsd:string">
          <xsd:enumeration value="ANYCAST"/>
          <xsd:enumeration value="MULTICAST"/>

@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.server;
 
 /**
  * This class essentially mirrors {@code RoutingType} except it has some additional members to support special
- * configuration semantics for diverts.  These additional members weren't put in {@code RoutingType} so as to not
- * confuse users.
+ * configuration semantics for diverts & bridges.  These additional members weren't put in {@code RoutingType}
+ * so as to not confuse users.
  */
-public enum DivertConfigurationRoutingType {
+public enum ComponentConfigurationRoutingType {
 
    MULTICAST, ANYCAST, STRIP, PASS;
 
@@ -40,7 +40,7 @@ public enum DivertConfigurationRoutingType {
       }
    }
 
-   public static DivertConfigurationRoutingType getType(byte type) {
+   public static ComponentConfigurationRoutingType getType(byte type) {
       switch (type) {
          case 0:
             return MULTICAST;
