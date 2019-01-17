@@ -1364,13 +1364,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
     */
    private void confirmLargeMessageSend(Transaction tx, final Message message) throws Exception {
       LargeServerMessage largeServerMessage = (LargeServerMessage) message;
-      if (largeServerMessage.getPendingRecordID() >= 0) {
-         if (tx == null) {
-            storageManager.confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
-         } else {
-            storageManager.confirmPendingLargeMessageTX(tx, largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID());
+      synchronized (largeServerMessage) {
+         if (largeServerMessage.getPendingRecordID() >= 0) {
+            if (tx == null) {
+               storageManager.confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
+            } else {
+               storageManager.confirmPendingLargeMessageTX(tx, largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID());
+            }
+            largeServerMessage.setPendingRecordID(-1);
          }
-         largeServerMessage.setPendingRecordID(-1);
       }
    }
 
