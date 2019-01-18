@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.apache.activemq.artemis.utils.TimeUtils;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -61,10 +60,12 @@ public class WebServerComponent implements ExternalComponent {
    private String consoleUrl;
    private List<WebAppContext> webContexts;
    private ServerConnector connector;
+   private String artemisHome;
 
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
       webServerConfig = (WebServerDTO) config;
+      this.artemisHome = artemisHome;
       uri = new URI(webServerConfig.bind);
       server = new Server();
       String scheme = uri.getScheme();
@@ -237,28 +238,38 @@ public class WebServerComponent implements ExternalComponent {
    public void internalStop() throws Exception {
       server.stop();
       if (webContexts != null) {
+
          File tmpdir = null;
+         StringBuilder strBuilder = new StringBuilder();
+         boolean found = false;
          for (WebAppContext context : webContexts) {
             tmpdir = context.getTempDirectory();
 
-            if (tmpdir != null && !context.isPersistTempDirectory()) {
+            if (tmpdir != null && tmpdir.exists() && !context.isPersistTempDirectory()) {
                //tmpdir will be removed by deleteOnExit()
-               //somehow when broker is stopped and restarted quickly
-               //this tmpdir won't get deleted sometimes
-               boolean fileDeleted = TimeUtils.waitOnBoolean(false, 5000, tmpdir::exists);
-
-               if (!fileDeleted) {
-                  //because the execution order of shutdown hooks are
-                  //not determined, so it's possible that the deleteOnExit
-                  //is executed after this hook, in that case we force a delete.
-                  FileUtil.deleteDirectory(tmpdir);
-                  logger.debug("Force to delete temporary file on shutdown: " + tmpdir.getAbsolutePath());
-                  if (tmpdir.exists()) {
-                     ActiveMQWebLogger.LOGGER.tmpFileNotDeleted(tmpdir);
-                  }
+               //However because the URLClassLoader never release/close its opened
+               //jars the jar file won't be able to get deleted on Windows platform
+               //until after the process fully terminated. To fix this here arranges
+               //a separate process to try clean up the temp dir
+               FileUtil.deleteDirectory(tmpdir);
+               if (tmpdir.exists()) {
+                  ActiveMQWebLogger.LOGGER.tmpFileNotDeleted(tmpdir);
+                  strBuilder.append(tmpdir);
+                  strBuilder.append(",");
+                  found = true;
                }
             }
          }
+
+         if (found) {
+            String bootJar = artemisHome + File.separator + "lib" + File.separator + "artemis-boot.jar";
+
+            String[] command = {"java", "-cp", bootJar, "org.apache.activemq.artemis.boot.WebTmpCleaner", strBuilder.toString()};
+            ProcessBuilder pb = new ProcessBuilder(command);
+
+            pb.start();
+         }
+
          webContexts.clear();
       }
    }
