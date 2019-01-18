@@ -815,13 +815,13 @@ public class AMQPMessage extends RefCountMessage {
             encoder.writeObject(applicationProperties);
 
             // Now raw write the remainder body and footer if present.
-            if (remainingBodyPosition != VALUE_NOT_PRESENT) {
+            if (data != null && remainingBodyPosition != VALUE_NOT_PRESENT) {
                writable.put(data.position(remainingBodyPosition));
             }
-         } else if (applicationPropertiesPosition != VALUE_NOT_PRESENT) {
+         } else if (data != null && applicationPropertiesPosition != VALUE_NOT_PRESENT) {
             // Writes out ApplicationProperties, Body and Footer in one go if present.
             writable.put(data.position(applicationPropertiesPosition));
-         } else if (remainingBodyPosition != VALUE_NOT_PRESENT) {
+         } else if (data != null && remainingBodyPosition != VALUE_NOT_PRESENT) {
             // No Application properties at all so raw write Body and Footer sections
             writable.put(data.position(remainingBodyPosition));
          }
