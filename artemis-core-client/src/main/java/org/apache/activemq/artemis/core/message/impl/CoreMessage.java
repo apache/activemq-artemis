@@ -595,14 +595,16 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
          return this.properties;
       } catch (Throwable e) {
-         ByteBuf duplicatebuffer = buffer.duplicate();
-         duplicatebuffer.readerIndex(0);
-
          // This is not an expected error, hence no specific logger created
          logger.warn("Could not decode properties for CoreMessage[messageID=" + messageID + ",durable=" + durable + ",userID=" + userID + ",priority=" + priority +
             ", timestamp=" + timestamp + ",expiration=" + expiration + ",address=" + address + ", propertiesLocation=" + propertiesLocation, e);
-         logger.warn("Failed message has messageID=" + messageID + " and the following buffer:\n" + ByteBufUtil.prettyHexDump(duplicatebuffer));
-
+         if (buffer != null) {
+            ByteBuf duplicatebuffer = buffer.duplicate();
+            duplicatebuffer.readerIndex(0);
+            logger.warn("Failed message has messageID=" + messageID + " and the following buffer:\n" + ByteBufUtil.prettyHexDump(duplicatebuffer));
+         } else {
+            logger.warn("Failed message has messageID=" + messageID + " and the buffer was null");
+         }
          throw new RuntimeException(e.getMessage(), e);
 
       }
