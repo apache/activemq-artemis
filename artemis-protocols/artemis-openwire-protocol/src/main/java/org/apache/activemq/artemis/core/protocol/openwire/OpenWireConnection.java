@@ -863,12 +863,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
 
          List<AMQConsumer> consumersList = amqSession.createConsumer(info, new SlowConsumerDetection());
+
+         this.addConsumerBrokerExchange(info.getConsumerId(), amqSession, consumersList);
+         ss.addConsumer(info);
+
          if (consumersList.size() == 0) {
             return;
          }
 
-         this.addConsumerBrokerExchange(info.getConsumerId(), amqSession, consumersList);
-         ss.addConsumer(info);
          amqSession.start();
 
          if (AdvisorySupport.isAdvisoryTopic(info.getDestination())) {
