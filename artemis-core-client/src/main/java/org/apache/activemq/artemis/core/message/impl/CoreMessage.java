@@ -386,11 +386,12 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       if (writableBuffer == null) {
          synchronized (this) {
             if (writableBuffer == null) {
-               writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
+               ResetLimitWrappedActiveMQBuffer writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
                if (endOfBodyPosition > 0) {
                   writableBuffer.byteBuf().setIndex(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE + BODY_OFFSET);
                   writableBuffer.resetReaderIndex();
                }
+               this.writableBuffer = writableBuffer;
             }
          }
       }
