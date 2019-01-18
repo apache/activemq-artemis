@@ -213,22 +213,13 @@ public final class SharedNothingBackupActivation extends Activation {
                activeMQServer.getNodeManager().setNodeID(nodeID);
             }
 
-            try {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Calling clusterController.connectToNodeInReplicatedCluster(" + possibleLive != null ? possibleLive.getA() : null + ")");
+            if (possibleLive != null) {
+               clusterControl = tryConnectToNodeInReplicatedCluster(clusterController, possibleLive.getA());
+               if (clusterControl == null) {
+                  clusterControl = tryConnectToNodeInReplicatedCluster(clusterController, possibleLive.getB());
                }
-               clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getA());
-            } catch (Exception e) {
-               logger.debug(e.getMessage(), e);
-               if (possibleLive != null && possibleLive.getB() != null) {
-                  try {
-                     clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getB());
-                  } catch (Exception e1) {
-                     clusterControl = null;
-                  }
-               } else {
-                  clusterControl = null;
-               }
+            } else {
+               clusterControl = null;
             }
             if (clusterControl == null) {
 
@@ -365,6 +356,20 @@ public final class SharedNothingBackupActivation extends Activation {
             return;
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
+   }
+
+   private static ClusterControl tryConnectToNodeInReplicatedCluster(ClusterController clusterController, TransportConfiguration tc) {
+      try {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Calling clusterController.connectToNodeInReplicatedCluster(" + tc + ")");
+         }
+         if (tc != null) {
+            return clusterController.connectToNodeInReplicatedCluster(tc);
+         }
+      } catch (Exception e) {
+         logger.debug(e.getMessage(), e);
+      }
+      return null;
    }
 
    @Override
