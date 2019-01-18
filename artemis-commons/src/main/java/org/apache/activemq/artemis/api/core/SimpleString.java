@@ -342,7 +342,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       byte high = (byte) (delim >> 8 & 0xFF); // high byte
 
       int lasPos = 0;
-      for (int i = 0; i < data.length; i += 2) {
+      for (int i = 0; i + 1 < data.length; i += 2) {
          if (data[i] == low && data[i + 1] == high) {
             byte[] bytes = new byte[i - lasPos];
             System.arraycopy(data, lasPos, bytes, 0, bytes.length);
@@ -439,7 +439,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       final byte low = (byte) (c & 0xFF); // low byte
       final byte high = (byte) (c >> 8 & 0xFF); // high byte
 
-      for (int i = 0; i < data.length; i += 2) {
+      for (int i = 0; i + 1 < data.length; i += 2) {
          if (data[i] == low && data[i + 1] == high) {
             return true;
          }
