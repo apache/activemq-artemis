@@ -82,10 +82,10 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
 
          openwireConnection.start();
 
-         Queue q1 = session.createQueue(CompositeAddress.toFullQN(forwardAddress, "queue1"));
-         Queue q2 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue2"));
-         Queue q3 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue3"));
-         Queue q4 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue4"));
+         Queue q1 = session.createQueue(CompositeAddress.toFullyQualified(forwardAddress, "queue1"));
+         Queue q2 = session.createQueue(CompositeAddress.toFullyQualified(testAddress, "queue2"));
+         Queue q3 = session.createQueue(CompositeAddress.toFullyQualified(testAddress, "queue3"));
+         Queue q4 = session.createQueue(CompositeAddress.toFullyQualified(testAddress, "queue4"));
 
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);
@@ -146,8 +146,8 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
             producer.send(message);
          }
 
-         Queue q1 = session.createQueue(CompositeAddress.toFullQN(forwardAddress, "queue1"));
-         Queue q2 = session.createQueue(CompositeAddress.toFullQN(testAddress, "queue2"));
+         Queue q1 = session.createQueue(CompositeAddress.toFullyQualified(forwardAddress, "queue1"));
+         Queue q2 = session.createQueue(CompositeAddress.toFullyQualified(testAddress, "queue2"));
 
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);

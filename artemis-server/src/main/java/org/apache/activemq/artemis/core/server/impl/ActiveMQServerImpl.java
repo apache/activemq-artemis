@@ -423,7 +423,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.securityManager = securityManager;
 
-      addressSettingsRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration());
+      addressSettingsRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration(), new HierarchicalObjectRepository.MatchModifier() {
+         @Override
+         public String modify(String input) {
+            return CompositeAddress.extractAddressName(input);
+         }
+      });
 
       addressSettingsRepository.setDefault(new AddressSettings());
 
@@ -840,9 +845,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
-      CompositeAddress addressKey = new CompositeAddress(address.toString());
-      String realAddress = addressKey.isFqqn() ? addressKey.getAddress() : addressKey.getQueueName();
-      AddressSettings addressSettings = getAddressSettingsRepository().getMatch(realAddress);
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      AddressSettings addressSettings = getAddressSettingsRepository().getMatch(realAddress.toString());
 
       boolean autoCreateQeueus = addressSettings.isAutoCreateQueues();
       boolean autoCreateAddresses = addressSettings.isAutoCreateAddresses();
@@ -859,26 +863,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       // make an exception for the management address (see HORNETQ-29)
       ManagementService managementService = getManagementService();
-      SimpleString bindAddress = new SimpleString(realAddress);
       if (managementService != null) {
-         if (bindAddress.equals(managementService.getManagementAddress())) {
+         if (realAddress.equals(managementService.getManagementAddress())) {
             return new BindingQueryResult(true, null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers, defaultExclusive, defaultLastValue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch);
          }
       }
 
-      Bindings bindings = getPostOffice().getMatchingBindings(bindAddress);
+      Bindings bindings = getPostOffice().getMatchingBindings(realAddress);
 
       for (Binding binding : bindings.getBindings()) {
          if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
-            if (addressKey.isFqqn()) {
-               names.add(new SimpleString(addressKey.getAddress()).concat(CompositeAddress.SEPARATOR).concat(binding.getUniqueName()));
-            } else {
-               names.add(binding.getUniqueName());
-            }
+            names.add(binding.getUniqueName());
          }
       }
 
-      AddressInfo info = getAddressInfo(bindAddress);
+      AddressInfo info = getAddressInfo(realAddress);
 
       return new BindingQueryResult(info != null, info, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers, defaultExclusive, defaultLastValue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch);
    }
@@ -889,12 +888,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
+      SimpleString realName = CompositeAddress.extractQueueName(name);
+
       final QueueQueryResult response;
 
-      Binding binding = getPostOffice().getBinding(name);
+      Binding binding = getPostOffice().getBinding(realName);
 
       final SimpleString addressName = binding != null && binding.getType() == BindingType.LOCAL_QUEUE
-            ? binding.getAddress() : name;
+            ? binding.getAddress() : CompositeAddress.extractAddressName(name);
 
       final AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
 
@@ -918,14 +919,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          SimpleString filterString = filter == null ? null : filter.getFilterString();
 
-         response = new QueueQueryResult(name, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateQueues, true, queue.isAutoCreated(), queue.isPurgeOnNoConsumers(), queue.getRoutingType(), queue.getMaxConsumers(), queue.isExclusive(), queue.isLastValue(), queue.getLastValueKey(), queue.isNonDestructive(), queue.getConsumersBeforeDispatch(), queue.getDelayBeforeDispatch(), defaultConsumerWindowSize);
-      } else if (name.equals(managementAddress)) {
+         response = new QueueQueryResult(realName, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateQueues, true, queue.isAutoCreated(), queue.isPurgeOnNoConsumers(), queue.getRoutingType(), queue.getMaxConsumers(), queue.isExclusive(), queue.isLastValue(), queue.getLastValueKey(), queue.isNonDestructive(), queue.getConsumersBeforeDispatch(), queue.getDelayBeforeDispatch(), defaultConsumerWindowSize);
+      } else if (realName.equals(managementAddress)) {
          // make an exception for the management address (see HORNETQ-29)
-         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateQueues, true, false, false, RoutingType.MULTICAST, -1, false, false, null, null, null, null, defaultConsumerWindowSize);
-      } else if (autoCreateQueues) {
-         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false, false, defaultPurgeOnNoConsumers, RoutingType.MULTICAST, defaultMaxConsumers, defaultExclusiveQueue, defaultLastValueQueue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch, defaultConsumerWindowSize);
+         response = new QueueQueryResult(realName, managementAddress, true, false, null, -1, -1, autoCreateQueues, true, false, false, RoutingType.MULTICAST, -1, false, false, null, null, null, null, defaultConsumerWindowSize);
       } else {
-         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, 0, null, null, null, null, null, null, defaultConsumerWindowSize);
+         response = new QueueQueryResult(realName, addressName, true, false, null, 0, 0, autoCreateQueues, false, false, defaultPurgeOnNoConsumers, RoutingType.MULTICAST, defaultMaxConsumers, defaultExclusiveQueue, defaultLastValueQueue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch, defaultConsumerWindowSize);
       }
 
       return response;
@@ -937,18 +936,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
-      AddressSettings addressSettings = getAddressSettingsRepository().getMatch(name.toString());
+      SimpleString realName = CompositeAddress.extractAddressName(name);
+
+      AddressSettings addressSettings = getAddressSettingsRepository().getMatch(realName.toString());
 
       boolean autoCreateAddresses = addressSettings.isAutoCreateAddresses();
       boolean defaultPurgeOnNoConsumers = addressSettings.isDefaultPurgeOnNoConsumers();
       int defaultMaxConsumers = addressSettings.getDefaultMaxConsumers();
 
-      AddressInfo addressInfo = postOffice.getAddressInfo(name);
+      AddressInfo addressInfo = postOffice.getAddressInfo(realName);
       AddressQueryResult response;
       if (addressInfo != null) {
          response = new AddressQueryResult(addressInfo.getName(), addressInfo.getRoutingTypes(), addressInfo.getId(), addressInfo.isAutoCreated(), true, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
       } else {
-         response = new AddressQueryResult(name, null, -1, false, false, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+         response = new AddressQueryResult(realName, null, -1, false, false, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
       }
       return response;
    }
@@ -1739,18 +1740,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString queueName, SimpleString filter, SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers, Boolean purgeOnNoConsumers, boolean autoCreateAddress) throws Exception {
       AddressSettings as = getAddressSettingsRepository().getMatch(addressInfo == null ? queueName.toString() : addressInfo.getName().toString());
-      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, as.isDefaultExclusiveQueue(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreateAddress);
+      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, as.isDefaultExclusiveQueue(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreateAddress, false);
    }
 
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString queueName, SimpleString filter, SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue, boolean autoCreateAddress) throws Exception {
       AddressSettings as = getAddressSettingsRepository().getMatch(addressInfo == null ? queueName.toString() : addressInfo.getName().toString());
-      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreateAddress);
+      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreateAddress, false);
    }
 
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString queueName, SimpleString filter, SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue, SimpleString lastValueKey, Boolean nonDestructive, Integer consumersBeforeDispatch, Long delayBeforeDispatch, boolean autoCreateAddress) throws Exception {
-      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress);
+      return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress, false);
    }
 
 
@@ -2847,7 +2848,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             } else {
                // if the address::queue doesn't exist then create it
                try {
-                  createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(), queueName, SimpleString.toSimpleString(config.getFilterString()), SimpleString.toSimpleString(config.getUser()), config.isDurable(), false, false, false, false, maxConsumers, config.getPurgeOnNoConsumers(), isExclusive, isLastValue, lastValueKey, isNonDestructive, consumersBeforeDispatch, delayBeforeDispatch, true, true);
+                  createQueue(new AddressInfo(SimpleString.toSimpleString(config.getAddress())).addRoutingType(config.getRoutingType()), queueName, SimpleString.toSimpleString(config.getFilterString()), SimpleString.toSimpleString(config.getUser()), config.isDurable(), false, false, false, false, maxConsumers, config.getPurgeOnNoConsumers(), isExclusive, isLastValue, lastValueKey, isNonDestructive, consumersBeforeDispatch, delayBeforeDispatch, true, true);
                } catch (ActiveMQQueueExistsException e) {
                   // the queue may exist on a *different* address
                   ActiveMQServerLogger.LOGGER.warn(e.getMessage());
@@ -3043,13 +3044,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean nonDestructive,
                             final int consumersBeforeDispatch,
                             final long delayBeforeDispatch,
-                            final boolean autoCreateAddress) throws Exception {
-      final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
+                            final boolean autoCreateAddress,
+                            final boolean configurationManaged) throws Exception {
+      SimpleString realQueueName = CompositeAddress.extractQueueName(queueName);
+
+      if (realQueueName == null || realQueueName.length() == 0) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidQueueName(queueName);
+      }
+
+      final QueueBinding binding = (QueueBinding) postOffice.getBinding(realQueueName);
       if (binding != null) {
          if (ignoreIfExists) {
             return binding.getQueue();
          } else {
-            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueName, binding.getAddress());
+            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(realQueueName, binding.getAddress());
          }
       }
 
@@ -3060,9 +3068,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       final QueueConfig.Builder queueConfigBuilder;
 
-      final SimpleString addressToUse = addrInfo == null ? queueName : addrInfo.getName();
+      final SimpleString addressToUse = (addrInfo == null || addrInfo.getName() == null) ? realQueueName : addrInfo.getName();
 
-      queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressToUse);
+      queueConfigBuilder = QueueConfig.builderWith(queueID, realQueueName, addressToUse);
 
       AddressInfo info = postOffice.getAddressInfo(addressToUse);
 
@@ -3101,6 +3109,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
               .nonDestructive(nonDestructive)
               .consumersBeforeDispatch(consumersBeforeDispatch)
               .delayBeforeDispatch(delayBeforeDispatch)
+              .configurationManaged(configurationManaged)
               .build();
 
       if (hasBrokerQueuePlugins()) {
@@ -3178,138 +3187,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final int consumersBeforeDispatch,
                             final long delayBeforeDispatch,
                             final boolean autoCreateAddress) throws Exception {
-      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, ignoreIfExists, transientQueue, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress, false);
-   }
-
-   private Queue createQueue(final SimpleString address,
-                            final RoutingType routingType,
-                            final SimpleString queueName,
-                            final SimpleString filterString,
-                            final SimpleString user,
-                            final boolean durable,
-                            final boolean temporary,
-                            final boolean ignoreIfExists,
-                            final boolean transientQueue,
-                            final boolean autoCreated,
-                            final int maxConsumers,
-                            final boolean purgeOnNoConsumers,
-                            final boolean exclusive,
-                            final boolean lastValue,
-                            final SimpleString lastValueKey,
-                            final boolean nonDestructive,
-                            final int consumersBeforeDispatch,
-                            final long delayBeforeDispatch,
-                            final boolean autoCreateAddress,
-                            final boolean configurationManaged) throws Exception {
-
-      final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
-      if (binding != null) {
-         if (ignoreIfExists) {
-            return binding.getQueue();
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueName, binding.getAddress());
-         }
-      }
-
-      final Filter filter = FilterImpl.createFilter(filterString);
-
-      final long txID = storageManager.generateID();
-      final long queueID = storageManager.generateID();
-
-      final QueueConfig.Builder queueConfigBuilder;
-
-      final SimpleString addressToUse = address == null ? queueName : address;
-
-      queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressToUse);
-
-      AddressInfo info = postOffice.getAddressInfo(addressToUse);
-
-      if (autoCreateAddress) {
-         RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
-         if (info == null) {
-            final AddressInfo addressInfo = new AddressInfo(addressToUse, rt);
-            addressInfo.setAutoCreated(true);
-            addAddressInfo(addressInfo);
-         } else if (!info.getRoutingTypes().contains(routingType)) {
-            EnumSet<RoutingType> routingTypes = EnumSet.copyOf(info.getRoutingTypes());
-            routingTypes.add(routingType);
-            updateAddressInfo(info.getName(), routingTypes);
-         }
-      } else if (info == null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressToUse);
-      } else if (!info.getRoutingTypes().contains(routingType)) {
-         throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, info.getName().toString(), info.getRoutingTypes());
-      }
-
-      final QueueConfig queueConfig = queueConfigBuilder
-              .filter(filter)
-              .pagingManager(pagingManager)
-              .user(user)
-              .durable(durable)
-              .temporary(temporary)
-              .autoCreated(autoCreated).routingType(routingType)
-              .maxConsumers(maxConsumers)
-              .purgeOnNoConsumers(purgeOnNoConsumers)
-              .exclusive(exclusive)
-              .lastValue(lastValue)
-              .lastValueKey(lastValueKey)
-              .nonDestructive(nonDestructive)
-              .consumersBeforeDispatch(consumersBeforeDispatch)
-              .delayBeforeDispatch(delayBeforeDispatch)
-              .configurationManaged(configurationManaged)
-              .build();
-
-      if (hasBrokerQueuePlugins()) {
-         callBrokerQueuePlugins(plugin -> plugin.beforeCreateQueue(queueConfig));
-      }
-
-      final Queue queue = queueFactory.createQueueWith(queueConfig);
-
-      if (transientQueue) {
-         queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
-      } else {
-         queue.setConsumersRefCount(new QueueManagerImpl(this, queue.getName()));
-      }
-
-      final QueueBinding localQueueBinding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
-
-      if (queue.isDurable()) {
-         storageManager.addQueueBinding(txID, localQueueBinding);
-      }
-
-      try {
-         postOffice.addBinding(localQueueBinding);
-         if (queue.isDurable()) {
-            storageManager.commitBindings(txID);
-         }
-      } catch (Exception e) {
-         try {
-            if (durable) {
-               storageManager.rollbackBindings(txID);
-            }
-            final PageSubscription pageSubscription = queue.getPageSubscription();
-            try {
-               queue.close();
-            } finally {
-               if (pageSubscription != null) {
-                  pageSubscription.destroy();
-               }
-            }
-         } catch (Throwable ignored) {
-            logger.debug(ignored.getMessage(), ignored);
-         }
-         throw e;
-      }
-
-      managementService.registerQueue(queue, queue.getAddress(), storageManager);
-
-      if (hasBrokerQueuePlugins()) {
-         callBrokerQueuePlugins(plugin -> plugin.afterCreateQueue(queue));
-      }
-
-      callPostQueueCreationCallbacks(queue.getName());
-
-      return queue;
+      return createQueue(new AddressInfo(address).addRoutingType(routingType), queueName, filterString, user, durable, temporary, ignoreIfExists, transientQueue, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress, false);
    }
 
    @Deprecated

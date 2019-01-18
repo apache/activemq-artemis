@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 
 import java.util.EnumSet;
@@ -58,7 +59,7 @@ public class AddressInfo {
     * @param routingTypes
     */
    public AddressInfo(SimpleString name, EnumSet<RoutingType> routingTypes) {
-      this.name = name;
+      this.name = CompositeAddress.extractAddressName(name);
       setRoutingTypes(routingTypes);
    }
 
@@ -68,7 +69,7 @@ public class AddressInfo {
     * @param routingType
     */
    public AddressInfo(SimpleString name, RoutingType routingType) {
-      this.name = name;
+      this.name = CompositeAddress.extractAddressName(name);
       addRoutingType(routingType);
    }
 
