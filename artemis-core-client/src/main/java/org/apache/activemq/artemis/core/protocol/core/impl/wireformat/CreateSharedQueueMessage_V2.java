@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.utils.BufferHelper;
 public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
 
    private RoutingType routingType;
-   Integer maxConsumers;
-   Boolean purgeOnNoConsumers;
+   private Integer maxConsumers;
+   private Boolean purgeOnNoConsumers;
    private Boolean exclusive;
    private Boolean lastValue;
    private SimpleString lastValueKey;
