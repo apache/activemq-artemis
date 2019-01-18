@@ -37,7 +37,7 @@ public enum QueueStatus {
    }
 
    public static QueueStatus fromID(short id) {
-      if (id < 0 || id > values.length) {
+      if (id < 0 || id >= values.length) {
          return null;
       } else {
          return values[id];
