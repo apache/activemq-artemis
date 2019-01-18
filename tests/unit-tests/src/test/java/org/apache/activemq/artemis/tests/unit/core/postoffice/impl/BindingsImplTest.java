@@ -20,6 +20,7 @@ import javax.transaction.xa.Xid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -292,6 +293,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       final SimpleString name;
+      final SimpleString uniqueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
 
       FakeBinding(final SimpleString name) {
          this.name = name;
@@ -363,7 +365,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
        */
       @Override
       public SimpleString getUniqueName() {
-         return null;
+         return uniqueName;
       }
 
       @Override

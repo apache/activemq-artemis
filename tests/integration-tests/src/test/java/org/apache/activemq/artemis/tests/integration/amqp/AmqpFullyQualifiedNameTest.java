@@ -29,16 +29,13 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Before;
@@ -189,9 +186,9 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
             System.out.println("checking binidng " + b.getUniqueName() + " " + ((LocalQueueBinding)b).getQueue().getDeliveringMessages());
             SimpleString qName = b.getUniqueName();
             //do FQQN query
-            QueueQueryResult result = server.queueQuery(CompositeAddress.toFullQN(multicastAddress, qName));
+            QueueQueryResult result = server.queueQuery(CompositeAddress.toFullyQualified(multicastAddress, qName));
             assertTrue(result.isExists());
-            assertEquals(result.getName(), CompositeAddress.toFullQN(multicastAddress, qName));
+            assertEquals(result.getName(), qName);
             //do qname query
             result = server.queueQuery(qName);
             assertTrue(result.isExists());
@@ -238,58 +235,75 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    @Test
    public void testQueue() throws Exception {
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ2, null, true, false, -1, false, true);
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ3, null, true, false, -1, false, true);
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true));
 
       Connection connection = createConnection();
       try {
          connection.start();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         javax.jms.Queue q1 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ1).toString());
-         javax.jms.Queue q2 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ2).toString());
-         javax.jms.Queue q3 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ3).toString());
+         javax.jms.Queue q1 = session.createQueue(CompositeAddress.toFullyQualified(anycastAddress, anycastQ1).toString());
+         javax.jms.Queue q2 = session.createQueue(CompositeAddress.toFullyQualified(anycastAddress, anycastQ2).toString());
+         javax.jms.Queue q3 = session.createQueue(CompositeAddress.toFullyQualified(anycastAddress, anycastQ3).toString());
 
-         //send 3 messages to anycastAddress
-         ClientSessionFactory cf = createSessionFactory(locator);
-         ClientSession coreSession = cf.createSession();
+         MessageProducer producer1 = session.createProducer(q1);
+         producer1.send(session.createMessage());
+         producer1.send(session.createMessage());
+         assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ1).getMessageCount() == 2, 2000, 200));
 
-         //send 3 messages
-         ClientProducer coreProducer = coreSession.createProducer(anycastAddress);
-         sendMessages(coreSession, coreProducer, 3);
+         MessageProducer producer2 = session.createProducer(q2);
+         producer2.send(session.createMessage());
+         producer2.send(session.createMessage());
+         producer2.send(session.createMessage());
+         assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ2).getMessageCount() == 3, 2000, 200));
 
+         MessageProducer producer3 = session.createProducer(q3);
+         producer3.send(session.createMessage());
+         producer3.send(session.createMessage());
+         producer3.send(session.createMessage());
+         producer3.send(session.createMessage());
+         producer3.send(session.createMessage());
+         assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ3).getMessageCount() == 5, 2000, 200));
+
+         System.out.println("Queue is: " + q1);
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);
          MessageConsumer consumer3 = session.createConsumer(q3);
 
-         //each consumer receives one
          assertNotNull(consumer1.receive(2000));
-         assertNotNull(consumer2.receive(2000));
-         assertNotNull(consumer3.receive(2000));
+         assertNotNull(consumer1.receive(2000));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ1).getMessageCount() == 0, 2000, 200));
 
-         Queue queue1 = getProxyToQueue(anycastQ1.toString());
-         Wait.assertEquals(0, queue1::getMessageCount);
-         Queue queue2 = getProxyToQueue(anycastQ2.toString());
-         Wait.assertEquals(0, queue2::getMessageCount);
-         Queue queue3 = getProxyToQueue(anycastQ3.toString());
-         Wait.assertEquals(0, queue3::getMessageCount);
+         assertNotNull(consumer2.receive(2000));
+         assertNotNull(consumer2.receive(2000));
+         assertNotNull(consumer2.receive(2000));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ2).getMessageCount() == 0, 2000, 200));
+
+         assertNotNull(consumer3.receive(2000));
+         assertNotNull(consumer3.receive(2000));
+         assertNotNull(consumer3.receive(2000));
+         assertNotNull(consumer3.receive(2000));
+         assertNotNull(consumer3.receive(2000));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ3).getMessageCount() == 0, 2000, 200));
 
          connection.close();
          //queues are empty now
          for (SimpleString q : new SimpleString[]{anycastQ1, anycastQ2, anycastQ3}) {
             //FQQN query
-            final QueueQueryResult query = server.queueQuery(CompositeAddress.toFullQN(anycastAddress, q));
-            assertTrue(query.isExists());
+            QueueQueryResult query = server.queueQuery(CompositeAddress.toFullyQualified(anycastAddress, q));
+            assertTrue(query.isExists() || query.isAutoCreateQueues());
             assertEquals(anycastAddress, query.getAddress());
-            assertEquals(CompositeAddress.toFullQN(anycastAddress, q), query.getName());
+            assertEquals(q, query.getName());
             assertEquals("Message not consumed", 0, query.getMessageCount());
             //try query again using qName
-            QueueQueryResult qNameQuery = server.queueQuery(q);
-            assertEquals(q, qNameQuery.getName());
+            query = server.queueQuery(q);
+            assertEquals(q, query.getName());
          }
       } finally {
          connection.close();
+         if (locator != null) {
+            locator.close();
+         }
       }
    }
 
@@ -308,7 +322,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          //::queue ok!
-         String specialName = CompositeAddress.toFullQN(new SimpleString(""), anycastQ1).toString();
+         String specialName = CompositeAddress.toFullyQualified(new SimpleString(""), anycastQ1).toString();
          javax.jms.Queue q1 = session.createQueue(specialName);
          session.createConsumer(q1);
       } catch (InvalidDestinationException e) {

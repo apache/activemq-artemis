@@ -239,9 +239,8 @@ public class AMQSession implements SessionCallback {
                   SimpleString addressToUse = queueName;
                   RoutingType routingTypeToUse = RoutingType.ANYCAST;
                   if (CompositeAddress.isFullyQualified(queueName.toString())) {
-                     CompositeAddress compositeAddress = CompositeAddress.getQueueName(queueName.toString());
-                     addressToUse = new SimpleString(compositeAddress.getAddress());
-                     queueNameToUse = new SimpleString(compositeAddress.getQueueName());
+                     addressToUse = CompositeAddress.extractAddressName(queueName);
+                     queueNameToUse = CompositeAddress.extractQueueName(queueName);
                      if (bindingQuery.getAddressInfo() != null) {
                         routingTypeToUse = bindingQuery.getAddressInfo().getRoutingType();
                      } else {

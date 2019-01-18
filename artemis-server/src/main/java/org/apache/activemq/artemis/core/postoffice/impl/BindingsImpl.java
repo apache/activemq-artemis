@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.jboss.logging.Logger;
 
 public final class BindingsImpl implements Bindings {
@@ -55,7 +56,13 @@ public final class BindingsImpl implements Bindings {
 
    private final Map<SimpleString, Integer> routingNamePositions = new ConcurrentHashMap<>();
 
-   private final Map<Long, Binding> bindingsMap = new ConcurrentHashMap<>();
+   private final Map<Long, Binding> bindingsIdMap = new ConcurrentHashMap<>();
+
+   /**
+    * This is the same as bindingsIdMap but indexed on the binding's uniqueName rather than ID. Two maps are
+    * maintained to speed routing, otherwise we'd have to loop through the bindingsIdMap when routing to an FQQN.
+    */
+   private final Map<SimpleString, Binding> bindingsNameMap = new ConcurrentHashMap<>();
 
    private final List<Binding> exclusiveBindings = new CopyOnWriteArrayList<>();
 
@@ -77,6 +84,10 @@ public final class BindingsImpl implements Bindings {
       this.name = name;
    }
 
+   public SimpleString getName() {
+      return name;
+   }
+
    @Override
    public void setMessageLoadBalancingType(final MessageLoadBalancingType messageLoadBalancingType) {
       this.messageLoadBalancingType = messageLoadBalancingType;
@@ -89,12 +100,12 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public Collection<Binding> getBindings() {
-      return bindingsMap.values();
+      return bindingsIdMap.values();
    }
 
    @Override
    public void unproposed(SimpleString groupID) {
-      for (Binding binding : bindingsMap.values()) {
+      for (Binding binding : bindingsIdMap.values()) {
          binding.unproposed(groupID);
       }
    }
@@ -127,7 +138,8 @@ public final class BindingsImpl implements Bindings {
             }
          }
 
-         bindingsMap.put(binding.getID(), binding);
+         bindingsIdMap.put(binding.getID(), binding);
+         bindingsNameMap.put(binding.getUniqueName(), binding);
 
          if (logger.isTraceEnabled()) {
             logger.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
@@ -166,7 +178,8 @@ public final class BindingsImpl implements Bindings {
             }
          }
 
-         bindingsMap.remove(binding.getID());
+         bindingsIdMap.remove(binding.getID());
+         bindingsNameMap.remove(binding.getUniqueName());
 
          if (logger.isTraceEnabled()) {
             logger.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
@@ -276,7 +289,7 @@ public final class BindingsImpl implements Bindings {
          ByteBuffer buffer = ByteBuffer.wrap(ids);
          while (buffer.hasRemaining()) {
             long id = buffer.getLong();
-            for (Map.Entry<Long, Binding> entry : bindingsMap.entrySet()) {
+            for (Map.Entry<Long, Binding> entry : bindingsIdMap.entrySet()) {
                if (entry.getValue() instanceof RemoteQueueBinding) {
                   RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
                   if (remoteQueueBinding.getRemoteQueueID() == id) {
@@ -309,6 +322,11 @@ public final class BindingsImpl implements Bindings {
          } else if (groupingHandler != null && groupRouting && groupId != null) {
             context.clear();
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
+         } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
+            Binding theBinding = bindingsNameMap.get(CompositeAddress.extractQueueName(message.getAddressSimpleString()));
+            if (theBinding != null) {
+               theBinding.route(message, context);
+            }
          } else {
             // in a optimization, we are reusing the previous context if everything is right for it
             // so the simpleRouting will only happen if neededk
@@ -596,10 +614,10 @@ public final class BindingsImpl implements Bindings {
 
       out.println("bindingsMap:");
 
-      if (bindingsMap.isEmpty()) {
+      if (bindingsIdMap.isEmpty()) {
          out.println("\tEMPTY!");
       }
-      for (Map.Entry<Long, Binding> entry : bindingsMap.entrySet()) {
+      for (Map.Entry<Long, Binding> entry : bindingsIdMap.entrySet()) {
          out.println("\tkey=" + entry.getKey() + ", value=" + entry.getValue());
       }
 
@@ -639,7 +657,7 @@ public final class BindingsImpl implements Bindings {
       while (buff.hasRemaining()) {
          long bindingID = buff.getLong();
 
-         Binding binding = bindingsMap.get(bindingID);
+         Binding binding = bindingsIdMap.get(bindingID);
          if (binding != null) {
             if (idsToAckList.contains(bindingID)) {
                binding.routeWithAck(message, context);

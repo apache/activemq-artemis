@@ -78,12 +78,12 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       final int num = 3;
       sendMessages(session, producer, num);
 
-      ClientConsumer consumer1 = session.createConsumer(toFullQN(mixedAddress, anycastQ1));
-      ClientConsumer consumer2 = session.createConsumer(toFullQN(mixedAddress, anycastQ2));
-      ClientConsumer consumer3 = session.createConsumer(toFullQN(mixedAddress, anycastQ3));
-      ClientConsumer consumer4 = session.createConsumer(toFullQN(mixedAddress, multicastQ1));
-      ClientConsumer consumer5 = session.createConsumer(toFullQN(mixedAddress, multicastQ2));
-      ClientConsumer consumer6 = session.createConsumer(toFullQN(mixedAddress, multicastQ3));
+      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(mixedAddress, anycastQ1));
+      ClientConsumer consumer2 = session.createConsumer(CompositeAddress.toFullyQualified(mixedAddress, anycastQ2));
+      ClientConsumer consumer3 = session.createConsumer(CompositeAddress.toFullyQualified(mixedAddress, anycastQ3));
+      ClientConsumer consumer4 = session.createConsumer(CompositeAddress.toFullyQualified(mixedAddress, multicastQ1));
+      ClientConsumer consumer5 = session.createConsumer(CompositeAddress.toFullyQualified(mixedAddress, multicastQ2));
+      ClientConsumer consumer6 = session.createConsumer(CompositeAddress.toFullyQualified(mixedAddress, multicastQ3));
 
       session.start();
 
@@ -122,10 +122,10 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       //queues are empty now
       for (SimpleString q : new SimpleString[]{anycastQ1, anycastQ2, anycastQ3, multicastQ1, multicastQ2, multicastQ3}) {
-         QueueQueryResult query = server.queueQuery(toFullQN(mixedAddress, q));
+         QueueQueryResult query = server.queueQuery(CompositeAddress.toFullyQualified(mixedAddress, q));
          assertTrue(query.isExists());
          assertEquals(mixedAddress, query.getAddress());
-         assertEquals(toFullQN(mixedAddress, q), query.getName());
+         assertEquals(q, query.getName());
          assertEquals(0, query.getMessageCount());
       }
    }
@@ -144,9 +144,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(multicastAddress);
       sendMessages(session, producer, 1);
 
-      ClientConsumer consumer1 = session.createConsumer(toFullQN(multicastAddress, multicastQ1));
-      ClientConsumer consumer2 = session.createConsumer(toFullQN(multicastAddress, multicastQ2));
-      ClientConsumer consumer3 = session.createConsumer(toFullQN(multicastAddress, multicastQ3));
+      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(multicastAddress, multicastQ1));
+      ClientConsumer consumer2 = session.createConsumer(CompositeAddress.toFullyQualified(multicastAddress, multicastQ2));
+      ClientConsumer consumer3 = session.createConsumer(CompositeAddress.toFullyQualified(multicastAddress, multicastQ3));
       session.start();
 
       //each consumer receives one
@@ -163,10 +163,10 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       session.commit();
       //queues are empty now
       for (SimpleString q : new SimpleString[]{multicastQ1, multicastQ2, multicastQ3}) {
-         QueueQueryResult query = server.queueQuery(toFullQN(multicastAddress, q));
+         QueueQueryResult query = server.queueQuery(CompositeAddress.toFullyQualified(multicastAddress, q));
          assertTrue(query.isExists());
          assertEquals(multicastAddress, query.getAddress());
-         assertEquals(toFullQN(multicastAddress, q), query.getName());
+         assertEquals(q, query.getName());
          assertEquals(0, query.getMessageCount());
       }
    }
@@ -181,33 +181,53 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       ClientSession session = cf.createSession();
       session.start();
 
-      //send 3 messages
-      ClientProducer producer = session.createProducer(anycastAddress);
-      sendMessages(session, producer, 3);
+      ClientProducer producer1 = session.createProducer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ1).toString());
+      for (int i = 0; i < 2; i++) {
+         producer1.send(session.createMessage(false));
+      }
+      assertTrue(org.apache.activemq.artemis.junit.Wait.waitFor(() -> server.locateQueue(anycastQ1).getMessageCount() == 2, 2000, 200));
 
-      ClientConsumer consumer1 = session.createConsumer(toFullQN(anycastAddress, anycastQ1));
-      ClientConsumer consumer2 = session.createConsumer(toFullQN(anycastAddress, anycastQ2));
-      ClientConsumer consumer3 = session.createConsumer(toFullQN(anycastAddress, anycastQ3));
-      session.start();
+      ClientProducer producer2 = session.createProducer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ2).toString());
+      for (int i = 0; i < 3; i++) {
+         producer2.send(session.createMessage(false));
+      }
+      assertTrue(org.apache.activemq.artemis.junit.Wait.waitFor(() -> server.locateQueue(anycastQ2).getMessageCount() == 3, 2000, 200));
 
-      //each consumer receives one
-      ClientMessage m = consumer1.receive(2000);
-      assertNotNull(m);
-      m.acknowledge();
-      m = consumer2.receive(2000);
-      assertNotNull(m);
-      m.acknowledge();
-      m = consumer3.receive(2000);
-      assertNotNull(m);
-      m.acknowledge();
+      ClientProducer producer3 = session.createProducer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ3).toString());
+      for (int i = 0; i < 5; i++) {
+         producer3.send(session.createMessage(false));
+      }
+      assertTrue(org.apache.activemq.artemis.junit.Wait.waitFor(() -> server.locateQueue(anycastQ3).getMessageCount() == 5, 2000, 200));
 
+      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ1));
+      ClientConsumer consumer2 = session.createConsumer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ2));
+      ClientConsumer consumer3 = session.createConsumer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ3));
+
+      ClientMessage m = null;
+
+      for (int i = 0; i < 2; i++) {
+         m = consumer1.receive(2000);
+         assertNotNull(m);
+         m.acknowledge();
+      }
+      for (int i = 0; i < 3; i++) {
+         m = consumer2.receive(2000);
+         assertNotNull(m);
+         m.acknowledge();
+      }
+      for (int i = 0; i < 5; i++) {
+         m = consumer3.receive(2000);
+         assertNotNull(m);
+         m.acknowledge();
+      }
       session.commit();
+
       //queues are empty now
       for (SimpleString q : new SimpleString[]{anycastQ1, anycastQ2, anycastQ3}) {
-         QueueQueryResult query = server.queueQuery(toFullQN(anycastAddress, q));
+         QueueQueryResult query = server.queueQuery(CompositeAddress.toFullyQualified(anycastAddress, q));
          assertTrue(query.isExists());
          assertEquals(anycastAddress, query.getAddress());
-         assertEquals(toFullQN(anycastAddress, q), query.getName());
+         assertEquals(q, query.getName());
          assertEquals(0, query.getMessageCount());
       }
    }
@@ -224,7 +244,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       sendMessages(session, producer, 1);
 
       //::queue
-      ClientConsumer consumer1 = session.createConsumer(toFullQN(new SimpleString(""), anycastQ1));
+      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(new SimpleString(""), anycastQ1));
       session.start();
 
       ClientMessage m = consumer1.receive(2000);
@@ -236,7 +256,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       try {
          //queue::
-         session.createConsumer(toFullQN(anycastQ1, new SimpleString("")));
+         session.createConsumer(CompositeAddress.toFullyQualified(anycastQ1, new SimpleString("")));
          fail("should get exception");
       } catch (ActiveMQNonExistentQueueException e) {
          //expected.
@@ -244,14 +264,10 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       try {
          //::
-         session.createConsumer(toFullQN(new SimpleString(""), new SimpleString("")));
+         session.createConsumer(CompositeAddress.toFullyQualified(new SimpleString(""), new SimpleString("")));
          fail("should get exception");
       } catch (ActiveMQNonExistentQueueException e) {
          //expected.
       }
-   }
-
-   private SimpleString toFullQN(SimpleString address, SimpleString qName) {
-      return address.concat(CompositeAddress.SEPARATOR).concat(qName);
    }
 }
