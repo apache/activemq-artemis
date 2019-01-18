@@ -283,11 +283,11 @@ public class CoreAmqpConverter {
                footerMap.put(name, message.getObjectProperty(key));
                continue;
             }
-         } else if (key.equals(Message.HDR_GROUP_ID)) {
+         } else if (key.equals(Message.HDR_GROUP_ID.toString())) {
             String value = message.getStringProperty(key);
             properties.setGroupId(value);
             continue;
-         } else if (key.equals(Message.HDR_GROUP_SEQUENCE)) {
+         } else if (key.equals(Message.HDR_GROUP_SEQUENCE.toString())) {
             int value = message.getIntProperty(key);
             properties.setGroupSequence(UnsignedInteger.valueOf(value));
             continue;
