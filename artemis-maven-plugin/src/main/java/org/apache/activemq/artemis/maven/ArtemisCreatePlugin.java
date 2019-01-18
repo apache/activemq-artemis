@@ -345,7 +345,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       Charset charset = StandardCharsets.UTF_8;
 
       String content = new String(Files.readAllBytes(original), charset);
-      for (int i = 0; i < replacePairs.length; i += 2) {
+      for (int i = 0; i + 1 < replacePairs.length; i += 2) {
          content = content.replaceAll(replacePairs[i], replacePairs[i + 1]);
       }
       Files.write(target, content.getBytes(charset));
