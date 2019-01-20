@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -55,7 +57,7 @@ public final class BindingsImpl implements Bindings {
 
    private final Map<Long, Binding> bindingsMap = new ConcurrentHashMap<>();
 
-   private final List<Binding> exclusiveBindings = new CopyOnWriteArrayList<>();
+   private final Set<Binding> exclusiveBindings = new CopyOnWriteArraySet<>();
 
    private volatile MessageLoadBalancingType messageLoadBalancingType = MessageLoadBalancingType.OFF;
 

@@ -2197,6 +2197,25 @@ public abstract class ActiveMQTestBase extends Assert {
       return (int) queue.getMessageCount();
    }
 
+   /**
+    * @param postOffice
+    * @param address
+    * @return
+    * @throws Exception
+    */
+   protected int getMessagesAdded(final PostOffice postOffice, final String address) throws Exception {
+      int messageCount = 0;
+
+      List<QueueBinding> bindings = getLocalQueueBindings(postOffice, address);
+
+      for (QueueBinding qBinding : bindings) {
+         qBinding.getQueue().flushExecutor();
+         messageCount += getMessagesAdded(qBinding.getQueue());
+      }
+
+      return messageCount;
+   }
+
    protected int getMessagesAdded(final Queue queue) {
       queue.flushExecutor();
       return (int) queue.getMessagesAdded();
