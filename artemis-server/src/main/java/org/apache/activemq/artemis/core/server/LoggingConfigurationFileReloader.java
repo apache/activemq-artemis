@@ -81,6 +81,9 @@ public class LoggingConfigurationFileReloader implements ReloadCallback {
       if (configurator instanceof PropertyConfigurator) {
          return ((PropertyConfigurator) configurator).getLogContextConfiguration();
       }
+      if (configurator instanceof LogContextConfiguration) {
+         return (LogContextConfiguration) configurator;
+      }
       return null;
    }
 }
