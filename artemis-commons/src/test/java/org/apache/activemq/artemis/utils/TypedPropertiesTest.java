@@ -229,24 +229,25 @@ public class TypedPropertiesTest {
    private static final SimpleString PROP_NAME = SimpleString.toSimpleString("TEST_PROP");
 
    @Test
-   public void testRemovePropertyIfEmpty() {
+   public void testCannotClearInternalPropertiesIfEmpty() {
       TypedProperties properties = new TypedProperties();
-      Assert.assertFalse(properties.removeProperty(PROP_NAME::equals));
+      Assert.assertFalse(properties.clearInternalProperties());
    }
 
    @Test
-   public void testRemovePropertyWithoutMatch() {
-      TypedProperties properties = new TypedProperties();
-      properties.putBooleanProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBoolean());
-      Assert.assertFalse(properties.removeProperty(PROP_NAME::equals));
-   }
-
-   @Test
-   public void testRemovePropertyWithMatch() {
-      TypedProperties properties = new TypedProperties();
-      properties.putBooleanProperty(PROP_NAME, true);
-      Assert.assertTrue(properties.removeProperty(PROP_NAME::equals));
+   public void testClearInternalPropertiesIfAny() {
+      TypedProperties properties = new TypedProperties(PROP_NAME::equals);
+      properties.putBooleanProperty(PROP_NAME, RandomUtil.randomBoolean());
+      Assert.assertTrue(properties.clearInternalProperties());
       Assert.assertFalse(properties.containsProperty(PROP_NAME));
+   }
+
+   @Test
+   public void testCannotClearInternalPropertiesTwiceIfAny() {
+      TypedProperties properties = new TypedProperties(PROP_NAME::equals);
+      properties.putBooleanProperty(PROP_NAME, RandomUtil.randomBoolean());
+      Assert.assertTrue(properties.clearInternalProperties());
+      Assert.assertFalse(properties.clearInternalProperties());
    }
 
    @Before

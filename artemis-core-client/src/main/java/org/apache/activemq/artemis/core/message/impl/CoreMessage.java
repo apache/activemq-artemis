@@ -53,8 +53,8 @@ import org.jboss.logging.Logger;
 public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    // We use properties to establish routing context on clustering.
-   // However if the client resends the message after receiving, it needs to be removed
-   private static final Predicate<SimpleString> INTERNAL_PROPERTY_NAMES_CLEANUP_FILTER =
+   // However if the client resends the message after receiving, it needs to be removed, so we mark these internal
+   private static final Predicate<SimpleString> INTERNAL_PROPERTY_NAMES_PREDICATE =
       name -> (name.startsWith(Message.HDR_ROUTE_TO_IDS) && !name.equals(Message.HDR_ROUTE_TO_IDS)) ||
          (name.startsWith(Message.HDR_ROUTE_TO_ACK_IDS) && !name.equals(Message.HDR_ROUTE_TO_ACK_IDS));
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
@@ -126,9 +126,9 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public void cleanupInternalProperties() {
+   public void clearInternalProperties() {
       final TypedProperties properties = this.properties;
-      if (properties != null && properties.removeProperty(INTERNAL_PROPERTY_NAMES_CLEANUP_FILTER)) {
+      if (properties != null && properties.clearInternalProperties()) {
          messageChanged();
       }
    }
@@ -565,28 +565,28 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * I am keeping this synchronized as the decode of the Properties is lazy
     */
    public final TypedProperties getProperties() {
+      TypedProperties properties = this.properties;
+      if (properties == null) {
+         properties = getOrInitializeTypedProperties();
+      }
+      return properties;
+   }
+
+   private synchronized TypedProperties getOrInitializeTypedProperties() {
       try {
          TypedProperties properties = this.properties;
          if (properties == null) {
-            properties = getOrInitializeTypedProperties();
+            properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
+            if (buffer != null && propertiesLocation >= 0) {
+               final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
+               properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+            }
+            this.properties = properties;
          }
          return properties;
       } catch (Throwable e) {
          throw onCheckPropertiesError(e);
       }
-   }
-
-   private synchronized TypedProperties getOrInitializeTypedProperties() {
-      TypedProperties properties = this.properties;
-      if (properties == null) {
-         properties = new TypedProperties();
-         if (buffer != null && propertiesLocation >= 0) {
-            final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
-            properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
-         }
-         this.properties = properties;
-      }
-      return properties;
    }
 
    private RuntimeException onCheckPropertiesError(Throwable e) {
@@ -679,7 +679,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          properties = null;
          propertiesLocation = buffer.readerIndex();
       } else {
-         properties = new TypedProperties();
+         properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
          properties.decode(buffer, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
       }
    }

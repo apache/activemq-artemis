@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -62,7 +61,15 @@ public class TypedProperties {
 
    private int size;
 
+   private final Predicate<SimpleString> internalPropertyPredicate;
+   private boolean internalProperties;
+
    public TypedProperties() {
+      this.internalPropertyPredicate = null;
+   }
+
+   public TypedProperties(Predicate<SimpleString> internalPropertyPredicate) {
+      this.internalPropertyPredicate = internalPropertyPredicate;
    }
 
    /**
@@ -84,6 +91,8 @@ public class TypedProperties {
       synchronized (other) {
          properties = other.properties == null ? null : new HashMap<>(other.properties);
          size = other.size;
+         internalPropertyPredicate = other.internalPropertyPredicate;
+         internalProperties = other.internalProperties;
       }
    }
 
@@ -313,8 +322,14 @@ public class TypedProperties {
       }
    }
 
-   public synchronized boolean removeProperty(Predicate<SimpleString> propertyNamePredicate) {
-      Objects.requireNonNull(propertyNamePredicate, "propertyNamePredicate cannot be null");
+   public synchronized boolean clearInternalProperties() {
+      return internalProperties && removeInternalProperties();
+   }
+
+   private synchronized boolean removeInternalProperties() {
+      if (internalPropertyPredicate == null) {
+         return false;
+      }
       if (properties == null) {
          return false;
       }
@@ -323,16 +338,18 @@ public class TypedProperties {
       }
       int removedBytes = 0;
       boolean removed = false;
-      for (Iterator<Entry<SimpleString, PropertyValue>> keyNameIterator = properties.entrySet().iterator(); keyNameIterator.hasNext(); ) {
+      final Iterator<Entry<SimpleString, PropertyValue>> keyNameIterator = properties.entrySet().iterator();
+      while (keyNameIterator.hasNext()) {
          final Entry<SimpleString, PropertyValue> entry = keyNameIterator.next();
          final SimpleString propertyName = entry.getKey();
-         if (propertyNamePredicate.test(propertyName)) {
+         if (internalPropertyPredicate.test(propertyName)) {
             final PropertyValue propertyValue = entry.getValue();
             removedBytes += propertyName.sizeof() + propertyValue.encodeSize();
             keyNameIterator.remove();
             removed = true;
          }
       }
+      internalProperties = false;
       size -= removedBytes;
       return removed;
    }
@@ -530,6 +547,10 @@ public class TypedProperties {
    // Private ------------------------------------------------------------------------------------
 
    private synchronized void doPutValue(final SimpleString key, final PropertyValue value) {
+      if (!internalProperties && internalPropertyPredicate != null && internalPropertyPredicate.test(key)) {
+         internalProperties = true;
+      }
+
       if (properties == null) {
          properties = new HashMap<>();
       }
@@ -556,7 +577,7 @@ public class TypedProperties {
       }
    }
 
-   private synchronized Object doGetProperty(final Object key) {
+   private synchronized Object doGetProperty(final SimpleString key) {
       if (properties == null) {
          return null;
       }
