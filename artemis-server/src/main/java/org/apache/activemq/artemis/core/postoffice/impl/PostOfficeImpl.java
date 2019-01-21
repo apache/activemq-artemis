@@ -881,7 +881,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          return RoutingStatus.DUPLICATED_ID;
       }
 
-      message.cleanupInternalProperties();
+      message.clearInternalProperties();
 
       Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
 
