@@ -42,7 +42,6 @@ var ARTEMIS;
         // only reload the page if certain search parameters change
         Core.reloadWhenParametersChange($route, $scope, $location);
         $scope.checkCredentials = function () {
-           ARTEMIS.log.info(localStorage['artemisUserName'] + " " + localStorage['artemisPassword']);
             $scope.noCredentials = (Core.isBlank(localStorage['artemisUserName']) || Core.isBlank(localStorage['artemisPassword']));
         };
         if ($location.path().has('artemis')) {
