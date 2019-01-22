@@ -84,7 +84,7 @@
       <frontend-maven-plugin-version>0.0.29</frontend-maven-plugin-version>
       <nodeVersion>v6.11.0</nodeVersion>
       <npmVersion>1.4.12</npmVersion>
-
+      <skipWebsiteDocGeneration>false</skipWebsiteDocGeneration>
    </properties>
 
    <build>
@@ -147,6 +147,7 @@
                         <configuration>
                            <nodeVersion>${nodeVersion}</nodeVersion>
                            <npmVersion>${npmVersion}</npmVersion>
+                           <skip>${skipWebsiteDocGeneration}</skip>
                         </configuration>
                      </execution>
                      <execution>
@@ -157,19 +158,22 @@
                         <phase>generate-sources</phase>
                         <configuration>
                            <arguments>install</arguments>
+                           <skip>${skipWebsiteDocGeneration}</skip>
                         </configuration>
                      </execution>
                   </executions>
                   <configuration>
+                    <skip>${skipWebsiteDocGeneration}</skip>
                   </configuration>
                </plugin>
                <plugin>
                   <artifactId>maven-antrun-plugin</artifactId>
-                  <version>1.6</version>
+                  <version>1.7</version>
                   <executions>
                      <execution>
                         <phase>generate-sources</phase>
                         <configuration>
+                           <skip>${skipWebsiteDocGeneration}</skip>
                            <target>
                               <condition property="gitbook.cmd" value="${basedir}/node_modules/.bin/gitbook.cmd" else="${basedir}/node_modules/.bin/gitbook">
                                  <os family="windows" />
