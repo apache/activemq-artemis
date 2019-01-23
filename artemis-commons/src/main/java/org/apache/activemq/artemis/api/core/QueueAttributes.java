@@ -32,6 +32,7 @@ public class QueueAttributes implements Serializable {
    public static final String PURGE_ON_NO_CONSUMERS = "purge-on-no-consumers";
    public static final String CONSUMERS_BEFORE_DISPATCH = "consumers-before-dispatch";
    public static final String DELAY_BEFORE_DISPATCH = "delay-before-dispatch";
+   public static final String CONSUMER_PRIORITY = "consumer-priority";
 
    private RoutingType routingType;
    private SimpleString filterString;
@@ -44,6 +45,7 @@ public class QueueAttributes implements Serializable {
    private Boolean purgeOnNoConsumers;
    private Integer consumersBeforeDispatch;
    private Long delayBeforeDispatch;
+   private Integer consumerPriority;
 
    public void set(String key, String value) {
       if (key != null && value != null) {
@@ -69,6 +71,8 @@ public class QueueAttributes implements Serializable {
             setConsumersBeforeDispatch(Integer.valueOf(value));
          } else if (key.equals(DELAY_BEFORE_DISPATCH)) {
             setDelayBeforeDispatch(Long.valueOf(value));
+         } else if (key.equals(CONSUMER_PRIORITY)) {
+            setConsumerPriority(Integer.valueOf(value));
          }
       }
    }
@@ -169,6 +173,15 @@ public class QueueAttributes implements Serializable {
 
    public QueueAttributes setDelayBeforeDispatch(Long delayBeforeDispatch) {
       this.delayBeforeDispatch = delayBeforeDispatch;
+      return this;
+   }
+
+   public Integer getConsumerPriority() {
+      return consumerPriority;
+   }
+
+   public QueueAttributes setConsumerPriority(Integer consumerPriority) {
+      this.consumerPriority = consumerPriority;
       return this;
    }
 

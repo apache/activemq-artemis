@@ -41,6 +41,7 @@
 * [Last-Value Queues](last-value-queues.md)
 * [Exclusive Queues](exclusive-queues.md)
 * [Message Grouping](message-grouping.md)
+* [Consumer Priority](consumer-priority.md)
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)
 * [Management Console](management-console.md)

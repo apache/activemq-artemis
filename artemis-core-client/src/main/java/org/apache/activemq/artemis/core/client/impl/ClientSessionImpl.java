@@ -800,6 +800,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final int priority,
+                                        final boolean browseOnly) throws ActiveMQException {
+      return createConsumer(queueName, filterString, priority, consumerWindowSize, consumerMaxRate, browseOnly);
+   }
+
+   @Override
+   public ClientConsumer createConsumer(final SimpleString queueName,
                                         final boolean browseOnly) throws ActiveMQException {
       return createConsumer(queueName, null, consumerWindowSize, consumerMaxRate, browseOnly);
    }
@@ -821,6 +829,15 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return sessionContext.isWritable(callback);
    }
 
+   @Override
+   public ClientConsumer createConsumer(final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final int windowSize,
+                                        final int maxRate,
+                                        final boolean browseOnly) throws ActiveMQException {
+      return createConsumer(queueName, filterString, ActiveMQDefaultConfiguration.getDefaultConsumerPriority(), windowSize, maxRate, browseOnly);
+   }
+
    /**
     * Note, we DO NOT currently support direct consumers (i.e. consumers where delivery occurs on
     * the remoting thread).
@@ -834,10 +851,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString,
+                                        final int priority,
                                         final int windowSize,
                                         final int maxRate,
                                         final boolean browseOnly) throws ActiveMQException {
-      return internalCreateConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
+      return internalCreateConsumer(queueName, filterString, priority, windowSize, maxRate, browseOnly);
    }
 
    @Override
@@ -1931,12 +1949,13 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     */
    private ClientConsumer internalCreateConsumer(final SimpleString queueName,
                                                  final SimpleString filterString,
+                                                 final int priority,
                                                  final int windowSize,
                                                  final int maxRate,
                                                  final boolean browseOnly) throws ActiveMQException {
       checkClosed();
 
-      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
+      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, priority, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
 
       addConsumer(consumer);
 

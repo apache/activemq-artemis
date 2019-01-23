@@ -29,6 +29,8 @@ public interface ClientConsumerInternal extends ClientConsumer {
 
    SimpleString getFilterString();
 
+   int getPriority();
+
    boolean isBrowseOnly();
 
    void handleMessage(ClientMessageInternal message) throws Exception;

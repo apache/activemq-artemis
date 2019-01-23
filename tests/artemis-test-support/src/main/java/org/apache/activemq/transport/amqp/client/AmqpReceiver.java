@@ -79,6 +79,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    private String selector;
    private boolean presettle;
    private boolean noLocal;
+   private Map<Symbol, Object> properties;
 
    private AsyncResult pullRequest;
    private AsyncResult stopRequest;
@@ -171,6 +172,14 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
 
          request.sync();
       }
+   }
+
+   public void setProperties(Map<Symbol, Object> properties) {
+      if (getEndpoint() != null) {
+         throw new IllegalStateException("Endpoint already established");
+      }
+
+      this.properties = properties;
    }
 
    /**
@@ -782,7 +791,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       } else {
          receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
       }
-
+      if (properties != null) {
+         receiver.setProperties(properties);
+      }
       setEndpoint(receiver);
 
       super.doOpen();

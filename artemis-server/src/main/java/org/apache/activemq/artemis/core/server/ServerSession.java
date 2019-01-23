@@ -107,7 +107,15 @@ public interface ServerSession extends SecurityAuth {
 
    void addCloseable(Closeable closeable);
 
-   /**
+   ServerConsumer createConsumer(long consumerID,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 int priority,
+                                 boolean browseOnly,
+                                 boolean supportLargeMessage,
+                                 Integer credits) throws Exception;
+
+    /**
     * To be used by protocol heads that needs to control the transaction outside the session context.
     */
    void resetTX(Transaction transaction);
