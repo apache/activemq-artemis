@@ -33,7 +33,9 @@ public class PacketImpl implements Packet {
    public static final int ADDRESSING_CHANGE_VERSION = 129;
 
    // 2.7.0
-   public static final int ASYNC_RESPONSE_CHANGE_VERSION = 130;
+   public static final int ARTEMIS_2_7_0_VERSION = 130;
+   public static final int ASYNC_RESPONSE_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
+   public static final int CONSUMER_PRIORITY_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
 
 
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
@@ -318,7 +320,7 @@ public class PacketImpl implements Packet {
 
       encodeHeader(buffer);
 
-      encodeRest(buffer);
+      encodeRest(buffer, connection);
 
       encodeSize(buffer);
 
@@ -392,6 +394,10 @@ public class PacketImpl implements Packet {
    }
 
    public void encodeRest(final ActiveMQBuffer buffer) {
+   }
+
+   public void encodeRest(final ActiveMQBuffer buffer, final CoreRemotingConnection coreRemotingConnection) {
+      encodeRest(buffer);
    }
 
    public void decodeRest(final ActiveMQBuffer buffer) {

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -87,6 +88,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    protected final Queue messageQueue;
 
    private final Filter filter;
+
+   private final int priority;
 
    private final int minLargeMessageSize;
 
@@ -194,11 +197,31 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                              final boolean supportLargeMessage,
                              final Integer credits,
                              final ActiveMQServer server) throws Exception {
+      this(id, session, binding, filter, ActiveMQDefaultConfiguration.getDefaultConsumerPriority(), started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
+   }
+
+   public ServerConsumerImpl(final long id,
+                             final ServerSession session,
+                             final QueueBinding binding,
+                             final Filter filter,
+                             final int priority,
+                             final boolean started,
+                             final boolean browseOnly,
+                             final StorageManager storageManager,
+                             final SessionCallback callback,
+                             final boolean preAcknowledge,
+                             final boolean strictUpdateDeliveryCount,
+                             final ManagementService managementService,
+                             final boolean supportLargeMessage,
+                             final Integer credits,
+                             final ActiveMQServer server) throws Exception {
       this.id = id;
 
       this.sequentialID = server.getStorageManager().generateID();
 
       this.filter = filter;
+
+      this.priority = priority;
 
       this.session = session;
 
@@ -499,6 +522,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public Filter getFilter() {
       return filter;
+   }
+
+   @Override
+   public int getPriority() {
+      return priority;
    }
 
    @Override

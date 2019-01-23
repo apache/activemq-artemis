@@ -306,6 +306,12 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       return createReceiver(address, selector, noLocal, false);
    }
 
+   public AmqpReceiver createReceiver(String address,
+                                      String selector,
+                                      boolean noLocal,
+                                      boolean presettle) throws Exception {
+      return createReceiver(address, selector, noLocal, presettle, null);
+   }
    /**
     * Create a receiver instance using the given address
     *
@@ -313,13 +319,15 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * @param selector  the JMS selector to use for the subscription
     * @param noLocal   should the subscription have messages from its connection filtered.
     * @param presettle should the receiver be created with a settled sender mode.
+    * @param properties to set on the receiver
     * @return a newly created receiver that is ready for use.
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address,
                                       String selector,
                                       boolean noLocal,
-                                      boolean presettle) throws Exception {
+                                      boolean presettle,
+                                      Map<Symbol, Object> properties) throws Exception {
       checkClosed();
 
       final ClientFuture request = new ClientFuture();
@@ -329,6 +337,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       receiver.setPresettle(presettle);
       if (selector != null && !selector.isEmpty()) {
          receiver.setSelector(selector);
+      }
+      if (properties != null && !properties.isEmpty()) {
+         receiver.setProperties(properties);
       }
 
       connection.getScheduler().execute(new Runnable() {
