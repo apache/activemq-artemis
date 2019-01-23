@@ -227,11 +227,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private ScheduledFuture<?> redistributorFuture;
 
-   // We cache the consumers here since we don't want to include the redistributor
-
-   private final AtomicInteger consumersCount = new AtomicInteger();
-
-   private volatile long consumerRemovedTimestamp = -1;
    private final QueueConsumers<ConsumerHolder<? extends Consumer>> consumers = new QueueConsumersImpl<>();
 
    private final Map<SimpleString, Consumer> groups = new HashMap<>();
@@ -275,10 +270,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private volatile RoutingType routingType;
 
    private final QueueFactory factory;
-
-   public volatile int dispatching = 0;
-
-   public volatile long dispatchStartTime = -1;
 
    private volatile int consumersBeforeDispatch = 0;
 
