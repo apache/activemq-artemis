@@ -24,7 +24,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
@@ -32,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -39,6 +42,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Random;
@@ -58,7 +62,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       String randomSuffix = new BigInteger(130, random).toString(32);
       testConn = (ActiveMQConnection)createCoreConnection();
       clientSession = testConn.getSessionFactory().createSession();
-      queue1 = createQueue("queue1_" + randomSuffix);
+      queue1 = createAddressOnlyAndFakeQueue("queue1_" + randomSuffix);
    }
 
    @Override
@@ -89,7 +93,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    }
 
 
-   protected Queue createQueue(final String queueName) throws Exception {
+   protected Queue createAddressOnlyAndFakeQueue(final String queueName) throws Exception {
       SimpleString address = SimpleString.toSimpleString(queueName);
       clientSession.createAddress(address, RoutingType.ANYCAST, false);
       return new ActiveMQQueue(queueName);
@@ -107,6 +111,26 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       //that the large message is indeed stored in core
       //via amqp send.
       sendStringOfSize(1024 * 1024, true);
+   }
+
+
+   @Test(timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnTopic() throws Exception {
+      ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
+      Connection connection = factory.createConnection();
+      SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+      System.out.println("Address is " + addressName);
+      clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
+      Topic topic = new ActiveMQTopic(addressName.toString());
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(topic);
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createTextMessage("hello"));
+      }
+
+      Assert.assertTrue(((ActiveMQConnection)connection).containsKnownDestination(addressName));
    }
 
    private void sendStringOfSize(int msgSize, boolean useCoreReceive) throws JMSException {
