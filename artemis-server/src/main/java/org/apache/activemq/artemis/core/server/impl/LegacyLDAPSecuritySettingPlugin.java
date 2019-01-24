@@ -333,14 +333,14 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       String destination = null;
       String destinationType = "unknown";
       List<Rdn> rdns = searchResultLdapName.getRdns();
-      if (rdns.size() != 3) {
+      if (rdns.size() < 3) {
          if (logger.isDebugEnabled()) {
             logger.debug("\tSkipping unexpected search result with " + rdns.size() + " RDNs.");
          }
          return;
       }
       // we can count on the RNDs being in order from right to left
-      Rdn rdn = rdns.get(0);
+      Rdn rdn = rdns.get(rdns.size() - 3);
       String rawDestinationType = rdn.getValue().toString();
       if (rawDestinationType.toLowerCase().contains("queue")) {
          destinationType = "queue";
@@ -351,13 +351,13 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          logger.debug("\tDestination type: " + destinationType);
       }
 
-      rdn = rdns.get(1);
+      rdn = rdns.get(rdns.size() - 2);
       if (logger.isDebugEnabled()) {
          logger.debug("\tDestination name: " + rdn.getValue());
       }
       destination = rdn.getValue().toString();
 
-      rdn = rdns.get(2);
+      rdn = rdns.get(rdns.size() - 1);
       if (logger.isDebugEnabled()) {
          logger.debug("\tPermission type: " + rdn.getValue());
       }
