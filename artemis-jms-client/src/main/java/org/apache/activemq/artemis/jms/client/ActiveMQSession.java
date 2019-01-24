@@ -329,31 +329,63 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          ActiveMQDestination jbd = (ActiveMQDestination) destination;
 
          if (jbd != null) {
-            ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
-
-            if (!response.isExists()) {
-               try {
-                  if (jbd.isQueue() && response.isAutoCreateQueues()) {
-                     // perhaps just relying on the broker to do it is simplest (i.e. purgeOnNoConsumers)
-                     session.createAddress(jbd.getSimpleAddress(), RoutingType.ANYCAST, true);
-                     createQueue(jbd, RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultPurgeOnNoConsumers(), response.isDefaultExclusive(), response.isDefaultLastValueQueue());
-                  } else if (!jbd.isQueue() && response.isAutoCreateAddresses()) {
-                     session.createAddress(jbd.getSimpleAddress(), RoutingType.MULTICAST, true);
-                  } else {
-                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
-                  }
-               } catch (ActiveMQQueueExistsException e) {
-                  // Queue was created between our query and create queue request.  Ignore.
-               }
-
-            }
+            checkDestination(jbd);
          }
 
          ClientProducer producer = session.createProducer(jbd == null ? null : jbd.getSimpleAddress());
 
-         return new ActiveMQMessageProducer(connection, producer, jbd, session, options);
+         return new ActiveMQMessageProducer(connection, producer, jbd, session, this, options);
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+   }
+
+   public void checkDestination(ActiveMQDestination destination) throws JMSException {
+      SimpleString address = destination.getSimpleAddress();
+      // TODO: What to do with FQQN
+      if (!connection.containsKnownDestination(address)) {
+         try {
+            ClientSession.AddressQuery addressQuery = session.addressQuery(address);
+
+            // First we create the address
+            if (!addressQuery.isExists()) {
+               if (destination.isQueue()) {
+                  if (addressQuery.isAutoCreateAddresses() && addressQuery.isAutoCreateQueues()) {
+                     session.createAddress(address, RoutingType.ANYCAST, true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, autoCreateAddresses=" + addressQuery.isAutoCreateAddresses() + " , autoCreateQueues=" + addressQuery.isAutoCreateQueues());
+                  }
+               } else {
+                  if (addressQuery.isAutoCreateAddresses()) {
+                     session.createAddress(address, RoutingType.MULTICAST, true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, autoCreateAddresses=" + addressQuery.isAutoCreateAddresses());
+                  }
+               }
+            }
+
+            // Second we create the queue, the address would have existed or successfully created.
+            if (destination.isQueue()) {
+               ClientSession.QueueQuery queueQuery = session.queueQuery(address);
+               if (!queueQuery.isExists()) {
+                  if (addressQuery.isAutoCreateQueues()) {
+                     if (destination.isTemporary()) {
+                        createTemporaryQueue(destination, RoutingType.ANYCAST, destination.getSimpleAddress(), null, addressQuery.getDefaultMaxConsumers(), addressQuery.isDefaultPurgeOnNoConsumers(), addressQuery.isDefaultExclusive(), addressQuery.isDefaultLastValueQueue());
+                     } else {
+                        createQueue(destination, RoutingType.ANYCAST, destination.getSimpleAddress(), null, true, true, addressQuery.getDefaultMaxConsumers(), addressQuery.isDefaultPurgeOnNoConsumers(), addressQuery.isDefaultExclusive(), addressQuery.isDefaultLastValueQueue());
+                     }
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, address exists but autoCreateQueues=" + addressQuery.isAutoCreateQueues());
+                  }
+               }
+            }
+         } catch (ActiveMQQueueExistsException thatsOK) {
+            // nothing to be done
+         } catch (ActiveMQException e) {
+            throw JMSExceptionHelper.convertFromActiveMQException(e);
+         }
+         // this is done at the end, if no exceptions are thrown
+         connection.addKnownDestination(address);
       }
    }
 
@@ -1212,7 +1244,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
-   private void createTemporaryQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+   void createTemporaryQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
       QueueAttributes queueAttributes = destination.getQueueAttributes();
       if (queueAttributes == null) {
          session.createTemporaryQueue(destination.getSimpleAddress(), routingType, queueName, filter, maxConsumers, purgeOnNoConsumers, exclusive, lastValue);
@@ -1230,7 +1262,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
-   private void createSharedQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+   void createSharedQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
       QueueAttributes queueAttributes = destination.getQueueAttributes();
       if (queueAttributes == null) {
          session.createSharedQueue(destination.getSimpleAddress(), routingType, queueName, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue);
@@ -1249,7 +1281,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
-   private void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+   void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
       QueueAttributes queueAttributes = destination.getQueueAttributes();
       if (queueAttributes == null) {
          session.createQueue(destination.getSimpleAddress(), routingType, queueName, filter, durable, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue);
@@ -1268,6 +1300,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          );
       }
    }
+
 
    // Inner classes -------------------------------------------------
 
