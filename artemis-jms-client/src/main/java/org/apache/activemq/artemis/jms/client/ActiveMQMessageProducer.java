@@ -421,13 +421,14 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                      throw new InvalidDestinationException("Destination " + address + " does not exist");
                   }
                } else {
-                  if (destination.isQueue()) {ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-                  if (!queueQuery.isExists()) {
-
-                     if (destination.isTemporary()) {
-                        clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
-                     } else {
-                        createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers(), query.isDefaultExclusive(), query.isDefaultLastValueQueue());}
+                  if (destination.isQueue()) {
+                     ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
+                     if (!queueQuery.isExists()) {
+                        if (destination.isTemporary()) {
+                           clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
+                        } else {
+                           createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers(), query.isDefaultExclusive(), query.isDefaultLastValueQueue());
+                        }
                      }
                   }
 
