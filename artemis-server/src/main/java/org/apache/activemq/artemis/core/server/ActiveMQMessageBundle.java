@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddr
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -444,4 +445,8 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229216, value = "Invalid queue name: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException invalidQueueName(SimpleString queueName);
+
+   @Message(id = 119217, value = "Can't write to closed file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIOErrorException cannotWriteToClosedFile(SequentialFile file);
+
 }
