@@ -226,6 +226,30 @@ public class TypedPropertiesTest {
       TypedPropertiesTest.assertEqualsTypeProperties(emptyProps, decodedProps);
    }
 
+   private static final SimpleString PROP_NAME = SimpleString.toSimpleString("TEST_PROP");
+
+   @Test
+   public void testCannotClearInternalPropertiesIfEmpty() {
+      TypedProperties properties = new TypedProperties();
+      Assert.assertFalse(properties.clearInternalProperties());
+   }
+
+   @Test
+   public void testClearInternalPropertiesIfAny() {
+      TypedProperties properties = new TypedProperties(PROP_NAME::equals);
+      properties.putBooleanProperty(PROP_NAME, RandomUtil.randomBoolean());
+      Assert.assertTrue(properties.clearInternalProperties());
+      Assert.assertFalse(properties.containsProperty(PROP_NAME));
+   }
+
+   @Test
+   public void testCannotClearInternalPropertiesTwiceIfAny() {
+      TypedProperties properties = new TypedProperties(PROP_NAME::equals);
+      properties.putBooleanProperty(PROP_NAME, RandomUtil.randomBoolean());
+      Assert.assertTrue(properties.clearInternalProperties());
+      Assert.assertFalse(properties.clearInternalProperties());
+   }
+
    @Before
    public void setUp() throws Exception {
       props = new TypedProperties();

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
-import io.netty.buffer.ByteBuf;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +26,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
@@ -55,15 +57,19 @@ import static org.apache.activemq.artemis.utils.DataConstants.STRING;
  */
 public class TypedProperties {
 
-   private static final SimpleString AMQ_PROPNAME = new SimpleString("_AMQ_");
-
    private Map<SimpleString, PropertyValue> properties;
 
    private int size;
 
+   private final Predicate<SimpleString> internalPropertyPredicate;
    private boolean internalProperties;
 
    public TypedProperties() {
+      this.internalPropertyPredicate = null;
+   }
+
+   public TypedProperties(Predicate<SimpleString> internalPropertyPredicate) {
+      this.internalPropertyPredicate = internalPropertyPredicate;
    }
 
    /**
@@ -85,11 +91,9 @@ public class TypedProperties {
       synchronized (other) {
          properties = other.properties == null ? null : new HashMap<>(other.properties);
          size = other.size;
+         internalPropertyPredicate = other.internalPropertyPredicate;
+         internalProperties = other.internalProperties;
       }
-   }
-
-   public synchronized boolean hasInternalProperties() {
-      return internalProperties;
    }
 
    public void putBooleanProperty(final SimpleString key, final boolean value) {
@@ -318,6 +322,38 @@ public class TypedProperties {
       }
    }
 
+   public synchronized boolean clearInternalProperties() {
+      return internalProperties && removeInternalProperties();
+   }
+
+   private synchronized boolean removeInternalProperties() {
+      if (internalPropertyPredicate == null) {
+         return false;
+      }
+      if (properties == null) {
+         return false;
+      }
+      if (properties.isEmpty()) {
+         return false;
+      }
+      int removedBytes = 0;
+      boolean removed = false;
+      final Iterator<Entry<SimpleString, PropertyValue>> keyNameIterator = properties.entrySet().iterator();
+      while (keyNameIterator.hasNext()) {
+         final Entry<SimpleString, PropertyValue> entry = keyNameIterator.next();
+         final SimpleString propertyName = entry.getKey();
+         if (internalPropertyPredicate.test(propertyName)) {
+            final PropertyValue propertyValue = entry.getValue();
+            removedBytes += propertyName.sizeof() + propertyValue.encodeSize();
+            keyNameIterator.remove();
+            removed = true;
+         }
+      }
+      internalProperties = false;
+      size -= removedBytes;
+      return removed;
+   }
+
    public synchronized void forEachKey(Consumer<SimpleString> action) {
       if (properties != null) {
          properties.keySet().forEach(action::accept);
@@ -511,7 +547,7 @@ public class TypedProperties {
    // Private ------------------------------------------------------------------------------------
 
    private synchronized void doPutValue(final SimpleString key, final PropertyValue value) {
-      if (key.startsWith(AMQ_PROPNAME)) {
+      if (!internalProperties && internalPropertyPredicate != null && internalPropertyPredicate.test(key)) {
          internalProperties = true;
       }
 
@@ -541,7 +577,7 @@ public class TypedProperties {
       }
    }
 
-   private synchronized Object doGetProperty(final Object key) {
+   private synchronized Object doGetProperty(final SimpleString key) {
       if (properties == null) {
          return null;
       }
