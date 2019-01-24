@@ -176,7 +176,7 @@ public interface Message {
    /** The message will contain another message persisted through {@link org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
    byte EMBEDDED_TYPE = 7;
 
-   default void cleanupInternalProperties() {
+   default void clearInternalProperties() {
       // only on core
    }
 
