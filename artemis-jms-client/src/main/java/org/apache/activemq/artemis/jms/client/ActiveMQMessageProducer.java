@@ -47,11 +47,14 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * ActiveMQ Artemis implementation of a JMS MessageProducer.
  */
 public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQMessageProducer.class);
 
    private final ConnectionFactoryOptions options;
 
@@ -403,46 +406,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          }
 
          address = destination.getSimpleAddress();
-
-         if (!connection.containsKnownDestination(address)) {
-            try {
-               ClientSession.AddressQuery query = clientSession.addressQuery(address);
-
-               if (!query.isExists()) {
-                  if (destination.isQueue() && query.isAutoCreateQueues()) {
-                     clientSession.createAddress(address, RoutingType.ANYCAST, true);
-                     if (destination.isTemporary()) {
-                        // TODO is it right to use the address for the queue name here?
-                        session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
-                     } else {
-                        session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
-                     }
-                  } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
-                     clientSession.createAddress(address, RoutingType.MULTICAST, true);
-                  } else if ((destination.isQueue() && !query.isAutoCreateQueues()) || (!destination.isQueue() && !query.isAutoCreateAddresses())) {
-                     throw new InvalidDestinationException("Destination " + address + " does not exist");
-                  }
-               } else {
-                  if (destination.isQueue()) {
-                     ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-                     if (!queueQuery.isExists()) {
-                        if (destination.isTemporary()) {
-                           session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
-                        } else {
-                           session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
-                        }
-                     }
-                  }
-
-                  connection.addKnownDestination(address);
-               }
-            } catch (ActiveMQQueueExistsException e) {
-               // The queue was created by another client/admin between the query check and send create queue packet
-            } catch (ActiveMQException e) {
-               throw JMSExceptionHelper.convertFromActiveMQException(e);
-            }
-         }
       }
+
+      checkDestination(destination, address, clientSession);
 
       ActiveMQMessage activeMQJmsMessage;
 
@@ -530,6 +496,67 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          je.setStackTrace(e.getStackTrace());
          je.initCause(e);
          throw je;
+      }
+   }
+
+   private void checkDestination(ActiveMQDestination destination,
+                                 SimpleString address,
+                                 ClientSession clientSession) throws JMSException {
+
+      // TODO: What to do with FQQN
+      if (!connection.containsKnownDestination(address)) {
+         try {
+            ClientSession.AddressQuery addressQuery = clientSession.addressQuery(address);
+
+            boolean addressExists = addressQuery.isExists();
+            // first we check the address existence, and autoCreate it if allowed in case it does not exists
+
+            if (!addressExists && addressQuery.isAutoCreateAddresses()) {
+
+               if (destination.isQueue() && !addressQuery.isAutoCreateQueues()) {
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Address " + address + " was not created because we would not have permission to create queue");
+                  }
+                  // if it can't create the internal queue on JMS Queues, why bother creating the address, just mark it false now
+                  addressExists = false;
+               } else {
+                  RoutingType addressType = destination.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST;
+                  clientSession.createAddress(address, addressType, true);
+                  addressExists = true;
+               }
+            }
+
+
+            // Second we create the queue, but we only do it if the address was created
+            if (destination.isQueue() && addressExists) {
+               ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
+               if (!queueQuery.isExists()) {
+                  if (addressQuery.isAutoCreateQueues()) {
+                     try {
+                        if (destination.isTemporary()) {
+                           session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, addressQuery);
+                        } else {
+                           session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, addressQuery);
+                        }
+                     } catch (ActiveMQQueueExistsException thatsOK) {
+                        // nothing to be done
+                     }
+                  } else {
+                     throw new InvalidDestinationException("Queue " + address + " does not exist");
+                  }
+               }
+            }
+
+            if (!addressExists) {
+               throw new InvalidDestinationException("Address " + address + " does not exist");
+            }
+
+
+            // this is done at the end, if no exceptions are thrown
+            connection.addKnownDestination(address);
+         } catch (ActiveMQException e) {
+            throw JMSExceptionHelper.convertFromActiveMQException(e);
+         }
       }
    }
 

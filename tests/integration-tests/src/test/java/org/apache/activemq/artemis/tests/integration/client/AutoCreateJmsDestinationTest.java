@@ -17,26 +17,42 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +63,9 @@ import static org.apache.activemq.artemis.api.core.management.ResourceNames.QUEU
 public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
    public static final String QUEUE_NAME = "test";
+
+   ClientSessionFactory factory;
+   ClientSession clientSession;
 
    @Test
    public void testAutoCreateOnSendToQueue() throws Exception {
@@ -265,6 +284,98 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.close();
    }
 
+
+   @Test //(timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnTopic() throws Exception {
+      ConnectionFactory factory = new ActiveMQConnectionFactory();
+      Connection connection = factory.createConnection();
+      SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+      System.out.println("Address is " + addressName);
+      clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
+      Topic topic = new ActiveMQTopic(addressName.toString());
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(topic);
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createTextMessage("hello"));
+      }
+
+      Assert.assertTrue(((ActiveMQConnection)connection).containsKnownDestination(addressName));
+   }
+
+   @Test (timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnAddressOnly() throws Exception {
+
+      server.getAddressSettingsRepository().clear();
+      AddressSettings settings = new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(false);
+      server.getAddressSettingsRepository().addMatch("#", settings);
+
+      ConnectionFactory factory = new ActiveMQConnectionFactory();
+      try (Connection connection = factory.createConnection()) {
+         SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+         System.out.println("Address is " + addressName);
+         javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(null);
+         try {
+            producer.send(queue, session.createTextMessage("hello"));
+            Assert.fail("Expected to throw exception here");
+         } catch (JMSException expected) {
+         }
+         Assert.assertFalse(((ActiveMQConnection)connection).containsKnownDestination(addressName));
+      }
+
+   }
+
+   @Test (timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnAddressOnlyDuringProducerCreate() throws Exception {
+      server.getAddressSettingsRepository().clear();
+      AddressSettings settings = new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(false);
+      server.getAddressSettingsRepository().addMatch("#", settings);
+
+      ConnectionFactory factory = new ActiveMQConnectionFactory();
+      Connection connection = factory.createConnection();
+      SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+      clientSession.createAddress(addressName, RoutingType.ANYCAST, true); // this will force the system to create the address only
+      javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      try {
+         MessageProducer producer = session.createProducer(queue);
+         Assert.fail("Exception expected");
+      } catch (JMSException expected) {
+      }
+
+      Assert.assertFalse(((ActiveMQConnection)connection).containsKnownDestination(addressName));
+   }
+
+
+   @Test (timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnAddressOnlyDuringProducerCreateQueueSucceed() throws Exception {
+      server.getAddressSettingsRepository().clear();
+      AddressSettings settings = new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true);
+      server.getAddressSettingsRepository().addMatch("#", settings);
+
+      ConnectionFactory factory = cf;
+      try(Connection connection = factory.createConnection()) {
+         SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+         clientSession.createAddress(addressName, RoutingType.ANYCAST, true); // this will force the system to create the address only
+         javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(queue);
+         Assert.assertNotNull(server.locateQueue(addressName));
+
+         Assert.assertTrue(((ActiveMQConnection) connection).containsKnownDestination(addressName));
+      }
+   }
+
+
    @Before
    @Override
    public void setUp() throws Exception {
@@ -276,6 +387,17 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
+      ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+      factory = locator.createSessionFactory();
+      clientSession = factory.createSession();
+   }
+
+   @After
+   @Override
+   public void tearDown() throws Exception {
+      clientSession.close();
+      factory.close();
+      super.tearDown();
    }
 
    @Override
