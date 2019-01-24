@@ -409,33 +409,42 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
 
                if (!query.isExists()) {
-                  if (destination.isQueue() && query.isAutoCreateQueues()) {
-                     clientSession.createAddress(address, RoutingType.ANYCAST, true);
-                     if (destination.isTemporary()) {
-                        // TODO is it right to use the address for the queue name here?
-                        session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
+                  if (destination.isQueue()) {
+                     if (query.isAutoCreateAddresses() && query.isAutoCreateQueues()) {
+                        clientSession.createAddress(address, RoutingType.ANYCAST, true);
+                        if (destination.isTemporary()) {
+                           // TODO is it right to use the address for the queue name here?
+                           session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
+                        } else {
+                           session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
+                        }
                      } else {
-                        session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
+                        throw new InvalidDestinationException("JMSQueue " + address + " cannot be created, autoCreateAddresses is " + query.isAutoCreateAddresses() + " , isAutoCreateQueues=" + query.isAutoCreateQueues());
                      }
-                  } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
-                     clientSession.createAddress(address, RoutingType.MULTICAST, true);
-                  } else if ((destination.isQueue() && !query.isAutoCreateQueues()) || (!destination.isQueue() && !query.isAutoCreateAddresses())) {
-                     throw new InvalidDestinationException("Destination " + address + " does not exist");
+                  } else {
+                     if (query.isAutoCreateAddresses()) {
+                        clientSession.createAddress(address, RoutingType.MULTICAST, true);
+                     } else {
+                        throw new InvalidDestinationException("JMSTopic " + address + " cannot be created, autoCreateAddresses is " + query.isAutoCreateAddresses());
+                     }
                   }
                } else {
                   if (destination.isQueue()) {
                      ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
                      if (!queueQuery.isExists()) {
-                        if (destination.isTemporary()) {
-                           session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
+                        if (query.isAutoCreateQueues()) {
+                           if (destination.isTemporary()) {
+                              session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
+                           } else {
+                              session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
+                           }
                         } else {
-                           session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
+                           throw new InvalidDestinationException("JMSQueue " + address + " cannot be created, address exists but autoCreateQueues is " + query.isAutoCreateQueues());
                         }
                      }
                   }
-
-                  connection.addKnownDestination(address);
                }
+               connection.addKnownDestination(address);
             } catch (ActiveMQQueueExistsException e) {
                // The queue was created by another client/admin between the query check and send create queue packet
             } catch (ActiveMQException e) {
