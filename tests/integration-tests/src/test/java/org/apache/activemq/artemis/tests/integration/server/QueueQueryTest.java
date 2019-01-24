@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -155,19 +156,20 @@ public class QueueQueryTest extends ActiveMQTestBase {
       SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       SimpleString fqqn = addressName.concat("::").concat(queueName);
-      JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext();
-      c.createProducer().send(c.createQueue(fqqn.toString()), c.createMessage());
-      QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
-      assertEquals(queueName, queueQueryResult.getName());
-      assertEquals(addressName, queueQueryResult.getAddress());
-      assertEquals(1, queueQueryResult.getMessageCount());
-      queueQueryResult = server.queueQuery(queueName);
-      assertEquals(queueName, queueQueryResult.getName());
-      assertEquals(addressName, queueQueryResult.getAddress());
-      assertEquals(1, queueQueryResult.getMessageCount());
-      c.createProducer().send(c.createQueue(addressName.toString()), c.createMessage());
-      assertEquals(2, server.queueQuery(fqqn).getMessageCount());
-      assertEquals(2, server.queueQuery(queueName).getMessageCount());
+      try (JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext()) {
+         c.createProducer().send(c.createQueue(fqqn.toString()), c.createMessage());
+         QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
+         assertEquals(queueName, queueQueryResult.getName());
+         assertEquals(addressName, queueQueryResult.getAddress());
+         Wait.assertEquals(1, server.queueQuery(fqqn)::getMessageCount);
+         queueQueryResult = server.queueQuery(queueName);
+         assertEquals(queueName, queueQueryResult.getName());
+         assertEquals(addressName, queueQueryResult.getAddress());
+         assertEquals(1, queueQueryResult.getMessageCount());
+         c.createProducer().send(c.createQueue(addressName.toString()), c.createMessage());
+         Wait.assertEquals(2, server.queueQuery(fqqn)::getMessageCount);
+         Wait.assertEquals(2, server.queueQuery(queueName)::getMessageCount);
+      }
    }
 
    @Test
