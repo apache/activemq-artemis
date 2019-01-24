@@ -223,7 +223,7 @@ public final class Page implements Comparable<Page> {
 
    public synchronized void write(final PagedMessage message) throws Exception {
       if (!file.isOpen()) {
-         return;
+         throw ActiveMQMessageBundle.BUNDLE.cannotWriteToClosedFile(file);
       }
       final int messageEncodedSize = message.getEncodeSize();
       final int bufferSize = messageEncodedSize + Page.SIZE_RECORD;
