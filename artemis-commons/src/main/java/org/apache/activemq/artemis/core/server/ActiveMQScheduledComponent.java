@@ -153,7 +153,12 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    protected ActiveMQThreadFactory getThreadFactory() {
-      return new ActiveMQThreadFactory(this.getClass().getSimpleName() + "-scheduled-threads", false, getThisClassLoader());
+      return AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+         @Override
+         public ActiveMQThreadFactory run() {
+            return new ActiveMQThreadFactory(this.getClass().getSimpleName() + "-scheduled-threads", false, getThisClassLoader());
+         }
+      });
    }
 
    private ClassLoader getThisClassLoader() {

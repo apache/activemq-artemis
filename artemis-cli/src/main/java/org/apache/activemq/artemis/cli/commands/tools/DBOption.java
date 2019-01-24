@@ -26,6 +26,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import io.airlift.airline.Option;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -223,13 +225,17 @@ public class DBOption extends OptionalLocking {
       this.config = configuration;
       executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
       executorFactory = new OrderedExecutorFactory(executor);
-
-      scheduledExecutorService = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), new ThreadFactory() {
+      scheduledExecutorService = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
          @Override
-         public Thread newThread(Runnable r) {
-            return new Thread(r);
+         public ThreadFactory run() {
+            return new ThreadFactory() {
+               @Override
+               public Thread newThread(Runnable r) {
+                  return new Thread(r);
+               }
+            };
          }
-      });
+      }));
 
       HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>(config.getWildcardConfiguration());
       addressSettingsRepository.setDefault(new AddressSettings());

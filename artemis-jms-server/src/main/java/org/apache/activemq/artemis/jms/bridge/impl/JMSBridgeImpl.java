@@ -1598,25 +1598,30 @@ public final class JMSBridgeImpl implements JMSBridge {
     * and 1 for the eventual failureHandler)
     */
    private ExecutorService createExecutor() {
-      ExecutorService service = Executors.newFixedThreadPool(3, new ThreadFactory() {
-
-         ThreadGroup group = new ThreadGroup("JMSBridgeImpl");
-
+      ExecutorService service = Executors.newFixedThreadPool(3, AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
          @Override
-         public Thread newThread(Runnable r) {
-            final Thread thr = new Thread(group, r);
-            if (moduleTccl != null) {
-               AccessController.doPrivileged(new PrivilegedAction() {
-                  @Override
-                  public Object run() {
-                     thr.setContextClassLoader(moduleTccl);
-                     return null;
+         public ThreadFactory run() {
+            return new ThreadFactory() {
+
+               ThreadGroup group = new ThreadGroup("JMSBridgeImpl");
+
+               @Override
+               public Thread newThread(Runnable r) {
+                  final Thread thr = new Thread(group, r);
+                  if (moduleTccl != null) {
+                     AccessController.doPrivileged(new PrivilegedAction() {
+                        @Override
+                        public Object run() {
+                           thr.setContextClassLoader(moduleTccl);
+                           return null;
+                        }
+                     });
                   }
-               });
-            }
-            return thr;
+                  return thr;
+               }
+            };
          }
-      });
+      }));
       return service;
    }
 

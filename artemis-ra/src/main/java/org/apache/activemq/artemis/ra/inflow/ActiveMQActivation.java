@@ -31,6 +31,7 @@ import javax.resource.spi.work.WorkManager;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -638,8 +639,13 @@ public class ActiveMQActivation {
          logger.warn(e.getMessage(), e);
          tccl = null;
       }
-
-      ActiveMQThreadFactory factory = new ActiveMQThreadFactory(name, true, tccl);
+      final ClassLoader loader = tccl;
+      ActiveMQThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+         @Override
+         public ActiveMQThreadFactory run() {
+            return new ActiveMQThreadFactory(name, true, loader);
+         }
+      });
       Thread t = factory.newThread(run);
       t.start();
       return t;
