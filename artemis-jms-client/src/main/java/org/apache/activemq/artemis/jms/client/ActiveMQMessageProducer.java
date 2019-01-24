@@ -421,16 +421,17 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                      throw new InvalidDestinationException("Destination " + address + " does not exist");
                   }
                } else {
-                  ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-                  if (queueQuery.isExists()) {
-                     connection.addKnownDestination(address);
-                  } else if (destination.isQueue() && query.isAutoCreateQueues()) {
+                  if (destination.isQueue()) {ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
+                  if (!queueQuery.isExists()) {
+
                      if (destination.isTemporary()) {
                         clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
                      } else {
-                        createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers(), query.isDefaultExclusive(), query.isDefaultLastValueQueue());
+                        createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers(), query.isDefaultExclusive(), query.isDefaultLastValueQueue());}
                      }
                   }
+
+                  connection.addKnownDestination(address);
                }
             } catch (ActiveMQQueueExistsException e) {
                // The queue was created by another client/admin between the query check and send create queue packet
