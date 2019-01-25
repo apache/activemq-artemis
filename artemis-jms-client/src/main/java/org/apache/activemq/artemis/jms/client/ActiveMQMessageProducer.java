@@ -395,17 +395,19 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          if (defaultDestination == null) {
             throw new UnsupportedOperationException("Destination must be specified on send with an anonymous producer");
          }
+
          destination = defaultDestination;
-      } else if (defaultDestination != null) {
-         if (!destination.equals(defaultDestination)) {
+         // address is meant to be null on this case, as it will use the coreProducer's default address
+      } else {
+         if (defaultDestination != null && !destination.equals(defaultDestination)) {
+            // This is a JMS TCK & Rule Definition.
+            // if you specified a destination on the Producer, you cannot use it for a different destinations.
             throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
          }
-      } else {
-         session.checkDestination(destination);
 
+         session.checkDestination(destination);
          address = destination.getSimpleAddress();
       }
-
 
       ActiveMQMessage activeMQJmsMessage;
 
@@ -495,8 +497,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          throw je;
       }
    }
-
-
 
    private void checkClosed() throws JMSException {
       if (clientProducer.isClosed()) {
