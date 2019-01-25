@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -43,31 +43,52 @@ public class DirectDeliverTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private ServerLocator locator;
+   private ServerLocator nettyLocator;
+   private ServerLocator inVMLocator;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
-      Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.DIRECT_DELIVER, true);
+      Map<String, Object> nettyParams = new HashMap<>();
+      nettyParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DIRECT_DELIVER, true);
 
-      TransportConfiguration tc = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
+      TransportConfiguration nettyTransportConfiguration = new TransportConfiguration(NettyAcceptorFactory.class.getName(), nettyParams);
 
-      Configuration config = createBasicConfig().addAcceptorConfiguration(tc);
+      Map<String, Object> inVMParams = new HashMap<>();
+      inVMParams.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.DIRECT_DELIVER, true);
+
+      TransportConfiguration inVMTransportConfiguration = new TransportConfiguration(InVMAcceptorFactory.class.getName(), inVMParams);
+
+      Configuration config = createBasicConfig();
+      config.addAcceptorConfiguration(nettyTransportConfiguration);
+      config.addAcceptorConfiguration(inVMTransportConfiguration);
+
       server = createServer(false, config);
       server.start();
 
-      locator = createNettyNonHALocator();
-      addServerLocator(locator);
+      nettyLocator = createNettyNonHALocator();
+      addServerLocator(nettyLocator);
+
+      inVMLocator = createInVMLocator(0);
+      addServerLocator(inVMLocator);
    }
 
    @Test
-   public void testDirectDeliver() throws Exception {
+   public void testDirectDeliverNetty() throws Exception {
+      testDirectDeliver(nettyLocator);
+   }
+
+   @Test
+   public void testDirectDeliverInVM() throws Exception {
+      testDirectDeliver(inVMLocator);
+   }
+
+   private void testDirectDeliver(ServerLocator serverLocator) throws Exception {
       final String foo = "foo";
 
-      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSessionFactory sf = createSessionFactory(serverLocator);
 
       ClientSession session = sf.createSession();
 
