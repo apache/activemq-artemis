@@ -27,7 +27,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -363,7 +362,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       server.getAddressSettingsRepository().addMatch("#", settings);
 
       ConnectionFactory factory = cf;
-      try(Connection connection = factory.createConnection()) {
+      try (Connection connection = factory.createConnection()) {
          SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
          clientSession.createAddress(addressName, RoutingType.ANYCAST, true); // this will force the system to create the address only
          javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
