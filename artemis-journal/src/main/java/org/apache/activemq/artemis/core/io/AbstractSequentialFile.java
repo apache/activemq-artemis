@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -58,7 +59,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
     * Instead of having AIOSequentialFile implementing the Observer, I have done it on an inner class.
     * This is the class returned to the factory when the file is being activated.
     */
-   protected final TimedBufferObserver timedBufferObserver = new LocalBufferObserver();
+   protected final TimedBufferObserver timedBufferObserver = createTimedBufferObserver();
 
    /**
     * @param file
@@ -72,6 +73,10 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       this.file = new File(directory, file);
       this.directory = directory;
       this.factory = factory;
+   }
+
+   protected TimedBufferObserver createTimedBufferObserver() {
+      return new LocalBufferObserver();
    }
 
    // Public --------------------------------------------------------
@@ -252,43 +257,6 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       return file;
    }
 
-   private static final class DelegateCallback implements IOCallback {
-
-      final List<IOCallback> delegates;
-
-      private DelegateCallback(final List<IOCallback> delegates) {
-         this.delegates = delegates;
-      }
-
-      @Override
-      public void done() {
-         final int size = delegates.size();
-         for (int i = 0; i < size; i++) {
-            try {
-               delegates.get(i).done();
-            } catch (Throwable e) {
-               ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
-            }
-         }
-      }
-
-      @Override
-      public void onError(final int errorCode, final String errorMessage) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("onError" + " code: " + errorCode + " message: " + errorMessage);
-         }
-
-         final int size = delegates.size();
-         for (int i = 0; i < size; i++) {
-            try {
-               delegates.get(i).onError(errorCode, errorMessage);
-            } catch (Throwable e) {
-               ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
-            }
-         }
-      }
-   }
-
    protected ByteBuffer newBuffer(int size, int limit) {
       size = factory.calculateBlockSize(size);
       limit = factory.calculateBlockSize(limit);
@@ -301,19 +269,17 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    protected class LocalBufferObserver implements TimedBufferObserver {
 
       @Override
-      public void flushBuffer(final ByteBuffer buffer, final boolean requestedSync, final List<IOCallback> callbacks) {
-         buffer.flip();
-
-         if (buffer.limit() == 0) {
-            factory.releaseBuffer(buffer);
-         } else {
+      public void flushBuffer(final ByteBuf byteBuf, final boolean requestedSync, final List<IOCallback> callbacks) {
+         final int bytes = byteBuf.readableBytes();
+         if (bytes > 0) {
+            final ByteBuffer buffer = newBuffer(byteBuf.capacity(), bytes);
+            buffer.limit(bytes);
+            byteBuf.getBytes(byteBuf.readerIndex(), buffer);
+            buffer.flip();
             writeDirect(buffer, requestedSync, new DelegateCallback(callbacks));
+         } else {
+            IOCallback.done(callbacks);
          }
-      }
-
-      @Override
-      public ByteBuffer newBuffer(final int size, final int limit) {
-         return AbstractSequentialFile.this.newBuffer(size, limit);
       }
 
       @Override

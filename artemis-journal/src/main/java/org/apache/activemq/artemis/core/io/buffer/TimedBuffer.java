@@ -358,13 +358,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
                   bytesFlushed.addAndGet(pos);
                }
 
-               final ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
-               //bufferObserver::newBuffer doesn't necessary return a buffer with limit == pos or limit == bufferSize!!
-               bufferToFlush.limit(pos);
-               //perform memcpy under the hood due to the off heap buffer
-               buffer.getBytes(0, bufferToFlush);
-
-               bufferObserver.flushBuffer(bufferToFlush, pendingSync, callbacks);
+               bufferObserver.flushBuffer(buffer.byteBuf(), pendingSync, callbacks);
 
                stopSpin();
 
