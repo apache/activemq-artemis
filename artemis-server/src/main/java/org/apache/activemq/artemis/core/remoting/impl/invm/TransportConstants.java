@@ -30,6 +30,10 @@ public final class TransportConstants {
 
    public static final boolean DEFAULT_BUFFER_POOLING = true;
 
+   public static final boolean DEFAULT_DIRECT_DELIVER = false;
+
+   public static final String DIRECT_DELIVER = "directDeliver";
+
    private TransportConstants() {
       // Utility class
    }

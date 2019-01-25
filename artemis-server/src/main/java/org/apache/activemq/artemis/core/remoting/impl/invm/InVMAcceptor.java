@@ -75,6 +75,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
    private final boolean enableBufferPooling;
 
+   private final boolean directDeliver;
+
    public InVMAcceptor(final String name,
                        final ClusterConnection clusterConnection,
                        final Map<String, Object> configuration,
@@ -101,6 +103,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
 
       enableBufferPooling = ConfigurationHelper.getBooleanProperty(TransportConstants.BUFFER_POOLING, TransportConstants.DEFAULT_BUFFER_POOLING, configuration);
+
+      directDeliver = ConfigurationHelper.getBooleanProperty(TransportConstants.DIRECT_DELIVER, TransportConstants.DEFAULT_DIRECT_DELIVER, configuration);
    }
 
    @Override
@@ -228,6 +232,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
       InVMConnection inVMConnection = new InVMConnection(id, connectionID, remoteHandler, connectionListener, clientExecutor, defaultActiveMQPrincipal);
       inVMConnection.setEnableBufferPooling(enableBufferPooling);
+      inVMConnection.setDirectDeliver(directDeliver);
 
       connectionListener.connectionCreated(this, inVMConnection, protocolMap.get(ActiveMQClient.DEFAULT_CORE_PROTOCOL));
    }

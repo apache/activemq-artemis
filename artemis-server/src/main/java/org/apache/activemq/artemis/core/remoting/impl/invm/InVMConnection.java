@@ -65,6 +65,8 @@ public class InVMConnection implements Connection {
 
    private boolean bufferPoolingEnabled = TransportConstants.DEFAULT_BUFFER_POOLING;
 
+   private boolean directDeliver = TransportConstants.DEFAULT_DIRECT_DELIVER;
+
    public InVMConnection(final int serverID,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener listener,
@@ -86,6 +88,7 @@ public class InVMConnection implements Connection {
                          final BaseConnectionLifeCycleListener listener,
                          final Executor executor,
                          final ActiveMQPrincipal defaultActiveMQPrincipal) {
+
       this.serverID = serverID;
 
       this.handler = handler;
@@ -273,6 +276,15 @@ public class InVMConnection implements Connection {
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, serverID);
 
       return new TransportConfiguration(InVMConnectorFactory.class.getName(), params);
+   }
+
+   @Override
+   public boolean isDirectDeliver() {
+      return directDeliver;
+   }
+
+   public void setDirectDeliver(boolean directDeliver) {
+      this.directDeliver = directDeliver;
    }
 
    @Override
