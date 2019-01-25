@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -32,7 +35,6 @@ import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 final class TimedSequentialFile implements SequentialFile {
 
@@ -239,86 +241,42 @@ final class TimedSequentialFile implements SequentialFile {
       return this.sequentialFile.getJavaFile();
    }
 
-   private static void invokeDoneOn(List<? extends IOCallback> callbacks) {
-      final int size = callbacks.size();
-      for (int i = 0; i < size; i++) {
-         try {
-            final IOCallback callback = callbacks.get(i);
-            callback.done();
-         } catch (Throwable e) {
-            ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
-         }
-      }
-   }
-
-   private static void invokeOnErrorOn(final int errorCode,
-                                       final String errorMessage,
-                                       List<? extends IOCallback> callbacks) {
-      final int size = callbacks.size();
-      for (int i = 0; i < size; i++) {
-         try {
-            final IOCallback callback = callbacks.get(i);
-            callback.onError(errorCode, errorMessage);
-         } catch (Throwable e) {
-            ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
-         }
-      }
-   }
-
-   private static final class DelegateCallback implements IOCallback {
-
-      List<IOCallback> delegates;
-
-      private DelegateCallback() {
-         this.delegates = null;
-      }
-
-      @Override
-      public void done() {
-         invokeDoneOn(delegates);
-      }
-
-      @Override
-      public void onError(final int errorCode, final String errorMessage) {
-         invokeOnErrorOn(errorCode, errorMessage, delegates);
-      }
-   }
-
    private final class LocalBufferObserver implements TimedBufferObserver {
 
-      private final DelegateCallback delegateCallback = new DelegateCallback();
-
       @Override
-      public void flushBuffer(final ByteBuffer buffer, final boolean requestedSync, final List<IOCallback> callbacks) {
-         buffer.flip();
-
-         if (buffer.limit() == 0) {
+      public void flushBuffer(final ByteBuf byteBuf, final boolean requestedSync, final List<IOCallback> callbacks) {
+         final int bytes = byteBuf.readableBytes();
+         if (bytes > 0) {
+            final boolean releaseBuffer;
+            final ByteBuffer buffer;
+            if (byteBuf.nioBufferCount() == 1) {
+               //any ByteBuffer is fine with the MAPPED journal
+               releaseBuffer = false;
+               buffer = byteBuf.internalNioBuffer(byteBuf.readerIndex(), bytes);
+            } else {
+               //perform the copy on buffer
+               releaseBuffer = true;
+               buffer = factory.newBuffer(byteBuf.capacity());
+               buffer.limit(bytes);
+               byteBuf.getBytes(byteBuf.readerIndex(), buffer);
+               buffer.flip();
+            }
             try {
-               invokeDoneOn(callbacks);
-            } finally {
-               factory.releaseBuffer(buffer);
+               blockingWriteDirect(buffer, requestedSync, releaseBuffer);
+               IOCallback.done(callbacks);
+            } catch (Throwable t) {
+               final int code;
+               if (t instanceof IOException) {
+                  code = ActiveMQExceptionType.IO_ERROR.getCode();
+                  factory.onIOError(new ActiveMQIOErrorException(t.getMessage(), t), t.getMessage(), TimedSequentialFile.this.sequentialFile);
+               } else {
+                  code = ActiveMQExceptionType.GENERIC_EXCEPTION.getCode();
+               }
+               IOCallback.onError(callbacks, code, t.getMessage());
             }
          } else {
-            if (callbacks.isEmpty()) {
-               try {
-                  sequentialFile.writeDirect(buffer, requestedSync);
-               } catch (Exception e) {
-                  throw new IllegalStateException(e);
-               }
-            } else {
-               delegateCallback.delegates = callbacks;
-               try {
-                  sequentialFile.writeDirect(buffer, requestedSync, delegateCallback);
-               } finally {
-                  delegateCallback.delegates = null;
-               }
-            }
+            IOCallback.done(callbacks);
          }
-      }
-
-      @Override
-      public ByteBuffer newBuffer(final int size, final int limit) {
-         return factory.newBuffer(limit);
       }
 
       @Override
