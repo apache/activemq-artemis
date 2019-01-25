@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -396,19 +395,17 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          if (defaultDestination == null) {
             throw new UnsupportedOperationException("Destination must be specified on send with an anonymous producer");
          }
-
          destination = defaultDestination;
-      } else {
-         if (defaultDestination != null) {
-            if (!destination.equals(defaultDestination)) {
-               throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
-            }
+      } else if (defaultDestination != null) {
+         if (!destination.equals(defaultDestination)) {
+            throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
          }
+      } else {
+         session.checkDestination(destination);
 
          address = destination.getSimpleAddress();
       }
 
-      checkDestination(destination, address, clientSession);
 
       ActiveMQMessage activeMQJmsMessage;
 
@@ -499,66 +496,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       }
    }
 
-   private void checkDestination(ActiveMQDestination destination,
-                                 SimpleString address,
-                                 ClientSession clientSession) throws JMSException {
 
-      // TODO: What to do with FQQN
-      if (!connection.containsKnownDestination(address)) {
-         try {
-            ClientSession.AddressQuery addressQuery = clientSession.addressQuery(address);
-
-            boolean addressExists = addressQuery.isExists();
-            // first we check the address existence, and autoCreate it if allowed in case it does not exists
-
-            if (!addressExists && addressQuery.isAutoCreateAddresses()) {
-
-               if (destination.isQueue() && !addressQuery.isAutoCreateQueues()) {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("Address " + address + " was not created because we would not have permission to create queue");
-                  }
-                  // if it can't create the internal queue on JMS Queues, why bother creating the address, just mark it false now
-                  addressExists = false;
-               } else {
-                  RoutingType addressType = destination.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST;
-                  clientSession.createAddress(address, addressType, true);
-                  addressExists = true;
-               }
-            }
-
-
-            // Second we create the queue, but we only do it if the address was created
-            if (destination.isQueue() && addressExists) {
-               ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-               if (!queueQuery.isExists()) {
-                  if (addressQuery.isAutoCreateQueues()) {
-                     try {
-                        if (destination.isTemporary()) {
-                           session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, addressQuery);
-                        } else {
-                           session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, addressQuery);
-                        }
-                     } catch (ActiveMQQueueExistsException thatsOK) {
-                        // nothing to be done
-                     }
-                  } else {
-                     throw new InvalidDestinationException("Queue " + address + " does not exist");
-                  }
-               }
-            }
-
-            if (!addressExists) {
-               throw new InvalidDestinationException("Address " + address + " does not exist");
-            }
-
-
-            // this is done at the end, if no exceptions are thrown
-            connection.addKnownDestination(address);
-         } catch (ActiveMQException e) {
-            throw JMSExceptionHelper.convertFromActiveMQException(e);
-         }
-      }
-   }
 
    private void checkClosed() throws JMSException {
       if (clientProducer.isClosed()) {
