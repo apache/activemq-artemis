@@ -369,24 +369,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          ActiveMQDestination jbd = (ActiveMQDestination) destination;
 
          if (jbd != null) {
-            ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
-
-            if (!response.isExists()) {
-               try {
-                  if (jbd.isQueue() && response.isAutoCreateQueues()) {
-                     // perhaps just relying on the broker to do it is simplest (i.e. purgeOnNoConsumers)
-                     session.createAddress(jbd.getSimpleAddress(), RoutingType.ANYCAST, true);
-                     createQueue(jbd, RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true, response);
-                  } else if (!jbd.isQueue() && response.isAutoCreateAddresses()) {
-                     session.createAddress(jbd.getSimpleAddress(), RoutingType.MULTICAST, true);
-                  } else {
-                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
-                  }
-               } catch (ActiveMQQueueExistsException e) {
-                  // Queue was created between our query and create queue request.  Ignore.
-               }
-
-            }
+            checkDestination(jbd);
          }
 
          ClientProducer producer = session.createProducer(jbd == null ? null : jbd.getSimpleAddress());
@@ -394,6 +377,55 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          return new ActiveMQMessageProducer(connection, producer, jbd, this, options);
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+   }
+
+   void checkDestination(ActiveMQDestination destination) throws JMSException {
+      SimpleString address = destination.getSimpleAddress();
+      // TODO: What to do with FQQN
+      if (!connection.containsKnownDestination(address)) {
+         try {
+            ClientSession.AddressQuery addressQuery = session.addressQuery(address);
+
+            // First we create the address
+            if (!addressQuery.isExists()) {
+               if (destination.isQueue()) {
+                  if (addressQuery.isAutoCreateAddresses() && addressQuery.isAutoCreateQueues()) {
+                     session.createAddress(address, RoutingType.ANYCAST, true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, autoCreateAddresses=" + addressQuery.isAutoCreateAddresses() + " , autoCreateQueues=" + addressQuery.isAutoCreateQueues());
+                  }
+               } else {
+                  if (addressQuery.isAutoCreateAddresses()) {
+                     session.createAddress(address, RoutingType.MULTICAST, true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, autoCreateAddresses=" + addressQuery.isAutoCreateAddresses());
+                  }
+               }
+            }
+
+            // Second we create the queue, the address would have existed or successfully created.
+            if (destination.isQueue()) {
+               ClientSession.QueueQuery queueQuery = session.queueQuery(address);
+               if (!queueQuery.isExists()) {
+                  if (addressQuery.isAutoCreateQueues()) {
+                     if (destination.isTemporary()) {
+                        createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, addressQuery);
+                     } else {
+                        createQueue(destination, RoutingType.ANYCAST, address, null, true, true, addressQuery);
+                     }
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, address exists but autoCreateQueues=" + addressQuery.isAutoCreateQueues());
+                  }
+               }
+            }
+         } catch (ActiveMQQueueExistsException thatsOK) {
+            // nothing to be done
+         } catch (ActiveMQException e) {
+            throw JMSExceptionHelper.convertFromActiveMQException(e);
+         }
+         // this is done at the end, if no exceptions are thrown
+         connection.addKnownDestination(address);
       }
    }
 
