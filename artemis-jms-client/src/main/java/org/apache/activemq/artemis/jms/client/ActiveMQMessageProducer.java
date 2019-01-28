@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -47,11 +46,14 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * ActiveMQ Artemis implementation of a JMS MessageProducer.
  */
 public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQMessageProducer.class);
 
    private final ConnectionFactoryOptions options;
 
@@ -395,53 +397,16 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          }
 
          destination = defaultDestination;
+         // address is meant to be null on this case, as it will use the coreProducer's default address
       } else {
-         if (defaultDestination != null) {
-            if (!destination.equals(defaultDestination)) {
-               throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
-            }
+         if (defaultDestination != null && !destination.equals(defaultDestination)) {
+            // This is a JMS TCK & Rule Definition.
+            // if you specified a destination on the Producer, you cannot use it for a different destinations.
+            throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
          }
 
+         session.checkDestination(destination);
          address = destination.getSimpleAddress();
-
-         if (!connection.containsKnownDestination(address)) {
-            try {
-               ClientSession.AddressQuery query = clientSession.addressQuery(address);
-
-               if (!query.isExists()) {
-                  if (destination.isQueue() && query.isAutoCreateQueues()) {
-                     clientSession.createAddress(address, RoutingType.ANYCAST, true);
-                     if (destination.isTemporary()) {
-                        // TODO is it right to use the address for the queue name here?
-                        session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
-                     } else {
-                        session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
-                     }
-                  } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
-                     clientSession.createAddress(address, RoutingType.MULTICAST, true);
-                  } else if ((destination.isQueue() && !query.isAutoCreateQueues()) || (!destination.isQueue() && !query.isAutoCreateAddresses())) {
-                     throw new InvalidDestinationException("Destination " + address + " does not exist");
-                  }
-               } else {
-                  if (destination.isQueue()) {
-                     ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-                     if (!queueQuery.isExists()) {
-                        if (destination.isTemporary()) {
-                           session.createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, query);
-                        } else {
-                           session.createQueue(destination, RoutingType.ANYCAST, address, null, true, true, query);
-                        }
-                     }
-                  }
-
-                  connection.addKnownDestination(address);
-               }
-            } catch (ActiveMQQueueExistsException e) {
-               // The queue was created by another client/admin between the query check and send create queue packet
-            } catch (ActiveMQException e) {
-               throw JMSExceptionHelper.convertFromActiveMQException(e);
-            }
-         }
       }
 
       ActiveMQMessage activeMQJmsMessage;
