@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.client.impl.Topology;
@@ -2967,7 +2968,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (!(notification.getType() instanceof CoreNotificationType))
          return;
       CoreNotificationType type = (CoreNotificationType) notification.getType();
-      TypedProperties prop = notification.getProperties();
+      if (type == CoreNotificationType.SESSION_CREATED) {
+         TypedProperties props = notification.getProperties();
+         /*
+          * If the SESSION_CREATED notification is received from another node in the cluster, no broadcast call is made.
+          * To keep the original logic to avoid calling the broadcast multiple times for the same SESSION_CREATED notification in the cluster.
+          */
+         if (props.getIntProperty(ManagementHelper.HDR_DISTANCE) > 0) {
+            return;
+         }
+      }
 
       this.broadcaster.sendNotification(new Notification(type.toString(), this, notifSeq.incrementAndGet(), notification.toString()));
    }

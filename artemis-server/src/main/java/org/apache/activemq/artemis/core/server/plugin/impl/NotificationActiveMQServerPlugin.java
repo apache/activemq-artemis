@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -43,13 +42,11 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
    private static final Logger logger = Logger.getLogger(NotificationActiveMQServerPlugin.class);
 
    public static final String SEND_CONNECTION_NOTIFICATIONS = "SEND_CONNECTION_NOTIFICATIONS";
-   public static final String SEND_SESSION_NOTIFICATIONS = "SEND_SESSION_NOTIFICATIONS";
    public static final String SEND_ADDRESS_NOTIFICATIONS = "SEND_ADDRESS_NOTIFICATIONS";
    public static final String SEND_DELIVERED_NOTIFICATIONS = "SEND_DELIVERED_NOTIFICATIONS";
    public static final String SEND_EXPIRED_NOTIFICATIONS = "SEND_EXPIRED_NOTIFICATIONS";
 
    private boolean sendConnectionNotifications;
-   private boolean sendSessionNotifications;
    private boolean sendAddressNotifications;
    private boolean sendDeliveredNotifications;
    private boolean sendExpiredNotifications;
@@ -65,8 +62,6 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
    @Override
    public void init(Map<String, String> properties) {
       sendConnectionNotifications = Boolean.parseBoolean(properties.getOrDefault(SEND_CONNECTION_NOTIFICATIONS,
-            Boolean.FALSE.toString()));
-      sendSessionNotifications = Boolean.parseBoolean(properties.getOrDefault(SEND_SESSION_NOTIFICATIONS,
             Boolean.FALSE.toString()));
       sendAddressNotifications = Boolean.parseBoolean(properties.getOrDefault(SEND_ADDRESS_NOTIFICATIONS,
             Boolean.FALSE.toString()));
@@ -94,16 +89,6 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
    @Override
    public void afterDestroyConnection(RemotingConnection connection) throws ActiveMQException {
       sendConnectionNotification(connection, CoreNotificationType.CONNECTION_DESTROYED);
-   }
-
-   @Override
-   public void afterCreateSession(ServerSession session) throws ActiveMQException {
-      sendSessionNotification(session, CoreNotificationType.SESSION_CREATED);
-   }
-
-   @Override
-   public void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
-      sendSessionNotification(session, CoreNotificationType.SESSION_CLOSED);
    }
 
    @Override
@@ -196,23 +181,6 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
       }
    }
 
-   private void sendSessionNotification(final ServerSession session, final CoreNotificationType type) {
-      final ManagementService managementService = getManagementService();
-
-      if (managementService != null && sendSessionNotifications) {
-         try {
-            final TypedProperties props = new TypedProperties();
-            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(session.getConnectionID().toString()));
-            props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(session.getUsername()));
-            props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(session.getName()));
-
-            managementService.sendNotification(new Notification(null, type, props));
-         } catch (Exception e) {
-            logger.warn("Error sending notification: " + type, e.getMessage(), e);
-         }
-      }
-   }
-
    /**
     * @return the sendConnectionNotifications
     */
@@ -225,20 +193,6 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
     */
    public void setSendConnectionNotifications(boolean sendConnectionNotifications) {
       this.sendConnectionNotifications = sendConnectionNotifications;
-   }
-
-   /**
-    * @return the sendSessionNotifications
-    */
-   public boolean isSendSessionNotifications() {
-      return sendSessionNotifications;
-   }
-
-   /**
-    * @param sendSessionNotifications the sendSessionNotifications to set
-    */
-   public void setSendSessionNotifications(boolean sendSessionNotifications) {
-      this.sendSessionNotifications = sendSessionNotifications;
    }
 
    /**
