@@ -233,6 +233,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    " AND " +
                                                    ManagementHelper.HDR_NOTIFICATION_TYPE +
                                                    " IN ('" +
+                                                   CoreNotificationType.SESSION_CREATED +
+                                                   "','" +
                                                    CoreNotificationType.BINDING_ADDED +
                                                    "','" +
                                                    CoreNotificationType.BINDING_REMOVED +
@@ -252,6 +254,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    flowRecord.getMaxHops() +
                                                    " AND (" +
                                                    createSelectorFromAddress(appendIgnoresToFilter(flowRecord.getAddress())) +
+                                                   ") AND (" +
+                                                   createPermissiveManagementNotificationToFilter() +
                                                    ")");
 
          sessionConsumer.createTemporaryQueue(managementNotificationAddress, notifQueueName, filter);
@@ -351,10 +355,20 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
       filterString += "!" + storeAndForwardPrefix;
       filterString += ",!" + managementAddress;
-      filterString += ",!" + managementNotificationAddress;
       return filterString;
    }
 
+   /**
+    * Create a filter rule,in addition to SESSION_CREATED notifications, all other notifications using managementNotificationAddress
+    * as the routing address will be filtered.
+    * @return
+    */
+   private String createPermissiveManagementNotificationToFilter() {
+      StringBuilder filterBuilder = new StringBuilder(ManagementHelper.HDR_NOTIFICATION_TYPE).append(" = '")
+              .append(CoreNotificationType.SESSION_CREATED).append("' OR (").append(ManagementHelper.HDR_ADDRESS)
+              .append(" NOT LIKE '").append(managementNotificationAddress).append("%')");
+      return filterBuilder.toString();
+   }
 
    @Override
    protected void nodeUP(TopologyMember member, boolean last) {

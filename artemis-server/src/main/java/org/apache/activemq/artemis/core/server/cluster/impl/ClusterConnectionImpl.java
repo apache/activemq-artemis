@@ -1078,6 +1078,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                doUnProposalReceived(message);
                break;
             }
+            case SESSION_CREATED: {
+               doSessionCreated(message);
+               break;
+            }
             default: {
                throw ActiveMQMessageBundle.BUNDLE.invalidType(ntype);
             }
@@ -1301,6 +1305,19 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
 
          binding.disconnect();
+      }
+
+      private synchronized void doSessionCreated(final ClientMessage message) throws Exception {
+         if (logger.isTraceEnabled()) {
+            logger.trace(ClusterConnectionImpl.this + " session created " + message);
+         }
+         TypedProperties props = new TypedProperties();
+         props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, message.getSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID));
+         props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, message.getSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME));
+         props.putIntProperty(ManagementHelper.HDR_DISTANCE, message.getIntProperty(ManagementHelper.HDR_DISTANCE) + 1);
+         managementService.sendNotification(new Notification(null, CoreNotificationType.SESSION_CREATED, props));
       }
 
       private synchronized void doConsumerCreated(final ClientMessage message) throws Exception {

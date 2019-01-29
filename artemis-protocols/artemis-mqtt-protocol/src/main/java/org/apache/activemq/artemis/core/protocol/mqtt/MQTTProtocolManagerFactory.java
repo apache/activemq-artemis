@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -37,12 +38,15 @@ public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<M
 
    private static final String[] SUPPORTED_PROTOCOLS = {MQTT_PROTOCOL_NAME};
 
+   private final Map<String, MQTTConnection> connectedClients  = new ConcurrentHashMap<>();
+   private final Map<String, MQTTSessionState> sessionStates = new ConcurrentHashMap<>();
+
    @Override
    public ProtocolManager createProtocolManager(ActiveMQServer server,
                                                 final Map<String, Object> parameters,
                                                 List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
-      return BeanSupport.setData(new MQTTProtocolManager(server, incomingInterceptors, outgoingInterceptors), parameters);
+      return BeanSupport.setData(new MQTTProtocolManager(server, connectedClients, sessionStates, incomingInterceptors, outgoingInterceptors), parameters);
    }
 
    @Override
