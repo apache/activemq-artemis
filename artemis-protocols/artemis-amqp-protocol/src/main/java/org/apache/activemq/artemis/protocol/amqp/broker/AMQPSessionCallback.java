@@ -289,11 +289,8 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
       // if auto-create we will return whatever type was used before
-      if (queueQueryResult.isExists() && !queueQueryResult.isAutoCreated()) {
-         //if routingType is null we bypass the check
-         if (routingType != null && queueQueryResult.getRoutingType() != routingType) {
-            throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
-         }
+      if (queueQueryResult.isExists() && !queueQueryResult.isAutoCreated() && queueQueryResult.getRoutingType() != routingType) {
+         throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
       }
 
       return queueQueryResult;
