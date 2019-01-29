@@ -362,7 +362,6 @@ public class NotificationTest extends ActiveMQTestBase {
       NotificationActiveMQServerPlugin notificationPlugin = new NotificationActiveMQServerPlugin();
       notificationPlugin.setSendAddressNotifications(true);
       notificationPlugin.setSendConnectionNotifications(true);
-      notificationPlugin.setSendSessionNotifications(true);
       notificationPlugin.setSendDeliveredNotifications(true);
       notificationPlugin.setSendExpiredNotifications(true);
 

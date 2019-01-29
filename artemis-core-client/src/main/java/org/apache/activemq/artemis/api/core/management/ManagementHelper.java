@@ -84,6 +84,10 @@ public final class ManagementHelper {
 
    public static final SimpleString HDR_MESSAGE_ID = new SimpleString("_AMQ_Message_ID");
 
+   public static final SimpleString HDR_PROTOCOL_NAME = new SimpleString("_AMQ_Protocol_Name");
+
+   public static final SimpleString HDR_CLIENT_ID = new SimpleString("_AMQ_Client_ID");
+
    // Attributes ----------------------------------------------------
 
    // Static --------------------------------------------------------

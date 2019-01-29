@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
@@ -43,29 +44,127 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
    }
 
    @Test
-   public void unsubscribeRemoteQueue() throws Exception {
-      final String TOPIC = "test/1/some/la";
+   public void useSameClientIdAndAnycastSubscribeRemoteQueue() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String subClientId = "subClientId";
+      final String pubClientId = "pubClientId";
 
-      setupServers(TOPIC);
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection subConnection1 = null;
+      BlockingConnection subConnection2 = null;
+      BlockingConnection pubConnection = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
+         subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+         pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
+
+         //Waiting for the first sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
+
+         subConnection2.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+
+         pubConnection.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message1 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message1.ack();
+         Message message2 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message2.ack();
+         Message message3 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message3.ack();
+
+         assertEquals(payload1, new String(message1.getPayload()));
+         assertEquals(payload2, new String(message2.getPayload()));
+         assertEquals(payload3, new String(message3.getPayload()));
+
+         subConnection2.unsubscribe(new String[]{ANYCAST_TOPIC});
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         pubConnection.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message11);
+         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message21);
+         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message31);
+
+      } finally {
+         String[] topics = new String[]{ANYCAST_TOPIC};
+         if (subConnection1 != null && subConnection1.isConnected()) {
+            subConnection1.unsubscribe(topics);
+            subConnection1.disconnect();
+         }
+         if (subConnection2 != null && subConnection2.isConnected()) {
+            subConnection2.unsubscribe(topics);
+            subConnection2.disconnect();
+         }
+         if (pubConnection != null && pubConnection.isConnected()) {
+            pubConnection.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useDiffClientIdAndAnycastSubscribeRemoteQueue() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String clientId1 = "clientId1";
+      final String clientId2 = "clientId2";
+
+      setupServers(ANYCAST_TOPIC);
 
       startServers(0, 1);
 
       BlockingConnection connection1 = null;
       BlockingConnection connection2 = null;
       try {
-
-         connection1 = retrieveMQTTConnection("tcp://localhost:61616");
-         connection2 = retrieveMQTTConnection("tcp://localhost:61617");
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
+         connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
          // Subscribe to topics
-         Topic[] topics = {new Topic(TOPIC, QoS.AT_MOST_ONCE)};
          connection1.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
          connection2.subscribe(topics);
 
-         waitForBindings(0, TOPIC, 1, 1, true);
-         waitForBindings(1, TOPIC, 1, 1, true);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
 
-         waitForBindings(0, TOPIC, 1, 1, false);
-         waitForBindings(1, TOPIC, 1, 1, false);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
 
 
          // Publish Messages
@@ -73,9 +172,387 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          String payload2 = "This is message 2";
          String payload3 = "This is message 3";
 
-         connection1.publish(TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish(TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+
+         Message message1 = connection1.receive(5, TimeUnit.SECONDS);
+         message1.ack();
+         Message message2 = connection2.receive(5, TimeUnit.SECONDS);
+         message2.ack();
+         Message message3 = connection1.receive(5, TimeUnit.SECONDS);
+         message3.ack();
+
+         assertEquals(payload1, new String(message1.getPayload()));
+         assertEquals(payload2, new String(message2.getPayload()));
+         assertEquals(payload3, new String(message3.getPayload()));
+
+         connection2.unsubscribe(new String[]{ANYCAST_TOPIC});
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection1.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = connection1.receive(5, TimeUnit.SECONDS);
+         message11.ack();
+         Message message21 = connection1.receive(5, TimeUnit.SECONDS);
+         message21.ack();
+         Message message31 = connection1.receive(5, TimeUnit.SECONDS);
+         message31.ack();
+
+         String message11String = new String(message11.getPayload());
+         String message21String = new String(message21.getPayload());
+         String message31String = new String(message31.getPayload());
+         assertTrue(payload1.equals(message11String) || payload1.equals(message21String) || payload1.equals(message31String) );
+         assertTrue(payload2.equals(message11String) || payload2.equals(message21String) || payload2.equals(message31String) );
+         assertTrue(payload3.equals(message11String) || payload3.equals(message21String) || payload3.equals(message31String) );
+
+      } finally {
+         String[] topics = new String[]{ANYCAST_TOPIC};
+         if (connection1 != null && connection1.isConnected()) {
+            connection1.unsubscribe(topics);
+            connection1.disconnect();
+         }
+         if (connection2 != null && connection2.isConnected()) {
+            connection2.unsubscribe(topics);
+            connection2.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useSameClientIdAndMulticastSubscribeRemoteQueue() throws Exception {
+      final String MULTICAST_TOPIC = "multicast/test/1/some/la";
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String subClientId = "subClientId";
+      final String pubClientId = "pubClientId";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection subConnection1 = null;
+      BlockingConnection subConnection2 = null;
+      BlockingConnection pubConnection = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
+         subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+         pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
+
+         //Waiting for the first sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
+
+         subConnection2.subscribe(topics);
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, true);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, false);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+
+         pubConnection.publish(MULTICAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(MULTICAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(MULTICAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message1 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message1.ack();
+         Message message2 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message2.ack();
+         Message message3 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message3.ack();
+
+         assertEquals(payload1, new String(message1.getPayload()));
+         assertEquals(payload2, new String(message2.getPayload()));
+         assertEquals(payload3, new String(message3.getPayload()));
+
+         subConnection2.unsubscribe(new String[]{MULTICAST_TOPIC});
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, true);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, false);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, false);
+
+         pubConnection.publish(MULTICAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(MULTICAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(MULTICAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message11);
+         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message21);
+         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message31);
+
+      } finally {
+         String[] topics = new String[]{MULTICAST_TOPIC};
+         if (subConnection1 != null && subConnection1.isConnected()) {
+            subConnection1.unsubscribe(topics);
+            subConnection1.disconnect();
+         }
+         if (subConnection2 != null && subConnection2.isConnected()) {
+            subConnection2.unsubscribe(topics);
+            subConnection2.disconnect();
+         }
+         if (pubConnection != null && pubConnection.isConnected()) {
+            pubConnection.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useDiffClientIdAndMulticastSubscribeRemoteQueue() throws Exception {
+      final String MULTICAST_TOPIC = "multicast/test/1/some/la";
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String clientId1 = "clientId1";
+      final String clientId2 = "clientId2";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection connection1 = null;
+      BlockingConnection connection2 = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
+         connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
+         // Subscribe to topics
+         connection1.subscribe(topics);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, true);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, false);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, false);
+
+         connection2.subscribe(topics);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, true);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, false);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+
+         connection1.publish(MULTICAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(MULTICAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(MULTICAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = connection1.receive(5, TimeUnit.SECONDS);
+         message11.ack();
+         Message message12 = connection1.receive(5, TimeUnit.SECONDS);
+         message12.ack();
+         Message message13 = connection1.receive(5, TimeUnit.SECONDS);
+         message13.ack();
+
+         assertEquals(payload1, new String(message11.getPayload()));
+         assertEquals(payload2, new String(message12.getPayload()));
+         assertEquals(payload3, new String(message13.getPayload()));
+
+         Message message21 = connection2.receive(5, TimeUnit.SECONDS);
+         message21.ack();
+         Message message22 = connection2.receive(5, TimeUnit.SECONDS);
+         message22.ack();
+         Message message23 = connection2.receive(5, TimeUnit.SECONDS);
+         message23.ack();
+
+         assertEquals(payload1, new String(message21.getPayload()));
+         assertEquals(payload2, new String(message22.getPayload()));
+         assertEquals(payload3, new String(message23.getPayload()));
+
+         connection2.unsubscribe(new String[]{MULTICAST_TOPIC});
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, true);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, false);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, false);
+
+         connection1.publish(MULTICAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(MULTICAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(MULTICAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message31 = connection1.receive(5, TimeUnit.SECONDS);
+         message31.ack();
+         Message message32 = connection1.receive(5, TimeUnit.SECONDS);
+         message32.ack();
+         Message message33 = connection1.receive(5, TimeUnit.SECONDS);
+         message33.ack();
+
+         assertEquals(payload1, new String(message31.getPayload()));
+         assertEquals(payload2, new String(message32.getPayload()));
+         assertEquals(payload3, new String(message33.getPayload()));
+
+      } finally {
+         String[] topics = new String[]{MULTICAST_TOPIC};
+         if (connection1 != null && connection1.isConnected()) {
+            connection1.unsubscribe(topics);
+            connection1.disconnect();
+         }
+         if (connection2 != null && connection2.isConnected()) {
+            connection2.unsubscribe(topics);
+            connection2.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useSameClientIdAndAnycastSubscribeRemoteQueueWildCard() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/+/some/#";
+      final String subClientId = "subClientId";
+      final String pubClientId = "pubClientId";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection subConnection1 = null;
+      BlockingConnection subConnection2 = null;
+      BlockingConnection pubConnection = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
+         subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+         pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
+
+         //Waiting for the first sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
+
+         subConnection2.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+
+         pubConnection.publish("anycast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish("anycast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish("anycast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message1 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message1.ack();
+         Message message2 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message2.ack();
+         Message message3 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message3.ack();
+
+         assertEquals(payload1, new String(message1.getPayload()));
+         assertEquals(payload2, new String(message2.getPayload()));
+         assertEquals(payload3, new String(message3.getPayload()));
+
+         subConnection2.unsubscribe(new String[]{ANYCAST_TOPIC});
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         pubConnection.publish("anycast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish("anycast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish("anycast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message11);
+         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message21);
+         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message31);
+
+      } finally {
+         String[] topics = new String[]{ANYCAST_TOPIC};
+         if (subConnection1 != null && subConnection1.isConnected()) {
+            subConnection1.unsubscribe(topics);
+            subConnection1.disconnect();
+         }
+         if (subConnection2 != null && subConnection2.isConnected()) {
+            subConnection2.unsubscribe(topics);
+            subConnection2.disconnect();
+         }
+         if (pubConnection != null && pubConnection.isConnected()) {
+            pubConnection.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useDiffClientIdAndAnycastSubscribeRemoteQueueWildCard() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/+/some/#";
+      final String clientId1 = "clientId1";
+      final String clientId2 = "clientId2";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection connection1 = null;
+      BlockingConnection connection2 = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
+         connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
+         // Subscribe to topics
+         connection1.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection2.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+
+         connection1.publish("anycast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish("anycast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish("anycast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
 
          Message message1 = connection1.receive(5, TimeUnit.SECONDS);
@@ -90,11 +567,17 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          assertEquals(payload3, new String(message3.getPayload()));
 
 
-         connection2.unsubscribe(new String[]{TOPIC});
+         connection2.unsubscribe(new String[]{ANYCAST_TOPIC});
 
-         connection1.publish(TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish(TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection1.publish("anycast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish("anycast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish("anycast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
          Message message11 = connection1.receive(5, TimeUnit.SECONDS);
          message11.ack();
@@ -111,14 +594,13 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          assertTrue(payload2.equals(message11String) || payload2.equals(message21String) || payload2.equals(message31String) );
          assertTrue(payload3.equals(message11String) || payload3.equals(message21String) || payload3.equals(message31String) );
 
-
       } finally {
-         String[] topics = new String[]{TOPIC};
-         if (connection1 != null) {
+         String[] topics = new String[]{ANYCAST_TOPIC};
+         if (connection1 != null && connection1.isConnected()) {
             connection1.unsubscribe(topics);
             connection1.disconnect();
          }
-         if (connection2 != null) {
+         if (connection2 != null && connection2.isConnected()) {
             connection2.unsubscribe(topics);
             connection2.disconnect();
          }
@@ -127,82 +609,192 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
    }
 
    @Test
-   public void unsubscribeRemoteQueueWildCard() throws Exception {
-      final String TOPIC = "test/+/some/#";
+   public void useSameClientIdAndMulticastSubscribeRemoteQueueWildCard() throws Exception {
+      final String MULTICAST_TOPIC = "multicast/test/+/some/#";
+      final String ANYCAST_TOPIC = "anycast/test/+/some/#";
+      final String subClientId = "subClientId";
+      final String pubClientId = "pubClientId";
 
-      setupServers(TOPIC);
+      setupServers(ANYCAST_TOPIC);
 
       startServers(0, 1);
 
-      BlockingConnection connection1 = null;
-      BlockingConnection connection2 = null;
+      BlockingConnection subConnection1 = null;
+      BlockingConnection subConnection2 = null;
+      BlockingConnection pubConnection = null;
       try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
+         subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+         pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
-         connection1 = retrieveMQTTConnection("tcp://localhost:61616");
-         connection2 = retrieveMQTTConnection("tcp://localhost:61617");
-         // Subscribe to topics
-         Topic[] topics = {new Topic(TOPIC, QoS.AT_MOST_ONCE)};
-         connection1.subscribe(topics);
-         connection2.subscribe(topics);
+         //Waiting for the first sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
 
-         waitForBindings(0, TOPIC, 1, 1, true);
-         waitForBindings(1, TOPIC, 1, 1, true);
+         subConnection2.subscribe(topics);
 
-         waitForBindings(0, TOPIC, 1, 1, false);
-         waitForBindings(1, TOPIC, 1, 1, false);
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, true);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, true);
 
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, false);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, false);
 
          // Publish Messages
          String payload1 = "This is message 1";
          String payload2 = "This is message 2";
          String payload3 = "This is message 3";
 
-         connection1.publish("test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish("test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish("test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish("multicast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish("multicast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish("multicast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
-
-         Message message1 = connection1.receive(5, TimeUnit.SECONDS);
+         Message message1 = subConnection2.receive(5, TimeUnit.SECONDS);
          message1.ack();
-         Message message2 = connection2.receive(5, TimeUnit.SECONDS);
+         Message message2 = subConnection2.receive(5, TimeUnit.SECONDS);
          message2.ack();
-         Message message3 = connection1.receive(5, TimeUnit.SECONDS);
+         Message message3 = subConnection2.receive(5, TimeUnit.SECONDS);
          message3.ack();
 
          assertEquals(payload1, new String(message1.getPayload()));
          assertEquals(payload2, new String(message2.getPayload()));
          assertEquals(payload3, new String(message3.getPayload()));
 
+         subConnection2.unsubscribe(new String[]{MULTICAST_TOPIC});
 
-         connection2.unsubscribe(new String[]{TOPIC});
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, true);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, true);
 
-         connection1.publish("test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish("test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish("test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, false);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, false);
+
+         pubConnection.publish("multicast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish("multicast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish("multicast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message11);
+         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message21);
+         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message31);
+
+      } finally {
+         String[] topics = new String[]{MULTICAST_TOPIC};
+         if (subConnection1 != null && subConnection1.isConnected()) {
+            subConnection1.unsubscribe(topics);
+            subConnection1.disconnect();
+         }
+         if (subConnection2 != null && subConnection2.isConnected()) {
+            subConnection2.unsubscribe(topics);
+            subConnection2.disconnect();
+         }
+         if (pubConnection != null && pubConnection.isConnected()) {
+            pubConnection.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useDiffClientIdAndMulticastSubscribeRemoteQueueWildCard() throws Exception {
+      final String MULTICAST_TOPIC = "multicast/test/+/some/#";
+      final String ANYCAST_TOPIC = "anycast/test/+/some/#";
+      final String clientId1 = "clientId1";
+      final String clientId2 = "clientId2";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection connection1 = null;
+      BlockingConnection connection2 = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
+         connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
+         // Subscribe to topics
+         connection1.subscribe(topics);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, true);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, false);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, false);
+
+         connection2.subscribe(topics);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, true);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, false);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+
+         connection1.publish("multicast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish("multicast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish("multicast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
          Message message11 = connection1.receive(5, TimeUnit.SECONDS);
          message11.ack();
-         Message message21 = connection1.receive(5, TimeUnit.SECONDS);
+         Message message12 = connection1.receive(5, TimeUnit.SECONDS);
+         message12.ack();
+         Message message13 = connection1.receive(5, TimeUnit.SECONDS);
+         message13.ack();
+
+         assertEquals(payload1, new String(message11.getPayload()));
+         assertEquals(payload2, new String(message12.getPayload()));
+         assertEquals(payload3, new String(message13.getPayload()));
+
+         Message message21 = connection2.receive(5, TimeUnit.SECONDS);
          message21.ack();
+         Message message22 = connection2.receive(5, TimeUnit.SECONDS);
+         message22.ack();
+         Message message23 = connection2.receive(5, TimeUnit.SECONDS);
+         message23.ack();
+
+         assertEquals(payload1, new String(message21.getPayload()));
+         assertEquals(payload2, new String(message22.getPayload()));
+         assertEquals(payload3, new String(message23.getPayload()));
+
+         connection2.unsubscribe(new String[]{MULTICAST_TOPIC});
+
+         waitForBindings(0, MULTICAST_TOPIC, 1, 1, true);
+         waitForBindings(1, MULTICAST_TOPIC, 0, 0, true);
+
+         waitForBindings(0, MULTICAST_TOPIC, 0, 0, false);
+         waitForBindings(1, MULTICAST_TOPIC, 1, 1, false);
+
+         connection1.publish("multicast/test/1/some/la", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish("multicast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish("multicast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
          Message message31 = connection1.receive(5, TimeUnit.SECONDS);
          message31.ack();
+         Message message32 = connection1.receive(5, TimeUnit.SECONDS);
+         message32.ack();
+         Message message33 = connection1.receive(5, TimeUnit.SECONDS);
+         message33.ack();
 
-         String message11String = new String(message11.getPayload());
-         String message21String = new String(message21.getPayload());
-         String message31String = new String(message31.getPayload());
-
-         assertTrue(payload1.equals(message11String) || payload1.equals(message21String) || payload1.equals(message31String));
-         assertTrue(payload2.equals(message11String) || payload2.equals(message21String) || payload2.equals(message31String));
-         assertTrue(payload3.equals(message11String) || payload3.equals(message21String) || payload3.equals(message31String));
+         assertEquals(payload1, new String(message31.getPayload()));
+         assertEquals(payload2, new String(message32.getPayload()));
+         assertEquals(payload3, new String(message33.getPayload()));
 
 
       } finally {
-         String[] topics = new String[]{TOPIC};
-         if (connection1 != null) {
+         String[] topics = new String[]{MULTICAST_TOPIC};
+         if (connection1 != null && connection1.isConnected()) {
             connection1.unsubscribe(topics);
             connection1.disconnect();
          }
-         if (connection2 != null) {
+         if (connection2 != null && connection2.isConnected()) {
             connection2.unsubscribe(topics);
             connection2.disconnect();
          }
@@ -211,31 +803,39 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
    }
 
    @Test
-   public void unsubscribeRemoteQueueMultipleSubscriptions() throws Exception {
-      final String TOPIC = "test/1/some/la";
+   public void useDiffClientIdSubscribeRemoteQueueMultipleSubscriptions() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
       final String TOPIC2 = "sample";
+      final String clientId1 = "clientId1";
+      final String clientId2 = "clientId2";
 
-      setupServers(TOPIC);
+      setupServers(ANYCAST_TOPIC);
 
       startServers(0, 1);
 
       BlockingConnection connection1 = null;
       BlockingConnection connection2 = null;
       try {
-
-         connection1 = retrieveMQTTConnection("tcp://localhost:61616");
-         connection2 = retrieveMQTTConnection("tcp://localhost:61617");
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
          // Subscribe to topics
-         connection1.subscribe(new Topic[]{new Topic(TOPIC, QoS.AT_MOST_ONCE)});
-         connection2.subscribe(new Topic[]{new Topic(TOPIC, QoS.AT_MOST_ONCE), new Topic(TOPIC2, QoS.AT_MOST_ONCE)});
+         connection1.subscribe(new Topic[]{new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)});
 
-         waitForBindings(0, TOPIC, 1, 1, true);
-         waitForBindings(1, TOPIC, 1, 1, true);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
 
-         waitForBindings(0, TOPIC, 1, 1, false);
-         waitForBindings(1, TOPIC, 1, 1, false);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
 
+         connection2.subscribe(new Topic[]{new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE), new Topic(TOPIC2, QoS.AT_MOST_ONCE)});
 
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
 
          // Publish Messages
          String payload1 = "This is message 1";
@@ -243,9 +843,9 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          String payload3 = "This is message 3";
          String payload4 = "This is message 4";
 
-         connection1.publish(TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish(TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
          connection1.publish(TOPIC2, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
 
 
@@ -263,11 +863,17 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          assertEquals(payload3, new String(message3.getPayload()));
          assertEquals(payload4, new String(message4.getPayload()));
 
-         connection2.unsubscribe(new String[]{TOPIC});
+         connection2.unsubscribe(new String[]{ANYCAST_TOPIC});
 
-         connection1.publish(TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish(TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection1.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
          connection1.publish(TOPIC2, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
 
          Message message11 = connection1.receive(5, TimeUnit.SECONDS);
@@ -289,12 +895,12 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
 
 
       } finally {
-         if (connection1 != null) {
-            connection1.unsubscribe(new String[]{TOPIC});
+         if (connection1 != null && connection1.isConnected()) {
+            connection1.unsubscribe(new String[]{ANYCAST_TOPIC});
             connection1.disconnect();
          }
-         if (connection2 != null) {
-            connection2.unsubscribe(new String[]{TOPIC, TOPIC2});
+         if (connection2 != null && connection2.isConnected()) {
+            connection2.unsubscribe(new String[]{ANYCAST_TOPIC, TOPIC2});
             connection2.disconnect();
          }
       }
@@ -302,33 +908,36 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
    }
 
    @Test
-   public void unsubscribeExistingQueue() throws Exception {
-      final String TOPIC = "test/1/some/la";
+   public void useSameClientIdSubscribeRemoteQueueMultipleSubscriptions() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String TOPIC2 = "sample";
+      final String subClientId = "subClientId";
+      final String pubClientId = "pubClientId";
 
-      setupServers(TOPIC);
+      setupServers(ANYCAST_TOPIC);
 
       startServers(0, 1);
-      BlockingConnection connection1 = null;
-      BlockingConnection connection2 = null;
-      BlockingConnection connection3 = null;
+
+      BlockingConnection subConnection1 = null;
+      BlockingConnection subConnection2 = null;
+      BlockingConnection pubConnection = null;
       try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+         pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
-         connection1 = retrieveMQTTConnection("tcp://localhost:61616");
-         connection2 = retrieveMQTTConnection("tcp://localhost:61617");
-         connection3 = retrieveMQTTConnection("tcp://localhost:61617");
-         // Subscribe to topics
-         Topic[] topics = {new Topic(TOPIC, QoS.AT_MOST_ONCE)};
-         connection1.subscribe(topics);
-         connection2.subscribe(topics);
-         connection3.subscribe(topics);
+         //Waiting for the first sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
 
+         subConnection2.subscribe(new Topic[]{new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE), new Topic(TOPIC2, QoS.AT_MOST_ONCE)});
 
-         waitForBindings(0, TOPIC, 1, 1, true);
-         waitForBindings(1, TOPIC, 1, 2, true);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
 
-         waitForBindings(0, TOPIC, 1, 2, false);
-         waitForBindings(1, TOPIC, 1, 1, false);
-
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
 
          // Publish Messages
          String payload1 = "This is message 1";
@@ -336,10 +945,232 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          String payload3 = "This is message 3";
          String payload4 = "This is message 4";
 
-         connection1.publish(TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish(TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(TOPIC2, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message1 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message1.ack();
+         Message message2 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message2.ack();
+         Message message3 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message3.ack();
+         Message message4 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message4.ack();
+
+         String messageStr1 = new String(message1.getPayload());
+         String messageStr2 = new String(message2.getPayload());
+         String messageStr3 = new String(message3.getPayload());
+         String messageStr4 = new String(message4.getPayload());
+         assertTrue(payload1.equals(messageStr1) || payload1.equals(messageStr2) || payload1.equals(messageStr3) || payload1.equals(messageStr4));
+         assertTrue(payload2.equals(messageStr1) || payload2.equals(messageStr2) || payload2.equals(messageStr3) || payload2.equals(messageStr4));
+         assertTrue(payload3.equals(messageStr1) || payload3.equals(messageStr2) || payload3.equals(messageStr3) || payload3.equals(messageStr4));
+         assertTrue(payload4.equals(messageStr1) || payload4.equals(messageStr2) || payload4.equals(messageStr3) || payload4.equals(messageStr4));
+
+         subConnection2.unsubscribe(new String[]{ANYCAST_TOPIC});
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         pubConnection.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(TOPIC2, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         message11.ack();
+         assertEquals(payload4, new String(message11.getPayload()));
+
+         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message21);
+         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message31);
+         Message message41 = subConnection2.receive(5, TimeUnit.SECONDS);
+         assertNull(message41);
+
+      } finally {
+         if (subConnection1 != null && subConnection1.isConnected()) {
+            subConnection1.unsubscribe(new String[]{ANYCAST_TOPIC});
+            subConnection1.disconnect();
+         }
+         if (subConnection2 != null && subConnection2.isConnected()) {
+            subConnection2.unsubscribe(new String[]{ANYCAST_TOPIC, TOPIC2});
+            subConnection2.disconnect();
+         }
+         if (pubConnection != null && pubConnection.isConnected()) {
+            pubConnection.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useSameClientIdSubscribeExistingQueue() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String subClientId = "subClientId";
+      final String pubClientId = "pubClientId";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+
+      BlockingConnection subConnection1 = null;
+      BlockingConnection subConnection2 = null;
+      BlockingConnection subConnection3 = null;
+      BlockingConnection pubConnection = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
+
+         subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+
+         //Waiting for the first sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
+
+         subConnection3 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
+
+         //Waiting for the second sub connection be closed
+         assertTrue(waitConnectionClosed(subConnection1));
+
+         // Subscribe to topics
+         Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
+
+         subConnection3.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+         String payload4 = "This is message 4";
+
+         pubConnection.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message1 = subConnection3.receive(5, TimeUnit.SECONDS);
+         message1.ack();
+         Message message2 = subConnection3.receive(5, TimeUnit.SECONDS);
+         message2.ack();
+         Message message3 = subConnection3.receive(5, TimeUnit.SECONDS);
+         message3.ack();
+         Message message4 = subConnection3.receive(5, TimeUnit.SECONDS);
+         message4.ack();
+
+         assertEquals(payload1, new String(message1.getPayload()));
+         assertEquals(payload2, new String(message2.getPayload()));
+         assertEquals(payload3, new String(message3.getPayload()));
+         assertEquals(payload4, new String(message4.getPayload()));
+
+         subConnection3.unsubscribe(new String[]{ANYCAST_TOPIC});
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, false);
+
+         pubConnection.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+
+         Message message11 = subConnection3.receive(5, TimeUnit.SECONDS);
+         assertNull(message11);
+         Message message21 = subConnection3.receive(5, TimeUnit.SECONDS);
+         assertNull(message21);
+         Message message31 = subConnection3.receive(5, TimeUnit.SECONDS);
+         assertNull(message31);
+
+
+      } finally {
+         String[] topics = new String[]{ANYCAST_TOPIC};
+         if (subConnection1 != null && subConnection1.isConnected()) {
+            subConnection1.unsubscribe(topics);
+            subConnection1.disconnect();
+         }
+         if (subConnection2 != null && subConnection2.isConnected()) {
+            subConnection2.unsubscribe(topics);
+            subConnection2.disconnect();
+         }
+         if (subConnection3 != null && subConnection3.isConnected()) {
+            subConnection3.unsubscribe(topics);
+            subConnection3.disconnect();
+         }
+         if (pubConnection != null && pubConnection.isConnected()) {
+            pubConnection.unsubscribe(topics);
+            pubConnection.disconnect();
+         }
+      }
+
+   }
+
+   @Test
+   public void useDiffClientIdSubscribeExistingQueue() throws Exception {
+      final String ANYCAST_TOPIC = "anycast/test/1/some/la";
+      final String clientId1 = "clientId1";
+      final String clientId2 = "clientId2";
+      final String clientId3 = "clientId3";
+
+      setupServers(ANYCAST_TOPIC);
+
+      startServers(0, 1);
+      BlockingConnection connection1 = null;
+      BlockingConnection connection2 = null;
+      BlockingConnection connection3 = null;
+      try {
+         //Waiting for resource initialization to complete
+         Thread.sleep(5000);
+         connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
+         connection3 = retrieveMQTTConnection("tcp://localhost:61617", clientId3);
+         // Subscribe to topics
+         Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
+         connection1.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 0, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 0, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection2.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection3.subscribe(topics);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 2, true);
+
+         waitForBindings(0, ANYCAST_TOPIC, 1, 2, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         // Publish Messages
+         String payload1 = "This is message 1";
+         String payload2 = "This is message 2";
+         String payload3 = "This is message 3";
+         String payload4 = "This is message 4";
+
+         connection1.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload4.getBytes(), QoS.AT_MOST_ONCE, false);
 
          Message message1 = connection1.receive(5, TimeUnit.SECONDS);
          message1.ack();
@@ -355,12 +1186,17 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          assertEquals(payload3, new String(message3.getPayload()));
          assertEquals(payload4, new String(message4.getPayload()));
 
+         connection2.unsubscribe(new String[]{ANYCAST_TOPIC});
 
-         connection2.unsubscribe(new String[]{TOPIC});
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, true);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, true);
 
-         connection1.publish(TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-         connection1.publish(TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
-         connection1.publish(TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
+         waitForBindings(0, ANYCAST_TOPIC, 1, 1, false);
+         waitForBindings(1, ANYCAST_TOPIC, 1, 1, false);
+
+         connection1.publish(ANYCAST_TOPIC, payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+         connection1.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
          Message message11 = connection1.receive(5, TimeUnit.SECONDS);
          message11.ack();
@@ -377,16 +1213,16 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          assertTrue(payload3.equals(message11String) || payload3.equals(message21String) || payload3.equals(message31String));
 
       } finally {
-         String[] topics = new String[]{TOPIC};
-         if (connection1 != null) {
+         String[] topics = new String[]{ANYCAST_TOPIC};
+         if (connection1 != null && connection1.isConnected()) {
             connection1.unsubscribe(topics);
             connection1.disconnect();
          }
-         if (connection2 != null) {
+         if (connection2 != null && connection2.isConnected()) {
             connection2.unsubscribe(topics);
             connection2.disconnect();
          }
-         if (connection3 != null) {
+         if (connection3 != null && connection3.isConnected()) {
             connection3.unsubscribe(topics);
             connection3.disconnect();
          }
@@ -395,9 +1231,12 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
 
    }
 
-   private static BlockingConnection retrieveMQTTConnection(String host) throws Exception {
+   private static BlockingConnection retrieveMQTTConnection(String host, String clientId) throws Exception {
       MQTT mqtt = new MQTT();
       mqtt.setHost(host);
+      mqtt.setClientId(clientId);
+      mqtt.setConnectAttemptsMax(0);
+      mqtt.setReconnectAttemptsMax(0);
       BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
       return connection;
@@ -450,4 +1289,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       return wildcardConfiguration;
    }
 
+   private boolean waitConnectionClosed(BlockingConnection connection) throws Exception {
+      return Wait.waitFor(() -> !connection.isConnected());
+   }
 }
