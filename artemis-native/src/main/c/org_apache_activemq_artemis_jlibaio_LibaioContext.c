@@ -113,10 +113,12 @@ char* exceptionMessage(char* msg, int error) {
         error = error * -1;
     }
     //strerror is returning a constant, so no need to free anything coming from strerror
-    char* err = strerror(error);
-    char* result = malloc(strlen(msg) + strlen(err) + 1);
-    strcpy(result, msg);
-    strcat(result, err);
+    char *result = NULL;
+
+    if (asprintf(&result, "%s%s", msg, strerror(error)) == -1) {
+    	fprintf(stderr, "Could not allocate enough memory for the error message: %s/%s\n", msg, strerror(error));
+    }
+
     return result;
 }
 
