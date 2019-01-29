@@ -421,6 +421,12 @@ JNIEXPORT jobject JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext
     }
 
     struct io_event * events = (struct io_event *)malloc(sizeof(struct io_event) * (size_t)queueSize);
+    if (events == NULL) {
+        free(theControl);
+        free(libaioContext);
+        throwRuntimeExceptionErrorNo(env, "Can't initialize mutext (not enough memory for the events member): ", res);
+        return NULL;
+    }
 
     theControl->ioContext = libaioContext;
     theControl->events = events;
