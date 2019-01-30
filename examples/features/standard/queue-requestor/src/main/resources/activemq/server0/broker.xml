@@ -39,6 +39,7 @@ under the License.
          <!--security for example queues -->
          <security-setting match="#">
             <permission roles="guest" type="createAddress"/>
+            <permission roles="guest" type="deleteAddress"/>
             <permission roles="guest" type="createDurableQueue"/>
             <permission roles="guest" type="deleteDurableQueue"/>
             <permission roles="guest" type="createNonDurableQueue"/>
