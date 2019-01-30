@@ -40,7 +40,7 @@ public interface RoutingContext {
 
    SimpleString getPreviousAddress();
 
-   void setReusable(boolean reusable);
+   RoutingContext setReusable(boolean reusable);
 
    RoutingContext setReusable(boolean reusable, int version);
 
@@ -60,7 +60,7 @@ public interface RoutingContext {
 
    int getQueueCount();
 
-   void clear();
+   RoutingContext clear();
 
    void addQueueWithAck(SimpleString address, Queue queue);
 
