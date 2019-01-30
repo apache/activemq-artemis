@@ -429,6 +429,7 @@ public class NettyConnection implements Connection {
       return "tcp://" + IPV6Util.encloseHost(address.toString());
    }
 
+   @Override
    public final boolean isDirectDeliver() {
       return directDeliver;
    }
