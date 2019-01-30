@@ -79,8 +79,14 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public void setReusable(boolean reusable) {
+   public RoutingContext setReusable(boolean reusable) {
+      if (this.reusable != null && !this.reusable.booleanValue()) {
+         // cannot set to Reusable once it was set to false
+         return this;
+      }
+
       this.reusable = reusable;
+      return this;
    }
    @Override
    public RoutingContext setReusable(boolean reusable, int previousBindings) {
@@ -96,7 +102,7 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public void clear() {
+   public RoutingContext clear() {
       map.clear();
 
       queueCount = 0;
@@ -104,6 +110,8 @@ public final class RoutingContextImpl implements RoutingContext {
       this.version = 0;
 
       this.reusable = null;
+
+      return this;
    }
 
    @Override
@@ -147,7 +155,10 @@ public final class RoutingContextImpl implements RoutingContext {
 
    @Override
    public boolean isReusable(Message message, int version) {
-      return isReusable() && queueCount > 0 && address.equals(previousAddress) && previousRoutingType == routingType && getPreviousBindingsVersion() == version;
+      if (getPreviousBindingsVersion() != version) {
+         this.reusable = false;
+      }
+      return isReusable() && queueCount > 0 && address.equals(previousAddress) && previousRoutingType == routingType;
    }
 
    @Override
