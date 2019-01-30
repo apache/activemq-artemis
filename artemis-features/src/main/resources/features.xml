@@ -62,6 +62,9 @@
 		<configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${pom.version}/xml/artemis</configfile>
 
 		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons.config.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.commons/commons-text/1.6</bundle>
+		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang.version}</bundle>
 
 		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>

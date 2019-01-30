@@ -336,6 +336,31 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void addUser(String username,
+                             String password,
+                             String role,
+                             boolean plaintext,
+                             String entryName) throws Exception {
+            proxy.invokeOperation("addUser", username, password, role, plaintext, entryName);
+
+         }
+
+         @Override
+         public String listUser(String username, String entryName) throws Exception {
+            return (String) proxy.invokeOperation("listUser", username, entryName, String.class);
+         }
+
+         @Override
+         public void removeUser(String username, String entryName) throws Exception {
+            proxy.invokeOperation("removeUser", username, entryName);
+         }
+
+         @Override
+         public void resetUser(String username, String password, String roles, String entryName) throws Exception {
+            proxy.invokeOperation("resetUser", username, password, roles, entryName);
+         }
+
+         @Override
          public String getUptime() {
             return null;
          }

@@ -449,4 +449,24 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119217, value = "Can't write to closed file: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIOErrorException cannotWriteToClosedFile(SequentialFile file);
 
+   @Message(id = 229218, value = "Failed to locate broker configuration URL")
+   ActiveMQIllegalStateException failedToLocateConfigURL();
+
+   @Message(id = 229219, value = "Failed to load security configuration")
+   ActiveMQIllegalStateException failedToLoadSecurityConfig();
+
+   @Message(id = 229220, value = "Failed to load user file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException failedToLoadUserFile(String path);
+
+   @Message(id = 229221, value = "Failed to load role file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException failedToLoadRoleFile(String path);
+
+   @Message(id = 229222, value = "Failed to find login module entry {0} from JAAS configuration", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException failedToFindLoginModuleEntry(String entry);
+
+   @Message(id = 229223, value = "User {0} already exists", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException userAlreadyExists(String user);
+
+   @Message(id = 229224, value = "User {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException userDoesNotExist(String user);
 }
