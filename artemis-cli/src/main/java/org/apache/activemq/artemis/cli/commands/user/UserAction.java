@@ -16,16 +16,8 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
-import java.io.File;
-
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
-
-import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.ROLE_FILE_PROP_NAME;
-import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.USER_FILE_PROP_NAME;
 
 public abstract class UserAction extends InputAbstract {
 
@@ -48,30 +40,6 @@ public abstract class UserAction extends InputAbstract {
       if (role == null) {
          role = input("--role", "type a comma separated list of roles", null);
       }
-   }
-
-   FileBasedSecStoreConfig getConfiguration() throws Exception {
-
-      Configuration securityConfig = Configuration.getConfiguration();
-      AppConfigurationEntry[] entries = securityConfig.getAppConfigurationEntry(entry);
-
-      for (AppConfigurationEntry entry : entries) {
-         if (entry.getLoginModuleName().equals(PropertiesLoginModule.class.getName())) {
-            String userFileName = (String) entry.getOptions().get(USER_FILE_PROP_NAME);
-            String roleFileName = (String) entry.getOptions().get(ROLE_FILE_PROP_NAME);
-
-            File etcDir = new File(getBrokerEtc());
-            File userFile = new File(etcDir, userFileName);
-            File roleFile = new File(etcDir, roleFileName);
-
-            if (!userFile.exists() || !roleFile.exists()) {
-               throw new IllegalArgumentException("Couldn't find user file or role file!");
-            }
-
-            return new FileBasedSecStoreConfig(userFile, roleFile);
-         }
-      }
-      throw new IllegalArgumentException("Failed to load security file");
    }
 
    public void setUsername(String username) {

@@ -118,13 +118,12 @@
       </dependency>
       <dependency>
          <groupId>org.apache.commons</groupId>
-         <artifactId>commons-configuration2</artifactId>
-         <version>${commons.config.version}</version>
+         <artifactId>commons-lang3</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.commons</groupId>
-         <artifactId>commons-lang3</artifactId>
-         <version>${commons.lang.version}</version>
+         <artifactId>commons-configuration2</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.sun.winsw</groupId>
