@@ -374,7 +374,7 @@ JNIEXPORT jobject JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext
     int res = io_queue_init(queueSize, &libaioContext);
     if (res) {
         // Error, so need to release whatever was done before
-        free(libaioContext);
+        io_queue_release(libaioContext);
 
         throwRuntimeExceptionErrorNo(env, "Cannot initialize queue:", res);
         return NULL;
@@ -407,7 +407,7 @@ JNIEXPORT jobject JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext
     res = pthread_mutex_init(&(theControl->iocbLock), 0);
     if (res) {
         free(theControl);
-        free(libaioContext);
+        io_queue_release(libaioContext);
         throwRuntimeExceptionErrorNo(env, "Can't initialize mutext:", res);
         return NULL;
     }
@@ -415,7 +415,7 @@ JNIEXPORT jobject JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext
     res = pthread_mutex_init(&(theControl->pollLock), 0);
     if (res) {
         free(theControl);
-        free(libaioContext);
+        io_queue_release(libaioContext);
         throwRuntimeExceptionErrorNo(env, "Can't initialize mutext:", res);
         return NULL;
     }
@@ -423,7 +423,8 @@ JNIEXPORT jobject JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext
     struct io_event * events = (struct io_event *)malloc(sizeof(struct io_event) * (size_t)queueSize);
     if (events == NULL) {
         free(theControl);
-        free(libaioContext);
+        io_queue_release(libaioContext);
+
         throwRuntimeExceptionErrorNo(env, "Can't initialize mutext (not enough memory for the events member): ", res);
         return NULL;
     }
