@@ -889,6 +889,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       if (bindingMove != null) {
          context.clear();
+         context.setReusable(false);
          bindingMove.route(message, context);
          if (addressInfo != null) {
             addressInfo.incrementRoutedMessageCount();
@@ -899,6 +900,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             addressInfo.incrementRoutedMessageCount();
          }
       } else {
+         context.setReusable(false);
          if (addressInfo != null) {
             addressInfo.incrementUnRoutedMessageCount();
          }

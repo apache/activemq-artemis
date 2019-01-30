@@ -90,6 +90,8 @@ public class DivertImpl implements Divert {
          logger.trace("Diverting message " + message + " into " + this);
       }
 
+      context.setReusable(false);
+
       Message copy = null;
 
       // Shouldn't copy if it's not routed anywhere else
@@ -127,7 +129,7 @@ public class DivertImpl implements Divert {
          copy = message;
       }
 
-      postOffice.route(copy, context.getTransaction(), false);
+      postOffice.route(copy, new RoutingContextImpl(context.getTransaction()).setReusable(false), false);
    }
 
    @Override

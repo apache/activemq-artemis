@@ -282,6 +282,12 @@ public final class BindingsImpl implements Bindings {
    private void route(final Message message,
                       final RoutingContext context,
                       final boolean groupRouting) throws Exception {
+      boolean reusableContext = context.isReusable(message, version.get());
+
+      if (!reusableContext) {
+         context.clear();
+      }
+
       /* This is a special treatment for scaled-down messages involving SnF queues.
        * See org.apache.activemq.artemis.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
        */
@@ -310,6 +316,7 @@ public final class BindingsImpl implements Bindings {
             binding.getBindable().route(message, context);
             routed = true;
          }
+         context.setReusable(false);
       }
       if (!routed) {
          // Remove the ids now, in order to avoid double check
@@ -319,10 +326,10 @@ public final class BindingsImpl implements Bindings {
          SimpleString groupId = message.getGroupID();
 
          if (ids != null) {
-            context.clear();
+            context.clear().setReusable(false);
             routeFromCluster(message, context, ids);
          } else if (groupingHandler != null && groupRouting && groupId != null) {
-            context.clear();
+            context.clear().setReusable(false);
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
          } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
             Binding theBinding = bindingsNameMap.get(CompositeAddress.extractQueueName(message.getAddressSimpleString()));
@@ -331,9 +338,8 @@ public final class BindingsImpl implements Bindings {
             }
          } else {
             // in a optimization, we are reusing the previous context if everything is right for it
-            // so the simpleRouting will only happen if neededk
-            if (!context.isReusable(message, version.get())) {
-               context.clear();
+            // so the simpleRouting will only happen if needed
+            if (!reusableContext) {
                simpleRouting(message, context);
             }
          }
