@@ -412,6 +412,11 @@ public class ChannelImplTest {
             }
 
             @Override
+            public boolean isDirectDeliver() {
+               return false;
+            }
+
+            @Override
             public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
                return null;
             }

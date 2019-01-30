@@ -86,7 +86,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAS
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -192,11 +191,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       // use the same executor
       this.packetActor = new Actor<>(callExecutor, this::onMessagePacket);
 
-      if (conn instanceof NettyConnection) {
-         direct = ((NettyConnection) conn).isDirectDeliver();
-      } else {
-         direct = false;
-      }
+      this.direct = conn.isDirectDeliver();
    }
 
    private void clearLargeMessage() {
