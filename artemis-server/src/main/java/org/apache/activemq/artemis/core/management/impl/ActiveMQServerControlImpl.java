@@ -30,6 +30,7 @@ import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,8 +119,10 @@ import org.apache.activemq.artemis.core.transaction.TransactionDetailFactory;
 import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ListUtil;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
@@ -2956,5 +2959,52 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       this.broadcaster.sendNotification(new Notification(type.toString(), this, notifSeq.incrementAndGet(), notification.toString()));
    }
 
+   @Override
+   public void addUser(String username, String password, String roles, boolean plaintext, String entryName) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+      config.addNewUser(username, plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles.split(","));
+      config.save();
+   }
+
+   @Override
+   public String listUser(String username, String entryName) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+      Map<String, Set<String>> info = config.listUser(username);
+      JsonArrayBuilder users = JsonLoader.createArrayBuilder();
+      for (Entry<String, Set<String>> entry : info.entrySet()) {
+         JsonObjectBuilder user = JsonLoader.createObjectBuilder();
+         user.add("username", entry.getKey());
+         JsonArrayBuilder roles = JsonLoader.createArrayBuilder();
+         for (String role : entry.getValue()) {
+            roles.add(role);
+         }
+         user.add("roles", roles);
+         users.add(user);
+      }
+      return users.build().toString();
+   }
+
+   @Override
+   public void removeUser(String username, String entryName) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+      config.removeUser(username);
+      config.save();
+   }
+
+   @Override
+   public void resetUser(String username, String password, String roles, String entryName) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+      config.updateUser(username, password, roles == null ? null : roles.split(","));
+      config.save();
+   }
+
+   private PropertiesLoginModuleConfigurator getPropertiesLoginModuleConfigurator(String entryName) throws Exception {
+      URL configurationUrl = server.getConfiguration().getConfigurationUrl();
+      if (configurationUrl == null) {
+         throw ActiveMQMessageBundle.BUNDLE.failedToLocateConfigURL();
+      }
+      String path = configurationUrl.getPath();
+      return new PropertiesLoginModuleConfigurator(entryName, path.substring(0, path.lastIndexOf("/")));
+   }
 }
 

@@ -546,6 +546,17 @@ users=system,user
 guests=guest
 ```
 
+As mentioned above, the Artemis command-line interface supports a command to
+`add` a user. Commands to `list` (one or all) users, `remove` a user, and `reset`
+a user's password and/or role(s) are also supported via the command-line
+interface as well as the normal management interfaces (e.g. JMX, web console,
+etc.).
+
+> **Warning**
+>
+> Management and CLI operations to manipulate user & role data are only available
+> when using the `PropertiesLoginModule`.
+
 #### LDAPLoginModule
 
 The LDAP login module enables you to perform authentication and authorization

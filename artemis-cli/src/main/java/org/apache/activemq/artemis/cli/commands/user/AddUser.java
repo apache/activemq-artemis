@@ -20,6 +20,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -53,7 +54,7 @@ public class AddUser extends PasswordAction {
     * @throws IllegalArgumentException if user exists
     */
    private void add(String hash, String... role) throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
+      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
       config.addNewUser(username, hash, role);
       config.save();
       context.out.println("User added successfully.");
