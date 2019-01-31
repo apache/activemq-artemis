@@ -360,79 +360,125 @@ JNIEXPORT jboolean JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContex
     return flock(handle, LOCK_EX | LOCK_NB) == 0;
 }
 
+
+/**
+ * Destroys the individual members of the IOCB pool
+ * @param theControl the IO Control structure containing an IOCB pool
+ * @param upperBound the number of elements contained within the pool
+ */
+static inline void iocb_destroy_members(struct io_control * theControl, int upperBound) {
+    for (int i = 0; i < upperBound; i++) {
+        free(theControl->iocb[i]);
+    }
+}
+
+
+/**
+ * Destroys an IOCB pool and its members up to a certain limit. Should be used when the IOCB
+ * pool fails to initialize completely
+ * @param theControl the IO Control structure containing an IOCB pool
+ * @param upperBound the number of elements contained within the pool
+ */
+static inline void iocb_destroy_bounded(struct io_control * theControl, int upperBound) {
+    iocb_destroy_members(theControl, upperBound);
+    free(theControl->iocb);
+}
+
+
+/**
+ * Destroys an IOCB pool and all its members
+ * @param theControl
+ */
+static inline void iocb_destroy(struct io_control * theControl) {
+    iocb_destroy_bounded(theControl, theControl->queueSize);
+}
+
 /**
  * Everything that is allocated here will be freed at deleteContext when the class is unloaded.
  */
 JNIEXPORT jobject JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_newContext(JNIEnv* env, jobject thisObject, jint queueSize) {
-    io_context_t libaioContext;
     int i = 0;
 
     #ifdef DEBUG
         fprintf (stdout, "Initializing context\n");
     #endif
 
-    int res = io_queue_init(queueSize, &libaioContext);
-    if (res) {
-        // Error, so need to release whatever was done before
-        io_queue_release(libaioContext);
-
-        throwRuntimeExceptionErrorNo(env, "Cannot initialize queue:", res);
-        return NULL;
-    }
-
-    struct iocb ** iocb = (struct iocb **)malloc((sizeof(struct iocb *) * (size_t)queueSize));
-    if (iocb == NULL) {
-       throwOutOfMemoryError(env);
-       return NULL;
-    }
-
-    for (i = 0; i < queueSize; i++) {
-       iocb[i] = (struct iocb *)malloc(sizeof(struct iocb));
-       if (iocb[i] == NULL) {
-           // it's unlikely this would happen at this point
-           // for that reason I'm not cleaning up individual IOCBs here
-           // we could increase support here with a cleanup of any previously allocated iocb
-           // But I'm afraid of adding not needed complexity here
-           throwOutOfMemoryError(env);
-           return NULL;
-       }
-    }
-
-    struct io_control * theControl = (struct io_control *) malloc(sizeof(struct io_control));
+	struct io_control * theControl = (struct io_control *) malloc(sizeof(struct io_control));
     if (theControl == NULL) {
         throwOutOfMemoryError(env);
         return NULL;
     }
 
+	int res = io_queue_init(queueSize, &theControl->ioContext);
+	if (res) {
+		// Error, so need to release whatever was done before
+        io_queue_release(theControl->ioContext);
+        free(theControl);
+
+		throwRuntimeExceptionErrorNo(env, "Cannot initialize queue:", res);
+		return NULL;
+	}
+
+    theControl->iocb = (struct iocb **)malloc((sizeof(struct iocb *) * (size_t)queueSize));
+    if (theControl->iocb == NULL) {
+        io_queue_release(theControl->ioContext);
+        free(theControl);
+
+        throwOutOfMemoryError(env);
+        return NULL;
+    }
+
+    for (i = 0; i < queueSize; i++) {
+        theControl->iocb[i] = (struct iocb *)malloc(sizeof(struct iocb));
+        if (theControl->iocb[i] == NULL) {
+
+           // It may not have been fully initialized, therefore limit the cleanup up to 'i' members.
+           iocb_destroy_bounded(theControl, i);
+
+           io_queue_release(theControl->ioContext);
+           free(theControl);
+
+           throwOutOfMemoryError(env);
+           return NULL;
+       }
+    }
+    theControl->queueSize = queueSize;
+
+
     res = pthread_mutex_init(&(theControl->iocbLock), 0);
     if (res) {
+        iocb_destroy(theControl);
+
+        io_queue_release(theControl->ioContext);
         free(theControl);
-        io_queue_release(libaioContext);
+
         throwRuntimeExceptionErrorNo(env, "Can't initialize mutext:", res);
         return NULL;
     }
 
     res = pthread_mutex_init(&(theControl->pollLock), 0);
     if (res) {
+        iocb_destroy(theControl);
+
+        io_queue_release(theControl->ioContext);
         free(theControl);
-        io_queue_release(libaioContext);
+
         throwRuntimeExceptionErrorNo(env, "Can't initialize mutext:", res);
         return NULL;
     }
 
-    struct io_event * events = (struct io_event *)malloc(sizeof(struct io_event) * (size_t)queueSize);
-    if (events == NULL) {
+    theControl->events = (struct io_event *)malloc(sizeof(struct io_event) * (size_t)queueSize);
+    if (theControl->events == NULL) {
+        iocb_destroy(theControl);
+
+        io_queue_release(theControl->ioContext);
         free(theControl);
-        io_queue_release(libaioContext);
 
         throwRuntimeExceptionErrorNo(env, "Can't initialize mutext (not enough memory for the events member): ", res);
         return NULL;
     }
 
-    theControl->ioContext = libaioContext;
-    theControl->events = events;
-    theControl->iocb = iocb;
-    theControl->queueSize = queueSize;
+
     theControl->iocbPut = 0;
     theControl->iocbGet = 0;
     theControl->used = 0;
@@ -479,14 +525,10 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_de
     pthread_mutex_destroy(&(theControl->pollLock));
     pthread_mutex_destroy(&(theControl->iocbLock));
 
-    // Releasing each individual iocb
-    for (i = 0; i < theControl->queueSize; i++) {
-       free(theControl->iocb[i]);
-    }
+    iocb_destroy(theControl);
 
     (*env)->DeleteGlobalRef(env, theControl->thisObject);
 
-    free(theControl->iocb);
     free(theControl->events);
     free(theControl);
 }
