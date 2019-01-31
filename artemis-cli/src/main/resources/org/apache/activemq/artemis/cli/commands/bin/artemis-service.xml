@@ -33,39 +33,58 @@
    <logmode>roll</logmode>
 
    <executable>%JAVA_HOME%\bin\java.exe</executable>
-   <argument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</argument>
-   <argument>-XX:+UseParallelGC</argument>
-   <argument>-Xms512M</argument>
-   <argument>-Xmx1024M</argument>
+   <startargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</startargument>
+   <startargument>-XX:+UseParallelGC</startargument>
+   <startargument>-Xms512M</startargument>
+   <startargument>-Xmx1024M</startargument>
 
-   <!-- Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
-   <argument>-Dartemis.remoting.default.port=61617</argument>
-   <argument>-Dartemis.remoting.amqp.port=5673</argument>
-   <argument>-Dartemis.remoting.stomp.port=61614</argument>
-   <argument>-Dartemis.remoting.hornetq.port=5446</argument>
+   <!-- Cluster Properties: Used to pass startarguments to ActiveMQ Artemis which can be referenced in broker.xml
+   <startargument>-Dartemis.remoting.default.port=61617</startargument>
+   <startargument>-Dartemis.remoting.amqp.port=5673</startargument>
+   <startargument>-Dartemis.remoting.stomp.port=61614</startargument>
+   <startargument>-Dartemis.remoting.hornetq.port=5446</startargument>
    -->
 
-   <argument>-classpath</argument>
-   <argument>%ARTEMIS_HOME%\lib\artemis-boot.jar</argument>
-   <argument>-Dartemis.home=%ARTEMIS_HOME%</argument>
-   <argument>-Dartemis.instance=%ARTEMIS_INSTANCE%</argument>
-   <argument>-Ddata.dir=%ARTEMIS_DATA_DIR%</argument>
-   <argument>-Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"</argument>
-   <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
-   <argument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</argument>
-   <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config</argument>
-   <argument>-Dhawtio.realm=activemq</argument>
-   <argument>-Dhawtio.offline="true"</argument>
-   <argument>-Dhawtio.role=${role}</argument>
-   <argument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</argument>
-   <argument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</argument>
+   <startargument>-classpath</startargument>
+   <startargument>%ARTEMIS_HOME%\lib\artemis-boot.jar</startargument>
+   <startargument>-Dartemis.home=%ARTEMIS_HOME%</startargument>
+   <startargument>-Dartemis.instance=%ARTEMIS_INSTANCE%</startargument>
+   <startargument>-Ddata.dir=%ARTEMIS_DATA_DIR%</startargument>
+   <startargument>-Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"</startargument>
+   <startargument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</startargument>
+   <startargument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</startargument>
+   <startargument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config</startargument>
+   <startargument>-Dhawtio.realm=activemq</startargument>
+   <startargument>-Dhawtio.offline="true"</startargument>
+   <startargument>-Dhawtio.role=${role}</startargument>
+   <startargument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</startargument>
+   <startargument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</startargument>
 
    <!-- Debug args: Uncomment to enable debug
-   <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>
+   <startargument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</startargument>
    -->
 
-   <argument>org.apache.activemq.artemis.boot.Artemis</argument>
+   <startargument>org.apache.activemq.artemis.boot.Artemis</startargument>
 
-   <argument>run</argument>
+   <startargument>run</startargument>
+
+   <stopexecutable>%JAVA_HOME%\bin\java.exe</stopexecutable>
+   <stopargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</stopargument>
+   <stopargument>-XX:+UseParallelGC</stopargument>
+   <stopargument>-Xms512M</stopargument>
+   <stopargument>-Xmx1024M</stopargument>
+
+   <stopargument>-classpath</stopargument>
+   <stopargument>%ARTEMIS_HOME%\lib\artemis-boot.jar</stopargument>
+   <stopargument>-Dartemis.home=%ARTEMIS_HOME%</stopargument>
+   <stopargument>-Dartemis.instance=%ARTEMIS_INSTANCE%</stopargument>
+   <stopargument>-Ddata.dir=%ARTEMIS_DATA_DIR%</stopargument>
+   <stopargument>-Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"</stopargument>
+   <stopargument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</stopargument>
+   <stopargument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</stopargument>
+
+   <stopargument>org.apache.activemq.artemis.boot.Artemis</stopargument>
+
+   <stopargument>stop</stopargument>
 
 </service>
