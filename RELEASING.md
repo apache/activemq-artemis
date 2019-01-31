@@ -51,7 +51,7 @@ Before starting make sure you clone a brand new git as follows as the release pl
 ```sh
 git clone git://github.com/apache/activemq-artemis.git
 cd activemq-artemis
-git remote add upstream https://git-wip-us.apache.org/repos/asf/activemq-artemis.git
+git remote add upstream https://gitbox.apache.org/repos/asf/activemq-artemis.git
 ```
 
 If your git `user.email` and/or `user.name` are not set globally then you'll need to set these on the newly clone 
@@ -222,7 +222,7 @@ In case you want to give it a try with the maven repo on examples:
 http://activemq.apache.org/artemis/docs/latest/hacking-guide/validating-releases.html
 
 The source tag:
-https://git-wip-us.apache.org/repos/asf?p=activemq-artemis.git;a=tag;h=refs/tags/<version>
+https://gitbox.apache.org/repos/asf/activemq-artemis.git;a=tag;h=refs/tags/<version>
 
 I will update the website after the vote has passed.
 

@@ -1,6 +1,6 @@
 # Working with the Code
 
-While the canonical Apache ActiveMQ Artemis git repository is hosted on Apache hardware at https://git-wip-us.apache.org/repos/asf?p=activemq-artemis.git
+While the canonical Apache ActiveMQ Artemis git repository is hosted on Apache hardware at https://gitbox.apache.org/repos/asf/activemq-artemis.git
 contributors are encouraged (but not required) to use a mirror on GitHub for collaboration and pull-request review
 functionality. Follow the steps below to get set up with GitHub, etc.
 

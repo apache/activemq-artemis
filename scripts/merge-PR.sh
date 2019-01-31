@@ -26,7 +26,7 @@ set -e
 #
 # - origin being your github fork:: https://github.com/YOU/activemq-artemis.git
 # - upstream being the github fork for apache:: https://github.com/apache/activemq-artemis.git
-# - apache being the apache origin:: https://git-wip-us.apache.org/repos/asf/activemq-artemis.git
+# - apache being the apache origin:: https://gitbox.apache.org/repos/asf/activemq-artemis.git
 #
 # Notice: you should add +refs/pull/*/head to your fetch config on upstream
 #        as specified on https://github.com/apache/activemq-artemis/blob/master/docs/hacking-guide/en/maintainers.md
