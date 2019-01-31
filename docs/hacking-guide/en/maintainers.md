@@ -45,7 +45,7 @@ let's assume these ref/repo associations already exist as described in the [Work
 
 1. Add the canonical Apache repository as a remote. Here we call it `apache`.
 
-        $ git remote add apache https://git-wip-us.apache.org/repos/asf/activemq-artemis.git
+        $ git remote add apache https://gitbox.apache.org/repos/asf/activemq-artemis.git
 
 1. Add the following section to your <artemis-repo>/.git/config statement to fetch all pull requests sent to the GitHub
    mirror.  We are using `upstream` as the remote repo name (as noted above), but the remote repo name may be different
