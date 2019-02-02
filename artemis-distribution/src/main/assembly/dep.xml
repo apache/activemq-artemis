@@ -207,6 +207,7 @@
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
             <exclude>**/licenses/**</exclude>
+            <exclude>docker/**</exclude>
          </excludes>
       </fileSet>
       <!-- chmod to 755 on linux executables -->
