@@ -72,5 +72,4 @@
 * [Maven Plugin](maven-plugin.md)
 * [Unit Testing](unit-testing.md)
 * [Troubleshooting and Performance Tuning](perf-tuning.md)
-* [Docker support](docker.md)
 * [Configuration Reference](configuration-index.md)

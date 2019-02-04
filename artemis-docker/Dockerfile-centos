@@ -17,9 +17,8 @@
 
 # ActiveMQ Artemis
 
-FROM openjdk:8
+FROM jboss/base-jdk:8
 LABEL maintainer="Apache ActiveMQ Team"
-LABEL ARTEMIS_VERSION="2.7.0-SNAPSHOT"
 # Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /opt
@@ -29,17 +28,17 @@ ENV ARTEMIS_PASSWORD artemis
 ENV ANONYMOUS_LOGIN false
 ENV CREATE_ARGUMENTS --user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent --http-host 0.0.0.0 --relax-jolokia
 
-# add user and group for artemis
-RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis
+USER root
 
-RUN apt-get -qq -o=Dpkg::Use-Pty=0 update && \
-  apt-get -qq -o=Dpkg::Use-Pty=0 install -y --no-install-recommends \
-    libaio1=0.3.110-3 && \
-    rm -rf /var/lib/apt/lists/*
+# add user and group for artemis
+RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis
+
+RUN yum install -y libaio && \
+    yum -y clean all
 
 USER artemis
 
-COPY "/opt/activemq-artemis/" "/opt/activemq-artemis"
+ADD . /opt/activemq-artemis
 
 # Web Server
 EXPOSE 8161 \
@@ -60,7 +59,7 @@ USER root
 
 RUN mkdir /var/lib/artemis-instance && chown -R artemis.artemis /var/lib/artemis-instance
 
-COPY assets/docker-entrypoint.sh /
+COPY ./examples/docker/docker-run.sh /
 
 USER artemis
 
@@ -68,5 +67,5 @@ USER artemis
 VOLUME ["/var/lib/artemis-instance"]
 WORKDIR /var/lib/artemis-instance
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-run.sh"]
 CMD ["artemis-server"]
