@@ -14,9 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.boot;
+package org.apache.activemq.artemis.component;
 
 import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 
 /**
  * This class is used to remove the jar files
@@ -26,10 +31,7 @@ import java.io.File;
  */
 public class WebTmpCleaner {
 
-   public static void main(String[] args) throws Exception {
-
-      String[] filesToClean = args[0].split(",");
-
+   public static void main(String[] filesToClean) throws Exception {
       //It needs to retry a bit as we are not sure
       //when the main VM exists.
       boolean allCleaned = false;
@@ -38,9 +40,10 @@ public class WebTmpCleaner {
          allCleaned = true;
          for (String f : filesToClean) {
             if (!f.trim().isEmpty()) {
-               File file = new File(f);
+               URI url = new URI(f);
+               File file = new File(url);
                if (file.exists()) {
-                  deleteFile(file);
+                  deleteFolder(file);
                   allCleaned = false;
                }
             }
@@ -49,13 +52,22 @@ public class WebTmpCleaner {
       }
    }
 
+   public static Process cleanupTmpFiles(File libFolder, List<File> temporaryFiles) throws Exception {
+      ArrayList<String> files = new ArrayList<>(temporaryFiles.size());
+      for (File f : temporaryFiles) {
+         files.add(f.toURI().toString());
+      }
 
-   public static final void deleteFile(final File file) {
+      String classPath = SpawnedVMSupport.getClassPath(libFolder);
+      return SpawnedVMSupport.spawnVM(classPath, WebTmpCleaner.class.getName(), false, (String[]) files.toArray(new String[files.size()]));
+   }
+
+   public static final void deleteFolder(final File file) {
       if (file.isDirectory()) {
          String[] files = file.list();
          for (String path : files) {
             File f = new File(file, path);
-            deleteFile(f);
+            deleteFolder(f);
          }
       }
       file.delete();

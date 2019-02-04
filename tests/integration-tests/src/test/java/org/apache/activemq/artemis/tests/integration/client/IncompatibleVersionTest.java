@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Assert;
