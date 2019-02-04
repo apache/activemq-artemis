@@ -17,6 +17,10 @@
 package org.apache.activemq.cli.test;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
+import org.apache.activemq.artemis.component.WebTmpCleaner;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -34,6 +39,7 @@ import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -102,6 +108,34 @@ public class WebServerCLITest {
          assertTrue(Wait.waitFor(() -> externalComponent.isStarted() == false, 3000, 100));
       }
       stopServer();
+   }
+
+
+   @Test
+   public void testCleanupFolder() throws Exception {
+      System.out.println("temporary folder = " + temporaryFolder.getRoot());
+      List<File> fileList = new ArrayList<>();
+      for (int i = 0; i < 10; i++) {
+         File directory =  temporaryFolder.newFolder("test & output " + i);
+         fillup(directory);
+      }
+      Process process = WebTmpCleaner.cleanupTmpFiles(null, fileList);
+      Assert.assertEquals(0, process.waitFor());
+      for (File f : fileList) {
+         Assert.assertFalse(f.exists());
+      }
+
+   }
+
+   private void fillup(File file) throws Exception {
+      System.out.println("Creating file " + file);
+      file.mkdirs();
+      for (int i = 0; i < 10; i++) {
+         File fi = new File(file, "file" + i + ".txt");
+         PrintStream str = new PrintStream(new FileOutputStream(fi));
+         str.println("hello");
+         str.close();
+      }
    }
 
    private void stopServer() throws Exception {

@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.paging;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 
 /**
  * This is a sub process of the test {@link PageCountSyncOnNonTXTest}
