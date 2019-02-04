@@ -19,7 +19,6 @@
 
 FROM openjdk:8
 LABEL maintainer="Apache ActiveMQ Team"
-LABEL ARTEMIS_VERSION="2.7.0-SNAPSHOT"
 # Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /opt
@@ -39,7 +38,7 @@ RUN apt-get -qq -o=Dpkg::Use-Pty=0 update && \
 
 USER artemis
 
-COPY "/opt/activemq-artemis/" "/opt/activemq-artemis"
+ADD . /opt/activemq-artemis
 
 # Web Server
 EXPOSE 8161 \
@@ -60,7 +59,7 @@ USER root
 
 RUN mkdir /var/lib/artemis-instance && chown -R artemis.artemis /var/lib/artemis-instance
 
-COPY assets/docker-entrypoint.sh /
+COPY ./docker/docker-run.sh /
 
 USER artemis
 
@@ -68,5 +67,5 @@ USER artemis
 VOLUME ["/var/lib/artemis-instance"]
 WORKDIR /var/lib/artemis-instance
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-run.sh"]
 CMD ["artemis-server"]

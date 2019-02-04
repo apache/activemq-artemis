@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,20 +16,41 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Setting the script to fail if anything goes wrong
 set -e
 
-BROKER_HOME=/var/lib/
-CONFIG_PATH=$BROKER_HOME/etc
-export BROKER_HOME OVERRIDE_PATH CONFIG_PATH
+#This is a script to Prepare an artemis folder to generate the Release.
 
-echo CREATE_ARGUMENTS=${CREATE_ARGUMENTS}
 
-if ! [ -f ./etc/broker.xml ]; then
-    /opt/activemq-artemis/bin/artemis create ${CREATE_ARGUMENTS} .
-else
-    echo "broker already created, ignoring creation"
+error () {
+   echo ""
+   echo "$@"
+   echo ""
+   echo "Usage: ./prepare-docker.sh ARTEMIS_HOME_LOCATION"
+   echo ""
+   echo "example:"
+   echo "./prepare-release.sh https://repo1.maven.org/maven2 2.5.0"
+   echo ""
+   exit 64
+}
+
+if [ ! "$#" -eq 1 ]
+then
+   error "Cannot match arguments"
 fi
 
-./bin/artemis run
+target=$1
 
+if [ ! -d $target ]
+then
+  error "Directory $target does not exist"
+fi
 
+if [ -d $target/docker ]
+then
+  rm -rf $target/docker
+fi
+mkdir $target/docker
+cp * $target/docker
+
+echo "Docker file support files at : $target/docker"

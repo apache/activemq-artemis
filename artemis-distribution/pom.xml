@@ -264,17 +264,6 @@
                      <goal>single</goal>
                   </goals>
                </execution>
-               <execution>
-                  <id>docker</id>
-                  <configuration>
-                     <descriptor>src/main/assembly/docker-assembly.xml</descriptor>
-                     <tarLongFileMode>gnu</tarLongFileMode>
-                  </configuration>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>single</goal>
-                  </goals>
-               </execution>
             </executions>
          </plugin>
       </plugins>
