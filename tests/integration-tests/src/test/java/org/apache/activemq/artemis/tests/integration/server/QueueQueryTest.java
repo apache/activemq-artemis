@@ -161,14 +161,14 @@ public class QueueQueryTest extends ActiveMQTestBase {
          QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
          assertEquals(queueName, queueQueryResult.getName());
          assertEquals(addressName, queueQueryResult.getAddress());
-         Wait.assertEquals(1, server.queueQuery(fqqn)::getMessageCount);
+         Wait.assertEquals(1, () -> server.queueQuery(fqqn).getMessageCount());
          queueQueryResult = server.queueQuery(queueName);
          assertEquals(queueName, queueQueryResult.getName());
          assertEquals(addressName, queueQueryResult.getAddress());
          assertEquals(1, queueQueryResult.getMessageCount());
          c.createProducer().send(c.createQueue(addressName.toString()), c.createMessage());
-         Wait.assertEquals(2, server.queueQuery(fqqn)::getMessageCount);
-         Wait.assertEquals(2, server.queueQuery(queueName)::getMessageCount);
+         Wait.assertEquals(2, () -> server.queueQuery(fqqn).getMessageCount());
+         Wait.assertEquals(2, () -> server.queueQuery(queueName).getMessageCount());
       }
    }
 
