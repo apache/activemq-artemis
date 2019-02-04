@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Test;
 

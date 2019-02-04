@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.util;
 
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.rules.ExternalResource;
 
 public class SpawnedVMCheck extends ExternalResource {
