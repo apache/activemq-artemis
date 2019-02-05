@@ -112,11 +112,12 @@ import org.jboss.logging.Logger;
  */
 public class QueueImpl extends CriticalComponentImpl implements Queue {
 
-   protected static final int CRITICAL_PATHS = 4;
+   protected static final int CRITICAL_PATHS = 5;
    protected static final int CRITICAL_PATH_ADD_TAIL = 0;
    protected static final int CRITICAL_PATH_ADD_HEAD = 1;
    protected static final int CRITICAL_DELIVER = 2;
    protected static final int CRITICAL_CONSUMER = 3;
+   protected static final int CRITICAL_CHECK_DEPAGE = 4;
 
    private static final Logger logger = Logger.getLogger(QueueImpl.class);
    private static final AtomicIntegerFieldUpdater dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
@@ -3433,7 +3434,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (needCheckDepage) {
-               checkDepage();
+               enterCritical(CRITICAL_CHECK_DEPAGE);
+               try {
+                  checkDepage();
+               } finally {
+                  leaveCritical(CRITICAL_CHECK_DEPAGE);
+               }
             }
 
          } catch (Exception e) {
