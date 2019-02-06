@@ -14,35 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.util;
+package org.apache.activemq.artemis.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.Assert;
+import org.jboss.logging.Logger;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-public final class SpawnedVMSupport {
+public class SpawnedVMSupport {
 
    static ConcurrentHashMap<Process, String> startedProcesses = null;
 
-   private static final UnitTestLogger log = UnitTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(SpawnedVMSupport.class);
 
    public static Process spawnVM(final String className, final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, new String[0], true, args);
@@ -52,6 +43,12 @@ public final class SpawnedVMSupport {
                                  final boolean logOutput,
                                  final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, new String[0], logOutput, args);
+   }
+   public static Process spawnVM(final String classPath,
+                                 final String className,
+                                 final boolean logOutput,
+                                 final String... args) throws Exception {
+      return SpawnedVMSupport.spawnVM(classPath, className, new String[0], logOutput, args);
    }
 
    public static Process spawnVM(final String className, final String[] vmargs, final String... args) throws Exception {
@@ -63,6 +60,14 @@ public final class SpawnedVMSupport {
                                  final boolean logOutput,
                                  final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
+   }
+
+   public static Process spawnVM(final String classpath,
+                                 final String className,
+                                 final String[] vmargs,
+                                 final boolean logOutput,
+                                 final String... args) throws Exception {
+      return SpawnedVMSupport.spawnVM(classpath, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
    }
 
    public static Process spawnVMWithLogMacher(String wordMatch,
@@ -85,6 +90,18 @@ public final class SpawnedVMSupport {
       return spawnVM(null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
    }
 
+   public static Process spawnVM(final String classPath,
+                                 final String className,
+                                 final String memoryArg1,
+                                 final String memoryArg2,
+                                 final String[] vmargs,
+                                 final boolean logOutput,
+                                 final boolean logErrorOutput,
+                                 final boolean useLogging,
+                                 final String... args) throws Exception {
+      return spawnVM(classPath, null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
+   }
+
    public static Process spawnVM(final String wordMatch,
                                  final Runnable wordRunning,
                                  final String className,
@@ -95,7 +112,7 @@ public final class SpawnedVMSupport {
                                  final boolean logErrorOutput,
                                  final boolean useLogging,
                                  final String... args) throws Exception {
-      return spawnVM(System.getProperty("java.class.path"), wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
+      return spawnVM(getClassPath(), wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
 
    }
 
@@ -111,6 +128,30 @@ public final class SpawnedVMSupport {
                                  boolean useLogging,
                                  String... args) throws IOException, ClassNotFoundException {
       return spawnVM(classPath, wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, -1, args);
+   }
+
+   public static String getClassPath() {
+      return System.getProperty("java.class.path");
+   }
+
+   public static String getClassPath(File libfolder) {
+      if (libfolder == null) {
+         return getClassPath();
+      }
+
+      StringBuilder stringBuilder = new StringBuilder();
+      boolean empty = true;
+      for (File f : libfolder.listFiles()) {
+         if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
+            if (!empty) {
+               stringBuilder.append(File.pathSeparator);
+            }
+            empty = false;
+            stringBuilder.append(f.toString());
+         }
+      }
+
+      return stringBuilder.toString();
    }
 
    /**
@@ -259,7 +300,10 @@ public final class SpawnedVMSupport {
       startedProcesses = new ConcurrentHashMap<>();
    }
 
-   public static void checkProcess() {
+   /**
+    * Check if all spawned processes are finished.
+    */
+   public static boolean checkProcess() {
 
       HashSet<Process> aliveProcess = getAliveProcesses();
 
@@ -270,11 +314,13 @@ public final class SpawnedVMSupport {
                alive.destroyForcibly();
                buffer.append(startedProcesses.get(alive) + " ");
             }
-            Assert.fail("There are " + aliveProcess.size() + " processes alive :: " + buffer.toString());
+            return false;
          }
       } finally {
          startedProcesses = null;
       }
+
+      return true;
    }
 
    /**
@@ -298,36 +344,6 @@ public final class SpawnedVMSupport {
     */
    public static void startLogger(final String className, final Process process) throws ClassNotFoundException {
       startLogger(true, null, null, className, process);
-   }
-
-   /**
-    * Assert that a process exits with the expected value (or not depending if
-    * the <code>sameValue</code> is expected or not). The method waits 5
-    * seconds for the process to exit, then an Exception is thrown. In any case,
-    * the process is destroyed before the method returns.
-    */
-   public static void assertProcessExits(final boolean sameValue,
-                                         final int value,
-                                         final Process p) throws InterruptedException, ExecutionException, TimeoutException {
-      ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory());
-      Future<Integer> future = executor.submit(new Callable<Integer>() {
-
-         @Override
-         public Integer call() throws Exception {
-            p.waitFor();
-            return p.exitValue();
-         }
-      });
-      try {
-         int exitValue = future.get(10, SECONDS);
-         if (sameValue) {
-            Assert.assertSame(value, exitValue);
-         } else {
-            Assert.assertNotSame(value, exitValue);
-         }
-      } finally {
-         p.destroy();
-      }
    }
 
    /**
