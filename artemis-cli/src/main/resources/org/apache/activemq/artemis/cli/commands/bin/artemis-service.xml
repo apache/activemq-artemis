@@ -50,7 +50,7 @@
    <startargument>-Dartemis.home=%ARTEMIS_HOME%</startargument>
    <startargument>-Dartemis.instance=%ARTEMIS_INSTANCE%</startargument>
    <startargument>-Ddata.dir=%ARTEMIS_DATA_DIR%</startargument>
-   <startargument>-Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"</startargument>
+   <startargument>-Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%</startargument>
    <startargument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</startargument>
    <startargument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</startargument>
    <startargument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config</startargument>
