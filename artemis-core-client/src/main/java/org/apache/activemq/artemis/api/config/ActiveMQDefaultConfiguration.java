@@ -467,7 +467,7 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
-   public static final int DEFAULT_MAX_DISK_USAGE = 100;
+   public static final int DEFAULT_MAX_DISK_USAGE = 90;
 
    public static final int DEFAULT_DISK_SCAN = 5000;
 
