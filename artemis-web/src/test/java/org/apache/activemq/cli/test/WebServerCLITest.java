@@ -18,7 +18,6 @@ package org.apache.activemq.cli.test;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +112,6 @@ public class WebServerCLITest {
 
    @Test
    public void testCleanupFolder() throws Exception {
-      System.out.println("temporary folder = " + temporaryFolder.getRoot());
       List<File> fileList = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          File directory =  temporaryFolder.newFolder("test & output " + i);
@@ -128,7 +126,6 @@ public class WebServerCLITest {
    }
 
    private void fillup(File file) throws Exception {
-      System.out.println("Creating file " + file);
       file.mkdirs();
       for (int i = 0; i < 10; i++) {
          File fi = new File(file, "file" + i + ".txt");
