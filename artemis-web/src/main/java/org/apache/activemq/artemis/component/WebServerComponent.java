@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
-import org.apache.activemq.artemis.utils.FileUtil;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -60,12 +59,11 @@ public class WebServerComponent implements ExternalComponent {
    private String consoleUrl;
    private List<WebAppContext> webContexts;
    private ServerConnector connector;
-   private String artemisHome;
+   private Path artemisHomePath;
 
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
       webServerConfig = (WebServerDTO) config;
-      this.artemisHome = artemisHome;
       uri = new URI(webServerConfig.bind);
       server = new Server();
       String scheme = uri.getScheme();
@@ -104,7 +102,8 @@ public class WebServerComponent implements ExternalComponent {
 
       handlers = new HandlerList();
 
-      Path homeWarDir = Paths.get(artemisHome != null ? artemisHome : ".").resolve(webServerConfig.path).toAbsolutePath();
+      this.artemisHomePath = Paths.get(artemisHome != null ? artemisHome : ".");
+      Path homeWarDir = artemisHomePath.resolve(webServerConfig.path).toAbsolutePath();
       Path instanceWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve(webServerConfig.path).toAbsolutePath();
 
       if (webServerConfig.apps != null && webServerConfig.apps.size() > 0) {
@@ -236,41 +235,30 @@ public class WebServerComponent implements ExternalComponent {
    }
 
    public void internalStop() throws Exception {
+      System.out.println("Stopping");
       server.stop();
       if (webContexts != null) {
-
-         File tmpdir = null;
-         StringBuilder strBuilder = new StringBuilder();
-         boolean found = false;
-         for (WebAppContext context : webContexts) {
-            tmpdir = context.getTempDirectory();
-
-            if (tmpdir != null && tmpdir.exists() && !context.isPersistTempDirectory()) {
-               //tmpdir will be removed by deleteOnExit()
-               //However because the URLClassLoader never release/close its opened
-               //jars the jar file won't be able to get deleted on Windows platform
-               //until after the process fully terminated. To fix this here arranges
-               //a separate process to try clean up the temp dir
-               FileUtil.deleteDirectory(tmpdir);
-               if (tmpdir.exists()) {
-                  ActiveMQWebLogger.LOGGER.tmpFileNotDeleted(tmpdir);
-                  strBuilder.append(tmpdir);
-                  strBuilder.append(",");
-                  found = true;
-               }
-            }
-         }
-
-         if (found) {
-            String bootJar = artemisHome + File.separator + "lib" + File.separator + "artemis-boot.jar";
-
-            String[] command = {"java", "-cp", bootJar, "org.apache.activemq.artemis.boot.WebTmpCleaner", strBuilder.toString()};
-            ProcessBuilder pb = new ProcessBuilder(command);
-
-            pb.start();
-         }
+         cleanupWebTemporaryFiles(webContexts);
 
          webContexts.clear();
+      }
+   }
+
+   private File getLibFolder() {
+      Path lib = artemisHomePath.resolve("lib");
+      File libFolder = new File(lib.toUri());
+      return libFolder;
+   }
+
+   public void cleanupWebTemporaryFiles(List<WebAppContext> webContexts) throws Exception {
+      List<File> temporaryFiles = new ArrayList<>();
+      for (WebAppContext context : webContexts) {
+         File tmpdir = context.getTempDirectory();
+         temporaryFiles.add(tmpdir);
+      }
+
+      if (!temporaryFiles.isEmpty()) {
+         WebTmpCleaner.cleanupTmpFiles(getLibFolder(), temporaryFiles);
       }
    }
 
