@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 
 /**
  * list existing users, example:
@@ -42,11 +44,24 @@ public class ListUser extends UserAction {
     * if username is not specified
     */
    private void list() throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
-      List<String> result = config.listUser(username);
-      for (String str : result) {
-         context.out.println(str);
+      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
+      Map<String, Set<String>> result = config.listUser(username);
+      StringBuilder logMessage = new StringBuilder("--- \"user\"(roles) ---\n");
+      int userCount = 0;
+      for (Map.Entry<String, Set<String>> entry : result.entrySet()) {
+         logMessage.append("\"").append(entry.getKey()).append("\"(");
+         int roleCount = 0;
+         for (String role : entry.getValue()) {
+            logMessage.append(role);
+            if (++roleCount < entry.getValue().size()) {
+               logMessage.append(",");
+            }
+         }
+         logMessage.append(")\n");
+         userCount++;
       }
+      logMessage.append("\n Total: ").append(userCount);
+      context.out.println(logMessage);
    }
 
 }

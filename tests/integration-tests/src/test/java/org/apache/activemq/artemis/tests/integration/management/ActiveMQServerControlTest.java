@@ -2683,6 +2683,46 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
    }
 
+   @Test
+   public void testAddUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.addUser("x", "x", "x", true, "x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testRemoveUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.removeUser("x", "x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testListUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.listUser("x", "x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testResetUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.resetUser("x","x","x", "x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");

@@ -50,7 +50,7 @@ set JAVA_ARGS=-XX:+UseParallelGC -Xms512M -Xmx1024M
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
 if not "%ARTEMIS_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ARTEMIS_CLUSTER_PROPS%
-set JVM_ARGS=%JVM_ARGS% -classpath %ARTEMIS_HOME%\lib\artemis-boot.jar
+set JVM_ARGS=%JVM_ARGS% -classpath %ARTEMIS_HOME%\lib\*
 set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
 
