@@ -649,8 +649,8 @@ public class NettyConnector extends AbstractConnector {
       SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
          @Override
          public SSLEngine run() {
-            if (verifyHost) {
-               return context.createSSLEngine(sniHost != null ? sniHost : host, port);
+            if (host != null && port != -1) {
+               return context.createSSLEngine(host, port);
             } else {
                return context.createSSLEngine();
             }
@@ -690,8 +690,8 @@ public class NettyConnector extends AbstractConnector {
       SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
          @Override
          public SSLEngine run() {
-            if (verifyHost) {
-               return context.newEngine(alloc, sniHost != null ? sniHost : host, port);
+            if (host != null && port != -1) {
+               return context.newEngine(alloc, host, port);
             } else {
                return context.newEngine(alloc);
             }
