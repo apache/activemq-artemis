@@ -2538,7 +2538,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private List<Queue> listConfiguredQueues(SimpleString address) throws Exception {
-      return listQueues(address).stream().filter(queue -> !queue.isAutoCreated() && !queue.isInternalQueue()).collect(Collectors.toList());
+      return listQueues(address).stream().filter(queue -> queue.isConfigurationManaged()).collect(Collectors.toList());
    }
 
    private List<Queue> listQueues(SimpleString address) throws Exception {
@@ -2597,7 +2597,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             int maxConsumer = (config.isMaxConsumerConfigured()) ? maxConsumerQueueConfig : maxConsumerAddressSetting;
             if (locateQueue(queueName) != null && locateQueue(queueName).getAddress().toString().equals(config.getAddress())) {
                updateQueue(config.getName(), config.getRoutingType(), maxConsumer, config.getPurgeOnNoConsumers(),
-                           config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive());
+                           config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive(), true);
             } else {
                // if the address::queue doesn't exist then create it
                try {
@@ -2605,7 +2605,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                               queueName, SimpleString.toSimpleString(config.getFilterString()), SimpleString.toSimpleString(config.getUser()),
                               config.isDurable(),false,false,false,false,maxConsumer,config.getPurgeOnNoConsumers(),
                               config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive(),
-                              config.isLastValue() == null ? as.isDefaultLastValueQueue() : config.isLastValue(), true);
+                              config.isLastValue() == null ? as.isDefaultLastValueQueue() : config.isLastValue(), true, true);
                } catch (ActiveMQQueueExistsException e) {
                   // the queue may exist on a *different* address
                   ActiveMQServerLogger.LOGGER.warn(e.getMessage());
@@ -2908,6 +2908,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean exclusive,
                             final boolean lastValue,
                             final boolean autoCreateAddress) throws Exception {
+      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, ignoreIfExists, transientQueue, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, autoCreateAddress, false);
+   }
+
+   private Queue createQueue(final SimpleString address,
+                            final RoutingType routingType,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final SimpleString user,
+                            final boolean durable,
+                            final boolean temporary,
+                            final boolean ignoreIfExists,
+                            final boolean transientQueue,
+                            final boolean autoCreated,
+                            final int maxConsumers,
+                            final boolean purgeOnNoConsumers,
+                            final boolean exclusive,
+                            final boolean lastValue,
+                            final boolean autoCreateAddress,
+                            final boolean configurationManaged) throws Exception {
 
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
       if (binding != null) {
@@ -2948,7 +2967,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, info.getName().toString(), info.getRoutingTypes());
       }
 
-      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).routingType(routingType).maxConsumers(maxConsumers).purgeOnNoConsumers(purgeOnNoConsumers).exclusive(exclusive).lastValue(lastValue).build();
+      final QueueConfig queueConfig = queueConfigBuilder
+              .filter(filter)
+              .pagingManager(pagingManager)
+              .user(user)
+              .durable(durable)
+              .temporary(temporary)
+              .autoCreated(autoCreated).routingType(routingType)
+              .maxConsumers(maxConsumers)
+              .purgeOnNoConsumers(purgeOnNoConsumers)
+              .exclusive(exclusive)
+              .lastValue(lastValue)
+              .configurationManaged(configurationManaged)
+              .build();
 
       callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateQueue(queueConfig) : null);
 
@@ -3013,7 +3044,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Integer maxConsumers,
                             Boolean purgeOnNoConsumers,
                             Boolean exclusive) throws Exception {
-      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers, exclusive);
+      return updateQueue(name, routingType, maxConsumers, purgeOnNoConsumers, exclusive, false);
+   }
+
+   private Queue updateQueue(String name,
+                            RoutingType routingType,
+                            Integer maxConsumers,
+                            Boolean purgeOnNoConsumers,
+                            Boolean exclusive,
+                            Boolean configurationManaged) throws Exception {
+      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, purgeOnNoConsumers, exclusive, configurationManaged);
       if (queueBinding != null) {
          final Queue queue = queueBinding.getQueue();
          return queue;

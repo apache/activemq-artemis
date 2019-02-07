@@ -40,6 +40,10 @@ public interface QueueBindingInfo {
 
    boolean isAutoCreated();
 
+   boolean isConfigurationManaged();
+
+   void setConfigurationManaged(boolean configurationManaged);
+
    SimpleString getUser();
 
    void addQueueStatusEncoding(QueueStatusEncoding status);

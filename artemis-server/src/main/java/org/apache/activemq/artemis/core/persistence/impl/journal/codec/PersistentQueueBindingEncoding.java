@@ -52,6 +52,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public byte routingType;
 
+   public boolean configurationManaged;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -78,6 +80,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          lastValue +
          ", routingType=" +
          routingType +
+         ", configurationManaged=" +
+         configurationManaged +
          "]";
    }
 
@@ -90,7 +94,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final boolean purgeOnNoConsumers,
                                          final boolean exclusive,
                                          final boolean lastValue,
-                                         final byte routingType) {
+                                         final byte routingType,
+                                         final boolean configurationManaged) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -101,6 +106,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.exclusive = exclusive;
       this.lastValue = lastValue;
       this.routingType = routingType;
+      this.configurationManaged = configurationManaged;
    }
 
    @Override
@@ -140,6 +146,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    @Override
    public boolean isAutoCreated() {
       return autoCreated;
+   }
+
+   @Override
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   @Override
+   public void setConfigurationManaged(boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
    }
 
    @Override
@@ -246,6 +262,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
       }
+      if (buffer.readableBytes() > 0) {
+         configurationManaged = buffer.readBoolean();
+      } else {
+         configurationManaged = false;
+      }
    }
 
    @Override
@@ -260,6 +281,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeByte(routingType);
       buffer.writeBoolean(exclusive);
       buffer.writeBoolean(lastValue);
+      buffer.writeBoolean(configurationManaged);
    }
 
    @Override
@@ -270,6 +292,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_INT +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BYTE +
+         DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN;
    }
