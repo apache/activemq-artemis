@@ -23,12 +23,16 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.jboss.logging.Logger;
 
 /**
  * Default values of ActiveMQ Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration {
-      /*
+
+   private static final Logger logger = Logger.getLogger(ActiveMQDefaultConfiguration.class);
+
+   /*
     * <p> In order to avoid compile time in-lining of constants, all access is done through methods
     * and all fields are PRIVATE STATIC but not FINAL. This is done following the recommendation at
     * <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html#jls-13.4.9">13.4.9.
@@ -467,7 +471,19 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
-   public static final int DEFAULT_MAX_DISK_USAGE = 90;
+   public static final int DEFAULT_MAX_DISK_USAGE;
+
+   static {
+      int maxDisk;
+      try {
+         maxDisk = Integer.parseInt(System.getProperty(ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix() + "maxDiskUsage", "90"));
+      } catch (Throwable e) {
+         // This is not really supposed to happen, so just logging it, just in case
+         logger.warn(e);
+         maxDisk = 90;
+      }
+      DEFAULT_MAX_DISK_USAGE = maxDisk;
+   }
 
    public static final int DEFAULT_DISK_SCAN = 5000;
 
