@@ -14,20 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.user;
+package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 
-class FileBasedSecStoreConfig {
+import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.ROLE_FILE_PROP_NAME;
+import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.USER_FILE_PROP_NAME;
+
+public class PropertiesLoginModuleConfigurator {
 
    private static final String LICENSE_HEADER =
            "## ---------------------------------------------------------------------------\n" +
@@ -51,80 +61,110 @@ class FileBasedSecStoreConfig {
    private PropertiesConfiguration userConfig;
    private PropertiesConfiguration roleConfig;
 
-   FileBasedSecStoreConfig(File userFile, File roleFile) throws Exception {
-      Configurations configs = new Configurations();
-      userBuilder = configs.propertiesBuilder(userFile);
-      roleBuilder = configs.propertiesBuilder(roleFile);
-      userConfig = userBuilder.getConfiguration();
-      roleConfig = roleBuilder.getConfiguration();
+   public PropertiesLoginModuleConfigurator(String entryName, String brokerEtc) throws Exception {
+      if (entryName == null || entryName.length() == 0) {
+         entryName = "activemq";
+      }
 
-      String roleHeader = roleConfig.getLayout().getHeaderComment();
-      String userHeader = userConfig.getLayout().getHeaderComment();
+      Configuration securityConfig = Configuration.getConfiguration();
+      AppConfigurationEntry[] entries = securityConfig.getAppConfigurationEntry(entryName);
 
-      if (userHeader == null) {
-         if (userConfig.isEmpty()) {
-            //clean and reset header
-            userConfig.clear();
-            userConfig.setHeader(LICENSE_HEADER);
+      if (entries == null || entries.length == 0) {
+         throw ActiveMQMessageBundle.BUNDLE.failedToLoadSecurityConfig();
+      }
+
+      int entriesInspected = 0;
+      for (AppConfigurationEntry entry : entries) {
+         entriesInspected++;
+         if (entry.getLoginModuleName().equals(PropertiesLoginModule.class.getName())) {
+            String userFileName = (String) entry.getOptions().get(USER_FILE_PROP_NAME);
+            String roleFileName = (String) entry.getOptions().get(ROLE_FILE_PROP_NAME);
+
+            File etcDir = new File(brokerEtc);
+            File userFile = new File(etcDir, userFileName);
+            File roleFile = new File(etcDir, roleFileName);
+
+            if (!userFile.exists()) {
+               throw ActiveMQMessageBundle.BUNDLE.failedToLoadUserFile(brokerEtc + userFileName);
+            }
+
+            if (!roleFile.exists()) {
+               throw ActiveMQMessageBundle.BUNDLE.failedToLoadRoleFile(brokerEtc + roleFileName);
+            }
+
+            Configurations configs = new Configurations();
+            userBuilder = configs.propertiesBuilder(userFile);
+            roleBuilder = configs.propertiesBuilder(roleFile);
+            userConfig = userBuilder.getConfiguration();
+            roleConfig = roleBuilder.getConfiguration();
+
+            String roleHeader = roleConfig.getLayout().getHeaderComment();
+            String userHeader = userConfig.getLayout().getHeaderComment();
+
+            if (userHeader == null) {
+               if (userConfig.isEmpty()) {
+                  //clean and reset header
+                  userConfig.clear();
+                  userConfig.setHeader(LICENSE_HEADER);
+               }
+            }
+
+            if (roleHeader == null) {
+               if (roleConfig.isEmpty()) {
+                  //clean and reset header
+                  roleConfig.clear();
+                  roleConfig.setHeader(LICENSE_HEADER);
+               }
+            }
+            return;
          }
       }
 
-      if (roleHeader == null) {
-         if (roleConfig.isEmpty()) {
-            //clean and reset header
-            roleConfig.clear();
-            roleConfig.setHeader(LICENSE_HEADER);
-         }
+      if (entriesInspected == entries.length) {
+         throw ActiveMQMessageBundle.BUNDLE.failedToFindLoginModuleEntry(entryName);
       }
    }
 
-   void addNewUser(String username, String hash, String... roles) throws Exception {
+   public void addNewUser(String username, String hash, String... roles) throws Exception {
       if (userConfig.getString(username) != null) {
-         throw new IllegalArgumentException("User already exist: " + username);
+         throw ActiveMQMessageBundle.BUNDLE.userAlreadyExists(username);
       }
       userConfig.addProperty(username, hash);
       addRoles(username, roles);
    }
 
-   void save() throws Exception {
+   public void save() throws Exception {
       userBuilder.save();
       roleBuilder.save();
    }
 
-   void removeUser(String username) throws Exception {
+   public void removeUser(String username) {
       if (userConfig.getProperty(username) == null) {
-         throw new IllegalArgumentException("user " + username + " doesn't exist.");
+         throw ActiveMQMessageBundle.BUNDLE.userDoesNotExist(username);
       }
       userConfig.clearProperty(username);
       removeRoles(username);
    }
 
-   List<String> listUser(String username) {
-      List<String> result = new ArrayList<>();
-      result.add("--- \"user\"(roles) ---\n");
+   public Map<String, Set<String>> listUser(String username) {
+      Map<String, Set<String>> result = new HashMap<>();
 
-      int totalUsers = 0;
-      if (username != null) {
-         String roles = findRoles(username);
-         result.add("\"" + username + "\"(" + roles + ")");
-         totalUsers++;
+      if (username != null && username.length() > 0) {
+         result.put(username, findRoles(username));
       } else {
          Iterator<String> iter = userConfig.getKeys();
          while (iter.hasNext()) {
             String keyUser = iter.next();
-            String roles = findRoles(keyUser);
-            result.add("\"" + keyUser + "\"(" + roles + ")");
-            totalUsers++;
+            result.put(keyUser, findRoles(keyUser));
          }
       }
-      result.add("\n Total: " + totalUsers);
       return result;
    }
 
-   void updateUser(String username, String password, String[] roles) {
+   public void updateUser(String username, String password, String[] roles) {
       String oldPassword = (String) userConfig.getProperty(username);
       if (oldPassword == null) {
-         throw new IllegalArgumentException("user " + username + " doesn't exist.");
+         throw ActiveMQMessageBundle.BUNDLE.userDoesNotExist(username);
       }
 
       if (password != null) {
@@ -138,33 +178,28 @@ class FileBasedSecStoreConfig {
       }
    }
 
-   private String findRoles(String uname) {
+   private Set<String> findRoles(String username) {
       Iterator<String> iter = roleConfig.getKeys();
-      StringBuilder builder = new StringBuilder();
-      boolean first = true;
+      Set<String> roles = new HashSet();
       while (iter.hasNext()) {
          String role = iter.next();
-         List<String> names = roleConfig.getList(String.class, role);
-         for (String value : names) {
-            //each value may be a comma separated list
-            String[] items = value.split(",");
+         for (String roleList : roleConfig.getList(String.class, role)) {
+            //each roleList may be a comma separated list
+            String[] items = roleList.split(",");
             for (String item : items) {
-               if (item.equals(uname)) {
-                  if (!first) {
-                     builder.append(",");
-                  }
-                  builder.append(role);
-                  first = false;
+               if (item.equals(username)) {
+                  roles.add(role);
                }
             }
          }
       }
 
-      return builder.toString();
+      return roles;
    }
 
    private void addRoles(String username, String[] roles) {
       for (String role : roles) {
+         role = role.trim();
          List<String> users = roleConfig.getList(String.class, role);
          if (users == null) {
             users = new ArrayList<>();

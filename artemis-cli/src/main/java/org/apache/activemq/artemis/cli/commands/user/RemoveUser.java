@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 
 /**
  * Remove a user, example:
@@ -35,7 +36,7 @@ public class RemoveUser extends UserAction {
    }
 
    private void remove() throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
+      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
       config.removeUser(username);
       config.save();
       context.out.println("User removed.");
