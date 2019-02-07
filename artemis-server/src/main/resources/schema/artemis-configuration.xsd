@@ -752,7 +752,7 @@
          <xsd:element name="max-disk-usage" type="xsd:int" default="90" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Max percentage of disk usage before the system blocks or fail clients.
+                  Max percentage of disk usage before the system blocks or fails clients.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
