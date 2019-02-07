@@ -327,6 +327,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
       }
       if (buffer.readableBytes() > 0) {
+         configurationManaged = buffer.readBoolean();
+      } else {
+         configurationManaged = false;
+      }
+      if (buffer.readableBytes() > 0) {
          consumersBeforeDispatch = buffer.readInt();
       } else {
          consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
@@ -335,11 +340,6 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          delayBeforeDispatch = buffer.readLong();
       } else {
          delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
-      }
-      if (buffer.readableBytes() > 0) {
-         configurationManaged = buffer.readBoolean();
-      } else {
-         configurationManaged = false;
       }
       if (buffer.readableBytes() > 0) {
          lastValueKey = buffer.readNullableSimpleString();
@@ -365,9 +365,9 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeByte(routingType);
       buffer.writeBoolean(exclusive);
       buffer.writeBoolean(lastValue);
+      buffer.writeBoolean(configurationManaged);
       buffer.writeInt(consumersBeforeDispatch);
       buffer.writeLong(delayBeforeDispatch);
-      buffer.writeBoolean(configurationManaged);
       buffer.writeNullableSimpleString(lastValueKey);
       buffer.writeBoolean(nonDestructive);
    }
@@ -382,9 +382,9 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_BYTE +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
+         DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_INT +
          DataConstants.SIZE_LONG +
-         DataConstants.SIZE_BOOLEAN +
          SimpleString.sizeofNullableString(lastValueKey) +
          DataConstants.SIZE_BOOLEAN;
    }
