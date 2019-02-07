@@ -467,7 +467,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    RoutingType routingType,
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
-                                   Boolean exclusive) throws Exception {
+                                   Boolean exclusive,
+                                   Boolean configurationManaged) throws Exception {
       synchronized (addressLock) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -510,6 +511,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (exclusive != null && queue.isExclusive() != exclusive.booleanValue()) {
             changed = true;
             queue.setExclusive(exclusive);
+         }
+         if (configurationManaged != null && !configurationManaged.equals(queue.isConfigurationManaged())) {
+            changed = true;
+            queue.setConfigurationManaged(configurationManaged);
          }
 
          if (changed) {

@@ -269,6 +269,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final QueueFactory factory;
 
+   private volatile boolean configurationManaged;
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
     * to guarantee ordering will be always be correct
@@ -414,6 +415,30 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, purgeOnNoConsumers, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean purgeOnNoConsumers,
+                    final boolean configurationManaged,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
       this.id = id;
@@ -441,6 +466,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.exclusive = exclusive == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : exclusive;
 
       this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
+
+      this.configurationManaged = configurationManaged;
 
       this.postOffice = postOffice;
 
@@ -569,6 +596,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void setMaxConsumer(int maxConsumers) {
       this.maxConsumers = maxConsumers;
+   }
+
+   @Override
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   @Override
+   public synchronized void setConfigurationManaged(boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
    }
 
    @Override

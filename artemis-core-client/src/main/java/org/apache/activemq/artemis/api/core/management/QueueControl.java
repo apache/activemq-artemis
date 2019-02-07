@@ -225,6 +225,12 @@ public interface QueueControl {
    /**
     *
     */
+   @Attribute(desc = "is this queue managed by configuration (broker.xml)")
+   boolean isConfigurationManaged();
+
+   /**
+    *
+    */
    @Attribute(desc = "If the queue should route exclusively to one consumer")
    boolean isExclusive();
 

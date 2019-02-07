@@ -48,7 +48,8 @@ public class FakePostOffice implements PostOffice {
                                    RoutingType routingType,
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
-                                   Boolean exclusive) throws Exception {
+                                   Boolean exclusive,
+                                   Boolean configurationManaged) throws Exception {
       return null;
    }
 
