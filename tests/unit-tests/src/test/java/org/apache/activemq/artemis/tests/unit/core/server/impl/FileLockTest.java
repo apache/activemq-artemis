@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.server.impl;
 
 import java.io.File;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -35,7 +36,7 @@ public class FileLockTest extends ActiveMQTestBase {
 
    @Test
    public void testNIOLock() throws Exception {
-      doTestLock(new FileLockNodeManager(getTestDirfile(), false), new FileLockNodeManager(getTestDirfile(), false));
+      doTestLock(new FileLockNodeManager(getTestDirfile(), false, new ScheduledThreadPoolExecutor(1)), new FileLockNodeManager(getTestDirfile(), false, new ScheduledThreadPoolExecutor(1)));
 
    }
 

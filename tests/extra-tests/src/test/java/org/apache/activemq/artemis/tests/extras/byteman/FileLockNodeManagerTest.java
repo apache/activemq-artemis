@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -66,7 +67,7 @@ public class FileLockNodeManagerTest {
    }
 
    private long measureLockAcquisisionTimeout(long lockAcquisitionTimeout) throws Exception {
-      FileLockNodeManager manager = new FileLockNodeManager(sharedDir, false, lockAcquisitionTimeout);
+      FileLockNodeManager manager = new FileLockNodeManager(sharedDir, false, lockAcquisitionTimeout, new ScheduledThreadPoolExecutor(1));
       manager.start();
 
       // try to lock and measure real timeout

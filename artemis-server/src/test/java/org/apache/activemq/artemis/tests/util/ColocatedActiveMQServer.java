@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
 import java.io.File;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
@@ -65,7 +66,7 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl {
    @Override
    protected NodeManager createNodeManager(final File directory, boolean replicatingBackup) {
       if (replicatingBackup) {
-         return new FileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
+         return new FileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout(), new ScheduledThreadPoolExecutor(1));
       } else {
          if (backup) {
             return nodeManagerBackup;
