@@ -9,7 +9,7 @@ To run this example simply run the command **mvn verify -Pexample**, execute the
     # first make sure you have the dependencies you need to compile and run the client
     # You will have to adapt this step according to your platform. Consult the [qpid docs](http://qpid.apache.org/releases/qpid-0.30/programming/book/) for more information.
     # There is a list of [packages](http://qpid.apache.org/packages.html) you can install as well.
-    [proton-cpp]$ sudo yum install qpid-cpp-client-devel
+    [proton-cpp]$ sudo yum install qpid-proton-cpp-devel qpid-proton-cpp-docs
 
     # on a first window
     [proton-cpp]$ mvn verify -Pexample
