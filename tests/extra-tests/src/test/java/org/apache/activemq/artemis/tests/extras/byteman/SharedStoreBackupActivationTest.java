@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -123,8 +124,8 @@ public class SharedStoreBackupActivationTest extends FailoverTestBase {
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
       // nodes must use separate FileLockNodeManager instances!
-      NodeManager liveNodeManager = new FileLockNodeManager(sharedDir, false);
-      NodeManager backupNodeManager = new FileLockNodeManager(sharedDir, false);
+      NodeManager liveNodeManager = new FileLockNodeManager(sharedDir, false, new ScheduledThreadPoolExecutor(1));
+      NodeManager backupNodeManager = new FileLockNodeManager(sharedDir, false, new ScheduledThreadPoolExecutor(1));
 
       backupConfig = super.createDefaultConfig(false)
             .clearAcceptorConfigurations()
