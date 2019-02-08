@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
@@ -32,7 +33,7 @@ public class RealNodeManagerTest extends NodeManagerTest {
 
    @Test
    public void testId() throws Exception {
-      NodeManager nodeManager = new FileLockNodeManager(new File(getTemporaryDir()), false);
+      NodeManager nodeManager = new FileLockNodeManager(new File(getTemporaryDir()), false, new ScheduledThreadPoolExecutor(1));
       nodeManager.start();
       UUID id1 = nodeManager.getUUID();
       nodeManager.stop();
