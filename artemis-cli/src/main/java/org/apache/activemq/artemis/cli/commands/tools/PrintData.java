@@ -26,9 +26,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -61,6 +60,9 @@ import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
 public class PrintData extends DBOption {
@@ -129,7 +131,7 @@ public class PrintData extends DBOption {
 
       if (serverLockFile.isFile()) {
          try {
-            FileLockNodeManager fileLock = new FileLockNodeManager(messagesDirectory, false);
+            FileLockNodeManager fileLock = new FileLockNodeManager(messagesDirectory, false, new ScheduledThreadPoolExecutor(1));
             fileLock.start();
             printBanner(out, "Server's ID=" + fileLock.getNodeId().toString());
             fileLock.stop();

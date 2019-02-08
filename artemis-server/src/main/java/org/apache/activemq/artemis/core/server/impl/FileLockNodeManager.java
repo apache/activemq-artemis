@@ -20,6 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -49,7 +56,9 @@ public class FileLockNodeManager extends NodeManager {
 
    private static final byte NOT_STARTED = 'N';
 
-   private FileLock liveLock;
+   private static final int LOCK_MONITOR_TIMEOUT_MILLIES = 2000;
+
+   private volatile FileLock liveLock;
 
    private FileLock backupLock;
 
@@ -57,13 +66,18 @@ public class FileLockNodeManager extends NodeManager {
 
    protected boolean interrupted = false;
 
-   public FileLockNodeManager(final File directory, boolean replicatedBackup) {
+   private ScheduledExecutorService scheduledPool;
+
+   public FileLockNodeManager(final File directory, boolean replicatedBackup, ScheduledExecutorService scheduledPool) {
       super(replicatedBackup, directory);
+      this.scheduledPool = scheduledPool;
    }
 
-   public FileLockNodeManager(final File directory, boolean replicatedBackup, long lockAcquisitionTimeout) {
+   public FileLockNodeManager(final File directory, boolean replicatedBackup, long lockAcquisitionTimeout,
+         ScheduledExecutorService scheduledPool) {
       super(replicatedBackup, directory);
 
+      this.scheduledPool = scheduledPool;
       this.lockAcquisitionTimeout = lockAcquisitionTimeout;
    }
 
@@ -174,6 +188,7 @@ public class FileLockNodeManager extends NodeManager {
          public void activationComplete() {
             try {
                setLive();
+               startLockMonitoring();
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
@@ -183,6 +198,7 @@ public class FileLockNodeManager extends NodeManager {
 
    @Override
    public void pauseLiveServer() throws Exception {
+      stopLockMonitoring();
       setPaused();
       if (liveLock != null) {
          liveLock.release();
@@ -191,6 +207,7 @@ public class FileLockNodeManager extends NodeManager {
 
    @Override
    public void crashLiveServer() throws Exception {
+      stopLockMonitoring();
       if (liveLock != null) {
          liveLock.release();
          liveLock = null;
@@ -318,7 +335,8 @@ public class FileLockNodeManager extends NodeManager {
          }
       }
 
-      // todo this is here because sometimes channel.lock throws a resource deadlock exception but trylock works,
+      // todo this is here because sometimes channel.lock throws a resource deadlock
+      // exception but trylock works,
       // need to investigate further and review
       FileLock lock;
       do {
@@ -336,7 +354,113 @@ public class FileLockNodeManager extends NodeManager {
          }
       }
       while (lock == null);
+
       return lock;
+   }
+
+   private synchronized void startLockMonitoring() {
+      logger.debug("Starting the lock monitor");
+      if (scheduledLockMonitor == null) {
+         MonitorLock monitorLock = new MonitorLock();
+         scheduledLockMonitor = scheduledPool.scheduleAtFixedRate(monitorLock, LOCK_MONITOR_TIMEOUT_MILLIES,
+               LOCK_MONITOR_TIMEOUT_MILLIES, TimeUnit.MILLISECONDS);
+      } else {
+         logger.debug("Lock monitor was already started");
+      }
+   }
+
+   private synchronized void stopLockMonitoring() {
+      logger.debug("Stopping the lock monitor");
+      if (scheduledLockMonitor != null) {
+         scheduledLockMonitor.cancel(true);
+         scheduledLockMonitor = null;
+      } else {
+         logger.debug("The lock monitor was already stopped");
+      }
+   }
+
+   private void notifyLostLock() {
+      // Additional check we are not initializing or have no locking object anymore
+      // because of a shutdown
+      if (lockListeners != null && liveLock != null) {
+         Set<LockListener> lockListenersSnapshot = null;
+
+         // Snapshot of the set because I'm not sure if we can trigger concurrent
+         // modification exception here if we don't
+         synchronized (lockListeners) {
+            lockListenersSnapshot = new HashSet<>(lockListeners);
+         }
+
+         lockListenersSnapshot.forEach(lockListener -> {
+            try {
+               lockListener.lostLock();
+            } catch (Exception e) {
+               // Need to notify everyone so ignore any exception
+            }
+         });
+      }
+   }
+
+   public void registerLockListener(LockListener lockListener) {
+      lockListeners.add(lockListener);
+   }
+
+   public void unregisterLockListener(LockListener lockListener) {
+      lockListeners.remove(lockListener);
+   }
+
+   protected final Set<LockListener> lockListeners = Collections.synchronizedSet(new HashSet<LockListener>());
+
+   private ScheduledFuture<?> scheduledLockMonitor;
+
+   public abstract class LockListener {
+      protected abstract void lostLock() throws Exception;
+
+      protected void unregisterListener() {
+         lockListeners.remove(this);
+      }
+   }
+
+   public class MonitorLock implements Runnable {
+
+      @Override
+      public void run() {
+
+         boolean lostLock = true;
+         try {
+            if (liveLock == null) {
+               logger.debug("Livelock is null");
+            }
+            lostLock = (liveLock != null && !liveLock.isValid()) || liveLock == null;
+            if (!lostLock) {
+               logger.debug("Server still has the lock, double check status is live");
+               // Java always thinks the lock is still valid even when there is no filesystem
+               // so we do another check
+
+               // Should be able to retrieve the status unless something is wrong
+               // When EFS is gone, this locks. Which can be solved but is a lot of threading
+               // work where we need to
+               // manage the timeout ourselves and interrupt the thread used to claim the lock.
+               byte state = getState();
+               if (state == LIVE) {
+                  logger.debug("Status is set to live");
+               } else {
+                  logger.debug("Status is not live");
+               }
+            }
+         } catch (Exception exception) {
+            // If something went wrong we probably lost the lock
+            logger.error(exception.getMessage(), exception);
+            lostLock = true;
+         }
+
+         if (lostLock) {
+            logger.warn("Lost the lock according to the monitor, notifying listeners");
+            notifyLostLock();
+         }
+
+      }
+
    }
 
 }
