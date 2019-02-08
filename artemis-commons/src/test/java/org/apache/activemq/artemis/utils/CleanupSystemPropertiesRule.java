@@ -64,6 +64,16 @@ public class CleanupSystemPropertiesRule extends ExternalResource {
          }
       }
 
+      for (Map.Entry<Object, Object> entry : originalProperties.entrySet()) {
+         if (System.getProperty((String) entry.getKey()) == null) {
+            System.out.println("======================================================================================================");
+            System.out.println("Reinstating property " + entry.getKey() + "=" + entry.getValue());
+            System.setProperty((String) entry.getKey(), (String) entry.getValue());
+            System.out.println("======================================================================================================");
+         }
+
+      }
+
       if (!newProperties.isEmpty() || !changed.isEmpty()) {
 
          System.out.println("======================================================================================================");
@@ -90,7 +100,6 @@ public class CleanupSystemPropertiesRule extends ExternalResource {
 
          System.out.println("======================================================================================================");
       }
-
 
       // lets give GC a hand
       originalProperties.clear();
