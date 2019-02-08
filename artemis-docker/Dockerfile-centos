@@ -31,10 +31,8 @@ ENV CREATE_ARGUMENTS --user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --sil
 USER root
 
 # add user and group for artemis
-RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis
-
-RUN yum install -y libaio && \
-    yum -y clean all
+RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
+ && yum install -y libaio && yum -y clean all
 
 USER artemis
 
@@ -68,4 +66,4 @@ VOLUME ["/var/lib/artemis-instance"]
 WORKDIR /var/lib/artemis-instance
 
 ENTRYPOINT ["/docker-run.sh"]
-CMD ["artemis-server"]
+CMD ["run"]

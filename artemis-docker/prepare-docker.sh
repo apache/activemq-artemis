@@ -29,7 +29,7 @@ error () {
    echo "Usage: ./prepare-docker.sh ARTEMIS_HOME_LOCATION"
    echo ""
    echo "example:"
-   echo "./prepare-release.sh https://repo1.maven.org/maven2 2.5.0"
+   echo "./prepare-docker.sh ../artemis-distribution/target/apache-artemis-2.7.0-SNAPSHOT-bin/apache-artemis-2.7.0-SNAPSHOT"
    echo ""
    exit 64
 }
@@ -51,6 +51,6 @@ then
   rm -rf $target/docker
 fi
 mkdir $target/docker
-cp * $target/docker
+cp ./{Dockerfile-centos,Dockerfile-ubuntu,docker-run.sh} $target/docker
 
 echo "Docker file support files at : $target/docker"
