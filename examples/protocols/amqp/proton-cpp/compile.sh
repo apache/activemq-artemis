@@ -15,4 +15,4 @@
 # specific language governing permissions and limitations
 # under the License.
 # This requires g++ and qpid-cpp-client-devel
-g++ src/main/cpp/hello.cpp  -o hello -l qpidmessaging -l qpidtypes
+g++ src/main/cpp/hello.cpp  -o hello -l qpid-proton-cpp -l qpidtypes
