@@ -707,6 +707,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
 
    @Override
    protected Configuration createConfiguration() throws Exception {
+      // This may be set for the entire testsuite, but on this test we need this out
+      System.clearProperty("brokerconfig.maxDiskUsage");
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
       deploymentManager.addDeployable(fc);
