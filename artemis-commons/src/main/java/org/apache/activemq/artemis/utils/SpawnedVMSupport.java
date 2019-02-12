@@ -141,13 +141,19 @@ public class SpawnedVMSupport {
 
       StringBuilder stringBuilder = new StringBuilder();
       boolean empty = true;
-      for (File f : libfolder.listFiles()) {
-         if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
-            if (!empty) {
-               stringBuilder.append(File.pathSeparator);
+      File[] files = libfolder.listFiles();
+
+      if (files == null) {
+         return getClassPath();
+      } else {
+         for (File f : libfolder.listFiles()) {
+            if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
+               if (!empty) {
+                  stringBuilder.append(File.pathSeparator);
+               }
+               empty = false;
+               stringBuilder.append(f.toString());
             }
-            empty = false;
-            stringBuilder.append(f.toString());
          }
       }
 
