@@ -432,7 +432,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       journalFF.releaseBuffer(buffer);
    }
 
-   public long storePendingLargeMessage(final long messageID, long recordID) throws Exception {
+   public long storePendingLargeMessage(final long messageID, long recordID, boolean wait) throws Exception {
       readLock();
       try {
          if (recordID == LargeServerMessage.NO_PENDING_ID) {
@@ -444,7 +444,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             recordID = -recordID;
          }
 
-         messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
+         if (wait) {
+            messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true);
+         } else {
+            messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
+         }
 
          return recordID;
       } finally {
@@ -461,7 +465,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                // And the client won't be waiting for the actual file to be deleted.
                // We set a temporary record (short lived) on the journal
                // to avoid a situation where the server is restarted and pending large message stays on forever
-               largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID()));
+               largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID(), true));
             } catch (Exception e) {
                throw new ActiveMQInternalErrorException(e.getMessage(), e);
             }
@@ -538,7 +542,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          if (largeMessage.isDurable()) {
             // We store a marker on the journal that the large file is pending
-            long pendingRecordID = storePendingLargeMessage(id, LargeServerMessage.NO_PENDING_ID);
+            long pendingRecordID = storePendingLargeMessage(id, LargeServerMessage.NO_PENDING_ID, false);
 
             largeMessage.setPendingRecordID(pendingRecordID);
          }
