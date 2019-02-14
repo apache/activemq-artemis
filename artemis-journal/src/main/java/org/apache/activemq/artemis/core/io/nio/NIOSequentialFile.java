@@ -22,16 +22,20 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFile;
+import org.apache.activemq.artemis.core.io.DelegateCallback;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.Env;
@@ -49,6 +53,11 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                             final Executor writerExecutor) {
       super(directory, file, factory, writerExecutor);
       this.maxIO = maxIO;
+   }
+
+   @Override
+   protected TimedBufferObserver createTimedBufferObserver() {
+      return new SyncLocalBufferObserver();
    }
 
    @Override
@@ -323,5 +332,31 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          throw new IllegalArgumentException("dstFile must be closed too");
       }
       SequentialFile.appendTo(getFile().toPath(), dstFile.getJavaFile().toPath());
+   }
+
+   private class SyncLocalBufferObserver extends LocalBufferObserver {
+
+      @Override
+      public void flushBuffer(ByteBuf byteBuf, boolean requestedSync, List<IOCallback> callbacks) {
+         //maybe no need to perform any copy
+         final int bytes = byteBuf.readableBytes();
+         if (bytes == 0) {
+            IOCallback.done(callbacks);
+         } else {
+            //enable zero copy case
+            if (byteBuf.nioBufferCount() == 1 && byteBuf.isDirect()) {
+               final ByteBuffer buffer = byteBuf.internalNioBuffer(byteBuf.readerIndex(), bytes);
+               final IOCallback callback = new DelegateCallback(callbacks);
+               try {
+                  //no need to pool the buffer and don't care if the NIO buffer got modified
+                  internalWrite(buffer, requestedSync, callback, false);
+               } catch (Exception e) {
+                  callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
+               }
+            } else {
+               super.flushBuffer(byteBuf, requestedSync, callbacks);
+            }
+         }
+      }
    }
 }

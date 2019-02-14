@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.io;
 
+import java.util.Collection;
+
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+
 /**
  * The interface used for AIO Callbacks.
  */
@@ -32,4 +36,24 @@ public interface IOCallback {
     * Observation: The whole file will be probably failing if this happens. Like, if you delete the file, you will start to get errors for these operations
     */
    void onError(int errorCode, String errorMessage);
+
+   static void done(Collection<? extends IOCallback> delegates) {
+      delegates.forEach(callback -> {
+         try {
+            callback.done();
+         } catch (Throwable e) {
+            ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
+         }
+      });
+   }
+
+   static void onError(Collection<? extends IOCallback> delegates, int errorCode, final String errorMessage) {
+      delegates.forEach(callback -> {
+         try {
+            callback.onError(errorCode, errorMessage);
+         } catch (Throwable e) {
+            ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
+         }
+      });
+   }
 }
