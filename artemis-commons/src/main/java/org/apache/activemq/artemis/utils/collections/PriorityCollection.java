@@ -135,7 +135,7 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
       int high = current.length - 1;
 
       while (low <= high) {
-         int mid = (low + high) / 2;
+         int mid = (low + high) >>> 1;
          PriorityHolder<T> midVal = current[mid];
 
          if (midVal.getPriority() > priority)
@@ -203,7 +203,7 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
       int high = len - 1;
 
       while (low <= high) {
-         int mid = (low + high) / 2;
+         int mid = (low + high) >>> 1;
          PriorityHolder<T> midVal = current[mid];
 
          if (midVal.getPriority() > priority)
