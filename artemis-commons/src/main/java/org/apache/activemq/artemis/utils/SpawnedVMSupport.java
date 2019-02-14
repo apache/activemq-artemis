@@ -146,7 +146,7 @@ public class SpawnedVMSupport {
       if (files == null) {
          return getClassPath();
       } else {
-         for (File f : libfolder.listFiles()) {
+         for (File f : files) {
             if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
                if (!empty) {
                   stringBuilder.append(File.pathSeparator);
