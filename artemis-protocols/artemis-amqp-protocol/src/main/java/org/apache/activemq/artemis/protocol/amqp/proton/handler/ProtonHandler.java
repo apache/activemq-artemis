@@ -146,10 +146,6 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    public void requireHandler() {
       if (!workerExecutor.inEventLoop()) {
-         new Exception("saco!!!").printStackTrace();
-         // this should not happen unless there is an obvious programming error
-         log.warn("Using inHandler is required", new Exception("trace"));
-         System.exit(-1);
          throw new IllegalStateException("this method requires to be called within the handler, use the executor");
       }
    }
