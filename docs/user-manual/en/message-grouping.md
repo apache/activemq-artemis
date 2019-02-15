@@ -98,6 +98,52 @@ producer.send(message);
 
 This then closes the message group so if another message is sent in the future with the same message group ID it will be reassigned to a new consumer.
 
+#### Group Buckets
+
+For handling groups in a queue with bounded memory allowing better scaling of groups, 
+you can enable group buckets, essentially the group id is hashed into a bucket instead of keeping track of every single group id.
+
+Setting `group-buckets` to `-1` keeps default behaviour which means the queue keeps track of every group but suffers from unbounded memory use.
+
+Setting `group-buckets` to `0` disables grouping (0 buckets), on a queue. This can be useful on a multicast address, 
+where many queues exist but one queue you may not care for ordering and prefer to keep round robin behaviour.
+
+There is a number of ways to set `group-buckets`.
+
+
+```xml
+<address name="foo.bar">
+   <multicast>
+      <queue name="orders1" group-buckets="1024"/>
+   </multicast>
+</address>
+```
+
+Specified on creating a Queue by using the CORE api specifying the parameter 
+`group-buckets` to `20`. 
+
+Or on auto-create when using the JMS Client by using address parameters when 
+creating the destination used by the consumer.
+
+```java
+Queue queue = session.createQueue("my.destination.name?group-buckets=1024");
+Topic topic = session.createTopic("my.destination.name?group-buckets=1024");
+```
+
+Also the default for all queues under and address can be defaulted using the 
+`address-setting` configuration:
+
+```xml
+<address-setting match="my.bucket.address">
+   <default-group-buckets>1024</default-group-buckets>
+</address-setting>
+```
+
+By default, `default-group-buckets` is `-1` this is to keep compatibility with existing default behaviour. 
+
+Address [wildcards](wildcard-syntax.md) can be used to configure exclusive queues for a 
+set of addresses.
+
 ## Example
 
 See the [Message Group Example](examples.md#message-group) which shows how

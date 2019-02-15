@@ -454,7 +454,16 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * @return the concatenated SimpleString
     */
    public SimpleString concat(final String toAdd) {
-      return concat(new SimpleString(toAdd));
+      int len = toAdd.length();
+      byte[] bytes = new byte[data.length + len * 2];
+      System.arraycopy(data, 0, bytes, 0, data.length);
+      for (int i = 0; i < len; i++) {
+         char c = toAdd.charAt(i);
+         int offset = data.length + i * 2;
+         bytes[offset] = (byte) (c & 0xFF);
+         bytes[offset + 1] = (byte) (c >> 8 & 0xFF);
+      }
+      return new SimpleString(bytes);
    }
 
    /**

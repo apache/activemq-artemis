@@ -152,6 +152,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .purgeOnNoConsumers(queueBindingInfo.isPurgeOnNoConsumers())
             .maxConsumers(queueBindingInfo.getMaxConsumers())
             .exclusive(queueBindingInfo.isExclusive())
+            .groupRebalance(queueBindingInfo.isGroupRebalance())
+            .groupBuckets(queueBindingInfo.getGroupBuckets())
             .lastValue(queueBindingInfo.isLastValue())
             .lastValueKey(queueBindingInfo.getLastValueKey())
             .nonDestructive(queueBindingInfo.isNonDestructive())
