@@ -49,6 +49,10 @@ public class QueueQueryResult {
 
    private Boolean exclusive;
 
+   private Boolean groupRebalance;
+
+   private Integer groupBuckets;
+
    private Boolean lastValue;
 
    private SimpleString lastValueKey;
@@ -75,6 +79,8 @@ public class QueueQueryResult {
                            final RoutingType routingType,
                            final int maxConsumers,
                            final Boolean exclusive,
+                           final Boolean groupRebalance,
+                           final Integer groupBuckets,
                            final Boolean lastValue,
                            final SimpleString lastValueKey,
                            final Boolean nonDestructive,
@@ -108,6 +114,10 @@ public class QueueQueryResult {
       this.maxConsumers = maxConsumers;
 
       this.exclusive = exclusive;
+
+      this.groupRebalance = groupRebalance;
+
+      this.groupBuckets = groupBuckets;
 
       this.lastValue = lastValue;
 
@@ -204,5 +214,13 @@ public class QueueQueryResult {
 
    public Integer getDefaultConsumerWindowSize() {
       return defaultConsumerWindowSize;
+   }
+
+   public Boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   public Integer getGroupBuckets() {
+      return groupBuckets;
    }
 }

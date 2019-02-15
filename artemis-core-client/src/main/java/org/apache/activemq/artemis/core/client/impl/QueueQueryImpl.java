@@ -50,6 +50,10 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final Boolean exclusive;
 
+   private final Boolean groupRebalance;
+
+   private final Integer groupBuckets;
+
    private final Boolean lastValue;
 
    private final SimpleString lastValueKey;
@@ -118,7 +122,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final Boolean exclusive,
                          final Boolean lastValue,
                          final Integer defaultConsumerWindowSize) {
-      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, lastValue, null, null, null, null, defaultConsumerWindowSize);
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, null, null, lastValue, null, null, null, null, defaultConsumerWindowSize);
    }
 
    public QueueQueryImpl(final boolean durable,
@@ -135,6 +139,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final boolean purgeOnNoConsumers,
                          final RoutingType routingType,
                          final Boolean exclusive,
+                         final Boolean groupRebalance,
+                         final Integer groupBuckets,
                          final Boolean lastValue,
                          final SimpleString lastValueKey,
                          final Boolean nonDestructive,
@@ -155,6 +161,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.routingType = routingType;
       this.exclusive = exclusive;
+      this.groupRebalance = groupRebalance;
+      this.groupBuckets = groupBuckets;
       this.lastValue = lastValue;
       this.lastValueKey = lastValueKey;
       this.nonDestructive = nonDestructive;
@@ -261,6 +269,16 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    @Override
    public Integer getDefaultConsumerWindowSize() {
       return defaultConsumerWindowSize;
+   }
+
+   @Override
+   public Boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   @Override
+   public Integer getGroupBuckets() {
+      return groupBuckets;
    }
 }
 

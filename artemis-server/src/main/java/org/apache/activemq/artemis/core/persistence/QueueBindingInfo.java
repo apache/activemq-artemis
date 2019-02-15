@@ -85,4 +85,8 @@ public interface QueueBindingInfo {
    byte getRoutingType();
 
    void setRoutingType(byte routingType);
+
+   boolean isGroupRebalance();
+
+   int getGroupBuckets();
 }

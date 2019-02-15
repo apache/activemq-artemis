@@ -158,6 +158,10 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Long getDelayBeforeDispatch();
 
       Integer getDefaultConsumerWindowSize();
+
+      Boolean isGroupRebalance();
+
+      Integer getGroupBuckets();
    }
 
    // Lifecycle operations ------------------------------------------

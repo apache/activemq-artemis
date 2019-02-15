@@ -475,6 +475,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
+                                   Boolean groupRebalance,
+                                   Integer groupBuckets,
                                    Boolean nonDestructive,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,
@@ -526,6 +528,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (exclusive != null && queue.isExclusive() != exclusive.booleanValue()) {
                changed = true;
                queue.setExclusive(exclusive);
+            }
+            if (groupRebalance != null && queue.isGroupRebalance() != groupRebalance.booleanValue()) {
+               changed = true;
+               queue.setGroupRebalance(groupRebalance);
+            }
+            if (groupBuckets != null && queue.getGroupBuckets() != groupBuckets.intValue()) {
+               changed = true;
+               queue.setGroupBuckets(groupBuckets);
             }
             if (nonDestructive != null && queue.isNonDestructive() != nonDestructive.booleanValue()) {
                changed = true;
