@@ -187,6 +187,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEFAULT_EXCLUSIVE_NODE_NAME = "default-exclusive-queue";
 
+   private static final String DEFAULT_GROUP_REBALANCE = "default-group-rebalance";
+
+   private static final String DEFAULT_GROUP_BUCKETS = "default-group-buckets";
+
    private static final String DEFAULT_CONSUMERS_BEFORE_DISPATCH = "default-consumers-before-dispatch";
 
    private static final String DEFAULT_DELAY_BEFORE_DISPATCH = "default-delay-before-dispatch";
@@ -1016,6 +1020,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setDefaultNonDestructive(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_EXCLUSIVE_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDefaultExclusiveQueue(XMLUtil.parseBoolean(child));
+         } else if (DEFAULT_GROUP_REBALANCE.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultGroupRebalance(XMLUtil.parseBoolean(child));
+         } else if (DEFAULT_GROUP_BUCKETS.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultGroupBuckets(XMLUtil.parseInt(child));
          } else if (MAX_DELIVERY_ATTEMPTS.equalsIgnoreCase(name)) {
             addressSettings.setMaxDeliveryAttempts(XMLUtil.parseInt(child));
          } else if (REDISTRIBUTION_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1130,6 +1138,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
       String user = null;
       Boolean exclusive = null;
+      Boolean groupRebalance = null;
+      Integer groupBuckets = null;
       Boolean lastValue = null;
       String lastValueKey = null;
       Boolean nonDestructive = null;
@@ -1146,6 +1156,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             purgeOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("exclusive")) {
             exclusive = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("group-rebalance")) {
+            groupRebalance = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("group-buckets")) {
+            groupBuckets = Integer.parseInt(item.getNodeValue());
          } else if (item.getNodeName().equals("last-value")) {
             lastValue = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("last-value-key")) {
@@ -1174,8 +1188,22 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setUser(user)
-                                         .setExclusive(exclusive).setLastValue(lastValue).setLastValueKey(lastValueKey).setNonDestructive(nonDestructive).setConsumersBeforeDispatch(consumersBeforeDispatch).setDelayBeforeDispatch(delayBeforeDispatch);
+      return new CoreQueueConfiguration()
+              .setAddress(address)
+              .setName(name)
+              .setFilterString(filterString)
+              .setDurable(durable)
+              .setMaxConsumers(maxConsumers)
+              .setPurgeOnNoConsumers(purgeOnNoConsumers)
+              .setUser(user)
+              .setExclusive(exclusive)
+              .setGroupRebalance(groupRebalance)
+              .setGroupBuckets(groupBuckets)
+              .setLastValue(lastValue)
+              .setLastValueKey(lastValueKey)
+              .setNonDestructive(nonDestructive)
+              .setConsumersBeforeDispatch(consumersBeforeDispatch)
+              .setDelayBeforeDispatch(delayBeforeDispatch);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {

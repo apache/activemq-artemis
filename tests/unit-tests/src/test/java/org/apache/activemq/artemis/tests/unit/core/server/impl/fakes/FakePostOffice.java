@@ -51,6 +51,8 @@ public class FakePostOffice implements PostOffice {
                                    Integer maxConsumers,
                                    Boolean purgeOnNoConsumers,
                                    Boolean exclusive,
+                                   Boolean groupRebalance,
+                                   Integer groupBuckets,
                                    Boolean lastValue,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,

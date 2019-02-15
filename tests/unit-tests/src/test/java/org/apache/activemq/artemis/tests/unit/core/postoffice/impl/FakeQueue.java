@@ -126,6 +126,26 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public int getGroupBuckets() {
+      return 0;
+   }
+
+   @Override
+   public void setGroupBuckets(int groupBuckets) {
+
+   }
+
+   @Override
+   public boolean isGroupRebalance() {
+      return false;
+   }
+
+   @Override
+   public void setGroupRebalance(boolean groupRebalance) {
+
+   }
+
+   @Override
    public boolean isConfigurationManaged() {
       return false;
    }

@@ -43,6 +43,8 @@ public final class QueueConfig {
    private final boolean purgeOnNoConsumers;
    private final int consumersBeforeDispatch;
    private final long delayBeforeDispatch;
+   private final boolean groupRebalance;
+   private final int groupBuckets;
    private final boolean configurationManaged;
    private final SimpleString lastValueKey;
    private final boolean nonDestructive;
@@ -67,6 +69,8 @@ public final class QueueConfig {
       private boolean purgeOnNoConsumers;
       private int consumersBeforeDispatch;
       private long delayBeforeDispatch;
+      private boolean groupRebalance;
+      private int groupBuckets;
       private boolean configurationManaged;
 
       private Builder(final long id, final SimpleString name) {
@@ -92,6 +96,8 @@ public final class QueueConfig {
          this.purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
          this.consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
          this.delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
+         this.groupRebalance = ActiveMQDefaultConfiguration.getDefaultGroupRebalance();
+         this.groupBuckets = ActiveMQDefaultConfiguration.getDefaultGroupBuckets();
          this.configurationManaged = false;
          validateState();
       }
@@ -184,6 +190,18 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder groupRebalance(final boolean groupRebalance) {
+         this.groupRebalance = groupRebalance;
+         return this;
+      }
+
+
+      public Builder groupBuckets(final int groupBuckets) {
+         this.groupBuckets = groupBuckets;
+         return this;
+      }
+
+
       public Builder routingType(RoutingType routingType) {
          this.routingType = routingType;
          return this;
@@ -215,7 +233,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, configurationManaged);
       }
 
    }
@@ -266,6 +284,8 @@ public final class QueueConfig {
                        final int consumersBeforeDispatch,
                        final long delayBeforeDispatch,
                        final boolean purgeOnNoConsumers,
+                       final boolean groupRebalance,
+                       final int groupBuckets,
                        final boolean configurationManaged) {
       this.id = id;
       this.address = address;
@@ -285,6 +305,8 @@ public final class QueueConfig {
       this.maxConsumers = maxConsumers;
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       this.delayBeforeDispatch = delayBeforeDispatch;
+      this.groupRebalance = groupRebalance;
+      this.groupBuckets = groupBuckets;
       this.configurationManaged = configurationManaged;
    }
 
@@ -360,6 +382,14 @@ public final class QueueConfig {
       return delayBeforeDispatch;
    }
 
+   public boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   public int getGroupBuckets() {
+      return groupBuckets;
+   }
+
    public boolean isConfigurationManaged() {
       return configurationManaged;
    }
@@ -409,6 +439,10 @@ public final class QueueConfig {
          return false;
       if (purgeOnNoConsumers != that.purgeOnNoConsumers)
          return false;
+      if (groupRebalance != that.groupRebalance)
+         return false;
+      if (groupBuckets != that.groupBuckets)
+         return false;
       if (configurationManaged != that.configurationManaged)
          return false;
       return user != null ? user.equals(that.user) : that.user == null;
@@ -435,6 +469,8 @@ public final class QueueConfig {
       result = 31 * result + consumersBeforeDispatch;
       result = 31 * result + Long.hashCode(delayBeforeDispatch);
       result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
+      result = 31 * result + (groupRebalance ? 1 : 0);
+      result = 31 * result + groupBuckets;
       result = 31 * result + (configurationManaged ? 1 : 0);
       return result;
    }
@@ -460,6 +496,8 @@ public final class QueueConfig {
          + ", consumersBeforeDispatch=" + consumersBeforeDispatch
          + ", delayBeforeDispatch=" + delayBeforeDispatch
          + ", purgeOnNoConsumers=" + purgeOnNoConsumers
+         + ", groupRebalance=" + groupRebalance
+         + ", groupBuckets=" + groupBuckets
          + ", configurationManaged=" + configurationManaged + '}';
    }
 }

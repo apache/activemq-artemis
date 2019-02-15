@@ -62,6 +62,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public boolean configurationManaged;
 
+   public boolean groupRebalance;
+
+   public int groupBuckets;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -98,6 +102,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          routingType +
          ", configurationManaged=" +
          configurationManaged +
+         ", groupRebalance=" +
+         groupRebalance +
+         ", groupBuckets=" +
+         groupBuckets +
          "]";
    }
 
@@ -109,6 +117,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final int maxConsumers,
                                          final boolean purgeOnNoConsumers,
                                          final boolean exclusive,
+                                         final boolean groupRebalance,
+                                         final int groupBuckets,
                                          final boolean lastValue,
                                          final SimpleString lastValueKey,
                                          final boolean nonDestructive,
@@ -124,6 +134,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.maxConsumers = maxConsumers;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
+      this.groupRebalance = groupRebalance;
+      this.groupBuckets = groupBuckets;
       this.lastValue = lastValue;
       this.lastValueKey = lastValueKey;
       this.nonDestructive = nonDestructive;
@@ -286,6 +298,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   @Override
+   public int getGroupBuckets() {
+      return groupBuckets;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       address = buffer.readSimpleString();
@@ -351,6 +373,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          nonDestructive = ActiveMQDefaultConfiguration.getDefaultNonDestructive();
       }
+      if (buffer.readableBytes() > 0) {
+         groupRebalance = buffer.readBoolean();
+      } else {
+         groupRebalance = ActiveMQDefaultConfiguration.getDefaultGroupRebalance();
+      }
+      if (buffer.readableBytes() > 0) {
+         groupBuckets = buffer.readInt();
+      } else {
+         groupBuckets = ActiveMQDefaultConfiguration.getDefaultGroupBuckets();
+      }
    }
 
    @Override
@@ -370,6 +402,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeLong(delayBeforeDispatch);
       buffer.writeNullableSimpleString(lastValueKey);
       buffer.writeBoolean(nonDestructive);
+      buffer.writeBoolean(groupRebalance);
+      buffer.writeInt(groupBuckets);
    }
 
    @Override
@@ -386,7 +420,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_INT +
          DataConstants.SIZE_LONG +
          SimpleString.sizeofNullableString(lastValueKey) +
-         DataConstants.SIZE_BOOLEAN;
+         DataConstants.SIZE_BOOLEAN +
+         DataConstants.SIZE_BOOLEAN +
+         DataConstants.SIZE_INT;
+
    }
 
    private SimpleString createMetadata() {

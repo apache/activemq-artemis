@@ -591,7 +591,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
-      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), false);
+      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), false);
    }
 
    public Queue createQueue(final AddressInfo addressInfo,
@@ -602,6 +602,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final int maxConsumers,
                             final boolean purgeOnNoConsumers,
                             final boolean exclusive,
+                            final boolean groupRebalance,
+                            final int groupBuckets,
                             final boolean lastValue,
                             SimpleString lastValueKey,
                             final boolean nonDestructive,
@@ -627,7 +629,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, as.isAutoCreateAddresses());
+      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, as.isAutoCreateAddresses());
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -667,7 +669,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean purgeOnNoConsumers,
                             final boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
-      return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, as.isDefaultExclusiveQueue(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreated);
+      return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreated);
    }
 
    @Override
@@ -682,7 +684,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final Boolean exclusive,
                             final Boolean lastValue,
                             final boolean autoCreated) throws Exception {
-      return createQueue(address, name, routingType, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, null, null, null, null, autoCreated);
+      return createQueue(address, name, routingType, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, exclusive, null, null, lastValue, null, null, null, null, autoCreated);
    }
 
    @Override
@@ -695,16 +697,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final int maxConsumers,
                             final boolean purgeOnNoConsumers,
                             final Boolean exclusive,
+                            final Boolean groupRebalance,
+                            final Integer groupBuckets,
                             final Boolean lastValue,
                             final SimpleString lastValueKey,
                             final Boolean nonDestructive,
                             final Integer consumersBeforeDispatch,
                             final Long delayBeforeDispatch,
                             final boolean autoCreated) throws Exception {
-      if (exclusive == null || lastValue == null || lastValueKey == null || nonDestructive == null || consumersBeforeDispatch == null || delayBeforeDispatch == null) {
+      if (exclusive == null || groupRebalance == null || groupBuckets == null || lastValue == null || lastValueKey == null || nonDestructive == null || consumersBeforeDispatch == null || delayBeforeDispatch == null) {
          AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
                  exclusive == null ? as.isDefaultExclusiveQueue() : exclusive,
+                 groupRebalance == null ? as.isDefaultGroupRebalance() : groupRebalance,
+                 groupBuckets == null ? as.getDefaultGroupBuckets() : groupBuckets,
                  lastValue == null ? as.isDefaultLastValueQueue() : lastValue,
                  lastValueKey == null ? as.getDefaultLastValueKey() : lastValueKey,
                  nonDestructive == null ? as.isDefaultNonDestructive() : nonDestructive,
@@ -713,7 +719,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                  autoCreated);
       } else {
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
-                 exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreated);
+                 exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreated);
       }
    }
 
@@ -732,14 +738,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable, boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
-      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreated);
+      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreated);
    }
 
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable, Boolean exclusive, Boolean lastValue, boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
       return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(),
-                         exclusive == null ? as.isDefaultExclusiveQueue() : exclusive, lastValue == null ? as.isDefaultLastValueQueue() : lastValue, as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreated);
+                         exclusive == null ? as.isDefaultExclusiveQueue() : exclusive, as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), lastValue == null ? as.isDefaultLastValueQueue() : lastValue, as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), autoCreated);
    }
 
    @Override
@@ -778,7 +784,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  Boolean purgeOnNoConsumers,
                                  Boolean exclusive,
                                  Boolean lastValue) throws Exception {
-      createSharedQueue(address, name, routingType, filterString, durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, null, null, null, null);
+      createSharedQueue(address, name, routingType, filterString, durable, maxConsumers, purgeOnNoConsumers, exclusive, null, null, lastValue, null, null, null, null);
    }
 
    @Override
@@ -790,6 +796,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  Integer maxConsumers,
                                  Boolean purgeOnNoConsumers,
                                  Boolean exclusive,
+                                 Boolean groupRebalance,
+                                 Integer groupBuckets,
                                  Boolean lastValue,
                                  SimpleString lastValueKey,
                                  Boolean nonDestructive,
@@ -807,6 +815,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                maxConsumers == null ? as.getDefaultMaxConsumers() : maxConsumers,
                                purgeOnNoConsumers == null ? as.isDefaultPurgeOnNoConsumers() : purgeOnNoConsumers,
                                exclusive == null ? as.isDefaultExclusiveQueue() : exclusive,
+                               groupRebalance == null ? as.isDefaultGroupRebalance() : groupRebalance,
+                               groupBuckets == null ? as.getDefaultGroupBuckets() : groupBuckets,
                                lastValue == null ? as.isDefaultLastValueQueue() : lastValue,
                                lastValueKey == null ? as.getDefaultLastValueKey() : lastValueKey,
                                nonDestructive == null ? as.isDefaultNonDestructive() : nonDestructive,
