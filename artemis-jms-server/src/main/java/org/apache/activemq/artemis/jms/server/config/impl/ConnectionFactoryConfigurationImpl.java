@@ -129,6 +129,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private boolean enableSharedClientID = ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
+   private boolean useTopologyForLoadBalancing = ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
+
 
    // Static --------------------------------------------------------
 
@@ -643,8 +645,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
 
-      enableSharedClientID = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
+      enableSharedClientID = buffer.readableBytes() > 0 ? BufferHelper.readNullableBoolean(buffer) : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
+      useTopologyForLoadBalancing = buffer.readableBytes() > 0 ? BufferHelper.readNullableBoolean(buffer) : ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
    }
 
    @Override
@@ -738,6 +741,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       buffer.writeBoolean(enable1xPrefixes);
 
       BufferHelper.writeNullableBoolean(buffer, enableSharedClientID);
+
+      BufferHelper.writeNullableBoolean(buffer, useTopologyForLoadBalancing);
    }
 
    @Override
@@ -856,7 +861,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
          DataConstants.SIZE_BOOLEAN +
          // enable1xPrefixes;
 
-         BufferHelper.sizeOfNullableBoolean(enableSharedClientID);
+         BufferHelper.sizeOfNullableBoolean(enableSharedClientID) +
+
+         BufferHelper.sizeOfNullableBoolean(useTopologyForLoadBalancing);
 
       return size;
    }
@@ -934,6 +941,17 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    @Override
    public boolean isEnableSharedClientID() {
       return enableSharedClientID;
+   }
+
+   @Override
+   public ConnectionFactoryConfiguration setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      this.useTopologyForLoadBalancing = useTopologyForLoadBalancing;
+      return this;
+   }
+
+   @Override
+   public boolean getUseTopologyForLoadBalancing() {
+      return useTopologyForLoadBalancing;
    }
 
    // Public --------------------------------------------------------
