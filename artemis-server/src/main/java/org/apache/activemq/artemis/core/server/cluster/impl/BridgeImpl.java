@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -134,6 +135,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    // on cases where sub-classes need a consumer
    protected volatile ClientSessionInternal sessionConsumer;
+
+
+   // this will happen if a disconnect happened
+   // upon reconnection we need to send the nodeUP back into the topology
+   protected volatile boolean disconnectedAndDown = false;
 
    protected String targetNodeID;
 
@@ -853,6 +859,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       logger.debug(this + "\n\t::fail being called, permanently=" + permanently);
       //we need to make sure we remove the node from the topology so any incoming quorum requests are voted correctly
       if (targetNodeID != null) {
+         this.disconnectedAndDown = true;
          serverLocator.notifyNodeDown(System.currentTimeMillis(), targetNodeID);
       }
       if (queue != null) {
@@ -874,6 +881,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    /* Hook for doing extra stuff after connection */
    protected void afterConnect() throws Exception {
+      if (disconnectedAndDown && targetNodeID != null && targetNode != null) {
+         serverLocator.notifyNodeUp(System.currentTimeMillis(), targetNodeID, targetNode.getBackupGroupName(), targetNode.getScaleDownGroupName(),
+                                    new Pair<>(targetNode.getLive(), targetNode.getBackup()), false);
+         disconnectedAndDown = false;
+      }
       retryCount = 0;
       reconnectAttemptsInUse = reconnectAttempts;
       if (futureScheduledReconnection != null) {
