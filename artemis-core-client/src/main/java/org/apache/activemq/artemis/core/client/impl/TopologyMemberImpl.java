@@ -37,6 +37,7 @@ public final class TopologyMemberImpl implements TopologyMember {
 
    private final String scaleDownGroupName;
 
+
    /**
     * transient to avoid serialization changes
     */
@@ -154,5 +155,36 @@ public final class TopologyMemberImpl implements TopologyMember {
    @Override
    public String toString() {
       return "TopologyMember[id = " + nodeId + ", connector=" + connector + ", backupGroupName=" + backupGroupName + ", scaleDownGroupName=" + scaleDownGroupName + "]";
+   }
+
+
+   @Override
+   public boolean equals(Object o) {
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
+         return false;
+
+      TopologyMemberImpl that = (TopologyMemberImpl) o;
+
+      // note the uniqueEventId is not park of the equals and hashmap key
+
+      if (connector != null ? !connector.equals(that.connector) : that.connector != null)
+         return false;
+      if (backupGroupName != null ? !backupGroupName.equals(that.backupGroupName) : that.backupGroupName != null)
+         return false;
+      if (scaleDownGroupName != null ? !scaleDownGroupName.equals(that.scaleDownGroupName) : that.scaleDownGroupName != null)
+         return false;
+      return nodeId != null ? nodeId.equals(that.nodeId) : that.nodeId == null;
+   }
+
+   @Override
+   public int hashCode() {
+      // note the uniqueEventId is not park of the equals and hashmap key
+      int result = connector != null ? connector.hashCode() : 0;
+      result = 31 * result + (backupGroupName != null ? backupGroupName.hashCode() : 0);
+      result = 31 * result + (scaleDownGroupName != null ? scaleDownGroupName.hashCode() : 0);
+      result = 31 * result + (nodeId != null ? nodeId.hashCode() : 0);
+      return result;
    }
 }
