@@ -65,9 +65,11 @@ public class WebTmpCleaner {
    public static final void deleteFolder(final File file) {
       if (file.isDirectory()) {
          String[] files = file.list();
-         for (String path : files) {
-            File f = new File(file, path);
-            deleteFolder(f);
+         if (files != null) {
+            for (String path : files) {
+               File f = new File(file, path);
+               deleteFolder(f);
+            }
          }
       }
       file.delete();
