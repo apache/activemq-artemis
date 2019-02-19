@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
@@ -149,6 +151,41 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       for (String key : y0Params.keySet()) {
          Assert.assertEquals(ctParams.get(key), y0Params.get(key));
       }
+   }
+
+   @Test
+   public void testConnectionFactoryEncodeDecode() throws Exception {
+      jmsServer.getActiveMQServer().getConfiguration().addConnectorConfiguration("foo", "tcp://localhost:1234");
+
+      ArrayList<String> connectorNames = new ArrayList<>();
+      connectorNames.add("foo");
+      ConnectionFactoryConfiguration cfc1 = new ConnectionFactoryConfigurationImpl()
+         .setName("MyConnectionFactory")
+         .setConnectorNames(connectorNames)
+         .setUseTopologyForLoadBalancing(false)
+         .setEnableSharedClientID(true);
+
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
+      cfc1.encode(buffer);
+      byte[] bytes = new byte[buffer.readableBytes()];
+      buffer.readBytes(bytes);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      outputStream.write(bytes);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+      buffer = ActiveMQBuffers.dynamicBuffer(1024);
+      while (true) {
+         int byteRead = inputStream.read();
+         if (byteRead < 0) {
+            break;
+         }
+
+         buffer.writeByte((byte)byteRead);
+      }
+      ConnectionFactoryConfigurationImpl cfc2 = new ConnectionFactoryConfigurationImpl();
+      cfc2.decode(buffer);
+
+      assertEquals(cfc1.getUseTopologyForLoadBalancing(), cfc2.getUseTopologyForLoadBalancing());
+      assertEquals(cfc1.isEnableSharedClientID(), cfc2.isEnableSharedClientID());
    }
 
    private void createDiscoveryFactoryUDP() throws Exception {
