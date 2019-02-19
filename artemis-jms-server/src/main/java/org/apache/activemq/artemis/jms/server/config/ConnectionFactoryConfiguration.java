@@ -197,4 +197,8 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
    boolean isEnableSharedClientID();
 
    ConnectionFactoryConfiguration setEnableSharedClientID(boolean enabled);
+
+   boolean getUseTopologyForLoadBalancing();
+
+   ConnectionFactoryConfiguration setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing);
 }
