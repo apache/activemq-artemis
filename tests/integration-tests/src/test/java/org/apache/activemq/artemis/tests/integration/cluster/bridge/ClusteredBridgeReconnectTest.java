@@ -16,15 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import java.util.ArrayList;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -81,6 +86,9 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       MessageFlowRecord record = connection.getRecords().values().toArray(new MessageFlowRecord[1])[0];
       ClusterConnectionBridge bridge = (ClusterConnectionBridge) record.getBridge();
 
+      Wait.assertEquals(2, bridge.getSessionFactory().getServerLocator().getTopology().getMembers()::size);
+      ArrayList<TopologyMemberImpl> originalmembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
+
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = session0.createMessage(true);
          producer.send(msg);
@@ -90,6 +98,28 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
             bridge.getSessionFactory().getConnection().fail(new ActiveMQException("failed once!"));
          }
       }
+
+      Wait.assertEquals(2, bridge.getSessionFactory().getServerLocator().getTopology().getMembers()::size);
+
+      ArrayList<TopologyMemberImpl> afterReconnectedMembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
+
+      boolean allFound = true;
+
+      for (TopologyMemberImpl originalMember : originalmembers) {
+         boolean found = false;
+         for (TopologyMember reconnectedMember : afterReconnectedMembers) {
+            if (originalMember.equals(reconnectedMember)) {
+               found = true;
+               break;
+            }
+         }
+
+         if (!found) {
+            allFound = false;
+         }
+      }
+
+      Assert.assertTrue("The topology is slightly different after a reconnect", allFound);
 
       int cons0Count = 0, cons1Count = 0;
 
