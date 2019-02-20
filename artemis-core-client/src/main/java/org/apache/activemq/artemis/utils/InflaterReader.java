@@ -78,7 +78,7 @@ public class InflaterReader extends InputStream {
     */
    private int doRead(byte[] buf, int offset, int len) throws DataFormatException, IOException {
       int read = 0;
-      int n = 0;
+      int n;
       byte[] inputBuffer = new byte[len];
 
       while (len > 0) {
