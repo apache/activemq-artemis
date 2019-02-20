@@ -190,9 +190,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
    }
 
    public synchronized List<DiscoveryEntry> getDiscoveryEntries() {
-      List<DiscoveryEntry> list = new ArrayList<>(connectors.values());
-
-      return list;
+      return new ArrayList<>(connectors.values());
    }
 
    public boolean waitForBroadcast(final long timeout) {

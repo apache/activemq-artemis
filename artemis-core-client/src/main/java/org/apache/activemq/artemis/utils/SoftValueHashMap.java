@@ -308,7 +308,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
    @SuppressWarnings("unchecked")
    private void processQueue() {
-      AggregatedSoftReference ref = null;
+      AggregatedSoftReference ref;
       while ((ref = (AggregatedSoftReference) this.refQueue.poll()) != null) {
          logger.tracef("Removing reference through processQueue:: %s", ref.get());
          mapDelegate.remove(ref.key);
@@ -316,8 +316,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    }
 
    private AggregatedSoftReference createReference(final K key, final V value) {
-      AggregatedSoftReference ref = new AggregatedSoftReference(key, value);
-      return ref;
+      return new AggregatedSoftReference(key, value);
    }
 
    // Inner classes -------------------------------------------------

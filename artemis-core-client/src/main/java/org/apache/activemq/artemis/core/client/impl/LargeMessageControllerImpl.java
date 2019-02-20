@@ -741,8 +741,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    }
 
    public int readInt(final int pos) {
-      int v = getInt(pos);
-      return v;
+      return getInt(pos);
    }
 
    @Override

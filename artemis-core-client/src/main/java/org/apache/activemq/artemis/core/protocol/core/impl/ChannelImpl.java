@@ -571,11 +571,9 @@ public final class ChannelImpl implements Channel {
 
          // And switch it
 
-         final CoreRemotingConnection rnewConnection = newConnection;
+         newConnection.putChannel(id, this);
 
-         rnewConnection.putChannel(id, this);
-
-         connection = rnewConnection;
+         connection = newConnection;
 
          transferring = true;
       }
