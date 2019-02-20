@@ -333,7 +333,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       this.discoveryGroupConfiguration = discoveryGroupConfiguration;
 
-      this.initialConnectors = transportConfigs != null ? transportConfigs : null;
+      this.initialConnectors = transportConfigs;
 
       this.nodeID = UUIDGenerator.getInstance().generateStringUUID();
 
