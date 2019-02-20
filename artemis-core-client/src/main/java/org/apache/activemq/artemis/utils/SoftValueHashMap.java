@@ -316,8 +316,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    }
 
    private AggregatedSoftReference createReference(final K key, final V value) {
-      AggregatedSoftReference ref = new AggregatedSoftReference(key, value);
-      return ref;
+      return new AggregatedSoftReference(key, value);
    }
 
    // Inner classes -------------------------------------------------
