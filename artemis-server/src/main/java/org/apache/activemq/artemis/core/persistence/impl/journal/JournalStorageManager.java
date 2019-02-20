@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -506,11 +507,21 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       };
 
-      if (executor == null) {
-         deleteAction.run();
-      } else {
-         executor.execute(deleteAction);
-      }
+      getContext(true).executeOnCompletion(new IOCallback() {
+         @Override
+         public void done() {
+            if (executor == null) {
+               deleteAction.run();
+            } else {
+               executor.execute(deleteAction);
+            }
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+
+         }
+      });
    }
 
    @Override
