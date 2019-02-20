@@ -86,7 +86,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       MessageFlowRecord record = connection.getRecords().values().toArray(new MessageFlowRecord[1])[0];
       ClusterConnectionBridge bridge = (ClusterConnectionBridge) record.getBridge();
 
-      Wait.assertEquals(2, bridge.getSessionFactory().getServerLocator().getTopology().getMembers()::size);
+      Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
       ArrayList<TopologyMemberImpl> originalmembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
@@ -99,7 +99,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          }
       }
 
-      Wait.assertEquals(2, bridge.getSessionFactory().getServerLocator().getTopology().getMembers()::size);
+      Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
 
       ArrayList<TopologyMemberImpl> afterReconnectedMembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
 
