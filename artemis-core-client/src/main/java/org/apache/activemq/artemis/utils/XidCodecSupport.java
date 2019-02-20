@@ -43,8 +43,7 @@ public class XidCodecSupport {
       in.readBytes(bq);
       byte[] gtxid = new byte[in.readInt()];
       in.readBytes(gtxid);
-      Xid xid = new XidImpl(bq, formatID, gtxid);
-      return xid;
+      return new XidImpl(bq, formatID, gtxid);
    }
 
    public static int getXidEncodeLength(final Xid xid) {
