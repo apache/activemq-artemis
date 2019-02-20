@@ -116,7 +116,7 @@ public final class XMLUtil {
          }
       }
 
-      String textContent = null;
+      String textContent;
       NodeList children = n.getChildNodes();
 
       if (children.getLength() == 0) {

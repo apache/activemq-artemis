@@ -71,7 +71,7 @@ public class DeflaterReader extends InputStream {
       //buffer for reading input stream
       byte[] readBuffer = new byte[2 * len];
 
-      int n = 0;
+      int n;
       int read = 0;
 
       while (len > 0) {
