@@ -288,7 +288,7 @@ public class SSLSupport {
          return new URL(storePath);
       } catch (MalformedURLException e) {
          File file = new File(storePath);
-         if (file.exists() == true && file.isFile()) {
+         if (file.exists() && file.isFile()) {
             return file.toURI().toURL();
          } else {
             URL url = findResource(storePath);

@@ -317,8 +317,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private static DiscoveryGroup createDiscoveryGroup(String nodeID,
                                                       DiscoveryGroupConfiguration config) throws Exception {
-      DiscoveryGroup group = new DiscoveryGroup(nodeID, config.getName(), config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
-      return group;
+      return new DiscoveryGroup(nodeID, config.getName(), config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
    }
 
    private ServerLocatorImpl(final Topology topology,
@@ -672,8 +671,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
       if (topologyMember.getLive() == null && topologyMember.getBackup() != null) {
          // This shouldn't happen, however I wanted this to consider all possible cases
-         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getBackup());
-         return factory;
+         return (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getBackup());
       }
       // it shouldn't happen
       return null;
@@ -1854,8 +1852,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private Object writeReplace() throws ObjectStreamException {
-      ServerLocatorImpl clone = new ServerLocatorImpl(this);
-      return clone;
+      return new ServerLocatorImpl(this);
    }
 
    public boolean isReceivedTopology() {
