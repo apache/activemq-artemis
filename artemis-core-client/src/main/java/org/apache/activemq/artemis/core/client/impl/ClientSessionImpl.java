@@ -1573,7 +1573,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       } catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.failoverDuringCommit();
 
-         XAException xaException = null;
+         XAException xaException;
          if (onePhase) {
             logger.debug("Throwing oneFase RMFAIL on xid=" + xid, t);
             //we must return XA_RMFAIL
