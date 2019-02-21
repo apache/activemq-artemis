@@ -180,6 +180,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected String journalDirectory = ActiveMQDefaultConfiguration.getDefaultJournalDir();
 
+   protected String nodeManagerLockDirectory = null;
+
    protected boolean createJournalDir = ActiveMQDefaultConfiguration.isDefaultCreateJournalDir();
 
    public JournalType journalType = ConfigurationImpl.DEFAULT_JOURNAL_TYPE;
@@ -812,6 +814,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setJournalDirectory(final String dir) {
       journalDirectory = dir;
+      return this;
+   }
+
+   @Override
+   public File getNodeManagerLockLocation() {
+      if (nodeManagerLockDirectory == null) {
+         return getJournalLocation();
+      } else {
+         return subFolder(nodeManagerLockDirectory);
+      }
+   }
+
+   @Override
+   public Configuration setNodeManagerLockDirectory(String dir) {
+      nodeManagerLockDirectory = dir;
       return this;
    }
 
