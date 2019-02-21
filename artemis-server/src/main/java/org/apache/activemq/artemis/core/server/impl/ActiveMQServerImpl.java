@@ -549,7 +549,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       try {
          checkJournalDirectory();
 
-         nodeManager = createNodeManager(configuration.getJournalLocation(), false);
+         nodeManager = createNodeManager(configuration.getNodeManagerLockLocation(), false);
 
          nodeManager.start();
 
@@ -758,7 +758,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (nodeManager != null) {
          nodeManager.stop();
       }
-      nodeManager = createNodeManager(configuration.getJournalLocation(), true);
+      nodeManager = createNodeManager(configuration.getNodeManagerLockLocation(), true);
    }
 
    @Override
@@ -3360,6 +3360,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             journalDir.mkdirs();
          } else {
             throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(journalDir.getAbsolutePath());
+         }
+      }
+
+      File nodeManagerLockDir = configuration.getNodeManagerLockLocation();
+      if (!journalDir.equals(nodeManagerLockDir)) {
+         if (configuration.isPersistenceEnabled() && !nodeManagerLockDir.exists()) {
+            nodeManagerLockDir.mkdirs();
          }
       }
    }

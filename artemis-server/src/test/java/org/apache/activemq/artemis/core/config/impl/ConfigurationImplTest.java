@@ -86,6 +86,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultServerDumpInterval(), conf.getServerDumpInterval());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryWarningThreshold(), conf.getMemoryWarningThreshold());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval(), conf.getMemoryMeasureInterval());
+      Assert.assertEquals(conf.getJournalLocation(), conf.getNodeManagerLockLocation());
    }
 
    @Test
@@ -498,6 +499,11 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          configuration.setJournalDirectory("./data-journal");
          File journalLocation = configuration.getJournalLocation();
          Assert.assertFalse("This path shouldn't resolve to a real folder", journalLocation.exists());
+         Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         Assert.assertFalse(configuration.getNodeManagerLockLocation().exists());
+         configuration.setNodeManagerLockDirectory("./lock-folder");
+         Assert.assertNotEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         Assert.assertFalse("This path shouldn't resolve to a real folder", configuration.getNodeManagerLockLocation().exists());
       } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
@@ -531,6 +537,22 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          File journalLocation = configuration.getJournalLocation();
 
          Assert.assertTrue(journalLocation.exists());
+         Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         Assert.assertTrue(configuration.getNodeManagerLockLocation().exists());
+
+         tempFolder = File.createTempFile("lock-folder", "");
+         tempFolder.delete();
+
+         tempFolder.getAbsolutePath();
+
+         tempFolder = new File(tempFolder.getAbsolutePath());
+         tempFolder.mkdirs();
+
+         System.out.println("TempFolder = " + tempFolder.getAbsolutePath());
+         configuration.setNodeManagerLockDirectory(tempFolder.getAbsolutePath());
+         File lockLocation = configuration.getNodeManagerLockLocation();
+         Assert.assertTrue(lockLocation.exists());
+
       } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
