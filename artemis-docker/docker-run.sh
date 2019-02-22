@@ -36,6 +36,6 @@ else
     echo "broker already created, ignoring creation"
 fi
 
-./bin/artemis run
+exec ./bin/artemis "$@"
 
 
