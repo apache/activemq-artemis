@@ -24,6 +24,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
@@ -31,8 +34,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -316,6 +322,48 @@ public class ReconnectTest extends ActiveMQTestBase {
       } finally {
       }
 
+   }
+
+   @Test
+   public void testReattachTimeout() throws Exception {
+      ActiveMQServer server = createServer(true, true);
+      server.start();
+      // imitate session reattach timeout
+      Interceptor reattachInterceptor = new Interceptor() {
+         @Override
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+            if (packet.getType() == PacketImpl.REATTACH_SESSION) {
+               return false;
+            } else {
+               return true;
+            }
+
+         }
+      };
+      server.getRemotingService().addIncomingInterceptor(reattachInterceptor);
+
+      final long retryInterval = 50;
+      final double retryMultiplier = 1d;
+      final int reconnectAttempts = 10;
+      ServerLocator locator = createFactory(true).setCallTimeout(2000).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(-1);
+      ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
+      final CountDownLatch latch = new CountDownLatch(1);
+      sf.addFailoverListener(eventType -> {
+         if (eventType == FailoverEventType.FAILOVER_FAILED) {
+            latch.countDown();
+         }
+      });
+
+      ClientSession session = sf.createSession(false, true, true);
+      RemotingConnection conn = ((ClientSessionInternal) session).getConnection();
+      conn.fail(new ActiveMQNotConnectedException());
+
+      assertTrue(latch.await(1000, TimeUnit.MILLISECONDS));
+      assertTrue(session.isClosed());
+
+      session.close();
+      sf.close();
+      server.stop();
    }
 
    // Package protected ---------------------------------------------
