@@ -71,6 +71,8 @@ public interface PostOffice extends ActiveMQComponent {
                             Integer maxConsumers,
                             Boolean purgeOnNoConsumers,
                             Boolean exclusive,
+                            Boolean groupRebalance,
+                            Integer groupBuckets,
                             Boolean nonDestructive,
                             Integer consumersBeforeDispatch,
                             Long delayBeforeDispatch,

@@ -34,6 +34,10 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private Boolean exclusive;
 
+   private Boolean groupRebalance;
+
+   private Integer groupBuckets;
+
    private Boolean lastValue;
 
    private SimpleString lastValueKey;
@@ -62,6 +66,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          autoCreated,
          requiresResponse,
          queueAttributes.getExclusive(),
+         queueAttributes.getGroupRebalance(),
+         queueAttributes.getGroupBuckets(),
          queueAttributes.getLastValue(),
          queueAttributes.getLastValueKey(),
          queueAttributes.getNonDestructive(),
@@ -81,6 +87,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
                                 final boolean autoCreated,
                                 final boolean requiresResponse,
                                 final Boolean exclusive,
+                                final Boolean groupRebalance,
+                                final Integer groupBuckets,
                                 final Boolean lastValue,
                                 final SimpleString lastValueKey,
                                 final Boolean nonDestructive,
@@ -99,6 +107,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.maxConsumers = maxConsumers;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
+      this.groupRebalance = groupRebalance;
+      this.groupBuckets = groupBuckets;
       this.lastValue = lastValue;
       this.lastValueKey = lastValueKey;
       this.nonDestructive = nonDestructive;
@@ -120,6 +130,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", maxConsumers=" + maxConsumers);
       buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
       buff.append(", exclusive=" + exclusive);
+      buff.append(", groupRebalance=" + groupRebalance);
+      buff.append(", groupBuckets=" + groupBuckets);
       buff.append(", lastValue=" + lastValue);
       buff.append(", lastValueKey=" + lastValue);
       buff.append(", nonDestructive=" + nonDestructive);
@@ -209,6 +221,22 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.delayBeforeDispatch = delayBeforeDispatch;
    }
 
+   public Boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   public void setGroupRebalance(Boolean groupRebalance) {
+      this.groupRebalance = groupRebalance;
+   }
+
+   public Integer getGroupBuckets() {
+      return groupBuckets;
+   }
+
+   public void setGroupBuckets(Integer groupBuckets) {
+      this.groupBuckets = groupBuckets;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
@@ -222,6 +250,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       BufferHelper.writeNullableBoolean(buffer, nonDestructive);
       BufferHelper.writeNullableInteger(buffer, consumersBeforeDispatch);
       BufferHelper.writeNullableLong(buffer, delayBeforeDispatch);
+      BufferHelper.writeNullableBoolean(buffer, groupRebalance);
+      BufferHelper.writeNullableInteger(buffer, groupBuckets);
    }
 
    @Override
@@ -240,6 +270,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          nonDestructive = BufferHelper.readNullableBoolean(buffer);
          consumersBeforeDispatch = BufferHelper.readNullableInteger(buffer);
          delayBeforeDispatch = BufferHelper.readNullableLong(buffer);
+         groupRebalance = BufferHelper.readNullableBoolean(buffer);
+         groupBuckets = BufferHelper.readNullableInteger(buffer);
       }
    }
 
@@ -252,6 +284,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       result = prime * result + (maxConsumers);
       result = prime * result + (purgeOnNoConsumers ? 1231 : 1237);
       result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
+      result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
+      result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
       result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
       result = prime * result + (lastValueKey == null ? 0 : lastValueKey.hashCode());
       result = prime * result + (nonDestructive == null ? 0 : nonDestructive ? 1231 : 1237);
@@ -279,6 +313,16 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          if (other.exclusive != null)
             return false;
       } else if (!exclusive.equals(other.exclusive))
+         return false;
+      if (groupRebalance == null) {
+         if (other.groupRebalance != null)
+            return false;
+      } else if (!groupRebalance.equals(other.groupRebalance))
+         return false;
+      if (groupBuckets == null) {
+         if (other.groupBuckets != null)
+            return false;
+      } else if (!groupBuckets.equals(other.groupBuckets))
          return false;
       if (lastValue == null) {
          if (other.lastValue != null)

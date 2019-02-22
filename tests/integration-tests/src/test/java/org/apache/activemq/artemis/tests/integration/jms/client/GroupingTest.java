@@ -31,8 +31,11 @@ import javax.jms.TextMessage;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -302,6 +305,355 @@ public class GroupingTest extends JMSTestBase {
          received++;
       }
       return received;
+   }
+
+   @Test
+   public void testGroupBuckets() throws Exception {
+      ConnectionFactory fact = getCF();
+      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
+      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+
+      String testQueueName = getName() + "_bucket_group";
+
+      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 2, false, null, false, 0, 0, true);
+
+
+      JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
+
+      Queue testQueue = ctx.createQueue(testQueueName);
+
+
+      final String groupID1 = "groupA";
+      final String groupID2 = "groupB";
+      final String groupID3 = "groupC";
+
+      //Ensure the groups bucket as we expect.
+      assertEquals((groupID1.hashCode() & Integer.MAX_VALUE) % 2, 0);
+      assertEquals((groupID2.hashCode() & Integer.MAX_VALUE) % 2, 1);
+      assertEquals((groupID3.hashCode() & Integer.MAX_VALUE) % 2, 0);
+
+      JMSProducer producer1 = ctx.createProducer().setProperty("JMSXGroupID", groupID1);
+      JMSProducer producer2 = ctx.createProducer().setProperty("JMSXGroupID", groupID2);
+      JMSProducer producer3 = ctx.createProducer().setProperty("JMSXGroupID", groupID3);
+
+      JMSConsumer consumer1 = ctx.createConsumer(testQueue);
+      JMSConsumer consumer2 = ctx.createConsumer(testQueue);
+      JMSConsumer consumer3 = ctx.createConsumer(testQueue);
+
+      ctx.start();
+
+      for (int j = 0; j < 10; j++) {
+         send(ctx, testQueue, groupID1, producer1, j);
+      }
+      for (int j = 10; j < 20; j++) {
+         send(ctx, testQueue, groupID2, producer2, j);
+      }
+      for (int j = 20; j < 30; j++) {
+         send(ctx, testQueue, groupID3, producer3, j);
+      }
+
+      ctx.commit();
+
+      //First two set of msgs should go to the first two consumers only (buckets is 2)
+      for (int j = 0; j < 10; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+
+         tm = (TextMessage) consumer2.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + (j + 10), tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+
+         assertNull(consumer3.receiveNoWait());
+      }
+
+      //Last set of msgs should go to the first consumer as bucketed queue with two bucket groups only
+      for (int j = 20; j < 30; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+
+         assertNull(consumer2.receiveNoWait());
+         assertNull(consumer3.receiveNoWait());
+
+      }
+
+
+      ctx.commit();
+
+      ctx.close();
+   }
+
+   @Test
+   public void testGroupRebalance() throws Exception {
+      ConnectionFactory fact = getCF();
+      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
+      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      String testQueueName = getName() + "_group_rebalance";
+
+      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, true, -1, false, null, false, 0, 0, true);
+
+      JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
+
+      Queue testQueue = ctx.createQueue(testQueueName);
+
+
+      final String groupID1 = "groupA";
+      final String groupID2 = "groupB";
+      final String groupID3 = "groupC";
+
+
+      JMSProducer producer1 = ctx.createProducer().setProperty("JMSXGroupID", groupID1);
+      JMSProducer producer2 = ctx.createProducer().setProperty("JMSXGroupID", groupID2);
+      JMSProducer producer3 = ctx.createProducer().setProperty("JMSXGroupID", groupID3);
+
+      JMSConsumer consumer1 = ctx.createConsumer(testQueue);
+      JMSConsumer consumer2 = ctx.createConsumer(testQueue);
+
+      ctx.start();
+
+      for (int j = 0; j < 10; j++) {
+         send(ctx, testQueue, groupID1, producer1, j);
+      }
+      for (int j = 10; j < 20; j++) {
+         send(ctx, testQueue, groupID2, producer2, j);
+      }
+      for (int j = 20; j < 30; j++) {
+         send(ctx, testQueue, groupID3, producer3, j);
+      }
+
+      ctx.commit();
+
+      //First set of msgs should go to the first consumer only
+      for (int j = 0; j < 10; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+      }
+
+      //Second set of msgs should go to the second consumers only
+      for (int j = 10; j < 20; j++) {
+         TextMessage tm = (TextMessage) consumer2.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+      }
+
+      //Third set of msgs should go to the first consumer only
+      for (int j = 20; j < 30; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+      }
+      ctx.commit();
+
+      //Add new consumer, that should cause rebalance
+      JMSConsumer consumer3 = ctx.createConsumer(testQueue);
+
+      for (int j = 0; j < 10; j++) {
+         send(ctx, testQueue, groupID1, producer1, j);
+      }
+      for (int j = 10; j < 20; j++) {
+         send(ctx, testQueue, groupID2, producer2, j);
+      }
+      for (int j = 20; j < 30; j++) {
+         send(ctx, testQueue, groupID3, producer3, j);
+      }
+      ctx.commit();
+
+      //First set of msgs should go to the first consumer only
+      for (int j = 0; j < 10; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+      }
+
+      //Second set of msgs should go to the second consumers only
+      for (int j = 10; j < 20; j++) {
+         TextMessage tm = (TextMessage) consumer2.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+      }
+
+      //Third set of msgs should now go to the third consumer now
+      for (int j = 20; j < 30; j++) {
+         TextMessage tm = (TextMessage) consumer3.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+      }
+
+      ctx.commit();
+
+      ctx.close();
+   }
+
+   @Test
+   public void testGroupDisable() throws Exception {
+      ConnectionFactory fact = getCF();
+      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
+      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      String testQueueName = getName() + "_group_disable";
+
+      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 0, false, null, false, 0, 0, true);
+
+      JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
+
+      Queue testQueue = ctx.createQueue(testQueueName);
+
+
+      final String groupID1 = "groupA";
+      final String groupID2 = "groupB";
+      final String groupID3 = "groupC";
+
+
+      JMSProducer producer1 = ctx.createProducer().setProperty("JMSXGroupID", groupID1);
+      JMSProducer producer2 = ctx.createProducer().setProperty("JMSXGroupID", groupID2);
+      JMSProducer producer3 = ctx.createProducer().setProperty("JMSXGroupID", groupID3);
+
+      JMSConsumer consumer1 = ctx.createConsumer(testQueue);
+      JMSConsumer consumer2 = ctx.createConsumer(testQueue);
+      JMSConsumer consumer3 = ctx.createConsumer(testQueue);
+
+      ctx.start();
+
+      for (int j = 0; j < 10; j++) {
+         send(ctx, testQueue, groupID1, producer1, j);
+      }
+      for (int j = 10; j < 20; j++) {
+         send(ctx, testQueue, groupID2, producer2, j);
+      }
+      for (int j = 20; j < 30; j++) {
+         send(ctx, testQueue, groupID3, producer3, j);
+      }
+
+      ctx.commit();
+
+      //Msgs should just round robin and ignore grouping semantics
+      int j = 0;
+      while (j < 30) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), j < 10 ? groupID1 : j < 20 ? groupID2 : groupID3);
+         j++;
+
+         tm = (TextMessage) consumer2.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), j < 10 ? groupID1 : j < 20 ? groupID2 : groupID3);
+         j++;
+
+         tm = (TextMessage) consumer3.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), j < 10 ? groupID1 : j < 20 ? groupID2 : groupID3);
+         j++;
+      }
+
+      ctx.commit();
+
+      ctx.close();
+   }
+
+
+   private void send(JMSContext ctx, Queue testQueue, String groupID1, JMSProducer producer1, int j) throws JMSException {
+      TextMessage message = ctx.createTextMessage("Message" + j);
+      producer1.send(testQueue, message);
+      String prop = message.getStringProperty("JMSXGroupID");
+      assertNotNull(prop);
+      assertEquals(groupID1, prop);
+   }
+
+   @Test
+   public void testGroupBucketUsingAddressQueueParameters() throws Exception {
+      ConnectionFactory fact = getCF();
+      Connection connection = fact.createConnection();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         String testQueueName = getName() + "group_bucket_param";
+
+         Queue queue = session.createQueue(testQueueName + "?group-buckets=4");
+         assertEquals(testQueueName, queue.getQueueName());
+
+
+         ActiveMQDestination a = (ActiveMQDestination) queue;
+         assertEquals(Integer.valueOf(4), a.getQueueAttributes().getGroupBuckets());
+
+         MessageProducer producer = session.createProducer(queue);
+
+
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         assertEquals(4, queueBinding.getQueue().getGroupBuckets());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testGroupRebalanceUsingAddressQueueParameters() throws Exception {
+      ConnectionFactory fact = getCF();
+      Connection connection = fact.createConnection();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         String testQueueName = getName() + "group_rebalance_param";
+
+         Queue queue = session.createQueue(testQueueName + "?group-rebalance=true");
+         assertEquals(testQueueName, queue.getQueueName());
+
+
+         ActiveMQDestination a = (ActiveMQDestination) queue;
+         assertTrue(a.getQueueAttributes().getGroupRebalance());
+
+         MessageProducer producer = session.createProducer(queue);
+
+
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         assertTrue(queueBinding.getQueue().isGroupRebalance());
+      } finally {
+         connection.close();
+      }
    }
 
 }

@@ -104,6 +104,14 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setMaxConsumer(int maxConsumers);
 
+   int getGroupBuckets();
+
+   void setGroupBuckets(int groupBuckets);
+
+   boolean isGroupRebalance();
+
+   void setGroupRebalance(boolean groupRebalance);
+
    boolean isConfigurationManaged();
 
    void setConfigurationManaged(boolean configurationManaged);

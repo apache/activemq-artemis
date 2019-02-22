@@ -517,6 +517,8 @@
                         <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
                         <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="group-rebalance" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="group-buckets" type="xsd:int" use="optional"/>
                         <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="last-value-key" type="xsd:string" use="optional"/>
                         <xsd:attribute name="non-destructive" type="xsd:boolean" use="optional"/>
@@ -2852,6 +2854,22 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="default-group-rebalance" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether to rebalance groups when a consumer is added
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-group-buckets" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     number of buckets to use for grouping, -1 (default) is unlimited and uses the raw group, 0 disables message groups.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="default-consumers-before-dispatch" type="xsd:int" default="0" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -3210,6 +3228,8 @@
       <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="group-rebalance" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="group-buckets" type="xsd:int" use="optional"/>
       <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="last-value-key" type="xsd:string" use="optional"/>
       <xsd:attribute name="non-destructive" type="xsd:boolean" use="optional"/>

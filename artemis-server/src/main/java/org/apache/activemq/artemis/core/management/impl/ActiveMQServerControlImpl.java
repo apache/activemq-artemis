@@ -827,6 +827,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
               maxConsumers,
               purgeOnNoConsumers,
               addressSettings.isDefaultExclusiveQueue(),
+              addressSettings.isDefaultGroupRebalance(),
+              addressSettings.getDefaultGroupBuckets(),
               addressSettings.isDefaultLastValueQueue(),
               addressSettings.getDefaultLastValueKey() == null ? null : addressSettings.getDefaultLastValueKey().toString(),
               addressSettings.isDefaultNonDestructive(),
@@ -844,6 +846,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              int maxConsumers,
                              boolean purgeOnNoConsumers,
                              boolean exclusive,
+                             boolean groupRebalance,
+                             int groupBuckets,
                              boolean lastValue,
                              String lastValueKey,
                              boolean nonDestructive,
@@ -860,7 +864,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress);
+         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress);
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
@@ -895,7 +899,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              Boolean purgeOnNoConsumers,
                              Boolean exclusive,
                              String user) throws Exception {
-      return updateQueue(name, routingType, null, maxConsumers, purgeOnNoConsumers, exclusive, null, null, null, user);
+      return updateQueue(name, routingType, null, maxConsumers, purgeOnNoConsumers, exclusive, null, null, null, null, null, user);
    }
 
    @Override
@@ -905,6 +909,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              Integer maxConsumers,
                              Boolean purgeOnNoConsumers,
                              Boolean exclusive,
+                             Boolean groupRebalance,
+                             Integer groupBuckets,
                              Boolean nonDestructive,
                              Integer consumersBeforeDispatch,
                              Long delayBeforeDispatch,
@@ -914,7 +920,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, filter, maxConsumers, purgeOnNoConsumers, exclusive, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
+         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
          if (queue == null) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
          }
