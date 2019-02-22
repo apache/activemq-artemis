@@ -505,6 +505,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_DELAY_BEFORE_DISPATCH = -1;
 
+   public static final int DEFAULT_GROUP_BUCKETS = -1;
+
+   public static final boolean DEFAULT_GROUP_REBALANCE = false;
+
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
@@ -1368,6 +1372,14 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultDelayBeforeDispatch() {
       return DEFAULT_DELAY_BEFORE_DISPATCH;
+   }
+
+   public static int getDefaultGroupBuckets() {
+      return DEFAULT_GROUP_BUCKETS;
+   }
+
+   public static boolean getDefaultGroupRebalance() {
+      return DEFAULT_GROUP_REBALANCE;
    }
 
    public static String getInternalNamingPrefix() {

@@ -37,6 +37,10 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Boolean exclusive;
 
+   private Boolean groupRebalance;
+
+   private Integer groupBuckets;
+
    private Boolean lastValue;
 
    private String lastValueKey;
@@ -78,6 +82,14 @@ public class CoreQueueConfiguration implements Serializable {
 
    public Boolean isExclusive() {
       return exclusive;
+   }
+
+   public Boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   public Integer getGroupBuckets() {
+      return groupBuckets;
    }
 
    public Boolean isLastValue() {
@@ -177,6 +189,16 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
+   public CoreQueueConfiguration setGroupRebalance(Boolean groupRebalance) {
+      this.groupRebalance = groupRebalance;
+      return this;
+   }
+
+   public CoreQueueConfiguration setGroupBuckets(Integer groupBuckets) {
+      this.groupBuckets = groupBuckets;
+      return this;
+   }
+
    public CoreQueueConfiguration setLastValue(Boolean lastValue) {
       this.lastValue = lastValue;
       return this;
@@ -220,6 +242,8 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((maxConsumers == null) ? 0 : maxConsumers.hashCode());
       result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
       result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
+      result = prime * result + ((groupRebalance == null) ? 0 : groupRebalance.hashCode());
+      result = prime * result + ((groupBuckets == null) ? 0 : groupBuckets.hashCode());
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
       result = prime * result + ((lastValueKey == null) ? 0 : lastValueKey.hashCode());
       result = prime * result + ((nonDestructive == null) ? 0 : nonDestructive.hashCode());
@@ -272,6 +296,21 @@ public class CoreQueueConfiguration implements Serializable {
       } else if (!exclusive.equals(other.exclusive)) {
          return false;
       }
+
+      if (groupRebalance == null) {
+         if (other.groupRebalance != null)
+            return false;
+      } else if (!groupRebalance.equals(other.groupRebalance)) {
+         return false;
+      }
+
+      if (groupBuckets == null) {
+         if (other.groupBuckets != null)
+            return false;
+      } else if (!groupBuckets.equals(other.groupBuckets)) {
+         return false;
+      }
+
       if (lastValue == null) {
          if (other.lastValue != null)
             return false;
@@ -322,6 +361,8 @@ public class CoreQueueConfiguration implements Serializable {
          ", maxConsumers=" + maxConsumers +
          ", purgeOnNoConsumers=" + purgeOnNoConsumers +
          ", exclusive=" + exclusive +
+         ", groupRebalance=" + groupRebalance +
+         ", groupBuckets=" + groupBuckets +
          ", lastValue=" + lastValue +
          ", lastValueKey=" + lastValueKey +
          ", nonDestructive=" + nonDestructive +

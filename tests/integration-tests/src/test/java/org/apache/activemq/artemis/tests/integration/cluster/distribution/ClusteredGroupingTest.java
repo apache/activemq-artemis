@@ -122,16 +122,16 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       QueueImpl queue0Server2 = (QueueImpl) servers[2].locateQueue(SimpleString.toSimpleString("queue0"));
 
-      assertEquals(2, queue0Server2.getGroupsUsed().size());
+      assertEquals(2, queue0Server2.getGroupCount());
 
       assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       long timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && queue0Server2.getGroupsUsed().size() != 0) {
+      while (timeLimit > System.currentTimeMillis() && queue0Server2.getGroupCount() != 0) {
          Thread.sleep(10);
       }
 
-      assertEquals("Unproposal should cleanup the queue group as well", 0, queue0Server2.getGroupsUsed().size());
+      assertEquals("Unproposal should cleanup the queue group as well", 0, queue0Server2.getGroupCount());
 
       removeConsumer(0);
 
