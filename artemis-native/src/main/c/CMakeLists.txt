@@ -28,13 +28,37 @@ if (JNI_FOUND)
     message (STATUS "JNI_LIBRARIES=${JNI_LIBRARIES}")
 endif()
 
-# you may want to remove this next line for debugging
-# -O3 would make inline debug hard
-#ADD_DEFINITIONS("-O3 -Wall -z execstack")
-ADD_DEFINITIONS("-O3 -Wall")
-#ADD_DEFINITIONS("-fdump-tree-all -Wall -pg -g")
+# You may want to adjust this next line for debugging. The -O3 is removed by default, since it would make debugging
+# harder. Nonetheless, it can still be added by passing CMAKE_USER_C_FLAGS
+# Also note that define the C99 as the minimum supported standard so the code can be compiled with older GCC versions
+# (circa 4.4)
+set(CMAKE_C_FLAGS_DEBUG "-Wall -std=c99 -z execstack -fdump-tree-all -Wall -pg -g ${CMAKE_USER_C_FLAGS}")
+set(CMAKE_C_FLAGS "-O3 -std=c99 -Wall ${CMAKE_USER_C_FLAGS}")
 
-find_library(LIBAIO NAMES aio)
+
+set(ARTEMIS_LIB_NAME artemis-native-64)
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(ARTEMIS_LIB_NAME artemis-native-32)
+endif()
+
+set(ARTEMIS_CROSS_COMPILE OFF CACHE BOOL "Cross-compile the native library")
+
+if (ARTEMIS_CROSS_COMPILE)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+        message(FATAL_ERROR "Cannot cross-compile to 32-bit architecture in a 32-bit architecture")
+    endif()
+
+    message(STATUS "Using cross-compilation")
+    set(ARTEMIS_CROSS_COMPILE_ROOT_PATH /usr/lib)
+    set(ARTEMIS_LIB_NAME artemis-native-32)
+
+    # The Cmake variable CMAKE_FIND_ROOT_PATH cannot be set via CLI, so we have to use a separate variable and then
+    # set it to that value. We use ARTEMIS_CROSS_COMPILE_ROOT_PATH for that.
+    set(CMAKE_FIND_ROOT_PATH ${ARTEMIS_CROSS_COMPILE_ROOT_PATH})
+endif()
+
+find_library(LIBAIO_LIB NAMES aio)
+message(STATUS "Using the following libaio library for linking: ${LIBAIO_LIB}")
 
 INCLUDE_DIRECTORIES(. ${JNI_INCLUDE_DIRS})
 
@@ -46,20 +70,9 @@ ADD_CUSTOM_COMMAND(
 
 ADD_LIBRARY(artemis-native SHARED org_apache_activemq_artemis_jlibaio_LibaioContext.c org_apache_activemq_artemis_jlibaio_LibaioContext.h exception_helper.h)
 
-target_link_libraries(artemis-native aio)
+target_link_libraries(artemis-native ${LIBAIO_LIB})
 
 set_target_properties(artemis-native PROPERTIES
-         LIBRARY_OUTPUT_DIRECTORY ../../../bin)
-
-# It is weird but this is how you are supposed to validate between 32 and 64 bits architecture
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set_target_properties(artemis-native PROPERTIES
-             LIBRARY_OUTPUT_DIRECTORY ../../../bin
-             LIBRARY_OUTPUT_NAME artemis-native-64)
-   message("-- Setting up library as artemis-native-64 based on current architecture")
-else()
-    set_target_properties(artemis-native PROPERTIES
-             LIBRARY_OUTPUT_DIRECTORY ../../../bin
-             LIBRARY_OUTPUT_NAME artemis-native-32)
-   message("-- Setting up library as artemis-native-32 based on current architecture")
-endif()
+              LIBRARY_OUTPUT_DIRECTORY ../../../bin
+              LIBRARY_OUTPUT_NAME ${ARTEMIS_LIB_NAME})
+message(STATUS "Setting up library as ${ARTEMIS_LIB_NAME} based on current architecture")
