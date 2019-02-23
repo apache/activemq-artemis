@@ -12,6 +12,10 @@ be reloaded automatically:
 - Diverts
 - Addresses & queues
 
+If using [modulised broker.xml](configuration-index.md#modularising-broker.xml) you need to touch broker.xml for modularised config to reload.
+ 
+This is on-purpose to avoid reload occurring whilst modifying separate modularised parts e.g. address-settings and addressesm that you may want to have updated at the same time but maybe modularised separately.
+
 
 **Note:**
 
