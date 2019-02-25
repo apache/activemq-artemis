@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
@@ -83,7 +84,7 @@ public abstract class TransactionDetail {
          String opType = null;
          if (opClassName.equals("org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl$AddOperation")) {
             opType = "(+) send";
-         } else if (opClassName.equals("org.apache.activemq.artemis.core.server.impl.QueueImpl$RefsOperation")) {
+         } else if (opClassName.equals(RefsOperation.class.getName())) {
             opType = "(-) receive";
          }
 
