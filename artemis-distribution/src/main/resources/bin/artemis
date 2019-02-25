@@ -46,7 +46,7 @@ fi
 
 # Set Defaults Properties
 JAVA_ARGS="-XX:+UseParallelGC -Xms512M -Xmx1024M"
-CLASSPATH="$ARTEMIS_HOME/lib/*"
+CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
 
 # OS specific support.
 cygwin=false;

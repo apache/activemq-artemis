@@ -2966,15 +2966,28 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void addUser(String username, String password, String roles, boolean plaintext, String entryName) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+   public void addUser(String username, String password, String roles, boolean plaintext) throws Exception {
+
+      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalAddUser(username, password, roles, plaintext));
+   }
+
+   private void internalAddUser(String username, String password, String roles, boolean plaintext) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       config.addNewUser(username, plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles.split(","));
       config.save();
+
+   }
+
+   private String getSecurityDomain() {
+      return server.getSecurityManager().getDomain();
    }
 
    @Override
-   public String listUser(String username, String entryName) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+   public String listUser(String username) throws Exception {
+      return (String)tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> internaListUser(username));
+   }
+   private String internaListUser(String username) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       Map<String, Set<String>> info = config.listUser(username);
       JsonArrayBuilder users = JsonLoader.createArrayBuilder();
       for (Entry<String, Set<String>> entry : info.entrySet()) {
@@ -2991,26 +3004,32 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void removeUser(String username, String entryName) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+   public void removeUser(String username) throws Exception {
+      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalRemoveUser(username));
+   }
+   private void internalRemoveUser(String username) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       config.removeUser(username);
       config.save();
    }
 
    @Override
-   public void resetUser(String username, String password, String roles, String entryName) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator(entryName);
+   public void resetUser(String username, String password, String roles) throws Exception {
+      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalresetUser(username, password, roles));
+   }
+   private void internalresetUser(String username, String password, String roles) throws Exception {
+      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       config.updateUser(username, password, roles == null ? null : roles.split(","));
       config.save();
    }
 
-   private PropertiesLoginModuleConfigurator getPropertiesLoginModuleConfigurator(String entryName) throws Exception {
+   private PropertiesLoginModuleConfigurator getPropertiesLoginModuleConfigurator() throws Exception {
       URL configurationUrl = server.getConfiguration().getConfigurationUrl();
       if (configurationUrl == null) {
          throw ActiveMQMessageBundle.BUNDLE.failedToLocateConfigURL();
       }
       String path = configurationUrl.getPath();
-      return new PropertiesLoginModuleConfigurator(entryName, path.substring(0, path.lastIndexOf("/")));
+      return new PropertiesLoginModuleConfigurator(getSecurityDomain(), path.substring(0, path.lastIndexOf("/")));
    }
 }
 
