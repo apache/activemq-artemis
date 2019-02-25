@@ -410,67 +410,67 @@ public class ArtemisTest extends CliTestBase {
       File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
 
       //default only one user admin with role amq
-      String jsonResult = activeMQServerControl.listUser("", "activemq");
+      String jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
       checkRole("admin", roleFile, "amq");
 
       //add a simple user
-      activeMQServerControl.addUser("guest", "guest123", "admin", true, "activemq");
+      activeMQServerControl.addUser("guest", "guest123", "admin", true);
 
       //verify add
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
       checkRole("guest", roleFile, "admin");
       assertTrue(checkPassword("guest", "guest123", userFile));
 
       //add a user with 2 roles
-      activeMQServerControl.addUser("scott", "tiger", "admin,operator", true, "activemq");
+      activeMQServerControl.addUser("scott", "tiger", "admin,operator", true);
 
       //verify add
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
       checkRole("scott", roleFile, "admin", "operator");
       assertTrue(checkPassword("scott", "tiger", userFile));
 
       try {
-         activeMQServerControl.addUser("scott", "password", "visitor", true, "activemq");
+         activeMQServerControl.addUser("scott", "password", "visitor", true);
          fail("should throw an exception if adding a existing user");
       } catch (IllegalArgumentException expected) {
       }
 
       //check existing users are intact
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
 
       //check listing with just one user
-      jsonResult = activeMQServerControl.listUser("admin", "activemq");
+      jsonResult = activeMQServerControl.listUser("admin");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin", false);
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin", false);
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator", false);
 
       //check listing with another single user
-      jsonResult = activeMQServerControl.listUser("guest", "activemq");
+      jsonResult = activeMQServerControl.listUser("guest");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin", false);
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator", false);
 
       //remove a user
-      activeMQServerControl.removeUser("guest", "activemq");
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      activeMQServerControl.removeUser("guest");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin", false);
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
 
       //remove another
-      activeMQServerControl.removeUser("scott", "activemq");
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      activeMQServerControl.removeUser("scott");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin", false);
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin", false);
@@ -478,39 +478,19 @@ public class ArtemisTest extends CliTestBase {
 
       //remove non-exist
       try {
-         activeMQServerControl.removeUser("alien", "activemq");
+         activeMQServerControl.removeUser("alien");
          fail("should throw exception when removing a non-existing user");
       } catch (IllegalArgumentException expected) {
       }
 
       //check
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
 
       //now remove last
-      activeMQServerControl.removeUser("admin", "activemq");
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      activeMQServerControl.removeUser("admin");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
-
-      stopServer();
-   }
-
-   @Test
-   public void testBadSecurityEntryNameViaManagement() throws Exception {
-      Run.setEmbedded(true);
-      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
-      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
-      System.setProperty("artemis.instance", instance1.getAbsolutePath());
-      Object result = Artemis.internalExecute("run");
-      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
-      ActiveMQServerControl activeMQServerControl = activeMQServer.getActiveMQServerControl();
-
-      try {
-         activeMQServerControl.listUser("", "activemqx");
-         fail();
-      } catch (ActiveMQIllegalStateException expected) {
-      }
 
       stopServer();
    }
@@ -531,7 +511,7 @@ public class ArtemisTest extends CliTestBase {
       //      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
 
       try {
-         activeMQServerControl.listUser("", "activemq");
+         activeMQServerControl.listUser("");
          fail();
       } catch (ActiveMQIllegalStateException expected) {
       }
@@ -554,7 +534,7 @@ public class ArtemisTest extends CliTestBase {
       roleFile.delete();
 
       try {
-         activeMQServerControl.listUser("", "activemq");
+         activeMQServerControl.listUser("");
          fail();
       } catch (ActiveMQIllegalStateException expected) {
       }
@@ -676,25 +656,25 @@ public class ArtemisTest extends CliTestBase {
       File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
 
       //default only one user admin with role amq
-      String jsonResult = activeMQServerControl.listUser("", "activemq");
+      String jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
       checkRole("admin", roleFile, "amq");
 
       //remove a user
-      activeMQServerControl.removeUser("admin", "activemq");
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      activeMQServerControl.removeUser("admin");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
 
       //add some users
-      activeMQServerControl.addUser("guest", "guest123", "admin", true, "activemq");
-      activeMQServerControl.addUser("user1", "password1", "admin,manager", true, "activemq");
+      activeMQServerControl.addUser("guest", "guest123", "admin", true);
+      activeMQServerControl.addUser("user1", "password1", "admin,manager", true);
       assertTrue(checkPassword("user1", "password1", userFile));
-      activeMQServerControl.addUser("user2", "password2", "admin,manager,master", true, "activemq");
-      activeMQServerControl.addUser("user3", "password3", "system,master", true, "activemq");
+      activeMQServerControl.addUser("user2", "password2", "admin,manager,master", true);
+      activeMQServerControl.addUser("user3", "password3", "system,master", true);
 
 
       //verify use list cmd
-      jsonResult = activeMQServerControl.listUser("", "activemq");
+      jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "user1", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "user1", "manager");
@@ -707,20 +687,20 @@ public class ArtemisTest extends CliTestBase {
       checkRole("user1", roleFile, "admin", "manager");
 
       //reset password
-      activeMQServerControl.resetUser("user1", "newpassword1", null, "activemq");
+      activeMQServerControl.resetUser("user1", "newpassword1", null);
 
       checkRole("user1", roleFile, "admin", "manager");
       assertFalse(checkPassword("user1", "password1", userFile));
       assertTrue(checkPassword("user1", "newpassword1", userFile));
 
       //reset role
-      activeMQServerControl.resetUser("user2", null, "manager,master,operator", "activemq");
+      activeMQServerControl.resetUser("user2", null, "manager,master,operator");
 
       checkRole("user2", roleFile, "manager", "master", "operator");
       assertTrue(checkPassword("user2", "password2", userFile));
 
       //reset both
-      activeMQServerControl.resetUser("user3", "newpassword3", "admin,system", "activemq");
+      activeMQServerControl.resetUser("user3", "newpassword3", "admin,system");
 
       checkRole("user3", roleFile, "admin", "system");
       assertTrue(checkPassword("user3", "newpassword3", userFile));

@@ -27,6 +27,10 @@ import org.apache.activemq.artemis.core.security.Role;
  */
 public interface ActiveMQSecurityManager {
 
+   default String getDomain() {
+      return "activemq";
+   }
+
    /**
     * is this a valid user.
     *
