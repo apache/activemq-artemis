@@ -947,6 +947,24 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isAutoDelete() {
+         // no-op
+         return false;
+      }
+
+      @Override
+      public long getAutoDeleteDelay() {
+         // no-op
+         return -1;
+      }
+
+      @Override
+      public long getAutoDeleteMessageCount() {
+         // no-op
+         return -1;
+      }
+
+      @Override
       public boolean isTemporary() {
          return false;
       }

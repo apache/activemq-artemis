@@ -64,6 +64,12 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final Long delayBeforeDispatch;
 
+   private final Boolean autoDelete;
+
+   private final Long autoDeleteDelay;
+
+   private final Long autoDeleteMessageCount;
+
 
    private final Integer defaultConsumerWindowSize;
 
@@ -122,7 +128,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final Boolean exclusive,
                          final Boolean lastValue,
                          final Integer defaultConsumerWindowSize) {
-      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, null, null, lastValue, null, null, null, null, defaultConsumerWindowSize);
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, null, null, lastValue, null, null, null, null, null, null, null, defaultConsumerWindowSize);
    }
 
    public QueueQueryImpl(final boolean durable,
@@ -146,6 +152,9 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final Boolean nonDestructive,
                          final Integer consumersBeforeDispatch,
                          final Long delayBeforeDispatch,
+                         final Boolean autoDelete,
+                         final Long autoDeleteDelay,
+                         final Long autoDeleteMessageCount,
                          final Integer defaultConsumerWindowSize) {
       this.durable = durable;
       this.temporary = temporary;
@@ -168,6 +177,9 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.nonDestructive = nonDestructive;
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       this.delayBeforeDispatch = delayBeforeDispatch;
+      this.autoDelete = autoDelete;
+      this.autoDeleteDelay = autoDeleteDelay;
+      this.autoDeleteMessageCount = autoDeleteMessageCount;
       this.defaultConsumerWindowSize = defaultConsumerWindowSize;
    }
 
@@ -279,6 +291,21 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    @Override
    public Integer getGroupBuckets() {
       return groupBuckets;
+   }
+
+   @Override
+   public Boolean isAutoDelete() {
+      return autoDelete;
+   }
+
+   @Override
+   public Long getAutoDeleteDelay() {
+      return autoDeleteDelay;
+   }
+
+   @Override
+   public Long getAutoDeleteMessageCount() {
+      return autoDeleteMessageCount;
    }
 }
 

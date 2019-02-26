@@ -321,6 +321,9 @@ public class ActiveMQSessionContext extends SessionContext {
               queueAttributes.getNonDestructive(),
               queueAttributes.getConsumersBeforeDispatch(),
               queueAttributes.getDelayBeforeDispatch(),
+              queueAttributes.getAutoDelete(),
+              queueAttributes.getAutoDeleteDelay(),
+              queueAttributes.getAutoDeleteMessageCount(),
               true), PacketImpl.NULL_RESPONSE);
    }
 
@@ -873,7 +876,7 @@ public class ActiveMQSessionContext extends SessionContext {
       // We try to recreate any non-durable or auto-created queues, since they might not be there on failover/reconnect.
       // This allows e.g. JMS non durable subs and temporary queues to continue to be used after failover/reconnection
       if (!queueInfo.isDurable() || queueInfo.isAutoCreated()) {
-         CreateQueueMessage_V2 createQueueRequest = new CreateQueueMessage_V2(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getRoutingType(), queueInfo.getFilterString(), queueInfo.isDurable(), queueInfo.isTemporary(), queueInfo.getMaxConsumers(), queueInfo.isPurgeOnNoConsumers(), queueInfo.isAutoCreated(), false, queueInfo.isExclusive(), queueInfo.isGroupRebalance(), queueInfo.getGroupBuckets(), queueInfo.isLastValue(), queueInfo.getLastValueKey(), queueInfo.isNonDestructive(), queueInfo.getConsumersBeforeDispatch(), queueInfo.getDelayBeforeDispatch());
+         CreateQueueMessage_V2 createQueueRequest = new CreateQueueMessage_V2(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getRoutingType(), queueInfo.getFilterString(), queueInfo.isDurable(), queueInfo.isTemporary(), queueInfo.getMaxConsumers(), queueInfo.isPurgeOnNoConsumers(), queueInfo.isAutoCreated(), false, queueInfo.isExclusive(), queueInfo.isGroupRebalance(), queueInfo.getGroupBuckets(), queueInfo.isLastValue(), queueInfo.getLastValueKey(), queueInfo.isNonDestructive(), queueInfo.getConsumersBeforeDispatch(), queueInfo.getDelayBeforeDispatch(), queueInfo.isAutoDelete(), queueInfo.getAutoDeleteDelay(), queueInfo.getAutoDeleteMessageCount());
 
          sendPacketWithoutLock(sessionChannel, createQueueRequest);
       }
