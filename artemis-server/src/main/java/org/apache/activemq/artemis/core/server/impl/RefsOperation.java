@@ -191,7 +191,11 @@ public class RefsOperation extends TransactionOperationAbstract {
    @Override
    public synchronized List<MessageReference> getRelatedMessageReferences() {
       List<MessageReference> listRet = new LinkedList<>();
-      listRet.addAll(listRet);
+
+      if (refsToAck != null && !refsToAck.isEmpty()) {
+         listRet.addAll(refsToAck);
+      }
+
       return listRet;
    }
 
