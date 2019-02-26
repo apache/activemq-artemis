@@ -266,6 +266,15 @@ public interface Message {
       return this;
    }
 
+   default Object getCorrelationID() {
+      return null;
+   }
+
+   default Message setCorrelationID(Object correlationID) {
+
+      return this;
+   }
+
    SimpleString getReplyTo();
 
    Message setReplyTo(SimpleString address);

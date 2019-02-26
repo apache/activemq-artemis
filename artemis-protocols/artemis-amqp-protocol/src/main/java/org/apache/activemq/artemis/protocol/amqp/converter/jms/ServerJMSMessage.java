@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -118,21 +117,29 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final void setJMSCorrelationIDAsBytes(byte[] correlationID) throws JMSException {
-      try {
-         MessageUtil.setJMSCorrelationIDAsBytes(message, correlationID);
-      } catch (ActiveMQException e) {
-         throw new JMSException(e.getMessage());
+      if (correlationID == null || correlationID.length == 0) {
+         throw new JMSException("Please specify a non-zero length byte[]");
       }
+      message.setCorrelationID(correlationID);
    }
 
    @Override
    public final String getJMSCorrelationID() throws JMSException {
-      return MessageUtil.getJMSCorrelationID(message);
+
+      Object correlationID = message.getCorrelationID();
+      if (correlationID instanceof String) {
+
+         return ((String) correlationID);
+      } else if (correlationID != null) {
+         return String.valueOf(correlationID);
+      } else {
+         return null;
+      }
    }
 
    @Override
    public final void setJMSCorrelationID(String correlationID) throws JMSException {
-      MessageUtil.setJMSCorrelationID(message, correlationID);
+      message.setCorrelationID(correlationID);
    }
 
    @Override
