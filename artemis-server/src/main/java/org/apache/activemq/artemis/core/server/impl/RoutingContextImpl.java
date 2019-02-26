@@ -119,7 +119,7 @@ public final class RoutingContextImpl implements RoutingContext {
 
       RouteContextList listing = getContextListing(address);
 
-      if (queue.isDurableMessage()) {
+      if (queue.isDurable()) {
          listing.getDurableQueues().add(queue);
       } else {
          listing.getNonDurableQueues().add(queue);
