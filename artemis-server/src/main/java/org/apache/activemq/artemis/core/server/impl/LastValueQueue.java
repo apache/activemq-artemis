@@ -75,6 +75,9 @@ public class LastValueQueue extends QueueImpl {
                          final Boolean purgeOnNoConsumers,
                          final SimpleString lastValueKey,
                          final Boolean nonDestructive,
+                         final Boolean autoDelete,
+                         final Long autoDeleteDelay,
+                         final Long autoDeleteMessageCount,
                          final boolean configurationManaged,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
@@ -83,7 +86,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
       this.lastValueKey = lastValueKey;
    }
 

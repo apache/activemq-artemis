@@ -63,6 +63,12 @@ public class QueueQueryResult {
 
    private Long delayBeforeDispatch;
 
+   private Boolean autoDelete;
+
+   private Long autoDeleteDelay;
+
+   private Long autoDeleteMessageCount;
+
    private Integer defaultConsumerWindowSize;
 
    public QueueQueryResult(final SimpleString name,
@@ -86,6 +92,9 @@ public class QueueQueryResult {
                            final Boolean nonDestructive,
                            final Integer consumersBeforeDispatch,
                            final Long delayBeforeDispatch,
+                           final Boolean autoDelete,
+                           final Long autoDeleteDelay,
+                           final Long autoDeleteMessageCount,
                            final Integer defaultConsumerWindowSize) {
       this.durable = durable;
 
@@ -128,6 +137,12 @@ public class QueueQueryResult {
       this.consumersBeforeDispatch = consumersBeforeDispatch;
 
       this.delayBeforeDispatch = delayBeforeDispatch;
+
+      this.autoDelete = autoDelete;
+
+      this.autoDeleteDelay = autoDeleteDelay;
+
+      this.autoDeleteMessageCount = autoDeleteMessageCount;
 
       this.defaultConsumerWindowSize = defaultConsumerWindowSize;
    }
@@ -222,5 +237,17 @@ public class QueueQueryResult {
 
    public Integer getGroupBuckets() {
       return groupBuckets;
+   }
+
+   public Boolean isAutoDelete() {
+      return autoDelete;
+   }
+
+   public Long getAutoDeleteDelay() {
+      return autoDeleteDelay;
+   }
+
+   public Long getAutoDeleteMessageCount() {
+      return autoDeleteMessageCount;
    }
 }

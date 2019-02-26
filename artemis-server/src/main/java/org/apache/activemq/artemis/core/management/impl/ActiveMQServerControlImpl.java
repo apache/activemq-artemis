@@ -833,7 +833,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
               addressSettings.getDefaultLastValueKey() == null ? null : addressSettings.getDefaultLastValueKey().toString(),
               addressSettings.isDefaultNonDestructive(),
               addressSettings.getDefaultConsumersBeforeDispatch(),
-              addressSettings.getDefaultDelayBeforeDispatch(), autoCreateAddress
+              addressSettings.getDefaultDelayBeforeDispatch(),
+              addressSettings.isAutoDeleteQueues(),
+              addressSettings.getAutoDeleteQueuesDelay(),
+              addressSettings.getAutoDeleteQueuesMessageCount(),
+              autoCreateAddress
       );
    }
 
@@ -853,6 +857,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              boolean nonDestructive,
                              int consumersBeforeDispatch,
                              long delayBeforeDispatch,
+                             boolean autoDelete,
+                             long autoDeleteDelay,
+                             long autoDeleteMessageCount,
                              boolean autoCreateAddress) throws Exception {
       checkStarted();
 
@@ -864,7 +871,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress);
+         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());

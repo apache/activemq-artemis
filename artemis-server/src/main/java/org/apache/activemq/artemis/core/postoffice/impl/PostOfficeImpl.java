@@ -72,6 +72,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueManagerImpl;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -1557,19 +1558,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       public void run() {
          // The reaper thread should be finished case the PostOffice is gone
          // This is to avoid leaks on PostOffice between stops and starts
-         Map<SimpleString, Binding> nameMap = addressManager.getBindings();
-
-         List<Queue> queues = new ArrayList<>();
-
-         for (Binding binding : nameMap.values()) {
-            if (binding.getType() == BindingType.LOCAL_QUEUE) {
-               Queue queue = (Queue) binding.getBindable();
-
-               queues.add(queue);
-            }
-         }
-
-         for (Queue queue : queues) {
+         for (Queue queue : getLocalQueues()) {
             try {
                queue.expireReferences();
             } catch (Exception e) {
@@ -1591,38 +1580,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       @Override
       public void run() {
-         Map<SimpleString, Binding> nameMap = addressManager.getBindings();
-
-         List<Queue> queues = new ArrayList<>();
-
-         for (Binding binding : nameMap.values()) {
-            if (binding.getType() == BindingType.LOCAL_QUEUE) {
-               Queue queue = (Queue) binding.getBindable();
-
-               queues.add(queue);
-            }
-         }
-
-         for (Queue queue : queues) {
-            int consumerCount = queue.getConsumerCount();
-            long messageCount = queue.getMessageCount();
-            boolean autoCreated = queue.isAutoCreated();
-            long consumerRemovedTimestamp =  queue.getConsumerRemovedTimestamp();
-
-            if (!queue.isInternalQueue() && autoCreated && messageCount == 0 && consumerCount == 0 && consumerRemovedTimestamp != -1) {
-               SimpleString queueName = queue.getName();
-               AddressSettings settings = addressSettingsRepository.getMatch(queue.getAddress().toString());
-               if (settings.isAutoDeleteQueues() && (System.currentTimeMillis() - consumerRemovedTimestamp >= settings.getAutoDeleteQueuesDelay())) {
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.info("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteQueues = " + settings.isAutoDeleteQueues());
-                  }
-
-                  try {
-                     server.destroyQueue(queueName, null, true, false, settings.isAutoDeleteAddresses(), true);
-                  } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
-                  }
-               }
+         for (Queue queue : getLocalQueues()) {
+            if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue)) {
+               QueueManagerImpl.deleteAutoCreatedQueue(server, queue);
             }
          }
 
@@ -1646,6 +1606,21 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
          }
       }
+   }
+
+   private List<Queue> getLocalQueues() {
+      Map<SimpleString, Binding> nameMap = addressManager.getBindings();
+
+      List<Queue> queues = new ArrayList<>();
+
+      for (Binding binding : nameMap.values()) {
+         if (binding.getType() == BindingType.LOCAL_QUEUE) {
+            Queue queue = (Queue) binding.getBindable();
+
+            queues.add(queue);
+         }
+      }
+      return queues;
    }
 
    public static final class AddOperation implements TransactionOperation {
