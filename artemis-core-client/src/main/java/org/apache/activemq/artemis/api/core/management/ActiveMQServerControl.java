@@ -1352,52 +1352,43 @@ public interface ActiveMQServerControl {
     * @param username
     * @param password
     * @param roles
-    * @param entryName
     * @throws Exception
     */
    @Operation(desc = "add a user (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
    void addUser(@Parameter(name = "username", desc = "Name of the user") String username,
                 @Parameter(name = "password", desc = "User's password") String password,
-                @Parameter(name = "roles (comma separated)", desc = "User's role") String roles,
-                @Parameter(name = "plaintext", desc = "whether or not to store the password in plaintext or hash it") boolean plaintext,
-                @Parameter(name = "entryName", desc = "Name of entry in login.config ('activemq' by default)") String entryName) throws Exception;
+                @Parameter(name = "roles", desc = "User's role (comma separated)") String roles,
+                @Parameter(name = "plaintext", desc = "whether or not to store the password in plaintext or hash it") boolean plaintext) throws Exception;
 
    /**
     * List the information about a user or all users if no username is supplied (only applicable when using the JAAS PropertiesLoginModule).
     *
     * @param username
-    * @param entryName
     * @return JSON array of user & role information
     * @throws Exception
     */
    @Operation(desc = "list info about a user or all users if no username is supplied (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
-   String listUser(@Parameter(name = "username", desc = "Name of the user; leave null to list all known users") String username,
-                   @Parameter(name = "entryName", desc = "Name of entry in login.config ('activemq' by default)") String entryName) throws Exception;
+   String listUser(@Parameter(name = "username", desc = "Name of the user; leave null to list all known users") String username) throws Exception;
 
    /**
     * Remove a user (only applicable when using the JAAS PropertiesLoginModule).
     *
     * @param username
-    * @param entryName
     * @throws Exception
     */
    @Operation(desc = "remove a user (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
-   void removeUser(@Parameter(name = "username", desc = "Name of the user") String username,
-                   @Parameter(name = "entryName", desc = "Name of entry in login.config ('activemq' by default)") String entryName) throws Exception;
-
+   void removeUser(@Parameter(name = "username", desc = "Name of the user") String username) throws Exception;
    /**
     * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule).
     *
     * @param username
     * @param password
     * @param roles
-    * @param entryName
     * @throws Exception
     */
    @Operation(desc = "set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
    void resetUser(@Parameter(name = "username", desc = "Name of the user") String username,
                   @Parameter(name = "password", desc = "User's password") String password,
-                  @Parameter(name = "roles (comma separated)", desc = "User's role") String roles,
-                  @Parameter(name = "entryName", desc = "Name of entry in login.config ('activemq' by default)") String entryName) throws Exception;
+                  @Parameter(name = "roles", desc = "User's role (comma separated)") String roles) throws Exception;
 }
 

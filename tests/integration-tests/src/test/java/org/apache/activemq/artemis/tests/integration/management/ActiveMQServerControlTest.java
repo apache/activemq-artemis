@@ -2736,7 +2736,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testAddUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.addUser("x", "x", "x", true, "x");
+         serverControl.addUser("x", "x", "x", true);
          fail();
       } catch (Exception expected) {
       }
@@ -2746,7 +2746,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testRemoveUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.removeUser("x", "x");
+         serverControl.removeUser("x");
          fail();
       } catch (Exception expected) {
       }
@@ -2756,7 +2756,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testListUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.listUser("x", "x");
+         serverControl.listUser("x");
          fail();
       } catch (Exception expected) {
       }
@@ -2766,7 +2766,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testResetUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.resetUser("x","x","x", "x");
+         serverControl.resetUser("x","x","x");
          fail();
       } catch (Exception expected) {
       }
