@@ -1148,6 +1148,21 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
+   public Object getCorrelationID() {
+      return properties != null ? properties.getCorrelationId() : null;
+   }
+
+   @Override
+   public org.apache.activemq.artemis.api.core.Message setCorrelationID(final Object correlationID) {
+      if (properties == null) {
+         properties = new Properties();
+      }
+
+      properties.setCorrelationId(correlationID);
+      return this;
+   }
+
+   @Override
    public Long getScheduledDeliveryTime() {
       if (scheduledTime < 0) {
          Object objscheduledTime = getMessageAnnotation(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME);

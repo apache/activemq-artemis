@@ -31,10 +31,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.UUID;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -152,6 +155,49 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       QueueControl queueControl = (QueueControl) queues[0];
       Assert.assertEquals(queue.getName().toString(), queueControl.getName());
    }
+
+   @Test
+   public void testCorrelateResponseByCorrelationID() throws Exception {
+      String queue = RandomUtil.randomString();
+      String address = RandomUtil.randomString();
+      String correlationID = UUIDGenerator.getInstance().generateStringUUID();
+
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+      server.start();
+
+      // invoke attribute and operation on the server
+      CoreMessage message = new CoreMessage(1, 100);
+      MessageUtil.setJMSCorrelationID(message, correlationID);
+      ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
+
+      Message reply = server.getManagementService().handleMessage(message);
+      Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
+      Assert.assertEquals(correlationID, MessageUtil.getJMSCorrelationID(reply));
+   }
+
+   @Test
+   public void testCorrelateResponseByMessageID() throws Exception {
+      String queue = RandomUtil.randomString();
+      String address = RandomUtil.randomString();
+      UUID messageId =  UUIDGenerator.getInstance().generateUUID();
+
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+      server.start();
+
+      // invoke attribute and operation on the server
+      CoreMessage message = new CoreMessage(1, 100);
+      message.setUserID(messageId);
+      ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
+
+      Message reply = server.getManagementService().handleMessage(message);
+      Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
+      Assert.assertEquals(messageId.toString(), MessageUtil.getJMSCorrelationID(reply));
+   }
+
 
    // Package protected ---------------------------------------------
 
