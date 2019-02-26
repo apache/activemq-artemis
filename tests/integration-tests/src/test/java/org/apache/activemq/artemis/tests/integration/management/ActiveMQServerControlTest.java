@@ -985,6 +985,55 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testListPreparedTransactionDetailsOnConsumer() throws Exception {
+      SimpleString atestq = new SimpleString("BasicXaTestq");
+      Xid xid = newXID();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession clientSession = csf.createSession(true, false, false);
+      clientSession.createQueue(atestq, atestq, null, true);
+
+      ClientMessage m1 = createTextMessage(clientSession, "");
+      ClientMessage m2 = createTextMessage(clientSession, "");
+      ClientMessage m3 = createTextMessage(clientSession, "");
+      ClientMessage m4 = createTextMessage(clientSession, "");
+      m1.putStringProperty("m1", "valuem1");
+      m2.putStringProperty("m2", "valuem2");
+      m3.putStringProperty("m3", "valuem3");
+      m4.putStringProperty("m4", "valuem4");
+      ClientProducer clientProducer = clientSession.createProducer(atestq);
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientProducer.send(m1);
+      clientProducer.send(m2);
+      clientProducer.send(m3);
+      clientProducer.send(m4);
+      clientSession.end(xid, XAResource.TMSUCCESS);
+      clientSession.prepare(xid);
+      clientSession.commit(xid, false);
+
+      ClientConsumer consumer = clientSession.createConsumer(atestq);
+      clientSession.start();
+      xid = newXID();
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      m1 = consumer.receive(1000);
+      Assert.assertNotNull(m1);
+      m1.acknowledge();
+      clientSession.end(xid, XAResource.TMSUCCESS);
+      clientSession.prepare(xid);
+      ActiveMQServerControl serverControl = createManagementControl();
+      String jsonOutput = serverControl.listPreparedTransactionDetailsAsJSON();
+
+      // just one message is pending, and it should be listed on the output
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem1") > 0);
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem2") < 0);
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem3") < 0);
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem4") < 0);
+      clientSession.close();
+      locator.close();
+   }
+
+   @Test
    public void testListPreparedTransactionDetailsAsHTML() throws Exception {
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
