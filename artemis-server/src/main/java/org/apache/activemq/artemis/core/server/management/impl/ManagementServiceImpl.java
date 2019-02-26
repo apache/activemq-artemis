@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.management.impl;
 
+import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
@@ -86,6 +88,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -389,6 +392,11 @@ public class ManagementServiceImpl implements ManagementService {
       CoreMessage reply = new CoreMessage(storageManager.generateID(), 512);
       reply.setType(Message.TEXT_TYPE);
       reply.setReplyTo(message.getReplyTo());
+
+      String correlationId = getCorrelationIdentity(message);
+      if (correlationId != null) {
+         MessageUtil.setJMSCorrelationID(reply, correlationId);
+      }
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
       if (logger.isDebugEnabled()) {
@@ -779,6 +787,22 @@ public class ManagementServiceImpl implements ManagementService {
 
       Object result = method.invoke(resource, params);
       return result;
+   }
+
+   /**
+    * Correlate management responses using the Correlation ID Pattern, if the request supplied a correlation id,
+    * or fallback to the Message ID Pattern providing the request had a message id.
+
+    * @param request
+    * @return correlation identify
+    */
+   private String getCorrelationIdentity(final Message request) {
+      String correlationId = MessageUtil.getJMSCorrelationID(request);
+      if (correlationId == null) {
+         Object underlying = request.getUserID() != null ? request.getUserID() : request.getStringProperty(NATIVE_MESSAGE_ID);
+         correlationId = underlying == null ? null : String.valueOf(underlying);
+      }
+      return correlationId;
    }
 
    // Inner classes -------------------------------------------------

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.LinkedHashMap;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -68,6 +69,68 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
          assertTrue(value instanceof String);
          assertTrue(((String) value).length() > 0);
          assertTrue(((String) value).contains(destinationAddress));
+         response.accept();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testCorrelationByMessageID() throws Throwable {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         String destinationAddress = getQueueName(1);
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender("activemq.management");
+         AmqpReceiver receiver = session.createReceiver(destinationAddress);
+         receiver.flow(10);
+
+         // Create request message for getQueueNames query
+         UUID messageId = UUID.randomUUID();
+         AmqpMessage request = new AmqpMessage();
+         request.setApplicationProperty("_AMQ_ResourceName", ResourceNames.BROKER);
+         request.setApplicationProperty("_AMQ_OperationName", "getQueueNames");
+         request.setReplyToAddress(destinationAddress);
+         request.setRawMessageId(messageId);
+         request.setText("[]");
+
+         sender.send(request);
+         AmqpMessage response = receiver.receive(5, TimeUnit.SECONDS);
+         Assert.assertNotNull(response);
+         Assert.assertEquals(messageId, response.getRawCorrelationId());
+         response.accept();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testCorrelationByCorrelationID() throws Throwable {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         String destinationAddress = getQueueName(1);
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender("activemq.management");
+         AmqpReceiver receiver = session.createReceiver(destinationAddress);
+         receiver.flow(10);
+
+         // Create request message for getQueueNames query
+         UUID correlationId = UUID.randomUUID();
+         AmqpMessage request = new AmqpMessage();
+         request.setApplicationProperty("_AMQ_ResourceName", ResourceNames.BROKER);
+         request.setApplicationProperty("_AMQ_OperationName", "getQueueNames");
+         request.setReplyToAddress(destinationAddress);
+         request.setRawCorrelationId(correlationId);
+         request.setText("[]");
+
+         sender.send(request);
+         AmqpMessage response = receiver.receive(5, TimeUnit.SECONDS);
+         Assert.assertNotNull(response);
+         Assert.assertEquals(correlationId, response.getRawCorrelationId());
          response.accept();
       } finally {
          connection.close();
