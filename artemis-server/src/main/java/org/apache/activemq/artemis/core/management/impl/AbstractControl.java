@@ -24,6 +24,7 @@ import javax.management.StandardMBean;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.DummyOperationC
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public abstract class AbstractControl extends StandardMBean {
@@ -81,6 +83,26 @@ public abstract class AbstractControl extends StandardMBean {
    protected abstract MBeanOperationInfo[] fillMBeanOperationInfo();
 
    protected abstract MBeanAttributeInfo[] fillMBeanAttributeInfo();
+
+   protected Object tcclCall(ClassLoader loader, Callable<Object> callable) throws Exception {
+      ClassLoader originalTCCL = Thread.currentThread().getContextClassLoader();
+      try {
+         Thread.currentThread().setContextClassLoader(loader);
+         return callable.call();
+      } finally {
+         Thread.currentThread().setContextClassLoader(originalTCCL);
+      }
+   }
+
+   protected void tcclInvoke(ClassLoader loader, RunnableEx runnableEx) throws Exception {
+      ClassLoader originalTCCL = Thread.currentThread().getContextClassLoader();
+      try {
+         Thread.currentThread().setContextClassLoader(loader);
+         runnableEx.run();
+      } finally {
+         Thread.currentThread().setContextClassLoader(originalTCCL);
+      }
+   }
 
    @Override
    public MBeanInfo getMBeanInfo() {
