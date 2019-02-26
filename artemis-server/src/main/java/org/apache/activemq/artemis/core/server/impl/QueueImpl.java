@@ -1462,7 +1462,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          } else {
             Message message = ref.getMessage();
 
-            boolean durableRef = message.isDurable() && isDurableMessage();
+            boolean durableRef = message.isDurable() && isDurable();
 
             if (durableRef) {
                storageManager.storeAcknowledge(id, message.getMessageID());
@@ -1500,7 +1500,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          Message message = ref.getMessage();
 
-         boolean durableRef = message.isDurable() && isDurableMessage();
+         boolean durableRef = message.isDurable() && isDurable();
 
          if (durableRef) {
             storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
@@ -1528,7 +1528,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       Message message = ref.getMessage();
 
-      if (message.isDurable() && isDurableMessage()) {
+      if (message.isDurable() && isDurable()) {
          tx.setContainsPersistent();
       }
 
@@ -2760,7 +2760,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return true;
       }
 
-      if (!internalQueue && reference.isDurable() && isDurableMessage() && !reference.isPaged()) {
+      if (!internalQueue && reference.isDurable() && isDurable() && !reference.isPaged()) {
          storageManager.updateDeliveryCount(reference);
       }
 
@@ -2789,7 +2789,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             reference.setScheduledDeliveryTime(timeBase + redeliveryDelay);
 
-            if (!reference.isPaged() && reference.isDurable() && isDurableMessage()) {
+            if (!reference.isPaged() && reference.isDurable() && isDurable()) {
                storageManager.updateScheduledDeliveryTime(reference);
             }
          }
@@ -3252,7 +3252,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (message == null)
          return;
 
-      boolean durableRef = message.isDurable() && queue.isDurableMessage();
+      boolean durableRef = message.isDurable() && queue.isDurable();
 
       try {
          message.decrementRefCount();
