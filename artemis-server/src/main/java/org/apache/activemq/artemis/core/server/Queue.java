@@ -66,6 +66,12 @@ public interface Queue extends Bindable,CriticalComponent {
     */
    boolean isDurableMessage();
 
+   boolean isAutoDelete();
+
+   long getAutoDeleteDelay();
+
+   long getAutoDeleteMessageCount();
+
    boolean isTemporary();
 
    boolean isAutoCreated();

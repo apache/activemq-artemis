@@ -285,6 +285,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile long delayBeforeDispatch = 0;
 
+   private final boolean autoDelete;
+
+   private final long autoDeleteDelay;
+
+   private final long autoDeleteMessageCount;
+
    private volatile boolean configurationManaged;
 
    private volatile boolean nonDestructive;
@@ -411,7 +417,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final ArtemisExecutor executor,
                      final ActiveMQServer server,
                      final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, false, null, null, purgeOnNoConsumers, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, false, null, null, purgeOnNoConsumers, null, null, null, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
@@ -432,6 +438,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final Integer consumersBeforeDispatch,
                      final Long delayBeforeDispatch,
                      final Boolean purgeOnNoConsumers,
+                     final Boolean autoDelete,
+                     final Long autoDeleteDelay,
+                     final Long autoDeleteMessageCount,
                      final boolean configurationManaged,
                      final ScheduledExecutorService scheduledExecutor,
                      final PostOffice postOffice,
@@ -479,6 +488,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.groupBuckets = groupBuckets == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : groupBuckets;
 
       this.groups = groupMap(this.groupBuckets);
+
+      this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete() : autoDelete;
+
+      this.autoDeleteDelay = autoDeleteDelay == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay() : autoDeleteDelay;
+
+      this.autoDeleteMessageCount = autoDeleteMessageCount == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount() : autoDeleteMessageCount;
 
       this.configurationManaged = configurationManaged;
 
@@ -654,6 +669,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public boolean isDurableMessage() {
       return propertyDurable && !purgeOnNoConsumers;
+   }
+
+   @Override
+   public boolean isAutoDelete() {
+      return autoDelete;
+   }
+
+   @Override
+   public long getAutoDeleteDelay() {
+      return autoDeleteDelay;
+   }
+
+   @Override
+   public long getAutoDeleteMessageCount() {
+      return autoDeleteMessageCount;
    }
 
    @Override
@@ -1980,6 +2010,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (queueDestroyed) {
                return;
             }
+
             if (logger.isDebugEnabled()) {
                logger.debug("Scanning for expires on " + QueueImpl.this.getName());
             }

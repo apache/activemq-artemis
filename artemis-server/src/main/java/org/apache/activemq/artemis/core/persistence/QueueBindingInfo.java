@@ -89,4 +89,10 @@ public interface QueueBindingInfo {
    boolean isGroupRebalance();
 
    int getGroupBuckets();
+
+   boolean isAutoDelete();
+
+   long getAutoDeleteDelay();
+
+   long getAutoDeleteMessageCount();
 }

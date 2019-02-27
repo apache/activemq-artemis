@@ -159,6 +159,9 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .nonDestructive(queueBindingInfo.isNonDestructive())
             .consumersBeforeDispatch(queueBindingInfo.getConsumersBeforeDispatch())
             .delayBeforeDispatch(queueBindingInfo.getDelayBeforeDispatch())
+            .autoDelete(queueBindingInfo.isAutoDelete())
+            .autoDeleteDelay(queueBindingInfo.getAutoDeleteDelay())
+            .autoDeleteMessageCount(queueBindingInfo.getAutoDeleteMessageCount())
             .routingType(RoutingType.getType(queueBindingInfo.getRoutingType()))
             .configurationManaged((queueBindingInfo.isConfigurationManaged()));
          final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());

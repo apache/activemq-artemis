@@ -501,6 +501,12 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
+   public static final boolean DEFAULT_QUEUE_AUTO_DELETE = true;
+
+   public static final long DEFAULT_QUEUE_AUTO_DELETE_DELAY = 0;
+
+   public static final long DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT = 0;
+
    public static final int DEFAULT_CONSUMERS_BEFORE_DISPATCH = 0;
 
    public static final long DEFAULT_DELAY_BEFORE_DISPATCH = -1;
@@ -1364,6 +1370,18 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultPurgeOnNoConsumers() {
       return DEFAULT_PURGE_ON_NO_CONSUMERS;
+   }
+
+   public static boolean getDefaultQueueAutoDelete() {
+      return DEFAULT_QUEUE_AUTO_DELETE;
+   }
+
+   public static long getDefaultQueueAutoDeleteDelay() {
+      return DEFAULT_QUEUE_AUTO_DELETE_DELAY;
+   }
+
+   public static long getDefaultQueueAutoDeleteMessageCount() {
+      return DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT;
    }
 
    public static int getDefaultConsumersBeforeDispatch() {

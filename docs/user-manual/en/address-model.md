@@ -598,6 +598,7 @@ that would be found in the `broker.xml` file.
       <auto-create-queues>true</auto-create-queues>
       <auto-delete-queues>true</auto-delete-queues>
       <auto-delete-queues-delay>0</auto-delete-queues-delay>
+      <auto-delete-queues-message-count>0</auto-delete-queues-message-count>
       <config-delete-queues>OFF</config-delete-queues>
       <auto-create-addresses>true</auto-create-addresses>
       <auto-delete-addresses>true</auto-delete-addresses>
@@ -760,14 +761,29 @@ name fits the address `match`. Queues which are auto-created are durable,
 non-temporary, and non-transient. Default is `true`.
 
 `auto-delete-queues`. Whether or not the broker should automatically delete
-auto-created queues when they have both 0 consumers and 0 messages. Default is
+auto-created queues when they have both 0 consumers and the message count is 
+less than or equal to `auto-delete-queues-message-count`. Default is
 `true`.
 
 `auto-delete-queues-delay`. How long to wait (in milliseconds) before deleting
-auto-created queues after the queue has 0 consumers and 0 messages. Default is
-`0` (delete immediately). The broker's `address-queue-scan-period` controls
+auto-created queues after the queue has 0 consumers and the message count is 
+less than or equal to `auto-delete-queues-message-count`. 
+Default is `0` (delete immediately). The broker's `address-queue-scan-period` controls
 how often (in milliseconds) queues are scanned for potential deletion. Use `-1`
 to disable scanning. The default scan value is `30000`.
+
+`auto-delete-queues-message-count`. The message count that the queue must be 
+less than or equal to before deleting auto-created queues. 
+To disable message count check `-1` can be set.
+Default is `0` (empty queue).
+
+**Note:** the above auto-delete address settings can also be configured 
+individually at the queue level when a client auto creates the queue.
+ 
+For Core API it is exposed in createQueue methods. 
+
+For Core JMS you can set it using the destination queue attributes
+`my.destination?auto-delete=true&auto-delete-delay=120000&auto-delete-message-count=-1`
 
 `config-delete-queues`. How the broker should handle queues deleted on config
 reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
