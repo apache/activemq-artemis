@@ -48,7 +48,6 @@
       <module>artemis-jms-client-all</module>
       <module>artemis-jms-client-osgi</module>
       <module>artemis-jms-server</module>
-      <module>artemis-native</module>
       <module>artemis-journal</module>
       <module>artemis-ra</module>
       <module>artemis-rest</module>
@@ -75,6 +74,7 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
+      <activemq-artemis-native-version>1.0.0</activemq-artemis-native-version>
       <karaf.version>4.0.6</karaf.version>
       <pax.exam.version>4.9.1</pax.exam.version>
       <commons.config.version>2.4</commons.config.version>
@@ -168,7 +168,7 @@
 
       <activemq-surefire-argline>-Dbrokerconfig.maxDiskUsage=100 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
-         -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+         -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
@@ -784,6 +784,7 @@
             <!-- License: Apache 2.0 -->
          </dependency>
       </dependencies>
+
    </dependencyManagement>
 
    <profiles>
@@ -874,7 +875,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-protocols</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
@@ -911,7 +911,6 @@
             <module>artemis-jms-client</module>
             <module>artemis-jms-client-all</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -968,7 +967,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -1009,7 +1007,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -1041,7 +1038,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -1072,7 +1068,7 @@
 
             <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
                -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
-               -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+               -Djava.library.path="${activemq.basedir}/activemq-artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
                -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
                @{jacoco.agent} -Djacoco.agent=@{jacoco.agent}
             </activemq-surefire-argline>
@@ -1181,7 +1177,7 @@
                                        <fileset dir="${activemq.basedir}/artemis-jms-client/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-jms-server/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-journal/target/classes" />
-                                       <fileset dir="${activemq.basedir}/artemis-native/target/classes" />
+                                       <fileset dir="${activemq.basedir}/activemq-artemis-native/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-ra/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-rest/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-selector/target/classes" />
@@ -1202,7 +1198,7 @@
                                        <fileset dir="${activemq.basedir}/artemis-jms-client/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-jms-server/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-journal/src/main/java" />
-                                       <fileset dir="${activemq.basedir}/artemis-native/src/main/java" />
+                                       <fileset dir="${activemq.basedir}/activemq-artemis-native/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-ra/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-rest/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-selector/src/main/java" />
@@ -1624,7 +1620,7 @@
                   <exclude>**/CMakeFiles/</exclude>
                   <exclude>**/Makefile</exclude>
                   <exclude>**/cmake_install.cmake</exclude>
-                  <exclude>artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
+                  <exclude>activemq-artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
                   <exclude>**/dependency-reduced-pom.xml</exclude>
 
                </excludes>
@@ -1661,6 +1657,38 @@
                </execution>
             </executions>
          </plugin>
+
+         <!-- This is placing the .so somewhere other than the distribution so testsuite can take it
+              This is to avoid a dependency on having to build a distribution in order to run tests.
+         -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+               <execution>
+                  <id>copy</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>unpack</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <artifactItems>
+                  <artifactItem>
+                     <groupId>org.apache.activemq</groupId>
+                     <artifactId>activemq-artemis-native</artifactId>
+                     <version>${activemq-artemis-native-version}</version>
+                     <type>jar</type>
+                     <overWrite>false</overWrite>
+                     <outputDirectory>${project.build.directory}/bin</outputDirectory>
+                     <includes>**/*.so</includes>
+                  </artifactItem>
+               </artifactItems>
+            </configuration>
+         </plugin>
+
 
       </plugins>
    </build>
@@ -1738,5 +1766,19 @@
 
       </plugins>
    </reporting>
+
+   <!--
+     un comment this session here to validate repository releases.
+     <repositories>
+      <repository>
+         <id>release validation</id>
+         <name>Maven 1.0.0 release</name>
+         <layout>default</layout>
+         <url>https://repository.apache.org/content/repositories/orgapacheactivemq-XXXX</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+   </repositories> -->
 
 </project>
