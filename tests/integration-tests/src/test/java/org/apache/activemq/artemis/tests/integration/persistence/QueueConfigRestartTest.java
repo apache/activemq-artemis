@@ -115,7 +115,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, false, -1, true, null, false, consumersBeforeDispatch, -1, true);
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, false, -1, true, null, false, consumersBeforeDispatch, -1, false, 0, 0, true);
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
@@ -138,7 +138,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, false, -1, true, null, false,0, delayBeforeDispatch, true);
+      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, false, -1, true, null, false,0, delayBeforeDispatch, false, 0, 0, true);
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());

@@ -315,7 +315,7 @@ public class GroupingTest extends JMSTestBase {
 
       String testQueueName = getName() + "_bucket_group";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 2, false, null, false, 0, 0, true);
+      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 2, false, null, false, 0, 0, false, 0, 0, true);
 
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
@@ -397,7 +397,7 @@ public class GroupingTest extends JMSTestBase {
       Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
       String testQueueName = getName() + "_group_rebalance";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, true, -1, false, null, false, 0, 0, true);
+      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, true, -1, false, null, false, 0, 0, false, 0, 0, true);
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -527,7 +527,7 @@ public class GroupingTest extends JMSTestBase {
       Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
       String testQueueName = getName() + "_group_disable";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 0, false, null, false, 0, 0, true);
+      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 0, false, null, false, 0, 0, false, 0, 0, true);
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 

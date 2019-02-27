@@ -162,6 +162,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Boolean isGroupRebalance();
 
       Integer getGroupBuckets();
+
+      Boolean isAutoDelete();
+
+      Long getAutoDeleteDelay();
+
+      Long getAutoDeleteMessageCount();
    }
 
    // Lifecycle operations ------------------------------------------
