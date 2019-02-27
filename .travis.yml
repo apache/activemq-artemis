@@ -3,16 +3,15 @@ language: java
 install: true
 
 # clean out Artemis artifacts from the cache
-# whack native libs such that LibAIO is not used till we figure out the resource constraints
 before_install:
 - rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
-- rm artemis-native/bin/libartemis-native-*
 
 # use 'install' so smoke-tests will work
 # use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
+# By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
 script: 
 - set -e
-- mvn -Pfast-tests -Pextra-tests -B install -q -pl '!artemis-web'
+- mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Pfast-tests -Pextra-tests -B install -q -pl '!artemis-web'
 - cd examples
 - mvn install -Prelease install -B -q
 
