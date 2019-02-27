@@ -55,7 +55,7 @@
             <include>org.apache.activemq:artemis-jms-server</include>
             <include>org.apache.activemq:artemis-journal</include>
             <include>org.apache.activemq:artemis-jdbc-store</include>
-            <include>org.apache.activemq:artemis-native</include>
+            <include>org.apache.activemq:activemq-artemis-native</include>
             <include>org.apache.activemq:artemis-amqp-protocol</include>
             <include>org.apache.activemq:artemis-openwire-protocol</include>
             <include>org.apache.activemq:artemis-hornetq-protocol</include>
@@ -123,7 +123,7 @@
       <!-- native -->
       <dependencySet>
          <includes>
-            <include>org.apache.activemq:artemis-native</include>
+            <include>org.apache.activemq:activemq-artemis-native</include>
          </includes>
          <outputDirectory>bin</outputDirectory>
          <unpack>true</unpack>

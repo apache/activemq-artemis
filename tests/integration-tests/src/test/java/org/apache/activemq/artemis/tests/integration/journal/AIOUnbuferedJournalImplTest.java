@@ -21,7 +21,7 @@ import java.io.File;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
 import org.junit.Assert;
 import org.junit.Before;

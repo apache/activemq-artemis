@@ -30,10 +30,10 @@ import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
-import org.apache.activemq.artemis.jlibaio.LibaioFile;
-import org.apache.activemq.artemis.jlibaio.SubmitInfo;
-import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
+import org.apache.activemq.artemis.nativo.jlibaio.SubmitInfo;
+import org.apache.activemq.artemis.nativo.jlibaio.util.CallbackCache;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
@@ -41,6 +41,19 @@ import org.jboss.logging.Logger;
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
    private static final Logger logger = Logger.getLogger(AIOSequentialFileFactory.class);
+
+   // This is useful in cases where you want to disable loading the native library. (e.g. testsuite)
+   private static final boolean DISABLED = System.getProperty(AIOSequentialFileFactory.class.getName() + ".DISABLED") != null;
+
+   static {
+      // This is usually only used on testsuite.
+      // In case it's used, I would rather have it on the loggers so we know what's happening
+      if (DISABLED) {
+
+         // This is only used in tests, hence I'm not creating a Logger for this
+         logger.info(AIOSequentialFileFactory.class.getName() + ".DISABLED = true");
+      }
+   }
 
    private final ReuseBuffersController buffersControl = new ReuseBuffersController();
 
@@ -114,7 +127,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    public static boolean isSupported() {
-      return LibaioContext.isLoaded();
+      return !DISABLED && LibaioContext.isLoaded();
    }
 
    public static boolean isSupported(File journalPath) {

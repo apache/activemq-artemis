@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
-import org.apache.activemq.artemis.jlibaio.LibaioFile;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;

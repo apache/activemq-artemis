@@ -45,8 +45,8 @@ import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
-import org.apache.activemq.artemis.jlibaio.LibaioFile;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.utils.FileUtil;
 
 /**
