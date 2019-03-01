@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -62,6 +63,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
+import org.apache.activemq.artemis.core.server.federation.FederationManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -502,6 +504,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    ReplicationManager getReplicationManager();
 
+   FederationManager getFederationManager();
+
    void deployDivert(DivertConfiguration config) throws Exception;
 
    void destroyDivert(SimpleString name) throws Exception;
@@ -511,6 +515,10 @@ public interface ActiveMQServer extends ServiceComponent {
    void deployBridge(BridgeConfiguration config) throws Exception;
 
    void destroyBridge(String name) throws Exception;
+
+   void deployFederation(FederationConfiguration config) throws Exception;
+
+   void undeployFederation(String name) throws Exception;
 
    ServerSession getSessionByID(String sessionID);
 

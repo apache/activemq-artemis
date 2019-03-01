@@ -64,6 +64,21 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
    }
 
    /**
+    * Before a queue is destroyed
+    *
+    * @param queue
+    * @param session
+    * @param checkConsumerCount
+    * @param removeConsumers
+    * @param autoDeleteAddress
+    * @throws ActiveMQException
+    */
+   default void beforeDestroyQueue(Queue queue, final SecurityAuth session, boolean checkConsumerCount,
+                                   boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
+      beforeDestroyQueue(queue.getName(), session, checkConsumerCount, removeConsumers, autoDeleteAddress);
+   }
+
+   /**
     * After a queue has been destroyed
     *
     * @param queue

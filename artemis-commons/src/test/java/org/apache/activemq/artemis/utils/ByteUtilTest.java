@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.nio.ByteBuffer;
 import org.junit.Assert;
-import org.junit.Test;
-
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.Test;
 
 public class ByteUtilTest {
 
@@ -83,6 +84,21 @@ public class ByteUtilTest {
          fail();
       } catch (Exception e) {
          assertTrue(e instanceof IllegalArgumentException);
+      }
+   }
+
+
+   @Test
+   public void testIntToByte() {
+      for (int i = 0; i < 1000; i++) {
+         int randomInt = RandomUtil.randomInt();
+         byte[] expected = ByteBuffer.allocate(4).putInt(randomInt).array();
+
+         byte[] actual = ByteUtil.intToBytes(randomInt);
+         assertArrayEquals(expected, actual);
+
+         assertEquals(randomInt, ByteUtil.bytesToInt(expected));
+         assertEquals(randomInt, ByteUtil.bytesToInt(actual));
       }
    }
 }

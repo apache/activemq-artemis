@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import javax.transaction.xa.Xid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -38,6 +39,7 @@ import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
@@ -275,6 +277,17 @@ public class BindingsImplTest extends ActiveMQTestBase {
        */
       @Override
       public boolean match(final Message message) {
+         return false;
+      }
+
+      @Override
+      public boolean match(Map<String, String> map) {
+         return false;
+
+      }
+
+      @Override
+      public boolean match(Filterable filterable) {
          return false;
       }
 

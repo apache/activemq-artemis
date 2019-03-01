@@ -201,6 +201,84 @@
             <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
       </bridges>
+      <federations>
+         <federation name="federation1">
+            <upstream name="eu-west-1" user="westuser" password="32a10275cf4ab4e9">
+               <static-connectors>
+                  <connector-ref>connector1</connector-ref>
+               </static-connectors>
+               <policy ref="policySetA"/>
+            </upstream>
+            <upstream name="eu-east-1" user="eastuser" password="32a10275cf4ab4e9">
+               <ha>true</ha>
+               <discovery-group-ref discovery-group-name="dg1"/>
+               <policy ref="policySetA"/>
+            </upstream>
+
+            <policy-set name="policySetA">
+               <policy ref="address-federation" />
+               <policy ref="queue-federation" />
+            </policy-set>
+
+            <queue-policy name="queue-federation" >
+               <exclude queue-match="the_queue" address-match="#" />
+            </queue-policy>
+            <address-policy name="address-federation" >
+               <include address-match="the_address" />
+            </address-policy>
+         </federation>
+
+         <federation name="federation2" user="globaluser" password="32a10275cf4ab4e9">
+            <upstream name="usa-west-1">
+               <static-connectors>
+                  <connector-ref>connector1</connector-ref>
+               </static-connectors>
+               <policy ref="address-federation-usa"/>
+            </upstream>
+            <upstream name="usa-east-1" >
+               <ha>true</ha>
+               <discovery-group-ref discovery-group-name="dg1"/>
+               <policy ref="queue-federation-usa"/>
+            </upstream>
+
+            <queue-policy name="queue-federation-usa" >
+               <exclude queue-match="the_queue" address-match="#" />
+            </queue-policy>
+            <address-policy name="address-federation-usa" >
+               <include address-match="the_address" />
+            </address-policy>
+         </federation>
+
+         <federation name="federation3" user="globaluser" password="32a10275cf4ab4e9">
+            <upstream name="asia-1">
+               <static-connectors>
+                  <connector-ref>connector1</connector-ref>
+               </static-connectors>
+               <policy ref="queue-federation-asia"/>
+               <policy ref="address-federation-asia"/>
+            </upstream>
+            <upstream name="asia-2" >
+               <ha>true</ha>
+               <discovery-group-ref discovery-group-name="dg1"/>
+               <policy ref="queue-federation-asia"/>
+               <policy ref="address-federation-asia"/>
+            </upstream>
+
+            <queue-policy name="queue-federation-asia" transformer-ref="federation-transformer-3" >
+               <exclude queue-match="the_queue" address-match="#" />
+            </queue-policy>
+            <address-policy name="address-federation-asia" transformer-ref="federation-transformer-3" >
+               <include address-match="the_address" />
+            </address-policy>
+
+            <transformer name="federation-transformer-3">
+               <class-name>org.foo.FederationTransformer3</class-name>
+               <property key="federationTransformerKey1" value="federationTransformerValue1"/>
+               <property key="federationTransformerKey2" value="federationTransformerValue2"/>
+            </transformer>
+         </federation>
+      </federations>
+
       <ha-policy>
          <!--only one of the following-->
          <!--on server shutdown scale down to another live server-->
