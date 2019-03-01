@@ -88,7 +88,6 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
-import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -393,9 +392,9 @@ public class ManagementServiceImpl implements ManagementService {
       reply.setType(Message.TEXT_TYPE);
       reply.setReplyTo(message.getReplyTo());
 
-      String correlationId = getCorrelationIdentity(message);
-      if (correlationId != null) {
-         MessageUtil.setJMSCorrelationID(reply, correlationId);
+      Object correlationID = getCorrelationIdentity(message);
+      if (correlationID != null) {
+         reply.setCorrelationID(correlationID);
       }
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
@@ -796,9 +795,12 @@ public class ManagementServiceImpl implements ManagementService {
     * @param request
     * @return correlation identify
     */
-   private String getCorrelationIdentity(final Message request) {
-      String correlationId = MessageUtil.getJMSCorrelationID(request);
+   private Object getCorrelationIdentity(final Message request) {
+      Object correlationId = request.getCorrelationID();
       if (correlationId == null) {
+         // CoreMessage#getUserId returns UUID, so to implement this part a alternative API that returned object. This part of the
+         // change is a nice to have for my point of view. I suggested it for completeness.  The application could
+         // always supply unique correl ids on the request and achieve the same effect.  I'd be happy to drop this part.
          Object underlying = request.getUserID() != null ? request.getUserID() : request.getStringProperty(NATIVE_MESSAGE_ID);
          correlationId = underlying == null ? null : String.valueOf(underlying);
       }
