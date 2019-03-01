@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
@@ -851,6 +852,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             @Override
             public boolean match(Message message) {
                return message.getMessageID() == messageID;
+            }
+
+            @Override
+            public boolean match(Map<String, String> map) {
+               return false;
+            }
+
+            @Override
+            public boolean match(Filterable filterable) {
+               return false;
             }
 
             @Override

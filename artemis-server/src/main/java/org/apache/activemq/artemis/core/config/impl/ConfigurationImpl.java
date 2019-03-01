@@ -42,6 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
@@ -155,6 +156,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected List<DivertConfiguration> divertConfigurations = new ArrayList<>();
 
    protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
+
+   protected List<FederationConfiguration> federationConfigurations = new ArrayList<>();
 
    private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
 
@@ -1518,6 +1521,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins() {
       return brokerCriticalPlugins;
+   }
+
+   @Override
+   public List<FederationConfiguration> getFederationConfigurations() {
+      return federationConfigurations;
    }
 
    @Override

@@ -1212,4 +1212,10 @@ public interface Configuration {
     * @return
     */
    List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins();
+
+   /**
+    * @return
+    */
+   List<FederationConfiguration> getFederationConfigurations();
+
 }

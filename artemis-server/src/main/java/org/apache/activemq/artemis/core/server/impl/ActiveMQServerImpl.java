@@ -142,6 +142,7 @@ import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
@@ -162,6 +163,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
+import org.apache.activemq.artemis.core.server.federation.FederationManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
@@ -336,6 +338,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final List<ActiveMQComponent> externalComponents = new ArrayList<>();
 
    private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
+
+   private volatile FederationManager federationManager;
 
    private final ActiveMQComponent networkCheckMonitor = new ActiveMQComponent() {
       @Override
@@ -1027,6 +1031,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             managementService.removeNotificationListener(groupingHandler);
             stopComponent(groupingHandler);
          }
+         stopComponent(federationManager);
          stopComponent(clusterManager);
 
          if (remotingService != null) {
@@ -1964,10 +1969,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
-      if (hasBrokerQueuePlugins()) {
-         callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
-                 removeConsumers, autoDeleteAddress));
-      }
 
       addressSettingsRepository.clearCache();
 
@@ -1980,6 +1981,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       SimpleString address = binding.getAddress();
 
       Queue queue = (Queue) binding.getBindable();
+
+      if (hasBrokerQueuePlugins()) {
+         callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
+               removeConsumers, autoDeleteAddress));
+      }
+
 
       if (session != null) {
 
@@ -2309,6 +2316,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public FederationManager getFederationManager() {
+      return federationManager;
+   }
+
+
+   @Override
    public void deployDivert(DivertConfiguration config) throws Exception {
       if (config.getName() == null) {
          throw ActiveMQMessageBundle.BUNDLE.divertWithNoName();
@@ -2373,6 +2386,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public void destroyBridge(String name) throws Exception {
       if (clusterManager != null) {
          clusterManager.destroyBridge(name);
+      }
+   }
+
+   @Override
+   public void deployFederation(FederationConfiguration config) throws Exception {
+      if (federationManager != null) {
+         federationManager.deploy(config);
+      }
+   }
+
+   @Override
+   public void undeployFederation(String name) throws Exception {
+      if (federationManager != null) {
+         federationManager.undeploy(name);
       }
    }
 
@@ -2578,9 +2605,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // This can't be created until node id is set
       clusterManager = new ClusterManager(executorFactory, this, postOffice, scheduledPool, managementService, configuration, nodeManager, haPolicy.isBackup());
 
+      federationManager = new FederationManager(this);
+
       backupManager = new BackupManager(this, executorFactory, scheduledPool, nodeManager, configuration, clusterManager);
 
       clusterManager.deploy();
+
+      federationManager.deploy();
 
       remotingService = new RemotingServiceImpl(clusterManager, configuration, this, managementService, scheduledPool, protocolManagerFactories, executorFactory.getExecutor(), serviceRegistry);
 
@@ -2699,6 +2730,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (groupingHandler != null && groupingHandler instanceof LocalGroupingHandler) {
             clusterManager.start();
 
+            federationManager.start();
+
             groupingHandler.awaitBindings();
 
             remotingService.start();
@@ -2706,6 +2739,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             remotingService.start();
 
             clusterManager.start();
+
+            federationManager.start();
          }
 
          if (nodeManager.getNodeId() == null) {
