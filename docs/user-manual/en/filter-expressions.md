@@ -56,7 +56,7 @@ property set to String `21` then the following selector should not match
 it: `age > 18`. Since Apache ActiveMQ Artemis supports STOMP clients which
 can only send messages with string properties, that restriction is a bit 
 limiting. Therefore, if you want your filter expressions to auto-convert String 
-properties the the appropriate number type, just prefix it with
+properties to the appropriate number type, just prefix it with
 `convert_string_expressions:`. If you changed the filter expression in the
 previous example to be `convert_string_expressions:age > 18`, then it would 
 match the aforementioned message.
