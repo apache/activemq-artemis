@@ -35,7 +35,7 @@ yum install libaio
 Using aptitude, (e.g. on Ubuntu or Debian system):
 
 ```
-apt-get install libaio
+apt-get install libaio1
 ```
 
 ## Compiling the native libraries
