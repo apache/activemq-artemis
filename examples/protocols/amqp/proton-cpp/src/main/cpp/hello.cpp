@@ -7,9 +7,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,63 +18,55 @@
  * under the License.
  *
  */
-
-
-// Step 2. Make the proper C++ imports
-#include <qpid/messaging/Connection.h>
-#include <qpid/messaging/Message.h>
-#include <qpid/messaging/Receiver.h>
-#include <qpid/messaging/Sender.h>
-#include <qpid/messaging/Session.h>
+#include <proton/connection.hpp>
+#include <proton/container.hpp>
+#include <proton/delivery.hpp>
+#include <proton/message.hpp>
+#include <proton/messaging_handler.hpp>
+#include <proton/tracker.hpp>
 
 #include <iostream>
 
-using namespace qpid::messaging;
+#include "fake_cpp11.hpp"
 
-int main(int argc, char** argv) {
-    std::string broker = argc > 1 ? argv[1] : "localhost:61616";
-    std::string address = argc > 2 ? argv[2] : "exampleQueue";
+class hello_world : public proton::messaging_handler {
+    std::string conn_url_;
+    std::string addr_;
 
-    // Connection options documented at http://qpid.apache.org/releases/qpid-0.30/programming/book/connections.html#connection-options
-    std::string connectionOptions = argc > 3 ? argv[3] : "{protocol:amqp1.0}";
+  public:
+    hello_world(const std::string& u, const std::string& a) :
+        conn_url_(u), addr_(a) {}
 
-    try {
-         // Step 3. Create an amqp qpid 1.0 connection
-        Connection connection(broker, connectionOptions);
-        connection.open();
-
-         // Step 4. Create a session
-        Session session = connection.createSession();
-
-         // Step 5. Create a sender
-        Sender sender = session.createSender(address);
-
-        //create a receiver
-        Receiver receiver = session.createReceiver(address);
-
-
-        for (int i = 0; i < 10; i++) {
-            Message message;
-            message.getContentObject() = "Hello world!";
-
-            message.getContentObject().setEncoding("utf8");
-            message.setContentType("text/plain");
-
-            sender.send(message);
-
-            // receive the simple message
-            message = receiver.fetch(Duration::SECOND * 1);
-            std::cout << "Received a message with this following content \"" << message.getContent() << "\"" << std::endl;
-
-            // acknowledge the message
-            session.acknowledge();
-        }
-
-        // close the connection
-        connection.close();
-        return 0;
-    } catch(const std::exception& error) {
-        std::cerr << error.what() << std::endl;
-        return 1;
+    void on_container_start(proton::container& c) OVERRIDE {
+        c.connect(conn_url_);
     }
+
+    void on_connection_open(proton::connection& c) OVERRIDE {
+        c.open_receiver(addr_);
+        c.open_sender(addr_);
+    }
+
+    void on_sendable(proton::sender &s) OVERRIDE {
+        proton::message m("Hello World!");
+        s.send(m);
+        s.close();
+    }
+
+    void on_message(proton::delivery &d, proton::message &m) OVERRIDE {
+        std::cout << m.body() << std::endl;
+        d.connection().close();
+    }
+};
+
+int main(int argc, char **argv) {
+    try {
+        std::string conn_url = argc > 1 ? argv[1] : "//127.0.0.1:5672";
+        std::string addr = argc > 2 ? argv[2] : "exampleQueue";
+        hello_world hw(conn_url, addr);
+        proton::container(hw).run();
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+    return 1;
 }
