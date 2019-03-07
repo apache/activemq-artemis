@@ -65,7 +65,7 @@ import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.junit.Wait;

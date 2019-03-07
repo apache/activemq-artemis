@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.apache.activemq.artemis.jlibaio.LibaioFile;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.jboss.logging.Logger;

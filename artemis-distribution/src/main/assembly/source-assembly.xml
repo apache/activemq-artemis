@@ -60,22 +60,6 @@
             <exclude>mvnw.cmd</exclude>
             <exclude>.mvn/</exclude>
             <exclude>artemis_doap.rdf</exclude>
-            <exclude>artemis-native/bin/</exclude>
-
-            <!-- Files generated from automake -->
-            <exclude>CMakeCache.txt</exclude>
-            <exclude>CMakeFiles/</exclude>
-            <exclude>Makefile</exclude>
-            <exclude>artemis-native/CMakeCache.txt</exclude>
-            <exclude>artemis-native/CMakeFiles/</exclude>
-            <exclude>artemis-native/Makefile</exclude>
-            <exclude>artemis-native/cmake_install.cmake</exclude>
-            <exclude>artemis-native/src/main/c/CMakeFiles/</exclude>
-            <exclude>artemis-native/src/main/c/Makefile</exclude>
-            <exclude>artemis-native/src/main/c/cmake_install.cmake</exclude>
-            <exclude>artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
-            <exclude>cmake_install.cmake</exclude>
-
 
             <!--  build output  -->
             <exclude>

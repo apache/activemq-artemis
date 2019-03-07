@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;

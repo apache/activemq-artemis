@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 

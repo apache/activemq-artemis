@@ -55,8 +55,8 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-native</artifactId>
-         <version>${project.version}</version>
+         <artifactId>activemq-artemis-native</artifactId>
+         <version>${activemq-artemis-native-version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>

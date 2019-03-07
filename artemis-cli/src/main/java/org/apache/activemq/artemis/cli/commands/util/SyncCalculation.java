@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 /**
