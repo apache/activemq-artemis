@@ -110,6 +110,17 @@ public interface ServiceRegistry {
    void addBridgeTransformer(String name, Transformer transformer);
 
    /**
+    * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for federation
+    *
+    * @param name      the name of bridge for which the transformer will be used
+    * @param transformerConfiguration the transformer configuration
+    * @return
+    */
+   Transformer getFederationTransformer(String name, TransformerConfiguration transformerConfiguration);
+
+   void addFederationTransformer(String name, Transformer transformer);
+
+   /**
     * Get an instance of org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory
     *
     * @param name      the name of acceptor for which the factory will be used

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.filter.impl;
 
+import java.util.Map;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.Message;
@@ -23,12 +24,14 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.federation.address.FederatedAddress;
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
+import org.apache.activemq.artemis.utils.ByteUtil;
 
 /**
  * This class implements an ActiveMQ Artemis filter
@@ -103,10 +106,20 @@ public class FilterImpl implements Filter {
    }
 
    @Override
-   public synchronized boolean match(final Message message) {
+   public boolean match(final Message message) {
+      return match(new FilterableServerMessage(message));
+   }
+
+   @Override
+   public boolean match(final Map<String, String> map) {
+      return match(new FilterableMap(map));
+   }
+
+
+   @Override
+   public synchronized boolean match(final Filterable filterable) {
       try {
-         boolean result = booleanExpression.matches(new FilterableServerMessage(message));
-         return result;
+         return booleanExpression.matches(filterable);
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(sfilterString);
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
@@ -183,6 +196,30 @@ public class FilterImpl implements Filter {
       }
    }
 
+   private static class FilterableMap implements Filterable {
+
+      private final Map<String, String> map;
+
+      private FilterableMap(Map<String, String> map) {
+         this.map = map;
+      }
+
+      @Override
+      public <T> T getBodyAs(Class<T> type) throws FilterException {
+         return null;
+      }
+
+      @Override
+      public Object getProperty(SimpleString name) {
+         return map.get(name.toString());
+      }
+
+      @Override
+      public Object getLocalConnectionId() {
+         return null;
+      }
+   }
+
    private static class FilterableServerMessage implements Filterable {
 
       private final Message message;
@@ -196,6 +233,10 @@ public class FilterImpl implements Filter {
          Object result = null;
          if (id.startsWith(FilterConstants.ACTIVEMQ_PREFIX)) {
             result = getHeaderFieldValue(message, id);
+         }
+         if (id.startsWith(FederatedAddress.HDR_HOPS)) {
+            byte[] bytes = message.getExtraBytesProperty(FederatedAddress.HDR_HOPS);
+            result = bytes == null ? null : ByteUtil.bytesToInt(bytes);
          }
          if (result == null) {
             result = message.getObjectProperty(id);

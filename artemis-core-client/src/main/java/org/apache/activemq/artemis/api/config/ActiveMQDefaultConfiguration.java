@@ -182,6 +182,12 @@ public final class ActiveMQDefaultConfiguration {
    // Cluster password. It applies to all cluster configurations.
    private static String DEFAULT_CLUSTER_PASSWORD = "CHANGE ME!!";
 
+   // Cluster username. It applies to all cluster configurations.
+   private static String DEFAULT_FEDERATION_USER = "ACTIVEMQ.CLUSTER.ADMIN.USER";
+
+   // Cluster password. It applies to all cluster configurations.
+   private static String DEFAULT_FEDERATION_PASSWORD = "CHANGE ME!!";
+
    // This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked.
    private static Boolean DEFAULT_MASK_PASSWORD = null;
 
@@ -669,6 +675,20 @@ public final class ActiveMQDefaultConfiguration {
     * Cluster password. It applies to all cluster configurations.
     */
    public static String getDefaultClusterPassword() {
+      return DEFAULT_CLUSTER_PASSWORD;
+   }
+
+   /**
+    * Federation username. It applies to all federation configurations.
+    */
+   public static String getDefaultFederationUser() {
+      return DEFAULT_CLUSTER_USER;
+   }
+
+   /**
+    * Federation password. It applies to all federation configurations.
+    */
+   public static String getDefaultFederationPassword() {
       return DEFAULT_CLUSTER_PASSWORD;
    }
 
