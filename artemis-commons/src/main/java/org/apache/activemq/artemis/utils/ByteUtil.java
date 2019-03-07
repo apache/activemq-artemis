@@ -21,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -146,10 +145,20 @@ public class ByteUtil {
       return groups;
    }
 
-   public static byte[] longToBytes(long x) {
-      ByteBuf buffer = UnpooledByteBufAllocator.DEFAULT.heapBuffer(8, 8);
-      buffer.writeLong(x);
-      return buffer.array();
+   public static final byte[] intToBytes(int value) {
+      return new byte[] {
+         (byte)(value >>> 24),
+         (byte)(value >>> 16),
+         (byte)(value >>> 8),
+         (byte)value
+      };
+   }
+
+   public static int bytesToInt(byte[] b) {
+      return ((int) b[3] & 0xff)
+            | ((int) b[2] & 0xff) << 8
+            | ((int) b[1] & 0xff) << 16
+            | ((int) b[0] & 0xff) << 24;
    }
 
    public static byte[] hexToBytes(String hexStr) {

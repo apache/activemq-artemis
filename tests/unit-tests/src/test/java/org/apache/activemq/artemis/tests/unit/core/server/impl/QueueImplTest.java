@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +45,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeFilter;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
@@ -160,6 +162,16 @@ public class QueueImplTest extends ActiveMQTestBase {
       Filter filter = new Filter() {
          @Override
          public boolean match(final Message message) {
+            return false;
+         }
+
+         @Override
+         public boolean match(Map<String, String> map) {
+            return false;
+         }
+
+         @Override
+         public boolean match(Filterable filterable) {
             return false;
          }
 

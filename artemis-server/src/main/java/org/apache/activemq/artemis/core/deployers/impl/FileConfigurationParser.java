@@ -49,9 +49,14 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
+import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
@@ -507,6 +512,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Element mfNode = (Element) brNodes.item(i);
 
          parseBridgeConfiguration(mfNode, config);
+      }
+
+      NodeList fedNodes = e.getElementsByTagName("federation");
+
+      for (int i = 0; i < fedNodes.getLength(); i++) {
+         Element fedNode = (Element) fedNodes.item(i);
+
+         parseFederationConfiguration(fedNode, config);
       }
 
       NodeList gaNodes = e.getElementsByTagName("grouping-handler");
@@ -1881,6 +1894,222 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       mainConfig.getBridgeConfigurations().add(config);
+   }
+
+   private void parseFederationConfiguration(final Element fedNode, final Configuration mainConfig) throws Exception {
+      FederationConfiguration config = new FederationConfiguration();
+
+      String name = fedNode.getAttribute("name");
+      config.setName(name);
+
+      FederationConfiguration.Credentials credentials = new FederationConfiguration.Credentials();
+
+      // parsing federation password
+      String passwordTextFederation = fedNode.getAttribute("password");
+
+      if (passwordTextFederation != null && !passwordTextFederation.isEmpty()) {
+         String resolvedPassword = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), passwordTextFederation, mainConfig.getPasswordCodec());
+         credentials.setPassword(resolvedPassword);
+      }
+
+      credentials.setUser(fedNode.getAttribute("user"));
+      config.setCredentials(credentials);
+
+      NodeList children = fedNode.getChildNodes();
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("upstream")) {
+            config.addUpstreamConfiguration(getUpstream((Element) child, mainConfig));
+         } else if (child.getNodeName().equals("policy-set")) {
+            config.addFederationPolicy(getPolicySet((Element)child, mainConfig));
+         } else if (child.getNodeName().equals("queue-policy")) {
+            config.addFederationPolicy(getQueuePolicy((Element)child, mainConfig));
+         } else if (child.getNodeName().equals("address-policy")) {
+            config.addFederationPolicy(getAddressPolicy((Element)child, mainConfig));
+         }
+      }
+
+      mainConfig.getFederationConfigurations().add(config);
+
+   }
+
+   private FederationQueuePolicyConfiguration getQueuePolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      FederationQueuePolicyConfiguration config = new FederationQueuePolicyConfiguration();
+      config.setName(policyNod.getAttribute("name"));
+
+      NamedNodeMap attributes = policyNod.getAttributes();
+      for (int i = 0; i < attributes.getLength(); i++) {
+         Node item = attributes.item(i);
+         if (item.getNodeName().equals("include-federated")) {
+            config.setIncludeFederated(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("priority-adjustment")) {
+            int priorityAdjustment = Integer.parseInt(item.getNodeValue());
+            config.setPriorityAdjustment(priorityAdjustment);
+         } else if (item.getNodeName().equals("transformer-ref")) {
+            String transformerRef = item.getNodeValue();
+            config.setTransformerRef(transformerRef);
+         }
+      }
+
+      NodeList children = policyNod.getChildNodes();
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addInclude(getQueueMatcher((Element) child));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addExclude(getQueueMatcher((Element) child));
+         }
+      }
+
+
+      return config;
+   }
+
+   private FederationQueuePolicyConfiguration.Matcher getQueueMatcher(Element child) {
+      FederationQueuePolicyConfiguration.Matcher matcher = new FederationQueuePolicyConfiguration.Matcher();
+      matcher.setAddressMatch(child.getAttribute("queue-match"));
+      matcher.setAddressMatch(child.getAttribute("address-match"));
+      return matcher;
+   }
+
+
+   private FederationAddressPolicyConfiguration getAddressPolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      FederationAddressPolicyConfiguration config = new FederationAddressPolicyConfiguration();
+      config.setName(policyNod.getAttribute("name"));
+
+      NamedNodeMap attributes = policyNod.getAttributes();
+      for (int i = 0; i < attributes.getLength(); i++) {
+         Node item = attributes.item(i);
+         if (item.getNodeName().equals("max-consumers")) {
+            int maxConsumers = Integer.parseInt(item.getNodeValue());
+            Validators.MINUS_ONE_OR_GE_ZERO.validate(item.getNodeName(), maxConsumers);
+            config.setMaxHops(maxConsumers);
+         } else if (item.getNodeName().equals("auto-delete")) {
+            boolean autoDelete = Boolean.parseBoolean(item.getNodeValue());
+            config.setAutoDelete(autoDelete);
+         } else if (item.getNodeName().equals("auto-delete-delay")) {
+            long autoDeleteDelay = Long.parseLong(item.getNodeValue());
+            Validators.GE_ZERO.validate("auto-delete-delay", autoDeleteDelay);
+            config.setAutoDeleteDelay(autoDeleteDelay);
+         } else if (item.getNodeName().equals("auto-delete-message-count")) {
+            long autoDeleteMessageCount = Long.parseLong(item.getNodeValue());
+            Validators.MINUS_ONE_OR_GE_ZERO.validate("auto-delete-message-count", autoDeleteMessageCount);
+            config.setAutoDeleteMessageCount(autoDeleteMessageCount);
+         } else if (item.getNodeName().equals("transformer-ref")) {
+            String transformerRef = item.getNodeValue();
+            config.setTransformerRef(transformerRef);
+         }
+      }
+
+      NodeList children = policyNod.getChildNodes();
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addInclude(getAddressMatcher((Element) child));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addExclude(getAddressMatcher((Element) child));
+         }
+      }
+
+
+      return config;
+   }
+
+   private FederationAddressPolicyConfiguration.Matcher getAddressMatcher(Element child) {
+      FederationAddressPolicyConfiguration.Matcher matcher = new FederationAddressPolicyConfiguration.Matcher();
+      matcher.setAddressMatch(child.getAttribute("address-match"));
+      return matcher;
+   }
+
+   private FederationPolicySet getPolicySet(Element policySetNode, final Configuration mainConfig) throws Exception {
+      FederationPolicySet config = new FederationPolicySet();
+      config.setName(policySetNode.getAttribute("name"));
+
+      NodeList children = policySetNode.getChildNodes();
+
+      List<String> policyRefs = new ArrayList<>();
+
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("policy")) {
+            policyRefs.add(((Element)child).getAttribute("ref"));
+         }
+      }
+      config.addPolicyRefs(policyRefs);
+
+      return config;
+   }
+
+   private FederationUpstreamConfiguration getUpstream(Element upstreamNode, final Configuration mainConfig) throws Exception {
+
+      FederationUpstreamConfiguration config = new FederationUpstreamConfiguration();
+
+      String name = upstreamNode.getAttribute("name");
+      config.setName(name);
+
+      // parsing federation password
+      String passwordTextFederation = upstreamNode.getAttribute("password");
+
+      if (passwordTextFederation != null && !passwordTextFederation.isEmpty()) {
+         String resolvedPassword = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), passwordTextFederation, mainConfig.getPasswordCodec());
+         config.getConnectionConfiguration().setPassword(resolvedPassword);
+      }
+
+      config.getConnectionConfiguration().setUsername(upstreamNode.getAttribute("user"));
+
+      NamedNodeMap attributes = upstreamNode.getAttributes();
+      for (int i = 0; i < attributes.getLength(); i++) {
+         Node item = attributes.item(i);
+         if (item.getNodeName().equals("priority-adjustment")) {
+            int priorityAdjustment = Integer.parseInt(item.getNodeValue());
+            config.getConnectionConfiguration().setPriorityAdjustment(priorityAdjustment);
+         }
+      }
+
+      boolean ha = getBoolean(upstreamNode, "ha", false);
+
+      long circuitBreakerTimeout = getLong(upstreamNode, "circuit-breaker-timeout", config.getConnectionConfiguration().getCircuitBreakerTimeout(), Validators.MINUS_ONE_OR_GE_ZERO);
+
+      List<String> staticConnectorNames = new ArrayList<>();
+
+      String discoveryGroupName = null;
+
+      NodeList children = upstreamNode.getChildNodes();
+
+      List<String> policyRefs = new ArrayList<>();
+
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("discovery-group-ref")) {
+            discoveryGroupName = child.getAttributes().getNamedItem("discovery-group-name").getNodeValue();
+         } else if (child.getNodeName().equals("static-connectors")) {
+            getStaticConnectors(staticConnectorNames, child);
+         } else if (child.getNodeName().equals("policy")) {
+            policyRefs.add(((Element)child).getAttribute("ref"));
+         }
+      }
+      config.addPolicyRefs(policyRefs);
+
+      config.getConnectionConfiguration()
+            .setCircuitBreakerTimeout(circuitBreakerTimeout)
+            .setHA(ha);
+
+      if (!staticConnectorNames.isEmpty()) {
+         config.getConnectionConfiguration().setStaticConnectors(staticConnectorNames);
+      } else {
+         config.getConnectionConfiguration().setDiscoveryGroupName(discoveryGroupName);
+      }
+      return config;
    }
 
    private void getStaticConnectors(List<String> staticConnectorNames, Node child) {
