@@ -325,8 +325,13 @@ public class AmqpCoreConverter {
          if (properties.getReplyTo() != null) {
             jms.setJMSReplyTo(new ServerDestination(properties.getReplyTo()));
          }
-         if (properties.getCorrelationId() != null) {
-            jms.setJMSCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(properties.getCorrelationId()));
+         Object correlationID = properties.getCorrelationId();
+         if (correlationID != null) {
+            try {
+               jms.getInnerMessage().setCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(correlationID));
+            } catch (IllegalArgumentException e) {
+               jms.getInnerMessage().setCorrelationID(String.valueOf(correlationID));
+            }
          }
          if (properties.getContentType() != null) {
             jms.setStringProperty(JMS_AMQP_CONTENT_TYPE, properties.getContentType().toString());

@@ -297,6 +297,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this.putIntProperty(Message.HDR_GROUP_SEQUENCE, sequence);
    }
 
+   @Override
+   public Object getCorrelationID() {
+      return getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME);
+   }
+
+   @Override
+   public Message setCorrelationID(final Object correlationID) {
+      putObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME, correlationID);
+      return this;
+   }
+
    /**
     * @param sendBuffer
     * @param deliveryCount Some protocols (AMQP) will have this as part of the message. ignored on core
