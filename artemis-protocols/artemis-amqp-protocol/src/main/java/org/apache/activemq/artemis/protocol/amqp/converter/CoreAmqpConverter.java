@@ -72,6 +72,7 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
@@ -177,14 +178,19 @@ public class CoreAmqpConverter {
          properties.setReplyTo(toAddress(replyTo));
          maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationType(replyTo));
       }
-      String correlationId = message.getJMSCorrelationID();
-      if (correlationId != null) {
+
+      Object correlationID = message.getInnerMessage().getCorrelationID();
+      if (correlationID instanceof String || correlationID instanceof SimpleString) {
+         String c = correlationID instanceof String ? ((String) correlationID) : ((SimpleString) correlationID).toString();
          try {
-            properties.setCorrelationId(AMQPMessageIdHelper.INSTANCE.toIdObject(correlationId));
+            properties.setCorrelationId(AMQPMessageIdHelper.INSTANCE.toIdObject(c));
          } catch (ActiveMQAMQPIllegalStateException e) {
-            properties.setCorrelationId(correlationId);
+            properties.setCorrelationId(correlationID);
          }
+      } else {
+         properties.setCorrelationId(correlationID);
       }
+
       long expiration = message.getJMSExpiration();
       if (expiration != 0) {
          long ttl = expiration - System.currentTimeMillis();
