@@ -253,7 +253,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean directDeliver = true;
 
-   private volatile boolean supportsDirectDeliver = true;
+   private volatile boolean supportsDirectDeliver = false;
 
    private AddressSettingsRepositoryListener addressSettingsRepositoryListener;
 
@@ -1078,8 +1078,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
 
-            if (!consumer.supportsDirectDelivery()) {
-               this.supportsDirectDeliver = false;
+            if (consumers.isEmpty()) {
+               this.supportsDirectDeliver = consumer.supportsDirectDelivery();
+            } else {
+               if (!consumer.supportsDirectDelivery()) {
+                  this.supportsDirectDeliver = false;
+               }
             }
 
             cancelRedistributor();
@@ -1158,6 +1162,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private boolean checkConsumerDirectDeliver() {
+      if (consumers.isEmpty()) {
+         return false;
+      }
       boolean supports = true;
       for (ConsumerHolder consumerCheck : consumers) {
          if (!consumerCheck.consumer.supportsDirectDelivery()) {
