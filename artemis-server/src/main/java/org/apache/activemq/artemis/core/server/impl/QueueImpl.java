@@ -2348,7 +2348,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean isDirectDeliver() {
-      return directDeliver;
+      return directDeliver && supportsDirectDeliver;
    }
 
    /**
