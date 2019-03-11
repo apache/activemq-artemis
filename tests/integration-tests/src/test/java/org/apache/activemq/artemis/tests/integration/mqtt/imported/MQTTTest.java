@@ -43,6 +43,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -63,6 +65,7 @@ import org.fusesource.mqtt.client.Topic;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
 import org.fusesource.mqtt.codec.PUBLISH;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -149,6 +152,23 @@ public class MQTTTest extends MQTTTestSupport {
       assertEquals(0, latch.getCount());
       subscriptionProvider.disconnect();
       publishProvider.disconnect();
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testDirectDeliverFalse() throws Exception {
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+
+      subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
+
+
+      for (Binding b : server.getPostOffice().getAllBindings().values()) {
+         if (b instanceof QueueBinding) {
+            Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
+         }
+      }
+
+      subscriptionProvider.disconnect();
    }
 
    @Test(timeout = 60 * 1000)
