@@ -80,6 +80,11 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
+   public boolean supportsDirectDelivery() {
+      return false;
+   }
+
+   @Override
    public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
