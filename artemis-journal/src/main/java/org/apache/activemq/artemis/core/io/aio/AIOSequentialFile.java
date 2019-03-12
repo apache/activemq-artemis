@@ -85,11 +85,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public int calculateBlockStart(final int position) {
-      int alignment = factory.getAlignment();
-
-      int pos = (position / alignment + (position % alignment != 0 ? 1 : 0)) * alignment;
-
-      return pos;
+      return factory.calculateBlockSize(position);
    }
 
    @Override

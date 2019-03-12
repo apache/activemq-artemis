@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -342,4 +344,52 @@ public class ByteUtil {
    public static int intFromBytes(byte b1, byte b2, byte b3, byte b4) {
       return b1 << 24 | (b2 & 0xFF) << 16 | (b3 & 0xFF) << 8 | (b4 & 0xFF);
    }
+
+   /**
+    * It zeroes the whole {@link ByteBuffer#capacity()} of the given {@code buffer}.
+    *
+    * @throws ReadOnlyBufferException if {@code buffer} is read-only
+    */
+   public static void zeros(final ByteBuffer buffer) {
+      uncheckedZeros(buffer, 0, buffer.capacity());
+   }
+
+   /**
+    * It zeroes {@code bytes} of the given {@code buffer}, starting (inclusive) from {@code offset}.
+    *
+    * @throws IndexOutOfBoundsException if {@code offset + bytes > }{@link ByteBuffer#capacity()} or {@code offset >= }{@link ByteBuffer#capacity()}
+    * @throws IllegalArgumentException  if {@code offset} or {@code capacity} are less then 0
+    * @throws ReadOnlyBufferException   if {@code buffer} is read-only
+    */
+   public static void zeros(final ByteBuffer buffer, int offset, int bytes) {
+      if (offset < 0 || bytes < 0) {
+         throw new IllegalArgumentException();
+      }
+      final int capacity = buffer.capacity();
+      if (offset >= capacity || (offset + bytes) > capacity) {
+         throw new IndexOutOfBoundsException();
+      }
+      uncheckedZeros(buffer, offset, bytes);
+   }
+
+   private static void uncheckedZeros(final ByteBuffer buffer, int offset, int bytes) {
+      if (buffer.isReadOnly()) {
+         throw new ReadOnlyBufferException();
+      }
+      final byte zero = (byte) 0;
+      if (buffer.isDirect() && PlatformDependent.hasUnsafe()) {
+         PlatformDependent.setMemory(PlatformDependent.directBufferAddress(buffer) + offset, bytes, zero);
+      } else if (buffer.hasArray()) {
+         //SIMD OPTIMIZATION
+         final int arrayOffset = buffer.arrayOffset();
+         final int start = arrayOffset + offset;
+         Arrays.fill(buffer.array(), start, start + bytes, zero);
+      } else {
+         //slow path
+         for (int i = 0; i < bytes; i++) {
+            buffer.put(i + offset, zero);
+         }
+      }
+   }
+
 }
