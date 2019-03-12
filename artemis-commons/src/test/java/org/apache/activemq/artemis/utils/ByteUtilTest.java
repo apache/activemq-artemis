@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.utils;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
