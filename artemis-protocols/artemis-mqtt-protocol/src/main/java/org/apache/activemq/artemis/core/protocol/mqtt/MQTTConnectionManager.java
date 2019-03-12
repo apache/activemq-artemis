@@ -58,15 +58,15 @@ public class MQTTConnectionManager {
    /**
     * Handles the connect packet.  See spec for details on each of parameters.
     */
-   synchronized void connect(String cId,
-                             String username,
-                             byte[] passwordInBytes,
-                             boolean will,
-                             byte[] willMessage,
-                             String willTopic,
-                             boolean willRetain,
-                             int willQosLevel,
-                             boolean cleanSession) throws Exception {
+   void connect(String cId,
+                String username,
+                byte[] passwordInBytes,
+                boolean will,
+                byte[] willMessage,
+                String willTopic,
+                boolean willRetain,
+                int willQosLevel,
+                boolean cleanSession) throws Exception {
       String clientId = validateClientId(cId, cleanSession);
       if (clientId == null) {
          session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED);
@@ -74,34 +74,36 @@ public class MQTTConnectionManager {
          return;
       }
 
-      String password = passwordInBytes == null ? null : new String(passwordInBytes, CharsetUtil.UTF_8);
-      session.getConnection().setClientID(clientId);
-      ServerSessionImpl serverSession = createServerSession(username, password);
-      serverSession.start();
-      session.setServerSession(serverSession);
+      MQTTSessionState sessionState = getSessionState(clientId);
+      synchronized (sessionState) {
+         session.setSessionState(sessionState);
+         String password = passwordInBytes == null ? null : new String(passwordInBytes, CharsetUtil.UTF_8);
+         session.getConnection().setClientID(clientId);
+         ServerSessionImpl serverSession = createServerSession(username, password);
+         serverSession.start();
+         session.setServerSession(serverSession);
 
-      session.setSessionState(getSessionState(clientId));
+         if (cleanSession) {
+            /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
+             * start a new one. This Session lasts as long as the Network Connection. State data associated with this Session
+             * MUST NOT be reused in any subsequent Session */
+            session.clean();
+            session.setClean(true);
+         }
 
-      if (cleanSession) {
-         /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
-          * start a new one. This Session lasts as long as the Network Connection. State data associated with this Session
-          * MUST NOT be reused in any subsequent Session */
-         session.clean();
-         session.setClean(true);
+         if (will) {
+            isWill = true;
+            this.willMessage = ByteBufAllocator.DEFAULT.buffer(willMessage.length);
+            this.willMessage.writeBytes(willMessage);
+            this.willQoSLevel = willQosLevel;
+            this.willRetain = willRetain;
+            this.willTopic = willTopic;
+         }
+
+         session.getConnection().setConnected(true);
+         session.start();
+         session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED);
       }
-
-      if (will) {
-         isWill = true;
-         this.willMessage = ByteBufAllocator.DEFAULT.buffer(willMessage.length);
-         this.willMessage.writeBytes(willMessage);
-         this.willQoSLevel = willQosLevel;
-         this.willRetain = willRetain;
-         this.willTopic = willTopic;
-      }
-
-      session.getConnection().setConnected(true);
-      session.start();
-      session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED);
    }
 
    /**
@@ -133,35 +135,37 @@ public class MQTTConnectionManager {
       return (ServerSessionImpl) serverSession;
    }
 
-   synchronized void disconnect(boolean failure) {
+   void disconnect(boolean failure) {
       if (session == null || session.getStopped()) {
          return;
       }
 
-      try {
-         if (isWill && failure) {
-            session.getMqttPublishManager().sendInternal(0, willTopic, willQoSLevel, willMessage, willRetain, true);
-         }
-         session.stop();
-         session.getConnection().destroy();
-      } catch (Exception e) {
-         log.error("Error disconnecting client: " + e.getMessage());
-      } finally {
-         if (session.getSessionState() != null) {
-            session.getSessionState().setAttached(false);
-            String clientId = session.getSessionState().getClientId();
-            /**
-             *  ensure that the connection for the client ID matches *this* connection otherwise we could remove the
-             *  entry for the client who "stole" this client ID via [MQTT-3.1.4-2]
-             */
-            if (clientId != null && session.getProtocolManager().isClientConnected(clientId, session.getConnection())) {
-               session.getProtocolManager().removeConnectedClient(clientId);
+      synchronized (session.getSessionState()) {
+         try {
+            if (isWill && failure) {
+               session.getMqttPublishManager().sendInternal(0, willTopic, willQoSLevel, willMessage, willRetain, true);
+            }
+            session.stop();
+            session.getConnection().destroy();
+         } catch (Exception e) {
+            log.error("Error disconnecting client: " + e.getMessage());
+         } finally {
+            if (session.getSessionState() != null) {
+               session.getSessionState().setAttached(false);
+               String clientId = session.getSessionState().getClientId();
+               /**
+                *  ensure that the connection for the client ID matches *this* connection otherwise we could remove the
+                *  entry for the client who "stole" this client ID via [MQTT-3.1.4-2]
+                */
+               if (clientId != null && session.getProtocolManager().isClientConnected(clientId, session.getConnection())) {
+                  session.getProtocolManager().removeConnectedClient(clientId);
+               }
             }
          }
       }
    }
 
-   private MQTTSessionState getSessionState(String clientId) {
+   private synchronized MQTTSessionState getSessionState(String clientId) {
       return session.getProtocolManager().getSessionState(clientId);
    }
 
