@@ -27,7 +27,7 @@ example directory).
 You can use the profile `-Pexamples` to run multiple examples under any example
 tree.
 
-For each server, you will have a created server under `./target/server0` (some
+For each example, you will have a created server under `./target/server0` (some
 examples use more than one server).
 
 You have the option to prevent the example from starting the server (e.g. if
