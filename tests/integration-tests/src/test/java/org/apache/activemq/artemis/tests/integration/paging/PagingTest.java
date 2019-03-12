@@ -119,6 +119,7 @@ public class PagingTest extends ActiveMQTestBase {
    protected ActiveMQServer server;
    protected ClientSessionFactory sf;
    static final int MESSAGE_SIZE = 1024; // 1k
+   static final int LARGE_MESSAGE_SIZE = 100 * 1024;
 
    protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -192,16 +193,25 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Test
    public void testPageOnLargeMessageMultipleQueues() throws Exception {
+      internaltestOnLargetMessageMultipleQueues(MESSAGE_SIZE, true);
+   }
+
+   @Test
+   public void testPageOnLargeMessageMultipleQueuesNoPersistence() throws Exception {
+      internaltestOnLargetMessageMultipleQueues(LARGE_MESSAGE_SIZE, false);
+   }
+
+   private void internaltestOnLargetMessageMultipleQueues(final int messageSize, final boolean enablePersistence) throws Exception, ActiveMQException {
+      clearDataRecreateServerDirs();
+
       Configuration config = createDefaultInVMConfig();
 
       final int PAGE_MAX = 20 * 1024;
 
       final int PAGE_SIZE = 10 * 1024;
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+      ActiveMQServer server = createServer(enablePersistence, config, PAGE_SIZE, PAGE_MAX);
       server.start();
-
-      final int numberOfBytes = 1024;
 
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
@@ -221,9 +231,9 @@ public class PagingTest extends ActiveMQTestBase {
 
          message.getBodyBuffer().writerIndex(0);
 
-         message.getBodyBuffer().writeBytes(new byte[numberOfBytes]);
+         message.getBodyBuffer().writeBytes(new byte[messageSize]);
 
-         for (int j = 1; j <= numberOfBytes; j++) {
+         for (int j = 1; j <= messageSize; j++) {
             message.getBodyBuffer().writeInt(j);
          }
 
@@ -231,13 +241,6 @@ public class PagingTest extends ActiveMQTestBase {
       }
 
       session.close();
-
-      server.stop();
-
-      server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
-      server.start();
-
-      sf = createSessionFactory(locator);
 
       for (int ad = 0; ad < 2; ad++) {
          session = sf.createSession(false, false, false);
