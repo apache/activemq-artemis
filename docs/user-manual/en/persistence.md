@@ -169,6 +169,14 @@ The message journal is configured using the following attributes in
   When the message journal is stored on a SAN we recommend each
   journal instance that is stored on the SAN is given its own LUN
   (logical unit).
+  
+- `node-manager-lock-directory`
+  
+   This is the directory in which the node manager file lock lives. By default
+   has the same value of `journal-directory`.
+   
+   This is useful when the message journal is on a SAN and is being used a [Shared Store HA](ha.md#shared-store)
+   policy with the broker instances on the same physical machine.
 
 - `create-journal-dir`
 

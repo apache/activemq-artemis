@@ -129,6 +129,7 @@ Name | Description | Default
 [journal-compact-min-files](persistence.md#configuring-the-message-journal) | The minimal number of data files before we can start compacting. Setting this to 0 means compacting is disabled. | 10
 [journal-compact-percentage](persistence.md#configuring-the-message-journal) | The percentage of live data on which we consider compacting the journal. | 30
 [journal-directory](persistence.md#configuring-the-message-journal) | the directory to store the journal files in. | `data/journal`
+[node-manager-lock-directory](persistence.md#configuring-the-message-journal) | the directory to store the node manager lock file. | same of `journal-directory`
 [journal-file-size](persistence.md#configuring-the-message-journal) | the size (in bytes) of each journal file. | 10MB
 [journal-lock-acquisition-timeout](persistence.md#configuring-the-message-journal) | how long (in ms) to wait to acquire a file lock on the journal. | -1
 [journal-max-io](persistence.md#configuring-the-message-journal) | the maximum number of write requests that can be in the ASYNCIO queue at any one time. | 4096 for ASYNCIO; 1 for NIO; ignored for MAPPED

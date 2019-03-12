@@ -624,6 +624,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="node-manager-lock-directory" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the directory to store the node manager lock file
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="create-journal-dir" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
