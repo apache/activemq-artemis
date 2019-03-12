@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import static org.apache.activemq.artemis.core.settings.impl.AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS;
 import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
@@ -791,6 +792,8 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       TransactionManager mgr = newTransactionManager();
 
+      final int NUM_MESSAGES = 10;
+
       try {
 
          toResume = mgr.suspend();
@@ -799,14 +802,14 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          started = mgr.getTransaction();
 
-         final int NUM_MESSAGES = 10;
-
          bridge = new JMSBridgeImpl(cff0, cff1, sourceTopicFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false).setBridgeName("test-bridge");
          bridge.start();
 
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, false, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
+         Assert.assertEquals(0L, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number processed messages", NUM_MESSAGES, bridge.getMessageCount());
       } finally {
          if (started != null) {
             try {
@@ -827,6 +830,47 @@ public class JMSBridgeTest extends BridgeTestBase {
             bridge.stop();
          }
       }
+   }
+
+   @Test
+   public void testAbortedMessages() throws Exception {
+      JMSBridgeImpl bridge = null;
+
+      final int NUM_MESSAGES = 20;
+      final int MAX_BATCH_SIZE = 1;
+      final int RETRY = 2;
+      final int LIMIT = 2;
+      final int FAILURES = (NUM_MESSAGES - LIMIT) * DEFAULT_MAX_DELIVERY_ATTEMPTS;
+      FailingTransactionManager transactionManager = new FailingTransactionManager(newTransactionManager(), LIMIT);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, RETRY, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, MAX_BATCH_SIZE, -1, null, null, false).setBridgeName("test-bridge");
+         bridge.setTransactionManager(transactionManager);
+         bridge.start();
+         sendMessages(cf0, sourceQueue, 0, NUM_MESSAGES, false, false);
+         try (Connection conn = cf1.createConnection()) {
+            conn.start();
+            Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer cons = sess.createConsumer(targetQueue);
+            // Consume the messages
+            for (int i = 0; i <= LIMIT; i++) {
+               Message tm = cons.receive(3000);
+               if (tm != null) {
+                  Assert.assertNotNull("Message " + i + " is null", tm);
+                  Assert.assertEquals("message" + i, ((TextMessage) tm).getText());
+               }
+            }
+         }
+         Assert.assertEquals("We didn't get the correct number failures", FAILURES, transactionManager.getFailures());
+         Assert.assertEquals("We didn't get the correct number of aborted messages", FAILURES, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number of processed messages", FAILURES + LIMIT, bridge.getMessageCount());
+      } finally {
+         if (bridge != null) {
+            bridge.stop();
+         }
+      }
+      Assert.assertEquals("We didn't get the correct number failures", FAILURES, transactionManager.getFailures());
+      Assert.assertEquals("We didn't get the correct number of aborted messages", FAILURES, bridge.getAbortedMessageCount());
+      Assert.assertEquals("We didn't get the correct number of processed messages", FAILURES + LIMIT, bridge.getMessageCount());
    }
 
    @Test
@@ -852,6 +896,8 @@ public class JMSBridgeTest extends BridgeTestBase {
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, false, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
+         Assert.assertEquals(0L, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number processed messages", NUM_MESSAGES, bridge.getMessageCount());
       } finally {
          if (bridge != null) {
             bridge.stop();
@@ -882,6 +928,8 @@ public class JMSBridgeTest extends BridgeTestBase {
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, true, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
+         Assert.assertEquals(0L, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number processed messages", NUM_MESSAGES, bridge.getMessageCount());
       } finally {
          if (bridge != null) {
             bridge.stop();
