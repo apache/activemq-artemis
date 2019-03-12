@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
@@ -2009,4 +2011,34 @@ public class StompTest extends StompTestBase {
       assertTrue(server.getAddressInfo(simpleQueueName).getRoutingTypes().contains(RoutingType.MULTICAST));
       Assert.assertNull(server.locateQueue(simpleQueueName));
    }
+
+
+
+   @Test
+   public void directDeliverDisabledOnStomp() throws Exception {
+      String payload = "This is a test message";
+
+      // Set up STOMP subscription
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
+
+      for (Binding b : server.getPostOffice().getAllBindings().values()) {
+         if (b instanceof QueueBinding) {
+            Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
+         }
+      }
+
+      // Send MQTT Message
+      MQTTClientProvider clientProvider = new FuseMQTTClientProvider();
+      clientProvider.connect("tcp://" + hostname + ":" + port);
+      clientProvider.publish(getQueuePrefix() + getQueueName(), payload.getBytes(), 0);
+      clientProvider.disconnect();
+
+      // Receive STOMP Message
+      ClientStompFrame frame = conn.receiveFrame();
+      assertTrue(frame.getBody()
+                    .contains(payload));
+
+   }
+
 }

@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -210,6 +211,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final Runnable deliverRunner = new DeliverRunner();
 
+   //This lock is used to prevent deadlocks between direct and async deliveries
+   private final ReentrantLock deliverLock = new ReentrantLock();
+
    private volatile boolean depagePending = false;
 
    private final StorageManager storageManager;
@@ -249,7 +253,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean directDeliver = true;
 
-   private volatile boolean supportsDirectDeliver = true;
+   private volatile boolean supportsDirectDeliver = false;
 
    private AddressSettingsRepositoryListener addressSettingsRepositoryListener;
 
@@ -881,7 +885,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return;
          }
 
-         if (supportsDirectDeliver && !directDeliver && direct && System.currentTimeMillis() - lastDirectDeliveryCheck > CHECK_QUEUE_SIZE_PERIOD) {
+         if (direct && supportsDirectDeliver && !directDeliver && System.currentTimeMillis() - lastDirectDeliveryCheck > CHECK_QUEUE_SIZE_PERIOD) {
             if (logger.isTraceEnabled()) {
                logger.trace("Checking to re-enable direct deliver on queue " + this.getName());
             }
@@ -1074,8 +1078,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
 
-            if (!consumer.supportsDirectDelivery()) {
-               this.supportsDirectDeliver = false;
+            if (consumers.isEmpty()) {
+               this.supportsDirectDeliver = consumer.supportsDirectDelivery();
+            } else {
+               if (!consumer.supportsDirectDelivery()) {
+                  this.supportsDirectDeliver = false;
+               }
             }
 
             cancelRedistributor();
@@ -1154,6 +1162,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private boolean checkConsumerDirectDeliver() {
+      if (consumers.isEmpty()) {
+         return false;
+      }
       boolean supports = true;
       for (ConsumerHolder consumerCheck : consumers) {
          if (!consumerCheck.consumer.supportsDirectDelivery()) {
@@ -2337,7 +2348,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean isDirectDeliver() {
-      return directDeliver;
+      return directDeliver && supportsDirectDeliver;
    }
 
    /**
@@ -3069,57 +3080,74 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * This method delivers the reference on the callers thread - this can give us better latency in the case there is nothing in the queue
     */
    private boolean deliverDirect(final MessageReference ref) {
-      synchronized (this) {
-         if (!supportsDirectDeliver) {
-            return false;
-         }
-         if (paused || !canDispatch() && redistributor == null) {
-            return false;
-         }
-
-         if (checkExpired(ref)) {
-            return true;
-         }
-
-         consumers.reset();
-
-         while (consumers.hasNext() || redistributor != null) {
-
-            ConsumerHolder<? extends Consumer> holder = redistributor == null ? consumers.next() : redistributor;
-            Consumer consumer = holder.consumer;
-
-            final SimpleString groupID = extractGroupID(ref);
-            Consumer groupConsumer = getGroupConsumer(groupID);
-
-            if (groupConsumer != null) {
-               consumer = groupConsumer;
+      //The order to enter the deliverLock re QueueImpl::this lock is very important:
+      //- acquire deliverLock::lock
+      //- acquire QueueImpl::this lock
+      //DeliverRunner::run is doing the same to avoid deadlocks.
+      //Without deliverLock, a directDeliver happening while a DeliverRunner::run
+      //could cause a deadlock.
+      //Both DeliverRunner::run and deliverDirect could trigger a ServerConsumerImpl::individualAcknowledge:
+      //- deliverDirect first acquire QueueImpl::this, then ServerConsumerImpl::this
+      //- DeliverRunner::run first acquire ServerConsumerImpl::this then QueueImpl::this
+      if (!deliverLock.tryLock()) {
+         logger.tracef("Cannot perform a directDelivery because there is a running async deliver");
+         return false;
+      }
+      try {
+         synchronized (this) {
+            if (!supportsDirectDeliver) {
+               return false;
+            }
+            if (paused || !canDispatch() && redistributor == null) {
+               return false;
             }
 
-            HandleStatus status = handle(ref, consumer);
-
-            if (status == HandleStatus.HANDLED) {
-
-               if (redistributor == null) {
-                  handleMessageGroup(ref, consumer, groupConsumer, groupID);
-               }
-
-               messagesAdded.incrementAndGet();
-
-               deliveriesInTransit.countUp();
-               proceedDeliver(consumer, ref);
-               consumers.reset();
+            if (checkExpired(ref)) {
                return true;
             }
 
-            if (redistributor != null || groupConsumer != null) {
-               break;
-            }
-         }
+            consumers.reset();
 
-         if (logger.isTraceEnabled()) {
-            logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
+            while (consumers.hasNext() || redistributor != null) {
+
+               ConsumerHolder<? extends Consumer> holder = redistributor == null ? consumers.next() : redistributor;
+               Consumer consumer = holder.consumer;
+
+               final SimpleString groupID = extractGroupID(ref);
+               Consumer groupConsumer = getGroupConsumer(groupID);
+
+               if (groupConsumer != null) {
+                  consumer = groupConsumer;
+               }
+
+               HandleStatus status = handle(ref, consumer);
+
+               if (status == HandleStatus.HANDLED) {
+
+                  if (redistributor == null) {
+                     handleMessageGroup(ref, consumer, groupConsumer, groupID);
+                  }
+
+                  messagesAdded.incrementAndGet();
+
+                  deliveriesInTransit.countUp();
+                  proceedDeliver(consumer, ref);
+                  consumers.reset();
+                  return true;
+               }
+
+               if (redistributor != null || groupConsumer != null) {
+                  break;
+               }
+            }
+
+            if (logger.isTraceEnabled()) {
+               logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
+            }
+            return false;
          }
-         return false;
+      } finally {
+         deliverLock.unlock();
       }
    }
 
@@ -3464,8 +3492,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             enterCritical(CRITICAL_DELIVER);
             boolean needCheckDepage = false;
             try {
-               synchronized (QueueImpl.this.deliverRunner) {
+               deliverLock.lock();
+               try {
                   needCheckDepage = deliver();
+               } finally {
+                  deliverLock.unlock();
                }
             } finally {
                leaveCritical(CRITICAL_DELIVER);
