@@ -357,6 +357,7 @@ public interface Configuration {
     * @param uri  the URI of the acceptor
     * @return this
     * @throws Exception in case of Parsing errors on the URI
+    * @see <a href="https://github.com/apache/activemq-artemis/blob/master/docs/user-manual/en/configuring-transports.md">Configuring the Transport</a>
     */
    Configuration addAcceptorConfiguration(String name, String uri) throws Exception;
 
