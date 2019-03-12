@@ -771,7 +771,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       ((CoreRemotingConnection) connection).syncIDGeneratorSequence(((CoreRemotingConnection) oldConnection).getIDGeneratorSequence());
 
       for (ClientSessionInternal session : sessionsToFailover) {
-         session.handleFailover(connection, cause);
+         if (!session.handleFailover(connection, cause)) {
+            connection.destroy();
+            this.connection = null;
+            return;
+         }
       }
    }
 
