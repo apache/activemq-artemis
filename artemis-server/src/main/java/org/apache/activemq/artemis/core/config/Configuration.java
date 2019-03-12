@@ -597,6 +597,16 @@ public interface Configuration {
    File getJournalLocation();
 
    /**
+    * The location of the node manager lock file related to artemis.instance.
+    */
+   File getNodeManagerLockLocation();
+
+   /**
+    * Sets the file system directory used to store the node manager lock file.
+    */
+   Configuration setNodeManagerLockDirectory(String dir);
+
+   /**
     * Sets the file system directory used to store journal log.
     */
    Configuration setJournalDirectory(String dir);
