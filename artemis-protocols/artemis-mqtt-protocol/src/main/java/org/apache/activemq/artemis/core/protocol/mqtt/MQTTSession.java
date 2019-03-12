@@ -17,10 +17,7 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
@@ -29,8 +26,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public class MQTTSession {
-
-   static Map<String, MQTTSessionState> SESSIONS = new ConcurrentHashMap<>();
 
    private final String id = UUID.randomUUID().toString();
 
@@ -108,7 +103,7 @@ public class MQTTSession {
 
          if (isClean()) {
             clean();
-            SESSIONS.remove(connection.getClientID());
+            protocolManager.removeSessionState(connection.getClientID());
          }
       }
       stopped = true;
@@ -201,7 +196,4 @@ public class MQTTSession {
       return coreMessageObjectPools;
    }
 
-   public static Map<String, MQTTSessionState> getSessions() {
-      return new HashMap<>(SESSIONS);
-   }
 }
