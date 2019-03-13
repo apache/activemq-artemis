@@ -24,9 +24,18 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -334,6 +343,56 @@ public class MessageImplTest extends ActiveMQTestBase {
       // ok this is not actually happening during the read process, but changing this shouldn't affect the buffer on copy
       // this is to exaggerate the isolation on this test
       buf.writeBytes(new byte[1024]);
+   }
+
+   @Test
+   public void testCloseCallBuffer() throws Exception {
+
+      SimpleString ADDRESS = new SimpleString("SimpleAddress");
+
+      final int messageSize = 1024 * 1024 - 64;
+
+      final int journalsize = 10 * 1024 * 1024;
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      locator.setMinLargeMessageSize(1024 * 1024);
+
+      ClientSession session = null;
+
+      ConfigurationImpl config = (ConfigurationImpl)createDefaultConfig(false);
+      config.setJournalFileSize(journalsize).setJournalBufferSize_AIO(1024 * 1024).setJournalBufferSize_NIO(1024 * 1024);
+
+      ActiveMQServer server = createServer(true, config);
+
+      server.start();
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      session = addClientSession(sf.createSession(false, false, 0));
+
+      session.createQueue(ADDRESS, ADDRESS, true);
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+
+      ClientMessage clientFile = session.createMessage(true);
+      for (int i = 0; i < messageSize; i++) {
+         clientFile.getBodyBuffer().writeByte(getSamplebyte(i));
+      }
+
+      producer.send(clientFile);
+
+      session.commit();
+
+      session.start();
+
+      ClientMessage msg1 = consumer.receive(1000);
+
+      Wait.assertTrue(server::isActive);
+
+      assertNotNull(msg1);
    }
 
    // Protected -------------------------------------------------------------------------------
