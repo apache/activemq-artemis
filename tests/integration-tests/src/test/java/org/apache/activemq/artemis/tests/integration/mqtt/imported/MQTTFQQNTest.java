@@ -16,18 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
-import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,23 +30,6 @@ import org.slf4j.LoggerFactory;
 public class MQTTFQQNTest extends MQTTTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTFQQNTest.class);
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
-      sessions.setAccessible(true);
-      sessions.set(null, new ConcurrentHashMap<>());
-      super.setUp();
-
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception {
-      super.tearDown();
-
-   }
 
    @Test
    public void testMQTTSubNames() throws Exception {

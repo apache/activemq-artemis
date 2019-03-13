@@ -132,6 +132,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(queueName.toString(), new AddressSettings());
       JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext();
       c.createProducer().send(c.createQueue(queueName.toString()), c.createMessage());
+      Wait.assertEquals(1, server.locateQueue(queueName)::getMessageCount);
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isAutoCreateQueues());
       assertEquals(null, queueQueryResult.getFilterString());
