@@ -88,6 +88,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction.State;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -486,6 +487,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                         final boolean browseOnly,
                                         final boolean supportLargeMessage,
                                         final Integer credits) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createCoreConsumer(this, getUsername(), consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits);
+      }
       final SimpleString unPrefixedQueueName = removePrefix(queueName);
 
       Binding binding = postOffice.getBinding(unPrefixedQueueName);
@@ -632,6 +636,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final long autoDeleteDelay,
                             final long autoDeleteMessageCount,
                             final boolean autoCreated) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createQueue(this, getUsername(), addressInfo, name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
+                  exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch,
+                  delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated);
+      }
       final SimpleString unPrefixedName = removePrefix(name);
 
       AddressInfo art = getAddressAndRoutingType(addressInfo);
@@ -780,6 +789,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public AddressInfo createAddress(final SimpleString address,
                                     EnumSet<RoutingType> routingTypes,
                                     final boolean autoCreated) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.serverSessionCreateAddress(this.getName(), getUsername(), address, routingTypes, autoCreated);
+      }
+
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
       Pair<SimpleString, EnumSet<RoutingType>> art = getAddressAndRoutingTypes(realAddress, routingTypes);
       securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
@@ -796,6 +809,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public AddressInfo createAddress(AddressInfo addressInfo, boolean autoCreated) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.serverSessionCreateAddress(this.getName(), getUsername(), addressInfo, autoCreated);
+      }
+
       AddressInfo art = getAddressAndRoutingType(addressInfo);
       securityCheck(art.getName(), CheckType.CREATE_ADDRESS, this);
       server.addOrUpdateAddressInfo(art.setAutoCreated(autoCreated));
@@ -834,6 +851,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  Boolean autoDelete,
                                  Long autoDeleteDelay,
                                  Long autoDeleteMessageCount) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createSharedQueue(this, getUsername(), address, name, routingType, filterString, durable, maxConsumers, purgeOnNoConsumers,
+                  exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch,
+                  delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount);
+      }
       address = removePrefix(address);
 
       securityCheck(address, name, durable ? CheckType.CREATE_DURABLE_QUEUE : CheckType.CREATE_NON_DURABLE_QUEUE, this);
@@ -942,6 +964,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void deleteQueue(final SimpleString queueToDelete) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.destroyQueue(this, getUsername(), queueToDelete);
+      }
       final SimpleString unPrefixedQueueName = removePrefix(queueToDelete);
 
       Binding binding = postOffice.getBinding(unPrefixedQueueName);
@@ -1535,6 +1560,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           final boolean direct,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
+      if (AuditLogger.isMessageEnabled()) {
+         AuditLogger.coreSendMessage(this, getUsername(), tx, messageParameter, direct, noAutoCreateQueue, routingContext);
+      }
 
       final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
 
@@ -1801,6 +1829,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private RoutingStatus handleManagementMessage(final Transaction tx,
                                                  final Message message,
                                                  final boolean direct) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.handleManagementMessage(this.getName(), getUsername(), tx, message, direct);
+      }
       try {
          securityCheck(removePrefix(message.getAddressSimpleString()), CheckType.MANAGE, this);
       } catch (ActiveMQException e) {
@@ -1825,7 +1856,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          doSend(tx, reply, null, direct, false, routingContext);
       }
-
       return RoutingStatus.OK;
    }
 

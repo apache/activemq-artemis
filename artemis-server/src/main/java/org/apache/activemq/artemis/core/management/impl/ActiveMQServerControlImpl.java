@@ -119,6 +119,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionDetail;
 import org.apache.activemq.artemis.core.transaction.TransactionDetailFactory;
 import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -176,6 +177,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isStarted() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isStarted(this.server);
+      }
       clearIO();
       try {
          return server.isStarted();
@@ -186,6 +190,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getVersion() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getVersion(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -198,6 +205,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isBackup() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isBackup(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -210,6 +220,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isSharedStore() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isSharedStore(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -222,6 +235,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getBindingsDirectory() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getBindingsDirectory(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -245,6 +261,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getIncomingInterceptorClassNames() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getIncomingInterceptorClassNames(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -257,6 +276,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getOutgoingInterceptorClassNames() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getOutgoingInterceptorClassNames(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -269,6 +291,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalBufferSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalBufferSize(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -281,6 +306,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalBufferTimeout() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalBufferTimeout(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -293,6 +321,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.setFailoverOnServerShutdown(this.server, failoverOnServerShutdown);
+      }
       checkStarted();
 
       clearIO();
@@ -308,6 +339,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isFailoverOnServerShutdown() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isFailoverOnServerShutdown(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -325,6 +359,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalMaxIO() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalMaxIO(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -337,6 +374,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getJournalDirectory() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalDirectory(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -349,6 +389,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalFileSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalFileSize(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -361,6 +404,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalMinFiles() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalMinFiles(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -373,6 +419,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalCompactMinFiles() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalCompactMinFiles(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -385,6 +434,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getJournalCompactPercentage() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalCompactPercentage(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -397,6 +449,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isPersistenceEnabled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPersistenceEnabled(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -409,6 +464,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getJournalType() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalType(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -421,6 +479,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getPagingDirectory() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getPagingDirectory(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -433,6 +494,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getScheduledThreadPoolMaxSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getScheduledThreadPoolMaxSize(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -445,6 +509,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getThreadPoolMaxSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getThreadPoolMaxSize(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -457,6 +524,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getSecurityInvalidationInterval() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getSecurityInvalidationInterval(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -469,6 +539,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isClustered() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isClustered(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -481,6 +554,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isCreateBindingsDir() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isCreateBindingsDir(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -493,6 +569,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isCreateJournalDir() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isCreateJournalDir(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -505,6 +584,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isJournalSyncNonTransactional() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isJournalSyncNonTransactional(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -517,6 +599,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isJournalSyncTransactional() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isJournalSyncTransactional(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -529,6 +614,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isSecurityEnabled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isSecurityEnabled(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -541,6 +629,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isAsyncConnectionExecutionEnabled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isAsyncConnectionExecutionEnabled(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -553,6 +644,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getDiskScanPeriod() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDiskScanPeriod(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -565,6 +659,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getMaxDiskUsage() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMaxDiskUsage(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -577,6 +674,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getGlobalMaxSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getGlobalMaxSize(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -589,6 +689,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getAddressMemoryUsage() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressMemoryUsage(this.server);
+      }
       checkStarted();
       clearIO();
       try {
@@ -604,6 +707,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getAddressMemoryUsagePercentage() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressMemoryUsagePercentage(this.server);
+      }
       long globalMaxSize = getGlobalMaxSize();
       // no max size set implies 0% used
       if (globalMaxSize <= 0) {
@@ -614,13 +720,15 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (memoryUsed <= 0) {
          return 0;
       }
-
       double result = (100D * memoryUsed) / globalMaxSize;
       return (int) result;
    }
 
    @Override
    public boolean freezeReplication() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.freezeReplication(this.server);
+      }
       Activation activation = server.getActivation();
       if (activation instanceof SharedNothingLiveActivation) {
          SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) activation;
@@ -690,6 +798,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String createAddress(String name, String routingTypes) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createAddress(this.server, name, routingTypes);
+      }
       checkStarted();
 
       clearIO();
@@ -711,6 +822,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String updateAddress(String name, String routingTypes) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.updateAddress(this.server, name, routingTypes);
+      }
       checkStarted();
 
       clearIO();
@@ -742,6 +856,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void deleteAddress(String name, boolean force) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.deleteAddress(this.server, name, force);
+      }
       checkStarted();
 
       clearIO();
@@ -766,6 +883,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                            final String name,
                            final String filterStr,
                            final boolean durable) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.deployQueue(this.server, address, name, filterStr, durable);
+      }
       checkStarted();
 
       SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
@@ -862,6 +982,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              long autoDeleteDelay,
                              long autoDeleteMessageCount,
                              boolean autoCreateAddress) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createQueue(this.server, address, routingType, name, filterStr, durable,
+                  maxConsumers, purgeOnNoConsumers, exclusive, groupBuckets, lastValue,
+                  lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete,
+                  autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
+      }
       checkStarted();
 
       clearIO();
@@ -923,6 +1049,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              Integer consumersBeforeDispatch,
                              Long delayBeforeDispatch,
                              String user) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.updateQueue(this.server, name, routingType, filter, maxConsumers, purgeOnNoConsumers,
+                  exclusive, groupRebalance, groupBuckets, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
+      }
       checkStarted();
 
       clearIO();
@@ -945,6 +1075,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getQueueNames(String routingType) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getQueueNames(this.server, routingType);
+      }
       checkStarted();
 
       clearIO();
@@ -969,6 +1102,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getClusterConnectionNames() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getClusterConnectionNames(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -987,6 +1123,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getUptime() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUptime(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -999,6 +1138,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getUptimeMillis() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUptimeMillis(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1011,6 +1153,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isReplicaSync() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isReplicaSync(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1023,6 +1168,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getAddressNames() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressNames(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1033,7 +1181,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             AddressControl address = (AddressControl) addresses[i];
             names[i] = address.getAddress();
          }
-
          return names;
       } finally {
          blockOnIO();
@@ -1042,6 +1189,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void destroyQueue(final String name, final boolean removeConsumers, final boolean autoDeleteAddress) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.destroyQueue(this.server, name, removeConsumers, autoDeleteAddress);
+      }
       checkStarted();
 
       clearIO();
@@ -1065,6 +1215,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressInfo(this.server, address);
+      }
       checkStarted();
 
       clearIO();
@@ -1082,6 +1235,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listBindingsForAddress(String address) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listBindingsForAddress(this.server, address);
+      }
       checkStarted();
 
       clearIO();
@@ -1096,6 +1252,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listAddresses(String separator) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listAddresses(this.server, separator);
+      }
       checkStarted();
 
       clearIO();
@@ -1126,6 +1285,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getConnectionCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectionCount(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1138,6 +1300,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getTotalConnectionCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTotalConnectionCount(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1150,6 +1315,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getTotalMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTotalMessageCount(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1162,6 +1330,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getTotalMessagesAdded() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTotalMessagesAdded(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1174,6 +1345,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getTotalMessagesAcknowledged() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTotalMessagesAcknowledged(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1186,6 +1360,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getTotalConsumerCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTotalConsumerCount(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1198,6 +1375,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void enableMessageCounters() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.enableMessageCounters(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1210,6 +1390,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void disableMessageCounters() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.disableMessageCounters(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1222,6 +1405,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void resetAllMessageCounters() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetAllMessageCounters(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1234,6 +1420,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void resetAllMessageCounterHistories() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetAllMessageCounterHistories(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1246,6 +1435,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean isMessageCounterEnabled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isMessageCounterEnabled(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1258,6 +1450,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public synchronized long getMessageCounterSamplePeriod() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageCounterSamplePeriod(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1270,7 +1465,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public synchronized void setMessageCounterSamplePeriod(final long newPeriod) {
-      checkStarted();
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.setMessageCounterSamplePeriod(this.server, newPeriod);
+      }
 
       checkStarted();
 
@@ -1293,6 +1490,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public int getMessageCounterMaxDayCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageCounterMaxDayCount(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1305,6 +1505,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void setMessageCounterMaxDayCount(final int count) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.setMessageCounterMaxDayCount(this.server, count);
+      }
       checkStarted();
 
       clearIO();
@@ -1320,6 +1523,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listPreparedTransactions() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listPreparedTransactions(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1354,6 +1560,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    public String listPreparedTransactionDetailsAsJSON(TransactionDetailFactory factory) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listPreparedTransactionDetailsAsJSON(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1398,6 +1607,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    public String listPreparedTransactionDetailsAsHTML(TransactionDetailFactory factory) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listPreparedTransactionDetailsAsHTML(this.server, factory);
+      }
       checkStarted();
 
       clearIO();
@@ -1480,6 +1692,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listHeuristicCommittedTransactions() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listHeuristicCommittedTransactions(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1498,6 +1713,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listHeuristicRolledBackTransactions() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listHeuristicRolledBackTransactions(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1516,6 +1734,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public synchronized boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.commitPreparedTransaction(this.server, transactionAsBase64);
+      }
       checkStarted();
 
       clearIO();
@@ -1540,6 +1761,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public synchronized boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.rollbackPreparedTransaction(this.server, transactionAsBase64);
+      }
       checkStarted();
 
       clearIO();
@@ -1565,6 +1789,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listRemoteAddresses() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listRemoteAddresses(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1585,6 +1812,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listRemoteAddresses(final String ipAddress) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listRemoteAddresses(this.server, ipAddress);
+      }
       checkStarted();
 
       clearIO();
@@ -1606,6 +1836,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeConnectionsForAddress(final String ipAddress) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.closeConnectionsForAddress(this.server, ipAddress);
+      }
       checkStarted();
 
       clearIO();
@@ -1630,6 +1863,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeConsumerConnectionsForAddress(final String address) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.closeConsumerConnectionsForAddress(this.server, address);
+      }
       boolean closed = false;
       checkStarted();
 
@@ -1668,6 +1904,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeConnectionsForUser(final String userName) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.closeConnectionsForUser(this.server, userName);
+      }
       boolean closed = false;
       checkStarted();
 
@@ -1698,6 +1937,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeConnectionWithID(final String ID) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.closeConnectionWithID(this.server, ID);
+      }
       checkStarted();
 
       clearIO();
@@ -1717,6 +1959,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeSessionWithID(final String connectionID, final String ID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.closeSessionWithID(this.server, connectionID, ID);
+      }
       checkStarted();
 
       clearIO();
@@ -1737,6 +1982,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeConsumerWithID(final String sessionID, final String ID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.closeConsumerWithID(this.server, sessionID, ID);
+      }
       checkStarted();
 
       clearIO();
@@ -1762,6 +2010,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listConnectionIDs() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConnectionIDs(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1780,6 +2031,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] listSessions(final String connectionID) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listSessions(this.server, connectionID);
+      }
       checkStarted();
 
       clearIO();
@@ -1797,10 +2051,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    /* (non-Javadoc)
-   * @see org.apache.activemq.artemis.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
-   */
+    * @see org.apache.activemq.artemis.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
+    */
    @Override
    public String listProducersInfoAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listProducersInfoAsJSON(this.server);
+      }
       JsonArrayBuilder producers = JsonLoader.createArrayBuilder();
 
       for (ServerSession session : server.getSessions()) {
@@ -1812,6 +2069,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listConnections(String options, int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConnections(this.server, options, page, pageSize);
+      }
       checkStarted();
       clearIO();
       try {
@@ -1827,6 +2087,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listSessions(String options, int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listSessions(this.server, options, page, pageSize);
+      }
       checkStarted();
       clearIO();
       try {
@@ -1841,6 +2104,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listConsumers(String options, int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConsumers(this.server, options, page, pageSize);
+      }
       checkStarted();
       clearIO();
       try {
@@ -1859,6 +2125,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listAddresses(String options, int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listAddresses(this.server, options, page, pageSize);
+      }
       checkStarted();
       clearIO();
       try {
@@ -1882,6 +2151,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listQueues(String options, int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listQueues(this.server, options, page, pageSize);
+      }
       checkStarted();
 
       clearIO();
@@ -1904,6 +2176,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public String listProducers(@Parameter(name = "Options") String options,
                                @Parameter(name = "Page Number") int page,
                                @Parameter(name = "Page Size") int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listProducers(this.server, options, page, pageSize);
+      }
       checkStarted();
       clearIO();
       try {
@@ -1922,6 +2197,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listConnectionsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConnectionsAsJSON(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1943,6 +2221,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listSessionsAsJSON(final String connectionID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listSessionsAsJSON(this.server, connectionID);
+      }
       checkStarted();
 
       clearIO();
@@ -1961,6 +2242,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listAllSessionsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listAllSessionsAsJSON(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -1997,6 +2281,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listConsumersAsJSON(String connectionID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConsumersAsJSON(this.server, connectionID);
+      }
       checkStarted();
 
       clearIO();
@@ -2027,6 +2314,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listAllConsumersAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listAllConsumersAsJSON(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2061,6 +2351,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public Object[] getConnectors() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectors(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2079,7 +2372,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
             ret[i++] = tc;
          }
-
          return ret;
       } finally {
          blockOnIO();
@@ -2088,6 +2380,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getConnectorsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectorsAsJSON(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2141,6 +2436,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                    final String browseRoles,
                                    final String createAddressRoles,
                                    final String deleteAddressRoles) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.addSecuritySettings(this.server, addressMatch, sendRoles, consumeRoles, createDurableQueueRoles,
+                  deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles,
+                  browseRoles, createAddressRoles, deleteAddressRoles);
+      }
       checkStarted();
 
       clearIO();
@@ -2159,6 +2459,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void removeSecuritySettings(final String addressMatch) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeSecuritySettings(this.server, addressMatch);
+      }
       checkStarted();
 
       clearIO();
@@ -2172,7 +2475,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public Object[] getRoles(final String addressMatch) throws Exception {
-      checkStarted();
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoles(this.server, addressMatch);
+      }
 
       checkStarted();
 
@@ -2194,6 +2499,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getRolesAsJSON(final String addressMatch) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRolesAsJSON(this.server, addressMatch);
+      }
       checkStarted();
 
       clearIO();
@@ -2212,6 +2520,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getAddressSettingsAsJSON(final String address) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressSettingsAsJSON(this.server, address);
+      }
       checkStarted();
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
@@ -2224,6 +2535,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (addressSettings.getExpiryAddress() != null) {
          settings.add("expiryAddress", addressSettings.getExpiryAddress().toString());
       }
+
       return settings.add("expiryDelay", addressSettings.getExpiryDelay())
             .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
             .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
@@ -2304,6 +2616,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final boolean autoDeleteQueues,
                                   final boolean autoCreateAddresses,
                                   final boolean autoDeleteAddresses) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.addAddressSettings(this.server, address, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts,
+                  maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier,
+                  maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy,
+                  slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues,
+                  autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, autoCreateQueues, autoDeleteQueues,
+                  autoCreateAddresses, autoDeleteAddresses);
+      }
       checkStarted();
 
       // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
@@ -2360,10 +2680,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
+
    }
 
    @Override
    public void removeAddressSettings(final String addressMatch) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeAddressSettings(this.server, addressMatch);
+      }
       checkStarted();
 
       server.getAddressSettingsRepository().removeMatch(addressMatch);
@@ -2390,6 +2714,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getDivertNames() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDivertNames(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2453,6 +2780,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final String transformerClassName,
                             final Map<String, String> transformerProperties,
                             final String routingType) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createDivert(this.server, name, routingName, address, forwardingAddress,
+                  exclusive, filterString, transformerClassName, transformerProperties, routingType);
+      }
       checkStarted();
 
       clearIO();
@@ -2467,6 +2798,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void destroyDivert(final String name) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.destroyDivert(this.server, name);
+      }
       checkStarted();
 
       clearIO();
@@ -2479,6 +2813,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getBridgeNames() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getBridgeNames(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2597,6 +2934,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final boolean ha,
                             final String user,
                             final String password) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createBridge(this.server, name, queueName, forwardingAddress, filterString,
+                  transformerClassName, transformerProperties, retryInterval, retryIntervalMultiplier,
+                  initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize,
+                  producerWindowSize, clientFailureCheckPeriod, staticConnectorsOrDiscoveryGroup,
+                  useDiscoveryGroup, ha, user, "****");
+      }
       checkStarted();
 
       clearIO();
@@ -2635,6 +2979,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final boolean ha,
                             final String user,
                             final String password) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createBridge(this.server, name, queueName, forwardingAddress, filterString,
+                  transformerClassName, retryInterval, retryIntervalMultiplier, initialConnectAttempts,
+                  reconnectAttempts, useDuplicateDetection, confirmationWindowSize, clientFailureCheckPeriod,
+                  staticConnectorsOrDiscoveryGroup, useDiscoveryGroup, ha, user, "****");
+      }
       checkStarted();
 
       clearIO();
@@ -2657,6 +3007,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void destroyBridge(final String name) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.destroyBridge(this.server, name);
+      }
       checkStarted();
 
       clearIO();
@@ -2669,6 +3022,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createConnectorService(final String name, final String factoryClass, final Map<String, Object> parameters) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createConnectorService(this.server, name, factoryClass, parameters);
+      }
       checkStarted();
 
       clearIO();
@@ -2684,6 +3040,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void destroyConnectorService(final String name) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.destroyConnectorService(this.server, name);
+      }
       checkStarted();
 
       clearIO();
@@ -2697,6 +3056,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getConnectorServices() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectorServices(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2710,6 +3072,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void forceFailover() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.forceFailover(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2741,6 +3106,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void scaleDown(String connector) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.scaleDown(this.server, connector);
+      }
       checkStarted();
 
       clearIO();
@@ -2760,12 +3128,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          server.fail(true);
       }
-
    }
 
 
    @Override
    public String listNetworkTopology() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listNetworkTopology(this.server);
+      }
       checkStarted();
 
       clearIO();
@@ -2805,6 +3175,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public void removeNotificationListener(final NotificationListener listener,
                                           final NotificationFilter filter,
                                           final Object handback) throws ListenerNotFoundException {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeNotificationListener(this.server, listener, filter, handback);
+      }
       clearIO();
       try {
          broadcaster.removeNotificationListener(listener, filter, handback);
@@ -2815,6 +3188,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void removeNotificationListener(final NotificationListener listener) throws ListenerNotFoundException {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeNotificationListener(this.server, listener);
+      }
       clearIO();
       try {
          broadcaster.removeNotificationListener(listener);
@@ -2827,6 +3203,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public void addNotificationListener(final NotificationListener listener,
                                        final NotificationFilter filter,
                                        final Object handback) throws IllegalArgumentException {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.addNotificationListener(this.server, listener, filter, handback);
+      }
       clearIO();
       try {
          broadcaster.addNotificationListener(listener, filter, handback);
@@ -2837,6 +3216,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public MBeanNotificationInfo[] getNotificationInfo() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNotificationInfo(this.server);
+      }
       CoreNotificationType[] values = CoreNotificationType.values();
       String[] names = new String[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -2876,66 +3258,105 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public long getConnectionTTLOverride() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectionTTLOverride(this.server);
+      }
       return configuration.getConnectionTTLOverride();
    }
 
    @Override
    public int getIDCacheSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getIDCacheSize(this.server);
+      }
       return configuration.getIDCacheSize();
    }
 
    @Override
    public String getLargeMessagesDirectory() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getLargeMessagesDirectory(this.server);
+      }
       return configuration.getLargeMessagesDirectory();
    }
 
    @Override
    public String getManagementAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getManagementAddress(this.server);
+      }
       return configuration.getManagementAddress().toString();
    }
 
    @Override
    public String getNodeID() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNodeID(this.server);
+      }
       return server.getNodeID().toString();
    }
 
    @Override
    public String getManagementNotificationAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getManagementNotificationAddress(this.server);
+      }
       return configuration.getManagementNotificationAddress().toString();
    }
 
    @Override
    public long getMessageExpiryScanPeriod() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageExpiryScanPeriod(this.server);
+      }
       return configuration.getMessageExpiryScanPeriod();
    }
 
    @Override
    public long getMessageExpiryThreadPriority() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageExpiryThreadPriority(this.server);
+      }
       return configuration.getMessageExpiryThreadPriority();
    }
 
    @Override
    public long getTransactionTimeout() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTransactionTimeout(this.server);
+      }
       return configuration.getTransactionTimeout();
    }
 
    @Override
    public long getTransactionTimeoutScanPeriod() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTransactionTimeoutScanPeriod(this.server);
+      }
       return configuration.getTransactionTimeoutScanPeriod();
    }
 
    @Override
    public boolean isPersistDeliveryCountBeforeDelivery() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPersistDeliveryCountBeforeDelivery(this.server);
+      }
       return configuration.isPersistDeliveryCountBeforeDelivery();
    }
 
    @Override
    public boolean isPersistIDCache() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPersistIDCache(this.server);
+      }
       return configuration.isPersistIDCache();
    }
 
    @Override
    public boolean isWildcardRoutingEnabled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isWildcardRoutingEnabled(this.server);
+      }
       return configuration.isWildcardRoutingEnabled();
    }
 
@@ -2984,6 +3405,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void addUser(String username, String password, String roles, boolean plaintext) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.addUser(this.server, username, "****", roles, plaintext);
+      }
 
       tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalAddUser(username, password, roles, plaintext));
    }
@@ -3001,7 +3425,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listUser(String username) throws Exception {
-      return (String)tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> internaListUser(username));
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listUser(this.server, username);
+      }
+
+      return (String) tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> internaListUser(username));
    }
    private String internaListUser(String username) throws Exception {
       PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
@@ -3022,6 +3450,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void removeUser(String username) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeUser(this.server, username);
+      }
       tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalRemoveUser(username));
    }
    private void internalRemoveUser(String username) throws Exception {
@@ -3032,6 +3463,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void resetUser(String username, String password, String roles) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetUser(this.server, username, "****", roles);
+      }
       tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalresetUser(username, password, roles));
    }
    private void internalresetUser(String username, String password, String roles) throws Exception {

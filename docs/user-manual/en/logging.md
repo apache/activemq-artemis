@@ -5,7 +5,7 @@ configurable via the `logging.properties` file found in the
 configuration directories. This is configured by Default to log to both
 the console and to a file.
 
-There are 6 loggers available which are as follows:
+There are 8 loggers available which are as follows:
 
 Logger | Description
 ---|---
@@ -15,6 +15,8 @@ org.apache.activemq.artemis.utils|Logs utility calls
 org.apache.activemq.artemis.journal|Logs Journal calls
 org.apache.activemq.artemis.jms|Logs JMS calls
 org.apache.activemq.artemis.integration.bootstrap|Logs bootstrap calls
+org.apache.activemq.audit.base|audit log. Disabled by default
+org.apache.activemq.audit.message|message audit log. Disabled by default
 
 
 ## Logging in a client or with an Embedded server
@@ -85,3 +87,42 @@ formatter.PATTERN=org.jboss.logmanager.formatters.PatternFormatter
 formatter.PATTERN.properties=pattern
 formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
 ```
+
+## Configuring Audit Log
+
+The 2 audit loggers can be enabled to record some important operations like
+create/delete queues. By default this logger is disabled. The configuration
+(logging.properties) for audit log is like this by default:
+
+```$xslt
+logger.org.apache.activemq.audit.base.level=ERROR
+logger.org.apache.activemq.audit.base.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.base.useParentHandlers=false
+
+logger.org.apache.activemq.audit.message.level=ERROR
+logger.org.apache.activemq.audit.message.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.message.useParentHandlers=false
+...
+```
+
+To enable the audit log change the above level to INFO, like this:
+```$xslt
+logger.org.apache.activemq.audit.base.level=INFO
+logger.org.apache.activemq.audit.base.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.base.useParentHandlers=false
+
+logger.org.apache.activemq.audit.message.level=INFO
+logger.org.apache.activemq.audit.message.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.message.useParentHandlers=false
+...
+```
+
+The 2 audit loggers can be disable/enable separately. The second logger
+(org.apache.activemq.audit.message) audits messages in 'hot path'
+(code path that is very sensitive to performance, e.g. sending messages).
+Turn on this audit logger may affect the performance.
+
+Once enabled, all audit records are written into a separate log
+file (by default audit.log).
+
+

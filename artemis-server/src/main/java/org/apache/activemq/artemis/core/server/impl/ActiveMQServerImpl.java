@@ -177,6 +177,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl;
 import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -1448,6 +1449,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final boolean autoCreateQueues,
                                       final OperationContext context,
                                       final Map<SimpleString, RoutingType> prefixes) throws Exception {
+
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createCoreSession(this, name, username, "****", minLargeMessageSize, connection, autoCommitSends,
+                  autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes);
+      }
       String validatedUser = "";
 
       if (securityStore != null) {
