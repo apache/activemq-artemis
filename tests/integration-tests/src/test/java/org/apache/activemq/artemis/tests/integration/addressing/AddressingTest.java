@@ -264,7 +264,7 @@ public class AddressingTest extends ActiveMQTestBase {
       producer.send(session.createMessage(true));
       session.createConsumer(queueName).close();
       assertNotNull(server.locateQueue(queueName));
-      assertEquals(1, server.locateQueue(queueName).getMessageCount());
+      Wait.assertEquals(1, server.locateQueue(queueName)::getMessageCount);
    }
 
    @Test

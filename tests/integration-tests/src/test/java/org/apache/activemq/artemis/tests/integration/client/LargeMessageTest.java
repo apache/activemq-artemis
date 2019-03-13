@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -2545,9 +2546,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session.commit();
 
-      Assert.assertEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
+      Wait.assertEquals(0, server.getPagingManager().getPageStore(ADDRESS)::getAddressSize);
 
-      Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+      Wait.assertEquals(0, server.getPagingManager()::getGlobalSize);
 
       session.close();
 
