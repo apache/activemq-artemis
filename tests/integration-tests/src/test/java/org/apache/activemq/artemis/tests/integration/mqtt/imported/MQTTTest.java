@@ -23,7 +23,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.EOFException;
-import java.lang.reflect.Field;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -66,7 +64,6 @@ import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
 import org.fusesource.mqtt.codec.PUBLISH;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -81,15 +78,6 @@ public class MQTTTest extends MQTTTestSupport {
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTest.class);
 
    private static final String AMQP_URI = "tcp://localhost:61616";
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
-      sessions.setAccessible(true);
-      sessions.set(null, new ConcurrentHashMap<>());
-      super.setUp();
-   }
 
    @Test
    public void testConnectWithLargePassword() throws Exception {
