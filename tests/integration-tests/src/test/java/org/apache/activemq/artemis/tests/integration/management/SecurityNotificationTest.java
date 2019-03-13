@@ -112,11 +112,19 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       } catch (Exception e) {
       }
 
-      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
-      Assert.assertEquals(SECURITY_PERMISSION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
-      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
-      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
+      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(2, notifConsumer);
+
+      int i = 0;
+      for (i = 0; i < notifications.length; i++) {
+         if (SECURITY_PERMISSION_VIOLATION.toString().equals(notifications[i].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString())) {
+            break;
+         }
+      }
+      Assert.assertTrue(i < notifications.length);
+      Assert.assertEquals(SECURITY_PERMISSION_VIOLATION.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertEquals("guest", notifications[i].getObjectProperty(ManagementHelper.HDR_USER).toString());
+      Assert.assertEquals(address.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
 
       guestSession.close();
    }

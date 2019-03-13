@@ -135,17 +135,31 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       acceptorControl.stop();
 
-      Assert.assertEquals(usingCore() ? 5 : 1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(usingCore() ? 2 : 0);
+      Assert.assertEquals(usingCore() ? 7 : 1, notifListener.getNotifications().size());
+
+      int i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STOPPED);
+
+      Notification notif = notifListener.getNotifications().get(i);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
       Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
 
       acceptorControl.start();
 
-      Assert.assertEquals(usingCore() ? 10 : 2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(usingCore() ? 7 : 1);
+      i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STARTED);
+      notif = notifListener.getNotifications().get(i);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
       Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+   }
+
+   private int findNotification(SimpleNotificationService.Listener notifListener, CoreNotificationType type) {
+      int i = 0;
+      for (i = 0; i < notifListener.getNotifications().size(); i++) {
+         if (notifListener.getNotifications().get(i).getType().equals(type)) {
+            break;
+         }
+      }
+      Assert.assertTrue(i < notifListener.getNotifications().size());
+      return i;
    }
 
    // Package protected ---------------------------------------------
