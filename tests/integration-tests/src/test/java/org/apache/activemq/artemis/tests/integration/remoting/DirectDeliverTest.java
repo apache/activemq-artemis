@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -98,7 +99,7 @@ public class DirectDeliverTest extends ActiveMQTestBase {
 
       Queue queue = (Queue) binding.getBindable();
 
-      assertTrue(queue.isDirectDeliver());
+      Assert.assertFalse(queue.isDirectDeliver());
 
       ClientProducer prod = session.createProducer(foo);
 
