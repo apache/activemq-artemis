@@ -1716,7 +1716,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("messagesAcked", "0", array.getJsonObject(0).getString("messagesAcked"));
       Assert.assertEquals("deliveringCount", "0", array.getJsonObject(0).getString("deliveringCount"));
       Assert.assertEquals("messagesKilled", "0", array.getJsonObject(0).getString("messagesKilled"));
-      Assert.assertEquals("deliverDeliver", "true", array.getJsonObject(0).getString("deliverDeliver"));
+      Assert.assertEquals("deliverDeliver", "false", array.getJsonObject(0).getString("deliverDeliver"));
 
    }
 
