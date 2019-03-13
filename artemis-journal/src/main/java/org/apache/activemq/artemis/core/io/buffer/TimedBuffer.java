@@ -244,7 +244,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
             }
 
             if (sizeChecked > bufferSize) {
-               throw new IllegalStateException("Can't write records bigger than the bufferSize(" + bufferSize + ") on the journal");
+               throw new IllegalStateException("Can't write records (size=" + sizeChecked + ") bigger than the bufferSize(" + bufferSize + ") on the journal");
             }
 
             if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit) {
