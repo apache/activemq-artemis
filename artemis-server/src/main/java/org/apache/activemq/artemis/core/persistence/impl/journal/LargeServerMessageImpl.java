@@ -42,13 +42,17 @@ import io.netty.buffer.Unpooled;
 
 public final class LargeServerMessageImpl extends CoreMessage implements LargeServerMessage {
 
+   // When a message is stored on the journal, it will contain some header and trail on the journal
+   // we need to take that into consideration if that would fit the Journal TimedBuffer.
+   private static final int ESTIMATE_RECORD_TRAIL = 512;
+
    /** This will check if a regular message needs to be converted as large message */
    public static Message checkLargeMessage(Message message, StorageManager storageManager) throws Exception {
       if (message.isLargeMessage()) {
          return message; // nothing to be done on this case
       }
 
-      if (message.getEncodeSize() > storageManager.getMaxRecordSize()) {
+      if (message.getEncodeSize() + ESTIMATE_RECORD_TRAIL > storageManager.getMaxRecordSize()) {
          return asLargeMessage(message, storageManager);
       } else {
          return message;
