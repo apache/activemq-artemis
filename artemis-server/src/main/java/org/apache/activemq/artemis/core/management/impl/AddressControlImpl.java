@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
@@ -94,6 +95,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getRoutingTypes() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingTypes(this.addressInfo);
+      }
       EnumSet<RoutingType> routingTypes = addressInfo.getRoutingTypes();
       String[] result = new String[routingTypes.size()];
       int i = 0;
@@ -105,6 +109,10 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getRoutingTypesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingTypesAsJSON(this.addressInfo);
+      }
+
       clearIO();
       try {
          JsonArrayBuilder json = JsonLoader.createArrayBuilder();
@@ -121,6 +129,11 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getQueueNames() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getQueueNames(this.addressInfo);
+      }
+
+      String[] result;
       clearIO();
       try {
          Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
@@ -144,8 +157,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getBindingNames() throws Exception {
-      clearIO();
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getBindingNames(this.addressInfo);
+      }
       try {
+         clearIO();
+
          Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
          if (bindings != null) {
             String[] bindingNames = new String[bindings.getBindings().size()];
@@ -166,6 +183,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public Object[] getRoles() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoles(this.addressInfo);
+      }
       clearIO();
       try {
          Set<Role> roles = securityRepository.getMatch(addressInfo.getName().toString());
@@ -184,6 +204,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getRolesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRolesAsJSON(this.addressInfo);
+      }
       clearIO();
       try {
          JsonArrayBuilder json = JsonLoader.createArrayBuilder();
@@ -200,6 +223,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getNumberOfBytesPerPage() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNumberOfBytesPerPage(this.addressInfo);
+      }
       clearIO();
       try {
          final PagingStore pagingStore = getPagingStore();
@@ -218,6 +244,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getAddressSize() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressSize(this.addressInfo);
+      }
       clearIO();
       try {
          final PagingStore pagingStore = getPagingStore();
@@ -232,6 +261,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getNumberOfMessages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNumberOfMessages(this.addressInfo);
+      }
       clearIO();
       long totalMsgs = 0;
       try {
@@ -253,6 +285,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isPaging() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPaging(this.addressInfo);
+      }
       clearIO();
       try {
          final PagingStore pagingStore = getPagingStore();
@@ -267,6 +302,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public int getNumberOfPages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNumberOfPages(this.addressInfo);
+      }
       clearIO();
       try {
          final PagingStore pageStore = getPagingStore();
@@ -283,16 +321,25 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageCount(this.addressInfo);
+      }
       return getMessageCount(DurabilityType.ALL);
    }
 
    @Override
    public long getRoutedMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutedMessageCount(this.addressInfo);
+      }
       return addressInfo.getRoutedMessageCount();
    }
 
    @Override
    public long getUnRoutedMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUnRoutedMessageCount(this.addressInfo);
+      }
       return addressInfo.getUnRoutedMessageCount();
    }
 
@@ -304,6 +351,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessage(this, null, headers, type, body, durable, user, "****");
+      }
       try {
          return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password);
       } catch (Exception e) {
