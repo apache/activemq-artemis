@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.logs.AuditLogger;
 
 public class DivertControlImpl extends AbstractControl implements DivertControl {
 
@@ -53,6 +54,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddress(this.divert);
+      }
       clearIO();
       try {
          return configuration.getAddress();
@@ -63,6 +67,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getFilter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFilter(this.divert);
+      }
       clearIO();
       try {
          return configuration.getFilterString();
@@ -73,6 +80,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getForwardingAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getForwardingAddress(this.divert);
+      }
       clearIO();
       try {
          return configuration.getForwardingAddress();
@@ -83,6 +93,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getRoutingName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingName(this.divert);
+      }
       clearIO();
       try {
          return divert.getRoutingName().toString();
@@ -93,6 +106,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getTransformerClassName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTransformerClassName(this.divert);
+      }
       clearIO();
       try {
          return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getClassName();
@@ -103,11 +119,17 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getTransformerPropertiesAsJSON() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTransformerPropertiesAsJSON(this.divert);
+      }
       return JsonUtil.toJsonObject(getTransformerProperties()).toString();
    }
 
    @Override
    public Map<String, String> getTransformerProperties() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTransformerProperties(this.divert);
+      }
       clearIO();
       try {
          return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getProperties();
@@ -118,6 +140,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getRoutingType() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingType(this.divert);
+      }
       clearIO();
       try {
          return configuration.getRoutingType().toString();
@@ -128,6 +153,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getUniqueName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUniqueName(this.divert);
+      }
       clearIO();
       try {
          return divert.getUniqueName().toString();
@@ -138,6 +166,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public boolean isExclusive() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isExclusive(this.divert);
+      }
       clearIO();
       try {
          return divert.isExclusive();

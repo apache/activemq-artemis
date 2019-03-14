@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DummyOperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -106,6 +107,9 @@ public abstract class AbstractControl extends StandardMBean {
 
    @Override
    public MBeanInfo getMBeanInfo() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMBeanInfo(this);
+      }
       MBeanInfo info = super.getMBeanInfo();
       return new MBeanInfo(info.getClassName(), info.getDescription(), fillMBeanAttributeInfo(), info.getConstructors(), fillMBeanOperationInfo(), info.getNotifications());
    }

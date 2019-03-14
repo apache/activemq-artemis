@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
@@ -129,6 +130,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getName(queue);
+      }
       clearIO();
       try {
          return queue.getName().toString();
@@ -139,6 +143,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddress(queue);
+      }
+
       checkStarted();
 
       return address;
@@ -146,6 +154,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFilter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFilter(queue);
+      }
+
       checkStarted();
 
       clearIO();
@@ -160,6 +172,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isDurable() {
+
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isDurable(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -172,6 +188,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getUser() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUser(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -186,6 +205,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getRoutingType() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingType(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -199,6 +221,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isTemporary() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isTemporary(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -211,6 +236,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -223,6 +251,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getPersistentSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getPersistentSize(queue);
+      }
+
       checkStarted();
 
       clearIO();
@@ -235,6 +267,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableMessageCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -247,6 +282,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurablePersistentSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurablePersistSize(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -259,6 +297,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getConsumerCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConsumerCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -271,6 +312,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getDeliveringCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDeliveringCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -283,6 +327,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDeliveringSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDeliveringSize(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -295,6 +342,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getDurableDeliveringCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableDeliveringCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -307,6 +357,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableDeliveringSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableDeliveringSize(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -319,6 +372,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesAdded() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAdded(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -331,6 +387,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesAcknowledged() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAcknowledged(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -343,6 +402,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesExpired() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesExpired(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -355,6 +417,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesKilled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesKilled(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -367,6 +432,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getID() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getID(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -379,6 +447,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getScheduledCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getScheduledCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -391,6 +462,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getScheduledSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getScheduledSize(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -403,6 +477,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableScheduledCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableScheduledCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -415,6 +492,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableScheduledSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableScheduledSize(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -427,6 +507,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getDeadLetterAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDeadLetterAddress(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -444,6 +527,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getExpiryAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getExpiryAddress(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -462,6 +548,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getMaxConsumers() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMaxConsumers(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -474,6 +563,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isPurgeOnNoConsumers() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPurgeOnNoConsumers(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -486,6 +578,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isConfigurationManaged() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isConfigurationManaged(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -498,6 +593,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isExclusive() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isExclusive(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -510,6 +608,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isLastValue() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isLastValue(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -522,6 +623,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listScheduledMessages(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -535,6 +639,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listScheduledMessagesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listScheduledMessagesAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -561,6 +668,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Map<String, Object>[]> listDeliveringMessages() throws ActiveMQException {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listDeliveringMessages(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -572,15 +682,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          for (Map.Entry<String, List<MessageReference>> entry : msgs.entrySet()) {
             msgRet.put(entry.getKey(), convertMessagesToMaps(entry.getValue()));
          }
+
          return msgRet;
       } finally {
          blockOnIO();
       }
-
    }
 
    @Override
    public String listDeliveringMessagesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listDeliveringMessagesAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -593,6 +706,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessages(queue, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -623,6 +739,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessagesAsJSON(final String filter) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessagesAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -634,6 +753,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    protected Map<String, Object>[] getFirstMessage() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessage(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -657,11 +779,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFirstMessageAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessageAsJSON(queue);
+      }
       return toJSON(getFirstMessage());
    }
 
    @Override
    public Long getFirstMessageTimestamp() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessageTimestamp(queue);
+      }
+
       Map<String, Object>[] _message = getFirstMessage();
       if (_message == null || _message.length == 0 || _message[0] == null) {
          return null;
@@ -675,6 +804,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Long getFirstMessageAge() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessageAge(queue);
+      }
+
       Long firstMessageTimestamp = getFirstMessageTimestamp();
       if (firstMessageTimestamp == null) {
          return null;
@@ -690,12 +823,20 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long countMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countMessages(queue, filterStr);
+      }
+
       Long value = intenalCountMessages(filterStr, null).get(null);
       return value == null ? 0 : value;
    }
 
    @Override
    public String countMessages(final String filterStr, final String groupByProperty) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countMessages(queue, filterStr, groupByProperty);
+      }
+
       return JsonUtil.toJsonObject(intenalCountMessages(filterStr, groupByProperty)).toString();
    }
 
@@ -730,12 +871,20 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long countDeliveringMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countDeliveringMessages(queue, filterStr);
+      }
+
       Long value = intenalCountDeliveryMessages(filterStr, null).get(null);
       return value == null ? 0 : value;
    }
 
    @Override
    public String countDeliveringMessages(final String filterStr, final String groupByProperty) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countDeliveringMessages(queue, filterStr, groupByProperty);
+      }
+
       return JsonUtil.toJsonObject(intenalCountDeliveryMessages(filterStr, groupByProperty)).toString();
    }
 
@@ -778,6 +927,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean removeMessage(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeMessage(queue, messageID);
+      }
       checkStarted();
 
       clearIO();
@@ -797,6 +949,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int removeMessages(final int flushLimit, final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeMessages(queue, flushLimit, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -816,6 +971,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean expireMessage(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.expireMessage(queue, messageID);
+      }
       checkStarted();
 
       clearIO();
@@ -828,6 +986,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int expireMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.expireMessages(queue, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -843,6 +1004,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean retryMessage(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.retryMessage(queue, messageID);
+      }
 
       checkStarted();
       clearIO();
@@ -878,6 +1042,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int retryMessages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.retryMessages(queue);
+      }
       checkStarted();
       clearIO();
 
@@ -897,6 +1064,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    public boolean moveMessage(final long messageID,
                               final String otherQueueName,
                               final boolean rejectDuplicates) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.moveMessage(queue, messageID, otherQueueName, rejectDuplicates);
+      }
       checkStarted();
 
       clearIO();
@@ -924,6 +1094,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final String filterStr,
                            final String otherQueueName,
                            final boolean rejectDuplicates) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates);
+      }
       checkStarted();
 
       clearIO();
@@ -937,7 +1110,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          }
 
          int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, binding);
-
          return retValue;
       } finally {
          blockOnIO();
@@ -954,6 +1126,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessagesToDeadLetterAddress(queue, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -973,6 +1148,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessage(queue, null, headers, type, body, durable, user, "****");
+      }
       try {
          return sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
       } catch (Exception e) {
@@ -982,6 +1160,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessageToDeadLetterAddress(queue, messageID);
+      }
       checkStarted();
 
       clearIO();
@@ -994,6 +1175,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.changeMessagesPriority(queue, filterStr, newPriority);
+      }
       checkStarted();
 
       clearIO();
@@ -1011,6 +1195,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.changeMessagePriority(queue, messageID, newPriority);
+      }
       checkStarted();
 
       clearIO();
@@ -1026,6 +1213,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounter(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1040,6 +1230,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessageCounter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessageCounter(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1052,6 +1245,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterAsHTML() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounterAsHTML(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1064,6 +1260,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterHistory() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounterHistory(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1076,6 +1275,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterHistoryAsHTML() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounterHistoryAsHTML(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1088,6 +1290,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void pause() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.pause(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1101,6 +1306,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void pause(boolean persist) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.pause(queue, persist);
+      }
       checkStarted();
 
       clearIO();
@@ -1112,6 +1320,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
    @Override
    public void resume() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resume(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1124,6 +1335,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isPaused() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPaused(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1136,6 +1350,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public CompositeData[] browse(int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.browse(queue, page, pageSize);
+      }
       String filter = null;
       checkStarted();
 
@@ -1181,6 +1398,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
    @Override
    public CompositeData[] browse(String filter) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.browse(queue, filter);
+      }
       checkStarted();
 
       clearIO();
@@ -1216,6 +1436,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void flushExecutor() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.flushExecutor(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1228,6 +1451,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetAllGroups() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetAllGroups(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1240,6 +1466,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetGroup(String groupID) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetGroup(queue, groupID);
+      }
       checkStarted();
 
       clearIO();
@@ -1252,6 +1481,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getGroupCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getGroupCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1264,6 +1496,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listGroupsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listGroupsAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1292,6 +1527,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listConsumersAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConsumersAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1330,6 +1568,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesAdded() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesAdded(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1343,6 +1584,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesAcknowledged() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesAcknowledged(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1356,6 +1600,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesExpired() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesExpired(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1369,6 +1616,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesKilled() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesKilled(queue);
+      }
       checkStarted();
 
       clearIO();
