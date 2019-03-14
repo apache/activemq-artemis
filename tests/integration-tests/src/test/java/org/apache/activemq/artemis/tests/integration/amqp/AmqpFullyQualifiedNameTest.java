@@ -200,6 +200,40 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    }
 
    @Test
+   public void testQueueConsumerReceiveTopicUsingFQQN() throws Exception {
+
+      SimpleString queueName1 = new SimpleString("sub.queue1");
+      SimpleString queueName2 = new SimpleString("sub.queue2");
+      server.createQueue(multicastAddress, RoutingType.MULTICAST, queueName1, null, false, false);
+      server.createQueue(multicastAddress, RoutingType.MULTICAST, queueName2, null, false, false);
+      Connection connection = createConnection(false);
+
+      try {
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue fqqn1 = session.createQueue(multicastAddress.toString() + "::" + queueName1);
+         javax.jms.Queue fqqn2 = session.createQueue(multicastAddress.toString() + "::" + queueName2);
+
+         MessageConsumer consumer1 = session.createConsumer(fqqn1);
+         MessageConsumer consumer2 = session.createConsumer(fqqn2);
+
+         Topic topic = session.createTopic(multicastAddress.toString());
+         MessageProducer producer = session.createProducer(topic);
+
+         producer.send(session.createMessage());
+
+         Message m = consumer1.receive(2000);
+         assertNotNull(m);
+
+         m = consumer2.receive(2000);
+         assertNotNull(m);
+
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
    public void testQueue() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true));
 

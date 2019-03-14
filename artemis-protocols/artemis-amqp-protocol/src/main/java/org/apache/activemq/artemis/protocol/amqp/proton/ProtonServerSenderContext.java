@@ -347,7 +347,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             if (multicast && !routingTypes.contains(RoutingType.MULTICAST)) {
                throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for topic support");
             } else if (!multicast && !routingTypes.contains(RoutingType.ANYCAST)) {
-               throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for queue support");
+               //if client specifies fully qualified name that's allowed, don't throw exception.
+               if (queueNameToUse == null) {
+                  throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for queue support");
+               }
             }
          } else {
             // if not we look up the address
@@ -445,7 +448,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
          } else {
             if (queueNameToUse != null) {
-               SimpleString matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.ANYCAST);
+               //a queue consumer can receive from a multicast queue if it uses a fully qualified name
+               //setting routingType to null means do not check the routingType against the Queue's routing type.
+               routingTypeToUse = null;
+               SimpleString matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, null);
                if (matchingAnycastQueue != null) {
                   queue = matchingAnycastQueue;
                } else {
