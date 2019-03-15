@@ -584,14 +584,6 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       // Test first with queueing
 
-      for (int i = 0; i < numMessages; i++) {
-         MessageReference ref = generateReference(queue, i);
-
-         refs.add(ref);
-
-         queue.addTail(ref);
-      }
-
       FakeConsumer cons1 = new FakeConsumer();
 
       FakeConsumer cons2 = new FakeConsumer();
@@ -599,6 +591,14 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addConsumer(cons1);
 
       queue.addConsumer(cons2);
+
+      for (int i = 0; i < numMessages; i++) {
+         MessageReference ref = generateReference(queue, i);
+
+         refs.add(ref);
+
+         queue.addTail(ref);
+      }
 
       queue.resume();
 
