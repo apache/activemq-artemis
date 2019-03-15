@@ -26,7 +26,7 @@
 	<name>ActiveMQ Artemis Features</name>
 
 	<properties>
-		<karaf.version>4.1.1</karaf.version>
+		<karaf.version>4.2.3</karaf.version>
 	</properties>
 
    <dependencies>

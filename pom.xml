@@ -75,7 +75,7 @@
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
       <activemq-artemis-native-version>1.0.0</activemq-artemis-native-version>
-      <karaf.version>4.0.6</karaf.version>
+      <karaf.version>4.2.3</karaf.version>
       <pax.exam.version>4.9.1</pax.exam.version>
       <commons.config.version>2.4</commons.config.version>
       <commons.lang.version>3.0</commons.lang.version>
@@ -89,7 +89,7 @@
       <jetty.version>9.4.3.v20170317</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <mockito.version>2.8.47</mockito.version>
+      <mockito.version>2.25.0</mockito.version>
       <netty.version>4.1.34.Final</netty.version>
       <netty-tcnative-version>2.0.22.Final</netty-tcnative-version>
       <proton.version>0.33.1</proton.version>
@@ -867,6 +867,10 @@
          <id>jdk18</id>
          <activation>
             <jdk>1.8</jdk>
+            <property>
+               <name>java.vendor</name>
+               <value>!IBM Corporation</value>
+            </property>
          </activation>
          <build>
             <plugins>
@@ -876,6 +880,68 @@
                   <configuration>
                      <additionalparam>-Xdoclint:none</additionalparam>
                   </configuration>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <!-- version 3.2 is having problems with the APT processor resulting in
+                       java.lang.IllegalStateException: endPosTable already set  -->
+                  <version>3.1</version>
+                  <!-- Enable Google's Error-Prone https://github.com/google/error-prone -->
+                  <configuration>
+                     <showWarnings>true</showWarnings>
+                     <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                     <compilerId>${javac-compiler-id}</compilerId>
+                     <compilerArgs>
+                        <arg>-Xep:MissingOverride:ERROR</arg>
+                        <arg>-Xep:NonAtomicVolatileUpdate:ERROR</arg>
+                        <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
+                        <arg>-Xep:StaticAccessedFromInstance:ERROR</arg>
+                        <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
+                        <arg>-Xep:WaitNotInLoop:ERROR</arg>
+                        <arg>-Xdiags:verbose</arg>
+                     </compilerArgs>
+                  </configuration>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-javac-errorprone</artifactId>
+                        <version>2.8</version>
+                     </dependency>
+                     <dependency>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_core</artifactId>
+                        <version>2.0.9</version>
+                     </dependency>
+                  </dependencies>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>jdk11</id>
+         <activation>
+            <jdk>11</jdk>
+            <property>
+               <name>java.vendor</name>
+               <value>!IBM Corporation</value>
+            </property>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <configuration>
+                     <additionalparam>-Xdoclint:none</additionalparam>
+                  </configuration>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <!-- version 3.2 is having problems with the APT processor resulting in
+                       java.lang.IllegalStateException: endPosTable already set  -->
+                  <version>3.1</version>
                </plugin>
             </plugins>
          </build>
@@ -1333,40 +1399,6 @@
                      </goals>
                   </execution>
                </executions>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-compiler-plugin</artifactId>
-               <!-- version 3.2 is having problems with the APT processor resulting in
-                    java.lang.IllegalStateException: endPosTable already set  -->
-               <version>3.1</version>
-               <!-- Enable Google's Error-Prone https://github.com/google/error-prone -->
-               <configuration>
-                 <showWarnings>true</showWarnings>
-                 <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                 <compilerId>${javac-compiler-id}</compilerId>
-                 <compilerArgs>
-                    <arg>-Xep:MissingOverride:ERROR</arg>
-                    <arg>-Xep:NonAtomicVolatileUpdate:ERROR</arg>
-                    <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
-                    <arg>-Xep:StaticAccessedFromInstance:ERROR</arg>
-                    <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
-                    <arg>-Xep:WaitNotInLoop:ERROR</arg>
-                    <arg>-Xdiags:verbose</arg>
-                 </compilerArgs>
-               </configuration>
-               <dependencies>
-                 <dependency>
-                   <groupId>org.codehaus.plexus</groupId>
-                   <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                   <version>2.8</version>
-                 </dependency>
-                 <dependency>
-                   <groupId>com.google.errorprone</groupId>
-                   <artifactId>error_prone_core</artifactId>
-                   <version>2.0.9</version>
-                 </dependency>
-               </dependencies>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
