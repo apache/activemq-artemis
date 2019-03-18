@@ -22,15 +22,25 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 public class DelayInterceptor implements Interceptor {
+
+   private final CountDownLatch latch = new CountDownLatch(1);
 
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
       if (packet.getType() == PacketImpl.SESS_SEND) {
+         latch.countDown();
          // Lose the send
          return false;
       } else {
          return true;
       }
+   }
+
+   public boolean await() throws InterruptedException {
+      return latch.await(10, TimeUnit.SECONDS);
    }
 }

@@ -1917,7 +1917,8 @@ public class FailoverTest extends FailoverTestBase {
       createClientSessionFactory();
 
       // Add an interceptor to delay the send method so we can get time to cause failover before it returns
-      liveServer.getServer().getRemotingService().addIncomingInterceptor(new DelayInterceptor());
+      DelayInterceptor interceptor = new DelayInterceptor();
+      liveServer.getServer().getRemotingService().addIncomingInterceptor(interceptor);
 
       final ClientSession session = createSession(sf, true, true, 0);
 
@@ -1946,6 +1947,11 @@ public class FailoverTest extends FailoverTestBase {
       Sender sender = new Sender();
 
       sender.start();
+
+      //if server crash too early,
+      //sender will directly send to backup. so
+      //need some waiting here.
+      assertTrue(interceptor.await());
 
       crash(session);
 
