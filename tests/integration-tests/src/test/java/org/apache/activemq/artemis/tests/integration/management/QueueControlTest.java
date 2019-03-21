@@ -1329,6 +1329,63 @@ public class QueueControlTest extends ManagementTestBase {
       session.deleteQueue(otherQueue);
    }
 
+   /**
+    *    Moving message from another address to a single "child" queue of a multicast address
+    *
+    *    <address name="ErrorQueue">
+    *             <anycast>
+    *                <queue name="ErrorQueue" />
+    *             </anycast>
+    *          </address>
+    *          <address name="parent.addr.1">
+    *             <multicast>
+    *                <queue name="child.queue.1" />
+    *                <queue name="child.queue.2" />
+    *             </multicast>
+    *          </address>
+    */
+   @Test
+   public void testMoveMessageToFQQN() throws Exception {
+      SimpleString address = new SimpleString("ErrorQueue");
+      SimpleString queue = new SimpleString("ErrorQueue");
+      SimpleString otherAddress = new SimpleString("parent.addr.1");
+      SimpleString otherQueue1 = new SimpleString("child.queue.1");
+      SimpleString otherQueue2 = new SimpleString("child.queue.2");
+
+      session.createQueue(address, RoutingType.ANYCAST, queue, null, durable);
+      session.createQueue(otherAddress, RoutingType.MULTICAST, otherQueue1, null, durable);
+      session.createQueue(otherAddress, RoutingType.MULTICAST, otherQueue2, null, durable);
+      ClientProducer producer = session.createProducer(address);
+
+      producer.send(session.createMessage(durable));
+      producer.send(session.createMessage(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
+      QueueControl otherQueue1Control = createManagementControl(otherAddress, otherQueue1);
+      QueueControl otherQueue2Control = createManagementControl(otherAddress, otherQueue2);
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueue1Control, 0, durable);
+      assertMessageMetrics(otherQueue2Control, 0, durable);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      Assert.assertEquals(2, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      boolean moved = queueControl.moveMessage(messageID, otherQueue1.toString());
+      Assert.assertTrue(moved);
+      assertMessageMetrics(queueControl, 1, durable);
+      assertMessageMetrics(otherQueue1Control, 1, durable);
+      assertMessageMetrics(otherQueue2Control, 0, durable);
+
+      consumeMessages(1, session, queue);
+      consumeMessages(1, session, otherQueue1);
+
+      session.deleteQueue(queue);
+      session.deleteQueue(otherQueue1);
+      session.deleteQueue(otherQueue2);
+   }
+
    @Test
    public void testMoveMessageToUnknownQueue() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
