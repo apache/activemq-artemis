@@ -130,7 +130,7 @@ var ARTEMIS = (function(ARTEMIS) {
         }
 
         if (artemisConsumer.consumer) {
-            ARTEMIS.log.info("navigating to connection = " + artemisConsumer.consumer.ID);
+            ARTEMIS.log.info("navigating to consumer = " + artemisConsumer.consumer.ID);
             $scope.filter.values.field = $scope.filter.fieldOptions[0].id;
             $scope.filter.values.operation = $scope.filter.operationOptions[0].id;
             $scope.filter.values.value = artemisConsumer.consumer.session;
