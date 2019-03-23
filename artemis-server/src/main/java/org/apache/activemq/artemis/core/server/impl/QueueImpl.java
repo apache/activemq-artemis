@@ -895,7 +895,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                // directDeliver flag to be re-computed resulting in direct delivery if the queue is empty
                // We don't recompute it on every delivery since executing isEmpty is expensive for a ConcurrentQueue
 
-               if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() && intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() && !pageIterator.hasNext() && !pageSubscription.isPaging()) {
+               if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() &&
+                  intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() &&
+                  pageIterator != null && !pageIterator.hasNext() &&
+                  pageSubscription != null && !pageSubscription.isPaging()) {
                   // We must block on the executor to ensure any async deliveries have completed or we might get out of order
                   // deliveries
                   // Go into direct delivery mode
