@@ -180,7 +180,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
                if (lastRun != 0) {
                   int consumed = tmpValue - lastRun;
 
-                  double calculatedRate = consumed * window * 1000 / ((System.currentTimeMillis() - lastTime));
+                  double calculatedRate = consumed * window * 1000 / (System.currentTimeMillis() - lastTime);
 
                   if (calculatedRate > rate * error) {
                      System.out.println("got more than " + rate + " tokens / second");
