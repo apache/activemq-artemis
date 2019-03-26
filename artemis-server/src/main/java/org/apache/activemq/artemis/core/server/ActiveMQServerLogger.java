@@ -1337,7 +1337,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void diskBeyondCapacity();
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 222211, value = "Storage is back to stable now, under max-disk-usage.",
       format = Message.Format.MESSAGE_FORMAT)
    void diskCapacityRestored();
