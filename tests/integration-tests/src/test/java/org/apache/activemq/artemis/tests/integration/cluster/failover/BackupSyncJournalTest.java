@@ -338,6 +338,16 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       assertNoMoreMessages();
    }
 
+   @Test
+   public void testReceiveAllMessagesWithPurgeOnNoConsumers() throws Exception {
+      final boolean purgeOnNoConsumers = true;
+      createProducerSendSomeMessages();
+      liveServer.getServer().locateQueue(ADDRESS).setPurgeOnNoConsumers(purgeOnNoConsumers);
+      receiveMsgsInRange(0, n_msgs);
+      startBackupCrashLive();
+      assertNoMoreMessages();
+   }
+
    private void startBackupCrashLive() throws Exception {
       assertFalse("backup is started?", backupServer.isStarted());
       liveServer.removeInterceptor(syncDelay);
