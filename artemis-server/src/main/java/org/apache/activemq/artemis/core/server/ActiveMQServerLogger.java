@@ -1960,8 +1960,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorAnnouncingBackup(String backupManager);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224088, value = "Timeout ({0} seconds) while handshaking has occurred.", format = Message.Format.MESSAGE_FORMAT)
-   void handshakeTimeout(int timeout);
+   @Message(id = 224088, value = "Timeout ({0} seconds) while handshaking with {1} has occurred.", format = Message.Format.MESSAGE_FORMAT)
+   void handshakeTimeout(int timeout, String remoteAddress);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224089, value = "Failed to calculate persistent size", format = Message.Format.MESSAGE_FORMAT)
