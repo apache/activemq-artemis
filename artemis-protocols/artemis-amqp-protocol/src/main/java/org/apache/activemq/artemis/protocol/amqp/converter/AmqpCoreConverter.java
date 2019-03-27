@@ -224,6 +224,7 @@ public class AmqpCoreConverter {
       result.getInnerMessage().setDurable(message.isDurable());
       result.getInnerMessage().setPriority(message.getPriority());
       result.getInnerMessage().setAddress(message.getAddressSimpleString());
+      result.getInnerMessage().setRoutingType(message.getRoutingType());
       result.encode();
 
       return result.getInnerMessage();

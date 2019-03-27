@@ -28,6 +28,7 @@ import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -220,6 +221,9 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE ||
                coreMessage.getType() == ActiveMQObjectMessage.TYPE;
 
+            if (coreMessage.getRoutingType() == null) {
+               coreMessage.setRoutingType(destination.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST);
+            }
             if (session.isEnable1xPrefixes()) {
                jmsMsg = ActiveMQCompatibleMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
             } else {
