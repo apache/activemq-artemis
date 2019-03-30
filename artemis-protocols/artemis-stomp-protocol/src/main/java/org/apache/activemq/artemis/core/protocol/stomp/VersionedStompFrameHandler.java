@@ -126,9 +126,6 @@ public abstract class VersionedStompFrameHandler {
       try {
          StompPostReceiptFunction postProcessFunction = onSubscribe(request);
          response = postprocess(request);
-         if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED)) {
-            response.addHeader(Stomp.Headers.Response.RECEIPT_ID, request.getHeader(Stomp.Headers.RECEIPT_REQUESTED));
-         }
          connection.sendFrame(response, postProcessFunction);
          return null;
       } catch (ActiveMQStompException e) {
