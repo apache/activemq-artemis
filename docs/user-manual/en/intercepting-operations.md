@@ -37,7 +37,8 @@ public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
 Likewise for MQTT protocol, an interceptor must implement the interface
 `MQTTInterceptor`:
  
-```java package org.apache.activemq.artemis.core.protocol.mqtt;
+```java
+package org.apache.activemq.artemis.core.protocol.mqtt;
 
 public interface MQTTInterceptor extends BaseInterceptor<MqttMessage>
 {
