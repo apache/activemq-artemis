@@ -533,12 +533,34 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
    }
 
-   private void stopSessionFailover() {
-      XASession xaSource = (XASession) sourceSession;
-      XASession xaTarget = (XASession) targetSession;
+   private static void releaseCommunications(Session session, String sessionName) {
+      final XASession xaSession = (XASession) session;
 
-      ((ClientSessionInternal) xaSource.getXAResource()).getSessionContext().releaseCommunications();
-      ((ClientSessionInternal) xaTarget.getXAResource()).getSessionContext().releaseCommunications();
+      if (xaSession.getXAResource() instanceof ClientSessionInternal) {
+         try {
+            ((ClientSessionInternal) xaSession.getXAResource()).getSessionContext().releaseCommunications();
+         } catch (Throwable t) {
+            ActiveMQJMSBridgeLogger.LOGGER.warnf(t, "Cannot release communications on %s", sessionName);
+         }
+      } else {
+         if (ActiveMQJMSBridgeLogger.LOGGER.isTraceEnabled()) {
+            ActiveMQJMSBridgeLogger.LOGGER.tracef("Cannot cast XAResource of %s to ClientSessionInternal and release communications: found class %s",
+                                                  sessionName, xaSession.getClass().getCanonicalName());
+         }
+      }
+   }
+
+   private void stopSessionFailover() {
+      try {
+         releaseCommunications(sourceSession, "sourceSession");
+      } catch (Throwable t) {
+         ActiveMQJMSBridgeLogger.LOGGER.error("cannot release communications on sourceSession ", t);
+      }
+      try {
+         releaseCommunications(targetSession, "targetSession");
+      } catch (Throwable t) {
+         ActiveMQJMSBridgeLogger.LOGGER.error("cannot release communications on targetSession ", t);
+      }
    }
 
    @Override
