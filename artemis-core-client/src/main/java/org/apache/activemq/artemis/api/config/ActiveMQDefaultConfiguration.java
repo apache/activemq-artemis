@@ -509,6 +509,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_QUEUE_AUTO_DELETE = true;
 
+   public static final boolean DEFAULT_CREATED_QUEUE_AUTO_DELETE = false;
+
    public static final long DEFAULT_QUEUE_AUTO_DELETE_DELAY = 0;
 
    public static final long DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT = 0;
@@ -1392,8 +1394,16 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_PURGE_ON_NO_CONSUMERS;
    }
 
+   public static boolean getDefaultQueueAutoDelete(boolean autoCreated) {
+      return autoCreated ? getDefaultQueueAutoDelete() : getDefaultCreatedQueueAutoDelete();
+   }
+
    public static boolean getDefaultQueueAutoDelete() {
       return DEFAULT_QUEUE_AUTO_DELETE;
+   }
+
+   public static boolean getDefaultCreatedQueueAutoDelete() {
+      return DEFAULT_CREATED_QUEUE_AUTO_DELETE;
    }
 
    public static long getDefaultQueueAutoDeleteDelay() {

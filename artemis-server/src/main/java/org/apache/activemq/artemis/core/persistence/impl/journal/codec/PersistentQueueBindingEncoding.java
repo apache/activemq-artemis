@@ -419,7 +419,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       if (buffer.readableBytes() > 0) {
          autoDelete = buffer.readBoolean();
       } else {
-         autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete();
+         autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated);
       }
       if (buffer.readableBytes() > 0) {
          autoDeleteDelay = buffer.readLong();

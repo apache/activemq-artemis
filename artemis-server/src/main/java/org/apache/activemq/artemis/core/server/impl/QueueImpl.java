@@ -493,7 +493,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.groups = groupMap(this.groupBuckets);
 
-      this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete() : autoDelete;
+      this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : autoDelete;
 
       this.autoDeleteDelay = autoDeleteDelay == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay() : autoDeleteDelay;
 
