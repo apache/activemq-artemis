@@ -41,7 +41,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       }
 
       if (isAutoDelete(queue) && consumerCountCheck(queue) && delayCheck(queue) && messageCountCheck(queue)) {
-         deleteAutoCreatedQueue(server, queue);
+         performAutoDeleteQueue(server, queue);
       } else if (queue.isPurgeOnNoConsumers()) {
          purge(queue);
       }
@@ -61,11 +61,11 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       }
    }
 
-   public static void deleteAutoCreatedQueue(ActiveMQServer server, Queue queue) {
+   public static void performAutoDeleteQueue(ActiveMQServer server, Queue queue) {
       SimpleString queueName = queue.getName();
       AddressSettings settings = server.getAddressSettingsRepository().getMatch(queue.getAddress().toString());
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.info("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDeleteQueues = " + settings.isAutoDeleteQueues());
+         ActiveMQServerLogger.LOGGER.info("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
       }
 
       try {
@@ -76,7 +76,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
    }
 
    public static boolean isAutoDelete(Queue queue) {
-      return queue.isAutoCreated() && queue.isAutoDelete();
+      return queue.isAutoDelete();
    }
 
    public static boolean messageCountCheck(Queue queue) {
