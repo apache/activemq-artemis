@@ -471,8 +471,8 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       producer.send(message);
 
       consumerConnection.start();
-      Session consumerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue consumerQueue = session.createQueue(getQueueName());
+      Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue consumerQueue = consumerSession.createQueue(getQueueName());
       MessageConsumer messageConsumer = consumerSession.createConsumer(consumerQueue);
       TextMessage received = (TextMessage) messageConsumer.receive(5000);
       Assert.assertNotNull(received);

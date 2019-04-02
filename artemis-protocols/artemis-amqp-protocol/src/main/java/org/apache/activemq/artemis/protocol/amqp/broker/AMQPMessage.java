@@ -1097,13 +1097,13 @@ public class AMQPMessage extends RefCountMessage {
       Object routingType = getMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE);
 
       if (routingType != null) {
-         return RoutingType.getType((byte) routingType);
+         return RoutingType.getType(((Number) routingType).byteValue());
       } else {
          routingType = getMessageAnnotation(AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
          if (routingType != null) {
-            if (AMQPMessageSupport.QUEUE_TYPE == (byte) routingType || AMQPMessageSupport.TEMP_QUEUE_TYPE == (byte) routingType) {
+            if (AMQPMessageSupport.QUEUE_TYPE == ((Number) routingType).byteValue() || AMQPMessageSupport.TEMP_QUEUE_TYPE == ((Number) routingType).byteValue()) {
                return RoutingType.ANYCAST;
-            } else if (AMQPMessageSupport.TOPIC_TYPE == (byte) routingType || AMQPMessageSupport.TEMP_TOPIC_TYPE == (byte) routingType) {
+            } else if (AMQPMessageSupport.TOPIC_TYPE == ((Number) routingType).byteValue() || AMQPMessageSupport.TEMP_TOPIC_TYPE == ((Number) routingType).byteValue()) {
                return RoutingType.MULTICAST;
             }
          } else {
