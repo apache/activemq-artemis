@@ -104,7 +104,7 @@ public final class QueueConfig {
          this.delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
          this.groupRebalance = ActiveMQDefaultConfiguration.getDefaultGroupRebalance();
          this.groupBuckets = ActiveMQDefaultConfiguration.getDefaultGroupBuckets();
-         this.autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete();
+         this.autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated);
          this.autoDeleteDelay = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay();
          this.autoDeleteMessageCount = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount();
          this.configurationManaged = false;
