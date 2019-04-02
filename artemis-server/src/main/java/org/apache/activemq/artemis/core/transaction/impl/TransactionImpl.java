@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
@@ -162,8 +163,8 @@ public class TransactionImpl implements Transaction {
    }
 
    @Override
-   public RefsOperation createRefsOperation(Queue queue) {
-      return new RefsOperation(queue, storageManager);
+   public RefsOperation createRefsOperation(Queue queue, AckReason reason) {
+      return new RefsOperation(queue, reason, storageManager);
    }
 
    @Override

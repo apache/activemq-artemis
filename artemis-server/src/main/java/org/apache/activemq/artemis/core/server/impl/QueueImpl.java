@@ -193,6 +193,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private AtomicLong messagesAcknowledged = new AtomicLong(0);
 
+   private AtomicLong ackAttempts = new AtomicLong(0);
+
    private AtomicLong messagesExpired = new AtomicLong(0);
 
    private AtomicLong messagesKilled = new AtomicLong(0);
@@ -1473,7 +1475,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          if (ref.isPaged()) {
             pageSubscription.ack((PagedReference) ref);
-            postAcknowledge(ref);
+            postAcknowledge(ref, reason);
          } else {
             Message message = ref.getMessage();
 
@@ -1482,18 +1484,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (durableRef) {
                storageManager.storeAcknowledge(id, message.getMessageID());
             }
-            postAcknowledge(ref);
+            postAcknowledge(ref, reason);
          }
 
-         if (reason == AckReason.EXPIRED) {
-            messagesExpired.incrementAndGet();
-         } else if (reason == AckReason.KILLED) {
-            messagesKilled.incrementAndGet();
-         } else if (reason == AckReason.REPLACED) {
-            messagesReplaced.incrementAndGet();
-         } else {
-            messagesAcknowledged.incrementAndGet();
-         }
+         ackAttempts.incrementAndGet();
 
          if (server != null && server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
@@ -1508,10 +1502,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      RefsOperation refsOperation = getRefsOperation(tx, reason);
+
       if (ref.isPaged()) {
          pageSubscription.ackTx(tx, (PagedReference) ref);
 
-         getRefsOperation(tx).addAck(ref);
+         refsOperation.addAck(ref);
       } else {
          Message message = ref.getMessage();
 
@@ -1523,15 +1519,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             tx.setContainsPersistent();
          }
 
-         getRefsOperation(tx).addAck(ref);
-      }
+         ackAttempts.incrementAndGet();
 
-      if (reason == AckReason.EXPIRED) {
-         messagesExpired.incrementAndGet();
-      } else if (reason == AckReason.KILLED) {
-         messagesKilled.incrementAndGet();
-      } else {
-         messagesAcknowledged.incrementAndGet();
+         refsOperation.addAck(ref);
       }
 
       if (server != null && server.hasBrokerMessagePlugins()) {
@@ -1547,7 +1537,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          tx.setContainsPersistent();
       }
 
-      getRefsOperation(tx).addAck(ref);
+      getRefsOperation(tx, AckReason.NORMAL).addAck(ref);
 
       // https://issues.jboss.org/browse/HORNETQ-609
       incDelivering(ref);
@@ -1555,16 +1545,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       messagesAcknowledged.incrementAndGet();
    }
 
-   private RefsOperation getRefsOperation(final Transaction tx) {
-      return getRefsOperation(tx, false);
+   private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason) {
+      return getRefsOperation(tx, ackReason, false);
    }
 
-   private RefsOperation getRefsOperation(final Transaction tx, boolean ignoreRedlieveryCheck) {
+   private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason, boolean ignoreRedlieveryCheck) {
       synchronized (tx) {
          RefsOperation oper = (RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
 
          if (oper == null) {
-            oper = tx.createRefsOperation(this);
+            oper = tx.createRefsOperation(this, ackReason);
 
             tx.putProperty(TransactionPropertyIndexes.REFS_OPERATION, oper);
 
@@ -1586,7 +1576,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void cancel(final Transaction tx, final MessageReference reference, boolean ignoreRedeliveryCheck) {
-      getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
+      getRefsOperation(tx, AckReason.NORMAL, ignoreRedeliveryCheck).addAck(reference);
    }
 
    @Override
@@ -1703,6 +1693,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getMessagesAcknowledged() {
       return messagesAcknowledged.get();
+   }
+
+   @Override
+   public long getAcknowledgeAttempts() {
+      return ackAttempts.get();
    }
 
    @Override
@@ -3300,10 +3295,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void postAcknowledge(final MessageReference ref) {
+   public void postAcknowledge(final MessageReference ref, AckReason reason) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
       queue.decDelivering(ref);
+
+      if (reason == AckReason.EXPIRED) {
+         messagesExpired.incrementAndGet();
+      } else if (reason == AckReason.KILLED) {
+         messagesKilled.incrementAndGet();
+      } else if (reason == AckReason.REPLACED) {
+         messagesReplaced.incrementAndGet();
+      } else {
+         messagesAcknowledged.incrementAndGet();
+      }
 
       if (ref.isPaged()) {
          // nothing to be done

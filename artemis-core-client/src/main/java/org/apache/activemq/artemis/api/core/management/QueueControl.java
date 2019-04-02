@@ -169,6 +169,13 @@ public interface QueueControl {
    long getMessagesAcknowledged();
 
    /**
+    * Returns the number of messages added to this queue since it was created.
+    */
+   @Attribute(desc = "number of messages acknowledged attempts from this queue since it was created")
+   long getAcknowledgeAttempts();
+
+
+   /**
     * Returns the number of messages expired from this queue since it was created.
     */
    @Attribute(desc = "number of messages expired from this queue since it was created")

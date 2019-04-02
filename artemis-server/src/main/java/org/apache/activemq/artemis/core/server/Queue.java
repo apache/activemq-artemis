@@ -234,6 +234,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    long getMessagesAdded();
 
+   long getAcknowledgeAttempts();
+
    long getMessagesAcknowledged();
 
    long getMessagesExpired();
@@ -393,7 +395,7 @@ public interface Queue extends Bindable,CriticalComponent {
     */
    void deliverScheduledMessages() throws ActiveMQException;
 
-   void postAcknowledge(MessageReference ref);
+   void postAcknowledge(MessageReference ref, AckReason reason);
 
    float getRate();
 

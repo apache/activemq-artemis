@@ -2252,4 +2252,14 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601500, value = "User {0} is sending a core message on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void coreSendMessage(String user, Object source, Object... args);
 
+
+   static void getAcknowledgeAttempts(Object source) {
+      LOGGER.getMessagesAcknowledged(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601501, value = "User {0} is getting messages acknowledged attemps on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAcknowledgeAttempts(String user, Object source, Object... args);
+
+
 }

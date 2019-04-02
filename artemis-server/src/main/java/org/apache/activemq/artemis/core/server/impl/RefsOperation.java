@@ -38,6 +38,8 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    private static final Logger logger = Logger.getLogger(RefsOperation.class);
 
+   private final AckReason reason;
+
    private final StorageManager storageManager;
    private Queue queue;
    List<MessageReference> refsToAck = new ArrayList<>();
@@ -50,10 +52,12 @@ public class RefsOperation extends TransactionOperationAbstract {
     */
    protected boolean ignoreRedeliveryCheck = false;
 
-   public RefsOperation(Queue queue, StorageManager storageManager) {
+   public RefsOperation(Queue queue, AckReason reason, StorageManager storageManager) {
       this.queue = queue;
+      this.reason = reason;
       this.storageManager = storageManager;
    }
+
 
    // once turned on, we shouldn't turn it off, that's why no parameters
    public void setIgnoreRedeliveryCheck() {
@@ -163,7 +167,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    public void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
          synchronized (ref.getQueue()) {
-            queue.postAcknowledge(ref);
+            queue.postAcknowledge(ref, reason);
          }
       }
 
