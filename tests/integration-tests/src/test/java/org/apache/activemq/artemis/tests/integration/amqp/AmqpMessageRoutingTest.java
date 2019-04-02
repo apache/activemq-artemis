@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -30,6 +31,11 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
 
 public class AmqpMessageRoutingTest extends JMSClientTestSupport {
+
+   @Override
+   protected String getConfiguredProtocols() {
+      return "AMQP,OPENWIRE,CORE";
+   }
 
    @Override
    protected boolean isAutoCreateQueues() {
@@ -155,6 +161,69 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
          assertNotNull(topicConsumer.receive(1000));
          assertNull(queueConsumer.receive(1000));
+      } finally {
+         connection.close();
+      }
+   }
+
+
+   @Test(timeout = 60000)
+   public void testAMQPRouteMessageToJMSOpenWire() throws Throwable {
+      testAMQPRouteMessageToJMS(createOpenWireConnection());
+   }
+
+   @Test(timeout = 60000)
+   public void testAMQPRouteMessageToJMSAMQP() throws Throwable {
+      testAMQPRouteMessageToJMS(createConnection());
+   }
+
+   @Test(timeout = 60000)
+   public void testAMQPRouteMessageToJMSCore() throws Throwable {
+      testAMQPRouteMessageToJMS(createCoreConnection());
+   }
+
+   private void testAMQPRouteMessageToJMS(Connection connection) throws Exception {
+      final String addressA = "addressA";
+
+      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
+      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, addressA, RoutingType.ANYCAST.toString());
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         javax.jms.Topic topic = session.createTopic(addressA);
+         javax.jms.Queue queue = session.createQueue(addressA);
+
+         MessageConsumer queueConsumer = session.createConsumer(queue);
+         MessageConsumer topicConsumer = session.createConsumer(topic);
+
+         sendMessages(addressA, 1, RoutingType.MULTICAST);
+
+         Message topicMessage = topicConsumer.receive(1000);
+         assertNotNull(topicMessage);
+         assertEquals(addressA, ((javax.jms.Topic) topicMessage.getJMSDestination()).getTopicName());
+
+         assertNull(queueConsumer.receiveNoWait());
+
+
+         sendMessages(addressA, 1, RoutingType.ANYCAST);
+
+         Message queueMessage = queueConsumer.receive(1000);
+         assertNotNull(queueMessage);
+         assertEquals(addressA, ((javax.jms.Queue) queueMessage.getJMSDestination()).getQueueName());
+
+         assertNull(topicConsumer.receiveNoWait());
+
+
+         sendMessages(addressA, 1, null);
+         Message queueMessage2 = queueConsumer.receive(1000);
+         assertNotNull(queueMessage2);
+         assertEquals(addressA, ((javax.jms.Queue) queueMessage2.getJMSDestination()).getQueueName());
+
+         Message topicMessage2 = topicConsumer.receive(1000);
+         assertNotNull(topicMessage2);
+         assertEquals(addressA, ((javax.jms.Topic) topicMessage2.getJMSDestination()).getTopicName());
+
       } finally {
          connection.close();
       }
