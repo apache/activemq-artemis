@@ -597,6 +597,7 @@ that would be found in the `broker.xml` file.
       <auto-delete-jms-topics>true</auto-delete-jms-topics> <!-- deprecated! see auto-delete-addresses -->
       <auto-create-queues>true</auto-create-queues>
       <auto-delete-queues>true</auto-delete-queues>
+      <auto-delete-created-queues>false</auto-delete-created-queues>
       <auto-delete-queues-delay>0</auto-delete-queues-delay>
       <auto-delete-queues-message-count>0</auto-delete-queues-message-count>
       <config-delete-queues>OFF</config-delete-queues>
@@ -764,6 +765,11 @@ non-temporary, and non-transient. Default is `true`.
 auto-created queues when they have both 0 consumers and the message count is 
 less than or equal to `auto-delete-queues-message-count`. Default is
 `true`.
+
+`auto-delete-created-queues`. Whether or not the broker should automatically delete
+created queues when they have both 0 consumers and the message count is 
+less than or equal to `auto-delete-queues-message-count`. Default is
+`false`.
 
 `auto-delete-queues-delay`. How long to wait (in milliseconds) before deleting
 auto-created queues after the queue has 0 consumers and the message count is 

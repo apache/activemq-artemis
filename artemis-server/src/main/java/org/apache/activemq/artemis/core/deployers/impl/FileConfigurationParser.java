@@ -222,6 +222,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_DELETE_QUEUES = "auto-delete-queues";
 
+   private static final String AUTO_DELETE_CREATED_QUEUES = "auto-delete-created-queues";
+
    private static final String AUTO_DELETE_QUEUES_DELAY = "auto-delete-queues-delay";
 
    private static final String AUTO_DELETE_QUEUES_MESSAGE_COUNT = "auto-delete-queues-message-count";
@@ -1074,6 +1076,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setAutoCreateQueues(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteQueues(XMLUtil.parseBoolean(child));
+         } else if (AUTO_DELETE_CREATED_QUEUES.equalsIgnoreCase(name)) {
+            addressSettings.setAutoDeleteCreatedQueues(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_QUEUES_DELAY.equalsIgnoreCase(name)) {
             long autoDeleteQueuesDelay = XMLUtil.parseLong(child);
             Validators.GE_ZERO.validate(AUTO_DELETE_QUEUES_DELAY, autoDeleteQueuesDelay);
