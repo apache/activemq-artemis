@@ -23,6 +23,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -109,6 +111,125 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          connection.close();
       }
    }
+
+   @Test
+   public void testAutoDeleteTopicDurableSubscriptionQueue() throws Exception {
+      ConnectionFactory fact = getCF();
+      Connection connection = fact.createConnection();
+      connection.start();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         String testQueueName = getName();
+         String sub = testQueueName + "/mysub";
+
+         Topic topic = session.createTopic(testQueueName + "?auto-delete=true");
+         ActiveMQDestination activeMQDestination = (ActiveMQDestination) topic;
+
+         assertEquals(testQueueName, topic.getTopicName());
+         assertEquals(true, activeMQDestination.getQueueAttributes().getAutoDelete());
+
+
+         MessageConsumer consumer = session.createSharedDurableConsumer(topic, sub);
+
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
+         assertTrue(queueBinding.getQueue().isAutoDelete());
+         assertEquals(0, queueBinding.getQueue().getMessageCount());
+
+         MessageProducer producer = session.createProducer(topic);
+         producer.send(session.createTextMessage("hello1"));
+         producer.send(session.createTextMessage("hello2"));
+
+         Message message = consumer.receive(100);
+         assertNotNull(message);
+         assertEquals("hello1", ((TextMessage)message).getText());
+         message.acknowledge();
+
+         consumer.close();
+
+         queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
+         assertNotNull(queueBinding);
+
+         consumer = session.createSharedDurableConsumer(topic, sub);
+         message = consumer.receive(100);
+         assertNotNull(message);
+         assertEquals("hello2", ((TextMessage)message).getText());
+         message.acknowledge();
+
+         consumer.close();
+
+         //Wait longer than scan period.
+         Thread.sleep(20);
+
+         queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
+         assertNull(queueBinding);
+
+
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testAutoDeleteTopicDefaultDurableSubscriptionQueue() throws Exception {
+      ConnectionFactory fact = getCF();
+      Connection connection = fact.createConnection();
+      connection.start();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         String testQueueName = getName();
+         String sub = testQueueName + "/mysub";
+
+         Topic topic = session.createTopic(testQueueName);
+
+         assertEquals(testQueueName, topic.getTopicName());
+
+
+         MessageConsumer consumer = session.createSharedDurableConsumer(topic, sub);
+
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
+         assertFalse(queueBinding.getQueue().isAutoDelete());
+         assertEquals(0, queueBinding.getQueue().getMessageCount());
+
+         MessageProducer producer = session.createProducer(topic);
+         producer.send(session.createTextMessage("hello1"));
+         producer.send(session.createTextMessage("hello2"));
+
+         Message message = consumer.receive(100);
+         assertNotNull(message);
+         assertEquals("hello1", ((TextMessage)message).getText());
+         message.acknowledge();
+
+         consumer.close();
+
+         queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
+         assertNotNull(queueBinding);
+
+         consumer = session.createSharedDurableConsumer(topic, sub);
+         message = consumer.receive(100);
+         assertNotNull(message);
+         assertEquals("hello2", ((TextMessage)message).getText());
+         message.acknowledge();
+
+         consumer.close();
+
+         //Wait longer than scan period.
+         Thread.sleep(20);
+
+         queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
+         assertNotNull(queueBinding);
+
+
+      } finally {
+         connection.close();
+      }
+   }
+
 
    @Test
    public void testAutoDeleteOff() throws Exception {
