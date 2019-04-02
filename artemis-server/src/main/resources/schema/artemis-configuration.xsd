@@ -3160,6 +3160,14 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="auto-delete-created-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete created queues when the queue has 0 consumers and 0 messages
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="auto-delete-queues-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
