@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -95,6 +96,16 @@ public class StompV12Test extends StompTestBase {
          super.tearDown();
          conn.closeTransport();
       }
+   }
+
+   @Test
+   public void testSubscribeWithReceipt() throws Exception {
+      conn.connect(defUser, defPass);
+
+      Pattern p = Pattern.compile("receipt-id:.*\\nreceipt-id");
+      assertFalse(p.matcher(subscribe(conn, null).toString()).find());
+
+      conn.disconnect();
    }
 
    @Test
