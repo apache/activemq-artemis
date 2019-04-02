@@ -955,7 +955,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
               addressSettings.isDefaultNonDestructive(),
               addressSettings.getDefaultConsumersBeforeDispatch(),
               addressSettings.getDefaultDelayBeforeDispatch(),
-              addressSettings.isAutoDeleteQueues(),
+              addressSettings.isAutoDeleteCreatedQueues(),
               addressSettings.getAutoDeleteQueuesDelay(),
               addressSettings.getAutoDeleteQueuesMessageCount(),
               autoCreateAddress
