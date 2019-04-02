@@ -1774,7 +1774,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return createQueue(addressInfo, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, false);
    }
 
-   private static boolean isAutoDelete(boolean autoCreated, AddressSettings addressSettings) {
+   static boolean isAutoDelete(boolean autoCreated, AddressSettings addressSettings) {
       return autoCreated ? addressSettings.isAutoDeleteQueues() : addressSettings.isAutoDeleteCreatedQueues();
    }
 
