@@ -116,7 +116,7 @@ public class ProtocolHandler {
       public void channelActive(ChannelHandlerContext ctx) throws Exception {
          if (handshakeTimeout > 0) {
             timeoutFuture = scheduledThreadPool.schedule( () -> {
-               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout);
+               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, ctx.channel().remoteAddress().toString());
                ctx.channel().close();
             }, handshakeTimeout, TimeUnit.SECONDS);
          }
