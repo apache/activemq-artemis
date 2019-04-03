@@ -98,6 +98,51 @@ producer.send(message);
 
 This then closes the message group so if another message is sent in the future with the same message group ID it will be reassigned to a new consumer.
 
+#### Rebalancing Message Groups
+
+Sometimes after new consumers are added you can find that if you have long lived groups, that they have no groups assigned, and thus are not being utilised, this is because the long lived groups will already be assigned to existing consumers.
+
+It is possibly to rebalance the groups.
+
+***note*** during the split moment of reset, a message to the original associated consumer could be in flight at the same time, a new message for the same group is dispatched to the new associated consumer.
+
+##### Manually 
+
+via the management API or managment console by invoking `resetAllGroups`
+
+##### Automatically
+
+By setting `group-rebalance` to `true` at the queue level, every time a consumer is added it will trigger a rebalance/reset of the groups.
+
+```xml
+<address name="foo.bar">
+   <multicast>
+      <queue name="orders1" group-rebalance="true"/>
+   </multicast>
+</address>
+```
+
+Or on auto-create when using the JMS Client by using address parameters when 
+creating the destination used by the consumer.
+
+```java
+Queue queue = session.createQueue("my.destination.name?group-rebalance=true");
+Topic topic = session.createTopic("my.destination.name?group-rebalance=true");
+```
+
+Also the default for all queues under and address can be defaulted using the 
+`address-setting` configuration:
+
+```xml
+<address-setting match="my.address">
+   <default-group-rebalance>true</default-group-rebalance>
+</address-setting>
+```
+
+
+By default, `default-group-rebalance` is `false` meaning this is disabled/off.
+
+
 #### Group Buckets
 
 For handling groups in a queue with bounded memory allowing better scaling of groups, 
@@ -141,7 +186,7 @@ Also the default for all queues under and address can be defaulted using the
 
 By default, `default-group-buckets` is `-1` this is to keep compatibility with existing default behaviour. 
 
-Address [wildcards](wildcard-syntax.md) can be used to configure exclusive queues for a 
+Address [wildcards](wildcard-syntax.md) can be used to configure group-buckets for a 
 set of addresses.
 
 ## Example
