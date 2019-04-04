@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
+import com.arjuna.ats.arjuna.coordinator.TxControl;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -1388,6 +1390,22 @@ public class JMSBridgeTest extends BridgeTestBase {
       // Shutdown the source server
 
       server0.stop();
+   }
+
+   @Test
+   public void testStopBridgeWithoutUsingArtemisXAConnectionFactory() throws Exception {
+      cff0xa = () -> new org.apache.activemq.ActiveMQXAConnectionFactory("tcp://localhost:" + SERVER_0_PORT);
+      cff1xa = () -> new org.apache.activemq.ActiveMQXAConnectionFactory("tcp://localhost:" + SERVER_1_PORT);
+
+      final JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false).setBridgeName("test-bridge");
+      addActiveMQComponent(bridge);
+      bridge.setTransactionManager(newTransactionManager());
+
+      bridge.start();
+
+      JMSBridgeTest.log.info("About to stop the bridge");
+
+      bridge.stop();
    }
 
    // Private -------------------------------------------------------------------------------

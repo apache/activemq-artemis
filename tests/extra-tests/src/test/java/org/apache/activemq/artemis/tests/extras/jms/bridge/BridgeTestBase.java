@@ -67,6 +67,8 @@ import org.junit.Before;
 public abstract class BridgeTestBase extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   protected static final String SERVER_0_PORT = "61616";
+   protected static final String SERVER_1_PORT = "61617";
 
    protected ConnectionFactoryFactory cff0, cff1;
 
@@ -98,16 +100,26 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
+      final HashMap<String, Object> serverParams0 = new HashMap<>();
+      serverParams0.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
+      serverParams0.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, SERVER_0_PORT);
       // Start the servers
-      Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(0, false)).setBindingsDirectory(getBindingsDir(0, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-
+      Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(0, false)).setBindingsDirectory(getBindingsDir(0, false))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, serverParams0, "netty-acceptor", new HashMap<>()));
       server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, false));
       server0.start();
 
       params1 = new HashMap<>();
       params1.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      Configuration conf1 = createBasicConfig().setJournalDirectory(getJournalDir(1, false)).setBindingsDirectory(getBindingsDir(1, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
+      final HashMap<String, Object> serverParams1 = new HashMap<>();
+      serverParams1.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
+      serverParams1.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, SERVER_1_PORT);
+
+      Configuration conf1 = createBasicConfig().setJournalDirectory(getJournalDir(1, false)).setBindingsDirectory(getBindingsDir(1, false))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1))
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, serverParams1, "netty-acceptor", new HashMap<>()));
 
       server1 = addServer(ActiveMQServers.newActiveMQServer(conf1, false));
       server1.start();
