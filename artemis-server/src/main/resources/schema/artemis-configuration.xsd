@@ -1669,12 +1669,24 @@
    </xsd:complexType>
 
    <xsd:complexType name="federationTransformerType">
-      <xsd:complexContent>
-         <xsd:extension base="transformerType">
-            <xsd:attribute name="name" type="xsd:ID" use="required" />
-            <xsd:attributeGroup ref="xml:specialAttrs"/>
-         </xsd:extension>
-      </xsd:complexContent>
+      <xsd:sequence>
+         <xsd:element name="class-name" type="xsd:string" maxOccurs="1" minOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional name of transformer class
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element ref="property"  maxOccurs="unbounded" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  properties to configure the transformer class
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:ID" use="required" />
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <!-- TRANSFORMER CONFIGURATION -->
