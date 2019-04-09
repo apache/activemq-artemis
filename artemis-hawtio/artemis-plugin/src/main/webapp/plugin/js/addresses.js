@@ -30,13 +30,13 @@ var ARTEMIS = (function(ARTEMIS) {
         var objectType = "address";
         var method = 'listAddresses(java.lang.String, int, int)';
         var defaultAttributes = [
-           {
-               field: 'manage',
-               displayName: 'manage',
-               width: '*',
-               cellTemplate: '<div class="ngCellText"><a ng-click="navigateToAddressAtts(row)">attributes</a>&nbsp;<a ng-click="navigateToAddressOps(row)">operations</a></div>'
-           },
-           {
+            {
+                field: 'manage',
+                displayName: 'manage',
+                width: '*',
+                cellTemplate: '<div class="ngCellText"><a ng-click="navigateToAddressAtts(row)">attributes</a>&nbsp;<a ng-click="navigateToAddressOps(row)">operations</a></div>'
+            },
+            {
                 field: 'id',
                 displayName: 'ID',
                 width: '*'
@@ -44,7 +44,8 @@ var ARTEMIS = (function(ARTEMIS) {
             {
                 field: 'name',
                 displayName: 'Name',
-                width: '*'
+                width: '*',
+                cellTemplate: '<div class="ngCellText" title="{{row.entity.name}}">{{row.entity.name}}</div>'
             },
             {
                 field: 'routingTypes',
@@ -56,6 +57,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 field: 'queueCount',
                 displayName: 'Queue Count',
                 width: '*',
+                cellTemplate: '<div class="ngCellText"><a ng-click="selectQueues(row)">{{row.entity.queueCount}}</a></div>',
                 sortable: false
             }
         ];
@@ -118,6 +120,10 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.navigateToAddressOps = function (row) {
             $location.path("jmx/operations").search({"tab": "artemis", "nid": ARTEMIS.getAddressNid(row.entity, $location)});
         };
+        $scope.selectQueues = function (row) {
+            artemisAddress.address = row.entity;
+            $location.path("artemis/queues");
+        };
         $scope.workspace = workspace;
         $scope.objects = [];
         $scope.totalServerItems = 0;
@@ -168,9 +174,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
             $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
-	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
+            $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
             if (mbean.includes("undefined")) {
                 onBadMBean();
