@@ -325,6 +325,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private CriticalAnalyzer analyzer;
 
+   // This is a callback to be called right before an activation is created
+   private Runnable afterActivationCreated;
+
    //todo think about moving this to the activation
    private final List<SimpleString> scaledDownNodeIDs = new ArrayList<>();
 
@@ -459,6 +462,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    // life-cycle methods
    // ----------------------------------------------------------------
 
+   /**
+    * A Callback for tests
+    * @return
+    */
+   public Runnable getAfterActivationCreated() {
+      return afterActivationCreated;
+   }
+
+   /**
+    * A Callback for tests
+    * @param afterActivationCreated
+    * @return
+    */
+   public ActiveMQServerImpl setAfterActivationCreated(Runnable afterActivationCreated) {
+      this.afterActivationCreated = afterActivationCreated;
+      return this;
+   }
+
    /*
     * Can be overridden for tests
     */
@@ -560,6 +581,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (!haPolicy.isBackup()) {
             activation = haPolicy.createActivation(this, false, activationParams, shutdownOnCriticalIO);
 
+            if (afterActivationCreated != null) {
+               try {
+                  afterActivationCreated.run();
+               } catch (Throwable e) {
+                  logger.warn(e.getMessage(), e); // just debug, this is not supposed to happend, and if it does
+               }
+
+               afterActivationCreated = null;
+            }
+
             if (haPolicy.isWaitForActivation()) {
                activation.run();
             } else {
@@ -577,6 +608,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                activation = haPolicy.createActivation(this, false, activationParams, shutdownOnCriticalIO);
             } else {
                activation = haPolicy.createActivation(this, wasLive, activationParams, shutdownOnCriticalIO);
+            }
+
+            if (afterActivationCreated != null) {
+               try {
+                  afterActivationCreated.run();
+               } catch (Throwable e) {
+                  logger.warn(e.getMessage(), e); // just debug, this is not supposed to happend, and if it does
+                  // it will be embedeed code from tests
+               }
+               afterActivationCreated = null;
             }
 
             if (logger.isTraceEnabled()) {

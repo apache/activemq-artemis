@@ -669,7 +669,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          storageManagerLock.writeLock().lock();
          try {
             if (replicator != null) {
-               replicator.sendSynchronizationDone(nodeID, initialReplicationSyncTimeout);
+               replicator.sendSynchronizationDone(nodeID, initialReplicationSyncTimeout, ioCriticalErrorListener);
                performCachedLargeMessageDeletes();
             }
          } finally {
