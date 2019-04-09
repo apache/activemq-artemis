@@ -23,13 +23,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -50,6 +53,7 @@ import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddMessage;
@@ -124,6 +128,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private Executor executor;
 
+   private List<Interceptor> outgoingInterceptors = null;
+
+
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
                               IOCriticalErrorListener criticalErrorListener,
@@ -148,6 +155,13 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       journals[id] = journal;
+   }
+
+   public void addOutgoingInterceptorForReplication(Interceptor interceptor) {
+      if (outgoingInterceptors == null) {
+         outgoingInterceptors = new CopyOnWriteArrayList<>();
+      }
+      outgoingInterceptors.add(interceptor);
    }
 
    /**
@@ -229,10 +243,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             logger.trace("Returning " + response);
          }
 
-         channel.send(response);
+         sendResponse(response);
       } else {
          logger.trace("Response is null, ignoring response");
       }
+   }
+
+   protected void sendResponse(PacketImpl response) {
+      channel.send(response);
    }
 
    /**
@@ -348,6 +366,20 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    public void setChannel(final Channel channel) {
       this.channel = channel;
+
+      if (this.channel != null && outgoingInterceptors != null) {
+         if (channel.getConnection() instanceof RemotingConnectionImpl)  {
+            try {
+               RemotingConnectionImpl impl = (RemotingConnectionImpl) channel.getConnection();
+               for (Interceptor interceptor : outgoingInterceptors) {
+                  impl.getOutgoingInterceptors().add(interceptor);
+               }
+            } catch (Throwable e) {
+               // This is code for embedded or testing, it should not affect server's semantics in case of error
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      }
    }
 
    private synchronized void finishSynchronization(String liveID) throws Exception {
@@ -511,11 +543,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             final JournalContent journalContent = SyncDataType.getJournalContentType(packet.getDataType());
             final Journal journal = journalsHolder.get(journalContent);
 
-            if (packet.getNodeID() != null) {
-               // At the start of replication, we still do not know which is the nodeID that the live uses.
-               // This is the point where the backup gets this information.
-               backupQuorum.liveIDSet(packet.getNodeID());
-            }
             Map<Long, JournalSyncFile> mapToFill = filesReservedForSync.get(journalContent);
 
             for (Entry<Long, JournalFile> entry : journal.createFilesForBackupSync(packet.getFileIds()).entrySet()) {
@@ -523,6 +550,18 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             }
             FileWrapperJournal syncJournal = new FileWrapperJournal(journal);
             registerJournal(journalContent.typeByte, syncJournal);
+
+            // We send a response now, to avoid a situation where we handle votes during the deactivation of the live during a failback.
+            sendResponse(replicationResponseMessage);
+            replicationResponseMessage = null;
+
+            // This needs to be done after the response is sent, to avoid voting shutting it down for any reason.
+            if (packet.getNodeID() != null) {
+               // At the start of replication, we still do not know which is the nodeID that the live uses.
+               // This is the point where the backup gets this information.
+               backupQuorum.liveIDSet(packet.getNodeID());
+            }
+
             break;
          default:
             throw ActiveMQMessageBundle.BUNDLE.replicationUnhandledDataType();
