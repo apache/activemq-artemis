@@ -185,7 +185,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected boolean journalLoaded = false;
 
-   private final IOCriticalErrorListener ioCriticalErrorListener;
+   protected final IOCriticalErrorListener ioCriticalErrorListener;
 
    protected final Configuration config;
 
