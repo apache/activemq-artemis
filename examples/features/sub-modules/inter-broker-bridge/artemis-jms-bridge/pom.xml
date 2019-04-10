@@ -45,19 +45,16 @@ under the License.
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>

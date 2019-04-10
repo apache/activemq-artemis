@@ -47,7 +47,6 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
          <exclusions>
             <exclusion>
                <groupId>io.netty</groupId>
@@ -58,17 +57,14 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>

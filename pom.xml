@@ -30,6 +30,7 @@
    </parent>
 
    <modules>
+      <module>artemis-bom</module>
       <module>artemis-protocols</module>
       <module>artemis-dto</module>
       <module>artemis-cdi-client</module>
@@ -245,6 +246,14 @@
 
    <dependencyManagement>
       <dependencies>
+         <dependency>
+           <groupId>org.apache.activemq</groupId>
+           <artifactId>artemis-bom</artifactId>
+           <version>${project.version}</version>
+           <type>pom</type>
+           <scope>import</scope>
+         </dependency>
+         
          <!-- ## Test Dependencies ## Note: Junit is required in certain module tests.  We should control versions from here. -->
          <dependency>
             <groupId>junit</groupId>
@@ -865,6 +874,7 @@
       <profile>
          <id>dev</id>
          <modules>
+            <module>artemis-bom</module>
             <module>artemis-boot</module>
             <module>artemis-dto</module>
             <module>artemis-web</module>
@@ -900,6 +910,7 @@
       <profile>
          <id>release</id>
          <modules>
+            <module>artemis-bom</module>
             <module>artemis-dto</module>
             <module>artemis-web</module>
             <module>artemis-website</module>
@@ -957,6 +968,7 @@
                Running this entire build could take up to 2 hours -->
          <id>tests</id>
          <modules>
+            <module>artemis-bom</module>
             <module>artemis-dto</module>
             <module>artemis-web</module>
             <module>artemis-website</module>
@@ -999,6 +1011,7 @@
               This is used on PR checks -->
          <id>fast-tests</id>
          <modules>
+            <module>artemis-bom</module>
             <module>artemis-dto</module>
             <module>artemis-cli</module>
             <module>artemis-commons</module>
@@ -1029,6 +1042,7 @@
       <profile>
          <id>examples</id>
          <modules>
+            <module>artemis-bom</module>
             <module>artemis-dto</module>
             <module>artemis-web</module>
             <module>artemis-cli</module>

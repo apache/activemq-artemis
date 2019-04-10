@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.apache</groupId>
+      <artifactId>apache</artifactId>
+      <version>18</version>
+      <relativePath>org.apache:apache</relativePath>
+   </parent>
+   <!-- Since artemis-pom declares a dependencyManagement section our parent must be org.apache:apache and we must redeclare artemis project management details. -->
+   <groupId>org.apache.activemq</groupId>
+   <artifactId>artemis-bom</artifactId>
+   <packaging>pom</packaging>
+   <version>2.8.0-SNAPSHOT</version>
+
+   <name>ActiveMQ Artemis Bill of Materials</name>
+   <url>http://apache.org/activemq</url>
+
+   <prerequisites>
+      <maven>3.1.0</maven>
+   </prerequisites>
+
+   <properties>
+       <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
+      <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
+
+      <ActiveMQ-Version>${project.version}(${activemq.version.incrementingVersion})</ActiveMQ-Version>
+      <activemq-artemis-native-version>1.0.0</activemq-artemis-native-version>
+      <activemq.basedir>${project.basedir}</activemq.basedir>
+      <activemq.version.incrementingVersion>130,129,128,127,126,125,124,123,122</activemq.version.incrementingVersion>
+      <activemq.version.majorVersion>1</activemq.version.majorVersion>
+      <activemq.version.microVersion>0</activemq.version.microVersion>
+      <activemq.version.minorVersion>0</activemq.version.minorVersion>
+      <activemq.version.versionName>${project.version}</activemq.version.versionName>
+      <activemq.version.versionTag>${project.version}</activemq.version.versionTag>
+     
+      <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
+      <owasp.version>1.4.3</owasp.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+      <skipLicenseCheck>true</skipLicenseCheck>
+      <skipOWASP>true</skipOWASP>
+      <skipStyleCheck>true</skipStyleCheck>
+   </properties>
+
+   <scm>
+      <connection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</connection>
+      <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</developerConnection>
+      <url>https://fisheye6.atlassian.com/browse/~br=master/activemq-artemis-git</url>
+      <tag>1.0.0-SNAPSHOT</tag>
+   </scm>
+
+   <distributionManagement>
+      <site>
+         <!-- this needs to match a server in your settings.xml with upload settings -->
+         <id>activemq-website</id>
+         <!-- set the staging.siteURL in your ~/.m2/settings.xml in a release or other profile -->
+         <url>${staging.siteURL}/maven/${project.version}</url>
+         <!--<url>${site-repo-url}</url>-->
+      </site>
+      
+      <snapshotRepository>
+         <id>apache.snapshots.https</id>
+         <name>Apache Development Snapshot Repository</name>
+         <url>https://repository.apache.org/content/repositories/snapshots</url>
+         <uniqueVersion>false</uniqueVersion>
+      </snapshotRepository>
+   </distributionManagement>
+
+   <issueManagement>
+      <system>JIRA</system>
+      <url>https://issues.apache.org/jira/browse/ARTEMIS</url>
+   </issueManagement>
+   
+   <developers>
+       <developer>
+           <name>The Apache ActiveMQ Team</name>
+           <email>dev@activemq.apache.org</email>
+           <url>http://activemq.apache.org</url>
+           <organization>Apache Software Foundation</organization>
+           <organizationUrl>http://apache.org/</organizationUrl>
+       </developer>
+   </developers>
+   
+    <mailingLists>
+        <mailingList>
+            <name>User List</name>
+            <subscribe>users-subscribe@activemq.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@activemq.apache.org</unsubscribe>
+            <post>users@activemq.apache.org</post>
+        </mailingList>
+        
+        <mailingList>
+            <name>Development List</name>
+            <subscribe>dev-subscribe@activemq.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@activemq.apache.org</unsubscribe>
+            <post>dev@activemq.apache.org</post>
+        </mailingList>
+    </mailingLists>
+
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-amqp-protocol</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-boot</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+       <dependency>
+           <groupId>org.apache.activemq</groupId>
+           <artifactId>activemq-branding</artifactId>
+           <type>war</type>
+           <version>${project.version}</version>
+       </dependency>
+       
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-cdi-client</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-cli</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-commons</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-commons</artifactId>
+            <type>test-jar</type>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-commons</artifactId>
+            <classifier>tests</classifier>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-console</artifactId>
+            <type>war</type>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <type>test-jar</type>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <classifier>tests</classifier>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client-osgi</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client-all</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-dto</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-hornetq-protocol</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-hqclient-protocol</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jdbc-store</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-bridge</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client-all</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client-osgi</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-server</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-journal</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-junit</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-mqtt-protocol</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-openwire-protocol</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-plugin</artifactId>
+            <type>war</type>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-ra</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-rest</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-selector</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <type>test-jar</type>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <classifier>tests</classifier>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server-osgi</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-service-extensions</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-spring-integration</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-stomp-protocol</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-tools</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-web</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-website</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.activemq.rest</groupId>
+            <artifactId>artemis-rest</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+
+   <build>
+      <pluginManagement>
+         <plugins>
+         <plugin>
+            <groupId>org.eclipse.m2e</groupId>
+            <artifactId>lifecycle-mapping</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+               <lifecycleMappingMetadata>
+                  <pluginExecutions>
+                     <pluginExecution>
+                        <pluginExecutionFilter>
+                           <groupId>org.apache.rat</groupId>
+                           <artifactId>apache-rat-plugin</artifactId>
+                           <versionRange>[0.12,)</versionRange>
+                           <goals>
+                              <goal>check</goal>
+                           </goals>
+                        </pluginExecutionFilter>
+                        
+                        <action>
+                           <ignore />
+                        </action>
+                     </pluginExecution>
+                     
+                     <pluginExecution>
+                        <pluginExecutionFilter>
+                           <groupId>org.apache.servicemix.tooling</groupId>
+                           <artifactId>depends-maven-plugin</artifactId>
+                           <versionRange>[1.2,)</versionRange>
+                           
+                           <goals>
+                              <goal>
+                                 generate-depends-file
+                              </goal>
+                           </goals>
+                        </pluginExecutionFilter>
+                        
+                        <action>
+                           <ignore />
+                        </action>
+                     </pluginExecution>
+                  </pluginExecutions>
+               </lifecycleMappingMetadata>
+            </configuration>
+         </plugin>
+            
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-enforcer-plugin</artifactId>
+              <version>1.4.1</version>
+              <executions>
+                <execution>
+                  <id>enforce-maven</id>
+                  <goals>
+                    <goal>enforce</goal>
+                  </goals>
+                  <configuration>
+                    <rules>
+                      <requireMavenVersion>
+                        <version>3.1</version>
+                      </requireMavenVersion>
+                    </rules>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+            
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-clean-plugin</artifactId>
+               <version>2.5</version>
+            </plugin>
+            
+            <plugin>
+               <groupId>net.sf.maven-sar</groupId>
+               <artifactId>maven-sar-plugin</artifactId>
+               <version>1.0</version>
+            </plugin>
+            
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-site-plugin</artifactId>
+               <version>3.3</version>
+            </plugin>
+
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-deploy-plugin</artifactId>
+               <version>2.7</version>
+            </plugin>
+
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-install-plugin</artifactId>
+               <version>2.4</version>
+               <configuration>
+                  <createChecksum>true</createChecksum>
+               </configuration>
+            </plugin>
+            
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-pmd-plugin</artifactId>
+               <version>3.6</version>
+               <configuration>
+                  <linkXRef>true</linkXRef>
+                  <minimumTokens>100</minimumTokens>
+               </configuration>
+            </plugin>
+            
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-resources-plugin</artifactId>
+               <version>2.6</version>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-install-plugin</artifactId>
+            <configuration>
+               <createChecksum>true</createChecksum>
+            </configuration>
+         </plugin>
+         
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-help-plugin</artifactId>
+            <version>2.2</version>
+         </plugin>
+         
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>2.17</version>
+            <dependencies>
+               <dependency>
+                  <groupId>com.github.sevntu-checkstyle</groupId>
+                  <artifactId>sevntu-checkstyle-maven-plugin</artifactId>
+                  <version>1.24.0</version>
+               </dependency>
+               
+               <dependency>
+                  <groupId>com.puppycrawl.tools</groupId>
+                  <artifactId>checkstyle</artifactId>
+                  <version>7.7</version>
+               </dependency>
+            </dependencies>
+            
+            <configuration>
+               <skip>${skipStyleCheck}</skip>
+               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
+               <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
+               <failsOnError>false</failsOnError>
+               <failOnViolation>true</failOnViolation>
+               <consoleOutput>true</consoleOutput>
+               <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            </configuration>
+            
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.rat</groupId>
+            <artifactId>apache-rat-plugin</artifactId>
+            <version>0.12</version>
+            <configuration>
+               <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
+               <skip>${skipLicenseCheck}</skip>
+               <excludes>
+                  <exclude>.travis.yml</exclude>
+                  <exclude>**/footer.html</exclude>
+                  <exclude>**/*.txt</exclude>
+                  <exclude>**/*.md</exclude>
+                  <exclude>etc/ide-settings/**</exclude>
+                  <exclude>docs/**/*.json</exclude>
+                  <exclude>docs/**/_book/</exclude>
+                  <exclude>**/target/</exclude>
+                  <exclude>**/META-INF/services/*</exclude>
+                  <exclude>**/META-INF/MANIFEST.MF</exclude>
+                  <exclude>**/*.iml</exclude>
+                  <exclude>**/*.jceks</exclude>
+                  <exclude>**/*.jks</exclude>
+                  <exclude>**/xml.xsd</exclude>
+                  <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
+                  <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
+                  <exclude>**/.settings/**</exclude>
+                  <exclude>**/.project</exclude>
+                  <exclude>**/.classpath</exclude>
+                  <exclude>**/.editorconfig</exclude>
+                  <exclude>**/.checkstyle</exclude>
+                  <exclude>**/.factorypath</exclude>
+                  <exclude>**/org.apache.activemq.artemis.cfg</exclude>
+                  <exclude>**/nb-configuration.xml</exclude>
+                  <exclude>**/nbactions-tests.xml</exclude>
+                  <!-- activemq5 unit tests exclude -->
+                  <exclude>**/*.data</exclude>
+                  <exclude>**/*.bin</exclude>
+                  <exclude>**/src/test/resources/keystore</exclude>
+                  <exclude>**/*.log</exclude>
+                  <exclude>**/*.redo</exclude>
+
+                  <!-- NPM files -->
+                  <exclude>**/node/**</exclude>
+                  <exclude>**/node_modules/**</exclude>
+                  <exclude>**/package.json</exclude>
+                  <exclude>**/npm-shrinkwrap.json</exclude>
+
+                  <!-- Build time overlay folder -->
+                  <exclude>**/overlays/**</exclude>
+
+                  <!-- things from cmake on the native build -->
+                  <exclude>**/CMakeFiles/</exclude>
+                  <exclude>**/Makefile</exclude>
+                  <exclude>**/cmake_install.cmake</exclude>
+                  <exclude>activemq-artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
+                  <exclude>**/dependency-reduced-pom.xml</exclude>
+
+               </excludes>
+            </configuration>
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+         
+         <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <version>3.0.0</version>
+            <extensions>true</extensions>
+         </plugin>
+         
+         <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${owasp.version}</version>
+            <configuration>
+                <skip>${skipOWASP}</skip>
+                <!-- <skipProvidedScope>true</skipProvidedScope>
+                <skipRuntimeScope>true</skipRuntimeScope> -->
+            </configuration>
+            
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <!-- This is placing the .so somewhere other than the distribution so testsuite can take it
+              This is to avoid a dependency on having to build a distribution in order to run tests.
+         -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+               <execution>
+                  <id>copy</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>unpack</goal>
+                  </goals>
+               </execution>
+            </executions>
+            
+            <configuration>
+               <artifactItems>
+                  <artifactItem>
+                     <groupId>org.apache.activemq</groupId>
+                     <artifactId>activemq-artemis-native</artifactId>
+                     <version>${activemq-artemis-native-version}</version>
+                     <type>jar</type>
+                     <overWrite>false</overWrite>
+                     <outputDirectory>${project.build.directory}/bin</outputDirectory>
+                     <includes>**/*.so</includes>
+                  </artifactItem>
+               </artifactItems>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <reporting>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>2.17</version>
+            <configuration>
+               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
+               <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
+               <failsOnError>false</failsOnError>
+            </configuration>
+         </plugin>
+         
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>2.7</version>
+         </plugin>
+         
+         <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${owasp.version}</version>
+            <reportSets>
+               <reportSet>
+                  <reports>
+                     <report>aggregate</report>
+                  </reports>
+               </reportSet>
+            </reportSets>
+         </plugin>
+      </plugins>
+   </reporting>
+
+   <!--
+     un comment this session here to validate repository releases.
+     <repositories>
+      <repository>
+         <id>release validation</id>
+         <name>Maven 1.0.0 release</name>
+         <layout>default</layout>
+         <url>https://repository.apache.org/content/repositories/orgapacheactivemq-XXXX</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+   </repositories> -->
+
+</project>

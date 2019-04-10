@@ -35,12 +35,10 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.osgi</groupId>

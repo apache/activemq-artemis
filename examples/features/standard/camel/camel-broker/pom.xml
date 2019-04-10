@@ -39,7 +39,6 @@ under the License.
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.examples.broker.camel</groupId>
@@ -58,7 +57,6 @@ under the License.
          <plugin>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-maven-plugin</artifactId>
-            <version>${project.version}</version>
             <executions>
                <execution>
                   <id>create0</id>

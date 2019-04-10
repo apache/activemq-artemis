@@ -52,13 +52,11 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
          <type>test-jar</type>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
          <type>test-jar</type>
       </dependency>
 
@@ -306,31 +304,26 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-openwire-protocol</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <dependency>

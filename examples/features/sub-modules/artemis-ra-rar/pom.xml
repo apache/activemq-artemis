@@ -39,7 +39,6 @@ under the License.
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
          <exclusions>
             <exclusion>
                <groupId>org.apache.activemq</groupId>
@@ -62,17 +61,14 @@ under the License.
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-ra</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
          <exclusions>
             <exclusion>
                <groupId>org.apache.activemq</groupId>

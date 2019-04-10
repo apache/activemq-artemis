@@ -39,7 +39,6 @@ under the License.
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client-all</artifactId>
-         <version>${project.version}</version>
       </dependency>
    </dependencies>
 

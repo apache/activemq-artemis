@@ -54,7 +54,6 @@ under the License.
          <!-- this is to have the ServerUtil -->
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
-         <version>${project.version}</version>
       </dependency>
    </dependencies>
 

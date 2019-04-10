@@ -38,7 +38,6 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>javax.xml.bind</groupId>
