@@ -255,8 +255,13 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQShutdownException(msg);
       }
+   },
+   REPLICATION_TIMEOUT_ERROR(220) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQReplicationTimeooutException(msg);
+      }
    };
-
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 
    static {

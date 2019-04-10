@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseExce
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
+import org.apache.activemq.artemis.api.core.ActiveMQReplicationTimeooutException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddress;
@@ -370,7 +371,7 @@ public interface ActiveMQMessageBundle {
    IllegalArgumentException invalidMessageLoadBalancingType(String val);
 
    @Message(id = 229114, value = "Replication synchronization process timed out after waiting {0} milliseconds", format = Message.Format.MESSAGE_FORMAT)
-   IllegalStateException replicationSynchronizationTimeout(long timeout);
+   ActiveMQReplicationTimeooutException replicationSynchronizationTimeout(long timeout);
 
    @Message(id = 229115, value = "Colocated Policy hasn''t different type live and backup", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException liveBackupMismatch();
