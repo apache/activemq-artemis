@@ -96,6 +96,38 @@ public class LVQTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testMultipleRollback() throws Exception {
+      AddressSettings qs = new AddressSettings();
+      qs.setDefaultLastValueQueue(true);
+      qs.setRedeliveryDelay(1);
+      server.getAddressSettingsRepository().addMatch(address.toString(), qs);
+
+      ClientProducer producer = clientSessionTxReceives.createProducer(address);
+      ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
+      SimpleString messageId1 = new SimpleString("SMID1");
+      ClientMessage m1 = createTextMessage(clientSession, "m1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
+      producer.send(m1);
+      clientSessionTxReceives.start();
+      for (int i = 0; i < 10; i++) {
+         System.out.println("#Deliver " + i);
+         ClientMessage m = consumer.receive(5000);
+         Assert.assertNotNull(m);
+         m.acknowledge();
+         clientSessionTxReceives.rollback();
+      }
+      m1 = createTextMessage(clientSession, "m1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
+      producer.send(m1);
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      Assert.assertNull(consumer.receiveImmediate());
+      clientSessionTxReceives.commit();
+   }
+
+   @Test
    public void testFirstMessageReceivedButAckedAfter() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
