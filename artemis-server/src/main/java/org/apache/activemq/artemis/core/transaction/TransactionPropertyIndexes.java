@@ -33,4 +33,6 @@ public class TransactionPropertyIndexes {
    public static final int PAGE_DELIVERY = 7;
 
    public static final int PAGE_CURSOR_POSITIONS = 8;
+
+   public static final int EXPIRY_LOGGER = 9;
 }

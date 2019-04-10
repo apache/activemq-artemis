@@ -349,6 +349,38 @@ public class NotificationTest extends ActiveMQTestBase {
       session.deleteQueue(queue);
    }
 
+   @Test
+   public void testMessageExpiredWithoutConsumers() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession mySession = sf.createSession("myUser", "myPassword", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+
+      mySession.start();
+
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomSimpleString();
+      boolean durable = RandomUtil.randomBoolean();
+
+      session.createQueue(address, queue, durable);
+      ClientProducer producer = mySession.createProducer(address);
+
+      NotificationTest.flush(notifConsumer);
+
+      ClientMessage msg = session.createMessage(false);
+      msg.putStringProperty("someKey", "someValue");
+      msg.setExpiration(1);
+      producer.send(msg);
+      Thread.sleep(500);
+
+      ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer, 5000);
+      Assert.assertEquals(MESSAGE_EXPIRED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertNotNull(notifications[0].getObjectProperty(ManagementHelper.HDR_MESSAGE_ID));
+      Assert.assertEquals(address, notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS));
+      Assert.assertEquals(queue, notifications[0].getObjectProperty(ManagementHelper.HDR_ROUTING_NAME));
+      Assert.assertEquals(RoutingType.MULTICAST.getType(), notifications[0].getObjectProperty(ManagementHelper.HDR_ROUTING_TYPE));
+
+      session.deleteQueue(queue);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -358,7 +390,7 @@ public class NotificationTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setMessageExpiryScanPeriod(100), false));
       NotificationActiveMQServerPlugin notificationPlugin = new NotificationActiveMQServerPlugin();
       notificationPlugin.setSendAddressNotifications(true);
       notificationPlugin.setSendConnectionNotifications(true);
@@ -392,11 +424,17 @@ public class NotificationTest extends ActiveMQTestBase {
 
    protected static ClientMessage[] consumeMessages(final int expected,
                                                     final ClientConsumer consumer) throws Exception {
+      return consumeMessages(expected, consumer, 500);
+   }
+
+   protected static ClientMessage[] consumeMessages(final int expected,
+                                                    final ClientConsumer consumer,
+                                                    final int timeout) throws Exception {
       ClientMessage[] messages = new ClientMessage[expected];
 
       ClientMessage m = null;
       for (int i = 0; i < expected; i++) {
-         m = consumer.receive(500);
+         m = consumer.receive(timeout);
          if (m != null) {
             for (SimpleString key : m.getPropertyNames()) {
                System.out.println(key + "=" + m.getObjectProperty(key));
