@@ -187,6 +187,14 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       channels.put(channelID, channel);
    }
 
+   public List<Interceptor> getIncomingInterceptors() {
+      return incomingInterceptors;
+   }
+
+   public List<Interceptor> getOutgoingInterceptors() {
+      return outgoingInterceptors;
+   }
+
    @Override
    public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       synchronized (failLock) {
