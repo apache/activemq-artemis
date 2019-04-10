@@ -86,6 +86,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -3023,7 +3024,41 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          acknowledge(tx, ref, AckReason.EXPIRED, null);
       }
+
+      if (server != null && server.hasBrokerMessagePlugins()) {
+         ExpiryLogger expiryLogger = (ExpiryLogger)tx.getProperty(TransactionPropertyIndexes.EXPIRY_LOGGER);
+         if (expiryLogger == null) {
+            expiryLogger = new ExpiryLogger();
+            tx.putProperty(TransactionPropertyIndexes.EXPIRY_LOGGER, expiryLogger);
+            tx.addOperation(expiryLogger);
+         }
+
+         expiryLogger.addExpiry(address, ref);
+      }
+
    }
+
+   private class ExpiryLogger extends TransactionOperationAbstract {
+
+      List<Pair<SimpleString, MessageReference>> expiries = new LinkedList<>();
+
+      public void addExpiry(SimpleString address, MessageReference ref) {
+         expiries.add(new Pair<>(address, ref));
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         for (Pair<SimpleString, MessageReference> pair : expiries) {
+            try {
+               server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(pair.getB(), pair.getA(), null));
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+         expiries.clear(); // just giving a hand to GC
+      }
+   }
+
 
    @Override
    public void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
