@@ -162,6 +162,7 @@ name | node name; used in topology notifications if set. | n/a
 [persist-delivery-count-before-delivery](undelivered-messages.md#delivery-count-persistence) | True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. | `false`
 [persistence-enabled](persistence.md#zero-persistence)| true means that the server will use the file based journal for persistence. | `true`
 [persist-id-cache](duplicate-detection.md#configuring-the-duplicate-id-cache) | true means that ID's are persisted to the journal. | `true`
+[prometheus-jmx-exporter](prometheus.md) | configuration for the Prometheus JMX exporter | n/a
 queues | **deprecated** [use addresses](#address-type) | n/a
 [remoting-incoming-interceptors](intercepting-operations.md)| a list of &lt;class-name/&gt; elements with the names of classes to use for intercepting incoming remoting packets | n/a
 [remoting-outgoing-interceptors](intercepting-operations.md)| a list of &lt;class-name/&gt; elements with the names of classes to use for intercepting outgoing remoting packets | n/a
@@ -359,6 +360,36 @@ user | the name of the user to associate with the creation of the queue | n/a
 [last-value](last-value-queues.md) | use last-value semantics | `false`
 consumers-before-dispatch | number of consumers required before dispatching messages | 0
 delay-before-dispatch | milliseconds to wait for `consumers-before-dispatch` to be met before dispatching messages anyway | -1 (wait forever)
+
+## prometheus-jmx-exporter type
+
+Name | Description | Default
+---|---|---
+lowercaseOutputName | Lowercase the output metric name. Applies to default format and `name`. | `false`
+lowercaseOutputLabelNames | Lowercase the output metric label names. Applies to default format and `labels`. | `false`
+whitelistObjectNames | A list of [ObjectNames](http://docs.oracle.com/javase/6/docs/api/javax/management/ObjectName.html) to query. | all MBeans
+blacklistObjectNames | A list of [ObjectNames](http://docs.oracle.com/javase/6/docs/api/javax/management/ObjectName.html) to not query. Takes precedence over `whitelistObjectNames`. | none
+rules | A list of rules to apply in order, processing stops at the first matching rule. Attributes that aren't matched aren't collected. | collects everything in the default format.
+
+## rule type
+
+Name | Description | Default
+---|---|---
+pattern | Regex pattern to match against each bean attribute. The pattern is not anchored. Capture groups can be used in other options. | matches everything
+attrNameSnakeCase | Converts the attribute name to snake case. This is seen in the names matched by the pattern and the default format. For example, anAttrName to an\_attr\_name. | `false`
+name | The metric name to set. Capture groups from the `pattern` can be used. If not specified, the default format will be used. If it evaluates to empty, processing of this attribute stops with no output. | empty
+value | Value for the metric. Static values and capture groups from the `pattern` can be used. | scraped MBean value
+valueFactor | Optional number that `value` (or the scraped mBean value if `value` is not specified) is multiplied by, mainly used to convert mBean values from milliseconds to seconds. | `1.0`
+labels | A list of `label` elements | n/a
+help | Help text for the metric. Capture groups from `pattern` can be used. `name` must be set to use this. | the MBean attribute description and the full name of the attribute
+type | The type of the metric, can be `GAUGE`, `COUNTER` or `UNTYPED`. `name` must be set to use this. | `UNTYPED`
+
+## label type
+
+Name | Description | Default
+---|---|---
+name | Capture groups from `pattern` can be used in each. `name` must be set to use this. Empty names are ignored. If not specified and the default format is not being used, no labels are set. | empty
+value | Capture groups from `pattern` can be used in each. `name` must be set to use this. Empty values are ignored. If not specified and the default format is not being used, no labels are set. | empty
 
 
 ## security-setting type

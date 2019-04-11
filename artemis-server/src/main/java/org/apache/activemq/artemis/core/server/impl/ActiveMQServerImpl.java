@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import io.prometheus.client.CollectorRegistry;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -164,6 +165,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.federation.FederationManager;
+import org.apache.activemq.artemis.core.server.prometheus.JmxCollector;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
@@ -344,6 +346,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
 
    private volatile FederationManager federationManager;
+
+   private JmxCollector jmxCollector;
 
    private final ActiveMQComponent networkCheckMonitor = new ActiveMQComponent() {
       @Override
@@ -1141,6 +1145,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, remotingService.getClass().getName());
          }
+
+      if (jmxCollector != null) {
+         CollectorRegistry.defaultRegistry.unregister(jmxCollector);
+      }
 
       // Stop the management service after the remoting service to ensure all acceptors are deregistered with JMX
       if (managementService != null)
@@ -2770,6 +2778,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (hasBrokerPlugins()) {
          callBrokerPlugins(plugin -> plugin.registered(this));
+      }
+
+      try {
+         jmxCollector = new JmxCollector(mbeanServer, configuration.getPrometheusJmxExporterConfiguration()).register();
+      } catch (Exception e) {
+         // may fail due to colocated servers attempting to register multiple collectors
       }
 
       return true;

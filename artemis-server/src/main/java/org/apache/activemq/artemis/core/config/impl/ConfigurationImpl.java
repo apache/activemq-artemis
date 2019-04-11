@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.PrometheusJmxExporterConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
@@ -154,6 +155,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected List<BridgeConfiguration> bridgeConfigurations = new ArrayList<>();
 
    protected List<DivertConfiguration> divertConfigurations = new ArrayList<>();
+
+   protected PrometheusJmxExporterConfiguration prometheusJmxExporterConfiguration = new PrometheusJmxExporterConfiguration();
 
    protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
 
@@ -700,6 +703,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl addDivertConfiguration(final DivertConfiguration config) {
       divertConfigurations.add(config);
+      return this;
+   }
+
+   @Override
+   public PrometheusJmxExporterConfiguration getPrometheusJmxExporterConfiguration() {
+      return prometheusJmxExporterConfiguration;
+   }
+
+   @Override
+   public ConfigurationImpl setPrometheusJmxExporterConfiguration(PrometheusJmxExporterConfiguration config) {
+      this.prometheusJmxExporterConfiguration = config;
       return this;
    }
 

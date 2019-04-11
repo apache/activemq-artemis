@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import io.prometheus.client.exporter.MetricsServlet;
+import io.prometheus.client.hotspot.DefaultExports;
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
@@ -44,6 +46,8 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.logging.Logger;
@@ -146,12 +150,24 @@ public class WebServerComponent implements ExternalComponent {
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
 
+      ServletContextHandler metricsContext = null;
+      if (webServerConfig.prometheusServletEnabled) {
+         metricsContext = new ServletContextHandler();
+         metricsContext.setContextPath("/");
+         metricsContext.addServlet(new ServletHolder(new MetricsServlet()), "/" + webServerConfig.prometheusServletContext);
+         DefaultExports.initialize();
+      }
+
       if (webServerConfig.requestLog != null) {
          handlers.addHandler(getLogHandler());
       }
       handlers.addHandler(homeContext);
       handlers.addHandler(instanceContext);
-      handlers.addHandler(defaultHandler);
+      if (webServerConfig.prometheusServletEnabled) {
+         handlers.addHandler(metricsContext);
+      }
+      handlers.addHandler(defaultHandler); // this should be last
+
       server.setHandler(handlers);
    }
 
@@ -231,6 +247,10 @@ public class WebServerComponent implements ExternalComponent {
       if (consoleUrl != null) {
          ActiveMQWebLogger.LOGGER.jolokiaAvailable(consoleUrl + "/jolokia");
          ActiveMQWebLogger.LOGGER.consoleAvailable(consoleUrl);
+      }
+
+      if (webServerConfig.prometheusServletEnabled) {
+         ActiveMQWebLogger.LOGGER.metricsAvailable(webServerConfig.bind + "/" + webServerConfig.prometheusServletContext);
       }
    }
 

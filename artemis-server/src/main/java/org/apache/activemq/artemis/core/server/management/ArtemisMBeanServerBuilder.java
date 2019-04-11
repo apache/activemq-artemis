@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerBuilder;
+import javax.management.MBeanServerDelegate;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,14 +26,18 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerBuilder;
-import javax.management.MBeanServerDelegate;
+import java.util.UUID;
 
 public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
 
    private static volatile InvocationHandler guard;
+
+   /**
+    * The following two variables (KEY & GUARD_BYPASS) can be used by local MBeanServer
+    * clients to bypass the RBAC guard.
+    */
+   public static final String KEY = UUID.randomUUID().toString();
+   public static final ThreadLocal<String> GUARD_BYPASS = new ThreadLocal<>();
 
    public static void setGuard(InvocationHandler guardHandler) {
       guard = guardHandler;
@@ -57,6 +64,9 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
 
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+         if (GUARD_BYPASS.get() != null && GUARD_BYPASS.get().equals(KEY)) {
+            return invokeWithoutGuard(method, args);
+         }
          if (guarded.contains(method.getName())) {
             if (ArtemisMBeanServerBuilder.guard == null) {
                throw new IllegalStateException("ArtemisMBeanServerBuilder not initialized");
@@ -80,6 +90,10 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
             // special case finalize, don't route through to delegate because that will get its own call
             return null;
          }
+         return invokeWithoutGuard(method, args);
+      }
+
+      public Object invokeWithoutGuard(Method method, Object[] args) throws Throwable {
          try {
             return method.invoke(wrapped, args);
          } catch (InvocationTargetException ite) {

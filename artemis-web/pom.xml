@@ -102,6 +102,14 @@
          <artifactId>netty-handler</artifactId>
       </dependency>
       <dependency>
+         <groupId>io.prometheus</groupId>
+         <artifactId>simpleclient_servlet</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.prometheus</groupId>
+         <artifactId>simpleclient_hotspot</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.eclipse.jetty.aggregate</groupId>
          <artifactId>jetty-all</artifactId>
          <type>jar</type>

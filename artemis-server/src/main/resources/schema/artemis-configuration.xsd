@@ -862,6 +862,80 @@
             </xsd:simpleType>
          </xsd:element>
 
+         <xsd:element name="prometheus-jmx-exporter" maxOccurs="1" minOccurs="0">
+            <xsd:complexType>
+               <xsd:annotation>
+                  <xsd:documentation>
+                     The configuration for the Prometheus JMX exporter
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:all>
+                  <xsd:element name="lowercase-output-name" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           Lowercase the output metric name. Applies to default format and name.
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+                  <xsd:element name="lowercase-output-label-names" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           Lowercase the output metric label names. Applies to default format and labels.
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+                  <xsd:element name="whitelist" maxOccurs="1" minOccurs="0">
+                     <xsd:complexType>
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              A list of JMX ObjectNames to query.
+                           </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:sequence>
+                           <xsd:element name="object-name" maxOccurs="unbounded" minOccurs="0">
+                              <xsd:annotation>
+                                 <xsd:documentation>
+                                    a JMX ObjectName
+                                 </xsd:documentation>
+                              </xsd:annotation>
+                           </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
+                     </xsd:complexType>
+                  </xsd:element>
+                  <xsd:element name="blacklist" maxOccurs="1" minOccurs="0">
+                     <xsd:complexType>
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              A list of ObjectNames to not query. Takes precedence over whitelisted ObjectNames.
+                              Defaults to none.
+                           </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:sequence>
+                           <xsd:element name="object-name" maxOccurs="unbounded" minOccurs="0">
+                              <xsd:annotation>
+                                 <xsd:documentation>
+                                    a JMX ObjectName
+                                 </xsd:documentation>
+                              </xsd:annotation>
+                           </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
+                     </xsd:complexType>
+                  </xsd:element>
+                  <xsd:element name="rules" maxOccurs="1" minOccurs="0">
+                     <xsd:complexType>
+                        <xsd:sequence>
+                           <xsd:element name="rule" type="ruleType" maxOccurs="unbounded" minOccurs="0"/>
+                        </xsd:sequence>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
+                     </xsd:complexType>
+                  </xsd:element>
+               </xsd:all>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
+            </xsd:complexType>
+         </xsd:element>
+
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -2870,6 +2944,88 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="ruleType">
+      <xsd:all>
+         <xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The metric name to set. Capture groups from the pattern can be used. If not specified, the default
+                  format will be used. If it evaluates to empty, processing of this attribute stops with no output.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="pattern" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Regex pattern to match against each bean attribute. The pattern is not anchored. Capture groups
+                  can be used in other options. Defaults to matching everything.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="value" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Value for the metric. Static values and capture groups from the pattern can be used. If not
+                  specified the scraped mBean value will be used.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="value-factor" type="xsd:double" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Value for the metric. Static values and capture groups from the pattern can be used. If not
+                  specified the scraped mBean value will be used.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="help" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Help text for the metric. Capture groups from pattern can be used. name must be set to use
+                  this. Defaults to the mBean attribute description and the full name of the attribute.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="attr-name-snake-case" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Converts the attribute name to snake case. This is seen in the names matched by the pattern
+                  and the default format. For example, "anAttrName" to "an_attr_name".
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="type" default="UNTYPED" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The type of the metric, can be GAUGE, COUNTER or UNTYPED. name must be set to use this.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="UNTYPED"/>
+                  <xsd:enumeration value="COUNTER"/>
+                  <xsd:enumeration value="GAUGE"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+         <xsd:element name="labels" maxOccurs="1" minOccurs="0">
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="label" type="labelType" maxOccurs="unbounded" minOccurs="0"/>
+               </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
+            </xsd:complexType>
+         </xsd:element>
+      </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="labelType">
+      <xsd:attribute name="name" type="xsd:string" use="required" />
+      <xsd:attribute name="value" type="xsd:string" use="required" />
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 

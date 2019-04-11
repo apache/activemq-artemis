@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import java.util.EnumSet;
 
+import io.prometheus.client.Collector;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -219,6 +220,18 @@ public final class Validators {
          int val = (Integer) value;
          if (val < -1) {
             throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumers(name, val);
+         }
+      }
+   };
+
+   public static final Validator PROMETHEUS_METRIC_TYPE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !val.equals(Collector.Type.GAUGE.toString()) &&
+            !val.equals(Collector.Type.COUNTER.toString()) &&
+            !val.equals(Collector.Type.UNTYPED.toString())) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidPrometheusMetricType(val);
          }
       }
    };

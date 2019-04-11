@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.prometheus.client.Collector;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
@@ -50,6 +51,7 @@ import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.PrometheusJmxExporterConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -93,6 +95,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.xml.XMLConstants;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
@@ -556,6 +560,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Element dvNode = (Element) dvNodes.item(i);
 
          parseDivertConfiguration(dvNode, config);
+      }
+
+      NodeList pjeNodes = e.getElementsByTagName("prometheus-jmx-exporter");
+
+      for (int i = 0; i < pjeNodes.getLength(); i++) {
+         Element pjeNode = (Element) pjeNodes.item(i);
+
+         parsePrometheusJmxExporterConfiguration(pjeNode, config);
       }
 
       // Persistence config
@@ -2176,6 +2188,89 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(routingType);
 
       mainConfig.getDivertConfigurations().add(config);
+   }
+
+   private void parsePrometheusJmxExporterConfiguration(final Element e, final Configuration mainConfig) throws MalformedObjectNameException {
+      boolean lowercaseOutputName = getBoolean(e, "lowercase-output-name", true);
+      boolean lowercaseOutputLabelNames = getBoolean(e, "lowercase-output-label-names", true);
+      List<ObjectName> whitelistObjectNames = new ArrayList<>();
+      List<ObjectName> blacklistObjectNames = new ArrayList<>();
+      List<PrometheusJmxExporterConfiguration.Rule> rules = new ArrayList<>();
+
+      NodeList children = e.getChildNodes();
+
+      for (int i = 0; i < children.getLength(); i++) {
+         Node child = children.item(i);
+
+         if (child.getNodeName().equals("whitelist")) {
+            getObjectNames(whitelistObjectNames, child);
+         } else if (child.getNodeName().equals("blacklist")) {
+            getObjectNames(blacklistObjectNames, child);
+         } else if (child.getNodeName().equals("rules")) {
+            getRule(rules, child);
+         }
+      }
+
+      PrometheusJmxExporterConfiguration config = new PrometheusJmxExporterConfiguration()
+         .setLowercaseOutputName(lowercaseOutputName)
+         .setLowercaseOutputLabelNames(lowercaseOutputLabelNames)
+         .setWhitelistObjectNames(whitelistObjectNames)
+         .setBlacklistObjectNames(blacklistObjectNames)
+         .setRules(rules);
+
+      mainConfig.setPrometheusJmxExporterConfiguration(config);
+   }
+
+   private void getObjectNames(List<ObjectName> objectNames, Node child) throws MalformedObjectNameException {
+      NodeList children2 = ((Element) child).getElementsByTagName("object-name");
+
+      for (int k = 0; k < children2.getLength(); k++) {
+         Element child2 = (Element) children2.item(k);
+
+         String objectName = child2.getChildNodes().item(0).getNodeValue();
+
+         objectNames.add(new ObjectName(objectName));
+      }
+   }
+
+   private void getRule(List<PrometheusJmxExporterConfiguration.Rule> rules, Node rulesNode) {
+      NodeList rulesChildren = ((Element) rulesNode).getElementsByTagName("rule");
+
+      for (int i = 0; i < rulesChildren.getLength(); i++) {
+         Element ruleNode = (Element) rulesChildren.item(i);
+         PrometheusJmxExporterConfiguration.Rule rule = new PrometheusJmxExporterConfiguration.Rule();
+
+         rule.setAttrNameSnakeCase(getBoolean(ruleNode, "attr-name-snake-case", true));
+         rule.setType(Collector.Type.valueOf(getString(ruleNode, "type", Collector.Type.UNTYPED.toString(), Validators.PROMETHEUS_METRIC_TYPE)));
+         rule.setHelp(getString(ruleNode, "help", null, Validators.NO_CHECK));
+         rule.setName(getString(ruleNode, "name", null, Validators.NO_CHECK));
+         rule.setPattern(getString(ruleNode, "pattern", null, Validators.NO_CHECK));
+         rule.setValue(getString(ruleNode, "value", null, Validators.NO_CHECK));
+         rule.setValueFactor(getDouble(ruleNode, "value-factor", 1.0, Validators.GE_ZERO));
+
+         NodeList ruleChildren = ruleNode.getChildNodes();
+
+         for (int j = 0; j < ruleChildren.getLength(); j++) {
+            Node labels = ruleChildren.item(j);
+
+            if (labels.getNodeName().equals("labels")) {
+               getRuleLabels(rule, labels);
+            }
+         }
+
+         rules.add(rule);
+      }
+   }
+
+   private void getRuleLabels(PrometheusJmxExporterConfiguration.Rule rule, Node child) {
+      NodeList labels = ((Element) child).getElementsByTagName("label");
+
+      for (int i = 0; i < labels.getLength(); i++) {
+         Element label = (Element) labels.item(i);
+
+         rule.addLabelName(label.getAttribute("name"));
+         rule.addLabelValue(label.getAttribute("value"));
+      }
    }
 
    /**

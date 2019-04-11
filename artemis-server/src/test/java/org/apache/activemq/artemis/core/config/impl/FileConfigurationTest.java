@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import javax.management.ObjectName;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.prometheus.client.Collector;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -49,6 +51,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.PrometheusJmxExporterConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -415,6 +418,56 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(CriticalAnalyzerPolicy.HALT, conf.getCriticalAnalyzerPolicy());
 
       assertEquals(false, conf.isJournalDatasync());
+
+      PrometheusJmxExporterConfiguration jmxExporterConfiguration = conf.getPrometheusJmxExporterConfiguration();
+
+      assertTrue(jmxExporterConfiguration.isLowercaseOutputLabelNames());
+      assertTrue(jmxExporterConfiguration.isLowercaseOutputName());
+      try {
+         assertEquals(1, jmxExporterConfiguration.getWhitelistObjectNames().size());
+         assertEquals(new ObjectName("org.apache.whitelist:*"), jmxExporterConfiguration.getWhitelistObjectNames().get(0));
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail(e.getMessage());
+      }
+      try {
+         assertEquals(2, jmxExporterConfiguration.getBlacklistObjectNames().size());
+         assertEquals(new ObjectName("org.apache.blacklist1:*"), jmxExporterConfiguration.getBlacklistObjectNames().get(0));
+         assertEquals(new ObjectName("org.apache.blacklist2:*"), jmxExporterConfiguration.getBlacklistObjectNames().get(1));
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail(e.getMessage());
+      }
+
+      List<PrometheusJmxExporterConfiguration.Rule> rules = jmxExporterConfiguration.getRules();
+      assertEquals(2, rules.size());
+      PrometheusJmxExporterConfiguration.Rule rule1 = rules.get(0);
+      assertEquals("ruleName1", rule1.getName());
+      assertTrue(rule1.isAttrNameSnakeCase());
+      assertEquals(Collector.Type.COUNTER, rule1.getType());
+      assertTrue(rule1.getPattern().matcher("pattern1").matches());
+      assertEquals("ruleValue1", rule1.getValue());
+      assertEquals("ruleHelp1", rule1.getHelp());
+      assertEquals(2.0, rule1.getValueFactor().doubleValue(), 0);
+      assertEquals(1, rule1.getLabelNames().size());
+      assertEquals("labelName1", rule1.getLabelNames().get(0));
+      assertEquals(1, rule1.getLabelValues().size());
+      assertEquals("labelValue1", rule1.getLabelValues().get(0));
+
+      PrometheusJmxExporterConfiguration.Rule rule2 = rules.get(1);
+      assertEquals("ruleName2", rule2.getName());
+      assertFalse(rule2.isAttrNameSnakeCase());
+      assertEquals(Collector.Type.GAUGE, rule2.getType());
+      assertTrue(rule2.getPattern().matcher("pattern2").matches());
+      assertEquals("ruleValue2", rule2.getValue());
+      assertEquals("ruleHelp2", rule2.getHelp());
+      assertEquals(3.0, rule2.getValueFactor().doubleValue(), 0);
+      assertEquals(2, rule2.getLabelNames().size());
+      assertEquals("labelName2", rule2.getLabelNames().get(0));
+      assertEquals("labelName3", rule2.getLabelNames().get(1));
+      assertEquals(2, rule2.getLabelValues().size());
+      assertEquals("labelValue2", rule2.getLabelValues().get(0));
+      assertEquals("labelValue3", rule2.getLabelValues().get(1));
    }
 
    private void verifyAddresses() {

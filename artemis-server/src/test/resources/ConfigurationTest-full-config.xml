@@ -279,6 +279,45 @@
          </federation>
       </federations>
 
+      <prometheus-jmx-exporter>
+         <lowercase-output-name>true</lowercase-output-name>
+         <lowercase-output-label-names>true</lowercase-output-label-names>
+         <whitelist>
+            <object-name>org.apache.whitelist:*</object-name>
+         </whitelist>
+         <blacklist>
+            <object-name>org.apache.blacklist1:*</object-name>
+            <object-name>org.apache.blacklist2:*</object-name>
+         </blacklist>
+         <rules>
+            <rule>
+               <name>ruleName1</name>
+               <attr-name-snake-case>true</attr-name-snake-case>
+               <type>COUNTER</type>
+               <pattern>pattern1</pattern>
+               <help>ruleHelp1</help>
+               <value>ruleValue1</value>
+               <value-factor>2.0</value-factor>
+               <labels>
+                  <label name="labelName1" value="labelValue1"/>
+               </labels>
+            </rule>
+            <rule>
+               <name>ruleName2</name>
+               <attr-name-snake-case>false</attr-name-snake-case>
+               <type>GAUGE</type>
+               <pattern>pattern2</pattern>
+               <help>ruleHelp2</help>
+               <value>ruleValue2</value>
+               <value-factor>3.0</value-factor>
+               <labels>
+                  <label name="labelName2" value="labelValue2"/>
+                  <label name="labelName3" value="labelValue3"/>
+               </labels>
+            </rule>
+         </rules>
+      </prometheus-jmx-exporter>
+
       <ha-policy>
          <!--only one of the following-->
          <!--on server shutdown scale down to another live server-->

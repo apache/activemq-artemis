@@ -47,6 +47,12 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    public String trustStorePath;
 
+   @XmlAttribute
+   public Boolean prometheusServletEnabled = false;
+
+   @XmlAttribute
+   public String prometheusServletContext = "metrics";
+
    @XmlElementRef
    public List<AppDTO> apps;
 

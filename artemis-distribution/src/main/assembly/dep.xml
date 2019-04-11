@@ -70,6 +70,10 @@
             <include>org.apache.activemq:artemis-web</include>
             <include>org.apache.activemq.rest:artemis-rest</include>
             <include>org.apache.qpid:qpid-jms-client</include>
+            <include>io.prometheus:simpleclient_servlet</include>
+            <include>io.prometheus:simpleclient_hotspot</include>
+            <include>io.prometheus:simpleclient_common</include>
+            <include>io.prometheus:simpleclient</include>
 
             <!-- dependencies -->
             <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>

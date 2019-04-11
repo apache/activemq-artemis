@@ -101,17 +101,27 @@ For a full list of updated properties always use:
                 [--encoding <encoding>] [--etc <etc>] [--failover-on-shutdown] [--force]
                 [--global-max-size <globalMaxSize>] [--home <home>] [--host <host>]
                 [--http-host <httpHost>] [--http-port <httpPort>]
-                [--java-options <javaOptions>] [--mapped] [--max-hops <maxHops>]
-                [--message-load-balancing <messageLoadBalancing>] [--name <name>]
-                [--nio] [--no-amqp-acceptor] [--no-autocreate] [--no-autotune]
-                [--no-fsync] [--no-hornetq-acceptor] [--no-mqtt-acceptor]
-                [--no-stomp-acceptor] [--no-web] [--paging] [--password <password>]
-                [--ping <ping>] [--port-offset <portOffset>] [--queues <queues>]
-                [--replicated] [--require-login] [--role <role>] [--shared-store]
-                [--silent] [--slave] [--ssl-key <sslKey>]
-                [--ssl-key-password <sslKeyPassword>] [--ssl-trust <sslTrust>]
-                [--ssl-trust-password <sslTrustPassword>] [--use-client-auth]
-                [--user <user>] [--verbose] [--] <directory>
+                [--java-options <javaOptions>] [--jdbc]
+                [--jdbc-bindings-table-name <jdbcBindings>]
+                [--jdbc-connection-url <jdbcURL>]
+                [--jdbc-driver-class-name <jdbcClassName>]
+                [--jdbc-large-message-table-name <jdbcLargeMessages>]
+                [--jdbc-lock-expiration <jdbcLockExpiration>]
+                [--jdbc-lock-renew-period <jdbcLockRenewPeriod>]
+                [--jdbc-message-table-name <jdbcMessages>]
+                [--jdbc-network-timeout <jdbcNetworkTimeout>]
+                [--jdbc-node-manager-table-name <jdbcNodeManager>]
+                [--jdbc-page-store-table-name <jdbcPageStore>] [--mapped]
+                [--max-hops <maxHops>] [--message-load-balancing <messageLoadBalancing>]
+                [--name <name>] [--nio] [--no-amqp-acceptor] [--no-autocreate]
+                [--no-autotune] [--no-fsync] [--no-hornetq-acceptor]
+                [--no-mqtt-acceptor] [--no-stomp-acceptor] [--no-web] [--paging]
+                [--password <password>] [--ping <ping>] [--port-offset <portOffset>]
+                [--prometheus] [--queues <queues>] [--relax-jolokia] [--replicated]
+                [--require-login] [--role <role>] [--shared-store] [--silent] [--slave]
+                [--ssl-key <sslKey>] [--ssl-key-password <sslKeyPassword>]
+                [--ssl-trust <sslTrust>] [--ssl-trust-password <sslTrustPassword>]
+                [--use-client-auth] [--user <user>] [--verbose] [--] <directory>
 
  OPTIONS
          --addresses <addresses>
@@ -155,8 +165,9 @@ For a full list of updated properties always use:
              The encoding that text files should use
 
          --etc <etc>
-             Directory where ActiveMQ configuration is located. Paths can be absolute or
-             relative to artemis.instance directory ('etc' by default)
+             Directory where ActiveMQ configuration is located. Paths can be
+             absolute or relative to artemis.instance directory ('etc' by
+             default)
 
          --failover-on-shutdown
              Valid for shared store: will shutdown trigger a failover? (Default:
@@ -183,6 +194,39 @@ For a full list of updated properties always use:
 
          --java-options <javaOptions>
              Extra java options to be passed to the profile
+
+         --jdbc
+             It will activate jdbc
+
+         --jdbc-bindings-table-name <jdbcBindings>
+             Name of the jdbc bindigns table
+
+         --jdbc-connection-url <jdbcURL>
+             The connection used for the database
+
+         --jdbc-driver-class-name <jdbcClassName>
+             JDBC driver classname
+
+         --jdbc-large-message-table-name <jdbcLargeMessages>
+             Name of the large messages table
+
+         --jdbc-lock-expiration <jdbcLockExpiration>
+             Lock expiration
+
+         --jdbc-lock-renew-period <jdbcLockRenewPeriod>
+             Lock Renew Period
+
+         --jdbc-message-table-name <jdbcMessages>
+             Name of the jdbc messages table
+
+         --jdbc-network-timeout <jdbcNetworkTimeout>
+             Network timeout
+
+         --jdbc-node-manager-table-name <jdbcNodeManager>
+             Name of the jdbc node manager table
+
+         --jdbc-page-store-table-name <jdbcPageStore>
+             Name of the page store messages table
 
          --mapped
              Sets the journal as mapped.
@@ -240,8 +284,15 @@ For a full list of updated properties always use:
          --port-offset <portOffset>
              Off sets the ports of every acceptor
 
+         --prometheus
+             Enables Prometheus support.
+
          --queues <queues>
-             Comma separated list of queues.
+             Comma separated list of queues with the option to specify a routing
+             type. (ex: --queues myqueue,mytopic:multicast)
+
+         --relax-jolokia
+             disable strict checking on jolokia-access.xml
 
          --replicated
              Enable broker replication

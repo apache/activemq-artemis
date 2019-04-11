@@ -41,6 +41,12 @@ The `web` element has the following attributes:
   using `https`. Can be masked using `ENC()` syntax or by defining
   `passwordCodec`. See more in the [password masking](masking-passwords.md)
   chapter.
+- `prometheusServletEnabled` A boolean value to indicate whether or not
+  Prometheus metrics should be exposed via an embedded servlet. Default is
+  `false`. See more in the [Prometheus](prometheus.md) chapter.
+- `prometheusServletContext` The context value to use when exporting
+  Prometheus metrics. Default is `metrics`. See more in the
+  [Prometheus](prometheus.md) chapter.
 
 Each web application should be defined in an `app` element. The `app` element
 has the following attributes:

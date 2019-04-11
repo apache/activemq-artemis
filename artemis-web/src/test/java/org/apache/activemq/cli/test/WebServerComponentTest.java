@@ -120,6 +120,90 @@ public class WebServerComponentTest extends Assert {
    }
 
    @Test
+   public void simpleServerPrometheusTest() throws Exception {
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "http://localhost:0";
+      webServerDTO.path = "webapps";
+      webServerDTO.prometheusServletContext = "testMetrics";
+      webServerDTO.prometheusServletEnabled = true;
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+      final int port = webServerComponent.getPort();
+      // Make the connection attempt.
+      CountDownLatch latch = new CountDownLatch(1);
+      final ClientHandler clientHandler = new ClientHandler(latch);
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
+         @Override
+         protected void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(new HttpClientCodec());
+            ch.pipeline().addLast(clientHandler);
+         }
+      });
+      Channel ch = bootstrap.connect("localhost", port).sync().channel();
+
+      URI uri = new URI("http://localhost:8161/" + webServerDTO.prometheusServletContext);
+      // Prepare the HTTP request.
+      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
+
+      // Send the HTTP request.
+      ch.writeAndFlush(request);
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      System.out.println(clientHandler.body);
+      assertTrue(clientHandler.body.contains("jvm_memory_bytes_used"));
+      assertNull(clientHandler.serverHeader);
+      // Wait for the server to close the connection.
+      ch.close();
+      Assert.assertTrue(webServerComponent.isStarted());
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void simpleServerPrometheusDisabledTest() throws Exception {
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "http://localhost:0";
+      webServerDTO.path = "webapps";
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+      final int port = webServerComponent.getPort();
+      // Make the connection attempt.
+      CountDownLatch latch = new CountDownLatch(1);
+      final ClientHandler clientHandler = new ClientHandler(latch);
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
+         @Override
+         protected void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(new HttpClientCodec());
+            ch.pipeline().addLast(clientHandler);
+         }
+      });
+      Channel ch = bootstrap.connect("localhost", port).sync().channel();
+
+      URI uri = new URI("http://localhost:8161/" + webServerDTO.prometheusServletContext);
+      // Prepare the HTTP request.
+      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
+
+      // Send the HTTP request.
+      ch.writeAndFlush(request);
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      System.out.println(clientHandler.body);
+      assertTrue(clientHandler.body.contains("HTTP ERROR 404"));
+      assertNull(clientHandler.serverHeader);
+      // Wait for the server to close the connection.
+      ch.close();
+      Assert.assertTrue(webServerComponent.isStarted());
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
    public void testComponentStopBehavior() throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.bind = "http://localhost:0";

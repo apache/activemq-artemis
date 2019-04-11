@@ -1998,4 +1998,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224097, value = "Failed to start server", format = Message.Format.MESSAGE_FORMAT)
    void failedToStartServer(@Cause Throwable t);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224098, value = "JMX scrape failed", format = Message.Format.MESSAGE_FORMAT)
+   void jmxScrapeFailed(@Cause Throwable t);
 }

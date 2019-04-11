@@ -436,6 +436,10 @@ public interface Configuration {
 
    Configuration addDivertConfiguration(DivertConfiguration config);
 
+   PrometheusJmxExporterConfiguration getPrometheusJmxExporterConfiguration();
+
+   Configuration setPrometheusJmxExporterConfiguration(PrometheusJmxExporterConfiguration config);
+
    /**
     * Returns the cluster connections configured for this server.
     * <p>

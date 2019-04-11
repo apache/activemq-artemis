@@ -245,6 +245,9 @@ public class Create extends InputAbstract {
    @Option(name = "--mapped", description = "Sets the journal as mapped.")
    private boolean mapped;
 
+   @Option(name = "--prometheus", description = "Enables Prometheus support.")
+   private boolean prometheus;
+
    // this is used by the setupJournalType method
    private JournalType journalType;
 
@@ -576,6 +579,12 @@ public class Create extends InputAbstract {
       }
 
       filters.put("${journal.settings}", journalType.name());
+
+      if (prometheus) {
+         filters.put("${prometheus}", " prometheusServletEnabled=\"true\"");
+      } else {
+         filters.put("${prometheus}", "");
+      }
 
       if (sslKey != null) {
          filters.put("${web.protocol}", "https");

@@ -132,6 +132,10 @@
          <artifactId>commons-configuration2</artifactId>
       </dependency>
       <dependency>
+         <groupId>io.prometheus</groupId>
+         <artifactId>simpleclient</artifactId>
+      </dependency>
+      <dependency>
          <groupId>commons-io</groupId>
          <artifactId>commons-io</artifactId>
          <version>2.6</version>
