@@ -401,6 +401,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getAcknowledgeAttempts() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAcknowledged(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getAcknowledgeAttempts();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getMessagesExpired() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getMessagesExpired(queue);

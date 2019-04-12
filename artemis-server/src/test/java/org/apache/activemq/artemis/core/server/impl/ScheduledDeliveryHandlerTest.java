@@ -794,6 +794,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public long getAcknowledgeAttempts() {
+         return 0;
+      }
+
+      @Override
       public boolean allowsReferenceCallback() {
          return false;
       }
@@ -1477,7 +1482,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void postAcknowledge(MessageReference ref) {
+      public void postAcknowledge(MessageReference ref, AckReason reason) {
 
       }
 

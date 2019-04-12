@@ -105,7 +105,7 @@ public class JmxConnectionTest extends ActiveMQTestBase {
          logAndSystemOut("Successfully connected to: " + urlString);
       } catch (Exception e) {
          logAndSystemOut("JMX connection failed: " + urlString, e);
-         Assert.fail();
+         Assert.fail(e.getMessage());
          return;
       }
 
