@@ -971,7 +971,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Object getDuplicateProperty() {
-      return null;
+      return getObjectProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID);
    }
 
    @Override
