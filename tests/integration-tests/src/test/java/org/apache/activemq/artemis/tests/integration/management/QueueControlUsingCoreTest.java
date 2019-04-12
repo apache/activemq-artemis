@@ -217,6 +217,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long getAcknowledgeAttempts() {
+            return (Integer) proxy.retrieveAttributeValue("acknowledgeAttempts", Integer.class);
+         }
+
+         @Override
          public long getMessagesExpired() {
             return (Long) proxy.retrieveAttributeValue("messagesExpired", Long.class);
          }

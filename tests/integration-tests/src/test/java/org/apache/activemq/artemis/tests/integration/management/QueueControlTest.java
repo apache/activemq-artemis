@@ -36,6 +36,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
+import javax.transaction.xa.XAResource;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -66,6 +67,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.utils.Base64;
@@ -366,6 +368,92 @@ public class QueueControlTest extends ManagementTestBase {
       //      ManagementTestBase.consumeMessages(2, session, queue);
 
       //      Assert.assertEquals(2, getMessagesAdded(queueControl));
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetMessagesAcknowledgedOnXARollback() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getMessagesAcknowledged());
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(durable));
+
+      ClientSessionFactory xaFactory = createSessionFactory(locator);
+      ClientSession xaSession = addClientSession(xaFactory.createSession(true, false, false));
+      xaSession.start();
+
+      ClientConsumer consumer = xaSession.createConsumer(queue);
+
+      int tries = 10;
+      for (int i = 0; i < tries; i++) {
+         XidImpl xid = newXID();
+         xaSession.start(xid, XAResource.TMNOFLAGS);
+         ClientMessage message = consumer.receive(1000);
+         Assert.assertNotNull(message);
+         message.acknowledge();
+         Assert.assertEquals(0, queueControl.getMessagesAcknowledged());
+         xaSession.end(xid, XAResource.TMSUCCESS);
+         Assert.assertEquals(0, queueControl.getMessagesAcknowledged());
+         xaSession.prepare(xid);
+         Assert.assertEquals(0, queueControl.getMessagesAcknowledged());
+         if (i + 1 == tries) {
+            xaSession.commit(xid, false);
+         } else {
+            xaSession.rollback(xid);
+         }
+      }
+
+      Wait.assertEquals(1, queueControl::getMessagesAcknowledged);
+      Wait.assertEquals(10, queueControl::getAcknowledgeAttempts);
+
+      consumer.close();
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetMessagesAcknowledgedOnRegularRollback() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getMessagesAcknowledged());
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(durable));
+
+      ClientSessionFactory xaFactory = createSessionFactory(locator);
+      ClientSession txSession = addClientSession(xaFactory.createSession(false, false, false));
+      txSession.start();
+
+      ClientConsumer consumer = txSession.createConsumer(queue);
+
+      int tries = 10;
+      for (int i = 0; i < tries; i++) {
+         ClientMessage message = consumer.receive(1000);
+         Assert.assertNotNull(message);
+         message.acknowledge();
+         Assert.assertEquals(0, queueControl.getMessagesAcknowledged());
+         if (i + 1 == tries) {
+            txSession.commit();
+         } else {
+            txSession.rollback();
+         }
+      }
+
+      Wait.assertEquals(1, queueControl::getMessagesAcknowledged);
+      Wait.assertEquals(10, queueControl::getAcknowledgeAttempts);
+
+      consumer.close();
 
       session.deleteQueue(queue);
    }

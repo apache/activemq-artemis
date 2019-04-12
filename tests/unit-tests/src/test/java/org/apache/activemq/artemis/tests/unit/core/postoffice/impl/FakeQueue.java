@@ -207,6 +207,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public long getAcknowledgeAttempts() {
+      return 0;
+   }
+
+   @Override
    public void cancel(Transaction tx, MessageReference ref, boolean ignoreRedeliveryCheck) {
       // no-op
    }
@@ -841,7 +846,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void postAcknowledge(MessageReference ref) {
+   public void postAcknowledge(MessageReference ref, AckReason reason) {
    }
 
    @Override
