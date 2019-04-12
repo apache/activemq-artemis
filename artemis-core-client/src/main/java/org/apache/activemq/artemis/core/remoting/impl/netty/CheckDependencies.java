@@ -35,7 +35,7 @@ public class CheckDependencies {
       try {
          return Env.isLinuxOs() && Epoll.isAvailable();
       } catch (Throwable e)  {
-         ActiveMQClientLogger.LOGGER.unableToCheckKQueueAvailability(e);
+         ActiveMQClientLogger.LOGGER.unableToCheckEpollAvailability(e);
          return false;
       }
    }
