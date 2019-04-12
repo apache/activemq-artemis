@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -177,6 +178,28 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertTrue("All messages should arrive", () -> queueView.getMessageCount() == MSG_COUNT);
+
+      sender.close();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testDuplicateDetection() throws Exception {
+      final int MSG_COUNT = 10;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName(), true);
+
+      for (int i = 1; i <= MSG_COUNT; ++i) {
+         AmqpMessage message = new AmqpMessage();
+         message.setApplicationProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
+         sender.send(message);
+      }
+
+      Wait.assertTrue("Only 1 message should arrive", () -> getProxyToQueue(getQueueName()).getMessageCount() == 1);
 
       sender.close();
       connection.close();

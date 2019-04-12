@@ -30,6 +30,7 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -91,6 +92,29 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
             assertTrue(msg instanceof TextMessage);
             consumer.close();
          }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testDuplicateDetection() throws Exception {
+      final int MSG_COUNT = 10;
+      Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(getQueueName());
+         MessageProducer p = session.createProducer(null);
+
+         for (int i = 1; i <= MSG_COUNT; ++i) {
+            TextMessage message = session.createTextMessage();
+            message.setStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
+            // this will auto-create the address
+            p.send(queue, message);
+         }
+
+         Wait.assertTrue("Only 1 message should arrive", () -> getProxyToQueue(getQueueName()).getMessageCount() == 1);
       } finally {
          connection.close();
       }
