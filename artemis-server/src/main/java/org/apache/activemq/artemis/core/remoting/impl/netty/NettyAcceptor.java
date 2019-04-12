@@ -54,13 +54,11 @@ import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
-import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.local.LocalAddress;
@@ -345,7 +343,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
          }
 
-         if (useEpoll && Epoll.isAvailable()) {
+         if (useEpoll && CheckDependencies.isEpollAvailable()) {
             channelClazz = EpollServerSocketChannel.class;
             eventLoopGroup = new EpollEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
                @Override
@@ -356,7 +354,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             acceptorType = EPOLL_ACCEPTOR_TYPE;
 
             logger.debug("Acceptor using native epoll");
-         } else if (useKQueue && KQueue.isAvailable()) {
+         } else if (useKQueue && CheckDependencies.isKQueueAvailable()) {
             channelClazz = KQueueServerSocketChannel.class;
             eventLoopGroup = new KQueueEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
                @Override

@@ -65,12 +65,10 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.WriteBufferWaterMark;
-import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -444,7 +442,7 @@ public class NettyConnector extends AbstractConnector {
 
       String connectorType;
 
-      if (useEpoll && Epoll.isAvailable()) {
+      if (useEpoll && CheckDependencies.isEpollAvailable()) {
          if (useGlobalWorkerPool) {
             group = SharedEventLoopGroup.getInstance((threadFactory -> new EpollEventLoopGroup(remotingThreads, threadFactory)));
          } else {
@@ -453,7 +451,7 @@ public class NettyConnector extends AbstractConnector {
          connectorType = EPOLL_CONNECTOR_TYPE;
          channelClazz = EpollSocketChannel.class;
          logger.debug("Connector " + this + " using native epoll");
-      } else if (useKQueue && KQueue.isAvailable()) {
+      } else if (useKQueue && CheckDependencies.isKQueueAvailable()) {
          if (useGlobalWorkerPool) {
             group = SharedEventLoopGroup.getInstance((threadFactory -> new KQueueEventLoopGroup(remotingThreads, threadFactory)));
          } else {
