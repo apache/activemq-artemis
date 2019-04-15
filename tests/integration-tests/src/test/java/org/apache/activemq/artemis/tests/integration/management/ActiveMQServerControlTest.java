@@ -2455,20 +2455,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Thread.sleep(500);
          csf3 = (ClientSessionFactoryImpl) createSessionFactory(locator);
 
-         ClientSession session1_c1 = csf.createSession();
-         ClientSession session2_c1 = csf.createSession();
+         ClientSession session1_c1 = csf.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session2_c1 = csf.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
 
-         ClientSession session1_c2 = csf2.createSession();
-         ClientSession session2_c2 = csf2.createSession();
-         ClientSession session3_c2 = csf2.createSession();
-         ClientSession session4_c2 = csf2.createSession();
+         ClientSession session1_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session2_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session3_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session4_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
 
-         ClientSession session1_c4 = csf3.createSession();
-         ClientSession session2_c4 = csf3.createSession();
-         ClientSession session3_c4 = csf3.createSession();
+         ClientSession session1_c4 = csf3.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session2_c4 = csf3.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session3_c4 = csf3.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
 
          String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
          String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         System.err.println(connectionsAsJsonString);
          JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
 
@@ -2478,7 +2479,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          //check all fields
          Assert.assertNotEquals("connectionID", "", jsonConnection.getString("connectionID"));
          Assert.assertNotEquals("remoteAddress", "", jsonConnection.getString("remoteAddress"));
-         Assert.assertEquals("users", "", jsonConnection.getString("users"));
+         Assert.assertEquals("users", "guest", jsonConnection.getString("users"));
          Assert.assertNotEquals("creationTime", "", jsonConnection.getString("creationTime"));
          Assert.assertNotEquals("implementation", "", jsonConnection.getString("implementation"));
          Assert.assertNotEquals("protocol", "", jsonConnection.getString("protocol"));
@@ -2490,6 +2491,28 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Assert.assertEquals("connection1 default Order", csf.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
          Assert.assertEquals("connection2 default Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
          Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+
+         //check order by users asc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "users", "asc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection1 users Order", "guest", array.getJsonObject(0).getString("users"));
+         Assert.assertEquals("connection3 users Order", "guest,myUser", array.getJsonObject(1).getString("users"));
+         Assert.assertEquals("connection2 users Order", "myUser", array.getJsonObject(2).getString("users"));
+
+         //check order by users desc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "users", "desc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection2 users Order", "myUser", array.getJsonObject(0).getString("users"));
+         Assert.assertEquals("connection3 users Order", "guest,myUser", array.getJsonObject(1).getString("users"));
+         Assert.assertEquals("connection1 users Order", "guest", array.getJsonObject(2).getString("users"));
 
          //check order by session count desc
          filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "sessionCount", "desc");
