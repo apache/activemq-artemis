@@ -523,6 +523,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_GROUP_REBALANCE = false;
 
+   public static final SimpleString DEFAULT_GROUP_FIRST_KEY = SimpleString.toSimpleString("JMSXFirstInGroupID");
+
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
@@ -1428,6 +1430,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultGroupRebalance() {
       return DEFAULT_GROUP_REBALANCE;
+   }
+
+   public static SimpleString getDefaultGroupFirstKey() {
+      return DEFAULT_GROUP_FIRST_KEY;
    }
 
    public static String getInternalNamingPrefix() {
