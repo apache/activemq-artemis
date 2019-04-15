@@ -242,6 +242,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile int groupBuckets;
 
+   private volatile SimpleString groupFirstKey;
+
    private MessageGroups<Consumer> groups;
 
    private volatile Consumer exclusiveConsumer;
@@ -495,6 +497,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.groupBuckets = groupBuckets == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : groupBuckets;
 
       this.groups = groupMap(this.groupBuckets);
+
+      this.groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
 
       this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : autoDelete;
 
@@ -2552,7 +2556,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (status == HandleStatus.HANDLED) {
 
                   if (redistributor == null) {
-                     handleMessageGroup(ref, consumer, groupConsumer, groupID);
+                     ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
                   }
 
                   deliveriesInTransit.countUp();
@@ -3163,15 +3167,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             HandleStatus status = handle(ref, consumer);
 
             if (status == HandleStatus.HANDLED) {
-
+               final MessageReference reference;
                if (redistributor == null) {
-                  handleMessageGroup(ref, consumer, groupConsumer, groupID);
+                  reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
+               } else {
+                  reference = ref;
                }
 
                messagesAdded.incrementAndGet();
 
                deliveriesInTransit.countUp();
-               proceedDeliver(consumer, ref);
+               proceedDeliver(consumer, reference);
                consumers.reset();
                return true;
             }
@@ -3202,10 +3208,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return groupConsumer;
    }
 
-   private void handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
+   private MessageReference handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
       if (exclusive) {
          if (groupConsumer == null) {
             exclusiveConsumer = consumer;
+            return new GroupFirstMessageReference(groupFirstKey, ref);
          }
          consumers.repeat();
       } else if (groupID != null) {
@@ -3214,10 +3221,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             consumers.repeat();
          } else if (groupConsumer == null) {
             groups.put(groupID, consumer);
+            return new GroupFirstMessageReference(groupFirstKey, ref);
          } else {
             consumers.repeat();
          }
       }
+      return ref;
    }
 
    private void proceedDeliver(Consumer consumer, MessageReference reference) {

@@ -208,6 +208,11 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
          LOG.debug("Message assigned JMSXGroupID := {}", gid);
          LOG.debug("Message assigned JMSXGroupSeq := {}", seq);
          assertEquals("Sequence order should match", sequence.incrementAndGet(), seq);
+         if (i == 0) {
+            assertTrue("Message should be marked with first in Group", message.getBooleanProperty("JMSXFirstInGroupID"));
+         } else {
+            assertFalse("Message should NOT be marked with first in Group", message.propertyExists("JMSXFirstInGroupID"));
+         }
       }
 
       session.close();
