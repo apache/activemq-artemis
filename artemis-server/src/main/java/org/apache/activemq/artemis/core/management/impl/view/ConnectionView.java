@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
@@ -51,7 +51,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
    public JsonObjectBuilder toJson(RemotingConnection connection) {
 
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
-      Set<String> users = new HashSet<>();
+      Set<String> users = new TreeSet<>();
       String jmsSessionClientID = null;
       for (ServerSession session : sessions) {
          String username = session.getUsername() == null ? "" : session.getUsername();
@@ -83,12 +83,12 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          case "remoteAddress":
             return connection.getRemoteAddress();
          case "users":
-            Set<String> users = new HashSet<>();
+            Set<String> users = new TreeSet<>();
             for (ServerSession session : sessions) {
                String username = session.getUsername() == null ? "" : session.getUsername();
                users.add(username);
             }
-            return users;
+            return StringUtil.joinStringList(users, ",");
          case "creationTime":
             return new Date(connection.getCreationTime());
          case "implementation":
