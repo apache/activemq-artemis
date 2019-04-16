@@ -572,8 +572,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       tx.rollback();
 
-      messageQueue.recheckRefCount(session.getSessionContext());
-
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
 
@@ -600,6 +598,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          managementService.sendNotification(notification);
       }
+
+
+      // The check here has to be done after the notification is sent, otherwise the queue will be removed before the consumer.close reach other nodes on a cluster
+      messageQueue.recheckRefCount(session.getSessionContext());
 
       if (server.hasBrokerConsumerPlugins()) {
          server.callBrokerConsumerPlugins(plugin -> plugin.afterCloseConsumer(this, failed));
