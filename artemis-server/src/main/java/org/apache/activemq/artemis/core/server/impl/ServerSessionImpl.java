@@ -153,7 +153,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected volatile boolean started = false;
 
-   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
+   protected static final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
 
    protected final String name;
 
@@ -289,6 +289,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          closeables = new HashSet<>();
       }
       this.closeables.add(closeable);
+   }
+
+   public Map<SimpleString, TempQueueCleanerUpper> getTempQueueCleanUppers() {
+      return tempQueueCleannerUppers;
    }
 
    @Override
