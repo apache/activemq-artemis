@@ -90,6 +90,8 @@ public interface QueueBindingInfo {
 
    int getGroupBuckets();
 
+   SimpleString getGroupFirstKey();
+
    boolean isAutoDelete();
 
    long getAutoDeleteDelay();

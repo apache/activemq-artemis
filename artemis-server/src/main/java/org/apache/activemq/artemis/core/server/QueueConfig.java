@@ -45,6 +45,7 @@ public final class QueueConfig {
    private final long delayBeforeDispatch;
    private final boolean groupRebalance;
    private final int groupBuckets;
+   private final SimpleString groupFirstKey;
    private final boolean configurationManaged;
    private final SimpleString lastValueKey;
    private final boolean nonDestructive;
@@ -74,6 +75,7 @@ public final class QueueConfig {
       private long delayBeforeDispatch;
       private boolean groupRebalance;
       private int groupBuckets;
+      private SimpleString groupFirstKey;
       private boolean autoDelete;
       private long autoDeleteDelay;
       private long autoDeleteMessageCount;
@@ -104,6 +106,7 @@ public final class QueueConfig {
          this.delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
          this.groupRebalance = ActiveMQDefaultConfiguration.getDefaultGroupRebalance();
          this.groupBuckets = ActiveMQDefaultConfiguration.getDefaultGroupBuckets();
+         this.groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
          this.autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated);
          this.autoDeleteDelay = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay();
          this.autoDeleteMessageCount = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount();
@@ -226,6 +229,11 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder groupFirstKey(final SimpleString groupFirstKey) {
+         this.groupFirstKey = groupFirstKey;
+         return this;
+      }
+
 
       public Builder routingType(RoutingType routingType) {
          this.routingType = routingType;
@@ -258,7 +266,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged);
       }
 
    }
@@ -311,6 +319,7 @@ public final class QueueConfig {
                        final boolean purgeOnNoConsumers,
                        final boolean groupRebalance,
                        final int groupBuckets,
+                       final SimpleString groupFirstKey,
                        final boolean autoDelete,
                        final long autoDeleteDelay,
                        final long autoDeleteMessageCount,
@@ -335,6 +344,7 @@ public final class QueueConfig {
       this.delayBeforeDispatch = delayBeforeDispatch;
       this.groupRebalance = groupRebalance;
       this.groupBuckets = groupBuckets;
+      this.groupFirstKey = groupFirstKey;
       this.autoDelete = autoDelete;
       this.autoDeleteDelay = autoDeleteDelay;
       this.autoDeleteMessageCount = autoDeleteMessageCount;
@@ -421,6 +431,10 @@ public final class QueueConfig {
       return groupBuckets;
    }
 
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
    public boolean isConfigurationManaged() {
       return configurationManaged;
    }
@@ -486,6 +500,8 @@ public final class QueueConfig {
          return false;
       if (groupBuckets != that.groupBuckets)
          return false;
+      if (groupFirstKey != null ? !groupFirstKey.equals(that.groupFirstKey) : that.groupFirstKey != null)
+         return false;
       if (autoDelete != that.autoDelete)
          return false;
       if (autoDeleteDelay != that.autoDeleteDelay)
@@ -520,6 +536,7 @@ public final class QueueConfig {
       result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
       result = 31 * result + (groupRebalance ? 1 : 0);
       result = 31 * result + groupBuckets;
+      result = 31 * result + (groupFirstKey != null ? groupFirstKey.hashCode() : 0);
       result = 31 * result + (autoDelete ? 1 : 0);
       result = 31 * result + Long.hashCode(autoDeleteDelay);
       result = 31 * result + Long.hashCode(autoDeleteMessageCount);
@@ -550,6 +567,7 @@ public final class QueueConfig {
          + ", purgeOnNoConsumers=" + purgeOnNoConsumers
          + ", groupRebalance=" + groupRebalance
          + ", groupBuckets=" + groupBuckets
+         + ", groupFirstKey=" + groupFirstKey
          + ", autoDelete=" + autoDelete
          + ", autoDeleteDelay=" + autoDeleteDelay
          + ", autoDeleteMessageCount=" + autoDeleteMessageCount
