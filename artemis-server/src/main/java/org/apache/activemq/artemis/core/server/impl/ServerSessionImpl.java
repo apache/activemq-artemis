@@ -153,7 +153,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected volatile boolean started = false;
 
-   protected static final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
+   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
 
    protected final String name;
 
