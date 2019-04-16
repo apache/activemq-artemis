@@ -28,6 +28,7 @@ public class QueueAttributes implements Serializable {
    public static final String EXCLUSIVE = "exclusive";
    public static final String GROUP_REBALANCE = "group-rebalance";
    public static final String GROUP_BUCKETS = "group-buckets";
+   public static final String GROUP_FIRST_KEY = "group-first-key";
    public static final String LAST_VALUE = "last-value";
    public static final String LAST_VALUE_KEY = "last-value-key";
    public static final String NON_DESTRUCTIVE = "non-destructive";
@@ -46,6 +47,7 @@ public class QueueAttributes implements Serializable {
    private Boolean exclusive;
    private Boolean groupRebalance;
    private Integer groupBuckets;
+   private SimpleString groupFirstKey;
    private Boolean lastValue;
    private SimpleString lastValueKey;
    private Boolean nonDestructive;
@@ -88,6 +90,8 @@ public class QueueAttributes implements Serializable {
             setGroupRebalance(Boolean.valueOf(value));
          } else if (key.equals(GROUP_BUCKETS)) {
             setGroupBuckets(Integer.valueOf(value));
+         } else if (key.equals(GROUP_FIRST_KEY)) {
+            setGroupFirstKey(SimpleString.toSimpleString(value));
          } else if (key.equals(AUTO_DELETE)) {
             setAutoDelete(Boolean.valueOf(value));
          } else if (key.equals(AUTO_DELETE_DELAY)) {
@@ -221,6 +225,15 @@ public class QueueAttributes implements Serializable {
 
    public QueueAttributes setGroupBuckets(Integer groupBuckets) {
       this.groupBuckets = groupBuckets;
+      return this;
+   }
+
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   public QueueAttributes setGroupFirstKey(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
       return this;
    }
 

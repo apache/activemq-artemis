@@ -614,7 +614,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
-      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(false, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), false);
+      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.getDefaultGroupFirstKey(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(false, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), false);
    }
 
    public Queue createQueue(final AddressInfo addressInfo,
@@ -627,6 +627,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean exclusive,
                             final boolean groupRebalance,
                             final int groupBuckets,
+                            final SimpleString groupFirstKey,
                             final boolean lastValue,
                             SimpleString lastValueKey,
                             final boolean nonDestructive,
@@ -638,7 +639,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean autoCreated) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.createQueue(this, getUsername(), addressInfo, name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
-                  exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch,
+                  exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch,
                   delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated);
       }
       final SimpleString unPrefixedName = removePrefix(name);
@@ -660,7 +661,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, as.isAutoCreateAddresses());
+      Queue queue = server.createQueue(art, unPrefixedName, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, as.isAutoCreateAddresses());
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -700,7 +701,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean purgeOnNoConsumers,
                             final boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
-      return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(autoCreated, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), autoCreated);
+      return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.getDefaultGroupFirstKey(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(autoCreated, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), autoCreated);
    }
 
    @Override
@@ -739,12 +740,38 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final Long autoDeleteDelay,
                             final Long autoDeleteMessageCount,
                             final boolean autoCreated) throws Exception {
-      if (exclusive == null || groupRebalance == null || groupBuckets == null || lastValue == null || lastValueKey == null || nonDestructive == null || consumersBeforeDispatch == null || delayBeforeDispatch == null || autoDelete == null || autoDeleteDelay == null || autoDeleteMessageCount == null) {
+      return createQueue(address, name, routingType, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, null, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated);
+   }
+
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString name,
+                            final RoutingType routingType,
+                            final SimpleString filterString,
+                            final boolean temporary,
+                            final boolean durable,
+                            final int maxConsumers,
+                            final boolean purgeOnNoConsumers,
+                            final Boolean exclusive,
+                            final Boolean groupRebalance,
+                            final Integer groupBuckets,
+                            final SimpleString groupFirstKey,
+                            final Boolean lastValue,
+                            final SimpleString lastValueKey,
+                            final Boolean nonDestructive,
+                            final Integer consumersBeforeDispatch,
+                            final Long delayBeforeDispatch,
+                            final Boolean autoDelete,
+                            final Long autoDeleteDelay,
+                            final Long autoDeleteMessageCount,
+                            final boolean autoCreated) throws Exception {
+      if (exclusive == null || groupRebalance == null || groupBuckets == null || groupFirstKey == null || lastValue == null || lastValueKey == null || nonDestructive == null || consumersBeforeDispatch == null || delayBeforeDispatch == null || autoDelete == null || autoDeleteDelay == null || autoDeleteMessageCount == null) {
          AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
                  exclusive == null ? as.isDefaultExclusiveQueue() : exclusive,
                  groupRebalance == null ? as.isDefaultGroupRebalance() : groupRebalance,
                  groupBuckets == null ? as.getDefaultGroupBuckets() : groupBuckets,
+                 groupFirstKey == null ? as.getDefaultGroupFirstKey() : groupFirstKey,
                  lastValue == null ? as.isDefaultLastValueQueue() : lastValue,
                  lastValueKey == null ? as.getDefaultLastValueKey() : lastValueKey,
                  nonDestructive == null ? as.isDefaultNonDestructive() : nonDestructive,
@@ -756,7 +783,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                  autoCreated);
       } else {
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
-                 exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated);
+                 exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated);
       }
    }
 
@@ -775,14 +802,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable, boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
-      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(autoCreated, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), autoCreated);
+      return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isDefaultExclusiveQueue(), as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.getDefaultGroupFirstKey(), as.isDefaultLastValueQueue(), as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(autoCreated, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), autoCreated);
    }
 
    @Override
    public Queue createQueue(AddressInfo addressInfo, SimpleString name, SimpleString filterString, boolean temporary, boolean durable, Boolean exclusive, Boolean lastValue, boolean autoCreated) throws Exception {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(addressInfo.getName().toString());
       return createQueue(addressInfo, name, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(),
-                         exclusive == null ? as.isDefaultExclusiveQueue() : exclusive, as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), lastValue == null ? as.isDefaultLastValueQueue() : lastValue, as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(autoCreated, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), autoCreated);
+                         exclusive == null ? as.isDefaultExclusiveQueue() : exclusive, as.isDefaultGroupRebalance(), as.getDefaultGroupBuckets(), as.getDefaultGroupFirstKey(), lastValue == null ? as.isDefaultLastValueQueue() : lastValue, as.getDefaultLastValueKey(), as.isDefaultNonDestructive(), as.getDefaultConsumersBeforeDispatch(), as.getDefaultDelayBeforeDispatch(), ActiveMQServerImpl.isAutoDelete(autoCreated, as), as.getAutoDeleteQueuesDelay(), as.getAutoDeleteQueuesMessageCount(), autoCreated);
    }
 
    @Override
@@ -843,6 +870,29 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  Boolean exclusive,
                                  Boolean groupRebalance,
                                  Integer groupBuckets,
+                                 Boolean lastValue,
+                                 SimpleString lastValueKey,
+                                 Boolean nonDestructive,
+                                 Integer consumersBeforeDispatch,
+                                 Long delayBeforeDispatch,
+                                 Boolean autoDelete,
+                                 Long autoDeleteDelay,
+                                 Long autoDeleteMessageCount) throws Exception {
+      createSharedQueue(address, name, routingType, filterString, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, null, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount);
+   }
+
+   @Override
+   public void createSharedQueue(SimpleString address,
+                                 SimpleString name,
+                                 RoutingType routingType,
+                                 SimpleString filterString,
+                                 boolean durable,
+                                 Integer maxConsumers,
+                                 Boolean purgeOnNoConsumers,
+                                 Boolean exclusive,
+                                 Boolean groupRebalance,
+                                 Integer groupBuckets,
+                                 SimpleString groupFirstKey,
                                  Boolean lastValue,
                                  SimpleString lastValueKey,
                                  Boolean nonDestructive,

@@ -242,6 +242,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile int groupBuckets;
 
+   private volatile SimpleString groupFirstKey;
+
    private MessageGroups<Consumer> groups;
 
    private volatile Consumer exclusiveConsumer;
@@ -428,6 +430,38 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
                      final Filter filter,
@@ -441,6 +475,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final Boolean exclusive,
                      final Boolean groupRebalance,
                      final Integer groupBuckets,
+                     final SimpleString groupFirstKey,
                      final Boolean nonDestructive,
                      final Integer consumersBeforeDispatch,
                      final Long delayBeforeDispatch,
@@ -495,6 +530,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.groupBuckets = groupBuckets == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : groupBuckets;
 
       this.groups = groupMap(this.groupBuckets);
+
+      this.groupFirstKey = groupFirstKey == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : groupFirstKey;
 
       this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : autoDelete;
 
@@ -745,6 +782,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public synchronized void setGroupRebalance(boolean groupRebalance) {
       this.groupRebalance = groupRebalance;
    }
+
+   @Override
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   @Override
+   public synchronized void setGroupFirstKey(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+   }
+
 
    @Override
    public boolean isConfigurationManaged() {
@@ -2552,7 +2600,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (status == HandleStatus.HANDLED) {
 
                   if (redistributor == null) {
-                     handleMessageGroup(ref, consumer, groupConsumer, groupID);
+                     ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
                   }
 
                   deliveriesInTransit.countUp();
@@ -3163,15 +3211,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             HandleStatus status = handle(ref, consumer);
 
             if (status == HandleStatus.HANDLED) {
-
+               final MessageReference reference;
                if (redistributor == null) {
-                  handleMessageGroup(ref, consumer, groupConsumer, groupID);
+                  reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
+               } else {
+                  reference = ref;
                }
 
                messagesAdded.incrementAndGet();
 
                deliveriesInTransit.countUp();
-               proceedDeliver(consumer, ref);
+               proceedDeliver(consumer, reference);
                consumers.reset();
                return true;
             }
@@ -3202,10 +3252,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return groupConsumer;
    }
 
-   private void handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
+   private MessageReference handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
       if (exclusive) {
          if (groupConsumer == null) {
             exclusiveConsumer = consumer;
+            return new GroupFirstMessageReference(groupFirstKey, ref);
          }
          consumers.repeat();
       } else if (groupID != null) {
@@ -3214,10 +3265,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             consumers.repeat();
          } else if (groupConsumer == null) {
             groups.put(groupID, consumer);
+            return new GroupFirstMessageReference(groupFirstKey, ref);
          } else {
             consumers.repeat();
          }
       }
+      return ref;
    }
 
    private void proceedDeliver(Consumer consumer, MessageReference reference) {

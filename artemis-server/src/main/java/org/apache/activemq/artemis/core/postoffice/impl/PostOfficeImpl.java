@@ -478,6 +478,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Boolean exclusive,
                                    Boolean groupRebalance,
                                    Integer groupBuckets,
+                                   SimpleString groupFirstKey,
                                    Boolean nonDestructive,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,
@@ -537,6 +538,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (groupBuckets != null && queue.getGroupBuckets() != groupBuckets.intValue()) {
                changed = true;
                queue.setGroupBuckets(groupBuckets);
+            }
+            if (groupFirstKey != null && !groupFirstKey.equals(queue.getGroupFirstKey())) {
+               changed = true;
+               queue.setGroupFirstKey(groupFirstKey);
             }
             if (nonDestructive != null && queue.isNonDestructive() != nonDestructive.booleanValue()) {
                changed = true;

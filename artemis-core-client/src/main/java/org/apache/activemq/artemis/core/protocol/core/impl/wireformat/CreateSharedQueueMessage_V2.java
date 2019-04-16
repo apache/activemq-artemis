@@ -29,6 +29,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
    private Boolean exclusive;
    private Boolean groupRebalance;
    private Integer groupBuckets;
+   private SimpleString groupFirstKey;
    private Boolean lastValue;
    private SimpleString lastValueKey;
    private Boolean nonDestructive;
@@ -48,6 +49,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
                                       final Boolean exclusive,
                                       final Boolean groupRebalance,
                                       final Integer groupBuckets,
+                                      final SimpleString groupFirstKey,
                                       final Boolean lastValue,
                                       final SimpleString lastValueKey,
                                       final Boolean nonDestructive,
@@ -69,6 +71,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.exclusive = exclusive;
       this.groupRebalance = groupRebalance;
       this.groupBuckets = groupBuckets;
+      this.groupFirstKey = groupFirstKey;
       this.lastValue = lastValue;
       this.lastValueKey = lastValueKey;
       this.nonDestructive = nonDestructive;
@@ -172,6 +175,14 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.groupBuckets = groupBuckets;
    }
 
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   public void setGroupBuckets(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+   }
+
    public Boolean isAutoDelete() {
       return autoDelete;
    }
@@ -209,6 +220,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buff.append(", exclusive=" + exclusive);
       buff.append(", groupRebalance=" + groupRebalance);
       buff.append(", groupBuckets=" + groupBuckets);
+      buff.append(", groupFirstKey=" + groupFirstKey);
       buff.append(", lastValue=" + lastValue);
       buff.append(", lastValueKey=" + lastValueKey);
       buff.append(", nonDestructive=" + nonDestructive);
@@ -243,7 +255,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       BufferHelper.writeNullableBoolean(buffer, autoDelete);
       BufferHelper.writeNullableLong(buffer, autoDeleteDelay);
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
-
+      buffer.writeNullableSimpleString(groupFirstKey);
    }
 
    @Override
@@ -271,6 +283,9 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          autoDeleteDelay = BufferHelper.readNullableLong(buffer);
          autoDeleteMessageCount = BufferHelper.readNullableLong(buffer);
       }
+      if (buffer.readableBytes() > 0) {
+         groupFirstKey = buffer.readNullableSimpleString();
+      }
    }
 
    @Override
@@ -288,6 +303,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
       result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
       result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
+      result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
       result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
       result = prime * result + (lastValueKey == null ? 0 : lastValueKey.hashCode());
       result = prime * result + (nonDestructive == null ? 0 : nonDestructive ? 1231 : 1237);
@@ -354,6 +370,11 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          if (other.groupBuckets != null)
             return false;
       } else if (!groupBuckets.equals(other.groupBuckets))
+         return false;
+      if (groupFirstKey == null) {
+         if (other.groupFirstKey != null)
+            return false;
+      } else if (!groupFirstKey.equals(other.groupFirstKey))
          return false;
       if (lastValue == null) {
          if (other.lastValue != null)

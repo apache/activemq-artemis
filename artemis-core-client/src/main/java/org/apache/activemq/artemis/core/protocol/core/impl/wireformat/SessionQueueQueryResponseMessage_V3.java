@@ -40,6 +40,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    protected Integer groupBuckets;
 
+   protected SimpleString groupFirstKey;
+
    protected Boolean lastValue;
 
    protected SimpleString lastValueKey;
@@ -59,11 +61,11 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    protected Integer defaultConsumerWindowSize;
 
    public SessionQueueQueryResponseMessage_V3(final QueueQueryResult result) {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers(), result.isExclusive(), result.isGroupRebalance(), result.getGroupBuckets(), result.isLastValue(), result.getLastValueKey(), result.isNonDestructive(), result.getConsumersBeforeDispatch(), result.getDelayBeforeDispatch(), result.isAutoDelete(), result.getAutoDeleteDelay(), result.getAutoDeleteMessageCount(), result.getDefaultConsumerWindowSize());
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers(), result.isExclusive(), result.isGroupRebalance(), result.getGroupBuckets(), result.getGroupFirstKey(), result.isLastValue(), result.getLastValueKey(), result.isNonDestructive(), result.getConsumersBeforeDispatch(), result.getDelayBeforeDispatch(), result.isAutoDelete(), result.getAutoDeleteDelay(), result.getAutoDeleteMessageCount(), result.getDefaultConsumerWindowSize());
    }
 
    public SessionQueueQueryResponseMessage_V3() {
-      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1, null, null,null, null, null, null, null, null, null, null, null, null);
+      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1, null, null,null, null, null, null, null, null, null, null, null, null, null);
    }
 
    private SessionQueueQueryResponseMessage_V3(final SimpleString name,
@@ -82,6 +84,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
                                                final Boolean exclusive,
                                                final Boolean groupRebalance,
                                                final Integer groupBuckets,
+                                               final SimpleString groupFirstKey,
                                                final Boolean lastValue,
                                                final SimpleString lastValueKey,
                                                final Boolean nonDestructive,
@@ -124,6 +127,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       this.groupRebalance = groupRebalance;
 
       this.groupBuckets = groupBuckets;
+
+      this.groupFirstKey = groupFirstKey;
 
       this.lastValue = lastValue;
 
@@ -248,6 +253,14 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       this.groupBuckets = groupBuckets;
    }
 
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   public void setGroupFirstKey(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+   }
+
    public Boolean isAutoDelete() {
       return autoDelete;
    }
@@ -279,6 +292,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       BufferHelper.writeNullableBoolean(buffer, autoDelete);
       BufferHelper.writeNullableLong(buffer, autoDeleteDelay);
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
+      buffer.writeNullableSimpleString(groupFirstKey);
 
    }
 
@@ -306,7 +320,9 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
          autoDelete = BufferHelper.readNullableBoolean(buffer);
          autoDeleteDelay = BufferHelper.readNullableLong(buffer);
          autoDeleteMessageCount = BufferHelper.readNullableLong(buffer);
-
+      }
+      if (buffer.readableBytes() > 0) {
+         groupFirstKey = buffer.readNullableSimpleString();
       }
    }
 
@@ -321,6 +337,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
       result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
       result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
+      result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
       result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
       result = prime * result + (lastValueKey == null ? 0 : lastValueKey.hashCode());
       result = prime * result + (nonDestructive == null ? 0 : nonDestructive ? 1231 : 1237);
@@ -350,6 +367,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       buff.append(", exclusive=" + exclusive);
       buff.append(", groupRebalance=" + groupRebalance);
       buff.append(", groupBuckets=" + groupBuckets);
+      buff.append(", groupFirstKey=" + groupFirstKey);
       buff.append(", lastValue=" + lastValue);
       buff.append(", lastValueKey=" + lastValueKey);
       buff.append(", nonDestructive=" + nonDestructive);
@@ -364,7 +382,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType(), isExclusive(), isGroupRebalance(), getGroupBuckets(), isLastValue(), getLastValueKey(), isNonDestructive(), getConsumersBeforeDispatch(), getDelayBeforeDispatch(), isAutoDelete(), getAutoDeleteDelay(), getAutoDeleteMessageCount(), getDefaultConsumerWindowSize());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType(), isExclusive(), isGroupRebalance(), getGroupBuckets(), getGroupFirstKey(), isLastValue(), getLastValueKey(), isNonDestructive(), getConsumersBeforeDispatch(), getDelayBeforeDispatch(), isAutoDelete(), getAutoDeleteDelay(), getAutoDeleteMessageCount(), getDefaultConsumerWindowSize());
    }
 
    @Override
@@ -394,6 +412,11 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
          if (other.groupBuckets != null)
             return false;
       } else if (!groupBuckets.equals(other.groupBuckets))
+         return false;
+      if (groupFirstKey == null) {
+         if (other.groupFirstKey != null)
+            return false;
+      } else if (!groupFirstKey.equals(other.groupFirstKey))
          return false;
       if (lastValue == null) {
          if (other.lastValue != null)
