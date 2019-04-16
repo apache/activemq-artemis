@@ -154,6 +154,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .exclusive(queueBindingInfo.isExclusive())
             .groupRebalance(queueBindingInfo.isGroupRebalance())
             .groupBuckets(queueBindingInfo.getGroupBuckets())
+            .groupFirstKey(queueBindingInfo.getGroupFirstKey())
             .lastValue(queueBindingInfo.isLastValue())
             .lastValueKey(queueBindingInfo.getLastValueKey())
             .nonDestructive(queueBindingInfo.isNonDestructive())

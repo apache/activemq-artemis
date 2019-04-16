@@ -38,6 +38,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private Integer groupBuckets;
 
+   private SimpleString groupFirstKey;
+
    private Boolean lastValue;
 
    private SimpleString lastValueKey;
@@ -74,6 +76,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          queueAttributes.getExclusive(),
          queueAttributes.getGroupRebalance(),
          queueAttributes.getGroupBuckets(),
+         queueAttributes.getGroupFirstKey(),
          queueAttributes.getLastValue(),
          queueAttributes.getLastValueKey(),
          queueAttributes.getNonDestructive(),
@@ -98,6 +101,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
                                 final Boolean exclusive,
                                 final Boolean groupRebalance,
                                 final Integer groupBuckets,
+                                final SimpleString groupFirstKey,
                                 final Boolean lastValue,
                                 final SimpleString lastValueKey,
                                 final Boolean nonDestructive,
@@ -121,6 +125,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.exclusive = exclusive;
       this.groupRebalance = groupRebalance;
       this.groupBuckets = groupBuckets;
+      this.groupFirstKey = groupFirstKey;
       this.lastValue = lastValue;
       this.lastValueKey = lastValueKey;
       this.nonDestructive = nonDestructive;
@@ -147,6 +152,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", exclusive=" + exclusive);
       buff.append(", groupRebalance=" + groupRebalance);
       buff.append(", groupBuckets=" + groupBuckets);
+      buff.append(", groupFirstKey=" + groupFirstKey);
       buff.append(", lastValue=" + lastValue);
       buff.append(", lastValueKey=" + lastValue);
       buff.append(", nonDestructive=" + nonDestructive);
@@ -256,6 +262,14 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.groupBuckets = groupBuckets;
    }
 
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   public void setGroupFirstKey(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+   }
+
    public Boolean isAutoDelete() {
       return autoDelete;
    }
@@ -298,6 +312,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       BufferHelper.writeNullableBoolean(buffer, autoDelete);
       BufferHelper.writeNullableLong(buffer, autoDeleteDelay);
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
+      buffer.writeNullableSimpleString(groupFirstKey);
 
    }
 
@@ -323,6 +338,9 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          autoDeleteDelay = BufferHelper.readNullableLong(buffer);
          autoDeleteMessageCount = BufferHelper.readNullableLong(buffer);
       }
+      if (buffer.readableBytes() > 0) {
+         groupFirstKey = buffer.readNullableSimpleString();
+      }
    }
 
    @Override
@@ -336,6 +354,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
       result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
       result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
+      result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
       result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
       result = prime * result + (lastValueKey == null ? 0 : lastValueKey.hashCode());
       result = prime * result + (nonDestructive == null ? 0 : nonDestructive ? 1231 : 1237);
@@ -376,6 +395,11 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          if (other.groupBuckets != null)
             return false;
       } else if (!groupBuckets.equals(other.groupBuckets))
+         return false;
+      if (groupFirstKey == null) {
+         if (other.groupFirstKey != null)
+            return false;
+      } else if (!groupFirstKey.equals(other.groupFirstKey))
          return false;
       if (lastValue == null) {
          if (other.lastValue != null)

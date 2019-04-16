@@ -118,6 +118,10 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setGroupRebalance(boolean groupRebalance);
 
+   SimpleString getGroupFirstKey();
+
+   void setGroupFirstKey(SimpleString groupFirstKey);
+
    boolean isConfigurationManaged();
 
    void setConfigurationManaged(boolean configurationManaged);

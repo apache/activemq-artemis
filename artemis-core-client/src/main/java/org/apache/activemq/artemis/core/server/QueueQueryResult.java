@@ -53,6 +53,8 @@ public class QueueQueryResult {
 
    private Integer groupBuckets;
 
+   private SimpleString groupFirstKey;
+
    private Boolean lastValue;
 
    private SimpleString lastValueKey;
@@ -87,6 +89,7 @@ public class QueueQueryResult {
                            final Boolean exclusive,
                            final Boolean groupRebalance,
                            final Integer groupBuckets,
+                           final SimpleString groupFirstKey,
                            final Boolean lastValue,
                            final SimpleString lastValueKey,
                            final Boolean nonDestructive,
@@ -127,6 +130,8 @@ public class QueueQueryResult {
       this.groupRebalance = groupRebalance;
 
       this.groupBuckets = groupBuckets;
+
+      this.groupFirstKey = groupFirstKey;
 
       this.lastValue = lastValue;
 
@@ -237,6 +242,10 @@ public class QueueQueryResult {
 
    public Integer getGroupBuckets() {
       return groupBuckets;
+   }
+
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
    }
 
    public Boolean isAutoDelete() {
