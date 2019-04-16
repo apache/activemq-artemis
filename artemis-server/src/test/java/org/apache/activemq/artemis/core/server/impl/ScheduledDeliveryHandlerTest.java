@@ -859,6 +859,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public SimpleString getGroupFirstKey() {
+         return null;
+      }
+
+      @Override
+      public void setGroupFirstKey(SimpleString groupFirstKey) {
+
+      }
+
+      @Override
       public boolean isConfigurationManaged() {
          return false;
       }

@@ -53,6 +53,7 @@ public class FakePostOffice implements PostOffice {
                                    Boolean exclusive,
                                    Boolean groupRebalance,
                                    Integer groupBuckets,
+                                   SimpleString groupFirstKey,
                                    Boolean lastValue,
                                    Integer consumersBeforeDispatch,
                                    Long delayBeforeDispatch,

@@ -419,6 +419,12 @@ public interface ActiveMQServer extends ServiceComponent {
                      boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                     boolean durable, boolean temporary, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, SimpleString groupFirstKey,
+                     boolean lastValue, SimpleString lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch,
+                     boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception;
+
+
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers,
                      Boolean purgeOnNoConsumers, boolean autoCreateAddress) throws Exception;
 
@@ -435,6 +441,11 @@ public interface ActiveMQServer extends ServiceComponent {
                      Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets, Boolean lastValue, SimpleString lastValueKey, Boolean nonDestructive,
                      Integer consumersBeforeDispatch, Long delayBeforeDispatch, Boolean autoDelete, Long autoDeleteDelay, Long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception;
 
+   Queue createQueue(AddressInfo addressInfo, SimpleString queueName, SimpleString filter,
+                     SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers,
+                     Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets, SimpleString groupFirstKey, Boolean lastValue, SimpleString lastValueKey, Boolean nonDestructive,
+                     Integer consumersBeforeDispatch, Long delayBeforeDispatch, Boolean autoDelete, Long autoDeleteDelay, Long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception;
+
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user, boolean durable, boolean temporary, boolean ignoreIfExists, boolean transientQueue,
                      boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, boolean autoCreateAddress) throws Exception;
@@ -449,6 +460,12 @@ public interface ActiveMQServer extends ServiceComponent {
                      int groupBuckets, boolean lastValue, SimpleString lastValueKey, boolean nonDestructive,
                      int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception;
 
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                     SimpleString user, boolean durable, boolean temporary, boolean ignoreIfExists, boolean transientQueue,
+                     boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance,
+                     int groupBuckets, SimpleString groupFirstKey, boolean lastValue, SimpleString lastValueKey, boolean nonDestructive,
+                     int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception;
+
    @Deprecated
    Queue createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable, boolean temporary) throws Exception;
 
@@ -457,6 +474,27 @@ public interface ActiveMQServer extends ServiceComponent {
 
    @Deprecated
    Queue deployQueue(SimpleString address, SimpleString queue, SimpleString filter, boolean durable, boolean temporary) throws Exception;
+
+   void createSharedQueue(SimpleString address,
+                          RoutingType routingType,
+                          SimpleString name,
+                          SimpleString filterString,
+                          SimpleString user,
+                          boolean durable,
+                          int maxConsumers,
+                          boolean purgeOnNoConsumers,
+                          boolean exclusive,
+                          boolean groupRebalance,
+                          int groupBuckets,
+                          SimpleString groupFirstKey,
+                          boolean lastValue,
+                          SimpleString lastValueKey,
+                          boolean nonDestructive,
+                          int consumersBeforeDispatch,
+                          long delayBeforeDispatch,
+                          boolean autoDelete,
+                          long autoDeleteDelay,
+                          long autoDeleteMessageCount) throws Exception;
 
    Queue locateQueue(SimpleString queueName);
 
@@ -562,6 +600,20 @@ public interface ActiveMQServer extends ServiceComponent {
                      Boolean exclusive,
                      Boolean groupRebalance,
                      Integer groupBuckets,
+                     Boolean nonDestructive,
+                     Integer consumersBeforeDispatch,
+                     Long delayBeforeDispatch,
+                     String user) throws Exception;
+
+   Queue updateQueue(String name,
+                     RoutingType routingType,
+                     String filterString,
+                     Integer maxConsumers,
+                     Boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean groupRebalance,
+                     Integer groupBuckets,
+                     String groupFirstQueue,
                      Boolean nonDestructive,
                      Integer consumersBeforeDispatch,
                      Long delayBeforeDispatch,

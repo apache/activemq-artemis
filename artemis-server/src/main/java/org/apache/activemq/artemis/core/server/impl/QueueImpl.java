@@ -428,6 +428,38 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
                      final Filter filter,
@@ -441,6 +473,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final Boolean exclusive,
                      final Boolean groupRebalance,
                      final Integer groupBuckets,
+                     final SimpleString groupFirstKey,
                      final Boolean nonDestructive,
                      final Integer consumersBeforeDispatch,
                      final Long delayBeforeDispatch,
@@ -496,7 +529,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.groups = groupMap(this.groupBuckets);
 
-      this.groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
+      this.groupFirstKey = groupFirstKey == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : groupFirstKey;
 
       this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : autoDelete;
 
@@ -747,6 +780,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public synchronized void setGroupRebalance(boolean groupRebalance) {
       this.groupRebalance = groupRebalance;
    }
+
+   @Override
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   @Override
+   public synchronized void setGroupFirstKey(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+   }
+
 
    @Override
    public boolean isConfigurationManaged() {

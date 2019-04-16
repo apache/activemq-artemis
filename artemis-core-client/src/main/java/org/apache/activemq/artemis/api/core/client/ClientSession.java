@@ -163,6 +163,8 @@ public interface ClientSession extends XAResource, AutoCloseable {
 
       Integer getGroupBuckets();
 
+      SimpleString getGroupFirstKey();
+
       Boolean isAutoDelete();
 
       Long getAutoDeleteDelay();

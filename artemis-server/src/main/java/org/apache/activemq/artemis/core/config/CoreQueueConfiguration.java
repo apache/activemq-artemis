@@ -41,6 +41,8 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Integer groupBuckets;
 
+   private String groupFirstKey;
+
    private Boolean lastValue;
 
    private String lastValueKey;
@@ -90,6 +92,10 @@ public class CoreQueueConfiguration implements Serializable {
 
    public Integer getGroupBuckets() {
       return groupBuckets;
+   }
+
+   public String getGroupFirstKey() {
+      return groupFirstKey;
    }
 
    public Boolean isLastValue() {
@@ -199,6 +205,11 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
+   public CoreQueueConfiguration setGroupFirstKey(String groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+      return this;
+   }
+
    public CoreQueueConfiguration setLastValue(Boolean lastValue) {
       this.lastValue = lastValue;
       return this;
@@ -244,6 +255,7 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
       result = prime * result + ((groupRebalance == null) ? 0 : groupRebalance.hashCode());
       result = prime * result + ((groupBuckets == null) ? 0 : groupBuckets.hashCode());
+      result = prime * result + ((groupFirstKey == null) ? 0 : groupFirstKey.hashCode());
       result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
       result = prime * result + ((lastValueKey == null) ? 0 : lastValueKey.hashCode());
       result = prime * result + ((nonDestructive == null) ? 0 : nonDestructive.hashCode());
@@ -311,6 +323,13 @@ public class CoreQueueConfiguration implements Serializable {
          return false;
       }
 
+      if (groupFirstKey == null) {
+         if (other.groupFirstKey != null)
+            return false;
+      } else if (!groupFirstKey.equals(other.groupFirstKey)) {
+         return false;
+      }
+
       if (lastValue == null) {
          if (other.lastValue != null)
             return false;
@@ -363,6 +382,7 @@ public class CoreQueueConfiguration implements Serializable {
          ", exclusive=" + exclusive +
          ", groupRebalance=" + groupRebalance +
          ", groupBuckets=" + groupBuckets +
+         ", groupFirstKey=" + groupFirstKey +
          ", lastValue=" + lastValue +
          ", lastValueKey=" + lastValueKey +
          ", nonDestructive=" + nonDestructive +

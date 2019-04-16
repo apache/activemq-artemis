@@ -66,6 +66,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public int groupBuckets;
 
+   public SimpleString groupFirstKey;
+
    public boolean autoDelete;
 
    public long autoDeleteDelay;
@@ -112,6 +114,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          groupRebalance +
          ", groupBuckets=" +
          groupBuckets +
+         ", groupFirstKey=" +
+         groupFirstKey +
          ", autoDelete=" +
          autoDelete +
          ", autoDeleteDelay=" +
@@ -131,6 +135,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final boolean exclusive,
                                          final boolean groupRebalance,
                                          final int groupBuckets,
+                                         final SimpleString groupFirstKey,
                                          final boolean lastValue,
                                          final SimpleString lastValueKey,
                                          final boolean nonDestructive,
@@ -151,6 +156,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.exclusive = exclusive;
       this.groupRebalance = groupRebalance;
       this.groupBuckets = groupBuckets;
+      this.groupFirstKey = groupFirstKey;
       this.lastValue = lastValue;
       this.lastValueKey = lastValueKey;
       this.nonDestructive = nonDestructive;
@@ -326,6 +332,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   @Override
    public boolean isAutoDelete() {
       return autoDelete;
    }
@@ -431,6 +442,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          autoDeleteMessageCount = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount();
       }
+      if (buffer.readableBytes() > 0) {
+         groupFirstKey = buffer.readNullableSimpleString();
+      } else {
+         groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
+      }
    }
 
    @Override
@@ -455,6 +471,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeBoolean(autoDelete);
       buffer.writeLong(autoDeleteDelay);
       buffer.writeLong(autoDeleteMessageCount);
+      buffer.writeNullableSimpleString(groupFirstKey);
    }
 
    @Override
@@ -476,8 +493,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_INT +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_LONG +
-         DataConstants.SIZE_LONG;
-
+         DataConstants.SIZE_LONG +
+         SimpleString.sizeofNullableString(groupFirstKey);
    }
 
    private SimpleString createMetadata() {
