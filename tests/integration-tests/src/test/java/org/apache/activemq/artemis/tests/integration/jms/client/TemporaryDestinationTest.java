@@ -26,6 +26,8 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -204,4 +206,20 @@ public class TemporaryDestinationTest extends JMSTestBase {
       }
    }
 
+   @Test
+   public void testForTempQueueCleanerUpperLeak() throws Exception {
+      try {
+         conn = createConnection();
+         Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         TemporaryQueue temporaryQueue = s.createTemporaryQueue();
+         temporaryQueue.delete();
+         for (ServerSession serverSession : server.getSessions()) {
+            assertEquals(0, ((ServerSessionImpl)serverSession).getTempQueueCleanUppers().size());
+         }
+      } finally {
+         if (conn != null) {
+            conn.close();
+         }
+      }
+   }
 }
