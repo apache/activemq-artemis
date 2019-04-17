@@ -3256,7 +3256,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (exclusive) {
          if (groupConsumer == null) {
             exclusiveConsumer = consumer;
-            return new GroupFirstMessageReference(groupFirstKey, ref);
+            if (groupFirstKey != null) {
+               return new GroupFirstMessageReference(groupFirstKey, ref);
+            }
          }
          consumers.repeat();
       } else if (groupID != null) {
@@ -3265,7 +3267,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             consumers.repeat();
          } else if (groupConsumer == null) {
             groups.put(groupID, consumer);
-            return new GroupFirstMessageReference(groupFirstKey, ref);
+            if (groupFirstKey != null) {
+               return new GroupFirstMessageReference(groupFirstKey, ref);
+            }
          } else {
             consumers.repeat();
          }

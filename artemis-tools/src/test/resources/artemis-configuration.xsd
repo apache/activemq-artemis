@@ -3056,7 +3056,7 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="default-group-first-key" type="xsd:string" default="JMSXFirstInGroupID" maxOccurs="1" minOccurs="0">
+            <xsd:element name="default-group-first-key" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      key used to mark a message is first in a group for a consumer

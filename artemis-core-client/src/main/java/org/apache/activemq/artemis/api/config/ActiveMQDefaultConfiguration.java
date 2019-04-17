@@ -523,7 +523,7 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_GROUP_REBALANCE = false;
 
-   public static final SimpleString DEFAULT_GROUP_FIRST_KEY = SimpleString.toSimpleString("JMSXFirstInGroupID");
+   public static final SimpleString DEFAULT_GROUP_FIRST_KEY = null;
 
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 

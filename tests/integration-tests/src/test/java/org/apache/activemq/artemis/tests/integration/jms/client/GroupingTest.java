@@ -30,7 +30,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.UUID;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -521,17 +520,10 @@ public class GroupingTest extends JMSTestBase {
       ctx.close();
    }
 
-   @Test
-   public void testDefaultGroupFirstKey() throws Exception {
-      testGroupFirstKey(null);
-   }
 
    @Test
-   public void testCustomGroupFirstKey() throws Exception {
-      testGroupFirstKey("my-custom-key");
-   }
-
-   private void testGroupFirstKey(String customFirstGroupKey) throws Exception {
+   public void testGroupFirstKey() throws Exception {
+      String customFirstGroupKey = "my-custom-key";
       ConnectionFactory fact = getCF();
       Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
       Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
@@ -570,7 +562,6 @@ public class GroupingTest extends JMSTestBase {
 
       ctx.commit();
 
-      String firstGroupKey = customFirstGroupKey == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey().toString() : customFirstGroupKey;
       //First set of msgs should go to the first consumer only
       for (int j = 0; j < 10; j++) {
          TextMessage tm = (TextMessage) consumer1.receive(10000);
@@ -579,9 +570,9 @@ public class GroupingTest extends JMSTestBase {
          assertEquals("Message" + j, tm.getText());
          assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
          if (j == 0) {
-            assertTrue(tm.getBooleanProperty(firstGroupKey));
+            assertTrue(tm.getBooleanProperty(customFirstGroupKey));
          } else {
-            assertFalse(tm.getBooleanProperty(firstGroupKey));
+            assertFalse(tm.propertyExists(customFirstGroupKey));
          }
       }
 
@@ -598,9 +589,9 @@ public class GroupingTest extends JMSTestBase {
          assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
 
          if (j == 10) {
-            assertTrue(tm.getBooleanProperty(firstGroupKey));
+            assertTrue(tm.getBooleanProperty(customFirstGroupKey));
          } else {
-            assertFalse(tm.getBooleanProperty(firstGroupKey));
+            assertFalse(tm.propertyExists(customFirstGroupKey));
          }
       }
 
@@ -617,9 +608,9 @@ public class GroupingTest extends JMSTestBase {
          assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
 
          if (j == 20) {
-            assertTrue(tm.getBooleanProperty(firstGroupKey));
+            assertTrue(tm.getBooleanProperty(customFirstGroupKey));
          } else {
-            assertFalse(tm.getBooleanProperty(firstGroupKey));
+            assertFalse(tm.propertyExists(customFirstGroupKey));
          }
       }
       ctx.commit();
