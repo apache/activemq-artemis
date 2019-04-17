@@ -44,11 +44,7 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.QUEUE_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TEMP_QUEUE_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TEMP_TOPIC_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TOPIC_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.toAddress;
 
 import java.nio.charset.StandardCharsets;
@@ -63,11 +59,7 @@ import java.util.Set;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageEOFException;
-import javax.jms.Queue;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
-import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -171,12 +163,12 @@ public class CoreAmqpConverter {
       Destination destination = message.getJMSDestination();
       if (destination != null) {
          properties.setTo(toAddress(destination));
-         maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, destinationType(destination));
+         maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(destination));
       }
       Destination replyTo = message.getJMSReplyTo();
       if (replyTo != null) {
          properties.setReplyTo(toAddress(replyTo));
-         maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationType(replyTo));
+         maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(replyTo));
       }
 
       Object correlationID = message.getInnerMessage().getCorrelationID();
@@ -512,22 +504,5 @@ public class CoreAmqpConverter {
       return map;
    }
 
-   private static byte destinationType(Destination destination) {
-      if (destination instanceof Queue) {
-         if (destination instanceof TemporaryQueue) {
-            return TEMP_QUEUE_TYPE;
-         } else {
-            return QUEUE_TYPE;
-         }
-      } else if (destination instanceof Topic) {
-         if (destination instanceof TemporaryTopic) {
-            return TEMP_TOPIC_TYPE;
-         } else {
-            return TOPIC_TYPE;
-         }
-      }
-
-      throw new IllegalArgumentException("Unknown Destination Type passed to JMS Transformer.");
-   }
 
 }
