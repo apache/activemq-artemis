@@ -394,7 +394,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
-   protected static String prefixOf(Destination dest) {
+   public static String prefixOf(Destination dest) {
       String prefix = "";
       if (dest instanceof ActiveMQTemporaryQueue) {
          prefix = TEMP_QUEUE_QUALIFED_PREFIX;
@@ -423,15 +423,9 @@ public class ActiveMQMessage implements javax.jms.Message {
          SimpleString address = message.getAddressSimpleString();
          SimpleString changedAddress = checkPrefix(address);
 
-         if (address == null) {
-            dest = null;
-         } else if (RoutingType.ANYCAST.equals(message.getRoutingType())) {
-            dest = ActiveMQDestination.createQueue(address);
-         } else if (RoutingType.MULTICAST.equals(message.getRoutingType())) {
-            dest = ActiveMQDestination.createTopic(address);
-         } else {
-            dest = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address.toString());
-         }
+         RoutingType routingType = message.getRoutingType();
+
+         dest = ActiveMQDestination.createDestination(routingType, address);
 
          if (changedAddress != null && dest != null) {
             ((ActiveMQDestination) dest).setName(changedAddress.toString());
