@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import java.util.function.BiConsumer;
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -30,6 +31,9 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +55,23 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
    @Override
    protected String getConfiguredProtocols() {
       return "AMQP,OPENWIRE,CORE";
+   }
+
+   @Override
+   protected void configureAddressPolicy(ActiveMQServer server) {
+      super.configureAddressPolicy(server);
+
+      AddressSettings addressSettings = new AddressSettings();
+
+      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      addressSettings.setAutoCreateQueues(isAutoCreateQueues());
+      addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
+      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
+      addressSettings.setDefaultGroupFirstKey(SimpleString.toSimpleString("JMSXFirstInGroupID"));
+
+
+      server.getConfiguration().getAddressesSettings().put("GroupFirst.#", addressSettings);
    }
 
    @Test(timeout = 60000)
@@ -102,6 +123,8 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
    public void testMessageGroups(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       testGroupSeqIsNeverLost(producerConnectionSupplier, consumerConnectionSupplier);
       testGroupSeqCloseGroup(producerConnectionSupplier, consumerConnectionSupplier);
+      testGroupFirst(producerConnectionSupplier, consumerConnectionSupplier);
+      testGroupFirstDefaultOff(producerConnectionSupplier, consumerConnectionSupplier);
    }
 
 
@@ -184,19 +207,72 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
    public void testGroupSeqIsNeverLost(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       AtomicInteger sequenceCounter = new AtomicInteger();
       AtomicInteger consumedSequenceCounter = new AtomicInteger();
+      String queueName = getQueueName();
 
       for (int i = 0; i < ITERATIONS; ++i) {
          try (Connection producerConnection = producerConnectionSupplier.createConnection();
-              Connection consumerConnection = producerConnectionSupplier.createConnection()) {
-            sendMessagesToBroker(producerConnection, MESSAGE_COUNT, sequenceCounter);
-            readMessagesOnBroker(consumerConnection, MESSAGE_COUNT, consumedSequenceCounter);
+              Connection consumerConnection = consumerConnectionSupplier.createConnection()) {
+            sendMessagesToBroker(queueName, producerConnection, MESSAGE_COUNT, sequenceCounter);
+            readMessagesOnBroker(queueName, consumerConnection, MESSAGE_COUNT, consumedSequenceCounter, null);
          }
       }
    }
 
-   protected void readMessagesOnBroker(Connection connection, int count, AtomicInteger sequence) throws Exception {
+   public void testGroupFirst(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
+      AtomicInteger sequenceCounter = new AtomicInteger();
+      AtomicInteger consumedSequenceCounter = new AtomicInteger();
+      //Use a queue that IS pre-fixed with GroupFirst so should full under Group First address settings
+      String queueName = "GroupFirst." + getQueueName();
+
+      for (int i = 0; i < ITERATIONS; ++i) {
+         try (Connection producerConnection = producerConnectionSupplier.createConnection();
+              Connection consumerConnection = consumerConnectionSupplier.createConnection()) {
+            sendMessagesToBroker(queueName, producerConnection, MESSAGE_COUNT, sequenceCounter);
+            readMessagesOnBroker(queueName, consumerConnection, MESSAGE_COUNT, consumedSequenceCounter, this::groupFirstCheck);
+         }
+      }
+   }
+
+   private void groupFirstCheck(int i, Message message) {
+      try {
+         if (i == 0) {
+            assertTrue("Message should be marked with first in Group", message.getBooleanProperty("JMSXFirstInGroupID"));
+         } else {
+            assertFalse("Message should NOT be marked with first in Group", message.propertyExists("JMSXFirstInGroupID"));
+         }
+      } catch (JMSException e) {
+         fail(e.getMessage());
+      }
+   }
+
+   public void testGroupFirstDefaultOff(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
+      AtomicInteger sequenceCounter = new AtomicInteger();
+      AtomicInteger consumedSequenceCounter = new AtomicInteger();
+      //Use a queue that IS NOT pre-fixed with GroupFirst so should full under default address settings.
+      String queueName = getQueueName();
+
+      for (int i = 0; i < ITERATIONS; ++i) {
+         try (Connection producerConnection = producerConnectionSupplier.createConnection();
+              Connection consumerConnection = consumerConnectionSupplier.createConnection()) {
+            sendMessagesToBroker(queueName, producerConnection, MESSAGE_COUNT, sequenceCounter);
+            readMessagesOnBroker(queueName, consumerConnection, MESSAGE_COUNT, consumedSequenceCounter, this::groupFirstOffCheck);
+         }
+      }
+   }
+
+   private void groupFirstOffCheck(int i, Message message) {
+      try {
+         assertFalse("Message should NOT be marked with first in Group", message.propertyExists("JMSXFirstInGroupID"));
+      } catch (JMSException e) {
+         fail(e.getMessage());
+      }
+   }
+
+
+
+   protected void readMessagesOnBroker(String queueName, Connection connection, int count, AtomicInteger sequence, BiConsumer<Integer, Message> additionalCheck) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue queue = session.createQueue(getQueueName());
+      Queue queue = session.createQueue(queueName);
       MessageConsumer consumer = session.createConsumer(queue);
 
       for (int i = 0; i < MESSAGE_COUNT; ++i) {
@@ -208,19 +284,19 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
          LOG.debug("Message assigned JMSXGroupID := {}", gid);
          LOG.debug("Message assigned JMSXGroupSeq := {}", seq);
          assertEquals("Sequence order should match", sequence.incrementAndGet(), seq);
-         if (i == 0) {
-            assertTrue("Message should be marked with first in Group", message.getBooleanProperty("JMSXFirstInGroupID"));
-         } else {
-            assertFalse("Message should NOT be marked with first in Group", message.propertyExists("JMSXFirstInGroupID"));
+         if (additionalCheck != null) {
+            additionalCheck.accept(i, message);
          }
       }
 
       session.close();
    }
 
-   protected void sendMessagesToBroker(Connection connection, int count, AtomicInteger sequence) throws Exception {
+
+
+   protected void sendMessagesToBroker(String queueName, Connection connection, int count, AtomicInteger sequence) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue queue = session.createQueue(getQueueName());
+      Queue queue = session.createQueue(queueName);
       MessageProducer producer = session.createProducer(queue);
 
       byte[] buffer = new byte[MESSAGE_SIZE];
