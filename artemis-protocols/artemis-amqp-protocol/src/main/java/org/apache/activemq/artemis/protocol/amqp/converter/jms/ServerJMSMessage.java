@@ -146,7 +146,7 @@ public class ServerJMSMessage implements Message {
    public final Destination getJMSReplyTo() throws JMSException {
       SimpleString reply = MessageUtil.getJMSReplyTo(message);
       if (reply != null) {
-         return new ServerDestination(reply);
+         return ActiveMQDestination.fromPrefixedName(reply.toString());
       } else {
          return null;
       }
@@ -158,20 +158,14 @@ public class ServerJMSMessage implements Message {
    }
 
    @Override
-   public final Destination getJMSDestination() throws JMSException {
-      SimpleString sdest = message.getAddressSimpleString();
-
-      if (sdest == null) {
-         return null;
-      } else {
-         return new ServerDestination(sdest);
-      }
+   public Destination getJMSDestination() throws JMSException {
+      return ActiveMQDestination.createDestination(message.getRoutingType(), message.getAddressSimpleString());
    }
 
    @Override
    public final void setJMSDestination(Destination destination) throws JMSException {
       if (destination == null) {
-         message.setAddress((SimpleString)null);
+         message.setAddress((SimpleString) null);
       } else {
          message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
       }

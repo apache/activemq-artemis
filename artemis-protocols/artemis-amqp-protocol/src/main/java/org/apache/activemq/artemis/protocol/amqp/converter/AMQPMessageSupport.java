@@ -30,10 +30,18 @@ import java.util.Set;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.TemporaryQueue;
+import javax.jms.TemporaryTopic;
+import javax.jms.Topic;
 
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -45,12 +53,15 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.Message;
+import org.jboss.logging.Logger;
 
 /**
  * Support class containing constant values and static methods that are used to map to / from
  * AMQP Message types being sent or received.
  */
 public final class AMQPMessageSupport {
+
+   private static final Logger logger = Logger.getLogger(AMQPMessageSupport.class);
 
    public static final String JMS_REPLY_TO_TYPE_MSG_ANNOTATION_SYMBOL_NAME = "x-opt-jms-reply-to";
 
@@ -271,8 +282,23 @@ public final class AMQPMessageSupport {
    }
 
    public static String toAddress(Destination destination) {
-      if (destination instanceof ActiveMQDestination) {
-         return ((ActiveMQDestination) destination).getAddress();
+      try {
+         if (destination instanceof ActiveMQDestination) {
+            return ((ActiveMQDestination) destination).getAddress();
+         } else {
+            if (destination instanceof Queue) {
+               return ((Queue) destination).getQueueName();
+            } else if (destination instanceof Topic) {
+
+               return ((Topic) destination).getTopicName();
+            }
+         }
+      } catch (JMSException e) {
+         // ActiveMQDestination (and most JMS implementations I know) will never throw an Exception here
+         // this is here for compilation support (as JMS declares it), and I don't want to propagate exceptions into
+         // the converter...
+         // and for the possibility of who knows in the future!!!
+         logger.warn(e.getMessage(), e);
       }
       return null;
    }
@@ -345,4 +371,39 @@ public final class AMQPMessageSupport {
 //      ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;
    }
+
+
+   public static byte destinationType(Destination destination) {
+      if (destination instanceof Queue) {
+         if (destination instanceof TemporaryQueue) {
+            return TEMP_QUEUE_TYPE;
+         } else {
+            return QUEUE_TYPE;
+         }
+      } else if (destination instanceof Topic) {
+         if (destination instanceof TemporaryTopic) {
+            return TEMP_TOPIC_TYPE;
+         } else {
+            return TOPIC_TYPE;
+         }
+      }
+
+      return QUEUE_TYPE;
+   }
+
+   public static Destination destination(byte destinationType, String address) {
+      switch (destinationType) {
+         case TEMP_QUEUE_TYPE:
+            return new ActiveMQTemporaryQueue(address, null);
+         case TEMP_TOPIC_TYPE:
+            return new ActiveMQTemporaryTopic(address, null);
+         case TOPIC_TYPE:
+            return new ActiveMQTopic(address);
+         case QUEUE_TYPE:
+            return new ActiveMQQueue(address);
+         default:
+            return new ActiveMQQueue(address);
+      }
+   }
+
 }

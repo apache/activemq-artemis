@@ -40,20 +40,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -468,7 +473,7 @@ public class JMSMappingOutboundTransformerTest {
       doTestConvertMessageWithJMSDestination(createDestination(QUEUE_TYPE), QUEUE_TYPE);
    }
 
-   private void doTestConvertMessageWithJMSDestination(ServerDestination jmsDestination, Object expectedAnnotationValue) throws Exception {
+   private void doTestConvertMessageWithJMSDestination(Destination jmsDestination, Object expectedAnnotationValue) throws Exception {
       ServerJMSTextMessage textMessage = createTextMessage();
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSDestination(jmsDestination);
@@ -485,7 +490,7 @@ public class JMSMappingOutboundTransformerTest {
       }
 
       if (jmsDestination != null) {
-         assertEquals("Unexpected 'to' address", jmsDestination.getAddress(), amqp.getAddress());
+         assertEquals("Unexpected 'to' address", AMQPMessageSupport.toAddress(jmsDestination), amqp.getAddress());
       }
    }
 
@@ -501,7 +506,7 @@ public class JMSMappingOutboundTransformerTest {
       doTestConvertMessageWithJMSReplyTo(createDestination(QUEUE_TYPE), QUEUE_TYPE);
    }
 
-   private void doTestConvertMessageWithJMSReplyTo(ServerDestination jmsReplyTo, Object expectedAnnotationValue) throws Exception {
+   private void doTestConvertMessageWithJMSReplyTo(Destination jmsReplyTo, Object expectedAnnotationValue) throws Exception {
       ServerJMSTextMessage textMessage = createTextMessage();
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSReplyTo(jmsReplyTo);
@@ -518,26 +523,28 @@ public class JMSMappingOutboundTransformerTest {
       }
 
       if (jmsReplyTo != null) {
-         assertEquals("Unexpected 'reply-to' address", jmsReplyTo.getSimpleAddress(), amqp.getReplyTo());
+         assertEquals("Unexpected 'reply-to' address", AMQPMessageSupport.toAddress(jmsReplyTo).toString(), amqp.getReplyTo().toString());
       }
    }
 
    // ----- Utility Methods used for this Test -------------------------------//
 
-   private ServerDestination createDestination(byte destType) {
-      ServerDestination destination = null;
+   private Destination createDestination(byte destType) {
+      Destination destination = null;
+      String prefix = PrefixUtil.getURIPrefix(TEST_ADDRESS);
+      String address = PrefixUtil.removePrefix(TEST_ADDRESS, prefix);
       switch (destType) {
          case QUEUE_TYPE:
-            destination = new ServerDestination(TEST_ADDRESS);
+            destination = new ActiveMQQueue(address);
             break;
          case TOPIC_TYPE:
-            destination = new ServerDestination(TEST_ADDRESS);
+            destination = new ActiveMQTopic(address);
             break;
          case TEMP_QUEUE_TYPE:
-            destination = new ServerDestination(TEST_ADDRESS);
+            destination = new ActiveMQTemporaryQueue(address, null);
             break;
          case TEMP_TOPIC_TYPE:
-            destination = new ServerDestination(TEST_ADDRESS);
+            destination = new ActiveMQTemporaryTopic(address, null);
             break;
          default:
             throw new IllegalArgumentException("Invliad Destination Type given/");
