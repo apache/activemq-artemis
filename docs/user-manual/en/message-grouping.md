@@ -98,6 +98,44 @@ producer.send(message);
 
 This then closes the message group so if another message is sent in the future with the same message group ID it will be reassigned to a new consumer.
 
+#### Notifying Consumer of Group Ownership change
+
+ActiveMQ supports putting a boolean header, set on the first message sent to a consumer for a particular message group.
+
+To enable this, you must set a header key that the broker will use to set the flag.
+
+In the examples we use `JMSXGroupFirstForConsumer` but it can be any header key value you want.
+
+
+By setting `group-first-key` to `JMSXGroupFirstForConsumer` at the queue level, every time a new group is assigned a consumer the header `JMSXGroupFirstForConsumer` will be set to true on the first message.
+
+```xml
+<address name="foo.bar">
+   <multicast>
+      <queue name="orders1" group-first-key="JMSXGroupFirstForConsumer"/>
+   </multicast>
+</address>
+```
+
+Or on auto-create when using the JMS Client by using address parameters when 
+creating the destination used by the consumer.
+
+```java
+Queue queue = session.createQueue("my.destination.name?group-first-key=JMSXGroupFirstForConsumer");
+Topic topic = session.createTopic("my.destination.name?group-first-key=JMSXGroupFirstForConsumer");
+```
+
+Also the default for all queues under and address can be defaulted using the 
+`address-setting` configuration:
+
+```xml
+<address-setting match="my.address">
+   <default-group-first-key>JMSXGroupFirstForConsumer</default-group-first-key>
+</address-setting>
+```
+
+By default this is null, and therefor OFF. 
+
 #### Rebalancing Message Groups
 
 Sometimes after new consumers are added you can find that if you have long lived groups, that they have no groups assigned, and thus are not being utilised, this is because the long lived groups will already be assigned to existing consumers.
