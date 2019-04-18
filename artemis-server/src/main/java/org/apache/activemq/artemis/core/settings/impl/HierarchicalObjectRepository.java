@@ -195,6 +195,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       return cache.size();
    }
 
+   @Override
+   public void removeCacheMatch(String match) {
+      cache.remove(matchModifier.modify(match));
+   }
+
    /**
     * return the value held against the nearest match
     *

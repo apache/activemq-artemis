@@ -2133,6 +2133,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
+      getSecurityRepository().removeCacheMatch(queueName.toString());
+
       callPostQueueDeletionCallbacks(address, queueName);
    }
 

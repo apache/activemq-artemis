@@ -101,4 +101,6 @@ public interface HierarchicalRepository<T> {
    void clearCache();
 
    int getCacheSize();
+
+   void removeCacheMatch(String match);
 }
