@@ -725,61 +725,64 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          server.callBrokerBindingPlugins(plugin -> plugin.beforeRemoveBinding(uniqueName, tx, deleteData));
       }
 
-      addressSettingsRepository.clearCache();
+      try {
 
-      Binding binding = addressManager.removeBinding(uniqueName, tx);
+         Binding binding = addressManager.removeBinding(uniqueName, tx);
 
-      if (binding == null) {
-         throw new ActiveMQNonExistentQueueException();
-      }
-
-      if (deleteData && addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null) {
-         pagingManager.deletePageStore(binding.getAddress());
-
-         deleteDuplicateCache(binding.getAddress());
-      }
-
-      if (binding.getType() == BindingType.LOCAL_QUEUE) {
-         Queue queue = (Queue) binding.getBindable();
-         managementService.unregisterQueue(uniqueName, binding.getAddress(), queue.getRoutingType());
-      } else if (binding.getType() == BindingType.DIVERT) {
-         managementService.unregisterDivert(uniqueName, binding.getAddress());
-      }
-
-      AddressInfo addressInfo = getAddressInfo(binding.getAddress());
-      if (addressInfo != null) {
-         addressInfo.setBindingRemovedTimestamp(System.currentTimeMillis());
-      }
-
-      if (binding.getType() != BindingType.DIVERT) {
-         TypedProperties props = new TypedProperties();
-
-         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, binding.getAddress());
-
-         props.putSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME, binding.getClusterName());
-
-         props.putSimpleStringProperty(ManagementHelper.HDR_ROUTING_NAME, binding.getRoutingName());
-
-         props.putIntProperty(ManagementHelper.HDR_DISTANCE, binding.getDistance());
-
-         props.putLongProperty(ManagementHelper.HDR_BINDING_ID, binding.getID());
-
-         if (binding.getFilter() == null) {
-            props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, null);
-         } else {
-            props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, binding.getFilter().getFilterString());
+         if (binding == null) {
+            throw new ActiveMQNonExistentQueueException();
          }
 
-         managementService.sendNotification(new Notification(null, CoreNotificationType.BINDING_REMOVED, props));
+         if (deleteData && addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null) {
+            pagingManager.deletePageStore(binding.getAddress());
+
+            deleteDuplicateCache(binding.getAddress());
+         }
+
+         if (binding.getType() == BindingType.LOCAL_QUEUE) {
+            Queue queue = (Queue) binding.getBindable();
+            managementService.unregisterQueue(uniqueName, binding.getAddress(), queue.getRoutingType());
+         } else if (binding.getType() == BindingType.DIVERT) {
+            managementService.unregisterDivert(uniqueName, binding.getAddress());
+         }
+
+         AddressInfo addressInfo = getAddressInfo(binding.getAddress());
+         if (addressInfo != null) {
+            addressInfo.setBindingRemovedTimestamp(System.currentTimeMillis());
+         }
+
+         if (binding.getType() != BindingType.DIVERT) {
+            TypedProperties props = new TypedProperties();
+
+            props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, binding.getAddress());
+
+            props.putSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME, binding.getClusterName());
+
+            props.putSimpleStringProperty(ManagementHelper.HDR_ROUTING_NAME, binding.getRoutingName());
+
+            props.putIntProperty(ManagementHelper.HDR_DISTANCE, binding.getDistance());
+
+            props.putLongProperty(ManagementHelper.HDR_BINDING_ID, binding.getID());
+
+            if (binding.getFilter() == null) {
+               props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, null);
+            } else {
+               props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, binding.getFilter().getFilterString());
+            }
+
+            managementService.sendNotification(new Notification(null, CoreNotificationType.BINDING_REMOVED, props));
+         }
+
+         binding.close();
+
+         if (server.hasBrokerBindingPlugins()) {
+            server.callBrokerBindingPlugins(plugin -> plugin.afterRemoveBinding(binding, tx, deleteData));
+         }
+
+         return binding;
+      } finally {
+         server.clearAddressCache();
       }
-
-      binding.close();
-
-      if (server.hasBrokerBindingPlugins()) {
-         server.callBrokerBindingPlugins(plugin -> plugin.afterRemoveBinding(binding, tx, deleteData) );
-      }
-
-      return binding;
    }
 
    private void deleteDuplicateCache(SimpleString address) throws Exception {
