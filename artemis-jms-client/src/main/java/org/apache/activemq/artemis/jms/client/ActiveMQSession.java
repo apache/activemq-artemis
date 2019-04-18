@@ -71,7 +71,6 @@ import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQStreamCompati
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQTextCompabileMessage;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
-import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
@@ -799,7 +798,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              * Therefore, we must check if the queue names list contains the exact name of the address to know whether or
              * not a LOCAL binding for the address exists. If no LOCAL binding exists then it should be created here.
              */
-            if (!response.isExists() || !response.getQueueNames().contains(CompositeAddress.extractQueueName(dest.getSimpleAddress()))) {
+            if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateQueues()) {
                   try {
                      createQueue(dest, RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true, response);
