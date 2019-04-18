@@ -919,7 +919,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       for (Binding binding : bindings.getBindings()) {
          if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
-            names.add(binding.getUniqueName());
+            SimpleString name;
+            if (CompositeAddress.isFullyQualified(address.toString())) {
+               // need to use the FQQN here for backwards compatibility with core JMS client
+               name = CompositeAddress.toFullyQualified(realAddress, binding.getUniqueName());
+            } else {
+               name = binding.getUniqueName();
+            }
+            names.add(name);
          }
       }
 

@@ -333,6 +333,28 @@
                   <goals>
                      <goal>dependency-scan</goal>
                   </goals>
+                  <id>263-check</id>
+                  <configuration>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:2.6.3</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:2.6.3</arg>
+                        <arg>org.apache.activemq:artemis-cli:2.6.3</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.6.3</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:2.6.3</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.6.3</arg>
+                        <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <variableName>ARTEMIS-263</variableName>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
                   <id>240-check</id>
                   <configuration>
                      <libListWithDeps>
