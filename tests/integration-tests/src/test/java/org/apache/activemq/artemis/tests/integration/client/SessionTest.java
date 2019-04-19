@@ -17,10 +17,12 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -494,5 +496,145 @@ public class SessionTest extends ActiveMQTestBase {
       ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
       String nodeId = ((ClientSessionInternal) clientSession).getNodeId();
       assertNotNull(nodeId);
+   }
+
+   @Test
+   public void testCreateQueue() throws Exception {
+      cf = createSessionFactory(locator);
+      ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
+      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      {
+         clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString());
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertTrue(result.isDurable());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertTrue(result.isDurable());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         assertTrue(result.isAutoCreated());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         assertTrue(result.isAutoCreated());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true, true, 0, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         assertTrue(result.isAutoCreated());
+         assertEquals(0, result.getMaxConsumers());
+         assertTrue(result.isPurgeOnNoConsumers());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true, 0, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         assertTrue(result.isAutoCreated());
+         assertEquals(0, result.getMaxConsumers());
+         assertTrue(result.isPurgeOnNoConsumers());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true, true, 0, true, true, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         assertTrue(result.isAutoCreated());
+         assertEquals(0, result.getMaxConsumers());
+         assertTrue(result.isPurgeOnNoConsumers());
+         assertTrue(result.isExclusive());
+         assertTrue(result.isLastValue());
+         server.destroyQueue(queueName);
+      }
+      {
+         clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true, 0, true, true, true);
+         Queue result = server.locateQueue(queueName);
+         assertEquals(addressName, result.getAddress());
+         assertEquals(queueName, result.getName());
+         assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+         assertEquals("filter", result.getFilter().getFilterString().toString());
+         assertTrue(result.isDurable());
+         assertTrue(result.isAutoCreated());
+         assertEquals(0, result.getMaxConsumers());
+         assertTrue(result.isPurgeOnNoConsumers());
+         assertTrue(result.isExclusive());
+         assertTrue(result.isLastValue());
+         server.destroyQueue(queueName);
+      }
    }
 }
