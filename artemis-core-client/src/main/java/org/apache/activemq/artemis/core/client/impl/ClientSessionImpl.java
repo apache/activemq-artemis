@@ -386,6 +386,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address),
+                  routingType,
                   SimpleString.toSimpleString(queueName),
                   SimpleString.toSimpleString(filterString),
                   durable,
