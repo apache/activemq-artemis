@@ -32,24 +32,21 @@ import org.junit.runners.Parameterized;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ONE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVEN_ZERO;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SIX_THREE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ZERO;
 
 @RunWith(Parameterized.class)
 public class FQQNConsumerTest extends ServerBase {
 
-   // this will ensure that all tests in this class are run twice,
-   // once with "true" passed to the class' constructor and once with "false"
    @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
-      // FQQN support was added in 2.0 so testing several 2.x versions before 2.7
       List<Object[]> combinations = new ArrayList<>();
-      combinations.add(new Object[]{SNAPSHOT, TWO_SIX_THREE, TWO_SIX_THREE});
-      combinations.add(new Object[]{SNAPSHOT, TWO_ZERO, TWO_ZERO});
-      combinations.add(new Object[]{SNAPSHOT, TWO_ONE, TWO_ONE});
-      combinations.add(new Object[]{SNAPSHOT, TWO_FOUR, TWO_FOUR});
 
-      return combinations;
+      // FQQN was added into 2.7.0, hence we only test the server as SNAPSHOT or TWO_SEVEN_ZERO
+      List testsList = combinatory(new Object[]{SNAPSHOT}, new Object[]{SNAPSHOT, TWO_ZERO, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_ZERO, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO});
+      addCombinations(testsList, null, new Object[] {TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO});
+      return testsList;
    }
 
    public FQQNConsumerTest(String server, String sender, String receiver) throws Exception {
