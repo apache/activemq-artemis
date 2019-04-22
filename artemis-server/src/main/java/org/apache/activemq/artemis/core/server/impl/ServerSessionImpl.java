@@ -653,15 +653,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       if (durable) {
          // make sure the user has privileges to create this queue
-         securityCheck(addressInfo.getName(), name, CheckType.CREATE_DURABLE_QUEUE, this);
+         securityCheck(art.getName(), unPrefixedName, CheckType.CREATE_DURABLE_QUEUE, this);
       } else {
-         securityCheck(addressInfo.getName(), name, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+         securityCheck(art.getName(), unPrefixedName, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
       AddressSettings as = server.getAddressSettingsRepository().getMatch(art.getName().toString());
 
       if (as.isAutoCreateAddresses() && server.getAddressInfo(art.getName()) == null) {
-         securityCheck(addressInfo.getName(), name, CheckType.CREATE_ADDRESS, this);
+         securityCheck(art.getName(), unPrefixedName, CheckType.CREATE_ADDRESS, this);
       }
 
       server.checkQueueCreationLimit(getUsername());
