@@ -886,7 +886,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public BindingQueryResult bindingQuery(SimpleString address) throws Exception {
+   public BindingQueryResult bindingQuery(SimpleString address, boolean newFQQN) throws Exception {
       if (address == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
@@ -919,7 +919,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       for (Binding binding : bindings.getBindings()) {
          if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
-            names.add(binding.getUniqueName());
+            SimpleString name;
+            if (!newFQQN && CompositeAddress.isFullyQualified(address.toString())) {
+               // need to use the FQQN here for backwards compatibility with core JMS client
+               name = CompositeAddress.toFullyQualified(realAddress, binding.getUniqueName());
+            } else {
+               name = binding.getUniqueName();
+            }
+            names.add(name);
          }
       }
 
