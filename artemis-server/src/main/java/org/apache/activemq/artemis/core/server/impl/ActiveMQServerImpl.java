@@ -2075,65 +2075,69 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
+      try {
+         Binding binding = postOffice.getBinding(queueName);
 
+         if (binding == null) {
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
+         }
+
+         SimpleString address = binding.getAddress();
+
+         Queue queue = (Queue) binding.getBindable();
+
+         if (hasBrokerQueuePlugins()) {
+            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
+         }
+
+         if (session != null) {
+
+            if (queue.isDurable()) {
+               // make sure the user has privileges to delete this queue
+               securityStore.check(address, queueName, CheckType.DELETE_DURABLE_QUEUE, session);
+            } else {
+               securityStore.check(address, queueName, CheckType.DELETE_NON_DURABLE_QUEUE, session);
+            }
+         }
+
+         // This check is only valid if checkConsumerCount == true
+         if (checkConsumerCount && queue.getConsumerCount() != 0) {
+            throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithConsumers(queue.getName(), queueName, binding.getClass().getName());
+         }
+
+         // This check is only valid if checkMessageCount == true
+         if (checkMessageCount && queue.getAutoDeleteMessageCount() != -1) {
+            long messageCount = queue.getMessageCount();
+            if (queue.getMessageCount() > queue.getAutoDeleteMessageCount()) {
+               throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithMessages(queue.getName(), queueName, messageCount);
+            }
+         }
+
+         queue.deleteQueue(removeConsumers);
+
+         if (hasBrokerQueuePlugins()) {
+            callBrokerQueuePlugins(plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
+         }
+         AddressInfo addressInfo = getAddressInfo(address);
+
+         if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString()) && addressSettingsRepository.getMatch(address.toString()).getAutoDeleteAddressesDelay() == 0) {
+            try {
+               removeAddressInfo(address, session);
+            } catch (ActiveMQDeleteAddressException e) {
+               // Could be thrown if the address has bindings or is not deletable.
+            }
+         }
+
+         callPostQueueDeletionCallbacks(address, queueName);
+      } finally {
+         clearAddressCache();
+      }
+   }
+
+   @Override
+   public void clearAddressCache() {
+      securityRepository.clearCache();
       addressSettingsRepository.clearCache();
-
-      Binding binding = postOffice.getBinding(queueName);
-
-      if (binding == null) {
-         throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
-      }
-
-      SimpleString address = binding.getAddress();
-
-      Queue queue = (Queue) binding.getBindable();
-
-      if (hasBrokerQueuePlugins()) {
-         callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
-               removeConsumers, autoDeleteAddress));
-      }
-
-
-      if (session != null) {
-
-         if (queue.isDurable()) {
-            // make sure the user has privileges to delete this queue
-            securityStore.check(address, queueName, CheckType.DELETE_DURABLE_QUEUE, session);
-         } else {
-            securityStore.check(address, queueName, CheckType.DELETE_NON_DURABLE_QUEUE, session);
-         }
-      }
-
-      // This check is only valid if checkConsumerCount == true
-      if (checkConsumerCount && queue.getConsumerCount() != 0) {
-         throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithConsumers(queue.getName(), queueName, binding.getClass().getName());
-      }
-
-      // This check is only valid if checkMessageCount == true
-      if (checkMessageCount && queue.getAutoDeleteMessageCount() != -1) {
-         long messageCount = queue.getMessageCount();
-         if (queue.getMessageCount() > queue.getAutoDeleteMessageCount()) {
-            throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithMessages(queue.getName(), queueName, messageCount);
-         }
-      }
-
-      queue.deleteQueue(removeConsumers);
-
-      if (hasBrokerQueuePlugins()) {
-         callBrokerQueuePlugins(plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
-                 removeConsumers, autoDeleteAddress));
-      }
-      AddressInfo addressInfo = getAddressInfo(address);
-
-      if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString()) && addressSettingsRepository.getMatch(address.toString()).getAutoDeleteAddressesDelay() == 0) {
-         try {
-            removeAddressInfo(address, session);
-         } catch (ActiveMQDeleteAddressException e) {
-            // Could be thrown if the address has bindings or is not deletable.
-         }
-      }
-
-      callPostQueueDeletionCallbacks(address, queueName);
    }
 
    @Override
