@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -36,10 +38,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -154,6 +161,15 @@ public class CoreClientTest extends ActiveMQTestBase {
 
    @Test
    public void testCoreClientPrefixes() throws Exception {
+      internalTestCoreClientPrefixes(false);
+   }
+
+   @Test
+   public void testCoreClientPrefixesWithSecurity() throws Exception {
+      internalTestCoreClientPrefixes(true);
+   }
+
+   public void internalTestCoreClientPrefixes(boolean security) throws Exception {
 
       Configuration configuration = createBasicConfig();
       configuration.clearAcceptorConfigurations();
@@ -183,14 +199,31 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       configuration.addAcceptorConfiguration("prefix", acceptor.toString());
 
-      ActiveMQServer server = createServer(configuration);
+      ActiveMQJAASSecurityManager securityManager = null;
+
+      if (security) {
+         configuration.setSecurityEnabled(true);
+
+         SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+         securityConfiguration.addUser("myUser", "myPass");
+         securityConfiguration.addRole("myUser", "myrole");
+         securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
+      }
+
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(configuration, securityManager));
+
       server.start();
 
-      ServerLocator locator = ServerLocatorImpl.newLocator(locatorString);
+      Role myRole = new Role("myrole", true, true, true, true, true, true, true, true, true, true);
+      Set<Role> anySet = new HashSet<>();
+      anySet.add(myRole);
+      server.getSecurityRepository().addMatch(baseAddress, anySet);
+
+      ServerLocator locator = addServerLocator(ServerLocatorImpl.newLocator(locatorString));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session = sf.createSession(false, true, true);
+      ClientSession session = sf.createSession("myUser", "myPass", false, true, true, false, 0);
 
       Map<String, ClientConsumer> consumerMap = new HashMap<>();
 
