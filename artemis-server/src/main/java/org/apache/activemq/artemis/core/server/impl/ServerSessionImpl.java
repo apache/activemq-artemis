@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
@@ -1052,7 +1053,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception {
-      return server.bindingQuery(removePrefix(address));
+
+      boolean newFQQN = true;
+
+      // remotingConnection could be null on UnitTests
+      // that's why I'm checking for null here, and it's best to do so
+      if (remotingConnection != null && remotingConnection instanceof CoreRemotingConnection) {
+         newFQQN = ((CoreRemotingConnection) remotingConnection).isVersionNewFQQN();
+      }
+
+      return server.bindingQuery(removePrefix(address), newFQQN);
    }
 
    @Override

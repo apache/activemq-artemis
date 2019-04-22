@@ -44,32 +44,18 @@ if (clientType.startsWith("ARTEMIS")) {
 
 
 Connection connection = cf.createConnection();
-Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 Queue queue = session.createQueue(queueName);
 
 if (operation.equals("sendMessage")) {
 
-    CountDownLatch latch = new CountDownLatch(10);
-
-    CompletionListener completionListener = new CompletionListener() {
-        @Override
-        void onCompletion(Message message) {
-            latch.countDown();
-        }
-
-        @Override
-        void onException(Message message, Exception exception) {
-
-        }
-    }
-
     MessageProducer producer = session.createProducer(queue);
     producer.setDeliveryMode(DeliveryMode.PERSISTENT);
     for (int i = 0; i < 10; i++) {
-        producer.send(session.createTextMessage(textBody + i), completionListener);
+        producer.send(session.createTextMessage(textBody + i));
     }
 
-    GroovyRun.assertTrue(latch.await(10, TimeUnit.SECONDS));
+    session.commit();
 
     connection.close();
 } else if (operation.equals("receiveMessage")) {

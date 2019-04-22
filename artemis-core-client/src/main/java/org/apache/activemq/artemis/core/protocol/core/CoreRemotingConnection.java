@@ -46,6 +46,11 @@ public interface CoreRemotingConnection extends RemotingConnection {
       return  version >= PacketImpl.CONSUMER_PRIORITY_CHANGE_VERSION;
    }
 
+   default boolean isVersionNewFQQN() {
+      int version = getChannelVersion();
+      return  version >= PacketImpl.ARTEMIS_2_7_0_VERSION;
+   }
+
    /**
     * Sets the client protocol used on the communication. This will determine if the client has
     * support for certain packet types
