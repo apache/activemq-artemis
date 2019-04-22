@@ -36,6 +36,7 @@ public class PacketImpl implements Packet {
    public static final int ARTEMIS_2_7_0_VERSION = 130;
    public static final int ASYNC_RESPONSE_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
    public static final int CONSUMER_PRIORITY_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
+   public static final int FQQN_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
 
 
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");

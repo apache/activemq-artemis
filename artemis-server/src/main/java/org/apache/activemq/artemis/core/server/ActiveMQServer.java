@@ -500,7 +500,11 @@ public interface ActiveMQServer extends ServiceComponent {
 
    Queue locateQueue(SimpleString queueName);
 
-   BindingQueryResult bindingQuery(SimpleString address) throws Exception;
+   default BindingQueryResult bindingQuery(SimpleString address) throws Exception {
+      return bindingQuery(address, true);
+   }
+
+   BindingQueryResult bindingQuery(SimpleString address, boolean newFQQN) throws Exception;
 
    QueueQueryResult queueQuery(SimpleString name) throws Exception;
 

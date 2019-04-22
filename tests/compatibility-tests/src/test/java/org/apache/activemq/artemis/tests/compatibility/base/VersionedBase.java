@@ -63,6 +63,16 @@ public abstract class VersionedBase extends ClasspathBase {
                                                Object[] sideRight) {
       LinkedList<Object[]> combinations = new LinkedList<>();
 
+      addCombinations(combinations, required, rootSide, sideLeft, sideRight);
+
+      return combinations;
+   }
+
+   protected static void addCombinations(List<Object[]> combinations,
+                                       Object required,
+                                       Object[] rootSide,
+                                       Object[] sideLeft,
+                                       Object[] sideRight) {
       for (Object root : rootSide) {
          for (Object left : sideLeft) {
             for (Object right : sideRight) {
@@ -72,8 +82,6 @@ public abstract class VersionedBase extends ClasspathBase {
             }
          }
       }
-
-      return combinations;
    }
 
    public void startServer(File folder, ClassLoader loader, String serverName) throws Throwable {
