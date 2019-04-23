@@ -61,8 +61,8 @@ import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
@@ -201,7 +201,7 @@ public class AmqpCoreConverter {
       processHeader(result, header);
       processMessageAnnotations(result, annotations);
       processApplicationProperties(result, applicationProperties);
-      processProperties(result, properties);
+      processProperties(result, properties, annotations);
       processFooter(result, footer);
       processExtraProperties(result, message.getExtraProperties());
 
@@ -220,7 +220,6 @@ public class AmqpCoreConverter {
          }
       }
 
-      result.getInnerMessage().setReplyTo(message.getReplyTo());
       result.getInnerMessage().setDurable(message.isDurable());
       result.getInnerMessage().setPriority(message.getPriority());
       result.getInnerMessage().setAddress(message.getAddressSimpleString());
@@ -308,7 +307,7 @@ public class AmqpCoreConverter {
       return jms;
    }
 
-   private static ServerJMSMessage processProperties(ServerJMSMessage jms, Properties properties) throws Exception {
+   private static ServerJMSMessage processProperties(ServerJMSMessage jms, Properties properties, MessageAnnotations annotations) throws Exception {
       if (properties != null) {
          if (properties.getMessageId() != null) {
             jms.setJMSMessageID(AMQPMessageIdHelper.INSTANCE.toMessageIdString(properties.getMessageId()));
@@ -318,13 +317,32 @@ public class AmqpCoreConverter {
             jms.setStringProperty("JMSXUserID", new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
          }
          if (properties.getTo() != null) {
-            jms.setJMSDestination(new ServerDestination(properties.getTo()));
+            byte queueType = parseQueueAnnotation(annotations, AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
+            jms.setJMSDestination(AMQPMessageSupport.destination(queueType, properties.getTo()));
          }
          if (properties.getSubject() != null) {
             jms.setJMSType(properties.getSubject());
          }
          if (properties.getReplyTo() != null) {
-            jms.setJMSReplyTo(new ServerDestination(properties.getReplyTo()));
+            byte value = parseQueueAnnotation(annotations, AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION);
+
+            switch (value) {
+               case AMQPMessageSupport.QUEUE_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
+                  break;
+               case AMQPMessageSupport.TEMP_QUEUE_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + properties.getReplyTo());
+                  break;
+               case AMQPMessageSupport.TOPIC_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + properties.getReplyTo());
+                  break;
+               case AMQPMessageSupport.TEMP_TOPIC_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + properties.getReplyTo());
+                  break;
+               default:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
+                  break;
+            }
          }
          Object correlationID = properties.getCorrelationId();
          if (correlationID != null) {
@@ -358,6 +376,18 @@ public class AmqpCoreConverter {
       }
 
       return jms;
+   }
+
+   private static byte parseQueueAnnotation(MessageAnnotations annotations, Symbol symbol) {
+      Object value = (annotations != null && annotations.getValue() != null ? annotations.getValue().get(symbol) : AMQPMessageSupport.QUEUE_TYPE);
+
+      byte queueType;
+      if (value == null || !(value instanceof Number)) {
+         queueType = AMQPMessageSupport.QUEUE_TYPE;
+      } else {
+         queueType = ((Number)value).byteValue();
+      }
+      return queueType;
    }
 
    @SuppressWarnings("unchecked")

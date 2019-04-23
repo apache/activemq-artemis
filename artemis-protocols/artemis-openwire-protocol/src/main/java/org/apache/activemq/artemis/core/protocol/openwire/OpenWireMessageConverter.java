@@ -17,6 +17,10 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.TemporaryQueue;
+import javax.jms.TemporaryTopic;
+import javax.jms.Topic;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -196,7 +200,18 @@ public final class OpenWireMessageConverter {
 
       final ActiveMQDestination replyTo = messageSend.getReplyTo();
       if (replyTo != null) {
-         putMsgReplyTo(replyTo, marshaller, coreMessage);
+         if (replyTo instanceof TemporaryQueue) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + (((TemporaryQueue) replyTo).getQueueName()));
+         } else if (replyTo instanceof TemporaryTopic) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + (((TemporaryTopic) replyTo).getTopicName()));
+         } else if (replyTo instanceof Queue) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + (((Queue) replyTo).getQueueName()));
+         } else if (replyTo instanceof Topic) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + (((Topic) replyTo).getTopicName()));
+         } else {
+            // it should not happen
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + (((Queue) replyTo).getQueueName()));
+         }
       }
 
       final String userId = messageSend.getUserID();
@@ -435,14 +450,6 @@ public final class OpenWireMessageConverter {
             }
          });
       }
-   }
-
-   private static void putMsgReplyTo(final ActiveMQDestination replyTo,
-                                     final WireFormat marshaller,
-                                     final CoreMessage coreMessage) throws IOException {
-      final ByteSequence replyToBytes = marshaller.marshal(replyTo);
-      replyToBytes.compact();
-      coreMessage.putBytesProperty(AMQ_MSG_REPLY_TO, replyToBytes.data);
    }
 
    private static void putMsgOriginalDestination(final ActiveMQDestination origDest,
