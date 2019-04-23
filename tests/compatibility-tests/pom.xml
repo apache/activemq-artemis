@@ -347,6 +347,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-263</variableName>
                   </configuration>
                </execution>               <execution>
@@ -368,6 +370,8 @@
                   <libList>
                      <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                   </libList>
+                  <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                        otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                   <variableName>ARTEMIS-270</variableName>
                </configuration>
             </execution>
@@ -390,6 +394,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-240</variableName>
                   </configuration>
                </execution>
@@ -412,6 +418,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-210</variableName>
                   </configuration>
                </execution>
@@ -434,6 +442,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-200</variableName>
                   </configuration>
                </execution>
@@ -456,6 +466,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-140</variableName>
                   </configuration>
                </execution>
@@ -479,6 +491,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-155</variableName>
                   </configuration>
                </execution>
@@ -502,6 +516,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>HORNETQ-235</variableName>
                   </configuration>
                </execution>
@@ -525,6 +541,8 @@
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>HORNETQ-247</variableName>
                   </configuration>
                </execution>
@@ -535,6 +553,10 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+               <!-- @@@@ as I stated above, you also need to define the system property here otherwise the property won't be captured
+                    by the execution.
+                    I couldn't find a better way to define this inside the maven plugin, perhaps there's an easier way,
+                    if you know a way to get rid of this it would be a nice improvement -->
                <systemProperties>
                   <property>
                      <name>ARTEMIS-SNAPSHOT</name>
@@ -568,11 +590,38 @@
                      <name>HORNETQ-247</name>
                      <value>${HORNETQ-247}</value>
                   </property>
+                  <property>
+                     <name>ARTEMIS-263</name>
+                     <value>${ARTEMIS-263}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-270</name>
+                     <value>${ARTEMIS-270}</value>
+                  </property>
                </systemProperties>
                <skipTests>${skipCompatibilityTests}</skipTests>
                <argLine>-Djgroups.bind_addr=::1 ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
+         <!-- during testing and debugging, it may be useful to add all the classpath variables to your IDE settings and run compatibility tests manually.
+              uncomment this next group so you will have a big line to add to your test setting -->
+         <!-- <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+                  <configuration>
+                     <tasks>
+                        <echo>You can use this line to include into your tests runnings</echo>
+                        <echo>-DARTEMIS-200="${ARTEMIS-200}" -DARTEMIS-210="${ARTEMIS-210}" -DARTEMIS-263="${ARTEMIS-263}" -DARTEMIS-240="${ARTEMIS-240}" -DARTEMIS-155="${ARTEMIS-155}" -DARTEMIS-140="${ARTEMIS-140}" -DHORNETQ-235="${HORNETQ-235}" -DHORNETQ-247="${HORNETQ-247}" -DARTEMIS-270="${ARTEMIS-270}" -DARTEMIS-240="${ARTEMIS-240}" -DARTEMIS-155="${ARTEMIS-155}" -DARTEMIS-140="${ARTEMIS-140}"</echo>
+                     </tasks>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin> -->
          <plugin>
             <groupId>org.apache.servicemix.tooling</groupId>
             <artifactId>depends-maven-plugin</artifactId>
