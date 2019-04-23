@@ -551,46 +551,62 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    /* Hook for processing message before forwarding */
    protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
+      return beforeForwardInternal(message, false, forwardingAddress);
+   }
+
+   Message beforeForwardInternal(final Message message, final boolean copied, final SimpleString forwardingAddress) {
+      Message msg = message;
       if (useDuplicateDetection) {
          // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
 
-         message.putExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
+         msg = copyMessageIfNotCopy(message, msg, copied);
+         msg.putExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
       }
 
       if (forwardingAddress != null) {
          // for AMQP messages this modification will be transient
-         message.setAddress(forwardingAddress);
+         msg = copyMessageIfNotCopy(message, msg, copied);
+         msg.setAddress(forwardingAddress);
       }
 
       switch (routingType) {
          case ANYCAST:
-            message.setRoutingType(RoutingType.ANYCAST);
+            msg = copyMessageIfNotCopy(message, msg, copied);
+            msg.setRoutingType(RoutingType.ANYCAST);
             break;
          case MULTICAST:
-            message.setRoutingType(RoutingType.MULTICAST);
+            msg = copyMessageIfNotCopy(message, msg, copied);
+            msg.setRoutingType(RoutingType.MULTICAST);
             break;
          case STRIP:
-            message.setRoutingType(null);
+            msg = copyMessageIfNotCopy(message, msg, copied);
+            msg.setRoutingType(null);
             break;
          case PASS:
             break;
       }
 
       if (transformer != null) {
-         final Message transformedMessage = transformer.transform(message);
-         if (transformedMessage != message) {
+         msg = copyMessageIfNotCopy(message, msg, copied);
+         final Message transformedMessage = transformer.transform(msg);
+         if (transformedMessage != msg) {
             if (logger.isDebugEnabled()) {
                logger.debug("The transformer " + transformer +
                                " made a copy of the message " +
-                               message +
+                               msg +
                                " as transformedMessage");
             }
          }
          return EmbedMessageUtil.embedAsCoreMessage(transformedMessage);
       } else {
-         return EmbedMessageUtil.embedAsCoreMessage(message);
+         return EmbedMessageUtil.embedAsCoreMessage(msg);
       }
+   }
+
+   // Note we must use a copy since same message may get routed to other queues and we should not change the underlying message.
+   private static Message copyMessageIfNotCopy(Message original, Message current, boolean copied) {
+      return !copied && current == original ? original.copy() : current;
    }
 
    @Override
