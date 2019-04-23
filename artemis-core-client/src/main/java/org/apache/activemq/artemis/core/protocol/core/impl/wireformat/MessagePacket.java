@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public abstract class MessagePacket extends PacketImpl implements MessagePacketI {
@@ -32,6 +33,12 @@ public abstract class MessagePacket extends PacketImpl implements MessagePacketI
    @Override
    public ICoreMessage getMessage() {
       return message;
+   }
+
+   @Override
+   public MessagePacket replaceMessage(Message message) {
+      this.message = (ICoreMessage) message;
+      return this;
    }
 
    @Override
