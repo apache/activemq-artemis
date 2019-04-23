@@ -355,6 +355,8 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
 
    @Override
    public Message copy() {
+      new Exception("hmmmmm").printStackTrace();
+      System.exit(-1);
       SequentialFile newfile = storageManager.createFileForLargeMessage(messageID, durable);
 
       Message newMessage = new LargeServerMessageImpl(this, properties, newfile, messageID);
