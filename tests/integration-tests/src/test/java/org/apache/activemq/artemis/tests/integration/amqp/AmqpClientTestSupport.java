@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -316,7 +316,18 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       sendMessages(destinationName, count, routingType, false);
    }
 
-   protected void sendMessages(String destinationName, int count, RoutingType routingType, boolean durable) throws Exception {
+   protected void sendMessages(String destinationName,
+                               int count,
+                               RoutingType routingType,
+                               boolean durable) throws Exception {
+      sendMessages(destinationName, count, routingType, durable, Collections.emptyMap());
+   }
+
+   protected void sendMessages(String destinationName,
+                               int count,
+                               RoutingType routingType,
+                               boolean durable,
+                               Map<String, Object> applicationProperties) throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       try {
@@ -325,6 +336,9 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
          for (int i = 0; i < count; ++i) {
             AmqpMessage message = new AmqpMessage();
+            for (Map.Entry<String, Object> entry : applicationProperties.entrySet()) {
+               message.setApplicationProperty(entry.getKey(), entry.getValue());
+            }
             message.setMessageId("MessageID:" + i);
             message.setDurable(durable);
             if (routingType != null) {
