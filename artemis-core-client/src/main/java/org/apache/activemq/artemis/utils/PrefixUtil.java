@@ -61,4 +61,27 @@ public class PrefixUtil {
    public static SimpleString removeAddress(SimpleString string, SimpleString prefix) {
       return string.subSeq(0, prefix.length());
    }
+
+   public static String removeAddress(String string, String prefix) {
+      return string.substring(0, prefix.length());
+   }
+
+   public static String removePrefix(String string, String prefix) {
+      return string.substring(prefix.length());
+   }
+
+   /** This will treat a prefix on the uri-type of queue://, topic://, temporaryTopic://, temporaryQueue.
+    *  This is mostly used on conversions to treat JMSReplyTo or similar usages on core protocol */
+   public static String getURIPrefix(String address) {
+      int index = address.toString().indexOf("://");
+      if (index > 0) {
+         return address.substring(0, index + 3);
+      } else {
+         // SimpleString has a static EMPTY definition, however it's not safe to use it
+         // since SimpleString is a mutable object, and for that reason I can't leak EMPTY definition.
+         // We need to create a new one on this case.
+         return "";
+      }
+   }
+
 }
