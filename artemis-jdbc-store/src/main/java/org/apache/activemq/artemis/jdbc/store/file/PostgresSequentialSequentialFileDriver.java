@@ -107,7 +107,7 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
    }
 
    @Override
-   public int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
+   public int writeToFile(JDBCSequentialFile file, byte[] data, boolean append) throws SQLException {
       synchronized (connection) {
          LargeObjectManager lobjManager = ((PGConnection) connection).getLargeObjectAPI();
          LargeObject largeObject = null;
@@ -116,7 +116,11 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
          try {
             connection.setAutoCommit(false);
             largeObject = lobjManager.open(oid, LargeObjectManager.WRITE);
-            largeObject.seek(largeObject.size());
+            if (append) {
+               largeObject.seek(largeObject.size());
+            } else {
+               largeObject.truncate(0);
+            }
             largeObject.write(data);
             largeObject.close();
             connection.commit();
