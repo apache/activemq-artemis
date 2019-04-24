@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class SessionReceiveLargeMessage extends PacketImpl implements MessagePacketI {
 
-   private final Message message;
+   private Message message;
 
    /**
     * Since we receive the message before the entire message was received,
@@ -53,6 +53,12 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       this.deliveryCount = deliveryCount;
 
       this.largeMessageSize = largeMessageSize;
+   }
+
+   @Override
+   public MessagePacketI replaceMessage(Message message) {
+      this.message = message;
+      return this;
    }
 
    public Message getLargeMessage() {

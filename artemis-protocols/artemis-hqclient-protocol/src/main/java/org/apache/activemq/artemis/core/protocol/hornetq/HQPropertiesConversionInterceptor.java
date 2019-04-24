@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.core.protocol.hornetq;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacketI;
 import org.apache.activemq.artemis.core.protocol.hornetq.util.HQPropertiesConverter;
@@ -42,11 +44,20 @@ public class HQPropertiesConversionInterceptor implements Interceptor {
    }
 
    private void handleReceiveMessage(MessagePacketI messagePacket) {
-      if (replaceHQ) {
-         HQPropertiesConverter.replaceHQProperties(messagePacket.getMessage());
-      } else {
-         HQPropertiesConverter.replaceAMQProperties(messagePacket.getMessage());
+      Message copy = messagePacket.getMessage();
+
+      // there's no need to copy client messages, only the server ones are problematic
+      if (!(copy instanceof ClientMessageInternal)) {
+         copy = copy.copy();
+         messagePacket.replaceMessage(copy);
       }
+
+      if (replaceHQ) {
+         HQPropertiesConverter.replaceHQProperties(copy);
+      } else {
+         HQPropertiesConverter.replaceAMQProperties(copy);
+      }
+
    }
 
 }
