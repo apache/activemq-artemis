@@ -447,7 +447,7 @@ automatically by setting the following property in the
 The following table lists all the `ha-policy` configuration elements for
 HA strategy shared store for `master`:
 
-- `failover-on-server-shutdown`
+- `failover-on-shutdown`
 
   If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md).
 
@@ -458,7 +458,7 @@ HA strategy shared store for `master`:
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Shared Store for `slave`:
 
-- `failover-on-server-shutdown`
+- `failover-on-shutdown`
 
   In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md).
 
