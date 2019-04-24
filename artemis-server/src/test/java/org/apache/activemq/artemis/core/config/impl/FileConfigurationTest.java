@@ -59,10 +59,30 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
+
+   @BeforeClass
+   public static void setupProperties() {
+      System.setProperty("a2Prop", "a2");
+      System.setProperty("falseProp", "false");
+      System.setProperty("trueProp", "true");
+      System.setProperty("ninetyTwoProp", "92");
+   }
+
+   @AfterClass
+   public static void clearProperties() {
+      System.clearProperty("a2Prop");
+      System.clearProperty("falseProp");
+      System.clearProperty("trueProp");
+      System.clearProperty("ninetyTwoProp");
+   }
+
 
    protected String getConfigurationName() {
       return "ConfigurationTest-full-config.xml";

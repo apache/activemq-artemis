@@ -214,7 +214,7 @@ public class XMLUtilTest extends SilentTestCase {
       String after = "<configuration>\n" + "   <test name=\"test1\">content1</test>\n" + "   <test name=\"test2\">content2</test>\n" + "   <test name=\"test3\">content3</test>\n" + "   <test name=\"test4\">content4</test>\n" + "   <test name=\"test5\">content5</test>\n" + "   <test name=\"test6\">content6</test>\n" + "</configuration>";
       System.setProperty("sysprop1", "test1");
       System.setProperty("sysprop2", "content4");
-      String replaced = XMLUtil.replaceSystemProps(before);
+      String replaced = XMLUtil.replaceSystemPropsInString(before);
       Assert.assertEquals(after, replaced);
    }
 

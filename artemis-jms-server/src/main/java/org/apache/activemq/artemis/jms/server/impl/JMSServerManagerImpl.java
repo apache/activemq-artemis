@@ -17,9 +17,6 @@
 package org.apache.activemq.artemis.jms.server.impl;
 
 import javax.naming.NamingException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -1632,13 +1629,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       public void reload(URL url) throws Exception {
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("jms");
 
-         InputStream input = url.openStream();
-         String xml;
-         try (Reader reader = new InputStreamReader(input)) {
-            xml = XMLUtil.readerToString(reader);
-         }
-         xml = XMLUtil.replaceSystemProps(xml);
-         Element e = XMLUtil.stringToElement(xml);
+         Element e = XMLUtil.urlToElement(url);
 
          if (config instanceof FileJMSConfiguration) {
             NodeList children = e.getElementsByTagName("jms");

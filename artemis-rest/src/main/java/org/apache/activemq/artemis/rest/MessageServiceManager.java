@@ -124,7 +124,7 @@ public class MessageServiceManager {
             JAXBContext jaxb = JAXBContext.newInstance(MessageServiceConfiguration.class);
             try (Reader reader = new InputStreamReader(url.openStream())) {
                String xml = XMLUtil.readerToString(reader);
-               xml = XMLUtil.replaceSystemProps(xml);
+               xml = XMLUtil.replaceSystemPropsInString(xml);
                configuration = (MessageServiceConfiguration) jaxb.createUnmarshaller().unmarshal(new StringReader(xml));
             }
          }
