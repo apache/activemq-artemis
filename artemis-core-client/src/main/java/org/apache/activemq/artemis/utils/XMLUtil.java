@@ -23,6 +23,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -51,12 +52,18 @@ public final class XMLUtil {
       // Utility class
    }
 
+   public static Element streamToElement(InputStream inputStream) throws Exception {
+      try (Reader reader = new InputStreamReader(inputStream)) {
+         return XMLUtil.readerToElement(reader);
+      }
+   }
+
    public static Element stringToElement(final String s) throws Exception {
       return XMLUtil.readerToElement(new StringReader(s));
    }
 
    public static Element urlToElement(final URL url) throws Exception {
-      return XMLUtil.readerToElement(new InputStreamReader(url.openStream()));
+      return XMLUtil.streamToElement(url.openStream());
    }
 
    public static String readerToString(final Reader r) throws Exception {
@@ -70,24 +77,11 @@ public final class XMLUtil {
    }
 
    public static Element readerToElement(final Reader r) throws Exception {
-      // Read into string
-      StringBuffer buff = new StringBuffer();
-      int c;
-      while ((c = r.read()) != -1) {
-         buff.append((char) c);
-      }
-
-      // Quick hardcoded replace, FIXME this is a kludge - use regexp to match properly
-      String s = buff.toString();
-
-      StringReader sreader = new StringReader(s);
-
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6529766
       factory.setNamespaceAware(true);
       factory.setXIncludeAware(true);
       DocumentBuilder parser = factory.newDocumentBuilder();
-      Document doc = parser.parse(new InputSource(sreader));
+      Document doc = replaceSystemPropsInXml(parser.parse(new InputSource(r)));
       return doc.getDocumentElement();
    }
 
@@ -257,7 +251,8 @@ public final class XMLUtil {
       }
       return s;
    }
-   public static String replaceSystemProps(String xml) {
+
+   public static String replaceSystemPropsInString(String xml) {
       while (xml.contains("${")) {
          int start = xml.indexOf("${");
          int end = xml.indexOf("}") + 1;
@@ -278,6 +273,33 @@ public final class XMLUtil {
 
       }
       return xml;
+   }
+
+   public static Document replaceSystemPropsInXml(Document doc) {
+      NodeList nodeList = doc.getElementsByTagName("*");
+      for (int i = 0, len = nodeList.getLength(); i < len; i++) {
+         Node node = nodeList.item(i);
+         if (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
+            if (node.hasAttributes()) {
+               NamedNodeMap attributes = node.getAttributes();
+               for (int j = 0; j < attributes.getLength(); j++) {
+                  Node attribute = attributes.item(j);
+                  attribute.setTextContent(XMLUtil.replaceSystemPropsInString(attribute.getTextContent()));
+               }
+            }
+            if (node.hasChildNodes()) {
+               NodeList children = node.getChildNodes();
+               for (int j = 0; j < children.getLength(); j++) {
+                  String value = children.item(j).getNodeValue();
+                  if (value != null) {
+                     children.item(j).setNodeValue(XMLUtil.replaceSystemPropsInString(value));
+                  }
+               }
+            }
+         }
+      }
+
+      return doc;
    }
 
    public static long parseLong(final Node elem) {
