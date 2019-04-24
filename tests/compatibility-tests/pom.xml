@@ -261,6 +261,10 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.wildfly.common</groupId>
+          <artifactId>wildfly-common</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
          <version>${qpid.jms.version}</version>
