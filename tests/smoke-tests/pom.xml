@@ -104,6 +104,10 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.wildfly.common</groupId>
+          <artifactId>wildfly-common</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.fusesource.mqtt-client</groupId>
          <artifactId>mqtt-client</artifactId>
       </dependency>

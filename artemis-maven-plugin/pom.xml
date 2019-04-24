@@ -85,12 +85,12 @@
    </dependencies>
 
    <build>
-   	<pluginManagement>
-   		<plugins>
+      <pluginManagement>
+         <plugins>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-plugin-plugin</artifactId>
-               <version>3.4</version>
+               <version>3.5.2</version>
                <executions>
                   <execution>
                      <id>default-descriptor</id>

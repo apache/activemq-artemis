@@ -106,9 +106,15 @@ if [ -z "$LOG_MANAGER" ] ; then
   LOG_MANAGER="$ARTEMIS_HOME/lib/${logmanager}"
 fi
 
+WILDFLY_COMMON=`ls $ARTEMIS_HOME/lib/wildfly-common*jar 2>/dev/null`
+if [ -z "$WILDFLY_COMMON" ] ; then
+  # this is the one found when the server was created
+  WILDFLY_COMMON="$ARTEMIS_HOME/lib/${wildfly-common}"
+fi
+
 exec "$JAVACMD" \
     $JAVA_ARGS \
-    -Xbootclasspath/a:"$LOG_MANAGER" \
+    -Xbootclasspath/a:"$LOG_MANAGER:$WILDFLY_COMMON" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
