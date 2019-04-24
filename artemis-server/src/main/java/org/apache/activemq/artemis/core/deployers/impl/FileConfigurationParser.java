@@ -16,9 +16,12 @@
  */
 package org.apache.activemq.artemis.core.deployers.impl;
 
+import javax.xml.XMLConstants;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -92,12 +95,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import javax.xml.XMLConstants;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 /**
  * Parses an XML document according to the {@literal artemis-configuration.xsd} schema.
@@ -286,10 +283,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    public Configuration parseMainConfig(final InputStream input) throws Exception {
-      Reader reader = new InputStreamReader(input);
-      String xml = XMLUtil.readerToString(reader);
-      xml = XMLUtil.replaceSystemProps(xml);
-      Element e = XMLUtil.stringToElement(xml);
+      Element e = XMLUtil.streamToElement(input);
       SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
       Schema schema = schemaFactory.newSchema(XMLUtil.findResource("schema/artemis-server.xsd"));
       Validator validator = schema.newValidator();

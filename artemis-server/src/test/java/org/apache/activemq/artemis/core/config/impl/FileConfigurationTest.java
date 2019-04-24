@@ -64,6 +64,13 @@ import org.junit.Test;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 
+   static {
+      System.setProperty("a2Prop", "a2");
+      System.setProperty("falseProp", "false");
+      System.setProperty("trueProp", "true");
+      System.setProperty("ninetyTwoProp", "92");
+   }
+
    protected String getConfigurationName() {
       return "ConfigurationTest-full-config.xml";
    }
