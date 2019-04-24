@@ -85,7 +85,7 @@
       <commons.collections.version>3.2.2</commons.collections.version>
       <fuse.mqtt.client.version>1.14</fuse.mqtt.client.version>
       <guava.version>19.0</guava.version>
-      <jboss.logging.version>3.3.1.Final</jboss.logging.version>
+      <jboss.logging.version>3.4.0.Final</jboss.logging.version>
       <jetty.version>9.4.3.v20170317</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
@@ -100,8 +100,9 @@
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
       <hawtbuff.version>1.11</hawtbuff.version>
-      <jb.logmanager.version>2.0.3.Final</jb.logmanager.version>
+      <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
       <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
+       <version.org.wildfly.common.wildfly-common>1.5.1.Final</version.org.wildfly.common.wildfly-common>
       <airlift.version>0.7</airlift.version>
       <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
@@ -313,14 +314,14 @@
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
-            <version>2.1.0.Final</version>
+            <version>2.2.0.Final</version>
             <optional>true</optional>
             <!-- License: LGPL-->
          </dependency>
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-annotations</artifactId>
-            <version>2.1.0.Final</version>
+            <version>2.2.0.Final</version>
             <scope>provided</scope>
             <optional>true</optional>
             <!-- License: Apache 2.0-->
@@ -405,6 +406,12 @@
             <artifactId>slf4j-jboss-logmanager</artifactId>
             <version>${jb.slf4j-jboss-logmanager.version}</version>
             <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+             <groupId>org.wildfly.common</groupId>
+             <artifactId>wildfly-common</artifactId>
+             <version>${version.org.wildfly.common.wildfly-common}</version>
+             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>net.java.dev.javacc</groupId>

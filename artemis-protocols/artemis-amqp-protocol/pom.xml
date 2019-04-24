@@ -70,6 +70,11 @@
          <artifactId>jboss-logmanager</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+          <groupId>org.wildfly.common</groupId>
+          <artifactId>wildfly-common</artifactId>
+         <scope>test</scope>
+      </dependency>
 
       <!-- this is for the log assertion -->
       <dependency>
