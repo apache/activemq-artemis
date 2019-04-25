@@ -48,16 +48,14 @@ public class SpawnedJMSServer {
 
          System.out.println("OK");
 
-         String line = null;
-         while ((line = br.readLine()) != null) {
-            if ("STOP".equals(line.trim())) {
-               stopServer();
-               System.out.println("Server stopped");
-               System.exit(0);
-            } else {
-               // stop anyway but with an error status
-               System.exit(1);
-            }
+         String line = br.readLine();
+         if (line != null && "STOP".equals(line.trim())) {
+            stopServer();
+            System.out.println("Server stopped");
+            System.exit(0);
+         } else {
+            // stop anyway but with an error status
+            System.exit(1);
          }
       } catch (Throwable t) {
          t.printStackTrace();
