@@ -359,7 +359,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
             throw new IllegalStateException("Is closed");
          }
 
-         byte[] bytesRead = new byte[bytes.limit()];
+         byte[] bytesRead = new byte[Math.min(bytes.remaining(), data.remaining())];
 
          data.get(bytesRead);
 
