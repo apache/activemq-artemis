@@ -387,7 +387,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
          if (isLargeMessage()) {
             return getBodyBuffer().writerIndex();
          } else {
-            return getBodyBuffer().writerIndex() - BODY_OFFSET;
+            return (long) getBodyBuffer().writerIndex() - BODY_OFFSET;
          }
       }
 
