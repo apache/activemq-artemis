@@ -85,6 +85,7 @@ public class JMSConsumer9Test extends BasicOpenWireTest {
       assertEquals(4, counter.get());
    }
 
+   @Test
    public void testMessageListenerWithConsumer() throws Exception {
 
       final AtomicInteger counter = new AtomicInteger(0);
