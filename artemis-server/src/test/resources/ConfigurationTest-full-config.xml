@@ -84,7 +84,7 @@
             tcp://0.0.0.0:61616?
             tcpNoDelay=456;
             connectionTtl=44;
-            connectionsAllowed=92
+            connectionsAllowed=${ninetyTwoProp}
          </acceptor>
          <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
       </acceptors>
@@ -364,7 +364,7 @@
          <security-setting match="a1">
             <permission type="createNonDurableQueue" roles="a1.1"/>
          </security-setting>
-         <security-setting match="a2">
+         <security-setting match="${a2Prop}">
             <permission type="deleteNonDurableQueue" roles="a2.1"/>
          </security-setting>
       </security-settings>
@@ -438,11 +438,11 @@
          <address name="addr1">
             <anycast>
                <queue name="q1">
-                  <durable>false</durable>
+                  <durable>${falseProp}</durable>
                   <filter string="color='blue'"/>
                </queue>
-               <queue name="q2" max-consumers="-1" purge-on-no-consumers="false">
-                  <durable>true</durable>
+               <queue name="q2" max-consumers="-1" purge-on-no-consumers="${falseProp}">
+                  <durable>${trueProp}</durable>
                   <filter string="color='green'"/>
                </queue>
             </anycast>
@@ -452,8 +452,8 @@
                <queue name="q3" max-consumers="10" >
                   <filter string="color='red'"/>
                </queue>
-               <queue name="q4" purge-on-no-consumers="true">
-                  <durable>true</durable>
+               <queue name="q4" purge-on-no-consumers="${trueProp}">
+                  <durable>${trueProp}</durable>
                </queue>
             </multicast>
          </address>

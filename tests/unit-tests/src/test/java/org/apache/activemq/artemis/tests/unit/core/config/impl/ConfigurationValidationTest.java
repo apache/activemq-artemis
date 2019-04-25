@@ -26,6 +26,13 @@ import org.w3c.dom.Element;
 
 public class ConfigurationValidationTest extends ActiveMQTestBase {
 
+   static {
+      System.setProperty("a2Prop", "a2");
+      System.setProperty("falseProp", "false");
+      System.setProperty("trueProp", "true");
+      System.setProperty("ninetyTwoProp", "92");
+   }
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
