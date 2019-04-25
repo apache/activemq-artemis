@@ -1223,9 +1223,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Object removeProperty(String key) {
-      Object removed = getApplicationPropertiesMap(false).remove(key);
-      messageChanged();
-      return removed;
+      return getApplicationPropertiesMap(false).remove(key);
    }
 
    @Override
@@ -1397,70 +1395,60 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public org.apache.activemq.artemis.api.core.Message putBooleanProperty(String key, boolean value) {
       getApplicationPropertiesMap(true).put(key, Boolean.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putByteProperty(String key, byte value) {
       getApplicationPropertiesMap(true).put(key, Byte.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putBytesProperty(String key, byte[] value) {
       getApplicationPropertiesMap(true).put(key, value);
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putShortProperty(String key, short value) {
       getApplicationPropertiesMap(true).put(key, Short.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putCharProperty(String key, char value) {
       getApplicationPropertiesMap(true).put(key, Character.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putIntProperty(String key, int value) {
       getApplicationPropertiesMap(true).put(key, Integer.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putLongProperty(String key, long value) {
       getApplicationPropertiesMap(true).put(key, Long.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putFloatProperty(String key, float value) {
       getApplicationPropertiesMap(true).put(key, Float.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putDoubleProperty(String key, double value) {
       getApplicationPropertiesMap(true).put(key, Double.valueOf(value));
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putBooleanProperty(SimpleString key, boolean value) {
       getApplicationPropertiesMap(true).put(key.toString(), Boolean.valueOf(value));
-      messageChanged();
       return this;
    }
 
@@ -1507,14 +1495,12 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public org.apache.activemq.artemis.api.core.Message putStringProperty(String key, String value) {
       getApplicationPropertiesMap(true).put(key, value);
-      messageChanged();
       return this;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException {
       getApplicationPropertiesMap(true).put(key, value);
-      messageChanged();
       return this;
    }
 

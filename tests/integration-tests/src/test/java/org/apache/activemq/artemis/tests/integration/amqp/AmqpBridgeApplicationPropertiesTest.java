@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -35,11 +36,38 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AmqpBridgeApplicationProperties extends AmqpClientTestSupport {
+public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
 
+   public static class DivertApplicationPropertiesTransformer implements Transformer {
+
+      public static final String TRX_ID = "trxId";
+
+      @Override
+      public Message transform(final Message message) {
+
+         message.putStringProperty("A", "1");
+         message.putStringProperty("B", "2");
+         message.reencode();
+
+         return message;
+      }
+   }
+   public static class BridgeApplicationPropertiesTransformer implements Transformer {
+
+      @Override
+      public Message transform(final Message message) {
+
+         message.putStringProperty("C", "3");
+         message.putStringProperty("D", "4");
+         message.reencode();
+
+         return message;
+      }
+   }
    private ActiveMQServer server0;
    private ActiveMQServer server1;
 
@@ -76,7 +104,7 @@ public class AmqpBridgeApplicationProperties extends AmqpClientTestSupport {
       server0.getConfiguration().addConnectorConfiguration("notification-broker", getServer1URL());
       server1.getConfiguration().addAcceptorConfiguration("acceptor", getServer1URL());
 
-      DivertConfiguration customNotificationsDivert = new DivertConfiguration().setName("custom-notifications-divert").setAddress("*.Provider.*.Agent.*.CustomNotification").setForwardingAddress("FrameworkNotifications").setExclusive(true).setTransformerConfiguration(new TransformerConfiguration(DivertApplicationPropertiesTransformer.class.getCanonicalName()));
+      DivertConfiguration customNotificationsDivert = new DivertConfiguration().setName("custom-notifications-divert").setAddress("*.Provider.*.Agent.*.CustomNotification").setForwardingAddress("FrameworkNotifications").setExclusive(true).setTransformerConfiguration(new TransformerConfiguration(DivertApplicationPropertiesTransformer.class.getName()));
       DivertConfiguration frameworkNotificationsDivert = new DivertConfiguration().setName("framework-notifications-divert").setAddress("BridgeNotifications").setForwardingAddress("Notifications").setRoutingType(ComponentConfigurationRoutingType.MULTICAST).setExclusive(true);
 
       server0.getConfiguration().addDivertConfiguration(customNotificationsDivert);
@@ -95,7 +123,7 @@ public class AmqpBridgeApplicationProperties extends AmqpClientTestSupport {
       server1.createQueue(bridgeNotificationsQueue, RoutingType.ANYCAST, bridgeNotificationsQueue, null, true, false);
       server1.createQueue(notificationsQueue, RoutingType.MULTICAST, notificationsQueue, null, true, false);
 
-      server0.deployBridge(new BridgeConfiguration().setName("notifications-bridge").setQueueName(frameworkNotificationsQueue.toString()).setForwardingAddress(bridgeNotificationsQueue.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("notification-broker")).setTransformerConfiguration(new TransformerConfiguration(BridgeApplicationPropertiesTransformer.class.getCanonicalName())));
+      server0.deployBridge(new BridgeConfiguration().setName("notifications-bridge").setQueueName(frameworkNotificationsQueue.toString()).setForwardingAddress(bridgeNotificationsQueue.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("notification-broker")).setTransformerConfiguration(new TransformerConfiguration(BridgeApplicationPropertiesTransformer.class.getName())));
    }
 
    @Test
