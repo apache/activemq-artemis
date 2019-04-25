@@ -1398,9 +1398,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (pageSubscription != null) {
          // messageReferences will have depaged messages which we need to discount from the counter as they are
          // counted on the pageSubscription as well
-         return pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
+         return (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
       } else {
-         return pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount();
+         return (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount();
       }
    }
 
@@ -1419,9 +1419,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public long getDurableMessageCount() {
       if (isDurable()) {
          if (pageSubscription != null) {
-            return pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount() + pageSubscription.getMessageCount();
+            return (long) pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount() + pageSubscription.getMessageCount();
          } else {
-            return pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount();
+            return (long) pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount();
          }
       }
       return 0;
