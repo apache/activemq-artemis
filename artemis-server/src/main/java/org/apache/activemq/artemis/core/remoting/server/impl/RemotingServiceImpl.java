@@ -151,7 +151,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       CoreProtocolManagerFactory coreProtocolManagerFactory = new CoreProtocolManagerFactory();
 
-      MessagePersister.getInstance().registerProtocol(coreProtocolManagerFactory);
+      MessagePersister.registerProtocol(coreProtocolManagerFactory);
 
       this.flushExecutor = flushExecutor;
 
