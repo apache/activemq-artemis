@@ -250,7 +250,7 @@ public class RequestorTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
    }
 
-   private final class SimpleMessageHandler implements MessageHandler {
+   private static final class SimpleMessageHandler implements MessageHandler {
 
       private final SimpleString key;
 

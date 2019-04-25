@@ -151,7 +151,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
       }
    }
 
-   class Toggler extends Thread {
+   static class Toggler extends Thread {
 
       private volatile Exception e;
 

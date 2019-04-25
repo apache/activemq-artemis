@@ -918,7 +918,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
    // Inner classes -------------------------------------------------
 
-   private abstract class LatchListener implements MessageListener {
+   private abstract static class LatchListener implements MessageListener {
 
       protected CountDownLatch latch = new CountDownLatch(1);
 

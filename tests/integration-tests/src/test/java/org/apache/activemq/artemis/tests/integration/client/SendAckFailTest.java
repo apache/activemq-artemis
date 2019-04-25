@@ -258,7 +258,7 @@ public class SendAckFailTest extends SpawnedTestBase {
    }
 
 
-   private class StorageManagerDelegate implements StorageManager {
+   private static class StorageManagerDelegate implements StorageManager {
 
       @Override
       public void start() throws Exception {

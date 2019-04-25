@@ -765,7 +765,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       }
    }
 
-   class FakeSession implements ClientSession {
+   static class FakeSession implements ClientSession {
 
       @Override
       public ClientConsumer createConsumer(final SimpleString queueName,

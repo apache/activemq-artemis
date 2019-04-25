@@ -91,7 +91,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
       return response;
    }
 
-   protected class StompDecoderV12 extends StompDecoderV11 {
+   protected static class StompDecoderV12 extends StompDecoderV11 {
 
       protected boolean nextEOLChar = false;
 

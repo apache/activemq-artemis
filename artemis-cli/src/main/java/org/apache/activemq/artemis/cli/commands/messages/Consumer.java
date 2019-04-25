@@ -125,7 +125,7 @@ public class Consumer extends DestAbstract {
       }
    }
 
-   private class SerialiserMessageListener implements MessageListener {
+   private static class SerialiserMessageListener implements MessageListener {
 
       private MessageSerializer messageSerializer;
 

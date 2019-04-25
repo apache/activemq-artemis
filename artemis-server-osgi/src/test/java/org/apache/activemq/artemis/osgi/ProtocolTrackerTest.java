@@ -60,7 +60,7 @@ public class ProtocolTrackerTest {
       c.verify();
    }
 
-   class RefFact {
+   static class RefFact {
 
       ServiceReference<ProtocolManagerFactory<Interceptor>> ref;
       ProtocolManagerFactory factory;

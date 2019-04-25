@@ -619,7 +619,7 @@ public class JmsContextTest extends JMSTestBase {
 
    }
 
-   private class JMSCOntextStopCompletionListener implements CompletionListener {
+   private static class JMSCOntextStopCompletionListener implements CompletionListener {
 
       private JMSContext context;
       private CountDownLatch latch;

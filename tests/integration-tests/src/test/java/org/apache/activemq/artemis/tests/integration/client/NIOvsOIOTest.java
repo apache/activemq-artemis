@@ -167,7 +167,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
       }
    }
 
-   private class Sender extends Thread {
+   private static class Sender extends Thread {
 
       private final ClientSessionFactory sf;
 
@@ -218,7 +218,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
       }
    }
 
-   private class Receiver implements MessageHandler {
+   private static class Receiver implements MessageHandler {
 
       private final ClientSessionFactory sf;
 

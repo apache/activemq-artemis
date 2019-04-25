@@ -522,7 +522,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          sendLargeFile(null, queueName, id, file, Long.MAX_VALUE);
    }
 
-   private class FlushAction implements Runnable {
+   private static class FlushAction implements Runnable {
 
       ReusableLatch latch = new ReusableLatch(1);
 

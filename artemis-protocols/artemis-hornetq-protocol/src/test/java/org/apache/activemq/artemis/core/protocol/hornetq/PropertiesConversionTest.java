@@ -30,7 +30,7 @@ import org.junit.Test;
 
 public class PropertiesConversionTest {
 
-   class FakeMessagePacket extends MessagePacket {
+   static class FakeMessagePacket extends MessagePacket {
 
       FakeMessagePacket(ICoreMessage message) {
          super(PacketImpl.SESS_SEND, message);

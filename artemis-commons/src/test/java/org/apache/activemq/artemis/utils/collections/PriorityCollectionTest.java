@@ -231,7 +231,7 @@ public class PriorityCollectionTest {
    }
 
 
-   private class TestPriorityAware implements PriorityAware {
+   private static class TestPriorityAware implements PriorityAware {
 
       private long value;
 
@@ -259,7 +259,7 @@ public class PriorityCollectionTest {
       }
    }
 
-   private class TestPriority implements PriorityAware {
+   private static class TestPriority implements PriorityAware {
 
       private String name;
       private int priority;

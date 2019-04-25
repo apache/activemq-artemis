@@ -105,7 +105,7 @@ public class ChannelImplTest {
       assertEquals(0, channel.getCache().size());
    }
 
-   class RequestPacket extends PacketImpl {
+   static class RequestPacket extends PacketImpl {
 
       private long id;
 
@@ -139,7 +139,7 @@ public class ChannelImplTest {
       }
    }
 
-   class ResponsePacket extends PacketImpl {
+   static class ResponsePacket extends PacketImpl {
 
       private long id;
 
@@ -173,7 +173,7 @@ public class ChannelImplTest {
       }
    }
 
-   class CoreRR implements CoreRemotingConnection {
+   static class CoreRR implements CoreRemotingConnection {
 
       @Override
       public int getChannelVersion() {

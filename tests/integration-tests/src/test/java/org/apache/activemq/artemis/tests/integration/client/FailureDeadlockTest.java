@@ -106,7 +106,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
       }
    }
 
-   private class Failer extends Thread {
+   private static class Failer extends Thread {
 
       RemotingConnection conn;
 

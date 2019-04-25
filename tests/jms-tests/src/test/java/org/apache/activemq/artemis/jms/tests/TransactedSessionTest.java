@@ -672,7 +672,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
    }
 
-   class myReceiver implements MessageListener {
+   static class myReceiver implements MessageListener {
 
       int count = 0;
       boolean started = false;

@@ -86,7 +86,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       return factory.createConnection();
    }
 
-   private class TestMessageListener implements MessageListener {
+   private static class TestMessageListener implements MessageListener {
 
       public int counter;
       private final Session session;

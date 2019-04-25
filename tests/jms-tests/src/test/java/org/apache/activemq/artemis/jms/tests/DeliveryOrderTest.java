@@ -76,7 +76,7 @@ public class DeliveryOrderTest extends JMSTestCase {
       }
    }
 
-   class MyListener implements MessageListener {
+   static class MyListener implements MessageListener {
 
       private int c;
 

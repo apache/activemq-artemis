@@ -239,7 +239,7 @@ public class ColocatedActivation extends LiveActivation {
       }
    }
 
-   class RequestBackupVote extends Vote<Pair<String, Integer>> {
+   static class RequestBackupVote extends Vote<Pair<String, Integer>> {
 
       private int backupsSize;
       private String nodeID;

@@ -78,7 +78,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
 
    // Inner classes -------------------------------------------------
 
-   class TestMessageListener implements MessageListener {
+   static class TestMessageListener implements MessageListener {
 
       private final QueueSession sess;
 

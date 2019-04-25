@@ -102,7 +102,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
    }
 
-   private final class FakeTransaction implements Transaction {
+   private static final class FakeTransaction implements Transaction {
 
       @Override
       public Object getProtocolData() {
@@ -263,7 +263,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
    }
 
-   private final class FakeFilter implements Filter {
+   private static final class FakeFilter implements Filter {
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.filter.Filter#getFilterString()
@@ -294,7 +294,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    }
 
-   private final class FakeBinding implements Binding {
+   private static final class FakeBinding implements Binding {
 
       @Override
       public void close() throws Exception {

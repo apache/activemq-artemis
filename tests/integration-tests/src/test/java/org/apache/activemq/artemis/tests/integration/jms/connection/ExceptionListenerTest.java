@@ -59,7 +59,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
       cf.setPreAcknowledge(true);
    }
 
-   private class MyExceptionListener implements ExceptionListener {
+   private static class MyExceptionListener implements ExceptionListener {
 
       volatile int numCalls;
 

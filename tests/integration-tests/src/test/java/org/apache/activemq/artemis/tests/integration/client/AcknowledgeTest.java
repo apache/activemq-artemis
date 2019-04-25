@@ -283,7 +283,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       session.close();
    }
 
-   class FakeConsumerWithID implements ClientConsumer {
+   static class FakeConsumerWithID implements ClientConsumer {
 
       final long id;
 
@@ -337,7 +337,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
    }
 
-   class FakeMessageWithID extends RefCountMessage {
+   static class FakeMessageWithID extends RefCountMessage {
 
       final long id;
 

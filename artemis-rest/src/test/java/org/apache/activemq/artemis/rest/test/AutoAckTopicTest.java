@@ -144,7 +144,7 @@ public class AutoAckTopicTest extends MessageTestBase {
       t.interrupt();
    }
 
-   private class NewPullSubscriber implements Runnable {
+   private static class NewPullSubscriber implements Runnable {
 
       private final String url;
       private boolean isFinished = false;
@@ -179,7 +179,7 @@ public class AutoAckTopicTest extends MessageTestBase {
       }
    }
 
-   private class AcceptWaitListener implements Runnable {
+   private static class AcceptWaitListener implements Runnable {
 
       private final int acceptWaitTime = 8;
       private String url;

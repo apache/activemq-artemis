@@ -97,7 +97,7 @@ public class AmqpCoreTest extends JMSClientTestSupport {
       }
    }
 
-   private class CoreMessageHandler implements MessageHandler {
+   private static class CoreMessageHandler implements MessageHandler {
       int id;
       int numMsg = 0;
       volatile boolean zeroLen = false;

@@ -196,7 +196,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
    }
 
-   class BindingFactoryFake implements BindingsFactory {
+   static class BindingFactoryFake implements BindingsFactory {
 
       @Override
       public Bindings createBindings(SimpleString address) throws Exception {
@@ -204,7 +204,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
    }
 
-   class BindingFake implements Binding {
+   static class BindingFake implements Binding {
 
       final SimpleString address;
       final SimpleString id;
@@ -302,7 +302,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
    }
 
-   class BindingsFake implements Bindings {
+   static class BindingsFake implements Bindings {
 
       ArrayList<Binding> bindings = new ArrayList<>();
 

@@ -1096,7 +1096,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       verifyReceiveRoundRobinInSomeOrder(true, numMessages, consumerIDs);
    }
 
-   class OrderedConsumerHolder implements Comparable<OrderedConsumerHolder> {
+   static class OrderedConsumerHolder implements Comparable<OrderedConsumerHolder> {
 
       ConsumerHolder consumer;
 

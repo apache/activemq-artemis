@@ -395,7 +395,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       return conf;
    }
 
-   abstract class AddRecordLoaderCallback implements LoaderCallback {
+   abstract static class AddRecordLoaderCallback implements LoaderCallback {
 
       @Override
       public void addPreparedTransaction(PreparedTransactionInfo preparedTransaction) {

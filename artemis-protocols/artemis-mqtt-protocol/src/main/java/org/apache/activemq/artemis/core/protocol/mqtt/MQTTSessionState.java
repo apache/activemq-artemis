@@ -128,7 +128,7 @@ public class MQTTSessionState {
       }
    }
 
-   public class OutboundStore {
+   public static class OutboundStore {
 
       private HashMap<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
 

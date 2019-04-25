@@ -124,7 +124,7 @@ public class URIParserTest {
 
    }
 
-   class FruitParser extends URIFactory<FruitBase, String> {
+   static class FruitParser extends URIFactory<FruitBase, String> {
 
       FruitParser() {
          this.registerSchema(new FruitSchema());
@@ -132,7 +132,7 @@ public class URIParserTest {
       }
    }
 
-   class FruitSchema extends URISchema<FruitBase, String> {
+   static class FruitSchema extends URISchema<FruitBase, String> {
 
       @Override
       public String getSchemaName() {
@@ -146,7 +146,7 @@ public class URIParserTest {
 
    }
 
-   class FruitBaseSchema extends URISchema<FruitBase, String> {
+   static class FruitBaseSchema extends URISchema<FruitBase, String> {
 
       @Override
       public String getSchemaName() {

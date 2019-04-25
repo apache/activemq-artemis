@@ -83,7 +83,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
       return uriRegistry;
    }
 
-   class ReloadRegistry {
+   static class ReloadRegistry {
 
       private File file;
       private final URL uri;

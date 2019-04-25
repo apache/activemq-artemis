@@ -219,7 +219,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       qResourceAdapter.stop();
    }
 
-   class XADummyEndpoint extends DummyMessageEndpoint {
+   static class XADummyEndpoint extends DummyMessageEndpoint {
 
       private Xid xid;
 
@@ -262,7 +262,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       }
    }
 
-   class PausingXADummyEndpoint extends XADummyEndpoint {
+   static class PausingXADummyEndpoint extends XADummyEndpoint {
 
       private final CountDownLatch beforeDeliveryLatch;
 
@@ -301,7 +301,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       }
    }
 
-   class XADummyEndpointBegin extends  XADummyEndpoint {
+   static class XADummyEndpointBegin extends  XADummyEndpoint {
 
       private boolean afterDelivery = false;
 

@@ -346,7 +346,7 @@ public class SharedNothingReplicationTest {
       }
    }
 
-   abstract class AddRecordLoaderCallback implements LoaderCallback {
+   abstract static class AddRecordLoaderCallback implements LoaderCallback {
 
       @Override
       public void addPreparedTransaction(PreparedTransactionInfo preparedTransaction) {

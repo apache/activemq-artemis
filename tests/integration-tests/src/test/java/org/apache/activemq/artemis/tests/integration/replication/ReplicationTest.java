@@ -537,7 +537,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       Assert.assertEquals(0, manager.getActiveTokens().size());
    }
 
-   class FakeData implements EncodingSupport {
+   static class FakeData implements EncodingSupport {
 
       @Override
       public void decode(final ActiveMQBuffer buffer) {

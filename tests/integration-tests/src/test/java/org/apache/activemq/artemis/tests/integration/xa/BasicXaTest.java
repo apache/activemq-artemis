@@ -983,7 +983,7 @@ public class BasicXaTest extends ActiveMQTestBase {
       }
    }
 
-   class TxMessageHandler implements MessageHandler {
+   static class TxMessageHandler implements MessageHandler {
 
       boolean failedToAck = false;
 

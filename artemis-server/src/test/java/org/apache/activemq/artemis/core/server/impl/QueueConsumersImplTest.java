@@ -113,7 +113,7 @@ public class QueueConsumersImplTest {
 
 
 
-   private class TestPriority implements PriorityAware {
+   private static class TestPriority implements PriorityAware {
 
       private final int priority;
       private final String name;

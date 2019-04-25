@@ -903,7 +903,7 @@ public class NettyAcceptor extends AbstractAcceptor {
     * Deal with SSL handshake exceptions which otherwise would not be handled and would result in a lengthy stack-trace
     * in the log.
     */
-   private class SslHandshakeExceptionHandler implements ChannelHandler {
+   private static class SslHandshakeExceptionHandler implements ChannelHandler {
 
       @Override
       public void handlerAdded(ChannelHandlerContext ctx) throws Exception {

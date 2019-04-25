@@ -882,7 +882,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       }
    }
 
-   class FakeOutputStream extends OutputStream {
+   static class FakeOutputStream extends OutputStream {
 
       /* (non-Javadoc)
        * @see java.io.OutputStream#write(int)

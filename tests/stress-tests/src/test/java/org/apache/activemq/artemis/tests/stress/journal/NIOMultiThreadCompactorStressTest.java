@@ -327,7 +327,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
    // Public --------------------------------------------------------
 
-   class BaseThread extends Thread {
+   static class BaseThread extends Thread {
 
       Throwable e;
 

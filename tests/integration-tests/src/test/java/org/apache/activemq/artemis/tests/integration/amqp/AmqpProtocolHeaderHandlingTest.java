@@ -67,7 +67,7 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(250)));
    }
 
-   private class ClientConnection {
+   private static class ClientConnection {
 
       protected static final long RECEIVE_TIMEOUT = 10000;
       protected Socket clientSocket;
@@ -99,7 +99,7 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
    }
 
    @SuppressWarnings("unused")
-   private class AmqpHeader {
+   private static class AmqpHeader {
 
       final Buffer PREFIX = new Buffer(new byte[]{'A', 'M', 'Q', 'P'});
 

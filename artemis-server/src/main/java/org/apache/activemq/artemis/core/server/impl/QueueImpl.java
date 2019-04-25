@@ -3644,7 +3644,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /**
     * This will determine the actions that could be done while iterate the queue through iterQueue
     */
-   abstract class QueueIterateAction {
+   abstract static class QueueIterateAction {
 
       public abstract void actMessage(Transaction tx, MessageReference ref) throws Exception;
 

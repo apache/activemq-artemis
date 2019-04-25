@@ -3715,7 +3715,7 @@ public class MessageConsumerTest extends JMSTestCase {
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
-   private class ConnectionCloseMessageListener implements MessageListener {
+   private static class ConnectionCloseMessageListener implements MessageListener {
 
       private Connection conn;
       private CountDownLatch latch;
@@ -3737,7 +3737,7 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   private class ConnectionStopMessageListener implements MessageListener {
+   private static class ConnectionStopMessageListener implements MessageListener {
 
       private Connection conn;
       private CountDownLatch latch;
@@ -3759,7 +3759,7 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   private class SessionCloseMessageListener implements MessageListener {
+   private static class SessionCloseMessageListener implements MessageListener {
 
       private Session session;
       private CountDownLatch latch;
@@ -3871,7 +3871,7 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   private class RedelMessageListenerImpl implements MessageListener {
+   private static class RedelMessageListenerImpl implements MessageListener {
 
       private Session sess;
 

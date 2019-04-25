@@ -316,7 +316,7 @@ public class WebServerComponentTest extends Assert {
       assertEquals(trustPassword, broker.web.getTrustStorePassword());
    }
 
-   class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {
+   static class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
       private CountDownLatch latch;
       private String body;

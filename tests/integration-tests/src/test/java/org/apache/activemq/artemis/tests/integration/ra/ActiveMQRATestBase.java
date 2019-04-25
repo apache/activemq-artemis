@@ -82,7 +82,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
       return qResourceAdapter;
    }
 
-   protected class DummyMessageEndpointFactory implements MessageEndpointFactory {
+   protected static class DummyMessageEndpointFactory implements MessageEndpointFactory {
 
       private DummyMessageEndpoint endpoint;
 
@@ -107,7 +107,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
       }
    }
 
-   protected class DummyMessageEndpoint implements MessageEndpoint, MessageListener {
+   protected static class DummyMessageEndpoint implements MessageEndpoint, MessageListener {
 
       public CountDownLatch latch;
 
@@ -155,7 +155,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
       }
    }
 
-   public class MyBootstrapContext implements BootstrapContext {
+   public static class MyBootstrapContext implements BootstrapContext {
 
       WorkManager workManager = new DummyWorkManager();
 
@@ -174,7 +174,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
          return null;
       }
 
-      class DummyWorkManager implements WorkManager {
+      static class DummyWorkManager implements WorkManager {
 
          @Override
          public void doWork(Work work) throws WorkException {

@@ -159,7 +159,7 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
       return body;
    }
 
-   private class Header {
+   private static class Header {
 
       public String key;
       public String val;

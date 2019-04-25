@@ -110,7 +110,7 @@ public class SoftValueMapTest extends ActiveMQTestBase {
 
    }
 
-   class Value implements SoftValueHashMap.ValueCache {
+   static class Value implements SoftValueHashMap.ValueCache {
 
       byte[] payload;
 

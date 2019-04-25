@@ -1221,7 +1221,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       Assert.assertEquals(0, getMessagesAdded(queue));
    }
 
-   class AddtoQueueRunner implements Runnable {
+   static class AddtoQueueRunner implements Runnable {
 
       QueueImpl queue;
 

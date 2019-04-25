@@ -145,7 +145,7 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       return new EmbeddedChannel(new ChannelInboundHandlerAdapter());
    }
 
-   class MyListener implements ClientConnectionLifeCycleListener {
+   static class MyListener implements ClientConnectionLifeCycleListener {
 
       @Override
       public void connectionCreated(final ActiveMQComponent component,

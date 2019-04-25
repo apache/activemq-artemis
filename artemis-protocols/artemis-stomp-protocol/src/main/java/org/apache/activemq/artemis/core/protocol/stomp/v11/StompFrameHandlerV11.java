@@ -343,7 +343,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       decoder.init(existingHandler.getDecoder());
    }
 
-   protected class StompDecoderV11 extends StompDecoder {
+   protected static class StompDecoderV11 extends StompDecoder {
 
       protected boolean isEscaping = false;
       protected SimpleBytes holder = new SimpleBytes(1024);

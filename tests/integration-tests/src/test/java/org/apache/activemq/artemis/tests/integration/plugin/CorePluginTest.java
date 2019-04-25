@@ -395,7 +395,7 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(1, BEFORE_UPDATE_ADDRESS, AFTER_UPDATE_ADDRESS);
    }
 
-   private class AckPluginVerifier implements ActiveMQServerPlugin {
+   private static class AckPluginVerifier implements ActiveMQServerPlugin {
 
       private BiConsumer<ServerConsumer, AckReason> assertion;
       private Throwable error;

@@ -210,7 +210,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
    }
 
-   class TestHandler implements MessageHandler {
+   static class TestHandler implements MessageHandler {
 
       private final CountDownLatch latch;
       int count = 0;

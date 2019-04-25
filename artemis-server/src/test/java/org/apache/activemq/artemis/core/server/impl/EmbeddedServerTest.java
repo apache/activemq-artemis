@@ -98,7 +98,7 @@ public class EmbeddedServerTest {
       assertTrue(serviceComponent.exitCalled);
    }
 
-   private class FakeExternalComponent implements ActiveMQComponent {
+   private static class FakeExternalComponent implements ActiveMQComponent {
 
       volatile boolean startCalled;
       volatile boolean stopCalled;
@@ -124,7 +124,7 @@ public class EmbeddedServerTest {
       }
    }
 
-   private class FakeExternalServiceComponent extends FakeExternalComponent implements ServiceComponent {
+   private static class FakeExternalServiceComponent extends FakeExternalComponent implements ServiceComponent {
 
       volatile boolean exitCalled;
 

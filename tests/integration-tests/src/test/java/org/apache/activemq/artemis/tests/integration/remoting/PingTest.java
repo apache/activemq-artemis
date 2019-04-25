@@ -68,7 +68,7 @@ public class PingTest extends ActiveMQTestBase {
       server.start();
    }
 
-   class Listener implements SessionFailureListener {
+   static class Listener implements SessionFailureListener {
 
       volatile ActiveMQException me;
 

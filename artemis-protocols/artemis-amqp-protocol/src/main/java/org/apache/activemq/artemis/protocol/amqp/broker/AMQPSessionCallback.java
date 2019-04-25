@@ -720,7 +720,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
 
-   class AddressQueryCache<T> {
+   static class AddressQueryCache<T> {
       SimpleString address;
       T result;
 

@@ -289,7 +289,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
    }
 
-   class FakeMessage extends RefCountMessage {
+   static class FakeMessage extends RefCountMessage {
 
       @Override
       public SimpleString getReplyTo() {
@@ -786,7 +786,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
    }
 
-   public class FakeQueueForScheduleUnitTest extends CriticalComponentImpl implements Queue {
+   public static class FakeQueueForScheduleUnitTest extends CriticalComponentImpl implements Queue {
 
       @Override
       public void setPurgeOnNoConsumers(boolean value) {

@@ -417,7 +417,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
-   private class FailoverWaiter implements FailoverEventListener {
+   private static class FailoverWaiter implements FailoverEventListener {
 
       private CountDownLatch latch;
 

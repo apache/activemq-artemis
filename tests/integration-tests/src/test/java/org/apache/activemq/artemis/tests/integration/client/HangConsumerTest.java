@@ -622,7 +622,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       }
    }
 
-   class HangInterceptor implements Interceptor {
+   static class HangInterceptor implements Interceptor {
 
       Semaphore semaphore = new Semaphore(1);
 

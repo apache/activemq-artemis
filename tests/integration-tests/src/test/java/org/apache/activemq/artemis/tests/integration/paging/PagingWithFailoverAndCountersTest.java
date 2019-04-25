@@ -93,7 +93,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       liveProcess = null;
    }
 
-   class TestThread extends Thread {
+   static class TestThread extends Thread {
 
       TestThread() {
       }
@@ -151,7 +151,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       }
    }
 
-   class ConsumerThread extends TestThread {
+   static class ConsumerThread extends TestThread {
 
       ClientSessionFactory factory;
 

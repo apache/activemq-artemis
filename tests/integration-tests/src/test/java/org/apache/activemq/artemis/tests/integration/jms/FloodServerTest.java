@@ -117,7 +117,7 @@ public class FloodServerTest extends ActiveMQTestBase {
 
    }
 
-   class ProducerThread extends Thread {
+   static class ProducerThread extends Thread {
 
       private final Connection connection;
 
@@ -164,7 +164,7 @@ public class FloodServerTest extends ActiveMQTestBase {
       }
    }
 
-   class ConsumerThread extends Thread {
+   static class ConsumerThread extends Thread {
 
       private final Connection connection;
 

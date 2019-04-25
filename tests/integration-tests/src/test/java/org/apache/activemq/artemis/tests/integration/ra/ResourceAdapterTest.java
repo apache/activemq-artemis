@@ -169,7 +169,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testStartStop() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -367,7 +367,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -392,7 +392,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -419,7 +419,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -444,7 +444,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setDiscoveryPort(1234);
       qResourceAdapter.setDiscoveryRefreshTimeout(1L);
       qResourceAdapter.setDiscoveryInitialWaitTimeout(1L);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -467,7 +467,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setDiscoveryAddress("231.7.7.7");
 
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -496,7 +496,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
       qResourceAdapter.setHA(true);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -518,7 +518,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -540,7 +540,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -563,7 +563,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
       qResourceAdapter.setReconnectAttempts(100);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -585,7 +585,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -607,7 +607,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -628,7 +628,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testMaskPassword() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
       String mask = codec.encode("helloworld");
@@ -664,7 +664,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testMaskPasswordENC() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
       String mask = codec.encode("helloworld");
@@ -699,7 +699,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testMaskPassword2() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.setUseMaskedPassword(true);
       qResourceAdapter.setPasswordCodec(DefaultSensitiveStringCodec.class.getName() + ";key=anotherkey");
@@ -742,7 +742,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testMaskPassword2ENC() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
-      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.setPasswordCodec(DefaultSensitiveStringCodec.class.getName() + ";key=anotherkey");
 
@@ -802,7 +802,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       return false;
    }
 
-   class DummyEndpoint implements MessageEndpoint {
+   static class DummyEndpoint implements MessageEndpoint {
 
       @Override
       public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {

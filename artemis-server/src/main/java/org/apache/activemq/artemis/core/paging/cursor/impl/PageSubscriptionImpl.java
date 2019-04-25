@@ -1145,7 +1145,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
    }
 
-   private final class PageCursorTX extends TransactionOperationAbstract {
+   private static final class PageCursorTX extends TransactionOperationAbstract {
 
       private final Map<PageSubscriptionImpl, List<PagePosition>> pendingPositions = new HashMap<>();
 

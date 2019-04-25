@@ -315,7 +315,7 @@ public class XMLMessageImporter {
       void processBodyBytes(byte[] bytes) throws IOException;
    }
 
-   public class MessageInfo {
+   public static class MessageInfo {
       public long id;
       public List<String> queues;
       public Message message;

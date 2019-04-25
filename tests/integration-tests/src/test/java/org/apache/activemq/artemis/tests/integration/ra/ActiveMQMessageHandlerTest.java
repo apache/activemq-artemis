@@ -894,7 +894,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    }
 
-   class ExceptionDummyMessageEndpoint extends DummyMessageEndpoint {
+   static class ExceptionDummyMessageEndpoint extends DummyMessageEndpoint {
 
       boolean throwException = true;
 
@@ -912,7 +912,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       }
    }
 
-   class MultipleEndpoints extends DummyMessageEndpoint {
+   static class MultipleEndpoints extends DummyMessageEndpoint {
 
       private final CountDownLatch latch;
       private final CountDownLatch latchDone;

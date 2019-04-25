@@ -1499,7 +1499,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       }
    }
 
-   private abstract class WrappedRunnable implements Runnable {
+   private abstract static class WrappedRunnable implements Runnable {
 
       @Override
       public void run() {

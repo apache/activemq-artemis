@@ -310,7 +310,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
    // Inner classes -------------------------------------------------
 
-   class ThreadReader extends Thread {
+   static class ThreadReader extends Thread {
 
       CountDownLatch latch;
 

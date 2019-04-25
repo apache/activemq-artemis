@@ -97,7 +97,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
       });
    }
 
-   abstract class TestRunner implements Runnable {
+   abstract static class TestRunner implements Runnable {
 
       volatile boolean failed;
 

@@ -108,7 +108,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       return algorithm.verify(inputValue, storedValue);
    }
 
-   private abstract class CodecAlgorithm {
+   private abstract static class CodecAlgorithm {
 
       protected Map<String, String> params;
 
@@ -124,7 +124,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       }
    }
 
-   private class BlowfishAlgorithm extends CodecAlgorithm {
+   private static class BlowfishAlgorithm extends CodecAlgorithm {
 
       private byte[] internalKey = "clusterpassword".getBytes();
 
@@ -182,7 +182,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       }
    }
 
-   private class PBKDF2Algorithm extends CodecAlgorithm {
+   private static class PBKDF2Algorithm extends CodecAlgorithm {
       private static final String SEPARATOR = ":";
       private String sceretKeyAlgorithm = "PBKDF2WithHmacSHA1";
       private String randomScheme = "SHA1PRNG";

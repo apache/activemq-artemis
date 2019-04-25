@@ -81,7 +81,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private static final String key = "fruit";
 
-   private class MyInterceptor1 implements Interceptor {
+   private static class MyInterceptor1 implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -98,7 +98,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    }
 
-   private class InterceptUserOnCreateQueue implements Interceptor {
+   private static class InterceptUserOnCreateQueue implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -128,7 +128,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    }
 
-   private class InterceptUserOnCreateConsumer implements Interceptor {
+   private static class InterceptUserOnCreateConsumer implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -158,7 +158,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    }
 
-   private class MyOutgoingInterceptor1 implements Interceptor {
+   private static class MyOutgoingInterceptor1 implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -175,7 +175,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    }
 
-   private class MyInterceptor2 implements Interceptor {
+   private static class MyInterceptor2 implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -204,7 +204,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       }
    }
 
-   private class MyInterceptor3 implements Interceptor {
+   private static class MyInterceptor3 implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -221,7 +221,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    }
 
-   private class MyOutgoingInterceptor3 implements Interceptor {
+   private static class MyOutgoingInterceptor3 implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
@@ -286,7 +286,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       return false;
    }
 
-   private class MyInterceptor5 implements Interceptor {
+   private static class MyInterceptor5 implements Interceptor {
 
       private final String key;
 

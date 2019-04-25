@@ -227,7 +227,7 @@ public class MiscellaneousTest extends JMSTestCase {
 
    // Inner classes -------------------------------------------------
 
-   private class Result {
+   private static class Result {
 
       private boolean success;
 

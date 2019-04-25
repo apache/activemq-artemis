@@ -309,7 +309,7 @@ public class InVMNamingContext implements Context, Serializable {
 
    // Inner classes -------------------------------------------------
 
-   private class NamingEnumerationImpl<T> implements NamingEnumeration<T> {
+   private static class NamingEnumerationImpl<T> implements NamingEnumeration<T> {
 
       private final Iterator<T> iterator;
 

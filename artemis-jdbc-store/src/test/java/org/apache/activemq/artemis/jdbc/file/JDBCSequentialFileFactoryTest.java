@@ -317,7 +317,7 @@ public class JDBCSequentialFileFactoryTest {
       assertArrayEquals(resultingBytes, byteBuffer.array());
    }
 
-   private class IOCallbackCountdown implements IOCallback {
+   private static class IOCallbackCountdown implements IOCallback {
 
       private final CountDownLatch countDownLatch;
 

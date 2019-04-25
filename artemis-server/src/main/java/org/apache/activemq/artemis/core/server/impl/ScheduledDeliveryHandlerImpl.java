@@ -264,7 +264,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
    // We need a treeset ordered, but we need to order tail operations as well.
    // So, this will serve as a delegate to the object
-   class RefScheduled {
+   static class RefScheduled {
 
       private final MessageReference ref;
       private final boolean tail;

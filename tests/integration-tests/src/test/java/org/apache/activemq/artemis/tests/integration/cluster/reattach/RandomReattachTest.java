@@ -1261,7 +1261,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
    // Inner classes -------------------------------------------------
 
-   class Failer extends TimerTask {
+   static class Failer extends TimerTask {
 
       private final ClientSessionInternal session;
 
@@ -1289,7 +1289,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
       }
    }
 
-   public abstract class RunnableT {
+   public abstract static class RunnableT {
 
       abstract void run(ClientSessionFactory sf) throws Exception;
    }

@@ -118,7 +118,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
 
    private TransportConfiguration tc;
 
-   private class MyInterceptor implements Interceptor {
+   private static class MyInterceptor implements Interceptor {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {

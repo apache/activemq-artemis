@@ -146,7 +146,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       recSession.close();
    }
 
-   class Receiver implements MessageHandler {
+   static class Receiver implements MessageHandler {
 
       final CountDownLatch latch;
 

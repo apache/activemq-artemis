@@ -191,7 +191,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
       sf.close();
    }
 
-   private class Sender extends Thread {
+   private static class Sender extends Thread {
 
       private final BlockingQueue<ClientMessage> queue = new LinkedBlockingQueue<>();
 

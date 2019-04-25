@@ -676,7 +676,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       locatorTimeout.close();
    }
 
-   final class RollbackCompleteOperation extends TransactionOperationAbstract {
+   static final class RollbackCompleteOperation extends TransactionOperationAbstract {
 
       final CountDownLatch latch;
 

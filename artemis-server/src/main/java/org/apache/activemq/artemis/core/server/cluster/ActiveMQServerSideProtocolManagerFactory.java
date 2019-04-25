@@ -62,7 +62,7 @@ public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolM
       return new ActiveMQReplicationProtocolManager();
    }
 
-   class ActiveMQReplicationProtocolManager extends ActiveMQClientProtocolManager {
+   static class ActiveMQReplicationProtocolManager extends ActiveMQClientProtocolManager {
 
       @Override
       protected PacketDecoder createPacketDecoder() {

@@ -197,7 +197,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
    }
 
-   class FakeSM implements StorageManager {
+   static class FakeSM implements StorageManager {
 
       @Override
       public OperationContext getContext() {

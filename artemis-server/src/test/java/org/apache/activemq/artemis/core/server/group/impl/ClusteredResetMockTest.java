@@ -138,7 +138,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
 
    }
 
-   class Sender extends Thread {
+   static class Sender extends Thread {
 
       SimpleString code;
       public RemoteGroupingHandler handler;
@@ -170,7 +170,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
    }
 
-   class FakeManagement implements ManagementService {
+   static class FakeManagement implements ManagementService {
 
       public ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet<>();
 

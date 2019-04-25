@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class ReferenceCounterTest extends Assert {
 
-   class LatchRunner implements Runnable {
+   static class LatchRunner implements Runnable {
 
       final ReusableLatch latch = new ReusableLatch(1);
       final AtomicInteger counts = new AtomicInteger(0);

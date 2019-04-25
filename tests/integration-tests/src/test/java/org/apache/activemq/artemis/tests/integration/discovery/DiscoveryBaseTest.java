@@ -173,7 +173,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : "localhost"), notif);
    }
 
-   protected final class FakeNodeManager extends NodeManager {
+   protected static final class FakeNodeManager extends NodeManager {
 
       public FakeNodeManager(String nodeID) {
          super(false, null);

@@ -310,7 +310,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       }
    }
 
-   private class ManagementThread extends Thread {
+   private static class ManagementThread extends Thread {
 
       private QueueControl queueControl;
       private volatile boolean stop = false;

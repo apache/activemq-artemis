@@ -31,7 +31,7 @@ import org.junit.Test;
  */
 public class SelectorTest {
 
-   class MockMessage implements Filterable {
+   static class MockMessage implements Filterable {
 
       HashMap<String, Object> properties = new HashMap<>();
       private String text;
