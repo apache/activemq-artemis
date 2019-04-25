@@ -14,11 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<security-settings xmlns="urn:activemq:core">
-   <security-setting match="a1">
-      <permission type="createNonDurableQueue" roles="a1.1"/>
-   </security-setting>
-   <security-setting match="${a2Prop}">
-      <permission type="deleteNonDurableQueue" roles="a2.1"/>
-   </security-setting>
-</security-settings>
+<acceptors xmlns="urn:activemq:core">
+   <acceptor>tcp://0.0.0.0:61616?tcpNoDelay=456;connectionTtl=44;connectionsAllowed=${ninetyTwoProp}</acceptor>
+   <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
+</acceptors>

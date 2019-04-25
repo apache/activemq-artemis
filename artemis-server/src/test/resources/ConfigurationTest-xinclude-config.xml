@@ -76,10 +76,9 @@
          <connector name="connector1">tcp://localhost1:5678?localAddress=mylocal;localPort=99</connector>
          <connector name="connector2">vm://5</connector>
       </connectors>
-      <acceptors>
-         <acceptor>tcp://0.0.0.0:61616?tcpNoDelay=456;connectionTtl=44;connectionsAllowed=92</acceptor>
-         <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
-      </acceptors>
+
+      <xi:include href="./src/test/resources/ConfigurationTest-xinclude-config-acceptors.xml"/>
+
       <broadcast-groups>
          <broadcast-group name="bg1">
             <local-bind-port>10999</local-bind-port>

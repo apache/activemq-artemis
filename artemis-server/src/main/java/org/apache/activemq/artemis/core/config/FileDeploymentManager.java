@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.core.config;
 
 import javax.management.MBeanServer;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -68,23 +66,18 @@ public class FileDeploymentManager {
          // The URL is outside of the classloader. Trying a pure url now
          url = new URL(configurationUrl);
       }
-      // create a reader
-      try (Reader reader = new InputStreamReader(url.openStream())) {
-         String xml = XMLUtil.readerToString(reader);
-         //replace any system props
-         xml = XMLUtil.replaceSystemProps(xml);
-         Element e = XMLUtil.stringToElement(xml);
 
-         //iterate around all the deployables
-         for (Deployable deployable : deployables.values()) {
-            String root = deployable.getRootElement();
-            NodeList children = e.getElementsByTagName(root);
-            //if the root element exists then parse it
-            if (root != null && children.getLength() > 0) {
-               Node item = children.item(0);
-               XMLUtil.validate(item, deployable.getSchema());
-               deployable.parse((Element) item, url);
-            }
+      Element e = XMLUtil.urlToElement(url);
+
+      //iterate around all the deployables
+      for (Deployable deployable : deployables.values()) {
+         String root = deployable.getRootElement();
+         NodeList children = e.getElementsByTagName(root);
+         //if the root element exists then parse it
+         if (root != null && children.getLength() > 0) {
+            Node item = children.item(0);
+            XMLUtil.validate(item, deployable.getSchema());
+            deployable.parse((Element) item, url);
          }
       }
    }

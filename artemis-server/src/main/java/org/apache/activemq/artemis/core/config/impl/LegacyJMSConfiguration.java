@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import javax.management.MBeanServer;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 import java.util.Map;
 
@@ -102,10 +100,7 @@ public class LegacyJMSConfiguration implements Deployable {
 
 
    public void parseConfiguration(final InputStream input) throws Exception {
-      Reader reader = new InputStreamReader(input);
-      String xml = XMLUtil.readerToString(reader);
-      xml = XMLUtil.replaceSystemProps(xml);
-      Element e = XMLUtil.stringToElement(xml);
+      Element e = XMLUtil.streamToElement(input);
       // only parse elements from <jms>
       NodeList children = e.getElementsByTagName(CONFIGURATION_SCHEMA_ROOT_ELEMENT);
       if (children.getLength() > 0) {
