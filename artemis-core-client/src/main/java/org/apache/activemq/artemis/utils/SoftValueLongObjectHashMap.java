@@ -21,26 +21,26 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.util.collection.LongObjectHashMap;
+import io.netty.util.collection.LongObjectMap;
 import org.jboss.logging.Logger;
 
-public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implements Map<K, V> {
+public class SoftValueLongObjectHashMap<V extends SoftValueLongObjectHashMap.ValueCache> implements LongObjectMap<V> {
 
-   private static final Logger logger = Logger.getLogger(SoftValueHashMap.class);
+   private static final Logger logger = Logger.getLogger(SoftValueLongObjectHashMap.class);
 
    // The soft references that are already good.
    // too bad there's no way to override the queue method on ReferenceQueue, so I wouldn't need this
    private final ReferenceQueue<V> refQueue = new ReferenceQueue<>();
 
-   private final Map<K, AggregatedSoftReference> mapDelegate = new HashMap<>();
+   private final LongObjectMap<AggregatedSoftReference<V>> mapDelegate = new LongObjectHashMap<>();
 
-   private final AtomicLong usedCounter = new AtomicLong(0);
+   private long usedCounter = 0;
 
    private int maxElements;
 
@@ -57,7 +57,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
    // Constructors --------------------------------------------------
 
-   public SoftValueHashMap(final int maxElements) {
+   public SoftValueLongObjectHashMap(final int maxElements) {
       this.maxElements = maxElements;
    }
 
@@ -96,8 +96,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     */
    @Override
    public boolean containsKey(final Object key) {
-      processQueue();
-      return mapDelegate.containsKey(key);
+      return containsKey(objectToKey(key));
    }
 
    /**
@@ -107,7 +106,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    @Override
    public boolean containsValue(final Object value) {
       processQueue();
-      for (AggregatedSoftReference valueIter : mapDelegate.values()) {
+      for (AggregatedSoftReference<V> valueIter : mapDelegate.values()) {
          V valueElement = valueIter.get();
          if (valueElement != null && value.equals(valueElement)) {
             return true;
@@ -117,16 +116,31 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       return false;
    }
 
+   private static long objectToKey(Object key) {
+      return ((Long) key).longValue();
+   }
+
    /**
     * @param key
     * @see java.util.Map#get(java.lang.Object)
     */
    @Override
    public V get(final Object key) {
+      return get(objectToKey(key));
+   }
+
+   @Override
+   public V put(Long key, V value) {
+      return put(objectToKey(key), value);
+   }
+
+   @Override
+   public V get(long key) {
       processQueue();
-      AggregatedSoftReference value = mapDelegate.get(key);
+      AggregatedSoftReference<V> value = mapDelegate.get(key);
       if (value != null) {
-         value.used();
+         usedCounter++;
+         value.used(usedCounter);
          return value.get();
       } else {
          return null;
@@ -139,14 +153,26 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
     */
    @Override
-   public V put(final K key, final V value) {
+   public V put(final long key, final V value) {
       processQueue();
-      AggregatedSoftReference newRef = createReference(key, value);
-      AggregatedSoftReference oldRef = mapDelegate.put(key, newRef);
+      AggregatedSoftReference<V> newRef = createReference(key, value);
+      AggregatedSoftReference<V> oldRef = mapDelegate.put(key, newRef);
       checkCacheSize();
-      newRef.used();
+      usedCounter++;
+      newRef.used(usedCounter);
       if (oldRef != null) {
          return oldRef.get();
+      } else {
+         return null;
+      }
+   }
+
+   @Override
+   public V remove(long key) {
+      processQueue();
+      AggregatedSoftReference<V> ref = mapDelegate.remove(key);
+      if (ref != null) {
+         return ref.get();
       } else {
          return null;
       }
@@ -156,7 +182,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       if (maxElements > 0 && mapDelegate.size() > maxElements) {
          TreeSet<AggregatedSoftReference> usedReferences = new TreeSet<>(new ComparatorAgregated());
 
-         for (AggregatedSoftReference ref : mapDelegate.values()) {
+         for (AggregatedSoftReference<V> ref : mapDelegate.values()) {
             V v = ref.get();
 
             if (v != null && !v.isLive()) {
@@ -169,7 +195,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
                Object removed = mapDelegate.remove(ref.key);
 
                if (logger.isTraceEnabled()) {
-                  logger.trace("Removing " + removed + " with id = " + ref.key + " from SoftValueHashMap");
+                  logger.trace("Removing " + removed + " with id = " + ref.key + " from SoftValueLongObjectHashMap");
                }
 
                if (mapDelegate.size() <= maxElements) {
@@ -210,13 +236,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     */
    @Override
    public V remove(final Object key) {
-      processQueue();
-      AggregatedSoftReference ref = mapDelegate.remove(key);
-      if (ref != null) {
-         return ref.get();
-      } else {
-         return null;
-      }
+      return remove(objectToKey(key));
    }
 
    /**
@@ -224,10 +244,17 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @see java.util.Map#putAll(java.util.Map)
     */
    @Override
-   public void putAll(final Map<? extends K, ? extends V> m) {
+   public void putAll(final Map<? extends Long, ? extends V> m) {
       processQueue();
-      for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
-         put(e.getKey(), e.getValue());
+      if (m instanceof LongObjectMap) {
+         final LongObjectMap<? extends V> primitiveMap = (LongObjectMap<? extends V>) m;
+         for (PrimitiveEntry<? extends V> entry : primitiveMap.entries()) {
+            put(entry.key(), entry.value());
+         }
+      } else {
+         for (Map.Entry<? extends Long, ? extends V> e : m.entrySet()) {
+            put(e.getKey(), e.getValue());
+         }
       }
    }
 
@@ -243,7 +270,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @see java.util.Map#keySet()
     */
    @Override
-   public Set<K> keySet() {
+   public Set<Long> keySet() {
       processQueue();
       return mapDelegate.keySet();
    }
@@ -256,7 +283,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       processQueue();
       ArrayList<V> list = new ArrayList<>();
 
-      for (AggregatedSoftReference refs : mapDelegate.values()) {
+      for (AggregatedSoftReference<V> refs : mapDelegate.values()) {
          V value = refs.get();
          if (value != null) {
             list.add(value);
@@ -266,20 +293,29 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       return list;
    }
 
-   /**
-    * @see java.util.Map#entrySet()
-    */
    @Override
-   public Set<java.util.Map.Entry<K, V>> entrySet() {
+   public Set<Entry<Long, V>> entrySet() {
+      return null;
+   }
+
+   @Override
+   public Iterable<PrimitiveEntry<V>> entries() {
       processQueue();
-      HashSet<Map.Entry<K, V>> set = new HashSet<>();
-      for (Map.Entry<K, AggregatedSoftReference> pair : mapDelegate.entrySet()) {
-         V value = pair.getValue().get();
+      final int size = mapDelegate.size();
+      final List<PrimitiveEntry<V>> entries = new ArrayList<>(size);
+      for (PrimitiveEntry<AggregatedSoftReference<V>> pair : mapDelegate.entries()) {
+         V value = pair.value().get();
          if (value != null) {
-            set.add(new EntryElement<>(pair.getKey(), value));
+            entries.add(new EntryElement<>(pair.key(), value));
          }
       }
-      return set;
+      return entries;
+   }
+
+   @Override
+   public boolean containsKey(long key) {
+      processQueue();
+      return mapDelegate.containsKey(key);
    }
 
    /**
@@ -315,15 +351,15 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       }
    }
 
-   private AggregatedSoftReference createReference(final K key, final V value) {
-      return new AggregatedSoftReference(key, value);
+   private AggregatedSoftReference createReference(final long key, final V value) {
+      return new AggregatedSoftReference(key, value, refQueue);
    }
 
    // Inner classes -------------------------------------------------
 
-   class AggregatedSoftReference extends SoftReference<V> {
+   static final class AggregatedSoftReference<V> extends SoftReference<V> {
 
-      final K key;
+      final long key;
 
       long used = 0;
 
@@ -331,11 +367,11 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
          return used;
       }
 
-      public void used() {
-         used = usedCounter.incrementAndGet();
+      public void used(long value) {
+         this.used = value;
       }
 
-      AggregatedSoftReference(final K key, final V referent) {
+      AggregatedSoftReference(final long key, final V referent, ReferenceQueue<V> refQueue) {
          super(referent, refQueue);
          this.key = key;
       }
@@ -346,40 +382,31 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       }
    }
 
-   static final class EntryElement<K, V> implements Map.Entry<K, V> {
+   static final class EntryElement<V> implements LongObjectMap.PrimitiveEntry<V> {
 
-      final K key;
+      final long key;
 
-      volatile V value;
+      final V value;
 
-      EntryElement(final K key, final V value) {
+      EntryElement(final long key, final V value) {
          this.key = key;
          this.value = value;
       }
 
-      /* (non-Javadoc)
-       * @see java.util.Map.Entry#getKey()
-       */
       @Override
-      public K getKey() {
+      public long key() {
          return key;
       }
 
-      /* (non-Javadoc)
-       * @see java.util.Map.Entry#getValue()
-       */
       @Override
-      public V getValue() {
+      public V value() {
          return value;
       }
 
-      /* (non-Javadoc)
-       * @see java.util.Map.Entry#setValue(java.lang.Object)
-       */
       @Override
-      public V setValue(final V value) {
-         this.value = value;
-         return value;
+      @Deprecated
+      public void setValue(V value) {
+         throw new UnsupportedOperationException();
       }
    }
 
