@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -145,6 +146,12 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @throws Exception
     */
    void beforePageRead() throws Exception;
+
+   /**
+    * Like {@link #beforePageRead()} but return {@code true} if acquired within {@code timeout},
+    * {@code false} otherwise.
+    */
+   boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException;
 
    /**
     * We need a safeguard in place to avoid too much concurrent IO happening on Paging, otherwise
