@@ -177,6 +177,7 @@ public class ConsumerThread extends Thread {
                consumer = session.createConsumer(destination);
             }
          }
+         long tStart = System.currentTimeMillis();
          int count = 0;
          while (running && received < messageCount) {
             Message msg = consumer.receive(receiveTimeOut);
@@ -217,6 +218,14 @@ public class ConsumerThread extends Thread {
             session.commit();
          } catch (Throwable ignored) {
          }
+
+
+         System.out.println(threadName + " Consumed: " + this.getMessageCount() + " messages");
+         long tEnd = System.currentTimeMillis();
+         long elapsed = (tEnd - tStart) / 1000;
+         System.out.println(threadName + " Elapsed time in second : " + elapsed + " s");
+         System.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
+
       } catch (Exception e) {
          e.printStackTrace();
       } finally {
