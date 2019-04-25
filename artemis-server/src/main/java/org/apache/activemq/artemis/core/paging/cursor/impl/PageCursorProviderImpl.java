@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,8 +37,9 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.artemis.utils.SoftValueHashMap;
+import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.jboss.logging.Logger;
 
 /**
@@ -70,9 +69,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    // This is the same executor used at the PageStoreImpl. One Executor per pageStore
    private final ArtemisExecutor executor;
 
-   private final SoftValueHashMap<Long, PageCache> softCache;
+   private final SoftValueLongObjectHashMap<PageCache> softCache;
 
-   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<>();
+   private final ConcurrentLongHashMap<PageSubscription> activeCursors = new ConcurrentLongHashMap<>();
 
    // Static --------------------------------------------------------
 
@@ -85,7 +84,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       this.pagingStore = pagingStore;
       this.storageManager = storageManager;
       this.executor = executor;
-      this.softCache = new SoftValueHashMap<>(maxCacheSize);
+      this.softCache = new SoftValueLongObjectHashMap<>(maxCacheSize);
    }
 
    // Public --------------------------------------------------------
