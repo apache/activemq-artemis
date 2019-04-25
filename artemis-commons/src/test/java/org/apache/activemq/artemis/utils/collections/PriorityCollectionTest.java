@@ -27,11 +27,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -94,10 +94,10 @@ public class PriorityCollectionTest {
          final int threadIdx = i;
 
          futures.add(executor.submit(() -> {
-            Random random = new Random();
+            final ThreadLocalRandom random = ThreadLocalRandom.current();
 
             for (int j = 0; j < N; j++) {
-               long key = Math.abs(random.nextLong());
+               long key = random.nextLong(Long.MAX_VALUE);
                // Ensure keys are unique
                key -= key % (threadIdx + 1);
 
@@ -128,10 +128,10 @@ public class PriorityCollectionTest {
          final int threadIdx = i;
 
          futures.add(executor.submit(() -> {
-            Random random = new Random();
+            ThreadLocalRandom random = ThreadLocalRandom.current();
 
             for (int j = 0; j < N; j++) {
-               long key = Math.abs(random.nextLong());
+               long key = random.nextLong(Long.MAX_VALUE);
                // Ensure keys are unique
                key -= key % (threadIdx + 1);
 
