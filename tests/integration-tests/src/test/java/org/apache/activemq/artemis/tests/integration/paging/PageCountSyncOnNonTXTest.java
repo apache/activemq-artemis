@@ -67,7 +67,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      timeToRun = 30000 + RandomUtil.randomPositiveInt() % 1000;
+      timeToRun = 30000L + RandomUtil.randomPositiveInt() % 1000;
    }
 
    @Test

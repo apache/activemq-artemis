@@ -110,7 +110,7 @@ final class MappedSequentialFile implements SequentialFile {
    @Override
    public boolean fits(int size) {
       checkIsOpen();
-      final long newPosition = this.mappedFile.position() + size;
+      final long newPosition = (long) this.mappedFile.position() + size;
       final boolean hasRemaining = newPosition <= this.mappedFile.length();
       return hasRemaining;
    }

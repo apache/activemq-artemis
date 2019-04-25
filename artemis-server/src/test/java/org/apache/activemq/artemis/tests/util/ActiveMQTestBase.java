@@ -1334,7 +1334,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                                 final ActiveMQServer backup) {
       ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal) sessionFactoryP;
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backup;
-      final long toWait = seconds * 1000;
+      final long toWait = seconds * 1000L;
       final long time = System.currentTimeMillis();
       int loop = 0;
       //Note: if maxLoop is too small there won't be
@@ -1382,7 +1382,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    public static final void waitForRemoteBackup(ClientSessionFactory sessionFactory, int seconds) {
       ClientSessionFactoryInternal factoryInternal = (ClientSessionFactoryInternal) sessionFactory;
-      final long toWait = seconds * 1000;
+      final long toWait = seconds * 1000L;
       final long time = System.currentTimeMillis();
       while (true) {
          if (factoryInternal.getBackupConnector() != null) {
@@ -1783,7 +1783,7 @@ public abstract class ActiveMQTestBase extends Assert {
       journal.load(committedRecords, preparedTransactions, null, false);
 
       for (RecordInfo info : committedRecords) {
-         Integer ikey = new Integer(info.getUserRecordType());
+         Integer ikey = (int) info.getUserRecordType();
          AtomicInteger value = recordsType.get(ikey);
          if (value == null) {
             value = new AtomicInteger();
@@ -1812,7 +1812,7 @@ public abstract class ActiveMQTestBase extends Assert {
          if (key == 0) {
             System.out.println("huh?");
          }
-         Integer ikey = new Integer(key);
+         Integer ikey = (int) key;
          AtomicInteger value = recordsType.get(ikey);
          if (value == null) {
             value = new AtomicInteger();
