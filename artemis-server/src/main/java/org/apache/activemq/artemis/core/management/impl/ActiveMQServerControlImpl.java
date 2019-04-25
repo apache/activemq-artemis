@@ -1641,7 +1641,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
-               return (int) (entry1.getValue() - entry2.getValue());
+               return entry1.getValue().compareTo(entry2.getValue());
             }
          });
          String[] s = new String[xidsSortedByCreationTime.size()];
@@ -1680,7 +1680,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
-               return (int) (entry1.getValue() - entry2.getValue());
+               return entry1.getValue().compareTo(entry2.getValue());
             }
          });
 
@@ -1727,7 +1727,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
-               return (int) (entry1.getValue() - entry2.getValue());
+               return entry1.getValue().compareTo(entry2.getValue());
             }
          });
 
