@@ -57,7 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 
 public class AmqpConnection extends AmqpAbstractResource<Connection> implements NettyTransportListener {
@@ -295,31 +294,6 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       return session;
    }
 
-   //----- Access to low level IO for specific test cases -------------------//
-
-   public void sendRawBytes(final byte[] rawData) throws Exception {
-      checkClosed();
-
-      final ClientFuture request = new ClientFuture();
-
-      serializer.execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               transport.send(Unpooled.wrappedBuffer(rawData));
-            } catch (IOException e) {
-               fireClientException(e);
-            } finally {
-               request.onSuccess();
-            }
-         }
-      });
-
-      request.sync();
-   }
-
    //----- Configuration accessors ------------------------------------------//
 
    /**
@@ -550,7 +524,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
             if (toWrite != null && toWrite.hasRemaining()) {
                ByteBuf outbound = transport.allocateSendBuffer(toWrite.remaining());
                outbound.writeBytes(toWrite);
-               transport.send(outbound);
+               transport.sendVoidPromise(outbound);
                protonTransport.outputConsumed();
             } else {
                done = true;
