@@ -119,7 +119,6 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
    private TransportConfiguration getNettyConnectorTransportConfig(final boolean live) {
       Map<String, Object> server1Params = new HashMap<>();
       if (protocol == 1) {
-         server1Params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
          server1Params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
          server1Params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
          server1Params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
