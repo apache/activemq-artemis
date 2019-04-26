@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -268,15 +268,11 @@ public class MQTTPublishManager {
       ByteBuf payload;
       switch (message.getType()) {
          case Message.TEXT_TYPE:
-            try {
-               SimpleString text = message.getDataBuffer().readNullableSimpleString();
-               byte[] stringPayload = text.toString().getBytes("UTF-8");
-               payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
-               payload.writeBytes(stringPayload);
-               break;
-            } catch (UnsupportedEncodingException e) {
-               log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
-            }
+            SimpleString text = message.getDataBuffer().readNullableSimpleString();
+            byte[] stringPayload = text.toString().getBytes(StandardCharsets.UTF_8);
+            payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
+            payload.writeBytes(stringPayload);
+            break;
          default:
             ActiveMQBuffer bodyBuffer = message.getDataBuffer();
             payload = ByteBufAllocator.DEFAULT.buffer(bodyBuffer.writerIndex());
