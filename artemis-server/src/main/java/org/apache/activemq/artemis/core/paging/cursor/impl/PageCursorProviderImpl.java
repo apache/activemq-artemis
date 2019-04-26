@@ -567,8 +567,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    // Protected -----------------------------------------------------
 
    /* Protected as we may let test cases to instrument the test */
-   protected PageCacheImpl createPageCache(final long pageId) throws Exception {
-      return new PageCacheImpl(pagingStore.createPage((int) pageId));
+   protected PageCacheImpl createPageCache(final long pageId) {
+      return new PageCacheImpl(pageId);
    }
 
    // Private -------------------------------------------------------

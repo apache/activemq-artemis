@@ -445,7 +445,7 @@ public class PagingStoreImpl implements PagingStore {
 
                   List<PagedMessage> messages = currentPage.read(storageManager);
 
-                  LivePageCache pageCache = new LivePageCacheImpl(currentPage);
+                  LivePageCache pageCache = new LivePageCacheImpl(currentPageId);
 
                   for (PagedMessage msg : messages) {
                      pageCache.addLiveMessage(msg);
@@ -1091,7 +1091,7 @@ public class PagingStoreImpl implements PagingStore {
 
          currentPage = createPage(tmpCurrentPageId);
 
-         LivePageCache pageCache = new LivePageCacheImpl(currentPage);
+         LivePageCache pageCache = new LivePageCacheImpl(tmpCurrentPageId);
 
          currentPage.setLiveCache(pageCache);
 

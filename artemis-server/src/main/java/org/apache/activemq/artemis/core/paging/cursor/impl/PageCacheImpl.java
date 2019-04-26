@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
-import org.apache.activemq.artemis.core.paging.impl.Page;
 
 /**
  * The caching associated to a single page.
@@ -31,14 +30,14 @@ class PageCacheImpl implements PageCache {
 
    private PagedMessage[] messages;
 
-   private final Page page;
+   private final long pageId;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   PageCacheImpl(final Page page) {
-      this.page = page;
+   PageCacheImpl(final long pageId) {
+      this.pageId = pageId;
    }
 
    // Public --------------------------------------------------------
@@ -54,7 +53,7 @@ class PageCacheImpl implements PageCache {
 
    @Override
    public long getPageId() {
-      return page.getPageId();
+      return pageId;
    }
 
    @Override
@@ -78,7 +77,7 @@ class PageCacheImpl implements PageCache {
 
    @Override
    public String toString() {
-      return "PageCacheImpl::page=" + page.getPageId() + " numberOfMessages = " + messages.length;
+      return "PageCacheImpl::page=" + pageId + " numberOfMessages = " + messages.length;
    }
 
    @Override
