@@ -592,7 +592,6 @@ public class Create extends InputAbstract {
          filters.put("${extra.web.attributes}", "");
       }
       filters.put("${fsync}", String.valueOf(!noJournalSync));
-      filters.put("${user}", System.getProperty("user.name", ""));
       filters.put("${default.port}", String.valueOf(defaultPort + portOffset));
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
