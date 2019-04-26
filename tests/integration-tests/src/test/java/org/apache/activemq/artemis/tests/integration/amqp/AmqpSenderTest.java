@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
@@ -35,6 +36,7 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -193,13 +195,19 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       AmqpSender sender = session.createSender(getQueueName(), true);
 
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+      receiver.setPresettle(true);
+      receiver.flow(10);
+      Assert.assertNull("somehow the queue had messages from a previous test", receiver.receiveNoWait());
+
       for (int i = 1; i <= MSG_COUNT; ++i) {
          AmqpMessage message = new AmqpMessage();
          message.setApplicationProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
          sender.send(message);
       }
 
-      Wait.assertTrue("Only 1 message should arrive", () -> getProxyToQueue(getQueueName()).getMessageCount() == 1);
+      AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+      Assert.assertNull(receiver.receiveNoWait());
 
       sender.close();
       connection.close();
