@@ -110,13 +110,7 @@ public class PagePositionImpl implements PagePosition {
          return 1;
       } else if (pageNr < o.getPageNr()) {
          return -1;
-      } else if (recordID > o.getRecordID()) {
-         return 1;
-      } else if (recordID < o.getRecordID()) {
-         return -1;
-      } else {
-         return 0;
-      }
+      } else return Long.compare(recordID, o.getRecordID());
    }
 
    @Override
