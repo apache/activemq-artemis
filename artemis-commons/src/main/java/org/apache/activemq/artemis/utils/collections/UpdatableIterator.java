@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 
 public class UpdatableIterator<E> implements ResettableIterator<E>, RepeatableIterator<E> {
 
-   private final AtomicReferenceFieldUpdater<UpdatableIterator, RepeatableIteratorWrapper> changedIteratorFieldUpdater =  AtomicReferenceFieldUpdater.newUpdater(UpdatableIterator.class, RepeatableIteratorWrapper.class, "changedIterator");
+   private static final AtomicReferenceFieldUpdater<UpdatableIterator, RepeatableIteratorWrapper> changedIteratorFieldUpdater = AtomicReferenceFieldUpdater.newUpdater(UpdatableIterator.class, RepeatableIteratorWrapper.class, "changedIterator");
    private volatile RepeatableIteratorWrapper<E> changedIterator;
    private RepeatableIteratorWrapper<E> currentIterator;
 
