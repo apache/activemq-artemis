@@ -1505,7 +1505,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                startedTX.set(true);
             }
 
-            cache.addToCache(duplicateIDBytes, context.getTransaction(), false);
+            cache.addToCache(duplicateIDBytes, context.getTransaction(), startedTX.get());
          }
       }
 
