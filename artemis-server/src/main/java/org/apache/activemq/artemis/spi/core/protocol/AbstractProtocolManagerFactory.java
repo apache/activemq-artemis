@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
@@ -46,5 +47,15 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
          }
          return listOut;
       }
+   }
+
+   /**
+    * org.apache.commons.beanutils.BeanUtils will log all the parameters so we strip out any password parameters
+    * (e.g. passwords for SSL keystore & truststore)
+    *
+    * @param parameters
+    */
+   protected void stripPasswordParameters(Map<String, Object> parameters) {
+      parameters.entrySet().removeIf(entries->entries.getKey().toLowerCase().contains("password"));
    }
 }
