@@ -49,7 +49,7 @@ public class ConcurrentAppendOnlyChunkedListTest {
       final int messages = ELEMENTS;
       for (int i = 0; i < messages; i++) {
          Assert.assertEquals(i, chunkedList.size());
-         chunkedList.add((i));
+         chunkedList.add(i);
       }
       Assert.assertEquals(messages, chunkedList.size());
    }

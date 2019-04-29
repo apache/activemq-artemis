@@ -261,7 +261,7 @@ public class StompTest extends StompTestBase {
       byte[] mqttPayload = clientProvider.receive(10000);
       clientProvider.disconnect();
 
-      assertEquals(stompPayload, new String(mqttPayload, "UTF-8"));
+      assertEquals(stompPayload, new String(mqttPayload, StandardCharsets.UTF_8));
       clientProvider.disconnect();
    }
 

@@ -37,7 +37,7 @@ public class SharedEventLoopGroupTest {
       Thread t1 = new Thread(new Runnable() {
          @Override
          public void run() {
-            sharedEventLoopGroup1.set(SharedEventLoopGroup.getInstance((threadFactory -> customNioEventLoopGroup)));
+            sharedEventLoopGroup1.set(SharedEventLoopGroup.getInstance(threadFactory -> customNioEventLoopGroup));
             customNioEventLoopGroup.setCyclicBarrier(barrier);
             sharedEventLoopGroup1.get().shutdownGracefully();
             customNioEventLoopGroup.setCyclicBarrier(null);
@@ -51,7 +51,7 @@ public class SharedEventLoopGroupTest {
          public void run() {
             try {
                barrier.await();
-               sharedEventLoopGroup2.set(SharedEventLoopGroup.getInstance((threadFactory -> new NioEventLoopGroup(2, threadFactory))));
+               sharedEventLoopGroup2.set(SharedEventLoopGroup.getInstance(threadFactory -> new NioEventLoopGroup(2, threadFactory)));
             } catch (InterruptedException e) {
                e.printStackTrace();
             } catch (BrokenBarrierException e) {
