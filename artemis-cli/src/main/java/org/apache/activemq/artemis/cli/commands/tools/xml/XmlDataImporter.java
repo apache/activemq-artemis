@@ -239,13 +239,7 @@ public final class XmlDataImporter extends ActionAbstract {
          messages = new TreeSet<XMLMessageImporter.MessageInfo>(new Comparator<XMLMessageImporter.MessageInfo>() {
             @Override
             public int compare(XMLMessageImporter.MessageInfo o1, XMLMessageImporter.MessageInfo o2) {
-               if (o1.id == o2.id) {
-                  return 0;
-               } else if (o1.id > o2.id) {
-                  return 1;
-               } else {
-                  return -1;
-               }
+               return Long.compare(o1.id, o2.id);
             }
          });
       }
