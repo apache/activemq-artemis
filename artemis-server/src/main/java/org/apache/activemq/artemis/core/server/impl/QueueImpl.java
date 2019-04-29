@@ -3748,16 +3748,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
          }
-         while (true) {
-            if (messagesIterator != null && messagesIterator.hasNext()) {
-               MessageReference msg = messagesIterator.next();
-               if (msg.isPaged()) {
-                  previouslyBrowsed.add(((PagedReference) msg).getPosition());
-               }
-               return msg;
-            } else {
-               break;
+         if (messagesIterator != null && messagesIterator.hasNext()) {
+            MessageReference msg = messagesIterator.next();
+            if (msg.isPaged()) {
+               previouslyBrowsed.add(((PagedReference) msg).getPosition());
             }
+            return msg;
          }
          if (getPagingIterator() != null) {
             while (getPagingIterator().hasNext()) {

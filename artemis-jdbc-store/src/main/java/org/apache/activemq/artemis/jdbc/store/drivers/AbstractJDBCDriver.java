@@ -27,7 +27,6 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
@@ -271,7 +270,7 @@ public abstract class AbstractJDBCDriver {
             connection.commit();
          }
       } catch (SQLException e) {
-         final String sqlStatements = Stream.of(sqls).collect(Collectors.joining("\n"));
+         final String sqlStatements = String.join("\n", sqls);
          logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, sqlStatements));
          try {
             connection.rollback();

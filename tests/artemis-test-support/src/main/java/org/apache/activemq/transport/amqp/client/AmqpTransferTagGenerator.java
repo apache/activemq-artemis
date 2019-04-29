@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -58,12 +58,7 @@ public final class AmqpTransferTagGenerator {
          rc = iterator.next();
          iterator.remove();
       } else {
-         try {
-            rc = Long.toHexString(nextTagId++).getBytes("UTF-8");
-         } catch (UnsupportedEncodingException e) {
-            // This should never happen since we control the input.
-            throw new RuntimeException(e);
-         }
+         rc = Long.toHexString(nextTagId++).getBytes(StandardCharsets.UTF_8);
       }
       return rc;
    }

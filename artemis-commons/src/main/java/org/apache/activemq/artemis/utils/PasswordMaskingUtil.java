@@ -123,7 +123,7 @@ public final class PasswordMaskingUtil {
    }
 
    private static boolean isEncoded(String storedPassword) {
-      return storedPassword == null || (isEncMasked(storedPassword));
+      return storedPassword == null || isEncMasked(storedPassword);
    }
 
    public static HashProcessor getHashProcessor() {
@@ -164,7 +164,7 @@ public final class PasswordMaskingUtil {
          try {
             // Service load the codec, if a service is available
             for (SensitiveDataCodec<String> codec : serviceLoader) {
-               if ((codec.getClass().getCanonicalName()).equals(codecClassName)) {
+               if (codec.getClass().getCanonicalName().equals(codecClassName)) {
                   return codec.getClass().newInstance();
                }
             }

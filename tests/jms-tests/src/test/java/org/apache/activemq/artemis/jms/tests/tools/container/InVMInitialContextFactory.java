@@ -31,11 +31,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
 
    // Static --------------------------------------------------------
 
-   private static Map<Integer, Context> initialContexts;
-
-   static {
-      InVMInitialContextFactory.reset();
-   }
+   private static final Map<Integer, Context> initialContexts = new HashMap<>();
 
    public static Hashtable<String, String> getJNDIEnvironment() {
       return InVMInitialContextFactory.getJNDIEnvironment(0);
@@ -102,10 +98,6 @@ public class InVMInitialContextFactory implements InitialContextFactory {
 
          return ic;
       }
-   }
-
-   public static void reset() {
-      InVMInitialContextFactory.initialContexts = new HashMap<>();
    }
 
    // Package protected ---------------------------------------------
