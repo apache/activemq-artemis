@@ -1106,7 +1106,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       public int compareTo(final OrderedConsumerHolder o) {
          int thisOrder = order;
          int otherOrder = o.order;
-         return thisOrder < otherOrder ? -1 : thisOrder == otherOrder ? 0 : 1;
+         return Integer.compare(thisOrder, otherOrder);
       }
    }
 
