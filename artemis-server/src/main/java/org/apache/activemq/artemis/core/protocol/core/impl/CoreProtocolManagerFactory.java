@@ -54,6 +54,7 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
                                                 Map<String, Object> parameters,
                                                 final List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
+      stripPasswordParameters(parameters);
       return BeanSupport.setData(new CoreProtocolManager(this, server, filterInterceptors(incomingInterceptors), filterInterceptors(outgoingInterceptors)), parameters);
    }
 
