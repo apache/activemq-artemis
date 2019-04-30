@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.junit.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -334,7 +335,8 @@ public class GlobalPagingTest extends PagingTest {
                   final MessageReference reference = MessageReference.Factory.createReference(session.createMessage(false), queue);
                   //it will cause QueueImpl::directDeliver -> false
                   queue.addHead(reference, false);
-                  Assert.assertSame(reference, queue.removeReferenceWithID(reference.getMessageID()));
+                  Wait.assertFalse(queue::isDirectDeliver);
+                  Wait.assertTrue(() -> queue.removeReferenceWithID(reference.getMessageID()) != null);
                   ClientMessage message = session.createMessage(false);
                   message.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, replyQueue);
                   ManagementHelper.putAttribute(message, "queue." + address.toString(), "messageCount");
