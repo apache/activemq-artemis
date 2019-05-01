@@ -25,8 +25,11 @@ import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.jboss.logging.Logger;
 
 public class LocalQueueBinding implements QueueBinding {
+
+   private static final Logger logger = Logger.getLogger(LocalQueueBinding.class);
 
    private final SimpleString address;
 
@@ -119,13 +122,23 @@ public class LocalQueueBinding implements QueueBinding {
    @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
       if (isMatchRoutingType(context)) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("adding routing " + queue.getID() + " on message " + message);
+         }
          queue.route(message, context);
+      } else {
+         if (logger.isTraceEnabled()) {
+            logger.trace("routing " + queue.getID() + " is ignored as routing type did not match");
+         }
       }
    }
 
    @Override
    public void routeWithAck(Message message, RoutingContext context) throws Exception {
       if (isMatchRoutingType(context)) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Message " + message + " routed with ack on queue " + queue.getID());
+         }
          queue.routeWithAck(message, context);
       }
    }

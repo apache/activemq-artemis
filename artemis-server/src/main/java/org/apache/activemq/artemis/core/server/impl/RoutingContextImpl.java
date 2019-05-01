@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +32,11 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.jboss.logging.Logger;
 
 public final class RoutingContextImpl implements RoutingContext {
+
+   private static final Logger logger  = Logger.getLogger(RoutingContextImpl.class);
 
    // The pair here is Durable and NonDurable
    private final Map<SimpleString, RouteContextList> map = new HashMap<>();
@@ -129,6 +134,27 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
+   public String toString() {
+      StringWriter stringWriter = new StringWriter();
+      PrintWriter printWriter = new PrintWriter(stringWriter);
+      printWriter.println("RoutingContextImpl(Address=" + this.address + ", routingType=" + this.routingType + ", PreviousAddress=" + previousAddress + " previousRoute:" + previousRoutingType + ", reusable=" + this.reusable + ", version=" + version + ")");
+      for (Map.Entry<SimpleString, RouteContextList> entry : map.entrySet()) {
+         printWriter.println("..................................................");
+         printWriter.println("***** durable queues " + entry.getKey() + ":");
+         for (Queue queue : entry.getValue().getDurableQueues()) {
+            printWriter.println("- queueID=" + queue.getID() + " address:" + queue.getAddress() + " name:" + queue.getName() + " filter:" + queue.getFilter());
+         }
+         printWriter.println("***** non durable for " + entry.getKey() + ":");
+         for (Queue queue : entry.getValue().getNonDurableQueues()) {
+            printWriter.println("- queueID=" + queue.getID() + " address:" + queue.getAddress() + " name:" + queue.getName() + " filter:" + queue.getFilter());
+         }
+      }
+      printWriter.println("..................................................");
+
+      return stringWriter.toString();
+   }
+
+   @Override
    public void processReferences(final List<MessageReference> refs, final boolean direct) {
       internalprocessReferences(refs, direct);
    }
@@ -163,11 +189,17 @@ public final class RoutingContextImpl implements RoutingContext {
 
    @Override
    public void setAddress(SimpleString address) {
+      if (this.address == null || !this.address.equals(address)) {
+         this.clear();
+      }
       this.address = address;
    }
 
    @Override
    public void setRoutingType(RoutingType routingType) {
+      if (this.routingType == null || this.routingType != routingType) {
+         this.clear();
+      }
       this.routingType = routingType;
    }
 

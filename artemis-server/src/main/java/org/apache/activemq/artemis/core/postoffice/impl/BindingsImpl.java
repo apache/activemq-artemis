@@ -282,7 +282,8 @@ public final class BindingsImpl implements Bindings {
    private void route(final Message message,
                       final RoutingContext context,
                       final boolean groupRouting) throws Exception {
-      boolean reusableContext = context.isReusable(message, version.get());
+      int currentVersion = version.get();
+      boolean reusableContext = context.isReusable(message, currentVersion);
 
       if (!reusableContext) {
          context.clear();
@@ -310,13 +311,18 @@ public final class BindingsImpl implements Bindings {
 
       boolean routed = false;
 
+      boolean hasExclusives = false;
+
       for (Binding binding : exclusiveBindings) {
+         if (!hasExclusives) {
+            context.clear().setReusable(false);
+            hasExclusives = true;
+         }
 
          if (binding.getFilter() == null || binding.getFilter().match(message)) {
             binding.getBindable().route(message, context);
             routed = true;
          }
-         context.setReusable(false);
       }
       if (!routed) {
          // Remove the ids now, in order to avoid double check
@@ -332,6 +338,7 @@ public final class BindingsImpl implements Bindings {
             context.clear().setReusable(false);
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
          } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
+            context.clear().setReusable(false);
             Binding theBinding = bindingsNameMap.get(CompositeAddress.extractQueueName(message.getAddressSimpleString()));
             if (theBinding != null) {
                theBinding.route(message, context);
@@ -340,20 +347,16 @@ public final class BindingsImpl implements Bindings {
             // in a optimization, we are reusing the previous context if everything is right for it
             // so the simpleRouting will only happen if needed
             if (!reusableContext) {
-               simpleRouting(message, context);
+               simpleRouting(message, context, currentVersion);
             }
          }
       }
    }
 
-   private void simpleRouting(Message message, RoutingContext context) throws Exception {
+   private void simpleRouting(Message message, RoutingContext context, int currentVersion) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("Routing message " + message + " on binding=" + this);
+         logger.trace("Routing message " + message + " on binding=" + this + " current context::" + context);
       }
-
-      // We check at the version before we started routing,
-      // this is because if something changed in between we want to check the correct version
-      int currentVersion = version.get();
 
       for (Map.Entry<SimpleString, List<Binding>> entry : routingNameBindingMap.entrySet()) {
          SimpleString routingName = entry.getKey();
