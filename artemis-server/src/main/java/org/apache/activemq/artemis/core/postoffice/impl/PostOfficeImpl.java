@@ -934,7 +934,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Message after routed=" + message);
+         logger.trace("Message after routed=" + message + "\n" + context.toString());
       }
 
       try {
