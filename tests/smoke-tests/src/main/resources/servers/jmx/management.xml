@@ -16,25 +16,26 @@
   ~ limitations under the License.
   -->
 <management-context xmlns="http://activemq.org/schema">
-   <connector connector-port="10099" connector-host="127.0.0.1" rmi-registry-port="10098" />
+   <!-- carai -->
+   <connector connector-port="10099" connector-host="localhost" rmi-registry-port="10098" />
    <authorisation>
       <whitelist>
          <entry domain="hawtio"/>
       </whitelist>
       <default-access>
-         <access method="list*" roles="${role}"/>
-         <access method="get*" roles="${role}"/>
-         <access method="is*" roles="${role}"/>
-         <access method="set*" roles="${role}"/>
-         <access method="*" roles="${role}"/>
+         <access method="list*" roles="amq"/>
+         <access method="get*" roles="amq"/>
+         <access method="is*" roles="amq"/>
+         <access method="set*" roles="amq"/>
+         <access method="*" roles="amq"/>
       </default-access>
       <role-access>
          <match domain="org.apache.activemq.artemis">
-            <access method="list*" roles="${role}"/>
-            <access method="get*" roles="${role}"/>
-            <access method="is*" roles="${role}"/>
-            <access method="set*" roles="${role}"/>
-            <access method="*" roles="${role}"/>
+            <access method="list*" roles="amq"/>
+            <access method="get*" roles="amq"/>
+            <access method="is*" roles="amq"/>
+            <access method="set*" roles="amq"/>
+            <access method="*" roles="amq"/>
          </match>
          <!--example of how to configure a specific object-->
          <!--<match domain="org.apache.activemq.artemis" key="subcomponent=queues">
