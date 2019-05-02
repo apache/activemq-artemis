@@ -1088,7 +1088,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalance) +
          BufferHelper.sizeOfNullableInteger(defaultGroupBuckets) +
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
-         BufferHelper.sizeOfNullableBoolean(autoDeleteQueues);
+         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues);
    }
 
    @Override
