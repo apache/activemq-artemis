@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacketI;
 import org.apache.activemq.artemis.core.protocol.hornetq.util.HQPropertiesConverter;
@@ -48,7 +49,9 @@ public class HQPropertiesConversionInterceptor implements Interceptor {
 
       // there's no need to copy client messages, only the server ones are problematic
       if (!(copy instanceof ClientMessageInternal)) {
-         copy = copy.copy();
+         if (copy instanceof CoreMessage && ((CoreMessage)copy).getBuffer() != null) {
+            copy = copy.copy();
+         }
          messagePacket.replaceMessage(copy);
       }
 
