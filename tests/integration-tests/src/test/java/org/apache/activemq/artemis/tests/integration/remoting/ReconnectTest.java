@@ -330,9 +330,13 @@ public class ReconnectTest extends ActiveMQTestBase {
       server.start();
       // imitate session reattach timeout
       Interceptor reattachInterceptor = new Interceptor() {
+
+         boolean reattached;
+
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.REATTACH_SESSION) {
+            if (!reattached && packet.getType() == PacketImpl.REATTACH_SESSION) {
+               reattached = true;
                return false;
             } else {
                return true;
