@@ -59,7 +59,6 @@ public class ManagementConnector implements ActiveMQComponent {
 
       connectorServerFactory = new ConnectorServerFactory();
       connectorServerFactory.setServer(mbeanServer);
-      System.out.println("ServiceURL::" + configuration.getServiceUrl());
       connectorServerFactory.setServiceUrl(configuration.getServiceUrl());
       connectorServerFactory.setRmiServerHost(configuration.getConnectorHost());
       connectorServerFactory.setObjectName(new ObjectName(configuration.getObjectName()));
