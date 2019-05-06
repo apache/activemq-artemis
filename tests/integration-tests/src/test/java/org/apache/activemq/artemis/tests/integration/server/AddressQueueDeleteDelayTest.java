@@ -35,6 +35,9 @@ import org.junit.Test;
 
 public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
+   public static final int DURATION_MILLIS = 30_000;
+   public static final int SLEEP_MILLIS = 100;
+
    private ActiveMQServer server;
 
    private ClientSession session;
@@ -47,16 +50,15 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
    public void testAddressQueueDeleteDelay() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      final long deleteQueuesDelay = 3000;
-      final long deleteAddressesDelay = 5000;
-      final long fudge = 200;
+      final long deleteQueuesDelay = 300;
+      final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteQueuesDelay(deleteQueuesDelay).setAutoDeleteAddressesDelay(deleteAddressesDelay);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       session.createQueue(address, RoutingType.MULTICAST, queue, null, true, true);
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(true);
@@ -70,31 +72,30 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       consumer.close();
       long start = System.currentTimeMillis();
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, deleteQueuesDelay + fudge, 50));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
       long elapsedTime = System.currentTimeMillis() - start;
       IntegrationTestLogger.LOGGER.info("Elapsed time to delete queue: " + elapsedTime);
-      assertTrue(elapsedTime >= (deleteQueuesDelay - fudge));
+      assertTrue(elapsedTime >= (deleteQueuesDelay));
       start = System.currentTimeMillis();
-      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, deleteAddressesDelay + fudge, 50));
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
       elapsedTime = System.currentTimeMillis() - start;
       IntegrationTestLogger.LOGGER.info("Elapsed time to delete address: " + elapsedTime);
-      assertTrue(elapsedTime >= (deleteAddressesDelay - fudge));
+      assertTrue(elapsedTime >= (deleteAddressesDelay));
    }
 
    @Test
    public void testAddressQueueDeleteDelayWithAdditionalAddressQueue() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      final long deleteQueuesDelay = 3000;
-      final long deleteAddressesDelay = 5000;
-      final long fudge = 200;
+      final long deleteQueuesDelay = 300;
+      final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteQueuesDelay(deleteQueuesDelay).setAutoDeleteAddressesDelay(deleteAddressesDelay);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       session.createQueue(address, RoutingType.MULTICAST, queue, null, true, true);
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(true);
@@ -107,34 +108,37 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       session.commit();
       consumer.close();
 
-      Thread.sleep(deleteQueuesDelay / 2);
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) != null, DURATION_MILLIS, SLEEP_MILLIS));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, true, true);
+
       consumer = session.createConsumer(queue);
-      Thread.sleep(deleteQueuesDelay / 2);
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) != null, DURATION_MILLIS, SLEEP_MILLIS));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
       consumer.close();
 
       long start = System.currentTimeMillis();
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, deleteQueuesDelay + fudge, 50));
-      assertTrue(System.currentTimeMillis() - start >= (deleteQueuesDelay - fudge));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      assertTrue(System.currentTimeMillis() - start >= (deleteQueuesDelay));
 
-      Thread.sleep(deleteAddressesDelay / 2);
       session.createQueue(address, RoutingType.MULTICAST, queue, null, true, true);
-      Thread.sleep(deleteAddressesDelay / 2);
       session.deleteQueue(queue);
 
       start = System.currentTimeMillis();
-      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, deleteAddressesDelay + fudge, 50));
-      assertTrue(System.currentTimeMillis() - start >= (deleteAddressesDelay - fudge));
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      assertTrue(System.currentTimeMillis() - start >= (deleteAddressesDelay));
    }
 
    @Test
    public void testDefaultAddressQueueDeleteDelay() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      final long fudge = 200;
 
       session.createQueue(address, RoutingType.MULTICAST, queue, null, true, true);
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(true);
@@ -146,8 +150,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       m.acknowledge();
       session.commit();
       consumer.close();
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, fudge, 50));
-      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, fudge, 50));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
    }
 
    @Override
@@ -157,7 +161,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
       server = createServer(false);
 
-      server.getConfiguration().setAddressQueueScanPeriod(100);
+      server.getConfiguration().setAddressQueueScanPeriod(SLEEP_MILLIS);
 
       server.start();
       locator = createInVMNonHALocator();
