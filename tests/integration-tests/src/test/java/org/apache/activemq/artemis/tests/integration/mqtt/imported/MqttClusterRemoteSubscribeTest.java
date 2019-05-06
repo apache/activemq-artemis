@@ -21,8 +21,14 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
+import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -57,16 +63,19 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection subConnection2 = null;
       BlockingConnection pubConnection = null;
       try {
-         //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
          subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+
+         Wait.assertEquals(1, locateMQTTPM(servers[0]).getConnectedClients()::size);
+
          subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
          pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
          //Waiting for the first sub connection be closed
          assertTrue(waitConnectionClosed(subConnection1));
-
+         Wait.assertEquals(1, locateMQTTPM(servers[1]).getConnectedClients()::size);
+         subConnection1 = null;
          subConnection2.subscribe(topics);
 
          waitForBindings(0, ANYCAST_TOPIC, 1, 0, true);
@@ -107,11 +116,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
          pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
-         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message11 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message11);
-         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message21 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message21);
-         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message31 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message31);
 
       } finally {
@@ -145,7 +154,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection connection2 = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
          connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
          connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
@@ -244,14 +253,20 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection pubConnection = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
          subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+
+         Wait.assertEquals(1, locateMQTTPM(servers[0]).getConnectedClients()::size);
+
          subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
          pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
          //Waiting for the first sub connection be closed
          assertTrue(waitConnectionClosed(subConnection1));
+         Wait.assertEquals(1, locateMQTTPM(servers[1]).getConnectedClients()::size);
+         subConnection1 = null;
+
 
          subConnection2.subscribe(topics);
 
@@ -293,11 +308,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          pubConnection.publish(MULTICAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
          pubConnection.publish(MULTICAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
-         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message11 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message11);
-         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message21 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message21);
-         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message31 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message31);
 
       } finally {
@@ -332,7 +347,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection connection2 = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
          connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
          connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
@@ -436,14 +451,19 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection pubConnection = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
          subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+
+         Wait.assertEquals(1, locateMQTTPM(servers[0]).getConnectedClients()::size);
+
          subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
          pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
          //Waiting for the first sub connection be closed
          assertTrue(waitConnectionClosed(subConnection1));
+         Wait.assertEquals(1, locateMQTTPM(servers[1]).getConnectedClients()::size);
+         subConnection1 = null;
 
          subConnection2.subscribe(topics);
 
@@ -485,11 +505,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          pubConnection.publish("anycast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
          pubConnection.publish("anycast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
-         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message11 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message11);
-         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message21 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message21);
-         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message31 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message31);
 
       } finally {
@@ -523,7 +543,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection connection2 = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(ANYCAST_TOPIC, QoS.AT_MOST_ONCE)};
          connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
          connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
@@ -608,6 +628,20 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
 
    }
 
+   MQTTProtocolManager locateMQTTPM(ActiveMQServer server) {
+
+      RemotingServiceImpl impl = (RemotingServiceImpl) server.getRemotingService();
+      for (Acceptor acceptor : impl.getAcceptors().values()) {
+         AbstractAcceptor abstractAcceptor = (AbstractAcceptor) acceptor;
+         for (ProtocolManager manager : abstractAcceptor.getProtocolMap().values()) {
+            if (manager instanceof MQTTProtocolManager) {
+               return (MQTTProtocolManager) manager;
+            }
+         }
+      }
+      return null;
+   }
+
    @Test
    public void useSameClientIdAndMulticastSubscribeRemoteQueueWildCard() throws Exception {
       final String MULTICAST_TOPIC = "multicast/test/+/some/#";
@@ -624,9 +658,10 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection pubConnection = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
          subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         Wait.assertEquals(1, locateMQTTPM(servers[0]).getConnectedClients()::size);
          subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
          pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
@@ -673,11 +708,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          pubConnection.publish("multicast/test/1/some/la", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
          pubConnection.publish("multicast/test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
-         Message message11 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message11 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message11);
-         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message21 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message21);
-         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message31 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message31);
 
       } finally {
@@ -712,10 +747,12 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection connection2 = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          Topic[] topics = {new Topic(MULTICAST_TOPIC, QoS.AT_MOST_ONCE)};
          connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
+         Wait.assertEquals(1, locateMQTTPM(servers[0]).getConnectedClients()::size);
          connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
+         Wait.assertEquals(1, locateMQTTPM(servers[1]).getConnectedClients()::size);
          // Subscribe to topics
          connection1.subscribe(topics);
 
@@ -817,7 +854,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection connection2 = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
          connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
          // Subscribe to topics
@@ -923,8 +960,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection pubConnection = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+
+         Wait.assertEquals(1, locateMQTTPM(servers[0]).getConnectedClients()::size);
+
          subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
          pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
@@ -985,11 +1025,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          message11.ack();
          assertEquals(payload4, new String(message11.getPayload()));
 
-         Message message21 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message21 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message21);
-         Message message31 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message31 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message31);
-         Message message41 = subConnection2.receive(5, TimeUnit.SECONDS);
+         Message message41 = subConnection2.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message41);
 
       } finally {
@@ -1024,10 +1064,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection pubConnection = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          pubConnection = retrieveMQTTConnection("tcp://localhost:61616", pubClientId);
 
          subConnection1 = retrieveMQTTConnection("tcp://localhost:61616", subClientId);
+         Wait.assertEquals(2, locateMQTTPM(servers[0]).getConnectedClients()::size);
          subConnection2 = retrieveMQTTConnection("tcp://localhost:61617", subClientId);
 
          //Waiting for the first sub connection be closed
@@ -1086,11 +1127,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          pubConnection.publish(ANYCAST_TOPIC, payload2.getBytes(), QoS.AT_MOST_ONCE, false);
          pubConnection.publish(ANYCAST_TOPIC, payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
-         Message message11 = subConnection3.receive(5, TimeUnit.SECONDS);
+         Message message11 = subConnection3.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message11);
-         Message message21 = subConnection3.receive(5, TimeUnit.SECONDS);
+         Message message21 = subConnection3.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message21);
-         Message message31 = subConnection3.receive(5, TimeUnit.SECONDS);
+         Message message31 = subConnection3.receive(100, TimeUnit.MILLISECONDS);
          assertNull(message31);
 
 
@@ -1131,7 +1172,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       BlockingConnection connection3 = null;
       try {
          //Waiting for resource initialization to complete
-         Thread.sleep(5000);
+         Thread.sleep(1000);
          connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
          connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
          connection3 = retrieveMQTTConnection("tcp://localhost:61617", clientId3);

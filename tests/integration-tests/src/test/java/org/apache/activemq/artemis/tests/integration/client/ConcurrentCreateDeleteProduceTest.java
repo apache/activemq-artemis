@@ -69,6 +69,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
    @Test
    public void testConcurrentProduceCreateAndDelete() throws Throwable {
+      locator.setBlockOnDurableSend(false).setBlockOnNonDurableSend(false);
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(true, true);
       ClientProducer producer = session.createProducer(ADDRESS);
@@ -84,7 +85,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
          consumers[i].start();
       }
 
-      for (int i = 0; i < 50000 && running; i++) {
+      for (int i = 0; i < 1500 && running; i++) {
          producer.send(session.createMessage(true));
          //Thread.sleep(10);
       }
@@ -122,9 +123,10 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
                session.createQueue(ADDRESS, queueName, true);
                ClientConsumer consumer = session.createConsumer(queueName);
                while (running) {
-                  ClientMessage msg = consumer.receive(5000);
+                  ClientMessage msg = consumer.receive(500);
                   if (msg == null) {
-                     break;
+                     if (running) continue;
+                     else break;
                   }
                   if (msgcount++ == 500) {
                      msgcount = 0;
@@ -134,7 +136,6 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
                consumer.close();
                session.commit();
                session.deleteQueue(queueName);
-               System.out.println("Deleting " + queueName);
             }
             session.close();
          } catch (Throwable e) {

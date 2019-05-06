@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -142,11 +143,11 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
          producer.send(bm);
       }
 
+      Wait.assertEquals(numMessages, liveServer.locateQueue(jmsQueueName)::getMessageCount);
+
       conn.start();
 
       JMSFailoverListenerTest.log.info("sent messages and started connection");
-
-      Thread.sleep(2000);
 
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
