@@ -509,7 +509,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          }
 
          long time = System.currentTimeMillis();
-         int NUMBER_OF_MESSAGES = durable ? 500 : 5000;
+         int NUMBER_OF_MESSAGES = durable ? 5 : 50;
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage msg = session.createTextMessage("hello " + i);
             msg.setIntProperty("mycount", i);
