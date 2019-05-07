@@ -77,6 +77,7 @@
             <include>org.apache.geronimo.specs:geronimo-j2ee-connector_1.5_spec</include>
             <include>org.apache.geronimo.specs:geronimo-ejb_3.0_spec</include>
             <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec</include>
+            <include>org.wildfly.common:wildfly-common</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
             <include>org.jboss.logging:jboss-logging</include>
             <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>
