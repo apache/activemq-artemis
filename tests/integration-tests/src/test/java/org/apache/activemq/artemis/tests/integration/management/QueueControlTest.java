@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.BODY;
-
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.management.Notification;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.TabularDataSupport;
+import javax.transaction.xa.XAResource;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -31,12 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.management.Notification;
-import javax.management.openmbean.CompositeData;
-import javax.transaction.xa.XAResource;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -77,6 +76,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.BODY;
+import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.STRING_PROPERTIES;
 
 @RunWith(value = Parameterized.class)
 public class QueueControlTest extends ManagementTestBase {
@@ -2890,6 +2892,47 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(2, browse.length);
 
       byte[] body = (byte[]) browse[0].get(BODY);
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals(new String(body), "theBody");
+
+      body = (byte[]) browse[1].get(BODY);
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals(new String(body), "theBody");
+   }
+
+   @Test
+   public void testSendMessageWithProperties() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      Map<String, String> headers = new HashMap<>();
+      headers.put("myProp1", "myValue1");
+      headers.put("myProp2", "myValue2");
+      queueControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+
+      Wait.assertEquals(2, () -> getMessageCount(queueControl));
+
+      // the message IDs are set on the server
+      CompositeData[] browse = queueControl.browse(null);
+
+      Assert.assertEquals(2, browse.length);
+
+      byte[] body = (byte[]) browse[0].get(BODY);
+
+      for (Object prop : ((TabularDataSupport)browse[0].get(STRING_PROPERTIES)).values()) {
+         CompositeDataSupport cds = (CompositeDataSupport) prop;
+         Assert.assertTrue(headers.containsKey(cds.get("key")));
+         Assert.assertTrue(headers.containsValue(cds.get("value")));
+      }
 
       Assert.assertNotNull(body);
 
