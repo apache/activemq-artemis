@@ -61,10 +61,11 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
    private static final ReusableLatch latchFlag = new ReusableLatch(1);
 
    public static void enterCancel() {
-      latchEnter.countDown();
       try {
-         latchFlag.await();
-      } catch (Exception ignored) {
+         latchEnter.countDown();
+         latchFlag.await(1, TimeUnit.SECONDS);
+      } catch (Throwable ignored) {
+         ignored.printStackTrace();
       }
    }
 
@@ -105,7 +106,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
       String queueName = RandomUtil.randomString();
       Queue queue = createQueue(queueName);
 
-      int numberOfMessages = 10000;
+      int numberOfMessages = 100;
 
       {
          Connection connection = cf.createConnection();
@@ -122,7 +123,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
          connection.close();
       }
 
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 10; i++) {
          XAConnectionFactory xacf = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "test");
 
          final XAConnection connection = xacf.createXAConnection();
@@ -152,8 +153,12 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
                serverSessions.add(srvSess);
             }
          }
+         latchFlag.countDown();
 
-         resetLatches(2); // from Transactional reaper
+
+         latchFlag.countUp();
+         latchEnter.countUp();
+         latchEnter.countUp();
 
          List<Thread> threads = new LinkedList<>();
 
@@ -192,7 +197,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
             t.start();
          }
 
-         Assert.assertTrue(latchEnter.await(10, TimeUnit.MINUTES));
+         latchEnter.await(1, TimeUnit.SECONDS);
          latchFlag.countDown();
 
          for (Thread t : threads) {
