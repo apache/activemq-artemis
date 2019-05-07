@@ -107,6 +107,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
             locator.setConsumerWindowSize(0);
          }
       }
+      locator.setBlockOnNonDurableSend(false).setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
       settings.setMaxDeliveryAttempts(-1);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
@@ -148,7 +149,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
             // System.out.println("message:" + message);
             try {
                if (counter++ < 20) {
-                  Thread.sleep(100);
                   // System.out.println("Rollback");
                   message.acknowledge();
                   session.rollback();
@@ -1189,22 +1189,22 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @Test
    public void testFilePersistenceDelayed() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 2000);
+      testChunks(false, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @Test
    public void testFilePersistenceDelayedConsumer() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 2000);
+      testChunks(false, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @Test
    public void testFilePersistenceDelayedXA() throws Exception {
-      testChunks(true, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 2000);
+      testChunks(true, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @Test
    public void testFilePersistenceDelayedXAConsumer() throws Exception {
-      testChunks(true, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 2000);
+      testChunks(true, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @Test
@@ -1274,22 +1274,22 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @Test
    public void testSendRegularMessageNullPersistenceDelayed() throws Exception {
-      testChunks(false, false, true, false, false, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(false, false, true, false, false, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
    public void testSendRegularMessageNullPersistenceDelayedConsumer() throws Exception {
-      testChunks(false, false, true, false, false, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(false, false, true, false, false, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
    public void testSendRegularMessageNullPersistenceDelayedXA() throws Exception {
-      testChunks(true, false, true, false, false, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(true, false, true, false, false, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
    public void testSendRegularMessageNullPersistenceDelayedXAConsumer() throws Exception {
-      testChunks(true, false, true, false, false, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(true, false, true, false, false, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
@@ -1314,22 +1314,22 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @Test
    public void testSendRegularMessagePersistenceDelayed() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(false, false, true, false, true, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
    public void testSendRegularMessagePersistenceDelayedConsumer() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(false, false, true, false, true, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
    public void testSendRegularMessagePersistenceDelayedXA() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(false, false, true, false, true, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
    public void testSendRegularMessagePersistenceDelayedXAConsumer() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 1000);
+      testChunks(false, false, true, false, true, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @Test
@@ -1659,11 +1659,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          ClientConsumerInternal consumer = (ClientConsumerInternal) session.createConsumer(ADDRESS);
 
-         // Wait the consumer to be complete with 10 messages before getting others
-         long timeout = System.currentTimeMillis() + 10000;
-         while (consumer.getBufferSize() < NUMBER_OF_MESSAGES && timeout > System.currentTimeMillis()) {
-            Thread.sleep(10);
-         }
+         Wait.waitFor(() -> consumer.getBufferSize() >= NUMBER_OF_MESSAGES, 30_000, 100);
          Assert.assertEquals(NUMBER_OF_MESSAGES, consumer.getBufferSize());
 
          // Reads the messages, rollback.. read them again
@@ -1711,14 +1707,14 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ActiveMQServer server = null;
 
       final int SIZE = 10 * 1024;
-      final int NUMBER_OF_MESSAGES = 1000;
+      final int NUMBER_OF_MESSAGES = 100;
       try {
 
          server = createServer(true, isNetty(), storeType);
 
          server.start();
 
-         locator.setMinLargeMessageSize(1024).setConsumerWindowSize(1024 * 1024);
+         locator.setMinLargeMessageSize(1024).setConsumerWindowSize(1024 * 1024).setBlockOnDurableSend(false).setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -1744,11 +1740,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
             ClientConsumerInternal consumer = (ClientConsumerInternal) session.createConsumer(ADDRESS);
 
-            // Wait the consumer to be complete with 10 messages before getting others
-            long timeout = System.currentTimeMillis() + 10000;
-            while (consumer.getBufferSize() < 10 && timeout > System.currentTimeMillis()) {
-               Thread.sleep(10);
-            }
+            Assert.assertTrue(Wait.waitFor(() -> consumer.getBufferSize() >= 5, 30_000, 100));
+
 
             for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
                ClientMessage msg = consumer.receive(10000);

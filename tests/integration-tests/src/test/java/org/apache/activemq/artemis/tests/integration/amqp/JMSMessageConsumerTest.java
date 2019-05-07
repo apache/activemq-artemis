@@ -800,7 +800,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 240000)
+   @Test(timeout = 30000)
    public void testTimedOutWaitingForWriteLogOnConsumer() throws Throwable {
       String name = "exampleQueue1";
 
@@ -823,8 +823,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             queue = session.createQueue(name);
             MessageConsumer c = session.createConsumer(queue);
-            c.receive(1000);
-            producer.close();
+            Assert.assertNotNull(c.receive(1000));
             session.close();
          }
 
@@ -832,7 +831,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          queue = session.createQueue(name);
          MessageConsumer c = session.createConsumer(queue);
          for (int i = 0; i < numMessages; i++) {
-            c.receive(1000);
+            Assert.assertNull(c.receive(1));
          }
          producer.close();
          session.close();
