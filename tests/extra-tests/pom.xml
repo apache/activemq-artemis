@@ -189,6 +189,10 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.wildfly.common</groupId>
+          <artifactId>wildfly-common</artifactId>
+      </dependency>
+      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
       </dependency>

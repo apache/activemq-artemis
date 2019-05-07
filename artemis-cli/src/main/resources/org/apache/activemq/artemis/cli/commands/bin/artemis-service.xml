@@ -69,7 +69,7 @@
    <startargument>run</startargument>
 
    <stopexecutable>%JAVA_HOME%\bin\java.exe</stopexecutable>
-   <stopargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</stopargument>
+   <stopargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager};%ARTEMIS_HOME%\lib\${wildfly-common}</stopargument>
    <stopargument>-XX:+UseParallelGC</stopargument>
    <stopargument>-Xms512M</stopargument>
    <stopargument>-Xmx1024M</stopargument>
