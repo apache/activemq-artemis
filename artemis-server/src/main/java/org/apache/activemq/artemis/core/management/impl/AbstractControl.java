@@ -133,7 +133,7 @@ public abstract class AbstractControl extends StandardMBean {
          CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
          if (headers != null) {
             for (Map.Entry<String, String> header : headers.entrySet()) {
-               message.putStringProperty(new SimpleString(header.getKey()), new SimpleString(headers.get(header.getValue())));
+               message.putStringProperty(header.getKey(), header.getValue());
             }
          }
          message.setType((byte) type);
