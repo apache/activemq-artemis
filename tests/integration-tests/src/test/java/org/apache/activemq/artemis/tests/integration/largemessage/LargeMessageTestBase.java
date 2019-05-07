@@ -346,13 +346,9 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                session.start();
 
                for (int i = 0; i < numberOfMessages; i++) {
-                  System.currentTimeMillis();
-
                   ClientMessage message = consumer.receive(waitOnConsumer + delayDelivery);
 
                   Assert.assertNotNull(message);
-
-                  System.currentTimeMillis();
 
                   if (delayDelivery > 0) {
                      long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));

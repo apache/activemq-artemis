@@ -253,4 +253,9 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    public Map<String, MQTTSessionState> getSessionStates() {
       return new HashMap<>(sessionStates);
    }
+
+   /** For DEBUG only */
+   public Map<String, MQTTConnection> getConnectedClients() {
+      return connectedClients;
+   }
 }
