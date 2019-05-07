@@ -20,7 +20,9 @@ import javax.json.JsonArray;
 import javax.json.JsonString;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -390,6 +392,33 @@ public class AddressControlTest extends ManagementTestBase {
       byte[] buffer = new byte[message.getBodyBuffer().readableBytes()];
       message.getBodyBuffer().readBytes(buffer);
       assertEquals("test", new String(buffer));
+   }
+
+   @Test
+   public void testSendMessageWithProperties() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      Assert.assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(address, RoutingType.ANYCAST, address);
+      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      Map<String, String> headers = new HashMap<>();
+      headers.put("myProp1", "myValue1");
+      headers.put("myProp2", "myValue2");
+      addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+
+      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
+      Assert.assertEquals(1, addressControl.getMessageCount());
+
+      ClientConsumer consumer = session.createConsumer(address);
+      ClientMessage message = consumer.receive(500);
+      assertNotNull(message);
+      byte[] buffer = new byte[message.getBodyBuffer().readableBytes()];
+      message.getBodyBuffer().readBytes(buffer);
+      assertEquals("test", new String(buffer));
+      assertEquals("myValue1", message.getStringProperty("myProp1"));
+      assertEquals("myValue2", message.getStringProperty("myProp2"));
    }
 
    // Package protected ---------------------------------------------
