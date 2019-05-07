@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +35,9 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.jboss.logging.Logger;
@@ -246,6 +249,82 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
    protected void loadAndCheck() throws Exception {
       loadAndCheck(false);
+   }
+
+   /**
+    * @param fileFactory
+    * @param journal
+    * @throws Exception
+    */
+   private static void describeJournal(SequentialFileFactory fileFactory,
+                                       JournalImpl journal,
+                                       final File path,
+                                       PrintStream out) throws Exception {
+      List<JournalFile> files = journal.orderFiles();
+
+      out.println("Journal path: " + path);
+
+      for (JournalFile file : files) {
+         out.println("#" + file + " (size=" + file.getFile().size() + ")");
+
+         JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
+
+            @Override
+            public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
+               out.println("operation@UpdateTX;txID=" + transactionID + "," + recordInfo);
+            }
+
+            @Override
+            public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception {
+               out.println("operation@Update;" + recordInfo);
+            }
+
+            @Override
+            public void onReadRollbackRecord(final long transactionID) throws Exception {
+               out.println("operation@Rollback;txID=" + transactionID);
+            }
+
+            @Override
+            public void onReadPrepareRecord(final long transactionID,
+                                            final byte[] extraData,
+                                            final int numberOfRecords) throws Exception {
+               out.println("operation@Prepare,txID=" + transactionID + ",numberOfRecords=" + numberOfRecords);
+            }
+
+            @Override
+            public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
+               out.println("operation@DeleteRecordTX;txID=" + transactionID + "," + recordInfo);
+            }
+
+            @Override
+            public void onReadDeleteRecord(final long recordID) throws Exception {
+               out.println("operation@DeleteRecord;recordID=" + recordID);
+            }
+
+            @Override
+            public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
+               out.println("operation@Commit;txID=" + transactionID + ",numberOfRecords=" + numberOfRecords);
+            }
+
+            @Override
+            public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
+               out.println("operation@AddRecordTX;txID=" + transactionID + "," + recordInfo);
+            }
+
+            @Override
+            public void onReadAddRecord(final RecordInfo recordInfo) throws Exception {
+               out.println("operation@AddRecord;" + recordInfo);
+            }
+
+            @Override
+            public void markAsDataFile(final JournalFile file1) {
+            }
+
+         });
+      }
+
+      out.println();
+
    }
 
    protected void loadAndCheck(final boolean printDebugJournal) throws Exception {
@@ -522,31 +601,66 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
     * @param actual
     */
    protected void printJournalLists(final List<RecordInfo> expected, final List<RecordInfo> actual) {
+      try {
 
-      HashSet<RecordInfo> expectedSet = new HashSet<>();
-      expectedSet.addAll(expected);
+         HashSet<RecordInfo> expectedSet = new HashSet<>();
+         expectedSet.addAll(expected);
 
+         Assert.assertEquals("There are duplicated on the expected list", expectedSet.size(), expected.size());
 
-      Assert.assertEquals("There are duplicated on the expected list", expectedSet.size(), expected.size());
+         HashSet<RecordInfo> actualSet = new HashSet<>();
+         actualSet.addAll(actual);
 
-      HashSet<RecordInfo> actualSet = new HashSet<>();
-      actualSet.addAll(actual);
+         expectedSet.removeAll(actualSet);
 
-      expectedSet.removeAll(actualSet);
+         for (RecordInfo info : expectedSet) {
+            logger.warn("The following record is missing:: " + info);
+         }
 
-      for (RecordInfo info: expectedSet) {
-         logger.warn("The following record is missing:: " + info);
+         Assert.assertEquals("There are duplicates on the actual list", actualSet.size(), actualSet.size());
+
+         RecordInfo[] expectedArray = expected.toArray(new RecordInfo[expected.size()]);
+         RecordInfo[] actualArray = actual.toArray(new RecordInfo[actual.size()]);
+         Assert.assertArrayEquals(expectedArray, actualArray);
+      } catch (AssertionError e) {
+
+         HashSet<RecordInfo> hashActual = new HashSet<>();
+         hashActual.addAll(actual);
+
+         HashSet<RecordInfo> hashExpected = new HashSet<>();
+         hashExpected.addAll(expected);
+
+         System.out.println("#Summary **********************************************************************************************************************");
+         for (RecordInfo r : hashActual) {
+            if (!hashExpected.contains(r)) {
+               System.out.println("Record " + r + " was supposed to be removed and it exists");
+            }
+         }
+
+         for (RecordInfo r : hashExpected) {
+            if (!hashActual.contains(r)) {
+               System.out.println("Record " + r + " was not found on actual list");
+            }
+         }
+
+         System.out.println("#expected **********************************************************************************************************************");
+         for (RecordInfo recordInfo : expected) {
+            System.out.println("Record::" + recordInfo);
+         }
+         System.out.println("#actual ************************************************************************************************************************");
+         for (RecordInfo recordInfo : actual) {
+            System.out.println("Record::" + recordInfo);
+         }
+
+         System.out.println("#records ***********************************************************************************************************************");
+
+         try {
+            describeJournal(journal.getFileFactory(), (JournalImpl) journal, journal.getFileFactory().getDirectory(), System.out);
+         } catch (Exception e2) {
+            e2.printStackTrace();
+         }
+
       }
-
-
-      Assert.assertEquals("There are duplicates on the actual list", actualSet.size(), actualSet.size());
-
-
-
-      RecordInfo[] expectedArray = expected.toArray(new RecordInfo[expected.size()]);
-      RecordInfo[] actualArray = actual.toArray(new RecordInfo[actual.size()]);
-      Assert.assertArrayEquals(expectedArray, actualArray);
-
    }
 
    protected byte[] generateRecord(final int length) {
