@@ -153,7 +153,7 @@ public final class StompConnection implements RemotingConnection {
 
    @Override
    public boolean isWritable(ReadyListener callback) {
-      return transportConnection.isWritable(callback);
+      return transportConnection.isWritable(callback) && transportConnection.isOpen();
    }
 
    public boolean hasBytes() {
