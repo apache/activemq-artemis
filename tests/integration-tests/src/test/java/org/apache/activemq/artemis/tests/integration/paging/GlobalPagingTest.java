@@ -165,7 +165,7 @@ public class GlobalPagingTest extends PagingTest {
 
       session.start();
 
-      assertEquals(numberOfMessages * 2, getMessageCount(queue));
+      Wait.assertEquals(numberOfMessages * 2, queue::getMessageCount);
 
       // The consumer has to be created after the getMessageCount(queue) assertion
       // otherwise delivery could alter the messagecount and give us a false failure
@@ -182,7 +182,7 @@ public class GlobalPagingTest extends PagingTest {
       }
       session.commit();
 
-      assertEquals(0, getMessageCount(queue));
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    protected void sendFewMessages(int numberOfMessages,
