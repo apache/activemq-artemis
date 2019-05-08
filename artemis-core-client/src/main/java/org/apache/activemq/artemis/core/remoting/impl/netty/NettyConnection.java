@@ -137,8 +137,13 @@ public class NettyConnection implements Connection {
             readyListeners.add(callback);
          }
 
-         return ready && channel.isOpen();
+         return ready;
       }
+   }
+
+   @Override
+   public boolean isOpen() {
+      return channel.isOpen();
    }
 
    @Override
