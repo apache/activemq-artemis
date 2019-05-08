@@ -117,6 +117,11 @@ public class InVMConnection implements Connection {
    }
 
    @Override
+   public boolean isOpen() {
+      return true;
+   }
+
+   @Override
    public void fireReady(boolean ready) {
    }
 

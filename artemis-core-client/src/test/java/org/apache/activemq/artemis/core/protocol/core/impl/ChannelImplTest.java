@@ -344,6 +344,11 @@ public class ChannelImplTest {
             }
 
             @Override
+            public boolean isOpen() {
+               return true;
+            }
+
+            @Override
             public boolean isWritable(ReadyListener listener) {
                return false;
             }

@@ -43,6 +43,8 @@ public interface Connection {
 
    boolean isWritable(ReadyListener listener);
 
+   boolean isOpen();
+
    /**
     * Causes the current thread to wait until the connection can enqueue the required capacity unless the specified waiting time elapses.
     * The available capacity of the connection could change concurrently hence this method is suitable to perform precise flow-control
