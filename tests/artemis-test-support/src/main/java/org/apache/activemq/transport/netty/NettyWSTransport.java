@@ -80,16 +80,13 @@ public class NettyWSTransport extends NettyTcpTransport {
    }
 
    @Override
+   public void sendVoidPromise(ByteBuf output) throws IOException {
+      writeAndFlush(output, channel.voidPromise(), BinaryWebSocketFrame::new);
+   }
+
+   @Override
    public ChannelFuture send(ByteBuf output) throws IOException {
-      checkConnected();
-      int length = output.readableBytes();
-      if (length == 0) {
-         return null;
-      }
-
-      LOG.trace("Attempted write of: {} bytes", length);
-
-      return channel.writeAndFlush(new BinaryWebSocketFrame(output));
+      return writeAndFlush(output, channel.newPromise(), BinaryWebSocketFrame::new);
    }
 
    @Override

@@ -22,7 +22,11 @@ import java.security.Principal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import static java.util.function.Function.identity;
 
+import io.netty.channel.ChannelPromise;
+import io.netty.util.ReferenceCounted;
 import org.apache.activemq.transport.amqp.client.util.IOExceptionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,17 +226,34 @@ public class NettyTcpTransport implements NettyTransport {
       return channel.alloc().ioBuffer(size, size);
    }
 
-   @Override
-   public ChannelFuture send(ByteBuf output) throws IOException {
-      checkConnected();
+   protected final ChannelFuture writeAndFlush(ByteBuf output,
+                                               ChannelPromise promise,
+                                               Function<? super ByteBuf, ? extends ReferenceCounted> bufferTransformer) throws IOException {
+      try {
+         checkConnected();
+      } catch (IOException ioEx) {
+         output.release();
+         throw ioEx;
+      }
       int length = output.readableBytes();
       if (length == 0) {
+         output.release();
          return null;
       }
 
       LOG.trace("Attempted write of: {} bytes", length);
 
-      return channel.writeAndFlush(output);
+      return channel.writeAndFlush(bufferTransformer.apply(output), promise);
+   }
+
+   @Override
+   public ChannelFuture send(ByteBuf output) throws IOException {
+      return writeAndFlush(output, channel.newPromise(), identity());
+   }
+
+   @Override
+   public void sendVoidPromise(ByteBuf output) throws IOException {
+      writeAndFlush(output, channel.voidPromise(), identity());
    }
 
    @Override
