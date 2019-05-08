@@ -38,6 +38,8 @@ public interface NettyTransport {
 
    ByteBuf allocateSendBuffer(int size) throws IOException;
 
+   void sendVoidPromise(ByteBuf output) throws IOException;
+
    ChannelFuture send(ByteBuf output) throws IOException;
 
    NettyTransportListener getTransportListener();
