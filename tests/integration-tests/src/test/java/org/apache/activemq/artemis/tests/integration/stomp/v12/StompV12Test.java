@@ -884,7 +884,7 @@ public class StompV12Test extends StompTestBase {
 
       //Nack makes the message be dropped.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -966,7 +966,7 @@ public class StompV12Test extends StompTestBase {
 
       //Nack makes the message be dropped.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -1134,7 +1134,7 @@ public class StompV12Test extends StompTestBase {
 
       //no messages can be received.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -1170,7 +1170,7 @@ public class StompV12Test extends StompTestBase {
       MessageConsumer consumer = session.createConsumer(queue);
       Message message = consumer.receive(1000);
       Assert.assertNotNull(message);
-      message = consumer.receive(1000);
+      message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -1200,7 +1200,7 @@ public class StompV12Test extends StompTestBase {
 
       //no messages can be received.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -1229,7 +1229,7 @@ public class StompV12Test extends StompTestBase {
 
       //no messages can be received.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -1272,7 +1272,7 @@ public class StompV12Test extends StompTestBase {
          System.out.println("Legal: " + message.getText());
       }
 
-      message = (TextMessage) consumer.receive(1000);
+      message = (TextMessage) consumer.receiveNoWait();
 
       Assert.assertNull(message);
    }
@@ -1388,7 +1388,7 @@ public class StompV12Test extends StompTestBase {
 
       abortTransaction(conn, "tx1");
 
-      frame = conn.receiveFrame(500);
+      frame = conn.receiveFrame(100);
 
       Assert.assertNull(frame);
 
@@ -1816,7 +1816,7 @@ public class StompV12Test extends StompTestBase {
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1000);
 
-      Assert.assertNull(consumer.receive(1000));
+      Assert.assertNull(consumer.receiveNoWait());
 
       conn.disconnect();
    }
@@ -1933,7 +1933,7 @@ public class StompV12Test extends StompTestBase {
 
       sendJmsMessage(getName(), topic);
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       Assert.assertNull(frame);
 
       conn.disconnect();
@@ -1984,7 +1984,7 @@ public class StompV12Test extends StompTestBase {
 
       // message should not be received as it was auto-acked
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -2028,7 +2028,7 @@ public class StompV12Test extends StompTestBase {
 
       // message should not be received since message was acknowledged by the client
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -2150,7 +2150,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals("123", frame.getHeader("receipt-id"));
 
       // check the message is not committed
-      Assert.assertNull(consumer.receive(100));
+      Assert.assertNull(consumer.receiveNoWait());
 
       commitTransaction(conn, "tx1", true);
 
@@ -2217,7 +2217,7 @@ public class StompV12Test extends StompTestBase {
       // send a message to our queue
       sendJmsMessage("second message");
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       Assert.assertNull(frame);
 
       conn.disconnect();
@@ -2247,7 +2247,7 @@ public class StompV12Test extends StompTestBase {
       conn = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       Assert.assertNull("not expected: " + frame, frame);
 
       //subscribe again.
@@ -2259,12 +2259,12 @@ public class StompV12Test extends StompTestBase {
       Assert.assertNotNull(frame);
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       Assert.assertNull("not expected: " + frame, frame);
 
       unsubscribe(conn, "sub1", true);
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       Assert.assertNull(frame);
 
       conn.disconnect();
