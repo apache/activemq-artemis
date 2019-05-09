@@ -2612,19 +2612,31 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
          Assert.assertTrue("number of producers returned from query", 2 <= array.size());
-         JsonObject jsonSession = array.getJsonObject(0);
 
-         //check all fields
-         Assert.assertNotEquals("id", "", jsonSession.getString("id"));
-         Assert.assertNotEquals("session", "", jsonSession.getString("session"));
-         Assert.assertEquals("clientID", "", jsonSession.getString("clientID"));
-         Assert.assertEquals("user", "", jsonSession.getString("user"));
-         Assert.assertNotEquals("protocol", "", jsonSession.getString("protocol"));
-         Assert.assertEquals("address", "", jsonSession.getString("address"));
-         Assert.assertNotEquals("localAddress", "", jsonSession.getString("localAddress"));
-         Assert.assertNotEquals("remoteAddress", "", jsonSession.getString("remoteAddress"));
-         Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
+         boolean foundElement = false;
+         for (int i = 0; i < array.size(); i++) {
 
+            JsonObject jsonSession = array.getJsonObject(i);
+            if (jsonSession.getString("address").equals("activemq.management")) {
+               continue;
+            }
+
+            foundElement = true;
+
+            //check all fields
+            Assert.assertNotEquals("id", "", jsonSession.getString("id"));
+            Assert.assertNotEquals("session", "", jsonSession.getString("session"));
+            Assert.assertEquals("clientID", "", jsonSession.getString("clientID"));
+            Assert.assertEquals("user", "", jsonSession.getString("user"));
+            Assert.assertNotEquals("protocol", "", jsonSession.getString("protocol"));
+            Assert.assertEquals("address", "", jsonSession.getString("address"));
+            Assert.assertNotEquals("localAddress", "", jsonSession.getString("localAddress"));
+            Assert.assertNotEquals("remoteAddress", "", jsonSession.getString("remoteAddress"));
+            Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
+         }
+
+
+         Assert.assertTrue("Valid session not found", foundElement);
       }
    }
 
