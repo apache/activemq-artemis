@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
@@ -1505,22 +1506,28 @@ public class StompV11Test extends StompTestBase {
 
    @Test
    public void testDurableUnSubscribe() throws Exception {
+      SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
+
       conn.connect(defUser, defPass, CLIENT_ID);
 
       subscribeTopic(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, getName());
 
+      Wait.assertTrue(() -> server.locateQueue(queueName) != null);
+
       conn.disconnect();
       conn.destroy();
+
+      Queue queue = server.locateQueue(queueName);
+      Assert.assertNotNull(queue);
+
+      Wait.assertEquals(0, queue::getConsumerCount, 10_000, 10);
+
       conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass, CLIENT_ID);
 
       unsubscribe(conn, getName(), null, false, true);
 
-      long start = System.currentTimeMillis();
-      SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
-      while (server.locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
-         Thread.sleep(100);
-      }
+      Wait.assertTrue(() -> server.locateQueue(queueName) == null);
 
       assertNull(server.locateQueue(queueName));
 
