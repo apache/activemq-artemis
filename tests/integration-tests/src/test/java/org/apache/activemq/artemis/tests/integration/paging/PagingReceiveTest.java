@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   private int numMsgs = 500;
+   private int numMsgs = 100;
 
    protected boolean isNetty() {
       return false;
@@ -89,13 +90,9 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       PageSubscription pageSub = store.getCursorProvider().getSubscription(qid);
       long pageNr = store.getCurrentWritingPage();
 
+      Wait.assertTrue(() -> ((PageSubscriptionImpl)pageSub).getPageInfo(pageNr).getPendingTx() > 0);
+
       PageSubscriptionImpl.PageCursorInfo info = ((PageSubscriptionImpl)pageSub).getPageInfo(pageNr);
-
-      System.out.println("pendingTx: " + info.getPendingTx());
-
-      //The positive pendingTx will prevent a page being removed
-      //before ResOperation is completed.
-      assertTrue(info.getPendingTx() > 0);
 
       session.commit();
       session.close();
@@ -115,11 +112,12 @@ public class PagingReceiveTest extends ActiveMQTestBase {
          queue.getPageSubscription().getPagingStore().forceAnotherPage();
       }
 
+      locator.setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
       final ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
       ClientProducer prod = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 500; i++) {
+      for (int i = 0; i < numMsgs; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("key", i);
          prod.send(msg);
