@@ -98,8 +98,17 @@ public class Wait {
    }
 
    public static void assertTrue(String failureMessage, Condition condition, final long duration) throws Exception {
+      assertTrue(failureMessage, condition, duration, SLEEP_MILLIS);
+   }
 
-      boolean result = waitFor(condition, duration);
+   public static void assertTrue(Condition condition, final long duration, final long sleep) throws Exception {
+      assertTrue("condition not met", condition, duration, sleep);
+   }
+
+
+   public static void assertTrue(String failureMessage, Condition condition, final long duration, final long sleep) throws Exception {
+
+      boolean result = waitFor(condition, duration, sleep);
 
       if (!result) {
          Assert.fail(failureMessage);
