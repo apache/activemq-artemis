@@ -1631,6 +1631,8 @@
                   <exclude>activemq-artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
                   <exclude>**/dependency-reduced-pom.xml</exclude>
 
+                  <!-- Mockito -->
+                  <exclude>**/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker</exclude>
                </excludes>
             </configuration>
             <executions>

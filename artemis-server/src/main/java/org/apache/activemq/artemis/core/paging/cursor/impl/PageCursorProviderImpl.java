@@ -19,9 +19,12 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -71,7 +74,18 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    private final SoftValueLongObjectHashMap<PageCache> softCache;
 
+   private final LongObjectHashMap<CompletableFuture<PageCache>> inProgressReadPages;
+
    private final ConcurrentLongHashMap<PageSubscription> activeCursors = new ConcurrentLongHashMap<>();
+
+   private static final long PAGE_READ_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(30);
+
+   //Any concurrent read page request will wait in a loop the original Page::read to complete while
+   //printing at intervals a warn message
+   private static final long CONCURRENT_PAGE_READ_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
+
+   //storageManager.beforePageRead will be attempted in a loop, printing at intervals a warn message
+   private static final long PAGE_READ_PERMISSION_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
 
    // Static --------------------------------------------------------
 
@@ -85,6 +99,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       this.storageManager = storageManager;
       this.executor = executor;
       this.softCache = new SoftValueLongObjectHashMap<>(maxCacheSize);
+      this.inProgressReadPages = new LongObjectHashMap<>();
    }
 
    // Public --------------------------------------------------------
@@ -131,43 +146,82 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public PageCache getPageCache(final long pageId) {
       try {
+         if (pageId > pagingStore.getCurrentWritingPage()) {
+            return null;
+         }
+         boolean createPage = false;
+         CompletableFuture<PageCache> inProgressReadPage;
          PageCache cache;
+         Page page = null;
          synchronized (softCache) {
-            if (pageId > pagingStore.getCurrentWritingPage()) {
+            cache = softCache.get(pageId);
+            if (cache != null) {
+               return cache;
+            }
+            if (!pagingStore.checkPageFileExists((int) pageId)) {
                return null;
             }
-
-            cache = softCache.get(pageId);
-            if (cache == null) {
-               if (!pagingStore.checkPageFileExists((int) pageId)) {
-                  return null;
-               }
-
+            inProgressReadPage = inProgressReadPages.get(pageId);
+            if (inProgressReadPage == null) {
+               final CompletableFuture<PageCache> readPage = new CompletableFuture<>();
                cache = createPageCache(pageId);
-               // anyone reading from this cache will have to wait reading to finish first
-               // we also want only one thread reading this cache
-               logger.tracef("adding pageCache pageNr=%d into cursor = %s", pageId, this.pagingStore.getAddress());
-               readPage((int) pageId, cache);
-               softCache.put(pageId, cache);
+               page = pagingStore.createPage((int) pageId);
+               createPage = true;
+               inProgressReadPage = readPage;
+               inProgressReadPages.put(pageId, readPage);
             }
          }
-
-         return cache;
+         if (createPage) {
+            return readPage(pageId, page, cache, inProgressReadPage);
+         } else {
+            final long startedWait = System.nanoTime();
+            while (true) {
+               try {
+                  return inProgressReadPage.get(CONCURRENT_PAGE_READ_TIMEOUT_NS, TimeUnit.NANOSECONDS);
+               } catch (TimeoutException e) {
+                  final long elapsed = System.nanoTime() - startedWait;
+                  final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsed);
+                  logger.warnf("Waiting a concurrent Page::read for pageNr=%d on cursor %s by %d ms",
+                               pageId, pagingStore.getAddress(), elapsedMillis);
+               }
+            }
+         }
       } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }
 
-   private void readPage(int pageId, PageCache cache) throws Exception {
-      Page page = null;
+   private PageCache readPage(long pageId,
+                              Page page,
+                              PageCache cache,
+                              CompletableFuture<PageCache> inProgressReadPage) throws Exception {
+      logger.tracef("adding pageCache pageNr=%d into cursor = %s", pageId, this.pagingStore.getAddress());
+      boolean acquiredPageReadPermission = false;
       try {
-         page = pagingStore.createPage(pageId);
-
-         storageManager.beforePageRead();
+         final long startedRequest = System.nanoTime();
+         while (!acquiredPageReadPermission) {
+            acquiredPageReadPermission = storageManager.beforePageRead(PAGE_READ_PERMISSION_TIMEOUT_NS, TimeUnit.NANOSECONDS);
+            if (!acquiredPageReadPermission) {
+               final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedRequest);
+               logger.warnf("Cannot acquire page read permission of pageNr=%d on cursor %s after %d ms: consider increasing page-max-concurrent-io or use a faster disk",
+                            pageId, pagingStore.getAddress(), elapsedMillis);
+            }
+         }
          page.open();
-
+         final long startedReadPage = System.nanoTime();
          List<PagedMessage> pgdMessages = page.read(storageManager);
+         final long elapsedReadPage = System.nanoTime() - startedReadPage;
+         if (elapsedReadPage > PAGE_READ_TIMEOUT_NS) {
+            logger.warnf("Page::read for pageNr=%d on cursor %s tooks %d ms to read %d bytes", pageId,
+                         pagingStore.getAddress(), TimeUnit.NANOSECONDS.toMillis(elapsedReadPage), page.getSize());
+         }
          cache.setMessages(pgdMessages.toArray(new PagedMessage[pgdMessages.size()]));
+      } catch (Throwable t) {
+         inProgressReadPage.completeExceptionally(t);
+         synchronized (softCache) {
+            inProgressReadPages.remove(pageId);
+         }
+         throw t;
       } finally {
          try {
             if (page != null) {
@@ -175,8 +229,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             }
          } catch (Throwable ignored) {
          }
-         storageManager.afterPageRead();
+         if (acquiredPageReadPermission) {
+            storageManager.afterPageRead();
+         }
       }
+      inProgressReadPage.complete(cache);
+      synchronized (softCache) {
+         inProgressReadPages.remove(pageId);
+         softCache.put(pageId, cache);
+      }
+      return cache;
    }
 
    @Override
