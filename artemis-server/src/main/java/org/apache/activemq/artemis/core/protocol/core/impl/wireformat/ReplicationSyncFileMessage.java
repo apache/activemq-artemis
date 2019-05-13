@@ -16,22 +16,30 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.jboss.logging.Logger;
 
 /**
  * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The {@link FileType} controls
  * which extra information is sent.
  */
 public final class ReplicationSyncFileMessage extends PacketImpl {
+   private static final Logger logger = Logger.getLogger(ReplicationSyncFileMessage.class);
 
    /**
     * The JournalType or {@code null} if sync'ing large-messages.
@@ -43,10 +51,12 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
     */
    private long fileId;
    private int dataSize;
-   private ByteBuf byteBuffer;
    private byte[] byteArray;
    private SimpleString pageStoreName;
    private FileType fileType;
+   private RandomAccessFile raf;
+   private FileChannel fileChannel;
+   private long offset;
 
    public enum FileType {
       JOURNAL(0), PAGE(1), LARGE_MESSAGE(2);
@@ -78,14 +88,18 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
    public ReplicationSyncFileMessage(AbstractJournalStorageManager.JournalContent content,
                                      SimpleString storeName,
                                      long id,
-                                     int size,
-                                     ByteBuf buffer) {
+                                     RandomAccessFile raf,
+                                     FileChannel fileChannel,
+                                     long offset,
+                                     int size) {
       this();
-      this.byteBuffer = buffer;
       this.pageStoreName = storeName;
       this.dataSize = size;
       this.fileId = id;
+      this.raf = raf;
+      this.fileChannel = fileChannel;
       this.journalType = content;
+      this.offset = offset;
       determineType();
    }
 
@@ -99,10 +113,30 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       }
    }
 
+   public long getFileId() {
+      return fileId;
+   }
+
+   public int getDataSize() {
+      return dataSize;
+   }
+
+   public RandomAccessFile getRaf() {
+      return raf;
+   }
+
+   public FileChannel getFileChannel() {
+      return fileChannel;
+   }
+
+   public long getOffset() {
+      return offset;
+   }
+
    @Override
    public int expectedEncodeSize() {
       int size = PACKET_HEADERS_SIZE +
-                 DataConstants.SIZE_LONG; // buffer.writeLong(fileId);
+         DataConstants.SIZE_LONG; // buffer.writeLong(fileId);
 
       if (fileId == -1)
          return size;
@@ -125,7 +159,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       size += DataConstants.SIZE_INT; // buffer.writeInt(dataSize);
 
       if (dataSize > 0) {
-         size += byteBuffer.writerIndex(); // buffer.writeBytes(byteBuffer, 0, byteBuffer.writerIndex());
+         size += dataSize;
       }
 
       return size;
@@ -150,30 +184,55 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
          default:
             // no-op
       }
-
       buffer.writeInt(dataSize);
-      /*
-       * sending -1 will close the file in case of a journal, but not in case of a largeMessage
-       * (which might receive appends)
-       */
-      if (dataSize > 0) {
-         buffer.writeBytes(byteBuffer, 0, byteBuffer.writerIndex());
-      }
+   }
 
-      release();
+   @Override
+   public ActiveMQBuffer encode(CoreRemotingConnection connection) {
+      if (fileId != -1 && dataSize > 0) {
+         ActiveMQBuffer buffer;
+         int bufferSize = expectedEncodeSize();
+         int encodedSize = bufferSize;
+         boolean isNetty = false;
+         if (connection != null && connection.getTransportConnection() instanceof NettyConnection) {
+            bufferSize -= dataSize;
+            isNetty = true;
+         }
+         buffer = createPacket(connection, bufferSize);
+         encodeHeader(buffer);
+         encodeRest(buffer, connection);
+         if (!isNetty) {
+            ByteBuffer byteBuffer;
+            if (buffer.byteBuf() != null && buffer.byteBuf().nioBufferCount() == 1) {
+               byteBuffer = buffer.byteBuf().internalNioBuffer(buffer.writerIndex(), buffer.writableBytes());
+            } else {
+               byteBuffer = buffer.toByteBuffer(buffer.writerIndex(), buffer.writableBytes());
+            }
+            readFile(byteBuffer);
+            buffer.writerIndex(buffer.capacity());
+         }
+         encodeSize(buffer, encodedSize);
+         return buffer;
+      } else {
+         return super.encode(connection);
+      }
    }
 
    @Override
    public void release() {
-      if (byteBuffer != null) {
-         byteBuffer.release();
-         byteBuffer = null;
+      if (raf != null) {
+         try {
+            raf.close();
+         } catch (IOException e) {
+            logger.error("Close file " + this + " failed", e);
+         }
       }
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       fileId = buffer.readLong();
+      if (fileId == -1) return;
       switch (FileType.getFileType(buffer.readByte())) {
          case JOURNAL: {
             journalType = AbstractJournalStorageManager.JournalContent.getType(buffer.readByte());
@@ -194,6 +253,14 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       if (size > 0) {
          byteArray = new byte[size];
          buffer.readBytes(byteArray);
+      }
+   }
+
+   private void readFile(ByteBuffer buffer) {
+      try {
+         fileChannel.read(buffer, offset);
+      } catch (IOException e) {
+         throw new RuntimeException(e);
       }
    }
 
@@ -218,61 +285,22 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
    }
 
    @Override
-   public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Arrays.hashCode(byteArray);
-      result = prime * result + ((byteBuffer == null) ? 0 : byteBuffer.hashCode());
-      result = prime * result + dataSize;
-      result = prime * result + (int) (fileId ^ (fileId >>> 32));
-      result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
-      result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
-      result = prime * result + ((pageStoreName == null) ? 0 : pageStoreName.hashCode());
-      return result;
+   public boolean equals(Object o) {
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
+         return false;
+      if (!super.equals(o))
+         return false;
+      ReplicationSyncFileMessage that = (ReplicationSyncFileMessage) o;
+      return fileId == that.fileId && dataSize == that.dataSize && offset == that.offset && journalType == that.journalType && Arrays.equals(byteArray, that.byteArray) && Objects.equals(pageStoreName, that.pageStoreName) && fileType == that.fileType && Objects.equals(raf, that.raf) && Objects.equals(fileChannel, that.fileChannel);
    }
 
    @Override
-   public boolean equals(Object obj) {
-      if (this == obj) {
-         return true;
-      }
-      if (!super.equals(obj)) {
-         return false;
-      }
-      if (!(obj instanceof ReplicationSyncFileMessage)) {
-         return false;
-      }
-      ReplicationSyncFileMessage other = (ReplicationSyncFileMessage) obj;
-      if (!Arrays.equals(byteArray, other.byteArray)) {
-         return false;
-      }
-      if (byteBuffer == null) {
-         if (other.byteBuffer != null) {
-            return false;
-         }
-      } else if (!byteBuffer.equals(other.byteBuffer)) {
-         return false;
-      }
-      if (dataSize != other.dataSize) {
-         return false;
-      }
-      if (fileId != other.fileId) {
-         return false;
-      }
-      if (fileType != other.fileType) {
-         return false;
-      }
-      if (journalType != other.journalType) {
-         return false;
-      }
-      if (pageStoreName == null) {
-         if (other.pageStoreName != null) {
-            return false;
-         }
-      } else if (!pageStoreName.equals(other.pageStoreName)) {
-         return false;
-      }
-      return true;
+   public int hashCode() {
+      int result = Objects.hash(super.hashCode(), journalType, fileId, dataSize, pageStoreName, fileType, raf, fileChannel, offset);
+      result = 31 * result + Arrays.hashCode(byteArray);
+      return result;
    }
 
    @Override
