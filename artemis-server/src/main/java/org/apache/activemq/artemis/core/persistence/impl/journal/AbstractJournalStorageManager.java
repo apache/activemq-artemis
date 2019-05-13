@@ -1633,6 +1633,15 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
+      final Semaphore pageMaxConcurrentIO = this.pageMaxConcurrentIO;
+      if (pageMaxConcurrentIO == null) {
+         return true;
+      }
+      return pageMaxConcurrentIO.tryAcquire(timeout, unit);
+   }
+
+   @Override
    public void afterPageRead() throws Exception {
       if (pageMaxConcurrentIO != null) {
          pageMaxConcurrentIO.release();
