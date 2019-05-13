@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
-import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.collections.ConcurrentAppendOnlyChunkedList;
 import org.jboss.logging.Logger;
@@ -34,18 +33,18 @@ public final class LivePageCacheImpl implements LivePageCache {
 
    private final ConcurrentAppendOnlyChunkedList<PagedMessage> messages;
 
-   private final Page page;
+   private final long pageId;
 
    private volatile boolean isLive = true;
 
-   public LivePageCacheImpl(final Page page) {
-      this.page = page;
+   public LivePageCacheImpl(final long pageId) {
+      this.pageId = pageId;
       this.messages = new ConcurrentAppendOnlyChunkedList<>(CHUNK_SIZE);
    }
 
    @Override
    public long getPageId() {
-      return page.getPageId();
+      return pageId;
    }
 
    @Override
@@ -92,6 +91,6 @@ public final class LivePageCacheImpl implements LivePageCache {
 
    @Override
    public String toString() {
-      return "LivePacheCacheImpl::page=" + page.getPageId() + " number of messages=" + getNumberOfMessages() + " isLive = " + isLive;
+      return "LivePacheCacheImpl::page=" + pageId + " number of messages=" + getNumberOfMessages() + " isLive = " + isLive;
    }
 }
