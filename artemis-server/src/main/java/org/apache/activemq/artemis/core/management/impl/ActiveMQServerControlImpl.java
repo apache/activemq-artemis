@@ -3396,7 +3396,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (AuditLogger.isEnabled()) {
          AuditLogger.getNodeID(this.server);
       }
-      return server.getNodeID().toString();
+      return server.getNodeID() == null ? null : server.getNodeID().toString();
    }
 
    @Override

@@ -542,7 +542,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    @Override
    public String getNodeID() {
-      return nodeManager.getNodeId().toString();
+      return nodeManager == null ? null : (nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString());
    }
 
    @Override
