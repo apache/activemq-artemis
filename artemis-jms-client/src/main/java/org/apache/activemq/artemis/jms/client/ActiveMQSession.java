@@ -68,7 +68,7 @@ import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMes
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQMapCompatibleMessage;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQObjectCompatibleMessage;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQStreamCompatibleMessage;
-import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQTextCompabileMessage;
+import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQTextCompatibleMessage;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -234,7 +234,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTextMessage msg;
       if (enable1xPrefixes) {
-         msg = new ActiveMQTextCompabileMessage(session);
+         msg = new ActiveMQTextCompatibleMessage(session);
       } else {
          msg = new ActiveMQTextMessage(session);
       }
@@ -249,7 +249,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTextMessage msg;
       if (enable1xPrefixes) {
-         msg = new ActiveMQTextCompabileMessage(session);
+         msg = new ActiveMQTextCompatibleMessage(session);
       } else {
          msg = new ActiveMQTextMessage(session);
       }
