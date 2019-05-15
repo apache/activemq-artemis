@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -679,10 +680,17 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
 
-      assertTrue(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
-      assertTrue(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
-      assertTrue(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
-      assertTrue(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+      assertTrue(((ActiveMQDestination)session.createQueue("testQueue")).getSimpleAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryQueue()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTopic("testTopic")).getSimpleAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryTopic()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX));
+
+      // The name should not include the prefix
+      assertFalse(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertFalse(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+
 
       connection.close();
 
@@ -692,10 +700,16 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       connection = connectionFactory.createConnection();
       session = connection.createSession();
 
-      assertTrue(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
-      assertTrue(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
-      assertTrue(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
-      assertTrue(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+      assertTrue(((ActiveMQDestination)session.createQueue("testQueue")).getSimpleAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryQueue()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTopic("testTopic")).getSimpleAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryTopic()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX));
+
+      // The name should not include the prefix
+      assertFalse(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertFalse(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
 
       connection.close();
    }
@@ -712,10 +726,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
 
-      assertFalse(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
-      assertFalse(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
-      assertFalse(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
-      assertFalse(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+      assertFalse(((ActiveMQDestination)session.createQueue("testQueue")).getSimpleAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX));
+      assertFalse(((ActiveMQDestination)session.createTemporaryQueue()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX));
+      assertFalse(((ActiveMQDestination)session.createTopic("testTopic")).getSimpleAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX));
+      assertFalse(((ActiveMQDestination)session.createTemporaryTopic()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX));
 
       connection.close();
    }

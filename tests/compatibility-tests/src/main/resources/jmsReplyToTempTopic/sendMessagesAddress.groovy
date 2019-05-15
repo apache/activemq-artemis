@@ -34,6 +34,8 @@ connection.start();
 
 Queue myQueue = session.createQueue("myQueue");
 
+GroovyRun.assertEquals("myQueue", myQueue.getQueueName());
+
 System.out.println("myQueue::" + myQueue);
 TemporaryTopic replyTopic = session.createTemporaryTopic();
 MessageConsumer consumer = session.createConsumer(replyTopic);

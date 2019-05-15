@@ -1296,6 +1296,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          queue = ActiveMQDestination.createQueue(queueNameToUse);
       }
 
+      if (queueName != queueNameToUse) {
+         queue.setName(queueName);
+      }
+
       QueueQuery response = session.queueQuery(queue.getSimpleAddress());
 
       if (!response.isExists() && !response.isAutoCreateQueues()) {
@@ -1318,6 +1322,11 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       } else {
          topic = ActiveMQDestination.createTopic(topicNameToUse);
       }
+
+      if (topicNameToUse != topicName) {
+         topic.setName(topicName);
+      }
+
 
       AddressQuery query = session.addressQuery(topic.getSimpleAddress());
 
