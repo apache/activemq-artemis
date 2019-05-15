@@ -31,6 +31,7 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LiveFailoverQuorumVote");
    private final CountDownLatch latch;
    private final String targetNodeId;
+   private final String liveConnector;
 
    private int votesNeeded;
 
@@ -51,9 +52,10 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
     * 5      |       4         |     3.5     |      3
     * 6      |       5         |      4      |      4
     */
-   public QuorumVoteServerConnect(int size, String targetNodeId, boolean requestToStayLive) {
+   public QuorumVoteServerConnect(int size, String targetNodeId, boolean requestToStayLive, String liveConnector) {
       super(LIVE_FAILOVER_VOTE);
       this.targetNodeId = targetNodeId;
+      this.liveConnector = liveConnector;
       double majority;
       if (size <= 2) {
          majority = ((double) size) / 2;
@@ -71,7 +73,7 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    }
 
    public QuorumVoteServerConnect(int size, String targetNodeId) {
-      this(size, targetNodeId, false);
+      this(size, targetNodeId, false, null);
    }
    /**
     * if we can connect to a node
@@ -80,7 +82,7 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
     */
    @Override
    public Vote connected() {
-      return new ServerConnectVote(targetNodeId, requestToStayLive);
+      return new ServerConnectVote(targetNodeId, requestToStayLive, null);
    }
    /**
     * if we cant connect to the node
@@ -108,9 +110,19 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    public synchronized void vote(ServerConnectVote vote) {
       if (decision)
          return;
-      if (vote.getVote()) {
+      if (!requestToStayLive && vote.getVote()) {
          total++;
          latch.countDown();
+         if (total >= votesNeeded) {
+            decision = true;
+         }//do the opposite, if it says there is a node connected it means the backup has come live
+      } else if (requestToStayLive && vote.getVote()) {
+         total++;
+         latch.countDown();
+         if (liveConnector != null && !liveConnector.equals(vote.getTransportConfiguration())) {
+            ActiveMQServerLogger.LOGGER.qourumBackupIsLive(liveConnector);
+            return;
+         }
          if (total >= votesNeeded) {
             decision = true;
          }
