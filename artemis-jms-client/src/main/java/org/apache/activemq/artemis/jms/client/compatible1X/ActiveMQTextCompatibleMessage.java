@@ -21,11 +21,12 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
-public class ActiveMQTextCompabileMessage extends ActiveMQTextMessage {
+public class ActiveMQTextCompatibleMessage extends ActiveMQTextMessage {
 
    @Override
    public void setJMSReplyTo(Destination dest) throws JMSException {
@@ -40,15 +41,21 @@ public class ActiveMQTextCompabileMessage extends ActiveMQTextMessage {
       return replyTo;
    }
 
-   public ActiveMQTextCompabileMessage(ClientSession session) {
+   public ActiveMQTextCompatibleMessage(ClientSession session) {
       super(session);
    }
 
-   public ActiveMQTextCompabileMessage(ClientMessage message, ClientSession session) {
+   public ActiveMQTextCompatibleMessage(ClientMessage message, ClientSession session) {
       super(message, session);
    }
 
-   public ActiveMQTextCompabileMessage(TextMessage foreign, ClientSession session) throws JMSException {
+   public ActiveMQTextCompatibleMessage(TextMessage foreign, ClientSession session) throws JMSException {
       super(foreign, session);
+   }
+
+
+   @Override
+   protected SimpleString checkPrefix(SimpleString address) {
+      return ActiveMQCompatibleMessage.checkPrefix1X(address);
    }
 }

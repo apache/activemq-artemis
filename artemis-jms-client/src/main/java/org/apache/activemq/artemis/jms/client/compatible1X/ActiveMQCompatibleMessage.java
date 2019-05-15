@@ -190,7 +190,7 @@ public class ActiveMQCompatibleMessage extends ActiveMQMessage {
          }
          case ActiveMQTextMessage.TYPE: // 3
          {
-            msg = new ActiveMQTextCompabileMessage(message, session);
+            msg = new ActiveMQTextCompatibleMessage(message, session);
             break;
          }
          default: {
