@@ -47,7 +47,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
    public void testSuccessfulVote() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
       for (int i = 0; i < trueVotes - 1; i++) {
-         quorum.vote(new ServerConnectVote("foo", true));
+         quorum.vote(new ServerConnectVote("foo", true, null));
       }
 
       if (size > 1) {
@@ -55,7 +55,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
       }
       quorum = new QuorumVoteServerConnect(size, "foo");
       for (int i = 0; i < trueVotes; i++) {
-         quorum.vote(new ServerConnectVote("foo", true));
+         quorum.vote(new ServerConnectVote("foo", true, null));
       }
       assertTrue(quorum.getDecision());
    }
@@ -64,7 +64,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
    public void testUnSuccessfulVote() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
       for (int i = 0; i < trueVotes - 1; i++) {
-         quorum.vote(new ServerConnectVote("foo", true));
+         quorum.vote(new ServerConnectVote("foo", true, null));
       }
 
       if (size > 1) {
@@ -72,7 +72,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
       }
       quorum = new QuorumVoteServerConnect(size, "foo");
       for (int i = 0; i < trueVotes - 1; i++) {
-         quorum.vote(new ServerConnectVote("foo", true));
+         quorum.vote(new ServerConnectVote("foo", true, null));
       }
       if (size == 1) {
          assertTrue(quorum.getDecision());
