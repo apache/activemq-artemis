@@ -55,7 +55,9 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return input.replace("\\", "\\\\").replace(".", "\\.");
    }
 
-   protected void setName(String name) {
+   /** createQueue and createTopic from {@link ActiveMQSession} may change the name
+    *  in case Prefix usage */
+   void setName(String name) {
       this.name = name;
    }
 
@@ -297,15 +299,21 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public static ActiveMQTemporaryQueue createTemporaryQueue(final ActiveMQSession session, final String prefix) {
-      String address = prefix + UUID.randomUUID().toString();
+      String name = UUID.randomUUID().toString();
+      String address = prefix + name;
 
-      return createTemporaryQueue(address, session);
+      ActiveMQTemporaryQueue queue = createTemporaryQueue(address, session);
+      queue.setName(name);
+      return queue;
    }
 
    public static ActiveMQTemporaryTopic createTemporaryTopic(final ActiveMQSession session, final String prefix) {
-      String address = prefix + UUID.randomUUID().toString();
+      String name = UUID.randomUUID().toString();
+      String address = prefix + name;
 
-      return createTemporaryTopic(address, session);
+      ActiveMQTemporaryTopic topic  = createTemporaryTopic(address, session);
+      topic.setName(name);
+      return topic;
    }
 
    public static ActiveMQTemporaryTopic createTemporaryTopic(String address, final ActiveMQSession session) {
