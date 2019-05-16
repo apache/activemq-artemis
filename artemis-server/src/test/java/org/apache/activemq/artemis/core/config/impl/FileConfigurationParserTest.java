@@ -79,7 +79,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
    @Test
    public void testDuplicateQueue() throws Exception {
-      String filename = "duplicateQueue.xml";
+      String filename = "FileConfigurationParser-duplicateQueue.xml";
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
       deploymentManager.addDeployable(fc);
