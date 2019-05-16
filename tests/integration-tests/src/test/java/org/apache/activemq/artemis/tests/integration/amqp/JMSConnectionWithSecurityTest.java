@@ -27,7 +27,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Test;
+
+import java.net.URI;
 
 public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
 
@@ -50,6 +53,25 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
          IntegrationTestLogger.LOGGER.debug("Failed to authenticate connection with no user / password.");
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test(timeout = 10000)
+   public void testNoUserOrPasswordWithoutSaslRestrictions() throws Exception {
+      Connection connection = null;
+      JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT));
+      try {
+         connection = factory.createConnection();
+         connection.start();
+         fail("Expected Exception");
+      } catch (JMSSecurityException ex) {
+         IntegrationTestLogger.LOGGER.debug("Failed to authenticate connection with no user / password.");
+      } catch (Exception ex) {
+         fail("Expected JMSSecurityException");
       } finally {
          if (connection != null) {
             connection.close();
