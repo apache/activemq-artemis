@@ -25,11 +25,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,7 +52,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
    public void testAddressQueueDeleteDelay() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      final long deleteQueuesDelay = 300;
+      final long deleteQueuesDelay = 150;
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteQueuesDelay(deleteQueuesDelay).setAutoDeleteAddressesDelay(deleteAddressesDelay);
@@ -72,15 +74,22 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       consumer.close();
       long start = System.currentTimeMillis();
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      final AddressInfo info = server.getAddressInfo(address);
+      Wait.assertTrue(() -> server.locateQueue(queue) == null, DURATION_MILLIS, 10);
+      Assert.assertNotNull(info);
+      Wait.assertTrue(() -> info.getBindingRemovedTimestamp() > 0, 5000, 10);
+
+
       long elapsedTime = System.currentTimeMillis() - start;
       IntegrationTestLogger.LOGGER.info("Elapsed time to delete queue: " + elapsedTime);
       assertTrue(elapsedTime >= (deleteQueuesDelay));
-      start = System.currentTimeMillis();
+
+      start = info.getBindingRemovedTimestamp();
+
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
       elapsedTime = System.currentTimeMillis() - start;
       IntegrationTestLogger.LOGGER.info("Elapsed time to delete address: " + elapsedTime);
-      assertTrue(elapsedTime >= (deleteAddressesDelay));
+      assertTrue("ellapsedTime=" + elapsedTime + " while delay is " + deleteAddressesDelay, elapsedTime >= (deleteAddressesDelay));
    }
 
    @Test

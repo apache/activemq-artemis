@@ -40,7 +40,6 @@ import org.junit.Test;
 /**
  * A PagingFailoverTest
  * <br>
- * TODO: validate replication failover also
  */
 public class PagingFailoverTest extends FailoverTestBase {
    // Constants -----------------------------------------------------
@@ -87,7 +86,7 @@ public class PagingFailoverTest extends FailoverTestBase {
    }
 
    public void internalTestPage(final boolean transacted, final boolean failBeforeConsume) throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setReconnectAttempts(15);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
@@ -96,7 +95,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 
-      final int TOTAL_MESSAGES = 2000;
+      final int TOTAL_MESSAGES = 200;
 
       for (int i = 0; i < TOTAL_MESSAGES; i++) {
          if (transacted && i % 10 == 0) {
@@ -138,8 +137,6 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       cons.close();
 
-      Thread.sleep(1000);
-
       if (!failBeforeConsume) {
          crash(session);
          // failSession(session, latch);
@@ -165,10 +162,10 @@ public class PagingFailoverTest extends FailoverTestBase {
 
    @Test
    public void testExpireMessage() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setReconnectAttempts(15);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
-      session = sf.createSession(true, true, 0);
+      session = sf.createSession(false, false, 0);
 
       session.createQueue(PagingFailoverTest.ADDRESS, PagingFailoverTest.ADDRESS, true);
 
@@ -179,9 +176,11 @@ public class PagingFailoverTest extends FailoverTestBase {
       for (int i = 0; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty(new SimpleString("key"), i);
-         msg.setExpiration(System.currentTimeMillis() + 1000);
+         msg.setExpiration(System.currentTimeMillis() + 100);
          prod.send(msg);
       }
+
+      session.commit();
 
       crash(session);
 
@@ -189,11 +188,12 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       Queue queue = backupServer.getServer().locateQueue(ADDRESS);
 
-      long timeout = System.currentTimeMillis() + 60000;
+      long timeout = System.currentTimeMillis() + 6000;
 
       while (timeout > System.currentTimeMillis() && queue.getPageSubscription().isPaging()) {
          Thread.sleep(100);
          // Simulating what would happen on expire
+         System.out.println("IsPaging " + queue.getPageSubscription().isPaging());
          queue.expireReferences();
       }
 
