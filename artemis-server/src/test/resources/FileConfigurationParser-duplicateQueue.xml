@@ -18,7 +18,9 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
+
    <core xmlns="urn:activemq:core">
+      <persistence-enabled>false</persistence-enabled>
       <addresses>
          <address name="a">
             <anycast>
@@ -32,4 +34,5 @@
          </address>
       </addresses>
    </core>
+
 </configuration>
