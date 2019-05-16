@@ -539,11 +539,6 @@ public class PagingTest extends ActiveMQTestBase {
       Wait.assertFalse(purgeQueue.getPageSubscription()::isPaging);
 
       Wait.assertEquals(0, purgeQueue.getPageSubscription().getPagingStore()::getAddressSize);
-
-      purgeQueue.getPageSubscription().getPagingStore().startPaging();
-
-      Wait.assertTrue(purgeQueue.getPageSubscription()::isPaging);
-
       consumer = session.createConsumer(jmsQueue);
 
       for (int i = 0; i < 100; i++) {
@@ -556,6 +551,8 @@ public class PagingTest extends ActiveMQTestBase {
       }
 
       session.commit();
+
+      Wait.assertTrue(purgeQueue.getPageSubscription()::isPaging);
 
       connection.start();
 

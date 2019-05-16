@@ -58,6 +58,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       backupServers.get(3).start();
 
       sendCrashReceive();
+      Wait.assertTrue(backupServers.get(0)::isActive, 5000, 10);
       waitForTopology(backupServers.get(0).getServer(), liveServers.size(), 2);
       sendCrashBackupReceive();
    }

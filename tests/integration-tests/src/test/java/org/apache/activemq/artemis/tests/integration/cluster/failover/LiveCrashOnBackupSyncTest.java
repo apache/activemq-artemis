@@ -91,6 +91,7 @@ public class LiveCrashOnBackupSyncTest extends ActiveMQTestBase {
          Wait.waitFor(() -> liveServer.isStarted());
 
          File liveLMDir = liveServer.getConfiguration().getLargeMessagesLocation();
+         Wait.assertTrue(() -> getAllMessageFileIds(liveLMDir).size() == 0, 5000, 100);
          Set<Long> liveLM = getAllMessageFileIds(liveLMDir);
          Assert.assertEquals("we really ought to delete these after delivery", 0, liveLM.size());
          liveServer.stop();
