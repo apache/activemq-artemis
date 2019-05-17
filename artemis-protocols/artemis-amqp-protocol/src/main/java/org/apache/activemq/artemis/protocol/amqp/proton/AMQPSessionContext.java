@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -69,6 +70,8 @@ public class AMQPSessionContext extends ProtonInitializable {
          if (sessionSPI != null) {
             try {
                sessionSPI.init(this, connection.getSASLResult());
+            } catch (ActiveMQSecurityException e) {
+               throw e;
             } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
