@@ -41,6 +41,13 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
    private static Set<String> knownThreads = new HashSet<>();
 
+   static {
+      addKownThread("MemoryPoolMXBean notification dispatcher");
+      addKownThread("threadDeathWatcher");
+      addKownThread("SeedGenerator Thread");
+      addKownThread("Attach Listener");
+   }
+
    boolean enabled = true;
 
    private Map<Thread, StackTraceElement[]> previousThreads;
