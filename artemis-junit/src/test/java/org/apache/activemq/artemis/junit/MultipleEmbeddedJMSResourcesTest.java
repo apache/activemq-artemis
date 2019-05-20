@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MultipleEmbeddedJMSResourcesTest {
@@ -35,11 +34,6 @@ public class MultipleEmbeddedJMSResourcesTest {
 
    static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
-
-   static {
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
-   }
 
    public EmbeddedJMSResource jmsServerOne = new EmbeddedJMSResource(0);
 
@@ -58,15 +52,8 @@ public class MultipleEmbeddedJMSResourcesTest {
 
       Message pushedTwo = jmsServerTwo.pushMessage(TEST_QUEUE_TWO, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_TWO), pushedTwo);
-
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return jmsServerOne.getMessageCount(TEST_QUEUE_ONE) == 1 && jmsServerTwo.getMessageCount(TEST_QUEUE_TWO) == 1;
-         }
-      }, 5000, 100);
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, jmsServerOne.getMessageCount(TEST_QUEUE_ONE));
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, jmsServerTwo.getMessageCount(TEST_QUEUE_TWO));
+      Wait.assertEquals(1L, () -> jmsServerOne.getMessageCount(TEST_QUEUE_ONE), 30_000, 10);
+      Wait.assertEquals(1L, () -> jmsServerTwo.getMessageCount(TEST_QUEUE_TWO), 30_000, 10);
    }
 
 }

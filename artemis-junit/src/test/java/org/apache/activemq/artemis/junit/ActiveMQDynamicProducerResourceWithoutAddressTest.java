@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ActiveMQDynamicProducerResourceWithoutAddressTest {
@@ -45,9 +44,6 @@ public class ActiveMQDynamicProducerResourceWithoutAddressTest {
       TEST_PROPERTIES = new HashMap<String, Object>(2);
       TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
       TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
    }
 
    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
@@ -71,14 +67,8 @@ public class ActiveMQDynamicProducerResourceWithoutAddressTest {
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getMessageCount(TEST_QUEUE_ONE) == 1 && server.getMessageCount(TEST_QUEUE_TWO) == 1;
-         }
-      }, 5000, 100);
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, server.getMessageCount(TEST_QUEUE_ONE));
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, server.getMessageCount(TEST_QUEUE_TWO));
+      Wait.assertEquals(1L, ()-> server.getMessageCount(TEST_QUEUE_ONE), 30_000, 10);
+      Wait.assertEquals(1L, ()-> server.getMessageCount(TEST_QUEUE_TWO), 30_000, 10);
 
       ClientMessage receivedOne = server.receiveMessage(TEST_QUEUE_ONE);
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), receivedOne);
