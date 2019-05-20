@@ -323,19 +323,24 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     */
    @Override
    protected void performCachedLargeMessageDeletes() {
-      largeMessagesToDelete.forEach((messageId, largeServerMessage) -> {
-         SequentialFile msg = createFileForLargeMessage(messageId, LargeMessageExtension.DURABLE);
-         try {
-            msg.delete();
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, messageId);
-         }
-         if (replicator != null) {
-            replicator.largeMessageDelete(messageId, JournalStorageManager.this);
-         }
-         confirmLargeMessage(largeServerMessage);
-      });
-      largeMessagesToDelete.clear();
+      storageManagerLock.writeLock().lock();
+      try {
+         largeMessagesToDelete.forEach((messageId, largeServerMessage) -> {
+            SequentialFile msg = createFileForLargeMessage(messageId, LargeMessageExtension.DURABLE);
+            try {
+               msg.delete();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, messageId);
+            }
+            if (replicator != null) {
+               replicator.largeMessageDelete(messageId, JournalStorageManager.this);
+            }
+            confirmLargeMessage(largeServerMessage);
+         });
+         largeMessagesToDelete.clear();
+      } finally {
+         storageManagerLock.writeLock().unlock();
+      }
    }
 
    protected SequentialFile createFileForLargeMessage(final long messageID, final boolean durable) {
