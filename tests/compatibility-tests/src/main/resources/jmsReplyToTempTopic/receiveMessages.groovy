@@ -31,6 +31,9 @@ try {
 Connection connection = cf.createConnection();
 Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 Queue myQueue = session.createQueue("myQueue");
+
+GroovyRun.assertEquals("myQueue", myQueue.getQueueName());
+
 MessageConsumer queueConsumer = session.createConsumer(myQueue);
 consumerCreated.countDown();
 connection.start()
