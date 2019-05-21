@@ -26,6 +26,8 @@ import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -105,7 +107,7 @@ public final class OpenTypeSupport {
          addItem(CompositeDataConstants.EXPIRATION, CompositeDataConstants.EXPIRATION_DESCRIPTION, SimpleType.LONG);
          addItem(CompositeDataConstants.PRIORITY, CompositeDataConstants.PRIORITY_DESCRIPTION, SimpleType.BYTE);
          addItem(CompositeDataConstants.REDELIVERED, CompositeDataConstants.REDELIVERED_DESCRIPTION, SimpleType.BOOLEAN);
-         addItem(CompositeDataConstants.TIMESTAMP, CompositeDataConstants.TIMESTAMP_DESCRIPTION, SimpleType.DATE);
+         addItem(CompositeDataConstants.TIMESTAMP, CompositeDataConstants.TIMESTAMP_DESCRIPTION, SimpleType.STRING);
 
          addItem(CompositeDataConstants.PROPERTIES, CompositeDataConstants.PROPERTIES_DESCRIPTION, SimpleType.STRING);
 
@@ -142,7 +144,8 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.TYPE, m.getType());
          rc.put(CompositeDataConstants.DURABLE, m.isDurable());
          rc.put(CompositeDataConstants.EXPIRATION, m.getExpiration());
-         rc.put(CompositeDataConstants.TIMESTAMP, new Date(m.getTimestamp()));
+         DateFormat dateFormat = new SimpleDateFormat();
+         rc.put(CompositeDataConstants.TIMESTAMP, dateFormat.format(new Date(m.getTimestamp())));
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
 
