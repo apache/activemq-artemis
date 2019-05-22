@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
@@ -275,11 +274,11 @@ public final class JsonUtil {
    }
 
    public static JsonArray readJsonArray(String jsonString) {
-      return Json.createReader(new StringReader(jsonString)).readArray();
+      return JsonLoader.createReader(new StringReader(jsonString)).readArray();
    }
 
    public static JsonObject readJsonObject(String jsonString) {
-      return Json.createReader(new StringReader(jsonString)).readObject();
+      return JsonLoader.createReader(new StringReader(jsonString)).readObject();
    }
 
    public static Map<String, String> readJsonProperties(String jsonString) {
