@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.util.DestinationUtil;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 
 @Command(name = "consumer", description = "It will consume messages from an instance")
@@ -95,7 +96,7 @@ public class Consumer extends DestAbstract {
             }
 
             // Do validation on FQQN
-            Destination dest = isFQQN() ? session.createQueue(getFQQNFromDestination(destination)) : lookupDestination(session);
+            Destination dest = isFQQN() ? session.createQueue(DestinationUtil.getFQQNFromDestination(destination)) : lookupDestination(session);
             threadsArray[i] = new ConsumerThread(session, dest, i);
 
             threadsArray[i].setVerbose(verbose).setSleep(sleep).setDurable(durable).setBatchSize(txBatchSize).setBreakOnNull(breakOnNull)

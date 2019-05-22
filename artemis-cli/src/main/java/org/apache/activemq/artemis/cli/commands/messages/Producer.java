@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.util.DestinationUtil;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 
@@ -75,7 +76,7 @@ public class Producer extends DestAbstract {
          byte[] queueId = null;
          boolean isFQQN = isFQQN();
          if (isFQQN) {
-            queueId = getQueueIdFromName(getQueueFromFQQN(destination));
+            queueId = getQueueIdFromName(DestinationUtil.getQueueFromFQQN(destination));
          }
 
          // If we are reading from file, we process messages sequentially to guarantee ordering.  i.e. no thread creation.
@@ -152,9 +153,9 @@ public class Producer extends DestAbstract {
       if (!isFQQN) {
          dest = lookupDestination(session);
       } else {
-         String address = getAddressFromFQQN(destination);
-         if (isFQQNAnycast(getQueueFromFQQN(destination))) {
-            String queue = getQueueFromFQQN(destination);
+         String address = DestinationUtil.getAddressFromFQQN(destination);
+         if (isFQQNAnycast(DestinationUtil.getQueueFromFQQN(destination))) {
+            String queue = DestinationUtil.getQueueFromFQQN(destination);
             if (!queue.equals(address)) {
                throw new ActiveMQException("FQQN support is limited to Anycast queues where the queue name equals the address.");
             }

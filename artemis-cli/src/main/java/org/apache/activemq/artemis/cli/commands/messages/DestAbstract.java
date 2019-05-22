@@ -40,10 +40,6 @@ public class DestAbstract extends ConnectionAbstract {
 
    public static final String DEFAULT_MESSAGE_SERIALIZER = "org.apache.activemq.artemis.cli.factory.serialize.XMLMessageSerializer";
 
-   private static final String FQQN_PREFIX = "fqqn://";
-
-   private static final String FQQN_SEPERATOR = "::";
-
    @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// or fqqn:// (Default: queue://TEST)")
    String destination = "queue://TEST";
 
@@ -131,17 +127,5 @@ public class DestAbstract extends ConnectionAbstract {
             }
          }
       }
-   }
-
-   protected String getQueueFromFQQN(String fqqn) {
-      return fqqn.substring(fqqn.indexOf(FQQN_SEPERATOR) + FQQN_SEPERATOR.length());
-   }
-
-   protected String getAddressFromFQQN(String fqqn) {
-      return fqqn.substring(fqqn.indexOf(FQQN_PREFIX) + FQQN_PREFIX.length(), fqqn.indexOf(FQQN_SEPERATOR));
-   }
-
-   protected String getFQQNFromDestination(String destination) {
-      return destination.substring(destination.indexOf(FQQN_PREFIX) + FQQN_PREFIX.length());
    }
 }
