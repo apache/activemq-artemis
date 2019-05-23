@@ -20,11 +20,14 @@ package org.apache.activemq.artemis.core.protocol.hornetq;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacket;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -64,6 +67,7 @@ public class PropertiesConversionTest {
       HQPropertiesConversionInterceptor amq = new HQPropertiesConversionInterceptor(true);
       AtomicInteger errors = new AtomicInteger(0);
       AtomicInteger counts = new AtomicInteger(0);
+
       for (int i = 0; i < threads; i++) {
          t[i] = new Thread() {
 
@@ -79,6 +83,20 @@ public class PropertiesConversionTest {
                      hq.intercept(packetSend, null);
                      FakeMessagePacket packetRec = new FakeMessagePacket(coreMessage);
                      amq.intercept(packetRec, null);
+
+                     // heads or tails here, I need part of the messages with a big header, part of the messages with a small header
+                     boolean heads = RandomUtil.randomBoolean();
+
+                     // this is playing with a scenario where the horentq interceptor will change the size of the message
+                     if (heads) {
+                        packetRec.getMessage().putStringProperty("propChanges", "looooooooooooooooooooong property text");
+                     } else {
+                        packetRec.getMessage().putStringProperty("propChanges", "short one");
+                     }
+
+                     ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer(packetRec.getMessage().getEncodeSize() + 4);
+                     packetRec.getMessage().sendBuffer_1X(buf);
+                     buf.release();
                      if (i > conversions / 2) {
                         // I only validate half of the messages
                         // to give it a chance of Races and Exceptions
@@ -104,4 +122,5 @@ public class PropertiesConversionTest {
 
       Assert.assertEquals(0, errors.get());
    }
+
 }
