@@ -154,6 +154,7 @@ log-delegate-factory-class-name | **deprecated** the name of the factory class t
 [message-counter-sample-period](management.md#message-counters) | the sample period (in ms) to use for message counters. | 10000
 [message-expiry-scan-period](message-expiry.md#configuring-the-expiry-reaper-thread) | how often (in ms) to scan for expired messages. | 30000
 [message-expiry-thread-priority](message-expiry.md#configuring-the-expiry-reaper-thread)| the priority of the thread expiring messages. | 3
+[metrics-plugin](metrics.md) | [a plugin to export metrics](#metrics-plugin-type) | n/a
 [address-queue-scan-period](address-model.md#configuring-addresses-and-queues-via-address-settings) | how often (in ms) to scan for addresses & queues that should be removed. | 30000
 name | node name; used in topology notifications if set. | n/a
 [password-codec](masking-passwords.md) | the name of the class (and optional configuration properties) used to decode masked passwords. Only valid when `mask-password` is `true`. | n/a
@@ -377,6 +378,14 @@ Name | Description
 ---|---
 [property](broker-plugins.md#registering-a-plugin)| properties to configure a plugin
 [class-name](broker-plugins.md#registering-a-plugin) | the name of the broker plugin class to instantiate
+
+
+## metrics-plugin type
+
+Name | Description
+---|---
+[property](metrics.md)| properties to configure a plugin
+[class-name](metrics.md) | the name of the metrics plugin class to instantiate
 
 
 ## resource-limit type

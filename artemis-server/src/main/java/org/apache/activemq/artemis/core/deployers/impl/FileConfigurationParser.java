@@ -78,6 +78,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -553,7 +554,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          parseDivertConfiguration(dvNode, config);
       }
-
       // Persistence config
 
       config.setLargeMessagesDirectory(getString(e, "large-messages-directory", config.getLargeMessagesDirectory(), Validators.NOT_NULL_OR_EMPTY));
@@ -677,6 +677,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       parseBrokerPlugins(e, config);
 
+      NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
+
+      if (metricsPlugin.getLength() != 0) {
+         parseMetricsPlugin(metricsPlugin.item(0), config);
+      }
+
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
       ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<>();
@@ -765,6 +771,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
       return properties;
+   }
+
+   private ActiveMQMetricsPlugin parseMetricsPlugin(final Node item, final Configuration config) {
+      final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
+
+      Map<String, String> properties = getMapOfChildPropertyElements(item);
+
+      ActiveMQMetricsPlugin metricsPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQMetricsPlugin>() {
+         @Override
+         public ActiveMQMetricsPlugin run() {
+            return (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
+         }
+      });
+
+      config.setMetricsPlugin(metricsPlugin.init(properties));
+
+      return metricsPlugin;
    }
 
    /**
