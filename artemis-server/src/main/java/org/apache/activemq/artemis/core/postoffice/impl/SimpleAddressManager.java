@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.jboss.logging.Logger;
@@ -65,18 +66,23 @@ public class SimpleAddressManager implements AddressManager {
 
    private final BindingsFactory bindingsFactory;
 
+   protected final MetricsManager metricsManager;
+
    protected final WildcardConfiguration wildcardConfiguration;
 
-   public SimpleAddressManager(final BindingsFactory bindingsFactory, final StorageManager storageManager) {
-      this(bindingsFactory, new WildcardConfiguration(), storageManager);
+   public SimpleAddressManager(final BindingsFactory bindingsFactory, final StorageManager storageManager,
+                               final MetricsManager metricsManager) {
+      this(bindingsFactory, new WildcardConfiguration(), storageManager, metricsManager);
    }
 
    public SimpleAddressManager(final BindingsFactory bindingsFactory,
                                final WildcardConfiguration wildcardConfiguration,
-                               final StorageManager storageManager) {
+                               final StorageManager storageManager,
+                               final MetricsManager metricsManager) {
       this.wildcardConfiguration = wildcardConfiguration;
       this.bindingsFactory = bindingsFactory;
       this.storageManager = storageManager;
+      this.metricsManager = metricsManager;
    }
 
    @Override
@@ -253,7 +259,11 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public boolean reloadAddressInfo(AddressInfo addressInfo) throws Exception {
-      return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
+      boolean added = addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
+      if (added) {
+         addressInfo.registerMeters(metricsManager);
+      }
+      return added;
    }
 
    @Override
@@ -345,7 +355,13 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
-      return addressInfoMap.remove(CompositeAddress.extractAddressName(address));
+      final AddressInfo removed = addressInfoMap.remove(CompositeAddress.extractAddressName(address));
+
+      if (removed != null) {
+         removed.unregisterMeters(metricsManager);
+      }
+
+      return removed;
    }
 
    @Override

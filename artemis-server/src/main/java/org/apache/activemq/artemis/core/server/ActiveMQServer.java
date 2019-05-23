@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
@@ -344,6 +345,8 @@ public interface ActiveMQServer extends ServiceComponent {
    QueueFactory getQueueFactory();
 
    ResourceManager getResourceManager();
+
+   MetricsManager getMetricsManager();
 
    List<ServerSession> getSessions(String connectionID);
 

@@ -151,7 +151,8 @@ public class WebServerComponent implements ExternalComponent {
       }
       handlers.addHandler(homeContext);
       handlers.addHandler(instanceContext);
-      handlers.addHandler(defaultHandler);
+      handlers.addHandler(defaultHandler); // this should be last
+
       server.setHandler(handlers);
    }
 
