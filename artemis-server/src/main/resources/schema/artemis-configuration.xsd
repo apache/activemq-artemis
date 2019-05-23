@@ -396,6 +396,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="reject-empty-validated-user" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  true means that the server will not allow any message that doesn't have a validated user, in JMS this is JMSXUserID
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

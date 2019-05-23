@@ -289,6 +289,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected boolean populateValidatedUser = ActiveMQDefaultConfiguration.isDefaultPopulateValidatedUser();
 
+   protected boolean rejectEmptyValidatedUser = ActiveMQDefaultConfiguration.isDefaultRejectEmptyValidatedUser();
+
    private long connectionTtlCheckInterval = ActiveMQDefaultConfiguration.getDefaultConnectionTtlCheckInterval();
 
    private URL configurationUrl;
@@ -1731,6 +1733,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setPopulateValidatedUser(boolean populateValidatedUser) {
       this.populateValidatedUser = populateValidatedUser;
+      return this;
+   }
+
+   @Override
+   public boolean isRejectEmptyValidatedUser() {
+      return rejectEmptyValidatedUser;
+   }
+
+   @Override
+   public Configuration setRejectEmptyValidatedUser(boolean rejectEmptyValidatedUser) {
+      this.rejectEmptyValidatedUser = rejectEmptyValidatedUser;
       return this;
    }
 
