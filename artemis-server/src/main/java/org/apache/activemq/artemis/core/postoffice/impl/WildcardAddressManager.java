@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 import java.util.Collection;
@@ -45,13 +46,17 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
    private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<>();
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration, final
-                                 StorageManager storageManager) {
-      super(bindingsFactory, wildcardConfiguration, storageManager);
+   public WildcardAddressManager(final BindingsFactory bindingsFactory,
+                                 final WildcardConfiguration wildcardConfiguration,
+                                 final StorageManager storageManager,
+                                 final MetricsManager metricsManager) {
+      super(bindingsFactory, wildcardConfiguration, storageManager, metricsManager);
    }
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory, StorageManager storageManager) {
-      super(bindingsFactory, storageManager);
+   public WildcardAddressManager(final BindingsFactory bindingsFactory,
+                                 final StorageManager storageManager,
+                                 final MetricsManager metricsManager) {
+      super(bindingsFactory, storageManager, metricsManager);
    }
 
    @Override
@@ -155,6 +160,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
          //Remove from mappings so removeAndUpdateAddressMap processes and cleanup
          mappings.remove(address);
          removeAndUpdateAddressMap(new AddressImpl(removed.getName(), wildcardConfiguration));
+         removed.unregisterMeters(metricsManager);
       }
       return removed;
    }

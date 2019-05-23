@@ -116,6 +116,7 @@
       <version.org.jacoco>0.7.9</version.org.jacoco>
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
       <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
+      <version.micrometer>1.1.4</version.micrometer>
 
       <!-- used on tests -->
       <groovy.version>2.4.3</groovy.version>
@@ -701,6 +702,15 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
+         </dependency>
+
+         <!-- Needed for Micrometer -->
+         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${version.micrometer}</version>
+            <optional>true</optional> <!-- keep optional as "true" at least until micrometer supports OSGi -->
+            <!-- license Apache 2 -->
          </dependency>
 
          <dependency>

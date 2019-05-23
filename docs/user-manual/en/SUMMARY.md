@@ -45,6 +45,7 @@
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)
 * [Management Console](management-console.md)
+* [Metrics](metrics.md)
 * [Security](security.md)
 * [Masking Passwords](masking-passwords.md)
 * [Broker Plugins](broker-plugins.md)

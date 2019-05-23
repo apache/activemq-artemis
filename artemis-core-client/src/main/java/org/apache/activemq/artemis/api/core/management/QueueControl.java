@@ -24,7 +24,26 @@ import java.util.Map;
  * A QueueControl is used to manage a queue.
  */
 public interface QueueControl {
-   // Attributes ----------------------------------------------------
+   String MESSAGE_COUNT_DESCRIPTION = "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)";
+   String DURABLE_MESSAGE_COUNT_DESCRIPTION = "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)";
+   String PERSISTENT_SIZE_DESCRIPTION = "persistent size of all messages (including durable and non-durable) currently in this queue (includes scheduled, paged, and in-delivery messages)";
+   String DURABLE_PERSISTENT_SIZE_DESCRIPTION = "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)";
+
+   String SCHEDULED_MESSAGE_COUNT_DESCRIPTION = "number of scheduled messages in this queue";
+   String DURABLE_SCHEDULED_MESSAGE_COUNT_DESCRIPTION = "number of durable scheduled messages in this queue";
+   String SCHEDULED_SIZE_DESCRIPTION = "persistent size of scheduled messages in this queue";
+   String DURABLE_SCHEDULED_SIZE_DESCRIPTION = "persistent size of durable scheduled messages in this queue";
+
+   String DELIVERING_MESSAGE_COUNT_DESCRIPTION = "number of messages that this queue is currently delivering to its consumers";
+   String DURABLE_DELIVERING_MESSAGE_COUNT_DESCRIPTION = "number of durable messages that this queue is currently delivering to its consumers";
+   String DELIVERING_SIZE_DESCRIPTION = "persistent size of messages that this queue is currently delivering to its consumers";
+   String DURABLE_DELIVERING_SIZE_DESCRIPTION = "persistent size of durable messages that this queue is currently delivering to its consumers";
+
+   String CONSUMER_COUNT_DESCRIPTION = "number of consumers consuming messages from this queue";
+   String MESSAGES_ADDED_DESCRIPTION = "number of messages added to this queue since it was created";
+   String MESSAGES_ACKNOWLEDGED_DESCRIPTION = "number of messages acknowledged from this queue since it was created";
+   String MESSAGES_EXPIRED_DESCRIPTION = "number of messages expired from this queue since it was created";
+   String MESSAGES_KILLED_DESCRIPTION = "number of messages removed from this queue since it was created due to exceeding the max delivery attempts";
 
    /**
     * Returns the name of this queue.
@@ -77,7 +96,7 @@ public interface QueueControl {
    /**
     * Returns the number of messages currently in this queue.
     */
-   @Attribute(desc = "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   @Attribute(desc = MESSAGE_COUNT_DESCRIPTION)
    long getMessageCount();
 
    /**
@@ -85,13 +104,13 @@ public interface QueueControl {
     * is the amount of space the message would take up on disk which is used to track how much data there
     * is to consume on this queue
     */
-   @Attribute(desc = "persistent size of all messages (including durable and non-durable) currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   @Attribute(desc = PERSISTENT_SIZE_DESCRIPTION)
    long getPersistentSize();
 
    /**
     * Returns the number of durable messages currently in this queue.
     */
-   @Attribute(desc = "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   @Attribute(desc = DURABLE_MESSAGE_COUNT_DESCRIPTION)
    long getDurableMessageCount();
 
    /**
@@ -99,73 +118,73 @@ public interface QueueControl {
     * is the amount of space the message would take up on disk which is used to track how much data there
     * is to consume on this queue
     */
-   @Attribute(desc = "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)")
+   @Attribute(desc = DURABLE_PERSISTENT_SIZE_DESCRIPTION)
    long getDurablePersistentSize();
 
    /**
     * Returns the number of scheduled messages in this queue.
     */
-   @Attribute(desc = "number of scheduled messages in this queue")
+   @Attribute(desc = SCHEDULED_MESSAGE_COUNT_DESCRIPTION)
    long getScheduledCount();
 
    /**
     * Returns the size of scheduled messages in this queue.
     */
-   @Attribute(desc = "persistent size of scheduled messages in this queue")
+   @Attribute(desc = SCHEDULED_SIZE_DESCRIPTION)
    long getScheduledSize();
 
    /**
     * Returns the number of durable scheduled messages in this queue.
     */
-   @Attribute(desc = "number of durable scheduled messages in this queue")
+   @Attribute(desc = DURABLE_SCHEDULED_MESSAGE_COUNT_DESCRIPTION)
    long getDurableScheduledCount();
 
    /**
     * Returns the size of durable scheduled messages in this queue.
     */
-   @Attribute(desc = "persistent size of durable scheduled messages in this queue")
+   @Attribute(desc = DURABLE_SCHEDULED_SIZE_DESCRIPTION)
    long getDurableScheduledSize();
 
    /**
     * Returns the number of consumers consuming messages from this queue.
     */
-   @Attribute(desc = "number of consumers consuming messages from this queue")
+   @Attribute(desc = CONSUMER_COUNT_DESCRIPTION)
    int getConsumerCount();
 
    /**
     * Returns the number of messages that this queue is currently delivering to its consumers.
     */
-   @Attribute(desc = "number of messages that this queue is currently delivering to its consumers")
+   @Attribute(desc = DELIVERING_MESSAGE_COUNT_DESCRIPTION)
    int getDeliveringCount();
 
    /**
     * Returns the persistent size of messages that this queue is currently delivering to its consumers.
     */
-   @Attribute(desc = "persistent size of messages that this queue is currently delivering to its consumers")
+   @Attribute(desc = DELIVERING_SIZE_DESCRIPTION)
    long getDeliveringSize();
 
    /**
     * Returns the number of durable messages that this queue is currently delivering to its consumers.
     */
-   @Attribute(desc = "number of durable messages that this queue is currently delivering to its consumers")
+   @Attribute(desc = DURABLE_DELIVERING_MESSAGE_COUNT_DESCRIPTION)
    int getDurableDeliveringCount();
 
    /**
     * Returns the size of durable messages that this queue is currently delivering to its consumers.
     */
-   @Attribute(desc = "persistent size of durable messages that this queue is currently delivering to its consumers")
+   @Attribute(desc = DURABLE_DELIVERING_SIZE_DESCRIPTION)
    long getDurableDeliveringSize();
 
    /**
     * Returns the number of messages added to this queue since it was created.
     */
-   @Attribute(desc = "number of messages added to this queue since it was created")
+   @Attribute(desc = MESSAGES_ADDED_DESCRIPTION)
    long getMessagesAdded();
 
    /**
     * Returns the number of messages added to this queue since it was created.
     */
-   @Attribute(desc = "number of messages acknowledged from this queue since it was created")
+   @Attribute(desc = MESSAGES_ACKNOWLEDGED_DESCRIPTION)
    long getMessagesAcknowledged();
 
    /**
@@ -178,13 +197,13 @@ public interface QueueControl {
    /**
     * Returns the number of messages expired from this queue since it was created.
     */
-   @Attribute(desc = "number of messages expired from this queue since it was created")
+   @Attribute(desc = MESSAGES_EXPIRED_DESCRIPTION)
    long getMessagesExpired();
 
    /**
     * Returns the number of messages removed from this queue since it was created due to exceeding the max delivery attempts.
     */
-   @Attribute(desc = "number of messages removed from this queue since it was created due to exceeding the max delivery attempts")
+   @Attribute(desc = MESSAGES_KILLED_DESCRIPTION)
    long getMessagesKilled();
 
    /**

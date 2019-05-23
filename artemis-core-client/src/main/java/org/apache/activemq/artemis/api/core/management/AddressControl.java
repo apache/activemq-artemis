@@ -23,6 +23,8 @@ import java.util.Map;
  * An AddressControl is used to manage an address.
  */
 public interface AddressControl {
+   String ROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages routed to one or more bindings";
+   String UNROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages not routed to any bindings";
 
    /**
     * Returns the managed address.
@@ -101,19 +103,19 @@ public interface AddressControl {
    @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
 
-   @Attribute(desc = "number of messages added to all the queues for this address")
+   @Attribute(desc = "number of messages currently in all queues bound to this address (includes scheduled, paged, and in-delivery messages)")
    long getMessageCount();
 
    /**
     * Returns the number of messages routed to one or more bindings
     */
-   @Attribute(desc = "number of messages routed to one or more bindings")
+   @Attribute(desc = ROUTED_MESSAGE_COUNT_DESCRIPTION)
    long getRoutedMessageCount();
 
    /**
     * Returns the number of messages not routed to any bindings
     */
-   @Attribute(desc = "number of messages not routed to any bindings")
+   @Attribute(desc = UNROUTED_MESSAGE_COUNT_DESCRIPTION)
    long getUnRoutedMessageCount();
 
 

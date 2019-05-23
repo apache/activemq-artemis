@@ -280,6 +280,12 @@
          </federation>
       </federations>
 
+      <metrics-plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
+         <property key="foo" value="x"/>
+         <property key="bar" value="y"/>
+         <property key="baz" value="z"/>
+      </metrics-plugin>
+
       <ha-policy>
          <!--only one of the following-->
          <!--on server shutdown scale down to another live server-->

@@ -70,6 +70,7 @@
             <include>org.apache.activemq:artemis-web</include>
             <include>org.apache.activemq.rest:artemis-rest</include>
             <include>org.apache.qpid:qpid-jms-client</include>
+            <include>io.micrometer:micrometer-core</include>
 
             <!-- dependencies -->
             <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>
