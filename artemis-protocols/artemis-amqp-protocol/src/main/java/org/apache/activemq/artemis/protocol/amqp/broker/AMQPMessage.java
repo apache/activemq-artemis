@@ -1121,6 +1121,7 @@ public class AMQPMessage extends RefCountMessage {
       } else {
          setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE, routingType.getType());
       }
+      messageChanged();
       return this;
    }
 
