@@ -1323,13 +1323,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       STORE_TYPE_LIST.add("file-store");
    }
 
-   private void parseStoreConfiguration(final Element e, final Configuration mainConfig) {
+   private void parseStoreConfiguration(final Element e, final Configuration mainConfig) throws Exception {
       for (String storeType : STORE_TYPE_LIST) {
          NodeList storeNodeList = e.getElementsByTagName(storeType);
          if (storeNodeList.getLength() > 0) {
             Element storeNode = (Element) storeNodeList.item(0);
             if (storeNode.getTagName().equals("database-store")) {
-               mainConfig.setStoreConfiguration(createDatabaseStoreConfig(storeNode));
+               mainConfig.setStoreConfiguration(createDatabaseStoreConfig(storeNode, mainConfig));
             } else if (storeNode.getTagName().equals("file-store")) {
                mainConfig.setStoreConfiguration(createFileStoreConfig(storeNode));
             }
@@ -1561,7 +1561,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return null;
    }
 
-   private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode) {
+   private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode, Configuration mainConfig) throws Exception {
       DatabaseStorageConfiguration conf = new DatabaseStorageConfiguration();
       conf.setBindingsTableName(getString(storeNode, "bindings-table-name", conf.getBindingsTableName(), Validators.NO_CHECK));
       conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), Validators.NO_CHECK));
@@ -1574,6 +1574,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       conf.setJdbcLockRenewPeriodMillis(getLong(storeNode, "jdbc-lock-renew-period", conf.getJdbcLockRenewPeriodMillis(), Validators.NO_CHECK));
       conf.setJdbcLockExpirationMillis(getLong(storeNode, "jdbc-lock-expiration", conf.getJdbcLockExpirationMillis(), Validators.NO_CHECK));
       conf.setJdbcJournalSyncPeriodMillis(getLong(storeNode, "jdbc-journal-sync-period", conf.getJdbcJournalSyncPeriodMillis(), Validators.NO_CHECK));
+      String jdbcUser = getString(storeNode, "jdbc-user", conf.getJdbcUser(), Validators.NO_CHECK);
+      if (jdbcUser != null) {
+         jdbcUser = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), jdbcUser, mainConfig.getPasswordCodec());
+      }
+      conf.setJdbcUser(jdbcUser);
+      String password = getString(storeNode, "jdbc-password", conf.getJdbcPassword(), Validators.NO_CHECK);
+      if (password != null) {
+         password = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), password, mainConfig.getPasswordCodec());
+      }
+      conf.setJdbcPassword(password);
       return conf;
    }
 

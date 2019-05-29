@@ -2131,6 +2131,22 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="jdbc-user" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC User to use for connecting to the database, NB this will only work with drivers where support
+                  DriverManager.getConnection(String url, String user, String password). This can be encrypted.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-password" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC Password to use for connecting to the database, NB this will only work with drivers where support
+                  DriverManager.getConnection(String url, String user, String password). This can be encrypted.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
          <xsd:element name="message-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
