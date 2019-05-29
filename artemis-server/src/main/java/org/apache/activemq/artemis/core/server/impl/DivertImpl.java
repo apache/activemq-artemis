@@ -125,6 +125,8 @@ public class DivertImpl implements Divert {
          if (transformer != null) {
             copy = transformer.transform(copy);
          }
+
+         copy.messageChanged();
       } else {
          copy = message;
       }
