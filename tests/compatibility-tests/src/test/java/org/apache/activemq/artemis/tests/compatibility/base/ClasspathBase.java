@@ -59,6 +59,23 @@ public class ClasspathBase {
       return new URLClassLoader(elements, null);
    }
 
+   protected static void startServer(File folder,
+                                     ClassLoader loader,
+                                     String serverName,
+                                     String globalMaxSize,
+                                     boolean setAddressSettings,
+                                     String scriptToUse,
+                                     String server,
+                                     String sender,
+                                     String receiver) throws Exception {
+      setVariable(loader, "setAddressSettings", setAddressSettings);
+      evaluate(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver, globalMaxSize);
+   }
+
+   public static void stopServer(ClassLoader loader) throws Throwable {
+      execute(loader, "server.stop()");
+   }
+
    protected ClassLoader getClasspath(String name) throws Exception {
       return getClasspath(name, false);
    }
