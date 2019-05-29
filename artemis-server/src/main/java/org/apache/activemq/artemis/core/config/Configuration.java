@@ -1090,6 +1090,10 @@ public interface Configuration {
 
    Configuration setPopulateValidatedUser(boolean populateValidatedUser);
 
+   boolean isRejectEmptyValidatedUser();
+
+   Configuration setRejectEmptyValidatedUser(boolean rejectEmptyValidatedUser);
+
    /**
     * It will return all the connectors in a toString manner for debug purposes.
     */

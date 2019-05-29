@@ -54,6 +54,7 @@
       <journal-datasync>false</journal-datasync>
       <persist-id-cache>true</persist-id-cache>
       <populate-validated-user>true</populate-validated-user>
+      <reject-empty-validated-user>false</reject-empty-validated-user>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
       <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
       <global-max-size>1234567</global-max-size>

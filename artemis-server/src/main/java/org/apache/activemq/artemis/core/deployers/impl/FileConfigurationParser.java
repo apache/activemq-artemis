@@ -373,6 +373,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPopulateValidatedUser(getBoolean(e, "populate-validated-user", config.isPopulateValidatedUser()));
 
+      config.setRejectEmptyValidatedUser(getBoolean(e, "reject-empty-validated-user", config.isRejectEmptyValidatedUser()));
+
       config.setConnectionTtlCheckInterval(getLong(e, "connection-ttl-check-interval", config.getConnectionTtlCheckInterval(), Validators.GT_ZERO));
 
       config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), Validators.GT_ZERO));
