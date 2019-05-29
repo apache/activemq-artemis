@@ -109,13 +109,15 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    public JDBCJournalImpl(String jdbcUrl,
+                          String user,
+                          String password,
                           String jdbcDriverClass,
                           SQLProvider sqlProvider,
                           ScheduledExecutorService scheduledExecutorService,
                           Executor completeExecutor,
                           IOCriticalErrorListener criticalIOErrorListener,
                           long syncDelay) {
-      super(sqlProvider, jdbcUrl, jdbcDriverClass);
+      super(sqlProvider, jdbcUrl, user, password, jdbcDriverClass);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
