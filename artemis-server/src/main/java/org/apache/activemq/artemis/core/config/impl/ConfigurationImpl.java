@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
@@ -259,6 +260,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private Map<String, Set<Role>> securitySettings = new HashMap<>();
 
    private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
+
+   private ActiveMQMetricsPlugin metricsPlugin = null;
 
    private final List<ActiveMQServerBasePlugin> brokerPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerConnectionPlugin> brokerConnectionPlugins = new CopyOnWriteArrayList<>();
@@ -1424,6 +1427,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public ActiveMQMetricsPlugin getMetricsPlugin() {
+      return this.metricsPlugin;
+   }
+
+   @Override
    public void registerBrokerPlugins(final List<ActiveMQServerBasePlugin> plugins) {
       plugins.forEach(plugin -> registerBrokerPlugin(plugin));
    }
@@ -1629,6 +1637,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl addSecuritySettingPlugin(final SecuritySettingPlugin plugin) {
       this.securitySettingPlugins.add(plugin);
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setMetricsPlugin(final ActiveMQMetricsPlugin plugin) {
+      this.metricsPlugin = plugin;
       return this;
    }
 

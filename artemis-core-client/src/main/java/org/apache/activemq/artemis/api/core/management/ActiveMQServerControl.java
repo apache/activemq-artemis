@@ -25,6 +25,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
  * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
  */
 public interface ActiveMQServerControl {
+   String CONNECTION_COUNT_DESCRIPTION = "Number of clients connected to this server";
+   String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Number of clients which have connected to this server since it was started";
+   String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Memory used by all the addresses on broker for in-memory messages";
 
    /**
     * Returns this server's version.
@@ -35,13 +38,13 @@ public interface ActiveMQServerControl {
    /**
     * Returns the number of clients connected to this server.
     */
-   @Attribute(desc = "Number of clients connected to this server")
+   @Attribute(desc = CONNECTION_COUNT_DESCRIPTION)
    int getConnectionCount();
 
    /**
     * Returns the number of clients which have connected to this server since it was started.
     */
-   @Attribute(desc = "Number of clients which have connected to this server since it was started")
+   @Attribute(desc = TOTAL_CONNECTION_COUNT_DESCRIPTION)
    long getTotalConnectionCount();
 
    /**
@@ -435,7 +438,7 @@ public interface ActiveMQServerControl {
    /**
     * Returns the  memory used by all the addresses on broker for in-memory messages
     */
-   @Attribute(desc = "Memory used by all the addresses on broker for in-memory messages")
+   @Attribute(desc = ADDRESS_MEMORY_USAGE_DESCRIPTION)
    long getAddressMemoryUsage();
 
    /**
