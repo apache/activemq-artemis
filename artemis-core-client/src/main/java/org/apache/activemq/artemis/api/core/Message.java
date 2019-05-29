@@ -228,7 +228,9 @@ public interface Message {
       return this;
    }
 
-
+   /**
+    * WARNING: Calling this method on a AMQPMessage will allow the non mutable part of the message to be modified.
+    */
    void messageChanged();
 
    /** Used to calculate what is the delivery time.

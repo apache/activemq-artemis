@@ -18,15 +18,17 @@
 package org.apache.activemq.artemis.core.protocol.hornetq;
 
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacket;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage_1X;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,15 +53,16 @@ public class PropertiesConversionTest {
    }
 
    @Test
-   public void testParallelConversions() throws Throwable {
+   public void testParallelHornetQConversions() throws Throwable {
       CoreMessage coreMessage = new CoreMessage(1, 1024);
       for (int i = 0; i < 10; i++) {
          coreMessage.putBooleanProperty(SimpleString.toSimpleString("key1"), true);
       }
       coreMessage.putStringProperty(new SimpleString("_HQ_ORIG_ADDRESS"), SimpleString.toSimpleString("hqOne"));
       coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_QUEUE"), SimpleString.toSimpleString("amqOne"));
+      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), SimpleString.toSimpleString("asdfkhaksdjfhaskfdjhas"));
 
-      int threads = 1000;
+      int threads = 100;
       int conversions = 100;
       Thread[] t = new Thread[threads];
       CyclicBarrier barrier = new CyclicBarrier(threads);
@@ -94,9 +97,10 @@ public class PropertiesConversionTest {
                         packetRec.getMessage().putStringProperty("propChanges", "short one");
                      }
 
-                     ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer(packetRec.getMessage().getEncodeSize() + 4);
-                     packetRec.getMessage().sendBuffer_1X(buf);
-                     buf.release();
+                     SessionReceiveMessage_1X receiveMessage_1X = new SessionReceiveMessage_1X(coreMessage);
+                     ActiveMQBuffer buffer = receiveMessage_1X.encode(null);
+                     buffer.release();
+
                      if (i > conversions / 2) {
                         // I only validate half of the messages
                         // to give it a chance of Races and Exceptions
@@ -122,5 +126,80 @@ public class PropertiesConversionTest {
 
       Assert.assertEquals(0, errors.get());
    }
+
+
+   @Test
+   public void testMultiThreadChanges() throws Throwable {
+      CoreMessage coreMessage = new CoreMessage(1, 1024);
+      for (int i = 0; i < 10; i++) {
+         coreMessage.putBooleanProperty(SimpleString.toSimpleString("key1"), true);
+      }
+      coreMessage.putStringProperty(new SimpleString("_HQ_ORIG_ADDRESS"), SimpleString.toSimpleString("hqOne"));
+      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_QUEUE"), SimpleString.toSimpleString("amqOne"));
+      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), SimpleString.toSimpleString("asdfkhaksdjfhaskfdjhas"));
+
+      int threads = 100;
+      int conversions = 100;
+      Thread[] t = new Thread[threads];
+      CyclicBarrier barrier = new CyclicBarrier(threads);
+      AtomicInteger errors = new AtomicInteger(0);
+      AtomicInteger counts = new AtomicInteger(0);
+
+      AtomicBoolean running = new AtomicBoolean(true);
+
+      for (int i = 0; i < threads; i++) {
+         t[i] = new Thread() {
+
+            @Override
+            public void run() {
+               try {
+                  for (int i = 0; i < conversions; i++) {
+                     counts.incrementAndGet();
+                     if (i == 0) {
+                        barrier.await();
+                     }
+
+                     // heads or tails here, I need part of the messages with a big header, part of the messages with a small header
+                     boolean heads = RandomUtil.randomBoolean();
+
+                     // this is playing with a scenario where the horentq interceptor will change the size of the message
+                     if (heads) {
+                        coreMessage.putStringProperty("propChanges", "looooooooooooooooooooong property text");
+                     } else {
+                        coreMessage.putStringProperty("propChanges", "short one");
+                     }
+
+                     heads = RandomUtil.randomBoolean();
+
+                     if (heads) {
+                        SessionReceiveMessage_1X receiveMessage_1X = new SessionReceiveMessage_1X(coreMessage);
+                        ActiveMQBuffer buffer = receiveMessage_1X.encode(null);
+                        buffer.release();
+                     } else {
+                        SessionReceiveMessage receiveMessage = new SessionReceiveMessage(coreMessage);
+                        ActiveMQBuffer buffer = receiveMessage.encode(null);
+                        buffer.release();
+                     }
+                  }
+               } catch (Throwable e) {
+                  errors.incrementAndGet();
+                  e.printStackTrace();
+               }
+            }
+         };
+         t[i].start();
+      }
+
+      running.set(false);
+
+      for (Thread thread : t) {
+         thread.join();
+      }
+
+      Assert.assertEquals(threads * conversions, counts.get());
+
+      Assert.assertEquals(0, errors.get());
+   }
+
 
 }

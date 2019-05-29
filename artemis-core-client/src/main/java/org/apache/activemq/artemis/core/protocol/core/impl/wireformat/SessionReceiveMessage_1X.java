@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SessionReceiveMessage_1X extends SessionReceiveMessage {
@@ -38,6 +39,18 @@ public class SessionReceiveMessage_1X extends SessionReceiveMessage {
       message.sendBuffer_1X(buffer.byteBuf());
       buffer.writeLong(consumerID);
       buffer.writeInt(deliveryCount);
+   }
+
+   @Override
+   public ActiveMQBuffer encode(final CoreRemotingConnection connection) {
+      ICoreMessage messageSynchronize = message;
+      synchronized (messageSynchronize) {
+        // messageSynchronize.messageChanged();
+         // there's a possible race, in case non standard components touch the message body
+         // between allocating and actual encoding there could be a difference in size
+         // sendBuffer_1X would fail
+         return super.encode(connection);
+      }
    }
 
    @Override
