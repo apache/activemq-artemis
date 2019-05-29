@@ -403,7 +403,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public void messageChanged() {
+   public synchronized void messageChanged() {
       //a volatile store is a costly operation: better to check if is necessary
       if (validBuffer) {
          validBuffer = false;

@@ -109,12 +109,7 @@ public abstract class VersionedBase extends ClasspathBase {
          scriptToUse = "servers/hornetqServer.groovy";
       }
 
-      setVariable(loader, "setAddressSettings", setAddressSettings);
-      evaluate(loader, scriptToUse, folder.getAbsolutePath(), serverName, server, sender, receiver, globalMaxSize);
-   }
-
-   public void stopServer(ClassLoader loader) throws Throwable {
-      execute(loader, "server.stop()");
+      startServer(folder, loader, serverName, globalMaxSize, setAddressSettings, scriptToUse, server, sender, receiver);
    }
 
    public String getServerScriptToUse() {
