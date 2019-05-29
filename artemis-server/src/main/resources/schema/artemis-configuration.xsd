@@ -1020,6 +1020,33 @@
             </xsd:complexType>
          </xsd:element>
 
+         <xsd:element name="metrics-plugin" maxOccurs="1" minOccurs="0">
+            <xsd:complexType>
+               <xsd:annotation>
+                  <xsd:documentation>
+                     a metrics plugin
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:sequence>
+                  <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           properties to configure a plugin
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+               </xsd:sequence>
+               <xsd:attribute name="class-name" type="xsd:string" use="required">
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        the name of the metrics plugin class to instantiate
+                     </xsd:documentation>
+                  </xsd:annotation>
+               </xsd:attribute>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
+            </xsd:complexType>
+         </xsd:element>
+
          <xsd:element name="address-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

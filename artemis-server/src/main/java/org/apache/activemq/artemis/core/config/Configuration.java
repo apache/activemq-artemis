@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
@@ -1013,12 +1014,16 @@ public interface Configuration {
 
    Configuration addSecuritySettingPlugin(SecuritySettingPlugin plugin);
 
+   Configuration setMetricsPlugin(ActiveMQMetricsPlugin plugin);
+
    /**
     * @return list of {@link ConnectorServiceConfiguration}
     */
    List<ConnectorServiceConfiguration> getConnectorServiceConfigurations();
 
    List<SecuritySettingPlugin> getSecuritySettingPlugins();
+
+   ActiveMQMetricsPlugin getMetricsPlugin();
 
    /**
     * The default password decoder

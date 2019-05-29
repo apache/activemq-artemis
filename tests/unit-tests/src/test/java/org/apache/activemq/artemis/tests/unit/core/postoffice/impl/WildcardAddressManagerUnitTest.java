@@ -49,7 +49,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testUnitOnWildCardFailingScenario() throws Exception {
       int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
       ad.addBinding(new BindingFake("Topic1", "Topic1"));
       ad.addBinding(new BindingFake("Topic1", "one"));
       ad.addBinding(new BindingFake("*", "two"));
@@ -79,7 +79,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testUnitOnWildCardFailingScenarioFQQN() throws Exception {
       int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
       ad.addBinding(new BindingFake("Topic1", "Topic1"));
       ad.addBinding(new BindingFake("Topic1", "one"));
       ad.addBinding(new BindingFake("*", "two"));
@@ -114,7 +114,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testWildCardAddressRemoval() throws Exception {
 
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Queue1.#"), RoutingType.ANYCAST));
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.#"), RoutingType.MULTICAST));
       ad.addBinding(new BindingFake("Topic1.topic", "two"));
@@ -142,7 +142,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       final WildcardConfiguration configuration = new WildcardConfiguration();
       configuration.setAnyWords('>');
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null, null);
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.>"), RoutingType.MULTICAST));
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test"), RoutingType.MULTICAST));
       ad.addBinding(new BindingFake("Topic1.>", "one"));
@@ -171,7 +171,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       final WildcardConfiguration configuration = new WildcardConfiguration();
       configuration.setAnyWords('>');
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null, null);
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.>"), RoutingType.MULTICAST));
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test"), RoutingType.MULTICAST));
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test.test1"), RoutingType.MULTICAST));
