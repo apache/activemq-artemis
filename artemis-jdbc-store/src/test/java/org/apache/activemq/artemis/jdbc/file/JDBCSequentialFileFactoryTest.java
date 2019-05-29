@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.jdbc.file;
 import java.nio.ByteBuffer;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,12 +48,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@RunWith(Parameterized.class)
 public class JDBCSequentialFileFactoryTest {
 
    @Rule
@@ -63,13 +68,28 @@ public class JDBCSequentialFileFactoryTest {
 
    private ExecutorService executor;
 
+   @Parameterized.Parameter
+   public boolean useAuthentication;
+   private String user = null;
+   private String password = null;
+
+   @Parameterized.Parameters(name = "authentication = {0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{false}, {true}});
+   }
+
    @Before
    public void setup() throws Exception {
       executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
-
+      if (useAuthentication) {
+         user = "testuser";
+         password = "testpassword";
+         System.setProperty("derby.connection.requireAuthentication", "true");
+         System.setProperty("derby.user." + user, password);
+      }
       String connectionUrl = "jdbc:derby:target/data;create=true";
       String tableName = "FILES";
-      factory = new JDBCSequentialFileFactory(connectionUrl, className, JDBCUtils.getSQLProvider(className, tableName, SQLProvider.DatabaseStoreType.PAGE), executor, new IOCriticalErrorListener() {
+      factory = new JDBCSequentialFileFactory(connectionUrl, user, password, className, JDBCUtils.getSQLProvider(className, tableName, SQLProvider.DatabaseStoreType.PAGE), executor, new IOCriticalErrorListener() {
          @Override
          public void onIOException(Throwable code, String message, SequentialFile file) {
          }
@@ -86,8 +106,16 @@ public class JDBCSequentialFileFactoryTest {
    @After
    public void shutdownDerby() {
       try {
-         DriverManager.getConnection("jdbc:derby:;shutdown=true");
+         if (useAuthentication) {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true", user, password);
+         } else {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+         }
       } catch (Exception ignored) {
+      }
+      if (useAuthentication) {
+         System.clearProperty("derby.connection.requireAuthentication");
+         System.clearProperty("derby.user." + user);
       }
    }
 
