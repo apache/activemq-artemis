@@ -45,7 +45,6 @@ public class SessionReceiveMessage_1X extends SessionReceiveMessage {
    public ActiveMQBuffer encode(final CoreRemotingConnection connection) {
       ICoreMessage messageSynchronize = message;
       synchronized (messageSynchronize) {
-        // messageSynchronize.messageChanged();
          // there's a possible race, in case non standard components touch the message body
          // between allocating and actual encoding there could be a difference in size
          // sendBuffer_1X would fail
