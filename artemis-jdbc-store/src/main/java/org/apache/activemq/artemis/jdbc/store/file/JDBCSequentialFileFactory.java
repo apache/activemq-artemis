@@ -69,6 +69,8 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    }
 
    public JDBCSequentialFileFactory(final String connectionUrl,
+                                    String userName,
+                                    String password,
                                     final String className,
                                     final SQLProvider sqlProvider,
                                     Executor executor,
@@ -76,7 +78,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       this.executor = executor;
       this.criticalErrorListener = criticalErrorListener;
       try {
-         this.dbDriver = JDBCFileUtils.getDBFileDriver(className, connectionUrl, sqlProvider);
+         this.dbDriver = JDBCFileUtils.getDBFileDriver(className, connectionUrl, userName, password, sqlProvider);
       } catch (SQLException e) {
          criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
       }

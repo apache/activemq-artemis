@@ -31,6 +31,8 @@ class JDBCFileUtils {
 
    static JDBCSequentialFileFactoryDriver getDBFileDriver(String driverClass,
                                                           String jdbcConnectionUrl,
+                                                          String user,
+                                                          String password,
                                                           SQLProvider provider) throws SQLException {
       final JDBCSequentialFileFactoryDriver dbDriver;
       final PropertySQLProvider.Factory.SQLDialect sqlDialect = PropertySQLProvider.Factory.identifyDialect(driverClass);
@@ -44,6 +46,8 @@ class JDBCFileUtils {
       dbDriver.setSqlProvider(provider);
       dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
       dbDriver.setJdbcDriverClass(driverClass);
+      dbDriver.setUser(user);
+      dbDriver.setPassword(password);
       return dbDriver;
    }
 

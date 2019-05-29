@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config.impl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -33,7 +34,10 @@ public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
    public void databaseStoreConfigTest() throws Exception {
       Configuration configuration = createConfiguration("database-store-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      assertEquals(StoreConfiguration.StoreType.DATABASE, server.getConfiguration().getStoreConfiguration().getStoreType());
+      DatabaseStorageConfiguration storeConfiguration = (DatabaseStorageConfiguration) server.getConfiguration().getStoreConfiguration();
+      assertEquals(StoreConfiguration.StoreType.DATABASE, storeConfiguration.getStoreType());
+      assertEquals("sourcepassword", storeConfiguration.getJdbcUser());
+      assertEquals("targetpassword", storeConfiguration.getJdbcPassword());
    }
 
    @Test

@@ -36,6 +36,10 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private String jdbcConnectionUrl = ActiveMQDefaultConfiguration.getDefaultDatabaseUrl();
 
+   private String jdbcUser;
+
+   private String jdbcPassword;
+
    private String jdbcDriverClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
 
    private DataSource dataSource;
@@ -103,6 +107,22 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public String getJdbcConnectionUrl() {
       return jdbcConnectionUrl;
+   }
+
+   public String getJdbcUser() {
+      return jdbcUser;
+   }
+
+   public void setJdbcUser(String jdbcUser) {
+      this.jdbcUser = jdbcUser;
+   }
+
+   public String getJdbcPassword() {
+      return jdbcPassword;
+   }
+
+   public void setJdbcPassword(String jdbcPassword) {
+      this.jdbcPassword = jdbcPassword;
    }
 
    public void setJdbcDriverClassName(String jdbcDriverClassName) {
