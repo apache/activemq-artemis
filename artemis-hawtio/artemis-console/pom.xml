@@ -67,6 +67,12 @@
       <version>${hawtio.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+      <!-- License: Apache 2.0 -->
+    </dependency>
   </dependencies>
 
   <build>
@@ -110,6 +116,7 @@
                 <exclude>bower_components/jquery/src/**/*</exclude>
                 <exclude>bower_components/jquery/test/**/*</exclude>
                 <exclude>bower_components/js-logger/src/**/*</exclude>
+                <excluse>WEB-INF/lib/guava*.jar</excluse>
                 <excluse>WEB-INF/lib/slf4j-api*.jar</excluse>
                 <excluse>lib/camelModel.js</excluse>
                 <exclude>app/activemq/**/*</exclude>
