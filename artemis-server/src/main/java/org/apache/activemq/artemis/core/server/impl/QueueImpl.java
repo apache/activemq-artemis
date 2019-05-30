@@ -3935,19 +3935,25 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       @Override
       public void run() {
          float queueRate = getRate();
+         long queueMessages = getMessageCount();
+
          if (logger.isDebugEnabled()) {
-            logger.debug(getAddress() + ":" + getName() + " has " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
+            logger.debug(getAddress() + ":" + getName() + " has " + queueMessages + " message(s) and " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
          }
 
 
          if (consumers.size() == 0) {
             logger.debug("There are no consumers, no need to check slow consumer's rate");
             return;
-         } else if (queueRate < (threshold * consumers.size())) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
+         } else {
+            float queueThreshold = threshold * consumers.size();
+
+            if (queueRate < queueThreshold && queueMessages < queueThreshold) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
+               }
+               return;
             }
-            return;
          }
 
          for (ConsumerHolder consumerHolder : consumers) {
@@ -3955,11 +3961,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (consumer instanceof ServerConsumerImpl) {
                ServerConsumerImpl serverConsumer = (ServerConsumerImpl) consumer;
                float consumerRate = serverConsumer.getRate();
-               if (queueRate < threshold) {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
-                  }
-               } else if (consumerRate < threshold) {
+               if (consumerRate < threshold) {
                   RemotingConnection connection = null;
                   ActiveMQServer server = ((PostOfficeImpl) postOffice).getServer();
                   RemotingService remotingService = server.getRemotingService();
