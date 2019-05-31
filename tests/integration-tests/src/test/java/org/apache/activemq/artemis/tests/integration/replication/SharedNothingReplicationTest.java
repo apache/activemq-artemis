@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -58,12 +59,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SharedNothingReplicationTest {
+public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
    private static final Logger logger = Logger.getLogger(SharedNothingReplicationTest.class);
 
@@ -71,30 +72,32 @@ public class SharedNothingReplicationTest {
    public TemporaryFolder brokersFolder = new TemporaryFolder();
 
    private SlowMessagePersister slowMessagePersister;
+   ExecutorService sendMessageExecutor;
 
    @Before
+   @Override
    public void setUp() throws Exception {
-      slowMessagePersister = new SlowMessagePersister();
-      CoreMessagePersister.theInstance = slowMessagePersister;
+      super.setUp();
+      sendMessageExecutor = Executors.newSingleThreadExecutor();
+      CoreMessagePersister.registerPersister(SlowMessagePersister._getInstance());
    }
 
    @After
+   @Override
    public void tearDown() throws Exception {
-      if (slowMessagePersister != null) {
-         CoreMessagePersister.theInstance = slowMessagePersister.persister;
-      }
+      CoreMessagePersister.resetPersister();
+      sendMessageExecutor.shutdownNow();
+      super.tearDown();
    }
 
    @Test
    public void testReplicateFromSlowLive() throws Exception {
       // start live
       Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = ActiveMQServers.newActiveMQServer(liveConfiguration);
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       liveServer.start();
 
-      Wait.waitFor(() -> liveServer.isStarted());
-
-      CoreMessagePersister.theInstance = SlowMessagePersister._getInstance();
+      Wait.waitFor(liveServer::isStarted);
 
       final CountDownLatch replicated = new CountDownLatch(1);
 
@@ -120,7 +123,6 @@ public class SharedNothingReplicationTest {
       ClientSession sess = csf.createSession();
       sess.createQueue("slow", RoutingType.ANYCAST, "slow", true);
       sess.close();
-      Executor sendMessageExecutor = Executors.newCachedThreadPool();
 
       // let's write some messages
       int i = 0;
@@ -150,7 +152,7 @@ public class SharedNothingReplicationTest {
 
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
-      ActiveMQServer backupServer = ActiveMQServers.newActiveMQServer(backupConfiguration);
+      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
       backupServer.start();
 
       Wait.waitFor(() -> backupServer.isStarted());
