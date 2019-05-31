@@ -98,6 +98,18 @@ public final class Validators {
       }
    };
 
+   public static final Validator LE_ONE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val.doubleValue() <= 1) {
+            // OK
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.lessThanOrEqualToOne(name, val);
+         }
+      }
+   };
+
    public static final Validator MINUS_ONE_OR_GT_ZERO = new Validator() {
       @Override
       public void validate(final String name, final Object value) {

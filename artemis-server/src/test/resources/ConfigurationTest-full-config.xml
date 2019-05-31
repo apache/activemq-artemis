@@ -383,6 +383,7 @@
             <dead-letter-address>a1.1</dead-letter-address>
             <expiry-address>a1.2</expiry-address>
             <redelivery-delay>1</redelivery-delay>
+            <redelivery-collision-avoidance-factor>0.5</redelivery-collision-avoidance-factor>
             <max-size-bytes>817M</max-size-bytes>
             <page-size-bytes>817381738</page-size-bytes>
             <page-max-cache-size>10</page-max-cache-size>
