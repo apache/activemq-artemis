@@ -473,4 +473,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229225, value = "Validated User is not set", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException rejectEmptyValidatedUser();
+
+   @Message(id = 229226, value = "{0} must be less than or equal to 1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException lessThanOrEqualToOne(String name, Number val);
 }

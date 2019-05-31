@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -300,6 +301,103 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
       assertEquals(7, updates.get());
 
+   }
+
+   @Test
+   public void testRedeliveryCollisionAvoidance() throws Exception {
+      setUp(false);
+      int numberOfThreads = 10;
+      long redeliveryDelay = 1000;
+      server.getAddressSettingsRepository().getMatch(ADDRESS.toString()).setRedeliveryDelay(redeliveryDelay).setRedeliveryCollisionAvoidanceFactor(0.5);
+
+      ClientSession session = factory.createSession(false, false, false);
+      ClientProducer prod = session.createProducer(ADDRESS);
+      for (int i = 0; i < numberOfThreads; i++) {
+         prod.send(createTextMessage(session, "Hello" + i));
+      }
+      session.commit();
+      session.close();
+
+      final CountDownLatch aligned = new CountDownLatch(numberOfThreads);
+      final CountDownLatch startRollback = new CountDownLatch(1);
+
+      class ConsumerThread extends Thread {
+
+         ConsumerThread(int i) {
+            super("RedeliveryCollisionAvoidance::" + i);
+         }
+
+         long delay = 0;
+         int errors = 0;
+
+         @Override
+         public void run() {
+            try (ServerLocator locator = createInVMNonHALocator()) {
+               locator.setConsumerWindowSize(0);
+               ClientSessionFactory factory = locator.createSessionFactory();
+               ClientSession session = factory.createSession(false, false, false);
+               session.start();
+               ClientConsumer consumer = session.createConsumer(ADDRESS);
+               ClientMessage msg = consumer.receive(5000);
+               assertNotNull(msg);
+               msg.acknowledge();
+               aligned.countDown();
+               startRollback.await();
+               session.rollback();
+               long start = System.currentTimeMillis();
+               msg = consumer.receive(5000);
+               delay = System.currentTimeMillis() - start;
+               assertNotNull(msg);
+               msg.acknowledge();
+               session.commit();
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors++;
+            }
+         }
+      }
+
+      ConsumerThread[] threads = new ConsumerThread[numberOfThreads];
+
+      for (int i = 0; i < numberOfThreads; i++) {
+         threads[i] = new ConsumerThread(i);
+         threads[i].start();
+      }
+
+      aligned.await();
+      startRollback.countDown();
+
+      try {
+         for (ConsumerThread t : threads) {
+            t.join(60000);
+            assertFalse(t.isAlive());
+            assertEquals("There are Errors on the test thread", 0, t.errors);
+         }
+      } finally {
+         for (ConsumerThread t : threads) {
+            if (t.isAlive()) {
+               t.interrupt();
+            }
+            t.join(1000);
+         }
+      }
+
+      long maxDelay = 0;
+      long minDelay = Long.MAX_VALUE;
+
+      for (ConsumerThread t : threads) {
+         if (t.delay < minDelay) {
+            minDelay = t.delay;
+         }
+         if (t.delay > maxDelay) {
+            maxDelay = t.delay;
+         }
+      }
+
+      // make sure the difference between the minimum redelivery delay and the maximum redelivery delay is larger that the expected nominal variance
+      assertTrue((maxDelay - minDelay) > (redeliveryDelay * .05));
+
+      factory.close();
    }
 
    // Package protected ---------------------------------------------

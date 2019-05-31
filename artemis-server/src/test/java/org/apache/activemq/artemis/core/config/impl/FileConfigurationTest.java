@@ -341,6 +341,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("a1.1", conf.getAddressesSettings().get("a1").getDeadLetterAddress().toString());
       assertEquals("a1.2", conf.getAddressesSettings().get("a1").getExpiryAddress().toString());
       assertEquals(1, conf.getAddressesSettings().get("a1").getRedeliveryDelay());
+      assertEquals(0.5, conf.getAddressesSettings().get("a1").getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(856686592L, conf.getAddressesSettings().get("a1").getMaxSizeBytes());
       assertEquals(81738173872337L, conf.getAddressesSettings().get("a1").getPageSizeBytes());
       assertEquals(10, conf.getAddressesSettings().get("a1").getPageCacheMaxSize());
@@ -362,6 +363,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("a2.1", conf.getAddressesSettings().get("a2").getDeadLetterAddress().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
       assertEquals(5, conf.getAddressesSettings().get("a2").getRedeliveryDelay());
+      assertEquals(0.0, conf.getAddressesSettings().get("a2").getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(932489234928324L, conf.getAddressesSettings().get("a2").getMaxSizeBytes());
       assertEquals(7126716262626L, conf.getAddressesSettings().get("a2").getPageSizeBytes());
       assertEquals(20, conf.getAddressesSettings().get("a2").getPageCacheMaxSize());
