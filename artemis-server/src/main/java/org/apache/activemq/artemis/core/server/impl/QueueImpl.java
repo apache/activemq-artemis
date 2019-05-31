@@ -28,10 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -3617,9 +3619,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       long redeliveryDelay = addressSettings.getRedeliveryDelay();
       long maxRedeliveryDelay = addressSettings.getMaxRedeliveryDelay();
       double redeliveryMultiplier = addressSettings.getRedeliveryMultiplier();
+      double collisionAvoidanceFactor = addressSettings.getRedeliveryCollisionAvoidanceFactor();
 
       int tmpDeliveryCount = deliveryCount > 0 ? deliveryCount - 1 : 0;
       long delay = (long) (redeliveryDelay * (Math.pow(redeliveryMultiplier, tmpDeliveryCount)));
+      if (collisionAvoidanceFactor > 0) {
+         Random random = ThreadLocalRandom.current();
+         double variance = (random.nextBoolean() ? collisionAvoidanceFactor : -collisionAvoidanceFactor) * random.nextDouble();
+         delay += (delay * variance);
+      }
 
       if (delay > maxRedeliveryDelay) {
          delay = maxRedeliveryDelay;
