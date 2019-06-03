@@ -681,6 +681,11 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    @Test
    public void testJournalFileOpenTimeoutDefaultValue() throws Exception {
       ActiveMQServerImpl server = new ActiveMQServerImpl();
+      server.getConfiguration()
+            .setJournalDirectory(getJournalDir())
+            .setPagingDirectory(getPageDir())
+            .setLargeMessagesDirectory(getLargeMessagesDir())
+            .setBindingsDirectory(getBindingsDir());
       try {
          server.start();
          JournalImpl journal = (JournalImpl) server.getStorageManager().getBindingsJournal();
@@ -695,7 +700,11 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    public void testJournalFileOpenTimeoutValue() throws Exception {
       int timeout = RandomUtil.randomPositiveInt();
       Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
-      configuration.setJournalFileOpenTimeout(timeout);
+      configuration.setJournalFileOpenTimeout(timeout)
+                   .setJournalDirectory(getJournalDir())
+                   .setPagingDirectory(getPageDir())
+                   .setLargeMessagesDirectory(getLargeMessagesDir())
+                   .setBindingsDirectory(getBindingsDir());
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
