@@ -34,3 +34,4 @@ docs/hacking-guide/en/_book
 
 # overlay outpit
 **/overlays/**/*
+artemis-server/.sts4-cache/classpath-data.json
