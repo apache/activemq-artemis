@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -43,7 +45,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class JDBCJournalTest extends ActiveMQTestBase {
 
    @Rule
@@ -59,31 +64,66 @@ public class JDBCJournalTest extends ActiveMQTestBase {
 
    private DatabaseStorageConfiguration dbConf;
 
+   @Parameterized.Parameter
+   public boolean useAuthentication;
+
+   @Parameterized.Parameters(name = "authentication = {0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{false}, {true}});
+   }
+
    @After
    @Override
    public void tearDown() throws Exception {
       journal.destroy();
       try {
-         DriverManager.getConnection("jdbc:derby:;shutdown=true");
+         if (useAuthentication) {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true", getJdbcUser(), getJdbcPassword());
+         } else {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+         }
       } catch (Exception ignored) {
+      }
+      if (useAuthentication) {
+         System.clearProperty("derby.connection.requireAuthentication");
+         System.clearProperty("derby.user." + getJdbcUser());
       }
       scheduledExecutorService.shutdown();
       scheduledExecutorService = null;
       executorService.shutdown();
       executorService = null;
+   }
 
+   protected String getJdbcUser() {
+      if (useAuthentication) {
+         return System.getProperty("jdbc.user", "testuser");
+      } else {
+         return null;
+      }
+   }
+
+   protected String getJdbcPassword() {
+      if (useAuthentication) {
+         return System.getProperty("jdbc.password", "testpassword");
+      } else {
+         return null;
+      }
    }
 
    @Before
    public void setup() throws Exception {
       dbConf = createDefaultDatabaseStorageConfiguration();
+      if (useAuthentication) {
+         System.setProperty("derby.connection.requireAuthentication", "true");
+         System.setProperty("derby.user." + getJdbcUser(), getJdbcPassword());
+      }
       sqlProvider = JDBCUtils.getSQLProvider(
          dbConf.getJdbcDriverClassName(),
          dbConf.getMessageTableName(),
          SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL);
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
       executorService = Executors.newSingleThreadExecutor();
-      journal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getJdbcDriverClassName(), sqlProvider, scheduledExecutorService, executorService, new IOCriticalErrorListener() {
+      journal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), getJdbcUser(), getJdbcPassword(), dbConf.getJdbcDriverClassName(), sqlProvider, scheduledExecutorService, executorService, new IOCriticalErrorListener() {
          @Override
          public void onIOException(Throwable code, String message, SequentialFile file) {
 
@@ -106,6 +146,8 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       Assert.assertTrue(journal.isStarted());
       Assert.assertEquals(0, journal.getNumberOfRecords());
       final JDBCJournalImpl secondJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(),
+                                                                          getJdbcUser(),
+                                                                          getJdbcPassword(),
                                                                           dbConf.getJdbcDriverClassName(),
                                                                           sqlProvider, scheduledExecutorService,
                                                                           executorService, (code, message, file) -> {

@@ -54,6 +54,7 @@
       <journal-datasync>false</journal-datasync>
       <persist-id-cache>true</persist-id-cache>
       <populate-validated-user>true</populate-validated-user>
+      <reject-empty-validated-user>false</reject-empty-validated-user>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
       <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
       <global-max-size>1234567</global-max-size>
@@ -192,6 +193,13 @@
             <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
       </bridges>
+
+      <metrics-plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
+         <property key="foo" value="x"/>
+         <property key="bar" value="y"/>
+         <property key="baz" value="z"/>
+      </metrics-plugin>
+
       <ha-policy>
          <!--only one of the following-->
          <!--on server shutdown scale down to another live server-->

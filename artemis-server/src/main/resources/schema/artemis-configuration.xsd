@@ -396,6 +396,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="reject-empty-validated-user" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  true means that the server will not allow any message that doesn't have a validated user, in JMS this is JMSXUserID
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1008,6 +1016,33 @@
                      </xsd:complexType>
                   </xsd:element>
                </xsd:sequence>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
+            </xsd:complexType>
+         </xsd:element>
+
+         <xsd:element name="metrics-plugin" maxOccurs="1" minOccurs="0">
+            <xsd:complexType>
+               <xsd:annotation>
+                  <xsd:documentation>
+                     a metrics plugin
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:sequence>
+                  <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           properties to configure a plugin
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+               </xsd:sequence>
+               <xsd:attribute name="class-name" type="xsd:string" use="required">
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        the name of the metrics plugin class to instantiate
+                     </xsd:documentation>
+                  </xsd:annotation>
+               </xsd:attribute>
                <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
@@ -2120,6 +2155,22 @@
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC Connection URL e.g. jdbc:mysql://localhost:3306/
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-user" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC User to use for connecting to the database, NB this will only work with drivers where support
+                  DriverManager.getConnection(String url, String user, String password). This can be encrypted.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-password" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC Password to use for connecting to the database, NB this will only work with drivers where support
+                  DriverManager.getConnection(String url, String user, String password). This can be encrypted.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

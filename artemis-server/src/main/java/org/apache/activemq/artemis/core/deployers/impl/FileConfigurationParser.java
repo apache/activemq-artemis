@@ -78,6 +78,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -373,6 +374,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPopulateValidatedUser(getBoolean(e, "populate-validated-user", config.isPopulateValidatedUser()));
 
+      config.setRejectEmptyValidatedUser(getBoolean(e, "reject-empty-validated-user", config.isRejectEmptyValidatedUser()));
+
       config.setConnectionTtlCheckInterval(getLong(e, "connection-ttl-check-interval", config.getConnectionTtlCheckInterval(), Validators.GT_ZERO));
 
       config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), Validators.GT_ZERO));
@@ -551,7 +554,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          parseDivertConfiguration(dvNode, config);
       }
-
       // Persistence config
 
       config.setLargeMessagesDirectory(getString(e, "large-messages-directory", config.getLargeMessagesDirectory(), Validators.NOT_NULL_OR_EMPTY));
@@ -675,6 +677,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       parseBrokerPlugins(e, config);
 
+      NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
+
+      if (metricsPlugin.getLength() != 0) {
+         parseMetricsPlugin(metricsPlugin.item(0), config);
+      }
+
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
       ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<>();
@@ -763,6 +771,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
       return properties;
+   }
+
+   private ActiveMQMetricsPlugin parseMetricsPlugin(final Node item, final Configuration config) {
+      final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
+
+      Map<String, String> properties = getMapOfChildPropertyElements(item);
+
+      ActiveMQMetricsPlugin metricsPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQMetricsPlugin>() {
+         @Override
+         public ActiveMQMetricsPlugin run() {
+            return (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
+         }
+      });
+
+      config.setMetricsPlugin(metricsPlugin.init(properties));
+
+      return metricsPlugin;
    }
 
    /**
@@ -1321,13 +1346,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       STORE_TYPE_LIST.add("file-store");
    }
 
-   private void parseStoreConfiguration(final Element e, final Configuration mainConfig) {
+   private void parseStoreConfiguration(final Element e, final Configuration mainConfig) throws Exception {
       for (String storeType : STORE_TYPE_LIST) {
          NodeList storeNodeList = e.getElementsByTagName(storeType);
          if (storeNodeList.getLength() > 0) {
             Element storeNode = (Element) storeNodeList.item(0);
             if (storeNode.getTagName().equals("database-store")) {
-               mainConfig.setStoreConfiguration(createDatabaseStoreConfig(storeNode));
+               mainConfig.setStoreConfiguration(createDatabaseStoreConfig(storeNode, mainConfig));
             } else if (storeNode.getTagName().equals("file-store")) {
                mainConfig.setStoreConfiguration(createFileStoreConfig(storeNode));
             }
@@ -1559,7 +1584,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return null;
    }
 
-   private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode) {
+   private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode, Configuration mainConfig) throws Exception {
       DatabaseStorageConfiguration conf = new DatabaseStorageConfiguration();
       conf.setBindingsTableName(getString(storeNode, "bindings-table-name", conf.getBindingsTableName(), Validators.NO_CHECK));
       conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), Validators.NO_CHECK));
@@ -1572,6 +1597,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       conf.setJdbcLockRenewPeriodMillis(getLong(storeNode, "jdbc-lock-renew-period", conf.getJdbcLockRenewPeriodMillis(), Validators.NO_CHECK));
       conf.setJdbcLockExpirationMillis(getLong(storeNode, "jdbc-lock-expiration", conf.getJdbcLockExpirationMillis(), Validators.NO_CHECK));
       conf.setJdbcJournalSyncPeriodMillis(getLong(storeNode, "jdbc-journal-sync-period", conf.getJdbcJournalSyncPeriodMillis(), Validators.NO_CHECK));
+      String jdbcUser = getString(storeNode, "jdbc-user", conf.getJdbcUser(), Validators.NO_CHECK);
+      if (jdbcUser != null) {
+         jdbcUser = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), jdbcUser, mainConfig.getPasswordCodec());
+      }
+      conf.setJdbcUser(jdbcUser);
+      String password = getString(storeNode, "jdbc-password", conf.getJdbcPassword(), Validators.NO_CHECK);
+      if (password != null) {
+         password = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), password, mainConfig.getPasswordCodec());
+      }
+      conf.setJdbcPassword(password);
       return conf;
    }
 

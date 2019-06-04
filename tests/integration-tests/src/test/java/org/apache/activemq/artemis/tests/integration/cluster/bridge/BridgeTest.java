@@ -806,6 +806,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final String testAddress = "testAddress";
       final String queueName0 = "queue0";
+      final String secondQueue = "queue1";
       final String forwardAddress = "forwardAddress";
       final String queueName1 = "forwardQueue";
 
@@ -826,6 +827,8 @@ public class BridgeTest extends ActiveMQTestBase {
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
       List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
+      queueConfigs0.add(queueConfig0);
+      queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(secondQueue);
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
@@ -882,7 +885,8 @@ public class BridgeTest extends ActiveMQTestBase {
          tx.commit();
       }
 
-      Thread.sleep(1000);
+      Thread.sleep(100);
+
 
       ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
 
@@ -908,6 +912,20 @@ public class BridgeTest extends ActiveMQTestBase {
       session1.commit();
 
       Assert.assertNull(consumer1.receiveImmediate());
+
+      ClientConsumer otherConsumer = session0.createConsumer(secondQueue);
+      session0.start();
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = otherConsumer.receive(5000);
+         Assert.assertNotNull(message);
+         // This is validating the Bridge is not messing up with the original message
+         // and should make a copy of the message before sending it
+         Assert.assertEquals(2, message.getPropertyNames().size());
+         Assert.assertEquals(i, message.getIntProperty(propKey).intValue());
+         Assert.assertEquals(new SimpleString("monkey" + i), message.getSimpleStringProperty(selectorKey));
+         message.acknowledge();
+
+      }
 
       consumer1.close();
 

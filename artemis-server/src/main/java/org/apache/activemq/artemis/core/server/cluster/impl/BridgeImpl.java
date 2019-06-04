@@ -550,7 +550,15 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    /* Hook for processing message before forwarding */
-   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
+   protected Message beforeForward(Message message, final SimpleString forwardingAddress) {
+      message = message.copy();
+
+      return beforeForwardingNoCopy(message, forwardingAddress);
+   }
+
+   /** ClusterConnectionBridge already makes a copy of the message.
+    * So I needed I hook where the message is not copied. */
+   protected Message beforeForwardingNoCopy(Message message, SimpleString forwardingAddress) {
       if (useDuplicateDetection) {
          // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
@@ -576,6 +584,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          case PASS:
             break;
       }
+
+      message.messageChanged();
 
       if (transformer != null) {
          final Message transformedMessage = transformer.transform(message);

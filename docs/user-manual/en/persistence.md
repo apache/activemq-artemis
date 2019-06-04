@@ -488,6 +488,23 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
 Note that some DBMS (e.g. Oracle, 30 chars) have restrictions on the size of table names, this should be taken into consideration when configuring table names for the Artemis database store, pay particular attention to the page store table name, which can be appended with a unique ID of up to 20 characters.  (for Oracle this would mean configuring a page-store-table-name of max size of 10 chars).
 
+It is also possible to explicitly add the user and password rather than in the JDBC url if you need to encode it, this would look like:
+
+```xml
+<store>
+   <database-store>
+      <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
+      <jdbc-user>ENC(dasfn353cewc)</jdbc-user>
+      <jdbc-password>ENC(ucwiurfjtew345)</jdbc-password>
+      <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
+      <message-table-name>MESSAGE_TABLE</message-table-name>
+      <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
+      <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
+      <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
+      <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
+   </database-store>
+</store>
+```
 ## Zero Persistence
 
 In some situations, zero persistence is sometimes required for a

@@ -163,9 +163,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       this.addressQueueReaperPeriod = addressQueueReaperPeriod;
 
       if (wildcardConfiguration.isRoutingEnabled()) {
-         addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager);
+         addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager, server.getMetricsManager());
       } else {
-         addressManager = new SimpleAddressManager(this, wildcardConfiguration, storageManager);
+         addressManager = new SimpleAddressManager(this, wildcardConfiguration, storageManager, server.getMetricsManager());
       }
 
       this.idCacheSize = idCacheSize;

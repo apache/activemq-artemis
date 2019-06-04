@@ -470,4 +470,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229224, value = "User {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException userDoesNotExist(String user);
+
+   @Message(id = 229225, value = "Validated User is not set", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException rejectEmptyValidatedUser();
 }

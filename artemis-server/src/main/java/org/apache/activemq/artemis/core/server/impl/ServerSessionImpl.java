@@ -2023,6 +2023,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          msg.setValidatedUserID(validatedUser);
       }
 
+      if (server.getConfiguration().isRejectEmptyValidatedUser() && msg.getValidatedUserID() == null) {
+         throw ActiveMQMessageBundle.BUNDLE.rejectEmptyValidatedUser();
+      }
+
       if (tx == null || autoCommitSends) {
          routingContext.setTransaction(null);
       } else {

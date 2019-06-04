@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
@@ -260,6 +261,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
 
+   private ActiveMQMetricsPlugin metricsPlugin = null;
+
    private final List<ActiveMQServerBasePlugin> brokerPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerConnectionPlugin> brokerConnectionPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerSessionPlugin> brokerSessionPlugins = new CopyOnWriteArrayList<>();
@@ -288,6 +291,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private StoreConfiguration storeConfiguration;
 
    protected boolean populateValidatedUser = ActiveMQDefaultConfiguration.isDefaultPopulateValidatedUser();
+
+   protected boolean rejectEmptyValidatedUser = ActiveMQDefaultConfiguration.isDefaultRejectEmptyValidatedUser();
 
    private long connectionTtlCheckInterval = ActiveMQDefaultConfiguration.getDefaultConnectionTtlCheckInterval();
 
@@ -1422,6 +1427,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public ActiveMQMetricsPlugin getMetricsPlugin() {
+      return this.metricsPlugin;
+   }
+
+   @Override
    public void registerBrokerPlugins(final List<ActiveMQServerBasePlugin> plugins) {
       plugins.forEach(plugin -> registerBrokerPlugin(plugin));
    }
@@ -1631,6 +1641,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public ConfigurationImpl setMetricsPlugin(final ActiveMQMetricsPlugin plugin) {
+      this.metricsPlugin = plugin;
+      return this;
+   }
+
+   @Override
    public Boolean isMaskPassword() {
       return maskPassword;
    }
@@ -1731,6 +1747,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setPopulateValidatedUser(boolean populateValidatedUser) {
       this.populateValidatedUser = populateValidatedUser;
+      return this;
+   }
+
+   @Override
+   public boolean isRejectEmptyValidatedUser() {
+      return rejectEmptyValidatedUser;
+   }
+
+   @Override
+   public Configuration setRejectEmptyValidatedUser(boolean rejectEmptyValidatedUser) {
+      this.rejectEmptyValidatedUser = rejectEmptyValidatedUser;
       return this;
    }
 
