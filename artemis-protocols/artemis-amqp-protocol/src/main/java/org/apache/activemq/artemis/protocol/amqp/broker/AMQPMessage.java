@@ -273,6 +273,19 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       return protonMessage;
    }
 
+   @Override
+   public Object getObjectPropertyForFilter(SimpleString key) {
+      Object value = getObjectProperty(key);
+      if (value == null) {
+         value = getMessageAnnotation(key.toString());
+      }
+      if (value == null) {
+         value = getExtraBytesProperty(key);
+      }
+
+      return value;
+   }
+
    /**
     * Returns a copy of the message Header if one is present, changes to the returned
     * Header instance do not affect the original Message.

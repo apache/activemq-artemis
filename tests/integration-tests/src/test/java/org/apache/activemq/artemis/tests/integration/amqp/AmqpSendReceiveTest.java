@@ -385,6 +385,45 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testSendFilterAnnotation() throws Exception {
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName());
+
+      AmqpMessage message = new AmqpMessage();
+
+      message.setMessageId("msg" + 1);
+      message.setMessageAnnotation("serialNo", 1);
+      message.setText("Test-Message");
+      sender.send(message);
+
+      message = new AmqpMessage();
+      message.setMessageId("msg" + 2);
+      message.setMessageAnnotation("serialNo", 2);
+      message.setText("Test-Message 2");
+      sender.send(message);
+      sender.close();
+
+      LOG.debug("Attempting to read message with receiver");
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), "serialNo=2");
+      receiver.flow(2);
+      AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+      assertNotNull("Should have read message", received);
+      assertEquals("msg2", received.getMessageId());
+      received.accept();
+
+      Assert.assertNull(receiver.receiveNoWait());
+
+      receiver.close();
+
+      connection.close();
+   }
+
+
+   @Test(timeout = 60000)
    public void testCloseBusyReceiver() throws Exception {
       final int MSG_COUNT = 20;
 
