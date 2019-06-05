@@ -239,7 +239,7 @@ public class FilterImpl implements Filter {
             result = bytes == null ? null : ByteUtil.bytesToInt(bytes);
          }
          if (result == null) {
-            result = message.getObjectProperty(id);
+            result = message.getObjectPropertyForFilter(id);
          }
          if (result != null) {
             if (result.getClass() == SimpleString.class) {
