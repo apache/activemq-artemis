@@ -117,6 +117,7 @@
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
       <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
       <version.micrometer>1.1.4</version.micrometer>
+      <hamcrest.version>2.1</hamcrest.version>
 
       <!-- used on tests -->
       <groovy.version>2.4.3</groovy.version>
