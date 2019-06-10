@@ -150,7 +150,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
       // if ignore redelivery check, we just perform redelivery straight
-      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck)) {
+      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck).getA()) {
          LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
 
          if (toCancel == null) {
