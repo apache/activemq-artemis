@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -263,6 +264,51 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       LOG.debug("Created buffer with size : " + sizeInBytes + " bytes");
       return payload;
+   }
+
+   @Test(timeout = 60000)
+   public void testSendHugeHeader() throws Exception {
+      doTestSendHugeHeader(PAYLOAD);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendLargeMessageWithHugeHeader() throws Exception {
+      doTestSendHugeHeader(1024 * 1024);
+   }
+
+   public void doTestSendHugeHeader(int expectedSize) throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+
+         connection.connect();
+
+         final int strLength = 1024 * 1024;
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(testQueueName);
+
+         AmqpMessage message = createAmqpMessage((byte) 'A', expectedSize);
+         StringBuffer buffer = new StringBuffer();
+         for (int i = 0; i < strLength; i++) {
+            buffer.append(" ");
+         }
+         message.setApplicationProperty("str", buffer.toString());
+         message.setDurable(true);
+
+         try {
+            sender.send(message);
+            fail();
+         } catch (IOException e) {
+            Assert.assertTrue(e.getCause() instanceof JMSException);
+            Assert.assertTrue(e.getMessage().contains("AMQ149005"));
+         }
+
+         session.close();
+      } finally {
+         connection.close();
+      }
    }
 
    @Test(timeout = 60000)

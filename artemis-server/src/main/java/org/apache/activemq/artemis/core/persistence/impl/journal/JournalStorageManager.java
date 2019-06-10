@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
+import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
@@ -547,6 +548,17 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          largeMessage.copyHeadersAndProperties(message);
 
          largeMessage.setMessageID(id);
+
+
+         // Check durable large massage size before to allocate resources if it can't be stored
+         if (largeMessage.isDurable()) {
+            final long maxRecordSize = getMaxRecordSize();
+            final int messageEncodeSize = largeMessage.getEncodeSize();
+
+            if (messageEncodeSize > maxRecordSize) {
+               throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(messageEncodeSize, maxRecordSize);
+            }
+         }
 
          // We do this here to avoid a case where the replication gets a list without this file
          // to avoid a race
