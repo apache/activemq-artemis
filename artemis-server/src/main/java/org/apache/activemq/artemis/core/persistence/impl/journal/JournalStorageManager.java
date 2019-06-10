@@ -75,7 +75,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    protected SequentialFileFactory bindingsFF;
 
-   SequentialFileFactory largeMessagesFactory;
+   protected SequentialFileFactory largeMessagesFactory;
 
    protected Journal originalMessageJournal;
 
@@ -818,7 +818,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          file.position(file.size());
          if (bytes.byteBuf() != null && bytes.byteBuf().nioBufferCount() == 1) {
             final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
-            file.writeDirect(nioBytes, false);
+            file.blockingWriteDirect(nioBytes, false, false);
 
             if (isReplicated()) {
                //copy defensively bytes
@@ -843,8 +843,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       readLock();
       try {
          file.position(file.size());
-
-         file.writeDirect(ByteBuffer.wrap(bytes), false);
+         //that's an additional precaution to avoid ByteBuffer to be pooled:
+         //NIOSequentialFileFactory doesn't pool heap ByteBuffer, but better to make evident
+         //the intention by calling the right method
+         file.blockingWriteDirect(ByteBuffer.wrap(bytes), false, false);
 
          if (isReplicated()) {
             replicator.largeMessageWrite(messageId, bytes);
