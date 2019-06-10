@@ -1318,7 +1318,7 @@ public class DivertTest extends ActiveMQTestBase {
       };
       serviceRegistry.addDivertTransformer(DIVERT, transformer);
 
-      ActiveMQServer server = addServer(new ActiveMQServerImpl(null, null, null, null, serviceRegistry));
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(createBasicConfig(), null, null, null, serviceRegistry));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
       server.createQueue(ADDRESS, RoutingType.MULTICAST, SimpleString.toSimpleString("myQueue"), null, false, false);

@@ -21,12 +21,13 @@ import java.io.File;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JournalFileSizeTest {
+public class JournalFileSizeTest extends ActiveMQTestBase {
 
    private static int align;
 
@@ -39,9 +40,16 @@ public class JournalFileSizeTest {
       }
    }
 
+   @Override
+   protected ConfigurationImpl createBasicConfig(final int serverID) {
+      ConfigurationImpl configuration = new ConfigurationImpl().setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false));
+
+      return configuration;
+   }
+
    @Test
-   public void testIncorrectFileSizeLower() {
-      ConfigurationImpl config = new ConfigurationImpl();
+   public void testIncorrectFileSizeLower() throws Exception {
+      ConfigurationImpl config = createBasicConfig();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2 - 1));
       JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
@@ -50,8 +58,8 @@ public class JournalFileSizeTest {
    }
 
    @Test
-   public void testIncorrectFileSizeHigher() {
-      ConfigurationImpl config = new ConfigurationImpl();
+   public void testIncorrectFileSizeHigher() throws Exception {
+      ConfigurationImpl config = createBasicConfig();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2 + 1));
       JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
@@ -60,8 +68,8 @@ public class JournalFileSizeTest {
    }
 
    @Test
-   public void testIncorrectFileSizeHalf() {
-      ConfigurationImpl config = new ConfigurationImpl();
+   public void testIncorrectFileSizeHalf() throws Exception {
+      ConfigurationImpl config = createBasicConfig();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2));
       JournalStorageManager manager = new JournalStorageManager(config,EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
