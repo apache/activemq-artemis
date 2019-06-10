@@ -832,6 +832,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                          ", record = " + record);
       }
 
+      final long maxRecordSize = getMaxRecordSize();
+      final JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
+      final int addRecordEncodeSize = addRecord.getEncodeSize();
+
+      if (addRecordEncodeSize > maxRecordSize) {
+         //The record size should be larger than max record size only on the large messages case.
+         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
+      }
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
@@ -839,9 +847,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          public void run() {
             journalLock.readLock().lock();
             try {
-               JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(addRecord, false, sync, null, callback);
-               records.put(id, new JournalRecord(usedFile, addRecord.getEncodeSize()));
+               records.put(id, new JournalRecord(usedFile, addRecordEncodeSize));
 
                if (logger.isTraceEnabled()) {
                   logger.trace("appendAddRecord::id=" + id +
