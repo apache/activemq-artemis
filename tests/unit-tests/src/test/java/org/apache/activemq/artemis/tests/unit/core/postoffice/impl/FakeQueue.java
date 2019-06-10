@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -172,8 +173,8 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
-
+   public boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+      return false;
    }
 
    @Override
@@ -380,11 +381,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean checkRedelivery(final MessageReference ref,
+   public Pair<Boolean, Boolean> checkRedelivery(final MessageReference ref,
                                   final long timeBase,
                                   final boolean check) throws Exception {
       // no-op
-      return false;
+      return new Pair<>(false, false);
    }
 
    @Override

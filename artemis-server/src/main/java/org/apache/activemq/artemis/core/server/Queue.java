@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -281,7 +282,14 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int sendMessagesToDeadLetterAddress(Filter filter) throws Exception;
 
-   void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception;
+   /**
+    *
+    * @param tx
+    * @param ref
+    * @return whether or not the message was actually sent to a DLA with bindings
+    * @throws Exception
+    */
+   boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception;
 
    boolean changeReferencePriority(long messageID, byte newPriority) throws Exception;
 
@@ -315,7 +323,16 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int getGroupCount();
 
-   boolean checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
+   /**
+    *
+    * @param ref
+    * @param timeBase
+    * @param ignoreRedeliveryDelay
+    * @return a Pair of Booleans: the first indicates whether or not redelivery happened; the second indicates whether
+    *         or not the message was actually sent to a DLA with bindings
+    * @throws Exception
+    */
+   Pair<Boolean, Boolean> checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
    /**
     * It will iterate thorugh memory only (not paging)
