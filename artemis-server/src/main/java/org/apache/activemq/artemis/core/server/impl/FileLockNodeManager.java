@@ -24,6 +24,7 @@ import java.nio.channels.FileLock;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQLockAcquisitionTimeoutException;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
@@ -48,6 +49,8 @@ public class FileLockNodeManager extends NodeManager {
    private static final byte PAUSED = 'P';
 
    private static final byte NOT_STARTED = 'N';
+
+   private static final long LOCK_ACCESS_FAILURE_WAIT_TIME = 2000;
 
    private FileLock liveLock;
 
@@ -299,44 +302,52 @@ public class FileLockNodeManager extends NodeManager {
 
    protected FileLock lock(final long lockPosition) throws Exception {
       long start = System.currentTimeMillis();
+      boolean isRecurringFailure = false;
 
       while (!interrupted) {
-         FileLock lock = tryLock(lockPosition);
+         try {
+            FileLock lock = tryLock(lockPosition);
+            isRecurringFailure = false;
 
-         if (lock == null) {
+            if (lock == null) {
+               try {
+                  Thread.sleep(500);
+               } catch (InterruptedException e) {
+                  return null;
+               }
+
+               if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout) {
+                  throw new ActiveMQLockAcquisitionTimeoutException("timed out waiting for lock");
+               }
+            } else {
+               return lock;
+            }
+         } catch (IOException e) {
+            // IOException during trylock() may be a temporary issue, e.g. NFS volume not being accessible
+
+            logger.log(isRecurringFailure ? Logger.Level.DEBUG : Logger.Level.WARN,
+                    "Failure when accessing a lock file", e);
+            isRecurringFailure = true;
+
+            long waitTime = LOCK_ACCESS_FAILURE_WAIT_TIME;
+            if (lockAcquisitionTimeout != -1) {
+               final long remainingTime = lockAcquisitionTimeout - (System.currentTimeMillis() - start);
+               if (remainingTime <= 0) {
+                  throw new ActiveMQLockAcquisitionTimeoutException("timed out waiting for lock");
+               }
+               waitTime = Math.min(waitTime, remainingTime);
+            }
+
             try {
-               Thread.sleep(500);
-            } catch (InterruptedException e) {
+               Thread.sleep(waitTime);
+            } catch (InterruptedException interrupt) {
                return null;
             }
-
-            if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout) {
-               throw new Exception("timed out waiting for lock");
-            }
-         } else {
-            return lock;
          }
       }
 
-      // todo this is here because sometimes channel.lock throws a resource deadlock exception but trylock works,
-      // need to investigate further and review
-      FileLock lock;
-      do {
-         lock = tryLock(lockPosition);
-         if (lock == null) {
-            try {
-               Thread.sleep(500);
-            } catch (InterruptedException e1) {
-               //
-            }
-         }
-         if (interrupted) {
-            interrupted = false;
-            throw new IOException("Lock was interrupted");
-         }
-      }
-      while (lock == null);
-      return lock;
+      // presumed interrupted
+      return null;
    }
 
 }
