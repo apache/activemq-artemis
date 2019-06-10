@@ -171,6 +171,14 @@ public abstract class ActiveMQTestBase extends Assert {
    @ClassRule
    public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
 
+   /** We should not under any circunstance create data outside of ./target
+    *  if you have a test failing because because of this rule for any reason,
+    *  even if you use afterClass events, move the test to ./target and always cleanup after
+    *  your data even under ./target.
+    *  Do not try to disable this rule! Fix your test! */
+   @Rule
+   public NoFilesBehind noFilesBehind = new NoFilesBehind("data");
+
    /** This will cleanup any system property changed inside tests */
    @Rule
    public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
