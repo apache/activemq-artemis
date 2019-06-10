@@ -44,7 +44,6 @@
 	<feature name="artemis-common" version="${pom.version}" description="ActiveMQ Artemis Common libraries">
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
-		<bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
 		<bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons.beanutils.version}</bundle>
 		<bundle dependency="true">mvn:commons-collections/commons-collections/${commons.collections.version}</bundle>
 
