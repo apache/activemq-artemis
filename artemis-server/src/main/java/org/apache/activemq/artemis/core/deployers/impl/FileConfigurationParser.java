@@ -706,7 +706,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
     * @param e
     * @param config
     */
-   private void parseSecurity(final Element e, final Configuration config) {
+   private void parseSecurity(final Element e, final Configuration config) throws Exception {
       NodeList elements = e.getElementsByTagName("security-settings");
       if (elements.getLength() != 0) {
          Element node = (Element) elements.item(0);
@@ -724,7 +724,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
          list = node.getElementsByTagName(SECURITY_PLUGIN_ELEMENT_NAME);
          for (int i = 0; i < list.getLength(); i++) {
-            Pair<SecuritySettingPlugin, Map<String, String>> securityItem = parseSecuritySettingPlugins(list.item(i));
+            Pair<SecuritySettingPlugin, Map<String, String>> securityItem = parseSecuritySettingPlugins(list.item(i), config.isMaskPassword(), config.getPasswordCodec());
             config.addSecuritySettingPlugin(securityItem.getA().init(securityItem.getB()));
          }
       }
@@ -953,7 +953,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return mappedRoles.toArray(new String[mappedRoles.size()]);
    }
 
-   private Pair<SecuritySettingPlugin, Map<String, String>> parseSecuritySettingPlugins(Node item) {
+   private Pair<SecuritySettingPlugin, Map<String, String>> parseSecuritySettingPlugins(Node item, Boolean maskPassword, String passwordCodec) throws Exception {
       final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
       final Map<String, String> settings = new HashMap<>();
       NodeList children = item.getChildNodes();
@@ -962,7 +962,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          final String nodeName = child.getNodeName();
          if (SETTING_ELEMENT_NAME.equalsIgnoreCase(nodeName)) {
             final String settingName = getAttributeValue(child, NAME_ATTR_NAME);
-            final String settingValue = getAttributeValue(child, VALUE_ATTR_NAME);
+            String settingValue = getAttributeValue(child, VALUE_ATTR_NAME);
+            if (settingValue != null && PasswordMaskingUtil.isEncMasked(settingValue)) {
+               settingValue = PasswordMaskingUtil.resolveMask(maskPassword, settingValue, passwordCodec);
+            }
             settings.put(settingName, settingValue);
          }
       }
