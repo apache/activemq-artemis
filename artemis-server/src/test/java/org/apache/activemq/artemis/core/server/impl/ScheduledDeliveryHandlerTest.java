@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -1292,7 +1293,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+      public boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+         return false;
       }
 
       @Override
@@ -1375,10 +1377,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public boolean checkRedelivery(MessageReference ref,
-                                     long timeBase,
-                                     boolean ignoreRedeliveryDelay) throws Exception {
-         return false;
+      public Pair<Boolean, Boolean> checkRedelivery(MessageReference ref,
+                                                    long timeBase,
+                                                    boolean ignoreRedeliveryDelay) throws Exception {
+         return new Pair<>(false, false);
       }
 
       @Override
