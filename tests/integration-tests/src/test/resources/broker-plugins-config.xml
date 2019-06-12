@@ -22,6 +22,7 @@
    </jms>
    <core xmlns="urn:activemq:core">
 
+      <persistence-enabled>false</persistence-enabled>
       <connectors>
          <connector name="netty-connector">tcp://localhost:61616</connector>
       </connectors>

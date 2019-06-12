@@ -26,6 +26,7 @@
          <connector name="netty-connector">tcp://localhost:61616</connector>
       </connectors>
 
+      <persistence-enabled>false</persistence-enabled>
       <journal-directory>./target/tmp/activemq-unit-test/broker-plugin-test/</journal-directory>
 
       <acceptors>
