@@ -1635,13 +1635,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized void cancel(final MessageReference reference, final long timeBase) throws Exception {
-      if (checkRedelivery(reference, timeBase, false)) {
+      Pair<Boolean, Boolean> redeliveryResult = checkRedelivery(reference, timeBase, false);
+      if (redeliveryResult.getA()) {
          if (!scheduledDeliveryHandler.checkAndSchedule(reference, false)) {
             internalAddHead(reference);
          }
 
          resetAllIterators();
-      } else {
+      } else if (!redeliveryResult.getB()) {
          decDelivering(reference);
       }
    }
@@ -2815,9 +2816,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          deliverAsync();
       }
    }
-
    @Override
-   public boolean checkRedelivery(final MessageReference reference,
+   public Pair<Boolean, Boolean> checkRedelivery(final MessageReference reference,
                                   final long timeBase,
                                   final boolean ignoreRedeliveryDelay) throws Exception {
       Message message = reference.getMessage();
@@ -2827,7 +2827,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.trace("Queue " + this.getName() + " is an internal queue, no checkRedelivery");
          }
          // no DLQ check on internal queues
-         return true;
+         return new Pair<>(true, false);
       }
 
       if (!internalQueue && reference.isDurable() && isDurable() && !reference.isPaged()) {
@@ -2845,9 +2845,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("Sending reference " + reference + " to DLA = " + addressSettings.getDeadLetterAddress() + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
          }
-         sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
+         boolean dlaResult = sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
 
-         return false;
+         return new Pair<>(false, dlaResult);
       } else {
          // Second check Redelivery Delay
          if (!ignoreRedeliveryDelay && redeliveryDelay > 0) {
@@ -2866,7 +2866,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          decDelivering(reference);
 
-         return true;
+         return new Pair<>(true, false);
       }
    }
 
@@ -3114,13 +3114,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-
    @Override
-   public void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
-      sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
+   public boolean sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
+      return sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
    }
 
-   private void sendToDeadLetterAddress(final Transaction tx,
+   private boolean sendToDeadLetterAddress(final Transaction tx,
                                         final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
@@ -3132,12 +3131,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
             move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null);
+            return true;
          }
       } else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
 
          ref.acknowledge(tx, AckReason.KILLED, null);
       }
+
+      return false;
    }
 
    private void move(final Transaction originalTX,
