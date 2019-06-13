@@ -386,30 +386,17 @@ public class AMQConsumer {
    }
 
    public boolean updateDeliveryCountAfterCancel(MessageReference ref) {
-      long lastDelSeqId = info.getLastDeliveredSequenceId();
 
-      //in activemq5, closing a durable subscription won't close the consumer
-      //at broker. Messages will be treated as if being redelivered to
-      //the same consumer.
-      if (this.info.isDurable() && this.getOpenwireDestination().isTopic()) {
+      if (RemoveInfo.LAST_DELIVERED_UNKNOWN == info.getLastDeliveredSequenceId()) {
+         // treat as delivered
          return true;
       }
-
-      //because delivering count is always one greater than redelivery count
-      //we adjust it down before further calculating.
-      ref.decrementDeliveryCount();
-
-      // This is a specific rule of the protocol
-      if (lastDelSeqId == RemoveInfo.LAST_DELIVERED_UNKNOWN) {
-         // this takes care of un-acked messages in non-tx deliveries
-         // tx cases are handled by
-         // org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection.CommandProcessor.processRollbackTransaction()
-         ref.incrementDeliveryCount();
-      } else if (lastDelSeqId == RemoveInfo.LAST_DELIVERED_UNSET && !isRolledBack(ref)) {
-         ref.incrementDeliveryCount();
+      if (ref.getMessageID() <= info.getLastDeliveredSequenceId() && !isRolledBack(ref)) {
+         // treat as delivered
+         return true;
       }
-
-      return true;
+      // default behaviour
+      return false;
    }
 
    /**
