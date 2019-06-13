@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
@@ -86,7 +87,7 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
       } catch (JMSException e) {
          assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
          //Ensure JMS Connection ExceptionListener was also invoked
-         assertNotNull(exceptionOnConnection.get());
+         assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
          assertTrue(exceptionOnConnection.get().getCause() instanceof ActiveMQConnectionTimedOutException);
       } finally {
          if (connection != null) {
@@ -124,7 +125,7 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
       } catch (JMSException e) {
          assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
          //Ensure JMS Connection ExceptionListener was also invoked
-         assertNotNull(exceptionOnConnection.get());
+         assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
          assertTrue(exceptionOnConnection.get().getCause() instanceof ActiveMQConnectionTimedOutException);
 
       } finally {
