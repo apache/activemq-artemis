@@ -148,6 +148,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       m = consumer.receive(5000);
       System.out.println("m2 received: " + m);
       assertNotNull(m);
+      assertFalse("redelivered flag set", m.getJMSRedelivered());
 
       // install another consumer while message dispatch is unacked/uncommitted
       Session redispatchSession = connection.createSession(true, Session.SESSION_TRANSACTED);
