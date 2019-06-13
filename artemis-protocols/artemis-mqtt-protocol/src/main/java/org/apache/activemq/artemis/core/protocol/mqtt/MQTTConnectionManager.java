@@ -81,7 +81,10 @@ public class MQTTConnectionManager {
          session.getConnection().setClientID(clientId);
          ServerSessionImpl serverSession = createServerSession(username, password);
          serverSession.start();
-         session.setServerSession(serverSession);
+         ServerSessionImpl internalServerSession = createServerSession(username, password);
+         internalServerSession.disableSecurity();
+         internalServerSession.start();
+         session.setServerSession(serverSession, internalServerSession);
 
          if (cleanSession) {
             /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
