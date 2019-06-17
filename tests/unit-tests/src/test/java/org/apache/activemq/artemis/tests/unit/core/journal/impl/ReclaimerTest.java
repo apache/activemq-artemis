@@ -22,24 +22,21 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.Reclaimer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
+
 public class ReclaimerTest extends ActiveMQTestBase {
 
    private JournalFile[] files;
-
-   private Reclaimer reclaimer;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-
-      reclaimer = new Reclaimer();
    }
 
    @Test
@@ -48,7 +45,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
       setupPosNeg(0, 10, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
    }
@@ -59,7 +56,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
       setupPosNeg(0, 10, 7);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
    }
@@ -70,7 +67,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
       setupPosNeg(0, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
    }
@@ -81,7 +78,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
       setupPosNeg(0, 0, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
    }
@@ -93,7 +90,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10);
       setupPosNeg(1, 0, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -107,7 +104,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10, 10);
       setupPosNeg(1, 10, 0, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -121,7 +118,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10, 7);
       setupPosNeg(1, 10, 3, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -134,7 +131,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10, 10);
       setupPosNeg(1, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCantDelete(1);
@@ -147,7 +144,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10);
       setupPosNeg(1, 10, 0, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -160,7 +157,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10);
       setupPosNeg(1, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -173,7 +170,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(0, 10);
       setupPosNeg(1, 10, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCantDelete(1);
@@ -189,7 +186,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 0, 0, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -204,7 +201,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 3, 5, 0);
       setupPosNeg(2, 10, 0, 5, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -219,7 +216,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 6, 5, 0);
       setupPosNeg(2, 10, 3, 5, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -234,7 +231,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 6, 5, 0);
       setupPosNeg(2, 0, 3, 5, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -249,7 +246,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 0, 6, 0, 0);
       setupPosNeg(2, 0, 3, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -266,7 +263,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 5, 0);
       setupPosNeg(2, 10, 0, 5, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -281,7 +278,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 5, 0);
       setupPosNeg(2, 0, 0, 5, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -296,7 +293,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 5, 0);
       setupPosNeg(2, 0, 0, 5, 10);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -311,7 +308,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 5, 0);
       setupPosNeg(2, 0, 0, 5, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -328,7 +325,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 0, 0, 2);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -343,7 +340,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 1, 0, 2);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -358,7 +355,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 1, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -373,7 +370,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 0, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -388,7 +385,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 0, 3, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCanDelete(1);
@@ -405,7 +402,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 2, 3, 0);
       setupPosNeg(2, 10, 1, 5, 7);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -420,7 +417,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 0, 2, 0, 0);
       setupPosNeg(2, 10, 1, 0, 7);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -435,7 +432,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 2, 3, 0);
       setupPosNeg(2, 0, 1, 5, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -450,7 +447,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 0, 2, 0, 0);
       setupPosNeg(2, 0, 1, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -465,7 +462,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 3, 0);
       setupPosNeg(2, 10, 1, 5, 7);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -480,7 +477,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 3, 0);
       setupPosNeg(2, 10, 1, 0, 7);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -495,7 +492,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 3, 0);
       setupPosNeg(2, 10, 1, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -510,7 +507,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 0, 0);
       setupPosNeg(2, 10, 1, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -525,7 +522,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 0, 0);
       setupPosNeg(2, 10, 0, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCantDelete(0);
       assertCantDelete(1);
@@ -542,7 +539,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 0, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -557,7 +554,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 10, 0);
       setupPosNeg(2, 10, 3, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -572,7 +569,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 3, 10, 0);
       setupPosNeg(2, 10, 3, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -587,7 +584,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 0, 3, 10, 0);
       setupPosNeg(2, 10, 3, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -602,7 +599,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 0, 3, 10, 0);
       setupPosNeg(2, 10, 0, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCanDelete(1);
@@ -619,7 +616,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 0, 0);
       setupPosNeg(2, 10, 0, 0, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCantDelete(1);
@@ -634,7 +631,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 3, 0);
       setupPosNeg(2, 10, 0, 0, 5);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCantDelete(1);
@@ -649,7 +646,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 3, 0);
       setupPosNeg(2, 10, 0, 6, 5);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCantDelete(1);
@@ -664,7 +661,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       setupPosNeg(1, 10, 0, 3, 0);
       setupPosNeg(2, 0, 0, 6, 0);
 
-      reclaimer.scan(files);
+      scan(files);
 
       assertCanDelete(0);
       assertCantDelete(1);

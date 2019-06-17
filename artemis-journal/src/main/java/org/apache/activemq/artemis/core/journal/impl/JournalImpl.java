@@ -84,6 +84,8 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
+
 /**
  * <p>A circular log implementation.</p>
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
@@ -213,8 +215,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private volatile JournalState state = JournalState.STOPPED;
 
    private volatile int compactCount = 0;
-
-   private final Reclaimer reclaimer = new Reclaimer();
 
    public float getCompactPercentage() {
       return compactPercentage;
@@ -2156,7 +2156,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             break;
       }
       try {
-         reclaimer.scan(getDataFiles());
+         scan(getDataFiles());
 
          for (JournalFile file : filesRepository.getDataFiles()) {
             if (file.isCanReclaim()) {
@@ -2249,7 +2249,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /* Only meant to be used in tests. */
    @Override
    public String debug() throws Exception {
-      reclaimer.scan(getDataFiles());
+      scan(getDataFiles());
 
       StringBuilder builder = new StringBuilder();
 
