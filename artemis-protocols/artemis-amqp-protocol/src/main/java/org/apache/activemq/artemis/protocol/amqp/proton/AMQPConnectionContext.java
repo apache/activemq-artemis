@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
@@ -85,6 +87,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private final boolean useCoreSubscriptionNaming;
 
+   private boolean isSchedulingCancelled;
+   private ScheduledFuture scheduledFuture;
+   private final Object schedulingLock = new Object();
+
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
                                 AMQPConnectionCallback connectionSP,
                                 String containerId,
@@ -111,6 +117,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          this.connectionProperties.putAll(connectionProperties);
       }
 
+      this.scheduledFuture = null;
+      this.isSchedulingCancelled = false;
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
       EventLoop nettyExecutor;
@@ -183,6 +191,17 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    public void close(ErrorCondition errorCondition) {
+      synchronized (schedulingLock) {
+         isSchedulingCancelled = true;
+
+         if (scheduledPool != null && scheduledPool instanceof ThreadPoolExecutor &&
+            scheduledFuture != null && scheduledFuture instanceof Runnable) {
+            if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture)) {
+               log.warn("Scheduled task can't be removed from scheduledPool.");
+            }
+         }
+      }
+
       handler.close(errorCondition, this);
    }
 
@@ -389,13 +408,15 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       initialise();
 
       /*
-      * This can be null which is in effect an empty map, also we really don't need to check this for in bound connections
-      * but its here in case we add support for outbound connections.
-      * */
+       * This can be null which is in effect an empty map, also we really don't need to check this for in bound connections
+       * but its here in case we add support for outbound connections.
+       * */
       if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
          long nextKeepAliveTime = handler.tick(true);
-         if (nextKeepAliveTime != 0 && scheduledPool != null) {
-            scheduledPool.schedule(new ScheduleRunnable(), (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
+         synchronized (schedulingLock) {
+            if (nextKeepAliveTime != 0 && scheduledPool != null && !isSchedulingCancelled) {
+               scheduledFuture = scheduledPool.schedule(new ScheduleRunnable(), (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
+            }
          }
       }
    }
@@ -411,11 +432,16 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       @Override
       public void run() {
          Long rescheduleAt = handler.tick(false);
-         if (rescheduleAt == null) {
-            // this mean tick could not acquire a lock, we will just retry in 10 milliseconds.
-            scheduledPool.schedule(scheduleRunnable, 10, TimeUnit.MILLISECONDS);
-         } else if (rescheduleAt != 0) {
-            scheduledPool.schedule(scheduleRunnable, rescheduleAt - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()), TimeUnit.MILLISECONDS);
+
+         synchronized (schedulingLock) {
+            if (!isSchedulingCancelled) {
+               if (rescheduleAt == null) {
+                  // this mean tick could not acquire a lock, we will just retry in 10 milliseconds.
+                  scheduledFuture = scheduledPool.schedule(scheduleRunnable, 10, TimeUnit.MILLISECONDS);
+               } else if (rescheduleAt != 0) {
+                  scheduledFuture = scheduledPool.schedule(scheduleRunnable, rescheduleAt - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()), TimeUnit.MILLISECONDS);
+               }
+            }
          }
       }
    }
