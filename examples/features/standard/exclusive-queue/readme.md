@@ -6,17 +6,16 @@ This example shows you how to configure ActiveMQ Artemis so all messages are del
 
 ## ExclusiveQueueExample.java
 
-The broker is configured (using 'address-settings'), so that the queue is exclusive and will deliver all messages to the same
+The broker is configured (using `address-settings`), so that the queue is exclusive and will deliver all messages to the same
 consumer
 
 ```xml
- <address-settings>
-            <address-setting match="my.exclusive.queue">
-                <default-exclusive-queue>true</default-exclusive-queue>
-            </address-setting>
- </address-settings>
+<address-settings>
+   <address-setting match="my.exclusive.queue">
+      <default-exclusive-queue>true</default-exclusive-queue>
+   </address-setting>
+</address-settings>
 ```
-
 
 ## ExclusiveQueueClientSideExample.java
 

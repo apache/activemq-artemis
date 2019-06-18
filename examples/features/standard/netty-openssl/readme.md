@@ -12,6 +12,6 @@ To secure your messaging application with Netty's OpenSSL, you need to configure
 
 In the configuration, the `activemq.example.keystore` is the key store file holding the server's certificate. The `activemq.example.truststore` is the file holding the certificates which the client trusts (i.e. the server's certificate exported from activemq.example.keystore). They are generated via the following commands:
 
-* `keytool -genkey -keystore activemq.example.keystore -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg EC -sigalg SHA256withECDSA
-* `keytool -export -keystore activemq.example.keystore -file activemq-jks.cer -storepass secureexample
-* `keytool -import -keystore activemq.example.truststore -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+* `keytool -genkey -keystore activemq.example.keystore -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg EC -sigalg SHA256withECDSA`
+* `keytool -export -keystore activemq.example.keystore -file activemq-jks.cer -storepass secureexample`
+* `keytool -import -keystore activemq.example.truststore -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt`
