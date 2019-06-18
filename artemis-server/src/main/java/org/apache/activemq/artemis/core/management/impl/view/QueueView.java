@@ -62,7 +62,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add("messagesKilled", toString(queue.getMessagesKilled()))
          .add("deliverDeliver", toString(q.isDirectDeliver()))
          .add("exclusive", toString(queue.isExclusive()))
-         .add("lastValue", toString(queue.isLastValue()));
+         .add("lastValue", toString(queue.isLastValue()))
+         .add("scheduledCount", toString(queue.getScheduledCount()));
       return obj;
    }
 
@@ -114,6 +115,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return q.isExclusive();
          case "lastValue":
             return q.isLastValue();
+         case "scheduledCount":
+            return q.getScheduledCount();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }

@@ -27,7 +27,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
    enum Field {
       ID, NAME, CONSUMER_ID, QUEUE, ADDRESS, MAX_CONSUMERS, FILTER, MESSAGE_COUNT, CONSUMER_COUNT, DELIVERING_COUNT,
       MESSAGES_ADDED, MESSAGES_ACKED, RATE, ROUTING_TYPE, USER, AUTO_CREATED, DURABLE, PAUSED, TEMPORARY,
-      PURGE_ON_NO_CONSUMERS, MESSAGES_KILLED, DIRECT_DELIVER, LAST_VALUE, EXCLUSIVE
+      PURGE_ON_NO_CONSUMERS, MESSAGES_KILLED, DIRECT_DELIVER, LAST_VALUE, EXCLUSIVE, SCHEDULED_COUNT
    }
 
    private Field f;
@@ -93,6 +93,8 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
                return matches(queue.isExclusive());
             case LAST_VALUE:
                return matches(queue.isLastValue());
+            case SCHEDULED_COUNT:
+               return matches(queue.getScheduledCount());
             default:
                return true;
          }
