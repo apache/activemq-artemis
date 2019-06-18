@@ -42,6 +42,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    static {
       UNSUPPORTED_CF_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_CF_PROPERTIES.add("discoveryGroupName");
+      UNSUPPORTED_CF_PROPERTIES.add("brokerURL");
       UNSUPPORTED_CF_PROPERTIES.add("incomingInterceptorList");
       UNSUPPORTED_CF_PROPERTIES.add("outgoingInterceptorList");
       UNSUPPORTED_CF_PROPERTIES.add("user");
