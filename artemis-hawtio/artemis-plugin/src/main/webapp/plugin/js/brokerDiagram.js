@@ -448,32 +448,69 @@ var ARTEMIS = (function(ARTEMIS) {
                   ARTEMISService.artemisConsole.getRemoteBrokers(mBean, containerJolokia, onSuccess(function (properties) {
                      remoteBrokers = properties.value;
 
-                     ARTEMIS.log.info("remoteBrokers=" + angular.toJson(remoteBrokers))
-                     angular.forEach(angular.fromJson(remoteBrokers), function (remoteBroker) {
-                        if (remoteBroker) {
-                           ARTEMIS.log.info("remote=" + angular.toJson(remoteBroker))
-                           if (broker.nodeId != remoteBroker.nodeID) {
-                              getOrAddBroker(true, "\"" + remoteBroker.live + "\"", remoteBroker.nodeID, "remote", null, properties);
-                              addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.live + "\"", "network");
+                     var remoteBrokersObj = angular.fromJson(remoteBrokers);
 
-                              var backup = remoteBroker.backup;
-                              if (backup) {
-                                 getOrAddBroker(false, "\"" + backup + "\"", remoteBroker.nodeID, "remote", null, properties);
-                                 addLinkIds("broker:" + "\"" + remoteBroker.live + "\"", "broker:" + "\"" + backup + "\"", "network");
+                     var newBackReq = ARTEMISService.artemisConsole.isBackup(jolokia, mBean);
+                     var newBackup = newBackReq.value;
+
+                     angular.forEach(remoteBrokersObj, function (remoteBroker) {
+                        if (broker.nodeId != remoteBroker.nodeID) {
+                           if (remoteBroker.live) {
+                              getOrAddBroker(true, "\"" + remoteBroker.live + "\"", remoteBroker.nodeID, "remote", null, properties);
+                           }
+                           if (remoteBroker.backup) {
+                              getOrAddBroker(false, "\"" + remoteBroker.backup + "\"", remoteBroker.nodeID, "remote", null, properties);
+                           }
+                        } else {
+                           if (!newBackup) {
+                              getOrAddBroker(false, "\"" + remoteBroker.backup + "\"", remoteBroker.nodeID, "remote", null, properties);
+                           } else {
+                              getOrAddBroker(true, "\"" + remoteBroker.live + "\"", remoteBroker.nodeID, "remote", null, properties);
+                           }
+                        }
+                     });
+
+                     var processedLiveBrokers = [];
+                     angular.forEach(remoteBrokersObj, function (remoteBroker) {
+                        if (remoteBroker) {
+                           if (remoteBroker.live) {
+                              angular.forEach(processedLiveBrokers, function(livebroker) {
+                                 //because the local broker has a different id format we need to identify it
+                                 if (broker.nodeId == livebroker.nodeID) {
+                                    if (!newBackup) {
+                                       addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.live + "\"", "network");
+                                    } else {
+                                       //I am backup
+                                       addLinkIds("broker:" + "\"" + livebroker.live + "\"", "broker:" + "\"" + remoteBroker.live + "\"", "network");
+                                    }
+                                 } else if (broker.nodeId == remoteBroker.nodeID) {
+                                    if (!newBackup) {
+                                       addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + livebroker.live + "\"", "network");
+                                    } else {
+                                       //I am backup
+                                       addLinkIds("broker:" + "\"" + livebroker.live + "\"", "broker:" + "\"" + remoteBroker.live + "\"", "network");
+                                    }
+                                 } else {
+                                    addLinkIds("broker:" + "\"" + livebroker.live + "\"", "broker:" + "\"" + remoteBroker.live + "\"", "network");
+                                 }
+                              });
+                              processedLiveBrokers.push(remoteBroker);
+                           }
+
+                           //now backups
+                           if (broker.nodeId != remoteBroker.nodeID) {
+                              if (remoteBroker.backup) {
+                                 addLinkIds("broker:" + "\"" + remoteBroker.live + "\"", "broker:" + "\"" + remoteBroker.backup + "\"", "network");
                               }
                            }
                            else {
-                              var newBackReq = ARTEMISService.artemisConsole.isBackup(jolokia, mBean);
-                              var newBackup = newBackReq.value;
                               if (!newBackup) {
                                  if (remoteBroker.backup) {
-                                    getOrAddBroker(false, "\"" + remoteBroker.backup + "\"", remoteBroker.nodeID, "remote", null, properties);
                                     addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.backup + "\"", "network");
                                  }
                               }
                               else {
                                  //I am backup
-                                 getOrAddBroker(true, "\"" + remoteBroker.live + "\"", remoteBroker.nodeID, "remote", null, properties);
                                  addLinkIds("broker:" + broker.brokerId, "broker:" + "\"" + remoteBroker.live + "\"", "network");
                               }
                            }
