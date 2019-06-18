@@ -77,6 +77,7 @@ under the License.
             <module>message-group</module>
             <module>message-group2</module>
             <module>message-priority</module>
+            <module>netty-openssl</module>
             <module>no-consumer-buffering</module>
             <module>paging</module>
             <module>pre-acknowledge</module>
@@ -130,6 +131,7 @@ under the License.
             <module>durable-subscription</module>
             <module>embedded</module>
             <module>embedded-simple</module>
+            <module>exclusive-queue</module>
             <module>expiry</module>
             <module>http-transport</module>
             <module>interceptor</module>
@@ -148,6 +150,7 @@ under the License.
             <module>message-group</module>
             <module>message-group2</module>
             <module>message-priority</module>
+            <module>netty-openssl</module>
             <module>no-consumer-buffering</module>
             <module>paging</module>
             <module>pre-acknowledge</module>
@@ -165,6 +168,7 @@ under the License.
             <module>shared-consumer</module>
             <module>slow-consumer</module>
             <module>spring-integration</module>
+            <module>spring-boot-integration</module>
             <module>ssl-enabled</module>
             <module>ssl-enabled-crl-mqtt</module>
             <module>ssl-enabled-dual-authentication</module>
