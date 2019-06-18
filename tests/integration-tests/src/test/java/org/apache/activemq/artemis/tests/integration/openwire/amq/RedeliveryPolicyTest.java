@@ -25,6 +25,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
@@ -684,5 +686,55 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       }
 
    }
+
+   @Test
+   public void verifyNoRedeliveryFlagAfterCloseNoReceive() throws Exception {
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         this.makeSureCoreQueueExist("TEST");
+
+         Queue queue = session.createQueue("TEST");
+
+         MessageProducer producer = session.createProducer(queue);
+
+         producer.send(session.createTextMessage("test"));
+
+      } finally {
+         connection.close();
+      }
+
+      connection = (ActiveMQConnection) factory.createConnection();
+
+      connection.start();
+
+      try {
+
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         Queue queue = session.createQueue("TEST");
+
+         MessageConsumer consumer = session.createConsumer(queue);
+         TimeUnit.MILLISECONDS.sleep(500);
+         // nothing received
+         consumer.close();
+
+         // try again, expect no redelivery flag
+         consumer = session.createConsumer(queue);
+         Message message = consumer.receive(1000);
+
+         assertNotNull("Message null", message);
+
+         System.out.println("received message: " + message);
+         System.out.println("is redelivered: " + message.getJMSRedelivered());
+         assertFalse(message.getJMSRedelivered());
+
+      } finally {
+         connection.close();
+      }
+   }
+
 
 }
