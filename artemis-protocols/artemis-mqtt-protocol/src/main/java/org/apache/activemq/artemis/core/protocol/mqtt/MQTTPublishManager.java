@@ -90,7 +90,7 @@ public class MQTTPublishManager {
 
    private void createManagementConsumer() throws Exception {
       long consumerId = session.getServer().getStorageManager().generateID();
-      managementConsumer = session.getServerSession().createConsumer(consumerId, managementAddress, null, false, false, -1);
+      managementConsumer = session.getInternalServerSession().createConsumer(consumerId, managementAddress, null, false, false, -1);
       managementConsumer.setStarted(true);
    }
 
@@ -206,7 +206,8 @@ public class MQTTPublishManager {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
             Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
-            session.getServerSession().send(m, true);
+            //send the management message via the internal server session to bypass security.
+            session.getInternalServerSession().send(m, true);
             session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
          } else {
             session.getProtocolHandler().sendPubRel(messageId);
@@ -219,7 +220,8 @@ public class MQTTPublishManager {
    void handlePubComp(int messageId) throws Exception {
       Pair<Long, Long> ref = session.getState().getOutboundStore().publishComplete(messageId);
       if (ref != null) {
-         session.getServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
+         //ack the message via the internal server session to bypass security.
+         session.getInternalServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
       }
    }
 
