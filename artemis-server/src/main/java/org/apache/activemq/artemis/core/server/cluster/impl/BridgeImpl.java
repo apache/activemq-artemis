@@ -1034,7 +1034,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                return;
             } else {
                ActiveMQServerLogger.LOGGER.errorConnectingBridgeRetry(this);
-
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Underlying bridge connection failure", e);
+               }
                scheduleRetryConnect();
             }
          } catch (ActiveMQInterruptedException | InterruptedException e) {
