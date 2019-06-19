@@ -92,7 +92,7 @@
 
          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.1</version>
+            <version>3.1.0</version>
             <executions>
                <execution>
                   <id>javadoc-jar</id>
@@ -101,6 +101,8 @@
                      <goal>jar</goal>
                   </goals>
                   <configuration>
+                     <doclint>none</doclint>
+                     <additionalOptions>${forceHtml4}</additionalOptions>
                      <useStandardDocletOptions>true</useStandardDocletOptions>
                      <minmemory>128m</minmemory>
                      <maxmemory>512m</maxmemory>
@@ -129,6 +131,15 @@
    </build>
 
    <profiles>
+      <profile>
+         <id>jdk11</id>
+         <activation>
+            <jdk>11</jdk>
+         </activation>
+         <properties>
+            <forceHtml4>-html4</forceHtml4>
+         </properties>
+      </profile>
       <profile>
          <id>release</id>
          <build>

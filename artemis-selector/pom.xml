@@ -84,6 +84,48 @@
             </plugins>
          </build>
       </profile>
+      <profile>
+         <id>jdk8</id>
+         <activation>
+            <jdk>1.8</jdk>
+            <property>
+               <name>java.vendor</name>
+               <value>!IBM Corporation</value>
+            </property>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <configuration>
+                     <compilerArgs>
+                        <!-- TODO: do this only for generated-sources -->
+                        <arg>-Xep:MissingOverride:WARN</arg>
+                     </compilerArgs>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>jdk11</id>
+         <activation>
+            <jdk>11</jdk>
+            <property>
+               <name>java.vendor</name>
+               <value>!IBM Corporation</value>
+            </property>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
 
    <build>
@@ -94,16 +136,6 @@
          </resource>
       </resources>
       <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <compilerArgs>
-                  <!-- TODO: do this only for generated-sources -->
-                  <arg>-Xep:MissingOverride:WARN</arg>
-               </compilerArgs>
-            </configuration>
-         </plugin>
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>javacc-maven-plugin</artifactId>
