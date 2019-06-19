@@ -80,7 +80,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
       //filter it like the other protocols
       if (!(me instanceof ActiveMQRemoteDisconnectException)) {
-         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress(), me.getMessage(), me.getType());
       }
 
       // Then call the listeners
