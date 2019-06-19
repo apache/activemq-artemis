@@ -556,6 +556,12 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             final int messageEncodeSize = largeMessage.getEncodeSize();
 
             if (messageEncodeSize > maxRecordSize) {
+               ActiveMQServerLogger.LOGGER.messageWithHeaderTooLarge(largeMessage.getMessageID(), logger.getName());
+
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Message header too large for " + largeMessage);
+               }
+
                throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(messageEncodeSize, maxRecordSize);
             }
          }
