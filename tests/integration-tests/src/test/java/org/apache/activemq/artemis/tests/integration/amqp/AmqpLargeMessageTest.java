@@ -285,7 +285,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
          connection.connect();
 
-         final int strLength = 1024 * 1024;
+         final int strLength = 512 * 1024;
          AmqpSession session = connection.createSession();
          AmqpSender sender = session.createSender(testQueueName);
 
