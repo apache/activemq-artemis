@@ -216,10 +216,24 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    }
 
    public ActiveMQConnectionFactory(String brokerURL) {
-      setBrokerURL(brokerURL);
+      try {
+         setBrokerURL(brokerURL);
+      } catch (Throwable e) {
+         throw new IllegalStateException(e);
+      }
    }
 
-   private void setBrokerURL(String brokerURL) {
+   /** Warning: This method will not clear any previous properties.
+    *           Say, you set the user on a first call.
+    *                Now you just change the brokerURI on a second call without passing the user.
+    *                The previous filled user will be already set, and nothing will clear it out.
+    *
+    *            Also: you cannot use this method after the connection factory is made readOnly.
+    *                  Which happens after you create a first connection. */
+   public void setBrokerURL(String brokerURL) throws JMSException {
+      if (readOnly) {
+         throw new javax.jms.IllegalStateException("You cannot use setBrokerURL after the connection factory has been used");
+      }
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
          URI uri = cfParser.expandURI(brokerURL);
@@ -398,15 +412,17 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       if (url == null || url.isEmpty()) {
          url = props.getProperty("brokerURL");
       }
-      if (url != null && url.length() > 0) {
-         setBrokerURL(url);
-      }
+
       if (url == null || url.isEmpty()) {
          throw new IllegalArgumentException(Context.PROVIDER_URL + " or " + "brokerURL is required");
       }
       try {
+         if (url != null && url.length() > 0) {
+            setBrokerURL(url);
+         }
+
          BeanSupport.setProperties(this, props);
-      } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+      } catch (JMSException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
          throw new RuntimeException(e);
       }
    }
