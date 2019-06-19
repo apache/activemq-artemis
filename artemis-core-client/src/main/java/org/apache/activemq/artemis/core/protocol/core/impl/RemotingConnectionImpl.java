@@ -206,7 +206,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
 
       if (!(me instanceof ActiveMQRemoteDisconnectException)) {
-         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
       }
 
       try {
