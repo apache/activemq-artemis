@@ -196,8 +196,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
          if (scheduledPool != null && scheduledPool instanceof ThreadPoolExecutor &&
             scheduledFuture != null && scheduledFuture instanceof Runnable) {
-            if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture)) {
+            if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture) &&
+               !scheduledFuture.isCancelled() && !scheduledFuture.isDone()) {
                log.warn("Scheduled task can't be removed from scheduledPool.");
+            } else {
+               scheduledFuture = null;
             }
          }
       }
