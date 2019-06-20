@@ -81,6 +81,6 @@ public class AMQPConnectionContextTest {
 
       connectionContext.close(null);
 
-      Assert.assertEquals(0, scheduledPool.getTaskCount());
+      Assert.assertEquals(0, scheduledPool.getQueue().size());
    }
 }
