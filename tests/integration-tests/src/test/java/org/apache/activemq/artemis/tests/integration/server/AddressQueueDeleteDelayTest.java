@@ -163,6 +163,56 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
    }
 
+   @Test
+   public void testAddressDeleteDelay() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      final long deleteAddressesDelay = 500;
+
+      AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createAddress(address, RoutingType.MULTICAST, true);
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+      session.deleteQueue(queue);
+
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+   }
+
+   @Test
+   public void testAddressDeleteDelayNegative() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      final long deleteAddressesDelay = 500;
+
+      AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      // the address should not be deleted since it is not auto-created
+      session.createAddress(address, RoutingType.MULTICAST, false);
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+      session.deleteQueue(queue);
+
+      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+   }
+
+   @Test
+   public void testAddressDeleteDelayNegative2() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      final long deleteAddressesDelay = 500;
+
+      // the address should not be deleted since autoDeleteAddresses = false
+      AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay).setAutoDeleteAddresses(false);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createAddress(address, RoutingType.MULTICAST, true);
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+      session.deleteQueue(queue);
+
+      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
