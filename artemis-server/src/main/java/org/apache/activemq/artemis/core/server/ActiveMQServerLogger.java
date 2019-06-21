@@ -1629,6 +1629,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222281, value = "Federation upstream {0} policy ref {1} are too self referential, avoiding stack overflow , ", format = Message.Format.MESSAGE_FORMAT)
    void federationAvoidStackOverflowPolicyRef(String upstreamName, String policyRef);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222282, value = "File {0} at {1} is empty. Delete the empty file to stop this message.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void emptyAddressFile(String addressFile, String directory);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
