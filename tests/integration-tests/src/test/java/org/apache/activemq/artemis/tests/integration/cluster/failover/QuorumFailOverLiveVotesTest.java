@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.junit.Test;
 
@@ -96,8 +97,11 @@ public class QuorumFailOverLiveVotesTest extends StaticClusterWithBackupFailover
       waitForFailoverTopology(5, 3, 1, 2);
 
       assertTrue(servers[3].waitForActivation(2, TimeUnit.SECONDS));
+      Wait.assertTrue(servers[3]::isStarted);
+      Wait.assertTrue(servers[3]::isActive);
       liveActivation.freezeReplication();
-      waitForServerToStop(servers[0]);
+      Wait.assertFalse(servers[0]::isStarted);
+      Wait.assertFalse(servers[0]::isActive);
    }
 
    @Override
