@@ -56,7 +56,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    // Constants -----------------------------------------------------
 
-   private static final String ADDRESS_FILE = "address.txt";
+   public static final String ADDRESS_FILE = "address.txt";
 
    // Attributes ----------------------------------------------------
 
@@ -215,6 +215,12 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(addressFile)))) {
                addressString = reader.readLine();
+            }
+
+            // there's no address listed in the file so we just skip it
+            if (addressString == null) {
+               ActiveMQServerLogger.LOGGER.emptyAddressFile(PagingStoreFactoryNIO.ADDRESS_FILE, file.toString());
+               continue;
             }
 
             SimpleString address = new SimpleString(addressString);
