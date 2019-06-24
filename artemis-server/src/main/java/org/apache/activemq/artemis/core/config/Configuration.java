@@ -588,6 +588,17 @@ public interface Configuration {
    Configuration setPageMaxConcurrentIO(int maxIO);
 
    /**
+    * Returns whether the whole page is read while getting message after page cache is evicted. <br>
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_READ_WHOLE_PAGE}.
+    */
+   boolean isReadWholePage();
+
+   /**
+    * Sets whether the whole page is read while getting message after page cache is evicted.
+    */
+   Configuration setReadWholePage(boolean read);
+
+   /**
     * Returns the file system directory used to store journal log. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
     */

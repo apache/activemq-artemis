@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.collections.ConcurrentAppendOnlyChunkedList;
 import org.jboss.logging.Logger;
@@ -61,8 +62,8 @@ public final class LivePageCacheImpl implements LivePageCache {
    }
 
    @Override
-   public PagedMessage getMessage(int messageNumber) {
-      return messages.get(messageNumber);
+   public PagedMessage getMessage(PagePosition pagePosition) {
+      return messages.get(pagePosition.getMessageNr());
    }
 
    @Override

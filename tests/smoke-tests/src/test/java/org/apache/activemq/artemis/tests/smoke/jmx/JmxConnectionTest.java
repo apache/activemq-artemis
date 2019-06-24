@@ -27,8 +27,8 @@ import java.rmi.server.RemoteObject;
 import java.rmi.server.RemoteRef;
 
 import io.netty.util.internal.PlatformDependent;
-import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.jctools.util.UnsafeAccess;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;

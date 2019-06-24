@@ -82,6 +82,8 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
 
    private JDBCSequentialFile directoryList;
 
+   private final boolean readWholePage;
+
    @Override
    public ScheduledExecutorService getScheduledExecutor() {
       return scheduledExecutor;
@@ -105,6 +107,17 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
                                      final ExecutorFactory executorFactory,
                                      final boolean syncNonTransactional,
                                      final IOCriticalErrorListener critialErrorListener) throws Exception {
+      this(dbConf, storageManager, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener, false);
+   }
+
+   public PagingStoreFactoryDatabase(final DatabaseStorageConfiguration dbConf,
+                                     final StorageManager storageManager,
+                                     final long syncTimeout,
+                                     final ScheduledExecutorService scheduledExecutor,
+                                     final ExecutorFactory executorFactory,
+                                     final boolean syncNonTransactional,
+                                     final IOCriticalErrorListener critialErrorListener,
+                                     final boolean readWholePage) throws Exception {
       this.storageManager = storageManager;
       this.executorFactory = executorFactory;
       this.syncNonTransactional = syncNonTransactional;
@@ -113,6 +126,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       this.dbConf = dbConf;
       this.criticalErrorListener = critialErrorListener;
       this.factoryToTableName = new HashMap<>();
+      this.readWholePage = readWholePage;
       start();
    }
 
@@ -160,7 +174,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
                                                StorageManager storageManager,
                                                AddressSettings addressSettings,
                                                ArtemisExecutor executor) {
-      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
+      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize(), readWholePage);
    }
 
    @Override

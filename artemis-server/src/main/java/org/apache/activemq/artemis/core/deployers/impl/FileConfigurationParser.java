@@ -568,6 +568,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPageMaxConcurrentIO(getInteger(e, "page-max-concurrent-io", config.getPageMaxConcurrentIO(), Validators.MINUS_ONE_OR_GT_ZERO));
 
+      config.setReadWholePage(getBoolean(e, "read-whole-page", config.isReadWholePage()));
+
       config.setPagingDirectory(getString(e, "paging-directory", config.getPagingDirectory(), Validators.NOT_NULL_OR_EMPTY));
 
       config.setCreateJournalDir(getBoolean(e, "create-journal-dir", config.isCreateJournalDir()));

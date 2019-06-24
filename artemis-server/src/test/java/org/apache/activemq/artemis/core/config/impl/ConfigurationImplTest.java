@@ -88,6 +88,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval(), conf.getMemoryMeasureInterval());
       Assert.assertEquals(conf.getJournalLocation(), conf.getNodeManagerLockLocation());
       Assert.assertNull(conf.getJournalDeviceBlockSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
    }
 
    @Test

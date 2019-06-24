@@ -176,6 +176,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int maxConcurrentPageIO = ActiveMQDefaultConfiguration.getDefaultMaxConcurrentPageIo();
 
+   private boolean readWholePage = ActiveMQDefaultConfiguration.isDefaultReadWholePage();
+
    protected String largeMessagesDirectory = ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir();
 
    protected String bindingsDirectory = ActiveMQDefaultConfiguration.getDefaultBindingsDirectory();
@@ -808,6 +810,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setPageMaxConcurrentIO(int maxIO) {
       this.maxConcurrentPageIO = maxIO;
+      return this;
+   }
+
+   @Override
+   public boolean isReadWholePage() {
+      return readWholePage;
+   }
+
+   @Override
+   public ConfigurationImpl setReadWholePage(boolean read) {
+      readWholePage = read;
       return this;
    }
 
