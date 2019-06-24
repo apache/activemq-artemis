@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -41,6 +40,7 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.netty.util.internal.shaded.org.jctools.queues.MpscUnboundedArrayQueue;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNullRefException;
@@ -176,7 +176,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
-   private final ConcurrentLinkedQueue<MessageReference> intermediateMessageReferences = new ConcurrentLinkedQueue<>();
+   private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences = new MpscUnboundedArrayQueue<>(8192);
 
    // This is where messages are stored
    private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES);
@@ -210,6 +210,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private long pauseStatusRecord = -1;
 
    private static final int MAX_SCHEDULED_RUNNERS = 2;
+   private static final int MAX_DEPAGE_NUM = MAX_DELIVERIES_IN_LOOP * MAX_SCHEDULED_RUNNERS;
 
    // We don't ever need more than two DeliverRunner on the executor's list
    // that is getting the worse scenario possible when one runner is almost finishing before the second started
@@ -2696,7 +2697,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     */
    private boolean needsDepage() {
-      return queueMemorySize.get() < pageSubscription.getPagingStore().getMaxSize();
+      return queueMemorySize.get() < pageSubscription.getPagingStore().getMaxSize() &&
+         /**
+          * In most cases, one depage round following by at most MAX_SCHEDULED_RUNNERS deliver round,
+          * thus we just need to read MAX_DELIVERIES_IN_LOOP * MAX_SCHEDULED_RUNNERS messages. If we read too much, the message reference
+          * maybe discarded by gc collector in response to memory demand and we need to read it again at
+          * a great cost when delivering.
+          */
+         intermediateMessageReferences.size() + messageReferences.size() < MAX_DEPAGE_NUM;
    }
 
    private SimpleString extractGroupID(MessageReference ref) {

@@ -74,4 +74,28 @@ public class PageCursorProviderImplTest {
       }
    }
 
+   @Test(timeout = 30_000)
+   public void returnPageIndexCacheIfEvicted() throws Exception {
+      final PagingStore pagingStore = mock(PagingStore.class);
+      final StorageManager storageManager = mock(StorageManager.class);
+      when(storageManager.beforePageRead(anyLong(), any(TimeUnit.class))).thenReturn(true);
+      final int pages = 2;
+      final ArtemisExecutor artemisExecutor = mock(ArtemisExecutor.class);
+      final PageCursorProviderImpl pageCursorProvider = new PageCursorProviderImpl(pagingStore, storageManager, artemisExecutor, 1);
+      when(pagingStore.getCurrentWritingPage()).thenReturn(pages);
+      when(pagingStore.checkPageFileExists(anyInt())).thenReturn(true);
+      final Page firstPage = mock(Page.class);
+      when(firstPage.getPageId()).thenReturn(1);
+      when(pagingStore.createPage(1)).thenReturn(firstPage);
+      final Page secondPage = mock(Page.class);
+      when(secondPage.getPageId()).thenReturn(2);
+      when(pagingStore.createPage(2)).thenReturn(secondPage);
+
+      Assert.assertTrue(pageCursorProvider.getPageCache(1) instanceof PageCacheImpl);
+      Assert.assertTrue(pageCursorProvider.getPageCache(2) instanceof PageCacheImpl);
+      Assert.assertTrue(pageCursorProvider.getPageCache(1) instanceof PageIndexCacheImpl);
+      Assert.assertEquals(pageCursorProvider.getCacheSize(), 1);
+      Assert.assertTrue(pageCursorProvider.getPageCache(2) instanceof PageCacheImpl);
+      pageCursorProvider.stop();
+   }
 }
