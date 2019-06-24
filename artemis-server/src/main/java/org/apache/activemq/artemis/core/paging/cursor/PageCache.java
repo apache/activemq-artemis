@@ -36,10 +36,10 @@ public interface PageCache extends SoftValueLongObjectHashMap.ValueCache {
    boolean isLive();
 
    /**
-    * @param messageNumber The order of the message on the page
+    * @param pagePosition page position
     * @return
     */
-   PagedMessage getMessage(int messageNumber);
+   PagedMessage getMessage(PagePosition pagePosition);
 
    void close();
 

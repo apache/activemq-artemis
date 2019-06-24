@@ -256,6 +256,7 @@
       <bindings-directory>somedir</bindings-directory>
       <create-bindings-dir>false</create-bindings-dir>
       <page-max-concurrent-io>17</page-max-concurrent-io>
+      <read-whole-page>true</read-whole-page>
       <journal-directory>somedir2</journal-directory>
       <create-journal-dir>false</create-journal-dir>
       <journal-type>NIO</journal-type>
