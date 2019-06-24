@@ -125,6 +125,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(true, conf.isAmqpUseCoreSubscriptionNaming());
 
       Assert.assertEquals("max concurrent io", 17, conf.getPageMaxConcurrentIO());
+      Assert.assertEquals(true, conf.isReadWholePage());
       Assert.assertEquals("somedir2", conf.getJournalDirectory());
       Assert.assertEquals(false, conf.isCreateJournalDir());
       Assert.assertEquals(JournalType.NIO, conf.getJournalType());
