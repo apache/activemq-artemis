@@ -1,3 +1,9 @@
+package journalcompatibility
+
+import org.apache.activemq.artemis.api.core.management.AddressControl
+import org.apache.activemq.artemis.api.core.management.ResourceNames
+import org.apache.activemq.artemis.tests.compatibility.GroovyRun
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -14,33 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.activemq.artemis.core.persistence;
-
-public enum QueueStatus {
-   PAUSED((short) 0), RUNNING((short) 1);
-
-   public final short id;
-
-   QueueStatus(short id) {
-      this.id = id;
-   }
-
-   public static QueueStatus[] values;
-
-   static {
-      QueueStatus[] allValues = QueueStatus.values();
-      values = new QueueStatus[allValues.length];
-      for (QueueStatus v : allValues) {
-         values[v.id] = v;
-      }
-   }
-
-   public static QueueStatus fromID(short id) {
-      if (id < 0 || id >= values.length) {
-         return null;
-      } else {
-         return values[id];
-      }
-   }
-}
+AddressControl addressControl = (AddressControl) server.getJMSServerManager().getActiveMQServer().getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+GroovyRun.assertTrue(!addressControl.isPaused())
+addressControl.pause(true)
+GroovyRun.assertTrue(addressControl.isPaused())

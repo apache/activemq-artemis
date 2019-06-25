@@ -55,7 +55,7 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -624,13 +624,24 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+      public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
          return manager.storeQueueStatus(queueID, status);
       }
 
       @Override
       public void deleteQueueStatus(long recordID) throws Exception {
          manager.deleteQueueStatus(recordID);
+      }
+
+      @Override
+      public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+         return manager.storeAddressStatus(addressID, status);
+      }
+
+
+      @Override
+      public void deleteAddressStatus(long recordID) throws Exception {
+         manager.deleteAddressStatus(recordID);
       }
 
       @Override

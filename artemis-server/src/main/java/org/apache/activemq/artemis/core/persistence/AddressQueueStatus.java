@@ -14,21 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.core.persistence;
 
-import java.util.EnumSet;
+public enum AddressQueueStatus {
+   PAUSED((short) 0), RUNNING((short) 1);
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
+   public final short id;
 
-public interface AddressBindingInfo {
+   AddressQueueStatus(short id) {
+      this.id = id;
+   }
 
-   long getId();
+   public static AddressQueueStatus[] values;
 
-   SimpleString getName();
+   static {
+      AddressQueueStatus[] allValues = AddressQueueStatus.values();
+      values = new AddressQueueStatus[allValues.length];
+      for (AddressQueueStatus v : allValues) {
+         values[v.id] = v;
+      }
+   }
 
-   EnumSet<RoutingType> getRoutingTypes();
-
-   AddressStatusEncoding getAddressStatusEncoding();
+   public static AddressQueueStatus fromID(short id) {
+      if (id < 0 || id >= values.length) {
+         return null;
+      }
+      return values[id];
+   }
 }
