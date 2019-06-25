@@ -55,6 +55,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -67,6 +68,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
@@ -311,7 +313,15 @@ public class AmqpCoreConverter {
       if (properties != null) {
          if (properties.getMessageId() != null) {
             jms.setJMSMessageID(AMQPMessageIdHelper.INSTANCE.toMessageIdString(properties.getMessageId()));
+            //core jms clients get JMSMessageID from UserID which is a UUID object
+            if (properties.getMessageId() instanceof UUID) {
+               //AMQP's message ID can be a UUID, keep it
+               jms.getInnerMessage().setUserID(UUIDGenerator.getInstance().fromJavaUUID((UUID) properties.getMessageId()));
+            } else {
+               jms.getInnerMessage().setUserID(UUIDGenerator.getInstance().generateUUID());
+            }
          }
+
          Binary userId = properties.getUserId();
          if (userId != null) {
             jms.setStringProperty("JMSXUserID", new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
@@ -345,6 +355,7 @@ public class AmqpCoreConverter {
             }
          }
          Object correlationID = properties.getCorrelationId();
+
          if (correlationID != null) {
             try {
                jms.getInnerMessage().setCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(correlationID));
@@ -374,7 +385,6 @@ public class AmqpCoreConverter {
             jms.setJMSExpiration(properties.getAbsoluteExpiryTime().getTime());
          }
       }
-
       return jms;
    }
 
