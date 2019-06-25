@@ -107,6 +107,10 @@ public final class UUID {
       mId[UUID.INDEX_VARIATION] |= (byte) 0x80;
    }
 
+   public UUID(final byte[] data) {
+      mId = data;
+   }
+
    public byte[] asBytes() {
       return mId;
    }
