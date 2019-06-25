@@ -187,6 +187,8 @@ public final class OpenWireMessageConverter {
       midBytes.compact();
       coreMessage.putBytesProperty(AMQ_MSG_MESSAGE_ID, midBytes.data);
 
+      coreMessage.setUserID(UUIDGenerator.getInstance().generateUUID());
+
       final ProducerId producerId = messageSend.getProducerId();
       if (producerId != null) {
          final ByteSequence producerIdBytes = marshaller.marshal(producerId);
@@ -629,7 +631,9 @@ public final class OpenWireMessageConverter {
          ByteSequence midSeq = new ByteSequence(midBytes);
          mid = (MessageId) marshaller.unmarshal(midSeq);
       } else {
-         mid = new MessageId(UUIDGenerator.getInstance().generateStringUUID() + ":-1");
+         //JMSMessageID should be started with "ID:"
+         String midd = "ID:" + UUIDGenerator.getInstance().generateStringUUID() + ":-1:-1:-1:-1";
+         mid = new MessageId(midd);
       }
 
       amqMsg.setMessageId(mid);

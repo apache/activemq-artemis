@@ -159,6 +159,10 @@ public class CoreAmqpConverter {
          } catch (ActiveMQAMQPIllegalStateException e) {
             properties.setMessageId(messageId);
          }
+      } else {
+         if (message.getInnerMessage().getUserID() != null) {
+            properties.setMessageId("ID:" + message.getInnerMessage().getUserID().toString());
+         }
       }
       Destination destination = message.getJMSDestination();
       if (destination != null) {
