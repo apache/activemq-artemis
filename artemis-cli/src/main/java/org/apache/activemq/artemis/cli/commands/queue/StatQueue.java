@@ -36,7 +36,7 @@ public class StatQueue extends AbstractAction {
 
    public enum FIELD {
 
-      NAME("name"), ADDRESS("address"), CONSUMER_COUNT("consumerCount"), MESSAGE_COUNT("messageCount"), MESSAGES_ADDED("messagesAdded"), DELIVERING_COUNT("deliveringCount"), MESSAGES_ACKED("messagesAcked");
+      NAME("name"), ADDRESS("address"), CONSUMER_COUNT("consumerCount"), MESSAGE_COUNT("messageCount"), MESSAGES_ADDED("messagesAdded"), DELIVERING_COUNT("deliveringCount"), MESSAGES_ACKED("messagesAcked"), SCHEDULED_COUNT("scheduledCount"), ROUTING_TYPE("routingType");
 
       private String jsonId;
 
@@ -57,7 +57,7 @@ public class StatQueue extends AbstractAction {
    @Option(name = "--queueName", description = "display queue stats for queue(s) with names containing this string.")
    private String queueName;
 
-   @Option(name = "--field", description = "field to use in filter. Possible values NAME, ADDRESS, MESSAGE_COUNT, MESSAGES_ADDED, DELIVERING_COUNT, MESSAGES_ACKED.")
+   @Option(name = "--field", description = "field to use in filter. Possible values NAME, ADDRESS, MESSAGE_COUNT, MESSAGES_ADDED, DELIVERING_COUNT, MESSAGES_ACKED, SCHEDULED_COUNT, ROUTING_TYPE.")
    private String fieldName;
 
    @Option(name = "--operation", description = "operation to use in filter. Possible values CONTAINS, EQUALS, GREATER_THAN, LESS_THAN.")
@@ -162,7 +162,7 @@ public class StatQueue extends AbstractAction {
 
    private void printHeadings() {
 
-      StringBuilder stringBuilder = new StringBuilder(134).append('|').append(paddingString(new StringBuilder(FIELD.NAME.toString()), 25)).append('|').append(paddingString(new StringBuilder(FIELD.ADDRESS.toString()), 25)).append('|').append(paddingString(new StringBuilder(FIELD.CONSUMER_COUNT.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGE_COUNT.toString() + " "), 14)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGES_ADDED.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.DELIVERING_COUNT.toString() + " "), 17)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGES_ACKED.toString() + " "), 15)).append('|');
+      StringBuilder stringBuilder = new StringBuilder(134).append('|').append(paddingString(new StringBuilder(FIELD.NAME.toString()), 25)).append('|').append(paddingString(new StringBuilder(FIELD.ADDRESS.toString()), 25)).append('|').append(paddingString(new StringBuilder(FIELD.CONSUMER_COUNT.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGE_COUNT.toString() + " "), 14)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGES_ADDED.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.DELIVERING_COUNT.toString() + " "), 17)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGES_ACKED.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.SCHEDULED_COUNT.toString() + " "), 16)).append('|').append(paddingString(new StringBuilder(FIELD.ROUTING_TYPE.toString() + " "), 13)).append('|');
 
       context.out.println(stringBuilder);
    }
@@ -177,7 +177,7 @@ public class StatQueue extends AbstractAction {
          return;
       }
 
-      StringBuilder stringBuilder = new StringBuilder(134).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.NAME.getJsonId())), 25)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.ADDRESS.getJsonId())), 25)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.CONSUMER_COUNT.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGE_COUNT.getJsonId())), 14)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGES_ADDED.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.DELIVERING_COUNT.getJsonId())), 17)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGES_ACKED.getJsonId())), 15)).append('|');
+      StringBuilder stringBuilder = new StringBuilder(134).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.NAME.getJsonId())), 25)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.ADDRESS.getJsonId())), 25)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.CONSUMER_COUNT.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGE_COUNT.getJsonId())), 14)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGES_ADDED.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.DELIVERING_COUNT.getJsonId())), 17)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGES_ACKED.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.SCHEDULED_COUNT.getJsonId())), 16)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.ROUTING_TYPE.getJsonId())), 13)).append('|');
 
       context.out.println(stringBuilder);
    }

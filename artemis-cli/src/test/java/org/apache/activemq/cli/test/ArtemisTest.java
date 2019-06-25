@@ -966,6 +966,8 @@ public class ArtemisTest extends CliTestBase {
          Assert.assertEquals("Added count", "15", parts[5].trim());
          Assert.assertEquals("Delivering count", "10", parts[6].trim());
          Assert.assertEquals("Acked count", "5", parts[7].trim());
+         Assert.assertEquals("Scheduled count", "0", parts[8].trim());
+         Assert.assertEquals("Routing type", "ANYCAST", parts[9].trim());
 
          //check all queues containing address "Test1" are displayed using Filter field ADDRESS
          context = new TestActionContext();
