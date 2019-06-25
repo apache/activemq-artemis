@@ -59,7 +59,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -578,6 +578,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.factory = factory;
 
       registerMeters();
+      if (this.addressInfo != null && this.addressInfo.isPaused()) {
+         this.pause(this.addressInfo.isPersisted());
+      }
    }
 
    // Bindable implementation -------------------------------------------------------------------------------------
@@ -2368,7 +2371,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (pauseStatusRecord >= 0) {
                storageManager.deleteQueueStatus(pauseStatusRecord);
             }
-            pauseStatusRecord = storageManager.storeQueueStatus(this.id, QueueStatus.PAUSED);
+            pauseStatusRecord = storageManager.storeQueueStatus(this.id, AddressQueueStatus.PAUSED);
          }
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.unableToPauseQueue(e);

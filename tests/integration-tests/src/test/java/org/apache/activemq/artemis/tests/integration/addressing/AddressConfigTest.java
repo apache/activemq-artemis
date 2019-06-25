@@ -53,5 +53,24 @@ public class AddressConfigTest extends ActiveMQTestBase {
       Set<RoutingType> routingTypeSet = new HashSet<>();
       routingTypeSet.add(RoutingType.MULTICAST);
       assertEquals(routingTypeSet, addressInfo.getRoutingTypes());
+      assertFalse(addressInfo.isPaused());
+
+      addressInfo.setPostOffice(server.getPostOffice());
+      addressInfo.setStorageManager(server.getStorageManager());
+      addressInfo.pause(true);
+      assertTrue(addressInfo.isPaused());
+      long id = addressInfo.getId();
+      server.stop();
+      server.start();
+      addressInfo = server.getAddressInfo(SimpleString.toSimpleString("myAddress"));
+      assertNotNull(addressInfo);
+      routingTypeSet = new HashSet<>();
+      routingTypeSet.add(RoutingType.MULTICAST);
+      assertEquals(routingTypeSet, addressInfo.getRoutingTypes());
+      assertEquals(id, addressInfo.getId());
+      assertTrue(addressInfo.isPaused());
+      addressInfo.setPostOffice(server.getPostOffice());
+      addressInfo.setStorageManager(server.getStorageManager());
+      addressInfo.resume();
    }
 }

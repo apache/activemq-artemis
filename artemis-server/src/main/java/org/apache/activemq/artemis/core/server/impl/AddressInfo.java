@@ -24,6 +24,12 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.metrics.AddressMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -32,6 +38,7 @@ import org.apache.activemq.artemis.utils.PrefixUtil;
 public class AddressInfo {
 
    private long id;
+   private long pauseStatusRecord = -1;
 
    private final SimpleString name;
 
@@ -52,6 +59,11 @@ public class AddressInfo {
    private static final AtomicLongFieldUpdater<AddressInfo> unRoutedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "unRoutedMessageCount");
 
    private long bindingRemovedTimestamp = -1;
+
+   private volatile boolean paused = false;
+
+   private PostOffice postOffice;
+   private StorageManager storageManager;
 
    public AddressInfo(SimpleString name) {
       this(name, EnumSet.noneOf(RoutingType.class));
@@ -136,21 +148,94 @@ public class AddressInfo {
       this.bindingRemovedTimestamp = bindingRemovedTimestamp;
    }
 
+   public synchronized void pause(boolean persist) {
+      if (postOffice == null) {
+         throw new IllegalStateException("");
+      }
+      if (storageManager == null && persist) {
+         throw new IllegalStateException("");
+      }
+      if (this.paused) {
+         return;
+      }
+      try {
+         if (persist) {
+            this.pauseStatusRecord = storageManager.storeAddressStatus(this.getId(), AddressQueueStatus.PAUSED);
+         }
+         Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  ((QueueBinding) binding).getQueue().pause(persist);
+               }
+            }
+         }
+         this.paused = true;
+      } catch (Exception ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+
+   public synchronized void resume() {
+      if (postOffice == null) {
+         throw new IllegalStateException("");
+      }
+      if (storageManager == null && this.pauseStatusRecord > 0) {
+         throw new IllegalStateException("");
+      }
+      if (!this.paused) {
+         return;
+      }
+      try {
+         if (this.pauseStatusRecord > 0) {
+            storageManager.deleteAddressStatus(this.pauseStatusRecord);
+         }
+         Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  ((QueueBinding) binding).getQueue().resume();
+               }
+            }
+         }
+         this.paused = false;
+      } catch (Exception ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+
+   boolean isPersisted() {
+      return this.paused && this.pauseStatusRecord > 0;
+   }
+
+   public boolean isPaused() {
+      return this.paused;
+   }
+
+   public void setPostOffice(PostOffice postOffice) {
+      this.postOffice = postOffice;
+   }
+
+   public void setStorageManager(StorageManager storageManager) {
+      this.storageManager = storageManager;
+   }
+
    @Override
    public String toString() {
-      StringBuffer buff = new StringBuffer();
-      buff.append("Address [name=" + name);
-      buff.append(", id=" + id);
+      StringBuilder buff = new StringBuilder();
+      buff.append("Address [name=").append(name);
+      buff.append(", id=").append(id);
       buff.append(", routingTypes={");
       for (RoutingType routingType : getRoutingTypes()) {
-         buff.append(routingType.toString() + ",");
+         buff.append(routingType.toString()).append(",");
       }
       // delete hanging comma
       if (buff.charAt(buff.length() - 1) == ',') {
          buff.deleteCharAt(buff.length() - 1);
       }
       buff.append("}");
-      buff.append(", autoCreated=" + autoCreated);
+      buff.append(", autoCreated=").append(autoCreated);
+      buff.append(", paused=").append(paused);
       buff.append("]");
       return buff.toString();
    }
@@ -166,6 +251,9 @@ public class AddressInfo {
    public AddressInfo create(SimpleString name, RoutingType routingType) {
       AddressInfo info = new AddressInfo(name, routingType);
       info.setInternal(this.internal);
+      if (paused) {
+         info.pause(this.pauseStatusRecord > 0);
+      }
       return info;
    }
 

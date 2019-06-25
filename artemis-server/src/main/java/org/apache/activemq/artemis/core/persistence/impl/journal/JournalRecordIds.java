@@ -88,4 +88,6 @@ public final class JournalRecordIds {
 
    public static final byte ADD_MESSAGE_PROTOCOL = 45;
 
+   public static final byte ADDRESS_STATUS_RECORD = 46;
+
 }

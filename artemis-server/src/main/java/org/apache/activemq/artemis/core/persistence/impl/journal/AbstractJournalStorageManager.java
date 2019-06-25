@@ -69,11 +69,12 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeleteEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeliveryCountUpdateEncoding;
@@ -1322,7 +1323,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+   public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
       long recordID = idGenerator.generateID();
 
       readLock();
@@ -1338,6 +1339,31 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public void deleteQueueStatus(long recordID) throws Exception {
+      readLock();
+      try {
+         bindingsJournal.appendDeleteRecord(recordID, true);
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
+   public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+      long recordID = idGenerator.generateID();
+
+      readLock();
+      try {
+         bindingsJournal.appendAddRecord(recordID, JournalRecordIds.ADDRESS_STATUS_RECORD, new AddressStatusEncoding(addressID, status), true);
+      } finally {
+         readUnLock();
+      }
+
+
+      return recordID;
+   }
+
+   @Override
+   public void deleteAddressStatus(long recordID) throws Exception {
       readLock();
       try {
          bindingsJournal.appendDeleteRecord(recordID, true);
@@ -1465,6 +1491,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 
       HashMap<Long, PersistentQueueBindingEncoding> mapBindings = new HashMap<>();
+      HashMap<Long, PersistentAddressBindingEncoding> mapAddressBindings = new HashMap<>();
 
       for (RecordInfo record : records) {
          long id = record.id;
@@ -1481,6 +1508,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          } else if (rec == JournalRecordIds.ADDRESS_BINDING_RECORD) {
             PersistentAddressBindingEncoding bindingEncoding = newAddressBindingEncoding(id, buffer);
             addressBindingInfos.add(bindingEncoding);
+            mapAddressBindings.put(id, bindingEncoding);
          } else if (rec == JournalRecordIds.GROUP_RECORD) {
             GroupingEncoding encoding = newGroupEncoding(id, buffer);
             groupingInfos.add(encoding);
@@ -1499,6 +1527,16 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                // unlikely to happen, so I didn't bother about the Logger method
                ActiveMQServerLogger.LOGGER.infoNoQueueWithID(statusEncoding.queueID, statusEncoding.getId());
                this.deleteQueueStatus(statusEncoding.getId());
+            }
+         } else if (rec == JournalRecordIds.ADDRESS_STATUS_RECORD) {
+            AddressStatusEncoding statusEncoding = newAddressStatusEncoding(id, buffer);
+            PersistentAddressBindingEncoding addressBindingEncoding = mapAddressBindings.get(statusEncoding.getAddressId());
+            if (addressBindingEncoding != null) {
+               addressBindingEncoding.setAddressStatusEncoding(statusEncoding);
+            } else {
+               // unlikely to happen, so I didn't bother about the Logger method
+               ActiveMQServerLogger.LOGGER.infoNoAddressWithID(statusEncoding.getAddressId(), statusEncoding.getId());
+               this.deleteAddressStatus(statusEncoding.getId());
             }
          } else {
             // unlikely to happen
@@ -1960,6 +1998,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       setting.decode(buffer);
       setting.setStoreId(id);
       return setting;
+   }
+
+   static AddressStatusEncoding newAddressStatusEncoding(long id, ActiveMQBuffer buffer) {
+      AddressStatusEncoding addressStatus = new AddressStatusEncoding();
+      addressStatus.decode(buffer);
+      addressStatus.setId(id);
+      return addressStatus;
    }
 
    /**

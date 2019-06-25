@@ -1,3 +1,9 @@
+package journalcompatibility
+
+import org.apache.activemq.artemis.api.core.management.AddressControl
+import org.apache.activemq.artemis.api.core.management.ResourceNames
+import org.apache.activemq.artemis.tests.compatibility.GroovyRun
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -14,21 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.persistence;
-
-import java.util.EnumSet;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
-
-public interface AddressBindingInfo {
-
-   long getId();
-
-   SimpleString getName();
-
-   EnumSet<RoutingType> getRoutingTypes();
-
-   AddressStatusEncoding getAddressStatusEncoding();
-}
+AddressControl addressControl = (AddressControl) server.getJMSServerManager().getActiveMQServer().getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+GroovyRun.assertTrue(addressControl.isPaused())
+addressControl.resume()
+GroovyRun.assertTrue(!addressControl.isPaused())
