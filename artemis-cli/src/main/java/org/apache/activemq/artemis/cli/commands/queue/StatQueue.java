@@ -90,14 +90,6 @@ public class StatQueue extends AbstractAction {
       this.maxRows = maxRows;
    }
 
-   public void setUser(String user) {
-      this.user = user;
-   }
-
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
    public void setverbose(boolean verbose) {
       this.verbose = verbose;
    }
