@@ -44,7 +44,7 @@ enabled.
 </acceptors>
 ```
 
-- The following example enables MQTT and AMQP on port 1883
+- The following example enables MQTT and AMQP on port 5672
 ```xml
 <acceptors>
    <acceptor>tcp://localhost:5672?protocols=MQTT,AMQP</acceptor>
