@@ -524,16 +524,16 @@ guest=password
 
 Passwords in `artemis-users.properties` can be hashed. Such passwords should
 follow the syntax `ENC(<hash>)`. Hashed passwords can easily be added to
-`artemis-users.properties` using the `user` CLI command, e.g.:
+`artemis-users.properties` using the `user` CLI command from the Artemis
+*instance*. This command will not work from the Artemis home.
 
 ```sh
 ./artemis user add --username guest --password guest --role admin
 ```
 
-This will use the default
-`org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec` to perform a
-"one-way" hash of the password and alter both the `artemis-users.properties`
-and `artemis-roles.properties` files with the specified values. 
+This will use the default codec to perform a "one-way" hash of the password
+and alter both the `artemis-users.properties` and `artemis-roles.properties`
+files with the specified values.
 
 The `artemis-roles.properties` file consists of a list of properties of the
 form, `Role=UserList`, where UserList is a comma-separated list of users. For
