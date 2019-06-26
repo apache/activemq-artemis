@@ -44,6 +44,38 @@ public class ConnectionAbstract extends InputAbstract {
    @Option(name = "--protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
    String protocol = "core";
 
+   public String getUser() {
+      return user;
+   }
+
+   public void setUser(String user) {
+      this.user = user;
+   }
+
+   public String getPassword() {
+      return password;
+   }
+
+   public void setPassword(String password) {
+      this.password = password;
+   }
+
+   public String getClientID() {
+      return clientID;
+   }
+
+   public void setClientID(String clientID) {
+      this.clientID = clientID;
+   }
+
+   public String getProtocol() {
+      return protocol;
+   }
+
+   public void setProtocol(String protocol) {
+      this.protocol = protocol;
+   }
+
    protected ConnectionFactory createConnectionFactory() throws Exception {
       if (protocol.equals("core")) {
          return createCoreConnectionFactory();
@@ -103,7 +135,9 @@ public class ConnectionAbstract extends InputAbstract {
          return cf;
       } catch (JMSSecurityException e) {
          // if a security exception will get the user and password through an input
-         context.err.println("Connection failed::" + e.getMessage());
+         if (context != null) {
+            context.err.println("Connection failed::" + e.getMessage());
+         }
          userPassword();
          cf = new ActiveMQConnectionFactory(brokerURL, user, password);
          if (clientID != null) {
@@ -112,7 +146,9 @@ public class ConnectionAbstract extends InputAbstract {
          return cf;
       } catch (JMSException e) {
          // if a connection exception will ask for the URL, user and password
-         context.err.println("Connection failed::" + e.getMessage());
+         if (context != null) {
+            context.err.println("Connection failed::" + e.getMessage());
+         }
          brokerURL = input("--url", "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", brokerURL);
          userPassword();
          cf = new ActiveMQConnectionFactory(brokerURL, user, password);
