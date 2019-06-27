@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.utils;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,15 +110,7 @@ public final class UUIDGenerator {
    }
 
    public UUID fromJavaUUID(java.util.UUID uuid) {
-      long msb = uuid.getMostSignificantBits();
-      long lsb = uuid.getLeastSignificantBits();
-
-      ByteBuffer buffer = ByteBuffer.allocate(16);
-      buffer.putLong(msb);
-      buffer.putLong(lsb);
-      byte[] contents = buffer.array();
-
-      return new UUID(contents);
+      return new UUID(uuid);
    }
 
    public byte[] generateDummyAddress() {
