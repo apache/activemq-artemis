@@ -107,6 +107,15 @@ public final class UUID {
       mId[UUID.INDEX_VARIATION] |= (byte) 0x80;
    }
 
+   private UUID(final byte[] data) {
+      mId = data;
+   }
+
+   /** This is for conversions between two types of UUID */
+   public UUID(java.util.UUID uuid) {
+      this(ByteUtil.doubleLongToBytes(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits()));
+   }
+
    public byte[] asBytes() {
       return mId;
    }
