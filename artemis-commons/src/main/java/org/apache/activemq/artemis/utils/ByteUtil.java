@@ -163,6 +163,30 @@ public class ByteUtil {
             | ((int) b[0] & 0xff) << 24;
    }
 
+   public static byte[] longToBytes(long value) {
+      byte[] output = new byte[8];
+      longToBytes(value, output, 0);
+      return output;
+   }
+
+   public static void longToBytes(long x, byte[] output, int offset) {
+      output[offset] = (byte)(x >> 56);
+      output[offset + 1] = (byte)(x >> 48);
+      output[offset + 2] = (byte)(x >> 40);
+      output[offset + 3] = (byte)(x >> 32);
+      output[offset + 4] = (byte)(x >> 24);
+      output[offset + 5] = (byte)(x >> 16);
+      output[offset + 6] = (byte)(x >>  8);
+      output[offset + 7] = (byte)(x);
+   }
+
+   public static byte[] doubleLongToBytes(long value1, long value2) {
+      byte[] output = new byte[16];
+      longToBytes(value1, output, 0);
+      longToBytes(value2, output, 8);
+      return output;
+   }
+
    public static byte[] hexToBytes(String hexStr) {
       byte[] bytes = new byte[hexStr.length() / 2];
       for (int i = 0; i < bytes.length; i++) {
