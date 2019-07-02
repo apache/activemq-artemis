@@ -491,6 +491,7 @@ public final class Page implements Comparable<Page> {
          logger.debug("Deleting pageNr=" + pageId + " on store " + storeName);
       }
 
+      List<Long> largeMessageIds = new ArrayList<>();
       if (messages != null) {
          for (PagedMessage msg : messages) {
             if (msg.getMessage() instanceof ICoreMessage && (msg.getMessage()).isLargeMessage()) {
@@ -500,11 +501,15 @@ public final class Page implements Comparable<Page> {
                // Because the large-message may be linked to another message
                // or it may still being delivered even though it has been acked already
                lmsg.decrementDelayDeletionCount();
+               largeMessageIds.add(lmsg.getMessageID());
             }
          }
       }
 
       try {
+         if (!storageManager.waitOnOperations(5000)) {
+            ActiveMQServerLogger.LOGGER.timedOutWaitingForLargeMessagesDeletion(largeMessageIds);
+         }
          if (suspiciousRecords) {
             ActiveMQServerLogger.LOGGER.pageInvalid(file.getFileName(), file.getFileName());
             file.renameTo(file.getFileName() + ".invalidPage");
