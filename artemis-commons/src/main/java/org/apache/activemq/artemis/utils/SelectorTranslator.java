@@ -54,6 +54,21 @@ public class SelectorTranslator {
 
    }
 
+   public static String convertHQToActiveMQFilterString(final String hqFilterString) {
+      if (hqFilterString == null) {
+         return null;
+      }
+
+      String filterString = SelectorTranslator.parse(hqFilterString, "HQDurable", "AMQDurable");
+      filterString = SelectorTranslator.parse(filterString, "HQPriority", "AMQPriority");
+      filterString = SelectorTranslator.parse(filterString, "HQTimestamp", "AMQTimestamp");
+      filterString = SelectorTranslator.parse(filterString, "HQUserID", "AMQUserID");
+      filterString = SelectorTranslator.parse(filterString, "HQExpiration", "AMQExpiration");
+
+      return filterString;
+
+   }
+
    private static String parse(final String input, final String match, final String replace) {
       final char quote = '\'';
 
