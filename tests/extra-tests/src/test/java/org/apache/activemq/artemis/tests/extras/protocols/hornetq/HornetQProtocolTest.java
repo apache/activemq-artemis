@@ -32,7 +32,9 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.client.HornetQClient;
+import org.hornetq.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,6 +104,45 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
       assertTrue(hqMessage1.containsProperty(org.hornetq.api.core.Message.HDR_DUPLICATE_DETECTION_ID));
 
       hqSession.close();
+   }
+
+
+   @Test
+   public void testCreateConsumerHQSelectorIsTransformed() throws Exception {
+      try (org.hornetq.api.core.client.ClientSession hqSession = createHQClientSession()) {
+
+         // Create Queue
+         String queueName = "test.hq.queue";
+         hqSession.createQueue(queueName, queueName, true);
+
+         hqSession.start();
+
+         // Send message with UserID set
+         org.hornetq.utils.UUID userID = UUIDGenerator.getInstance().generateUUID();
+         try (org.hornetq.api.core.client.ClientProducer hqProducer = hqSession.createProducer(queueName)) {
+            org.hornetq.api.core.client.ClientMessage message = createHQTestMessage(hqSession);
+            message.setUserID(userID);
+            hqProducer.send(message);
+         }
+
+         // Verify that selector using AMQ field works
+         verifyConsumerWithSelector(hqSession, queueName,
+                 String.format("AMQUserID = 'ID:%s'", userID.toString()), userID);
+
+         // Verify that selector using HornetQ field works
+         verifyConsumerWithSelector(hqSession, queueName,
+                 String.format("HQUserID = 'ID:%s'", userID.toString()), userID);
+      }
+   }
+
+   @Test
+   public void testCreateQueueHQFilterIsTransformed() throws Exception {
+      testQueueWithHQFilter(false);
+   }
+
+   @Test
+   public void testCreateTemporaryQueueHQFilterIsTransformed() throws Exception {
+      testQueueWithHQFilter(true);
    }
 
    @Test
@@ -235,5 +276,58 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
       ClientSessionFactory sf = serverLocator.createSessionFactory();
 
       return sf.createSession();
+   }
+
+   private static void verifyConsumerWithSelector(org.hornetq.api.core.client.ClientSession hqSession, String queueName,
+                                                  String selector, org.hornetq.utils.UUID expectedUserID)
+           throws HornetQException {
+      try (org.hornetq.api.core.client.ClientConsumer hqConsumer =
+                   hqSession.createConsumer(queueName, selector, true)) {
+         org.hornetq.api.core.client.ClientMessage message = hqConsumer.receive(1000);
+
+         Assert.assertNotNull(message);
+         Assert.assertEquals(expectedUserID, message.getUserID());
+      }
+   }
+
+   private void testQueueWithHQFilter(boolean temporary) throws Exception {
+      try (org.hornetq.api.core.client.ClientSession hqSession = createHQClientSession()) {
+
+         org.hornetq.utils.UUID userID = UUIDGenerator.getInstance().generateUUID();
+
+         // Create queue with filter
+         String queueName = "test.hq.queue";
+         String filter = String.format("HQUserID = 'ID:%s'", userID.toString());
+         if (temporary) {
+            hqSession.createTemporaryQueue(queueName, queueName, filter);
+         } else {
+            hqSession.createQueue(queueName, queueName, filter, true);
+         }
+
+         hqSession.start();
+
+         // Send two messages with different UserIDs
+         try (org.hornetq.api.core.client.ClientProducer hqProducer = hqSession.createProducer(queueName)) {
+            org.hornetq.api.core.client.ClientMessage message = createHQTestMessage(hqSession);
+            message.setUserID(userID);
+            hqProducer.send(message);
+
+            message = createHQTestMessage(hqSession);
+            message.setUserID(UUIDGenerator.getInstance().generateUUID());
+            hqProducer.send(message);
+         }
+
+         // Only the message matching the queue filter should be present
+         try (org.hornetq.api.core.client.ClientConsumer hqConsumer =
+                      hqSession.createConsumer(queueName, true)) {
+            org.hornetq.api.core.client.ClientMessage message = hqConsumer.receiveImmediate();
+
+            Assert.assertNotNull(message);
+            Assert.assertEquals(userID, message.getUserID());
+
+            message = hqConsumer.receiveImmediate();
+            Assert.assertNull(message);
+         }
+      }
    }
 }
