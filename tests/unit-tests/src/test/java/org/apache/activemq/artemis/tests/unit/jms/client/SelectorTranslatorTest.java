@@ -204,6 +204,37 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
       checkNoSubstitute("JMSType");
    }
 
+   @Test
+   public void testConvertHQFilterString() {
+      String selector = "HQUserID = 'ID:AMQ-12435678'";
+
+      Assert.assertEquals("AMQUserID = 'ID:AMQ-12435678'", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+
+      selector = "HQUserID = 'HQUserID'";
+
+      Assert.assertEquals("AMQUserID = 'HQUserID'", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+
+      selector = "HQUserID = 'ID:AMQ-12435678'";
+
+      Assert.assertEquals("AMQUserID = 'ID:AMQ-12435678'", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+
+      selector = "HQDurable='NON_DURABLE'";
+
+      Assert.assertEquals("AMQDurable='NON_DURABLE'", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+
+      selector = "HQPriority=5";
+
+      Assert.assertEquals("AMQPriority=5", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+
+      selector = "HQTimestamp=12345678";
+
+      Assert.assertEquals("AMQTimestamp=12345678", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+
+      selector = "HQExpiration=12345678";
+
+      Assert.assertEquals("AMQExpiration=12345678", SelectorTranslator.convertHQToActiveMQFilterString(selector));
+   }
+
    // Private -------------------------------------------------------------------------------------
 
    private void checkNoSubstitute(final String fieldName) {
