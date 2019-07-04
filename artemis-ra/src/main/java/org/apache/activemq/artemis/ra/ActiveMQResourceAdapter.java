@@ -908,11 +908,11 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setProducerMaxRate(producerMaxRate);
    }
 
-   public void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+   public void setUseTopologyForLoadBalancing(Boolean useTopologyForLoadBalancing) {
       raProperties.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
    }
 
-   public boolean isUseTopologyForLoadBalancing() {
+   public Boolean isUseTopologyForLoadBalancing() {
       return raProperties.isUseTopologyForLoadBalancing();
    }
 
@@ -2093,11 +2093,11 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       }
    }
 
-   public boolean isIgnoreJTA() {
+   public Boolean isIgnoreJTA() {
       return ignoreJTA;
    }
 
-   public void setIgnoreJTA(boolean ignoreJTA) {
+   public void setIgnoreJTA(Boolean ignoreJTA) {
       this.ignoreJTA = ignoreJTA;
    }
 }
