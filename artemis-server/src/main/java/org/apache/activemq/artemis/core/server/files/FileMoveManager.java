@@ -92,12 +92,10 @@ public class FileMoveManager {
          return;
       }
 
-      // Since we will create one folder, we are already taking that one into consideration
-      internalCheckOldFolders(1);
-
       int whereToMove = getMaxID() + 1;
 
       if (maxFolders == 0) {
+         internalCheckOldFolders(0);
          ActiveMQServerLogger.LOGGER.backupDeletingData(folder.getPath());
          for (String fileMove : files) {
             File fileFrom = new File(folder, fileMove);
@@ -105,6 +103,8 @@ public class FileMoveManager {
             deleteTree(fileFrom);
          }
       } else {
+         // Since we will create one folder, we are already taking that one into consideration
+         internalCheckOldFolders(1);
          File folderTo = getFolder(whereToMove);
          folderTo.mkdirs();
 
