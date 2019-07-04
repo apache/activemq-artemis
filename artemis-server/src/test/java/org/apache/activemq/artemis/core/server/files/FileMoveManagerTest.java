@@ -272,17 +272,21 @@ public class FileMoveManagerTest {
             File folderF = new File(dataLocation, "folder" + f);
             folderF.mkdirs();
 
+            File replicaFolder = new File(dataLocation, FileMoveManager.PREFIX + f);
+            replicaFolder.mkdir();
+
             // FILES_PER_FOLDER + f, I'm just creating more files as f grows.
             // this is just to make each folder unique somehow
             for (int i = 0; i < FILES_PER_FOLDER + f; i++) {
                createFile(folderF, i);
+               createFile(replicaFolder, i);
             }
          }
 
          manager.doMove();
 
-         // We will always have maximum of 3 folders
          Assert.assertEquals(0, manager.getNumberOfFolders());
+         Assert.assertEquals(0, manager.getFiles().length);
       }
 
       Assert.assertEquals(0, manager.getMaxID());
