@@ -135,6 +135,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
       try {
          if (channel != null) {
+            if (factory.isDatasync())
+               channel.force(false);
             channel.close();
          }
       } catch (ClosedChannelException e) {
