@@ -5833,7 +5833,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          locator.close();
 
-         Wait.assertEquals(1, store::getNumberOfPages);
+         Wait.assertEquals(2, store::getNumberOfPages);
 
       } finally {
          try {
