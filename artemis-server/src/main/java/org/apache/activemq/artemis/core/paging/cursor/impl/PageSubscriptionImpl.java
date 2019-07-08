@@ -382,42 +382,35 @@ public final class PageSubscriptionImpl implements PageSubscription {
    private PagedReference internalGetNext(final PagePosition pos) {
       PagePosition retPos = pos.nextMessage();
 
-      PageCache cache = cursorProvider.getPageCache(pos.getPageNr());
+      PageCache cache = null;
 
-      PageCache emptyCache = null;
-      if (cache != null && !cache.isLive() && retPos.getMessageNr() >= cache.getNumberOfMessages()) {
-         emptyCache = cache;
-         saveEmptyPageAsConsumedPage(emptyCache);
-         // The next message is beyond what's available at the current page, so we need to move to the next page
-         cache = null;
-      }
-
-      // it will scan for the next available page
-      while ((cache == null && retPos.getPageNr() <= pageStore.getCurrentWritingPage()) || (cache != null && retPos.getPageNr() <= pageStore.getCurrentWritingPage() && cache.getNumberOfMessages() == 0)) {
-         emptyCache = cache;
-         retPos = moveNextPage(retPos);
-
+      while (retPos.getPageNr() <= pageStore.getCurrentWritingPage()) {
          cache = cursorProvider.getPageCache(retPos.getPageNr());
-
-         if (cache != null) {
-            saveEmptyPageAsConsumedPage(emptyCache);
+         /**
+          * In following cases, we should move to the next page
+          * case 1: cache == null means file might be deleted unexpectedly.
+          * case 2: cache is not live and  contains no messages.
+          * case 3: cache is not live and next message is beyond what's available at the current page.
+          */
+         if (cache == null || (!cache.isLive() && (retPos.getMessageNr() >= cache.getNumberOfMessages() || cache.getNumberOfMessages() == 0))) {
+            // Save current empty page every time we move to next page
+            saveEmptyPageAsConsumedPage(cache);
+            retPos = moveNextPage(retPos);
+            cache = null;
+         } else {
+            // We need to break loop to get message if cache is live or the next message number is in the range of current page
+            break;
          }
       }
 
-      if (cache == null) {
-         saveEmptyPageAsConsumedPage(emptyCache);
-
-         // it will be null in the case of the current writing page
-         return null;
-      } else {
+      if (cache != null) {
          PagedMessage serverMessage = cache.getMessage(retPos.getMessageNr());
 
          if (serverMessage != null) {
             return cursorProvider.newReference(retPos, serverMessage, this);
-         } else {
-            return null;
          }
       }
+      return null;
    }
 
    private PagePosition moveNextPage(final PagePosition pos) {
