@@ -38,7 +38,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
@@ -100,12 +99,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    private boolean ignoreJTA;
 
    private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
-
-   private Boolean sslEnabled = TransportConstants.DEFAULT_SSL_ENABLED;
-   private String trustStorePath;
-   private String trustStorePassword;
-   private String keyStorePath;
-   private String keyStorePassword;
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
@@ -247,7 +240,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
          URI uri = cfParser.expandURI(brokerURL);
-         uri = updateBrokerURL(uri);
          serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
       } catch (Exception e) {
@@ -429,6 +421,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       }
       try {
          if (url != null && url.length() > 0) {
+            url = updateBrokerURL(url, props);
             setBrokerURL(url);
          }
 
@@ -840,67 +833,24 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       serverLocator.setCompressLargeMessage(avoidLargeMessages);
    }
 
-   public boolean isSslEnabled() {
-      return sslEnabled;
-   }
+   private String updateBrokerURL(String url, Properties props) {
+      ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
+      try {
+         URI uri = cfParser.expandURI(url);
+         final Map<String, String> params = URISupport.parseParameters(uri);
 
-   public void setSslEnabled(boolean sslEnabled) {
-      this.sslEnabled = sslEnabled;
-   }
+         for (String key : TransportConstants.ALLOWABLE_CONNECTOR_KEYS) {
+            final String val = props.getProperty(key);
+            if (val != null) {
+               params.put(key, val);
+            }
+         }
 
-   public String getTrustStorePath() {
-      return trustStorePath;
-   }
-
-   public void setTrustStorePath(String trustStorePath) {
-      this.trustStorePath = trustStorePath;
-   }
-
-   public String getTrustStorePassword() {
-      return trustStorePassword;
-   }
-
-   public void setTrustStorePassword(String trustStorePassword) {
-      this.trustStorePassword = trustStorePassword;
-   }
-
-   public String getKeyStorePath() {
-      return keyStorePath;
-   }
-
-   public void setKeyStorePath(String keyStorePath) {
-      this.keyStorePath = keyStorePath;
-   }
-
-   public String getKeyStorePassword() {
-      return keyStorePassword;
-   }
-
-   public void setKeyStorePassword(String keyStorePassword) {
-      this.keyStorePassword = keyStorePassword;
-   }
-
-   private URI updateBrokerURL(URI brokerURI) throws URISyntaxException {
-      final Map<String, String> params = URISupport.parseParameters(brokerURI);
-
-      if (this.sslEnabled) { // can't use isSslEnabled()
-         params.put(TransportConstants.SSL_ENABLED_PROP_NAME, this.sslEnabled.toString());
+         final String newUrl = URISupport.applyParameters(uri, params).toString();
+         return newUrl;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
-      if (getTrustStorePath() != null) {
-         params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, getTrustStorePath());
-      }
-      if (getTrustStorePassword() != null) {
-         params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, getTrustStorePassword());
-      }
-      if (getKeyStorePath() != null) {
-         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, getKeyStorePath());
-      }
-      if (getKeyStorePassword() != null) {
-         params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, getKeyStorePassword());
-      }
-
-      final String query = URISupport.createQueryString(params);
-      return URISupport.createURIWithQuery(brokerURI, query);
    }
 
    @Override
