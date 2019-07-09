@@ -15,6 +15,9 @@
   limitations under the License.
 -->
 <address-settings xmlns="urn:activemq:core">
+   <address-setting match="#">
+      <dead-letter-address-prefix>DLA.</dead-letter-address-prefix>
+   </address-setting>
    <address-setting match="a1">
       <dead-letter-address>a1.1</dead-letter-address>
       <expiry-address>a1.2</expiry-address>

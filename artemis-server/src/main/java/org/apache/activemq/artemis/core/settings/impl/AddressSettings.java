@@ -591,7 +591,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    public SimpleString resolveDealLetterAddress(SimpleString address) {
-      return deadLetterAddress != null ? deadLetterAddress : deadLetterAddressPrefix.concat(address);
+      return deadLetterAddress != null || deadLetterAddressPrefix == null ? deadLetterAddress : deadLetterAddressPrefix.concat(address);
    }
 
    public AddressSettings setDeadLetterAddressPrefix(final SimpleString deadLetterAddressPrefix) {
