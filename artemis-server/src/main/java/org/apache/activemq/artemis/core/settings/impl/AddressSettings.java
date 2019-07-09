@@ -946,8 +946,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       deadLetterAddress = buffer.readNullableSimpleString();
 
-      deadLetterAddressPrefix = buffer.readNullableSimpleString();
-
       expiryAddress = buffer.readNullableSimpleString();
 
       expiryDelay = BufferHelper.readNullableLong(buffer);
@@ -1060,6 +1058,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          autoDeleteCreatedQueues = BufferHelper.readNullableBoolean(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         deadLetterAddressPrefix = buffer.readNullableSimpleString();
+      }
    }
 
    @Override
@@ -1076,7 +1078,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableDouble(redeliveryMultiplier) +
          BufferHelper.sizeOfNullableLong(maxRedeliveryDelay) +
          SimpleString.sizeofNullableString(deadLetterAddress) +
-         SimpleString.sizeofNullableString(deadLetterAddressPrefix) +
          SimpleString.sizeofNullableString(expiryAddress) +
          BufferHelper.sizeOfNullableLong(expiryDelay) +
          BufferHelper.sizeOfNullableBoolean(defaultLastValueQueue) +
@@ -1110,7 +1111,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalance) +
          BufferHelper.sizeOfNullableInteger(defaultGroupBuckets) +
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
-         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues);
+         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
+         SimpleString.sizeofNullableString(deadLetterAddressPrefix);
    }
 
    @Override
@@ -1136,8 +1138,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableLong(buffer, maxRedeliveryDelay);
 
       buffer.writeNullableSimpleString(deadLetterAddress);
-
-      buffer.writeNullableSimpleString(deadLetterAddressPrefix);
 
       buffer.writeNullableSimpleString(expiryAddress);
 
@@ -1211,6 +1211,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteCreatedQueues);
 
+      buffer.writeNullableSimpleString(deadLetterAddressPrefix);
    }
 
    /* (non-Javadoc)
