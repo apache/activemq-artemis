@@ -38,8 +38,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -52,12 +54,14 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 
 /**
  * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
@@ -96,6 +100,12 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    private boolean ignoreJTA;
 
    private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
+
+   private Boolean sslEnabled = TransportConstants.DEFAULT_SSL_ENABLED;
+   private String trustStorePath;
+   private String trustStorePassword;
+   private String keyStorePath;
+   private String keyStorePassword;
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
@@ -237,6 +247,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
          URI uri = cfParser.expandURI(brokerURL);
+         uri = updateBrokerURL(uri);
          serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
       } catch (Exception e) {
@@ -827,6 +838,69 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    public void setCompressLargeMessage(boolean avoidLargeMessages) {
       serverLocator.setCompressLargeMessage(avoidLargeMessages);
+   }
+
+   public boolean isSslEnabled() {
+      return sslEnabled;
+   }
+
+   public void setSslEnabled(boolean sslEnabled) {
+      this.sslEnabled = sslEnabled;
+   }
+
+   public String getTrustStorePath() {
+      return trustStorePath;
+   }
+
+   public void setTrustStorePath(String trustStorePath) {
+      this.trustStorePath = trustStorePath;
+   }
+
+   public String getTrustStorePassword() {
+      return trustStorePassword;
+   }
+
+   public void setTrustStorePassword(String trustStorePassword) {
+      this.trustStorePassword = trustStorePassword;
+   }
+
+   public String getKeyStorePath() {
+      return keyStorePath;
+   }
+
+   public void setKeyStorePath(String keyStorePath) {
+      this.keyStorePath = keyStorePath;
+   }
+
+   public String getKeyStorePassword() {
+      return keyStorePassword;
+   }
+
+   public void setKeyStorePassword(String keyStorePassword) {
+      this.keyStorePassword = keyStorePassword;
+   }
+
+   private URI updateBrokerURL(URI brokerURI) throws URISyntaxException {
+      final Map<String, String> params = URISupport.parseParameters(brokerURI);
+
+      if (this.sslEnabled) { // can't use isSslEnabled()
+         params.put(TransportConstants.SSL_ENABLED_PROP_NAME, this.sslEnabled.toString());
+      }
+      if (getTrustStorePath() != null) {
+         params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, getTrustStorePath());
+      }
+      if (getTrustStorePassword() != null) {
+         params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, getTrustStorePassword());
+      }
+      if (getKeyStorePath() != null) {
+         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, getKeyStorePath());
+      }
+      if (getKeyStorePassword() != null) {
+         params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, getKeyStorePassword());
+      }
+
+      final String query = URISupport.createQueryString(params);
+      return URISupport.createURIWithQuery(brokerURI, query);
    }
 
    @Override
