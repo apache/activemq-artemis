@@ -130,8 +130,8 @@ For STOMP 1.1 and 1.2 clients which send a non-zero client-to-server
 However, the broker will not strictly set the connection TTL to the same value
 as the specified in the `heart-beat` since even small network delays could then
 cause spurious disconnects. Instead, the client-to-server value in the
-`heart-beat` will be multiplied by the `heartBeatConnectionTtlModifer`
-specified on the acceptor. The `heartBeatConnectionTtlModifer` is a decimal
+`heart-beat` will be multiplied by the `heartBeatToConnectionTtlModifier`
+specified on the acceptor. The `heartBeatToConnectionTtlModifier` is a decimal
 value that defaults to `2.0` so for example, if a client sends a `heart-beat`
 header of `1000,0` the the connection TTL will be set to `2000` so that the
 data or ping frames sent every 1000 milliseconds will have a sufficient cushion
@@ -145,9 +145,9 @@ acceptor via the `connectionTtlMin` and `connectionTtlMax` properties
 respectively. The default `connectionTtlMin` is 1000 and the default
 `connectionTtlMax` is Java's `Long.MAX_VALUE` meaning there essentially is no
 max connection TTL by default. Keep in mind that the
-`heartBeatConnectionTtlModifer` is relevant here. For example, if a client
+`heartBeatToConnectionTtlModifier` is relevant here. For example, if a client
 sends a `heart-beat` header of `20000,0` and the acceptor is using a
-`connectionTtlMax` of `30000` and a default `heartBeatConnectionTtlModifer` of
+`connectionTtlMax` of `30000` and a default `heartBeatToConnectionTtlModifier` of
 `2.0` then the connection TTL would be `40000` (i.e. `20000` * `2.0`) which
 would exceed the `connectionTtlMax`. In this case the server would respond to
 the client with a `heart-beat` header of `0,15000` (i.e. `30000` / `2.0`). As
