@@ -531,9 +531,15 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
 
-         if (addressSettings != null && addressSettings.getDeadLetterAddress() != null) {
+         if (addressSettings == null) {
+            return null;
+         }
+
+         SimpleString resolvedAddress = addressSettings.resolveDealLetterAddress(new SimpleString(address));
+         if (resolvedAddress != null) {
             return addressSettings.getDeadLetterAddress().toString();
          }
+
          return null;
       } finally {
          blockOnIO();

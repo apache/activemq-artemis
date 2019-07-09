@@ -158,6 +158,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEAD_LETTER_ADDRESS_NODE_NAME = "dead-letter-address";
 
+   private static final String DEAD_LETTER_ADDRESS_PREFIX_NODE_NAME = "dead-letter-address-prefix";
+
    private static final String EXPIRY_ADDRESS_NODE_NAME = "expiry-address";
 
    private static final String EXPIRY_DELAY_NODE_NAME = "expiry-delay";
@@ -1028,6 +1030,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (DEAD_LETTER_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
             SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
             addressSettings.setDeadLetterAddress(queueName);
+         } else if (DEAD_LETTER_ADDRESS_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
+            SimpleString queuePrefix = new SimpleString(getTrimmedTextContent(child));
+            addressSettings.setDeadLetterAddressPrefix(queuePrefix);
          } else if (EXPIRY_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
             SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
             addressSettings.setExpiryAddress(queueName);

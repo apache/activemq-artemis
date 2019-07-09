@@ -129,6 +129,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private SimpleString deadLetterAddress = null;
 
+   private SimpleString deadLetterAddressPrefix = null;
+
    private SimpleString expiryAddress = null;
 
    private Long expiryDelay = AddressSettings.DEFAULT_EXPIRY_DELAY;
@@ -223,6 +225,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.redeliveryMultiplier = other.redeliveryMultiplier;
       this.maxRedeliveryDelay = other.maxRedeliveryDelay;
       this.deadLetterAddress = other.deadLetterAddress;
+      this.deadLetterAddressPrefix = other.deadLetterAddressPrefix;
       this.expiryAddress = other.expiryAddress;
       this.expiryDelay = other.expiryDelay;
       this.defaultLastValueQueue = other.defaultLastValueQueue;
@@ -583,6 +586,19 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public SimpleString getDeadLetterAddressPrefix() {
+      return deadLetterAddressPrefix;
+   }
+
+   public SimpleString resolveDealLetterAddress(SimpleString address) {
+      return deadLetterAddress != null ? deadLetterAddress : deadLetterAddressPrefix.concat(address);
+   }
+
+   public AddressSettings setDeadLetterAddressPrefix(final SimpleString deadLetterAddressPrefix) {
+      this.deadLetterAddressPrefix = deadLetterAddressPrefix;
+      return this;
+   }
+
    public SimpleString getExpiryAddress() {
       return expiryAddress;
    }
@@ -770,6 +786,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (deadLetterAddress == null) {
          deadLetterAddress = merged.deadLetterAddress;
       }
+      if (deadLetterAddressPrefix == null) {
+         deadLetterAddressPrefix = merged.deadLetterAddressPrefix;
+      }
       if (expiryAddress == null) {
          expiryAddress = merged.expiryAddress;
       }
@@ -927,6 +946,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       deadLetterAddress = buffer.readNullableSimpleString();
 
+      deadLetterAddressPrefix = buffer.readNullableSimpleString();
+
       expiryAddress = buffer.readNullableSimpleString();
 
       expiryDelay = BufferHelper.readNullableLong(buffer);
@@ -1055,6 +1076,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableDouble(redeliveryMultiplier) +
          BufferHelper.sizeOfNullableLong(maxRedeliveryDelay) +
          SimpleString.sizeofNullableString(deadLetterAddress) +
+         SimpleString.sizeofNullableString(deadLetterAddressPrefix) +
          SimpleString.sizeofNullableString(expiryAddress) +
          BufferHelper.sizeOfNullableLong(expiryDelay) +
          BufferHelper.sizeOfNullableBoolean(defaultLastValueQueue) +
@@ -1114,6 +1136,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableLong(buffer, maxRedeliveryDelay);
 
       buffer.writeNullableSimpleString(deadLetterAddress);
+
+      buffer.writeNullableSimpleString(deadLetterAddressPrefix);
 
       buffer.writeNullableSimpleString(expiryAddress);
 
@@ -1198,6 +1222,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       int result = 1;
       result = prime * result + ((addressFullMessagePolicy == null) ? 0 : addressFullMessagePolicy.hashCode());
       result = prime * result + ((deadLetterAddress == null) ? 0 : deadLetterAddress.hashCode());
+      result = prime * result + ((deadLetterAddressPrefix == null) ? 0 : deadLetterAddressPrefix.hashCode());
       result = prime * result + ((dropMessagesWhenFull == null) ? 0 : dropMessagesWhenFull.hashCode());
       result = prime * result + ((expiryAddress == null) ? 0 : expiryAddress.hashCode());
       result = prime * result + ((expiryDelay == null) ? 0 : expiryDelay.hashCode());
@@ -1267,7 +1292,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (deadLetterAddress == null) {
          if (other.deadLetterAddress != null)
             return false;
-      } else if (!deadLetterAddress.equals(other.deadLetterAddress))
+      } else if (deadLetterAddressPrefix == null) {
+         if (other.deadLetterAddressPrefix != null)
+            return false;
+      } else if (!deadLetterAddressPrefix.equals(other.deadLetterAddressPrefix))
          return false;
       if (dropMessagesWhenFull == null) {
          if (other.dropMessagesWhenFull != null)
@@ -1520,6 +1548,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return "AddressSettings [addressFullMessagePolicy=" + addressFullMessagePolicy +
          ", deadLetterAddress=" +
          deadLetterAddress +
+         ", deadLetterAddressPrefix=" +
+         deadLetterAddressPrefix +
          ", dropMessagesWhenFull=" +
          dropMessagesWhenFull +
          ", expiryAddress=" +

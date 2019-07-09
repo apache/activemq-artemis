@@ -87,6 +87,69 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testBasicSendWithWildcardDLA() throws Exception {
+      SimpleString dla = new SimpleString("DLA.");
+      SimpleString dlaResolved = new SimpleString("DLA.ad1");
+      SimpleString qName = new SimpleString("q1");
+      SimpleString adName = new SimpleString("ad1");
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddressPrefix(dla);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
+      SimpleString dlq = new SimpleString("DLQ1");
+      clientSession.createQueue(dlaResolved, dlq, null, false);
+      clientSession.createQueue(adName, qName, null, false);
+      ClientProducer producer = clientSession.createProducer(adName);
+      producer.send(createTextMessage(clientSession, "heyho!"));
+      clientSession.start();
+      ClientConsumer clientConsumer = clientSession.createConsumer(qName);
+      ClientMessage m = clientConsumer.receive(500);
+      m.acknowledge();
+      Assert.assertNotNull(m);
+      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      // force a cancel
+      clientSession.rollback();
+      m = clientConsumer.receiveImmediate();
+      Assert.assertNull(m);
+      clientConsumer.close();
+      clientConsumer = clientSession.createConsumer(dlq);
+      m = clientConsumer.receive(500);
+      Assert.assertNotNull(m);
+      assertEquals("q1", m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertEquals("ad1", m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+   }
+
+   @Test
+   public void testBasicSendWithWildcardDLAPreferSpecified() throws Exception {
+      SimpleString dla = new SimpleString("DLA");
+      SimpleString qName = new SimpleString("q1");
+      SimpleString adName = new SimpleString("ad1");
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddressPrefix(dla).setDeadLetterAddress(dla);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
+      SimpleString dlq = new SimpleString("DLQ1");
+      clientSession.createQueue(dla, dlq, null, false);
+      clientSession.createQueue(adName, qName, null, false);
+      ClientProducer producer = clientSession.createProducer(adName);
+      producer.send(createTextMessage(clientSession, "heyho!"));
+      clientSession.start();
+      ClientConsumer clientConsumer = clientSession.createConsumer(qName);
+      ClientMessage m = clientConsumer.receive(500);
+      m.acknowledge();
+      Assert.assertNotNull(m);
+      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      // force a cancel
+      clientSession.rollback();
+      m = clientConsumer.receiveImmediate();
+      Assert.assertNull(m);
+      clientConsumer.close();
+      clientConsumer = clientSession.createConsumer(dlq);
+      m = clientConsumer.receive(500);
+      Assert.assertNotNull(m);
+      assertEquals("q1", m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertEquals("ad1", m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+   }
+
+   @Test
    public void testLargeMessageFileLeak() throws Exception {
       OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 

@@ -948,7 +948,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (sendToDLA) {
                // Send to the DLA for the address
 
-               SimpleString dlaAddress = addressSettings.getDeadLetterAddress();
+               SimpleString dlaAddress = addressSettings.resolveDealLetterAddress(address);
 
                if (logger.isDebugEnabled()) {
                   logger.debug("sending message to dla address = " + dlaAddress + ", message=" + message);
