@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,24 +49,18 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
    }
 
    @Override
    @After
    public void tearDown() throws Exception {
-      try {
-         ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
-      } finally {
+      if (pool3 != null)
+         pool3.shutdown();
 
-         if (pool3 != null)
-            pool3.shutdown();
+      if (pool2 != null)
+         pool2.shutdownNow();
 
-         if (pool2 != null)
-            pool2.shutdownNow();
-         super.tearDown();
-      }
+      super.tearDown();
    }
 
    @Test
@@ -107,13 +102,13 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();
       Assert.assertFalse(acceptor.isStarted());
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+      Assert.assertTrue(PortCheckRule.checkAvailable(TransportConstants.DEFAULT_PORT));
 
       acceptor.start();
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();
       Assert.assertFalse(acceptor.isStarted());
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+      Assert.assertTrue(PortCheckRule.checkAvailable(TransportConstants.DEFAULT_PORT));
    }
 
 }

@@ -32,15 +32,18 @@ import org.jboss.logging.Logger;
  * <p>2) All pos that correspond to any neg in file Fn, must all live in any file Fm where {@code 0 <= m <= n}
  * which are also marked for deletion in the same pass of the algorithm.</p>
  */
-public class Reclaimer {
+public final class Reclaimer {
 
    private static final Logger logger = Logger.getLogger(Reclaimer.class);
+
+   private Reclaimer() {
+   }
 
    // The files are scanned in two stages. First we only check for 2) and do so while that criteria is not met.
    // When 2) is met, set the first reclaim flag in the journal. After that point only check for 1)
    // until that criteria is met as well. When 1) is met we set the second flag and the file can be reclaimed.
 
-   public void scan(final JournalFile[] files) {
+   public static void scan(final JournalFile[] files) {
       for (int i = 0; i < files.length; i++) {
          JournalFile currentFile = files[i];
 

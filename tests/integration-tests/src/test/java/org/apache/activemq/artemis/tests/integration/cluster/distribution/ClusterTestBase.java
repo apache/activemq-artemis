@@ -86,15 +86,20 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private static final int[] PORTS = {TransportConstants.DEFAULT_PORT, TransportConstants.DEFAULT_PORT + 1, TransportConstants.DEFAULT_PORT + 2, TransportConstants.DEFAULT_PORT + 3, TransportConstants.DEFAULT_PORT + 4, TransportConstants.DEFAULT_PORT + 5, TransportConstants.DEFAULT_PORT + 6, TransportConstants.DEFAULT_PORT + 7, TransportConstants.DEFAULT_PORT + 8, TransportConstants.DEFAULT_PORT + 9,};
+
+   @ClassRule
+   public static PortCheckRule rule = new PortCheckRule(PORTS);
 
    protected int getLargeMessageSize() {
       return 500;
@@ -130,8 +135,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       super.setUp();
 
       forceGC();
-
-      ActiveMQTestBase.checkFreePort(ClusterTestBase.PORTS);
 
       consumers = new ConsumerHolder[ClusterTestBase.MAX_CONSUMERS];
 
@@ -174,8 +177,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       nodeManagers = null;
 
       super.tearDown();
-
-      ActiveMQTestBase.checkFreePort(ClusterTestBase.PORTS);
 
    }
 

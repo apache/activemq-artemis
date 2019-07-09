@@ -37,8 +37,12 @@ public class InputAbstract extends ActionAbstract {
    @Option(name = "--silent", description = "It will disable all the inputs, and it would make a best guess for any required input")
    private boolean silentInput = false;
 
-   private boolean isSilentInput() {
+   public boolean isSilentInput() {
       return silentInput || !inputEnabled;
+   }
+
+   public void setSilentInput(boolean isSilent) {
+      this.silentInput = isSilent;
    }
 
    protected boolean inputBoolean(String propertyName, String prompt, boolean silentDefault) {

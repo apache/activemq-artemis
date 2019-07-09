@@ -128,7 +128,7 @@ public class SendAckFailTest extends SpawnedTestBase {
             ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
             ServerLocator locator = factory.getServerLocator();
 
-            locator.setConfirmationWindowSize(0).setInitialConnectAttempts(100).setRetryInterval(100).setBlockOnDurableSend(false).setReconnectAttempts(0);
+            locator.setConfirmationWindowSize(0).setInitialConnectAttempts(10000).setRetryInterval(10).setBlockOnDurableSend(false).setReconnectAttempts(0);
 
             ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -213,13 +213,30 @@ public class SendAckFailTest extends SpawnedTestBase {
 
    public ActiveMQServer startServer(boolean fail) {
       try {
-         //ActiveMQServerImpl server = (ActiveMQServerImpl) createServer(true, true);
-
          AtomicInteger count = new AtomicInteger(0);
 
          ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
          Configuration configuration = createDefaultConfig(true);
+
+
+         if (fail) {
+            new Thread() {
+               @Override
+               public void run() {
+                  try {
+
+                     // this is a protection, if the process is left forgoten for any amount of time,
+                     // this will kill it
+                     // This is to avoid rogue processes on the CI
+                     Thread.sleep(10000);
+                     System.err.println("Halting process, protecting the CI from rogue processes");
+                     Runtime.getRuntime().halt(-1);
+                  } catch (Throwable e) {
+                  }
+               }
+            }.start();
+         }
 
          ActiveMQServer server = new ActiveMQServerImpl(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager) {
             @Override
@@ -249,6 +266,7 @@ public class SendAckFailTest extends SpawnedTestBase {
 
 
          System.out.println("Location::" + server.getConfiguration().getJournalLocation().getAbsolutePath());
+         addServer(server);
          server.start();
          return server;
       } catch (Exception e) {

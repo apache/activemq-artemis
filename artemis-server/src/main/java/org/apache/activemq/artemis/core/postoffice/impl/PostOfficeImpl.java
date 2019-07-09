@@ -1512,7 +1512,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return true;
    }
 
-  /**
+   /**
     * The expiry scanner can't be started until the whole server has been started other wise you may get races
     */
    @Override
@@ -1601,10 +1601,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
             try {
-               if (addressInfo != null && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
+               if (settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
 
                   if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.info("deleting auto-created address \"" + address + ".\"");
+                     ActiveMQServerLogger.LOGGER.debug("deleting auto-created address \"" + address + ".\"");
                   }
 
                   server.removeAddressInfo(address, null);

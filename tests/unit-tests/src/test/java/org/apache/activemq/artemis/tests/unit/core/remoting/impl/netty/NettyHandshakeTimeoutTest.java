@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -30,10 +34,6 @@ import org.apache.activemq.transport.netty.NettyTransportFactory;
 import org.apache.activemq.transport.netty.NettyTransportListener;
 import org.junit.Test;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-
 public class NettyHandshakeTimeoutTest extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
@@ -43,8 +43,6 @@ public class NettyHandshakeTimeoutTest extends ActiveMQTestBase {
    public void testHandshakeTimeout() throws Exception {
       int handshakeTimeout = 3;
 
-      setUp();
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HANDSHAKE_TIMEOUT, handshakeTimeout);
 
@@ -70,10 +68,12 @@ public class NettyHandshakeTimeoutTest extends ActiveMQTestBase {
 
       try {
          transport.connect();
-         assertTrue("Connection should be closed now", Wait.waitFor(() -> !transport.isConnected(), TimeUnit.SECONDS.toMillis(handshakeTimeout + 1)));
+         assertTrue("Connection should be closed now", Wait.waitFor(() -> !transport.isConnected(), TimeUnit.SECONDS.toMillis(handshakeTimeout + 10)));
       } finally {
          transport.close();
-         tearDown();
       }
+
+      server.stop();
+
    }
 }

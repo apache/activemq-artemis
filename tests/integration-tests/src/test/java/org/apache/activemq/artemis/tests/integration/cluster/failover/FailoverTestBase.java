@@ -113,6 +113,10 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    protected TestableServer createTestableServer(Configuration config) throws Exception {
+      return createTestableServer(config, nodeManager);
+   }
+
+   protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
       boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }

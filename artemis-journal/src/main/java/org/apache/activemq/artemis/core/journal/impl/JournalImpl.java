@@ -84,6 +84,8 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
+
 /**
  * <p>A circular log implementation.</p>
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
@@ -213,8 +215,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private volatile JournalState state = JournalState.STOPPED;
 
    private volatile int compactCount = 0;
-
-   private final Reclaimer reclaimer = new Reclaimer();
 
    public float getCompactPercentage() {
       return compactPercentage;
@@ -832,6 +832,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                          ", record = " + record);
       }
 
+      final long maxRecordSize = getMaxRecordSize();
+      final JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
+      final int addRecordEncodeSize = addRecord.getEncodeSize();
+
+      if (addRecordEncodeSize > maxRecordSize) {
+         //The record size should be larger than max record size only on the large messages case.
+         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
+      }
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
@@ -839,9 +847,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          public void run() {
             journalLock.readLock().lock();
             try {
-               JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(addRecord, false, sync, null, callback);
-               records.put(id, new JournalRecord(usedFile, addRecord.getEncodeSize()));
+               records.put(id, new JournalRecord(usedFile, addRecordEncodeSize));
 
                if (logger.isTraceEnabled()) {
                   logger.trace("appendAddRecord::id=" + id +
@@ -2149,7 +2156,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             break;
       }
       try {
-         reclaimer.scan(getDataFiles());
+         scan(getDataFiles());
 
          for (JournalFile file : filesRepository.getDataFiles()) {
             if (file.isCanReclaim()) {
@@ -2242,7 +2249,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /* Only meant to be used in tests. */
    @Override
    public String debug() throws Exception {
-      reclaimer.scan(getDataFiles());
+      scan(getDataFiles());
 
       StringBuilder builder = new StringBuilder();
 

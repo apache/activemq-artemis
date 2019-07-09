@@ -510,8 +510,8 @@ If the HA Policy is colocated then connectors and acceptors will be
 inherited from the live server creating it and offset depending on the
 setting of `backup-port-offset` configuration element. If this is set to
 say 100 (which is the default) and a connector is using port 61616 then
-this will be set to 5545 for the first server created, 5645 for the
-second and so on.
+this will be set to 61716 for the first server created, 61816 for the
+second, and so on.
 
 > **Note:**
 >
@@ -522,7 +522,7 @@ second and so on.
 
 It may be that some of the Connectors configured are for external
 servers and hence should be excluded from the offset. for instance a
-Connector used by the cluster connection to do quorum voting for a
+connector used by the cluster connection to do quorum voting for a
 replicated backup server, these can be omitted from being offset by
 adding them to the `ha-policy` configuration like so:
 

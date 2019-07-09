@@ -59,7 +59,8 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
    private static final Logger logger = Logger.getLogger(SlowConsumerTest.class);
 
-   int threshold = 10;
+   private int threshold = 10;
+   private long checkPeriod = 1;
    private boolean isNetty = false;
    private boolean isPaging = false;
 
@@ -89,7 +90,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       server = createServer(true, isNetty);
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setSlowConsumerCheckPeriod(1);
+      addressSettings.setSlowConsumerCheckPeriod(checkPeriod);
       addressSettings.setSlowConsumerThreshold(threshold);
       addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
@@ -140,6 +141,67 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       } catch (ActiveMQObjectClosedException e) {
          assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
       }
+   }
+
+   @Test
+   public void testSlowConsumerKilledAfterBurst() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = addClientSession(sf.createSession(false, true, true, false));
+
+      ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
+
+      assertPaging();
+
+      final int numMessages = 3 * threshold;
+
+      for (int i = 0; i < numMessages; i++) {
+         producer.send(createTextMessage(session, "m" + i));
+      }
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
+      session.start();
+
+      for (int i = 0; i < threshold; i++) {
+         consumer.receiveImmediate().individualAcknowledge();
+      }
+
+      Thread.sleep(3 *  checkPeriod * 1000);
+
+      try {
+         consumer.receiveImmediate();
+         fail();
+      } catch (ActiveMQObjectClosedException e) {
+         assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
+      }
+   }
+
+   @Test
+   public void testSlowConsumerSparedAfterBurst() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = addClientSession(sf.createSession(false, true, true, false));
+
+      ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
+
+      assertPaging();
+
+      final int numMessages = 3 * threshold + 1;
+
+      for (int i = 0; i < numMessages; i++) {
+         producer.send(createTextMessage(session, "m" + i));
+      }
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
+      session.start();
+
+      for (int i = 0; i < 3 * threshold; i++) {
+         consumer.receiveImmediate().individualAcknowledge();
+      }
+
+      Thread.sleep(3 *  checkPeriod * 1000);
+
+      assertNotNull(consumer.receiveImmediate());
    }
 
    private void assertPaging() throws Exception {

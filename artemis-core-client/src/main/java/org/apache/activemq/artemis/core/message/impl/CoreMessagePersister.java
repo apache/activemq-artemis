@@ -26,7 +26,16 @@ import org.apache.activemq.artemis.utils.DataConstants;
 public class CoreMessagePersister implements Persister<Message> {
    public static final byte ID = 1;
 
-   public static CoreMessagePersister theInstance;
+   private static CoreMessagePersister theInstance;
+
+   /** This is a hook for testing */
+   public static void registerPersister(CoreMessagePersister newPersister) {
+      theInstance = newPersister;
+   }
+
+   public static void resetPersister() {
+      theInstance = null;
+   }
 
    public static CoreMessagePersister getInstance() {
       if (theInstance == null) {

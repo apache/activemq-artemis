@@ -47,4 +47,7 @@ public interface ActiveMQJournalBundle {
 
    @Message(id = 149004, value = "unable to open file")
    String unableToOpenFile();
+
+   @Message(id = 149005, value = "Message of {0} bytes is bigger than the max record size of {1} bytes. You should try to move large application properties to the message body.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIOErrorException recordLargerThanStoreMax(long recordSize, long maxRecordSize);
 }

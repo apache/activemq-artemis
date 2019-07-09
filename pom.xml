@@ -20,7 +20,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.9.0</version>
+   <version>2.10.0-SNAPSHOT</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -84,26 +84,26 @@
       <commons.beanutils.version>1.9.3</commons.beanutils.version>
       <commons.collections.version>3.2.2</commons.collections.version>
       <fuse.mqtt.client.version>1.14</fuse.mqtt.client.version>
-      <guava.version>19.0</guava.version>
+      <guava.version>24.1.1-jre</guava.version>
       <jboss.logging.version>3.4.0.Final</jboss.logging.version>
       <jetty.version>9.4.3.v20170317</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <mockito.version>2.8.47</mockito.version>
+      <mockito.version>2.25.0</mockito.version>
       <netty.version>4.1.34.Final</netty.version>
       <netty-tcnative-version>2.0.22.Final</netty-tcnative-version>
-      <proton.version>0.33.0</proton.version>
+      <proton.version>0.33.1</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.42.0</qpid.jms.version>
+      <qpid.jms.version>0.43.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
       <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
-       <version.org.wildfly.common.wildfly-common>1.5.1.Final</version.org.wildfly.common.wildfly-common>
-      <airlift.version>0.7</airlift.version>
+      <version.org.wildfly.common.wildfly-common>1.5.2.Final</version.org.wildfly.common.wildfly-common>
+      <airlift.version>0.8</airlift.version>
       <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
       <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
@@ -117,6 +117,7 @@
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
       <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
       <version.micrometer>1.1.4</version.micrometer>
+      <hamcrest.version>2.1</hamcrest.version>
 
       <!-- used on tests -->
       <groovy.version>2.4.3</groovy.version>
@@ -198,7 +199,7 @@
       <connection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</connection>
       <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</developerConnection>
       <url>https://fisheye6.atlassian.com/browse/~br=master/activemq-artemis-git</url>
-      <tag>2.9.0</tag>
+      <tag>1.0.0-SNAPSHOT</tag>
    </scm>
 
    <distributionManagement>
@@ -798,6 +799,12 @@
             <artifactId>osgi.cmpn</artifactId>
             <version>6.0.0</version>
             <scope>provided</scope>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
       </dependencies>

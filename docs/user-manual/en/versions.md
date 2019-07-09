@@ -8,6 +8,120 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.9.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12345527).
+
+This was a light release. It included a handful of bug fixes, a few improvements, and one major new feature.
+
+Highlights:
+- Support [exporting metrics](metrics.md).
+
+## 2.8.1
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12345432).
+
+This was mainly a bug-fix release with a notable dependency change impacting version upgrade.
+
+#### Upgrading from 2.8.0
+
+Due to the dependency upgrade made on [ARTEMIS-2319](https://issues.apache.org/jira/browse/ARTEMIS-2319) the
+broker start scripts need to be adjusted after upgrading.
+
+##### On \*nix
+
+Locate this `if` statement in `bin/artemis`:
+```
+if [ -z "$LOG_MANAGER" ] ; then
+ # this is the one found when the server was created
+ LOG_MANAGER="$ARTEMIS_HOME/lib/jboss-logmanager-2.0.3.Final.jar"
+fi
+```
+This needs to be replaced with this block:
+```
+if [ -z "$LOG_MANAGER" ] ; then
+ # this is the one found when the server was created
+ LOG_MANAGER="$ARTEMIS_HOME/lib/jboss-logmanager-2.1.10.Final.jar"
+fi
+
+WILDFLY_COMMON=`ls $ARTEMIS_HOME/lib/wildfly-common*jar 2>/dev/null`
+if [ -z "$WILDFLY_COMMON" ] ; then
+ # this is the one found when the server was created
+ WILDFLY_COMMON="$ARTEMIS_HOME/lib/wildfly-common-1.5.1.Final.jar"
+fi
+```
+Notice that the `jboss-logmanager` version has changed and there is also a new `wildfly-common` library.
+
+Not much further down there is this line:
+```
+-Xbootclasspath/a:"$LOG_MANAGER" \
+```
+This line should be changed to be:
+```
+-Xbootclasspath/a:"$LOG_MANAGER:$WILDFLY_COMMON" \
+```
+
+##### On Windows
+
+Locate this part of `JAVA_ARGS` in `etc/artemis.profile.cmd`:
+```
+-Xbootclasspath/a:%ARTEMIS_HOME%\lib\jboss-logmanager-2.1.10.Final.jar
+```
+This needs to be replaced with this:
+```
+-Xbootclasspath/a:%ARTEMIS_HOME%\lib\jboss-logmanager-2.1.10.Final.jar;%ARTEMIS_HOME%\lib\wildfly-common-1.5.1.Final.jar}
+```
+
+## 2.8.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12345169).
+
+Highlights:
+- Support ActiveMQ5 feature [JMSXGroupFirstForConsumer](message-grouping.md#notifying-consumer-of-group-ownership-change).
+- Clarify handshake timeout error with remote address.
+- Support [duplicate detection](duplicate-detection.md) for AMQP messages the same as core.
+
+## 2.7.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12342977).
+
+Highlights:
+- Support advanced destination options like `consumersBeforeDispatchStarts` and `timeBeforeDispatchStarts` from 5.x.
+- Add support for delays before deleting addresses and queues via [`auto-delete-queues-delay` and `auto-delete-addresses-delay`
+  Address Settings](address-model.md#configuring-addresses-and-queues-via-address-settings).
+- Support [logging HTTP access](web-server.md).
+- Add a CLI command to purge a queue.
+- Support user and role manipulation for PropertiesLoginModule via management interfaces.
+- [Docker images](https://github.com/apache/activemq-artemis/tree/master/artemis-docker).
+- [Audit logging](logging.md#configuring-audit-log).
+- Implementing [consumer priority](consumer-priority).
+- Support [FQQN](address-model.md#specifying-a-fully-qualified-queue-name) for producers.
+- Track routed and unrouted messages sent to an address.
+- Support [connection pooling in LDAPLoginModule](security.md#ldaploginmodule).
+- Support configuring a default consumer window size via [`default-consumer-window-size` Address Setting](address-model.md#configuring-addresses-and-queues-via-address-settings).
+- Support [masking](masking-passwords.md) `key-store-password` and `trust-store-password` in management.xml.
+- Support [`JMSXGroupSeq` -1 to close/reset message groups](message-grouping.md#closing-a-message-group) from 5.x.
+- Allow configuration of [RMI registry port](management.md#configuring-remote-jmx-access).
+- Support routing-type configuration on [core bridge](core-bridges.md#configuring-bridges).
+- Move artemis-native as its own project, as [activemq-artemis-native](https://github.com/apache/activemq-artemis-native).
+- Support [federated queues and addresses](federation.md).
+
+## 2.6.4
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12344010).
+
+This was mainly a bug-fix release with a few improvements a couple notable new features:
+
+Highlights:
+- Added the ability to set the text message content on the `producer` CLI command.
+- Support reload logging configuration at runtime.
+
+## 2.6.3
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12343472).
+
+This was mainly a bug-fix release with a few improvements but no substantial new features.
+
 ## 2.6.2
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12343404).

@@ -23,6 +23,7 @@ import java.util.Map;
 public class ServerConnectVote extends BooleanVote {
 
    private String nodeId;
+   private String transportConfiguration;
 
    public ServerConnectVote(String nodeId) {
       super(false);
@@ -33,9 +34,10 @@ public class ServerConnectVote extends BooleanVote {
       super(false);
    }
 
-   public ServerConnectVote(String nodeid, boolean isLive) {
+   public ServerConnectVote(String nodeid, boolean isLive, String transportConfiguration) {
       super(isLive);
       this.nodeId = nodeid;
+      this.transportConfiguration = transportConfiguration;
    }
 
    @Override
@@ -52,12 +54,18 @@ public class ServerConnectVote extends BooleanVote {
    public void encode(ActiveMQBuffer buff) {
       super.encode(buff);
       buff.writeString(nodeId);
+      buff.writeNullableString(transportConfiguration);
+   }
+
+   public String getTransportConfiguration() {
+      return transportConfiguration;
    }
 
    @Override
    public void decode(ActiveMQBuffer buff) {
       super.decode(buff);
       nodeId = buff.readString();
+      transportConfiguration = buff.readNullableString();
    }
 
    public String getNodeId() {

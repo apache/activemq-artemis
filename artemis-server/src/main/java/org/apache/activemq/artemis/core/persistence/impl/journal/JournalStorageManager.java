@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
+import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
@@ -75,7 +76,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    protected SequentialFileFactory bindingsFF;
 
-   SequentialFileFactory largeMessagesFactory;
+   protected SequentialFileFactory largeMessagesFactory;
 
    protected Journal originalMessageJournal;
 
@@ -548,6 +549,23 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          largeMessage.setMessageID(id);
 
+
+         // Check durable large massage size before to allocate resources if it can't be stored
+         if (largeMessage.isDurable()) {
+            final long maxRecordSize = getMaxRecordSize();
+            final int messageEncodeSize = largeMessage.getEncodeSize();
+
+            if (messageEncodeSize > maxRecordSize) {
+               ActiveMQServerLogger.LOGGER.messageWithHeaderTooLarge(largeMessage.getMessageID(), logger.getName());
+
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Message header too large for " + largeMessage);
+               }
+
+               throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(messageEncodeSize, maxRecordSize);
+            }
+         }
+
          // We do this here to avoid a case where the replication gets a list without this file
          // to avoid a race
          largeMessage.validateFile();
@@ -818,7 +836,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          file.position(file.size());
          if (bytes.byteBuf() != null && bytes.byteBuf().nioBufferCount() == 1) {
             final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
-            file.writeDirect(nioBytes, false);
+            file.blockingWriteDirect(nioBytes, false, false);
 
             if (isReplicated()) {
                //copy defensively bytes
@@ -843,8 +861,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       readLock();
       try {
          file.position(file.size());
-
-         file.writeDirect(ByteBuffer.wrap(bytes), false);
+         //that's an additional precaution to avoid ByteBuffer to be pooled:
+         //NIOSequentialFileFactory doesn't pool heap ByteBuffer, but better to make evident
+         //the intention by calling the right method
+         file.blockingWriteDirect(ByteBuffer.wrap(bytes), false, false);
 
          if (isReplicated()) {
             replicator.largeMessageWrite(messageId, bytes);

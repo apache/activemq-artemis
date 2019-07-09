@@ -36,7 +36,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
-import java.net.ServerSocket;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -139,6 +138,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.CleanupSystemPropertiesRule;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
+import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
@@ -148,6 +148,7 @@ import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
@@ -167,12 +168,23 @@ public abstract class ActiveMQTestBase extends Assert {
    private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
 
    /** This will make sure threads are not leaking between tests */
+   @ClassRule
+   public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+
+   /** We should not under any circunstance create data outside of ./target
+    *  if you have a test failing because because of this rule for any reason,
+    *  even if you use afterClass events, move the test to ./target and always cleanup after
+    *  your data even under ./target.
+    *  Do not try to disable this rule! Fix your test! */
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   public NoFilesBehind noFilesBehind = new NoFilesBehind("data");
 
    /** This will cleanup any system property changed inside tests */
    @Rule
    public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
+
+   @ClassRule
+   public static PortCheckRule portCheckRule = new PortCheckRule(61616);
 
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
@@ -365,8 +377,6 @@ public abstract class ActiveMQTestBase extends Assert {
       OperationContextImpl.clearContext();
 
       InVMRegistry.instance.clear();
-
-      // checkFreePort(TransportConstants.DEFAULT_PORT);
    }
 
    public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual) {
@@ -792,24 +802,6 @@ public abstract class ActiveMQTestBase extends Assert {
          connectors.add(name1);
       }
       return connectors;
-   }
-
-   protected static final void checkFreePort(final int... ports) {
-      for (int port : ports) {
-         ServerSocket ssocket = null;
-         try {
-            ssocket = new ServerSocket(port);
-         } catch (Exception e) {
-            throw new IllegalStateException("port " + port + " is bound", e);
-         } finally {
-            if (ssocket != null) {
-               try {
-                  ssocket.close();
-               } catch (IOException e) {
-               }
-            }
-         }
-      }
    }
 
    /**
