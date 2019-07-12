@@ -259,8 +259,9 @@ public final class Page implements Comparable<Page> {
          if (fileBuffer != null) {
             fileFactory.releaseBuffer(fileBuffer);
          }
-         if (file.position() != fileSize) {
-            file.position(fileSize);
+         size.lazySet(processedBytes);
+         if (file.position() != processedBytes) {
+            file.position(processedBytes);
          }
       }
    }

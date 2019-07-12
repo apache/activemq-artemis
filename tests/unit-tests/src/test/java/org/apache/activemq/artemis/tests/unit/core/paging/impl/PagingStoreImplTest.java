@@ -726,6 +726,74 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testWriteIncompletePage() throws Exception {
+      clearDataRecreateServerDirs();
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1);
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      final int MAX_SIZE = 1024 * 1024;
+
+      AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+
+      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, new SimpleString("test"), settings, getExecutorFactory().getExecutor(), true);
+
+      storeImpl.start();
+
+      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+
+      // Marked the store to be paged
+      storeImpl.startPaging();
+
+      Page page = storeImpl.getCurrentPage();
+
+      int num1 = 20;
+      for (int i = 0; i < num1; i++) {
+         writePageMessage(storeImpl, i);
+      }
+      // simulate uncompleted page
+      long position = page.getFile().position();
+      writePageMessage(storeImpl, 30);
+      page.getFile().position(position);
+      ByteBuffer buffer = ByteBuffer.allocate(10);
+      for (int i = 0; i < buffer.capacity(); i++) {
+         buffer.put((byte) 'Z');
+      }
+      buffer.rewind();
+      page.getFile().writeDirect(buffer, true);
+      storeImpl.stop();
+
+      // write uncompleted page
+      storeImpl.start();
+      int num2 = 10;
+      for (int i = 0; i < num2; i++) {
+         writePageMessage(storeImpl, i + num1);
+      }
+
+      // simulate broker restart
+      storeImpl.stop();
+      storeImpl.start();
+
+      long msgsRead = 0;
+
+      while (msgsRead < num1 + num2) {
+         page = storeImpl.depage();
+         assertNotNull("no page after read " + msgsRead + " msg", page);
+         page.open();
+         List<PagedMessage> messages = page.read(new NullStorageManager());
+
+         for (PagedMessage pgmsg : messages) {
+            Message msg = pgmsg.getMessage();
+            Assert.assertEquals(msgsRead, msg.getMessageID());
+            Assert.assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
+            msgsRead++;
+         }
+      }
+
+      storeImpl.stop();
+   }
+
    /**
     * @return
     */
@@ -745,6 +813,15 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             return ArtemisExecutor.delegate(executor);
          }
       };
+   }
+
+   protected void writePageMessage(final PagingStore storeImpl,
+                                  final long id) throws Exception {
+      Message msg = createMessage(id, storeImpl, PagingStoreImplTest.destinationTestName, createRandomBuffer(id, 10));
+      msg.putLongProperty("count", id);
+
+      final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
+      storeImpl.page(msg, ctx2.getTransaction(), ctx2.getContextListing(storeImpl.getStoreName()), lock);
    }
 
    private CoreMessage createMessage(final long id,
