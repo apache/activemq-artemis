@@ -336,7 +336,11 @@ public class PacketImpl implements Packet {
    }
 
    protected void encodeSize(ActiveMQBuffer buffer) {
-      size = buffer.writerIndex();
+      encodeSize(buffer, buffer.writerIndex());
+   }
+
+   protected void encodeSize(ActiveMQBuffer buffer, int size) {
+      this.size = size;
 
       // The length doesn't include the actual length byte
       int len = size - DataConstants.SIZE_INT;
@@ -345,9 +349,10 @@ public class PacketImpl implements Packet {
    }
 
    protected ActiveMQBuffer createPacket(CoreRemotingConnection connection) {
+      return createPacket(connection, expectedEncodeSize());
+   }
 
-      int size = expectedEncodeSize();
-
+   protected ActiveMQBuffer createPacket(CoreRemotingConnection connection, int size) {
       if (connection == null) {
          return new ChannelBufferWrapper(Unpooled.buffer(size));
       } else {
