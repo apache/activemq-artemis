@@ -250,6 +250,17 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public float getProducedRate() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getProducedRate(queue);
+      }
+      checkStarted();
+
+      // This is an attribute, no need to blockOnIO
+      return queue.getRate();
+   }
+
+   @Override
    public long getPersistentSize() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getPersistentSize(queue);
@@ -842,7 +853,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.countMessages(queue, filterStr);
       }
 
-      Long value = intenalCountMessages(filterStr, null).get(null);
+      Long value = internalCountMessages(filterStr, null).get(null);
       return value == null ? 0 : value;
    }
 
@@ -852,10 +863,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.countMessages(queue, filterStr, groupByProperty);
       }
 
-      return JsonUtil.toJsonObject(intenalCountMessages(filterStr, groupByProperty)).toString();
+      return JsonUtil.toJsonObject(internalCountMessages(filterStr, groupByProperty)).toString();
    }
 
-   private Map<String, Long> intenalCountMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
+   private Map<String, Long> internalCountMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
       checkStarted();
 
       clearIO();
@@ -890,7 +901,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.countDeliveringMessages(queue, filterStr);
       }
 
-      Long value = intenalCountDeliveryMessages(filterStr, null).get(null);
+      Long value = internalCountDeliveryMessages(filterStr, null).get(null);
       return value == null ? 0 : value;
    }
 
@@ -900,10 +911,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.countDeliveringMessages(queue, filterStr, groupByProperty);
       }
 
-      return JsonUtil.toJsonObject(intenalCountDeliveryMessages(filterStr, groupByProperty)).toString();
+      return JsonUtil.toJsonObject(internalCountDeliveryMessages(filterStr, groupByProperty)).toString();
    }
 
-   private Map<String, Long> intenalCountDeliveryMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
+   private Map<String, Long> internalCountDeliveryMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
       checkStarted();
 
       clearIO();

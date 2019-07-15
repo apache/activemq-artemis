@@ -100,6 +100,12 @@ public interface QueueControl {
    long getMessageCount();
 
    /**
+    * Returns the rate of writing messages to the queue.
+    */
+   @Attribute(desc = "rate of writing messages to the queue currently (based on default window function)")
+   float getProducedRate();
+
+   /**
     * Returns the persistent size of all messages currently in this queue. The persistent size of a message
     * is the amount of space the message would take up on disk which is used to track how much data there
     * is to consume on this queue
