@@ -468,6 +468,15 @@ public class PagingStoreImpl implements PagingStore {
                   currentPage = page;
 
                   cursorProvider.addPageCache(pageCache);
+
+                  /**
+                   * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged.
+                   * In case 1 we can keep writing the file. But in case 2 we'd better not bcs old data might be overwritten.
+                   * Here we open a new page so the incomplete page would be reserved for recovery if needed.
+                   */
+                  if (page.getSize() != page.getFile().size()) {
+                     openNewPage();
+                  }
                }
 
                // We will not mark it for paging if there's only a single empty file
