@@ -207,6 +207,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public float getProducedRate() {
+            return (Long) proxy.retrieveAttributeValue("producedRate", Long.class);
+         }
+
+         @Override
          public long getMessagesAdded() {
             return (Integer) proxy.retrieveAttributeValue("messagesAdded", Integer.class);
          }
