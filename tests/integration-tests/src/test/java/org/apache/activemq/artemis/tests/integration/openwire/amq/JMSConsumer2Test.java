@@ -105,6 +105,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       // await possible exceptions
       Thread.sleep(1000);
       assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
+      executor.shutdown();
    }
 
    @Test

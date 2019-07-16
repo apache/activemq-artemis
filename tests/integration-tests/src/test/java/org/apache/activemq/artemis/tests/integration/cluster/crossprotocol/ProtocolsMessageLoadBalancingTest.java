@@ -248,6 +248,8 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
          pd.send(sn0.createTextMessage("hello " + i));
       }
 
+      cn0.close();
+
       // Messages should stay in node 1 and note get redistributed.
       assertEquals(NUMBER_OF_MESSAGES, servers[0].locateQueue(queueName).getMessageCount());
       assertEquals(0, servers[1].locateQueue(queueName).getMessageCount());
@@ -371,6 +373,10 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       receiveMessages(connection[0], consumer[0], NUMBER_OF_MESSAGES / 2, true);
       receiveMessages(connection[1], consumer[1], NUMBER_OF_MESSAGES / 2, true);
 
+      for (int node = 0; node < NUMBER_OF_SERVERS; node++) {
+         connection[node].close();
+      }
+
    }
 
    @Test
@@ -451,6 +457,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       connection[1].close();
       // this wil be after redistribution
       receiveMessages(connection[0], consumer[0], NUMBER_OF_MESSAGES / 2, true);
+      connection[0].close();
    }
 
 
