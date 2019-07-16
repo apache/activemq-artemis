@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -220,6 +221,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
    final Executor failureExecutor;
+
+   private Future<?> asyncStopFuture = null;
 
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
@@ -646,6 +649,13 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    @Override
+   public java.util.concurrent.Future<?> asyncStop() {
+      stop();
+
+      return asyncStopFuture;
+   }
+
+   @Override
    public synchronized void stop() {
       if (channelClazz == null) {
          return;
@@ -685,7 +695,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       // Shutdown the EventLoopGroup if no new task was added for 100ms or if
       // 3000ms elapsed.
-      eventLoopGroup.shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS);
+      asyncStopFuture = eventLoopGroup.shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS);
       eventLoopGroup = null;
 
       channelClazz = null;
