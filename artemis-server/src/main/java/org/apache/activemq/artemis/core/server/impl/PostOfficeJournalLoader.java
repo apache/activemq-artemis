@@ -196,7 +196,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
          if (addressBindingInfo.getAddressStatusEncoding() != null && addressBindingInfo.getAddressStatusEncoding().getStatus() == AddressQueueStatus.PAUSED) {
             addressInfo.setStorageManager(storageManager);
             addressInfo.setPostOffice(postOffice);
-            addressInfo.pause(true);
+            addressInfo.reloadPause(addressBindingInfo.getAddressStatusEncoding().getId());
          }
          postOffice.reloadAddressInfo(addressInfo);
       }

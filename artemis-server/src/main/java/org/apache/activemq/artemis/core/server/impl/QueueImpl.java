@@ -579,7 +579,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       registerMeters();
       if (this.addressInfo != null && this.addressInfo.isPaused()) {
-         this.pause(this.addressInfo.isPersisted());
+         this.pause(false);
       }
    }
 
@@ -2397,7 +2397,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized boolean isPaused() {
-      return paused;
+      return paused || (addressInfo != null && addressInfo.isPaused());
    }
 
    @Override
@@ -2549,7 +2549,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          synchronized (this) {
 
             // Need to do these checks inside the synchronized
-            if (paused || !canDispatch() && redistributor == null) {
+            if (isPaused() || !canDispatch() && redistributor == null) {
                return false;
             }
 
@@ -2757,7 +2757,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       depagePending = false;
 
       synchronized (this) {
-         if (paused || pageIterator == null) {
+         if (isPaused() || pageIterator == null) {
             return;
          }
       }
@@ -3203,7 +3203,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (!supportsDirectDeliver) {
             return false;
          }
-         if (paused || !canDispatch() && redistributor == null) {
+         if (isPaused() || !canDispatch() && redistributor == null) {
             return false;
          }
 

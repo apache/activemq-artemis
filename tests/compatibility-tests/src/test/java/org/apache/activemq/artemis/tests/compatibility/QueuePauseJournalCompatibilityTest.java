@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TEN_ZERO;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SIX_THREE;
 
 /**
  * To run this test on the IDE and debug it, run the compatibility-tests through a command line once:
@@ -46,7 +46,7 @@ import org.junit.runners.Parameterized;
  * Run->Edit Configuration->Add ArtemisMeshTest and add your properties.
  */
 @RunWith(Parameterized.class)
-public class AddressPauseJournalCompatibilityTest extends VersionedBase {
+public class QueuePauseJournalCompatibilityTest extends VersionedBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -63,14 +63,14 @@ public class AddressPauseJournalCompatibilityTest extends VersionedBase {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.add(new Object[]{null, TWO_TEN_ZERO, SNAPSHOT});
+      combinations.add(new Object[]{null, TWO_SIX_THREE, SNAPSHOT});
       // the purpose on this one is just to validate the test itself.
       /// if it can't run against itself it won't work at all
       combinations.add(new Object[]{null, SNAPSHOT, SNAPSHOT});
       return combinations;
    }
 
-   public AddressPauseJournalCompatibilityTest(String server, String sender, String receiver) throws Exception {
+   public QueuePauseJournalCompatibilityTest(String server, String sender, String receiver) throws Exception {
       super(server, sender, receiver);
    }
 
@@ -93,11 +93,6 @@ public class AddressPauseJournalCompatibilityTest extends VersionedBase {
    }
 
    @Test
-   public void testSendReceiveTopic() throws Throwable {
-      internal("topic");
-   }
-
-   @Test
    public void testSendReceiveQueue() throws Throwable {
       internal("queue");
    }
@@ -105,19 +100,18 @@ public class AddressPauseJournalCompatibilityTest extends VersionedBase {
    public void internal(String destinationName) throws Throwable {
       setVariable(senderClassloader, "persistent", true);
       startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
-      evaluate(senderClassloader, "addresspause/beforestop.groovy", destinationName);
+      evaluate(senderClassloader, "queuepause/beforestop.groovy", destinationName);
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
       startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
-      evaluate(receiverClassloader, "addresspause/afterstop.groovy", destinationName);
+      evaluate(receiverClassloader, "queuepause/afterstop.groovy", destinationName);
       stopServer(receiverClassloader);
 
       // on a third try, we run the beforestop again, as the address should been in regular conditions when aftertop.groovy is finished
       setVariable(receiverClassloader, "persistent", true);
       startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
-      evaluate(receiverClassloader, "addresspause/beforestop.groovy", destinationName);
-      stopServer(receiverClassloader);
+      evaluate(receiverClassloader, "queuepause/beforestop.groovy", destinationName);
    }
 }
 
