@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
-import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

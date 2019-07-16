@@ -19,6 +19,6 @@ package org.apache.activemq.artemis.tests.util;
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
  */
-public class Wait extends org.apache.activemq.artemis.junit.Wait {
+public class Wait extends org.apache.activemq.artemis.utils.Wait {
 
 }

@@ -46,8 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 

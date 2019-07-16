@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
