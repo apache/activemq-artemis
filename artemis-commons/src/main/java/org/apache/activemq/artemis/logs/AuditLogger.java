@@ -2243,7 +2243,7 @@ public interface AuditLogger extends BasicLogger {
    void createCoreSession(String user, Object source, Object... args);
 
    static void getProducedRate(Object source) {
-      LOGGER.getMessageCount(getCaller(), source);
+      LOGGER.getProducedRate(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
