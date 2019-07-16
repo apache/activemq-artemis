@@ -57,6 +57,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.fusesource.hawtdispatch.DispatchPriority;
+import org.fusesource.hawtdispatch.internal.DispatcherConfig;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
@@ -74,6 +76,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    protected ActiveMQServer server;
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTestSupport.class);
+
+   static {
+      DispatcherConfig.getDefaultDispatcher().getThreadQueues(DispatchPriority.DEFAULT);
+   }
 
    protected int port = 1883;
    protected ConnectionFactory cf;

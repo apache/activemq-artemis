@@ -58,5 +58,6 @@ public class QueuePeristPauseTest extends ActiveMQTestBase {
          Assert.assertFalse(queue.isPaused());
       }
 
+      server.stop();
    }
 }
