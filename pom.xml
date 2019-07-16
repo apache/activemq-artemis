@@ -1665,6 +1665,12 @@
 
                   <!-- Mockito -->
                   <exclude>**/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker</exclude>
+
+                  <!-- .NET Examples-->
+                  <exclude>examples/protocols/amqp/dotnet/**/obj/**/*</exclude>
+                  <exclude>examples/protocols/amqp/dotnet/**/bin/**/*</exclude>
+                  <exclude>examples/protocols/amqp/dotnet/**/readme.md</exclude>
+                  <exclude>examples/protocols/amqp/**/readme.md</exclude>
                </excludes>
             </configuration>
             <executions>
