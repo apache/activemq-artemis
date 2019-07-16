@@ -65,7 +65,7 @@ public class JournalAddRecord extends JournalInternalRecord {
 
       int recordEncodeSize = persister.getEncodeSize(record);
 
-      buffer.writeInt(persister.getEncodeSize(record));
+      buffer.writeInt(recordEncodeSize);
 
       buffer.writeByte(recordType);
 
