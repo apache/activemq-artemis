@@ -29,12 +29,18 @@ import org.junit.Test;
 
 public class AddressPauseTest extends JMSTestBase {
 
+
+   @Override
+   protected boolean usePersistence() {
+      return true;
+   }
+
    @Test
    public void testPauseAddress() throws Exception {
       try (Connection connection = cf.createConnection()) {
          connection.setClientID("myClientID");
          connection.start();
-         try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+         try (Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
             Topic topic = session.createTopic("jms.topic.MyTopic");
             TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
             AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
@@ -44,10 +50,12 @@ public class AddressPauseTest extends JMSTestBase {
                TextMessage mess = session.createTextMessage("msg" + i);
                producer.send(mess);
             }
+            session.commit();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber1.receive(5000);
                Assert.assertNotNull(m);
             }
+            session.commit();
             //Pausing the subscriptions
             addressControl.pause();
             Assert.assertTrue(addressControl.isPaused());
@@ -57,9 +65,10 @@ public class AddressPauseTest extends JMSTestBase {
                TextMessage mess = session.createTextMessage("msg" + i);
                producer.send(mess);
             }
-            TextMessage message = (TextMessage) subscriber1.receive(5000);
+            session.commit();
+            TextMessage message = (TextMessage) subscriber1.receiveNoWait();
             Assert.assertNull(message);
-            message = (TextMessage) subscriber2.receive(5000);
+            message = (TextMessage) subscriber2.receiveNoWait();
             Assert.assertNull(message);
             //Resuming the subscriptions
             addressControl.resume();
@@ -67,10 +76,80 @@ public class AddressPauseTest extends JMSTestBase {
                TextMessage m = (TextMessage) subscriber1.receive(5000);
                Assert.assertNotNull(m);
             }
+            session.commit();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber2.receive(5000);
                Assert.assertNotNull(m);
             }
+            session.commit();
+         }
+      }
+   }
+
+
+   @Test
+   public void testPauseAddressServerRestart() throws Exception {
+      final int numMessages = 100;
+
+      try (Connection connection = cf.createConnection()) {
+         connection.setClientID("myClientID");
+         connection.start();
+         try (Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
+            Topic topic = session.createTopic("jms.topic.MyTopic");
+            TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
+            AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+            MessageProducer producer = session.createProducer(topic);
+            for (int i = 0; i < numMessages; i++) {
+               TextMessage mess = session.createTextMessage("msg" + i);
+               producer.send(mess);
+            }
+            session.commit();
+            for (int i = 0; i < numMessages; i++) {
+               TextMessage m = (TextMessage) subscriber1.receive(5000);
+               Assert.assertNotNull(m);
+            }
+            session.commit();
+            //Pausing the subscriptions
+            addressControl.pause(true);
+         }
+      }
+
+      server.stop();
+
+      server.start();
+
+      try (Connection connection = cf.createConnection()) {
+         connection.setClientID("myClientID");
+         connection.start();
+         try (Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
+            Topic topic = session.createTopic("jms.topic.MyTopic");
+            TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
+            AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+            MessageProducer producer = session.createProducer(topic);
+            Assert.assertTrue(addressControl.isPaused());
+            //subscriber2 should be paused too
+            TopicSubscriber subscriber2 = session.createDurableSubscriber(topic, "my-subscription2");
+            for (int i = 0; i < numMessages; i++) {
+               TextMessage mess = session.createTextMessage("msg" + i);
+               producer.send(mess);
+            }
+            session.commit();
+            TextMessage message = (TextMessage) subscriber1.receiveNoWait();
+            Assert.assertNull(message);
+            message = (TextMessage) subscriber2.receiveNoWait();
+            Assert.assertNull(message);
+            //Resuming the subscriptions
+            addressControl.resume();
+            for (int i = 0; i < numMessages; i++) {
+               TextMessage m = (TextMessage) subscriber1.receive(5000);
+               Assert.assertNotNull(m);
+            }
+            session.commit();
+            for (int i = 0; i < numMessages; i++) {
+               TextMessage m = (TextMessage) subscriber2.receive(5000);
+               Assert.assertNotNull(m);
+            }
+            session.commit();
          }
       }
    }

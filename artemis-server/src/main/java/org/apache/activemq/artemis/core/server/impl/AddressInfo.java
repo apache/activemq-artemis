@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.metrics.AddressMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -148,6 +149,35 @@ public class AddressInfo {
       this.bindingRemovedTimestamp = bindingRemovedTimestamp;
    }
 
+
+   public synchronized void reloadPause(long recordID) {
+
+      if (pauseStatusRecord >= 0) {
+         try {
+            storageManager.deleteAddressStatus(pauseStatusRecord);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.unableToDeleteQueueStatus(e);
+         }
+      }
+
+      this.pauseStatusRecord = recordID;
+
+      try {
+         Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  ((QueueBinding) binding).getQueue().pause(false);
+               }
+            }
+         }
+      } catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+      }
+
+      this.paused = true;
+   }
+
    public synchronized void pause(boolean persist) {
       if (postOffice == null) {
          throw new IllegalStateException("");
@@ -155,18 +185,23 @@ public class AddressInfo {
       if (storageManager == null && persist) {
          throw new IllegalStateException("");
       }
-      if (this.paused) {
-         return;
-      }
       try {
          if (persist) {
+            if (pauseStatusRecord >= 0) {
+               try {
+                  storageManager.deleteAddressStatus(pauseStatusRecord);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.unableToDeleteQueueStatus(e);
+               }
+            }
+
             this.pauseStatusRecord = storageManager.storeAddressStatus(this.getId(), AddressQueueStatus.PAUSED);
          }
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
                if (binding instanceof QueueBinding) {
-                  ((QueueBinding) binding).getQueue().pause(persist);
+                  ((QueueBinding) binding).getQueue().pause(false);
                }
             }
          }
