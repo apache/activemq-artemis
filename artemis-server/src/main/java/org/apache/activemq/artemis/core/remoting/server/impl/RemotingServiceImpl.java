@@ -32,6 +32,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -407,15 +408,27 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          conn.disconnect(criticalError);
       }
 
+      Map<Acceptor, Future<?>> acceptorFutures = new HashMap<>();
       for (Acceptor acceptor : acceptors.values()) {
          try {
-            acceptor.stop();
+            acceptorFutures.put(acceptor, acceptor.asyncStop());
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
       }
 
+      for (Map.Entry<Acceptor, Future<?>> acceptorFuture : acceptorFutures.entrySet()) {
+         if (acceptorFuture.getValue() != null) {
+            try {
+               acceptorFuture.getValue().get();
+            } catch (Throwable t) {
+               ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptorFuture.getKey().getName());
+            }
+         }
+      }
+
       acceptors.clear();
+      acceptorFutures.clear();
 
       connections.clear();
       connectionCountLatch.setCount(0);

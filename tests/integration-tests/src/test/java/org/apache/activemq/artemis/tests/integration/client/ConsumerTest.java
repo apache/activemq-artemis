@@ -437,51 +437,51 @@ public class ConsumerTest extends ActiveMQTestBase {
       ConnectionFactory factorySend = createFactory(protocolSender);
       ConnectionFactory factoryConsume = protocolConsumer == protocolSender ? factorySend : createFactory(protocolConsumer);
 
+      StringBuilder bufferLarge = new StringBuilder();
+      while (bufferLarge.length() < 100 * 1024) {
+         bufferLarge.append("          ");
+      }
+      final String bufferLargeContent = bufferLarge.toString();
 
-      Connection connection = factorySend.createConnection();
+      try (Connection connection = factorySend.createConnection()) {
+         connection.start();
+         try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+            javax.jms.Queue queue = session.createQueue(QUEUE.toString());
+            try (MessageProducer producer = session.createProducer(queue)) {
+               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-      try {
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         javax.jms.Queue queue = session.createQueue(QUEUE.toString());
-         MessageProducer producer = session.createProducer(queue);
-         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+               TextMessage msg = session.createTextMessage("hello");
+               msg.setIntProperty("mycount", 0);
+               producer.send(msg);
 
-         TextMessage msg = session.createTextMessage("hello");
-         msg.setIntProperty("mycount", 0);
-         producer.send(msg);
-
-         StringBuffer bufferLarge = new StringBuffer();
-         while (bufferLarge.length() < 100 * 1024) {
-            bufferLarge.append("          ");
+               msg = session.createTextMessage(bufferLargeContent);
+               msg.setIntProperty("mycount", 1);
+               producer.send(msg);
+            }
          }
 
-         msg = session.createTextMessage(bufferLarge.toString());
-         msg.setIntProperty("mycount", 1);
-         producer.send(msg);
-
-         connection = factoryConsume.createConnection();
-         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         queue = session.createQueue(QUEUE.toString());
-
+      }
+      try (Connection connection = factoryConsume.createConnection()) {
          connection.start();
+         try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+            javax.jms.Queue queue = session.createQueue(QUEUE.toString());
 
-         MessageConsumer consumer = session.createConsumer(queue);
+            try (MessageConsumer consumer = session.createConsumer(queue)) {
 
-         TextMessage message = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(0, message.getIntProperty("mycount"));
-         Assert.assertEquals("hello", message.getText());
+               TextMessage message = (TextMessage) consumer.receive(1000);
+               Assert.assertNotNull(message);
+               Assert.assertEquals(0, message.getIntProperty("mycount"));
+               Assert.assertEquals("hello", message.getText());
 
-         message = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(1, message.getIntProperty("mycount"));
-         Assert.assertEquals(bufferLarge.toString(), message.getText());
+               message = (TextMessage) consumer.receive(1000);
+               Assert.assertNotNull(message);
+               Assert.assertEquals(1, message.getIntProperty("mycount"));
+               Assert.assertEquals(bufferLargeContent, message.getText());
 
-         Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
-         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
-
-      } finally {
-         connection.close();
+               Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
+               Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+            }
+         }
       }
    }
 
