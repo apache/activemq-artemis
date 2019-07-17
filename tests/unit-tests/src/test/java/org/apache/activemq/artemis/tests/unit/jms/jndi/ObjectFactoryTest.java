@@ -19,13 +19,19 @@ package org.apache.activemq.artemis.tests.unit.jms.jndi;
 import static org.junit.Assert.assertEquals;
 
 import javax.naming.Reference;
+import javax.naming.StringRefAddr;
+
+import java.net.URI;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jndi.JNDIReferenceFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 
+import org.apache.activemq.artemis.utils.uri.URISupport;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -134,5 +140,30 @@ public class ObjectFactoryTest {
 
       // Check settings
       assertEquals(dest.getAddress(), temp.getAddress());
+   }
+
+   @Test
+   public void testJndiSslParameters() throws Exception {
+      Reference reference = new Reference(ActiveMQConnectionFactory.class.getName(), JNDIReferenceFactory.class.getName(), null);
+      reference.add(new StringRefAddr("brokerURL", "(tcp://localhost:61616,tcp://localhost:5545,tcp://localhost:5555)?sslEnabled=false&trustStorePath=nopath"));
+      reference.add(new StringRefAddr(TransportConstants.SSL_ENABLED_PROP_NAME, "true"));
+      reference.add(new StringRefAddr(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "/path/to/trustStore"));
+      reference.add(new StringRefAddr(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "trustStorePassword"));
+      reference.add(new StringRefAddr(TransportConstants.KEYSTORE_PATH_PROP_NAME, "/path/to/keyStore"));
+      reference.add(new StringRefAddr(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "keyStorePassword"));
+      reference.add(new StringRefAddr("doesnotexist", "somevalue"));
+
+      JNDIReferenceFactory referenceFactory = new JNDIReferenceFactory();
+      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory)referenceFactory.getObjectInstance(reference, null, null, null);
+
+      URI uri = cf.toURI();
+      Map<String, String> params = URISupport.parseParameters(uri);
+
+      Assert.assertEquals("true", params.get(TransportConstants.SSL_ENABLED_PROP_NAME));
+      Assert.assertEquals("/path/to/trustStore", params.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME));
+      Assert.assertEquals("trustStorePassword", params.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME));
+      Assert.assertEquals("/path/to/keyStore", params.get(TransportConstants.KEYSTORE_PATH_PROP_NAME));
+      Assert.assertEquals("keyStorePassword", params.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      Assert.assertNull(params.get("doesnotexist"));
    }
 }
