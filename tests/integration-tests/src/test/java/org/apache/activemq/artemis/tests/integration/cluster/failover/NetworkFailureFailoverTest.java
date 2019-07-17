@@ -51,6 +51,12 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
+/**
+ * This test will simulate a failure where the network card is gone.
+ * On that case the server should fail (as in stop) and not hung.
+ * If you don't have sudoer access to ifutil, this test will fail.
+ * You should add sudoer on your environment. otherwise you will have to ignore failures here.
+ */
 public class NetworkFailureFailoverTest extends FailoverTestBase {
 
    @Rule
@@ -58,18 +64,16 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
    @BeforeClass
    public static void start() {
-      NetUtil.assumeSudo();
+      NetUtil.failIfNotSudo();
    }
 
-   // 192.0.2.0 is reserved for documentation, so I'm pretty sure this won't exist on any system. (It shouldn't at least)
+   // 192.0.2.0 is reserved for documentation (and testing on this case).
    private static final String LIVE_IP = "192.0.2.0";
 
    private int beforeTime;
 
    @Override
    public void setUp() throws Exception {
-      //      beforeTime = NettyConnection.getLockTimeout();
-      //      NettyConnection.setLockTimeout(1000);
       NetUtil.netUp(LIVE_IP);
       super.setUp();
    }
@@ -77,7 +81,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
-      //      NettyConnection.setLockTimeout(beforeTime);
    }
 
    @Override
