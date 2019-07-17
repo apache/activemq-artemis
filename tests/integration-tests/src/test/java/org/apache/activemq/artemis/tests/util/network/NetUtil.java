@@ -21,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.Map;
@@ -77,14 +79,16 @@ public class NetUtil {
       osUsed = osTmp;
    }
 
-   public static void assumeSudo() {
+   public static void failIfNotSudo() {
       Assume.assumeTrue("non supported OS", osUsed != OS.NON_SUPORTED);
       if (!canSudo()) {
-         System.out.println("Add the following at the end of your /etc/sudoers (use the visudo command)");
-         System.out.println("# ------------------------------------------------------- ");
-         System.out.println(user + " ALL = NOPASSWD: /sbin/ifconfig");
-         System.out.println("# ------------------------------------------------------- ");
-         Assume.assumeFalse(true);
+         StringWriter writer = new StringWriter();
+         PrintWriter out = new PrintWriter(writer);
+         out.println("Add the following at the end of your /etc/sudoers (use the visudo command)");
+         out.println("# ------------------------------------------------------- ");
+         out.println(user + " ALL = NOPASSWD: /sbin/ifconfig");
+         out.println("# ------------------------------------------------------- ");
+         Assert.fail(writer.toString());
       }
    }
 
