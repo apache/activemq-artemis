@@ -40,6 +40,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -52,12 +53,14 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 
 /**
  * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
@@ -418,12 +421,33 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       }
       try {
          if (url != null && url.length() > 0) {
+            url = updateBrokerURL(url, props);
             setBrokerURL(url);
          }
 
          BeanSupport.setProperties(this, props);
       } catch (JMSException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
          throw new RuntimeException(e);
+      }
+   }
+
+   private String updateBrokerURL(String url, Properties props) {
+      ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
+      try {
+         URI uri = cfParser.expandURI(url);
+         final Map<String, String> params = URISupport.parseParameters(uri);
+
+         for (String key : TransportConstants.ALLOWABLE_CONNECTOR_KEYS) {
+            final String val = props.getProperty(key);
+            if (val != null) {
+               params.put(key, val);
+            }
+         }
+
+         final String newUrl = URISupport.applyParameters(uri, params).toString();
+         return newUrl;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
    }
 
