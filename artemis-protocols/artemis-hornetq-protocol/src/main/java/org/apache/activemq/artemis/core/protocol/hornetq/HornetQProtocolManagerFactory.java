@@ -47,6 +47,7 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory {
       List<Interceptor> hqOutgoing = filterInterceptors(outgoingInterceptors);
 
       hqIncoming.add(new HQPropertiesConversionInterceptor(true));
+      hqIncoming.add(new HQFilterConversionInterceptor());
       hqOutgoing.add(new HQPropertiesConversionInterceptor(false));
 
       stripPasswordParameters(parameters);
