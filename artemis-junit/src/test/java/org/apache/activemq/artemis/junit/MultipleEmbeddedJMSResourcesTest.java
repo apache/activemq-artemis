@@ -40,7 +40,7 @@ public class MultipleEmbeddedJMSResourcesTest {
    public EmbeddedJMSResource jmsServerTwo = new EmbeddedJMSResource(1);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServerOne).around(jmsServerTwo);
+   public RuleChain rulechain = RuleChain.outerRule(jmsServerOne).around(jmsServerTwo);
 
    @Test
    public void testMultipleServers() throws Exception {
@@ -52,8 +52,6 @@ public class MultipleEmbeddedJMSResourcesTest {
 
       Message pushedTwo = jmsServerTwo.pushMessage(TEST_QUEUE_TWO, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_TWO), pushedTwo);
-      Wait.assertEquals(1L, () -> jmsServerOne.getMessageCount(TEST_QUEUE_ONE), 30_000, 10);
-      Wait.assertEquals(1L, () -> jmsServerTwo.getMessageCount(TEST_QUEUE_TWO), 30_000, 10);
    }
 
 }
