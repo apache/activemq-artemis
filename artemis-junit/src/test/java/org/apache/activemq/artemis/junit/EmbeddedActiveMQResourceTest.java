@@ -49,7 +49,7 @@ public class EmbeddedActiveMQResourceTest {
    public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+   public RuleChain rulechain = RuleChain.outerRule(server);
 
    ClientMessage sent = null;
 
@@ -61,7 +61,6 @@ public class EmbeddedActiveMQResourceTest {
    @After
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
-      Wait.assertEquals(1L, () -> server.getMessageCount(TEST_QUEUE), 30_000, 10);
 
       ClientMessage received = server.receiveMessage(TEST_QUEUE);
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);

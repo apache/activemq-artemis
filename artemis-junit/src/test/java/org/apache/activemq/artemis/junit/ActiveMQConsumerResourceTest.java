@@ -50,14 +50,13 @@ public class ActiveMQConsumerResourceTest {
    ActiveMQConsumerResource consumer = new ActiveMQConsumerResource(server.getVmURL(), TEST_QUEUE);
 
    @Rule
-   public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).outerRule(server).around(consumer);
+   public RuleChain ruleChain = RuleChain.outerRule(server).around(consumer);
 
    ClientMessage sent = null;
 
    @After
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
-      Wait.assertEquals(1, () -> server.getMessageCount(TEST_QUEUE));
 
       ClientMessage received = consumer.receiveMessage();
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);

@@ -185,19 +185,19 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       for (int i = 0; i < 2; i++) {
          producer1.send(session.createMessage(false));
       }
-      assertTrue(org.apache.activemq.artemis.junit.Wait.waitFor(() -> server.locateQueue(anycastQ1).getMessageCount() == 2, 2000, 200));
+      assertTrue(org.apache.activemq.artemis.tests.util.Wait.waitFor(() -> server.locateQueue(anycastQ1).getMessageCount() == 2, 2000, 200));
 
       ClientProducer producer2 = session.createProducer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ2).toString());
       for (int i = 0; i < 3; i++) {
          producer2.send(session.createMessage(false));
       }
-      assertTrue(org.apache.activemq.artemis.junit.Wait.waitFor(() -> server.locateQueue(anycastQ2).getMessageCount() == 3, 2000, 200));
+      assertTrue(org.apache.activemq.artemis.tests.util.Wait.waitFor(() -> server.locateQueue(anycastQ2).getMessageCount() == 3, 2000, 200));
 
       ClientProducer producer3 = session.createProducer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ3).toString());
       for (int i = 0; i < 5; i++) {
          producer3.send(session.createMessage(false));
       }
-      assertTrue(org.apache.activemq.artemis.junit.Wait.waitFor(() -> server.locateQueue(anycastQ3).getMessageCount() == 5, 2000, 200));
+      assertTrue(org.apache.activemq.artemis.tests.util.Wait.waitFor(() -> server.locateQueue(anycastQ3).getMessageCount() == 5, 2000, 200));
 
       ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ1));
       ClientConsumer consumer2 = session.createConsumer(CompositeAddress.toFullyQualified(anycastAddress, anycastQ2));

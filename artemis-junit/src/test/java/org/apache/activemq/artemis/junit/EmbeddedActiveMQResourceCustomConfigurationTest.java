@@ -43,7 +43,7 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource(customConfiguration);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+   public RuleChain rulechain = RuleChain.outerRule(server);
 
    @After
    public void tear() {
