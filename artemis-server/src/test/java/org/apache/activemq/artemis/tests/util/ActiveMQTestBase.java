@@ -171,9 +171,6 @@ public abstract class ActiveMQTestBase extends Assert {
    @ClassRule
    public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
 
-   @Rule
-   public NoProcessFilesBehind noProcessFilesBehind = new NoProcessFilesBehind(-1, 1000);
-
    /** We should not under any circunstance create data outside of ./target
     *  if you have a test failing because because of this rule for any reason,
     *  even if you use afterClass events, move the test to ./target and always cleanup after
@@ -279,7 +276,6 @@ public abstract class ActiveMQTestBase extends Assert {
 
    @After
    public void tearDown() throws Exception {
-      noProcessFilesBehind.tearDown();
       closeAllSessionFactories();
       closeAllServerLocatorsFactories();
 
