@@ -650,7 +650,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    public void stop() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
-      asyncStop(() -> latch.countDown());
+      asyncStop(latch::countDown);
 
       latch.await();
    }
