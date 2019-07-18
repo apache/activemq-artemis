@@ -36,8 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -221,8 +221,6 @@ public class NettyAcceptor extends AbstractAcceptor {
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
    final Executor failureExecutor;
-
-   private Future<?> asyncStopFuture = null;
 
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
@@ -649,15 +647,18 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    @Override
-   public java.util.concurrent.Future<?> asyncStop() {
-      stop();
+   public void stop() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
 
-      return asyncStopFuture;
+      asyncStop(() -> latch.countDown());
+
+      latch.await();
    }
 
    @Override
-   public synchronized void stop() {
+   public synchronized void asyncStop(Runnable callback) {
       if (channelClazz == null) {
+         callback.run();
          return;
       }
 
@@ -693,11 +694,6 @@ public class NettyAcceptor extends AbstractAcceptor {
          }
       }
 
-      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
-      // 3000ms elapsed.
-      asyncStopFuture = eventLoopGroup.shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS);
-      eventLoopGroup = null;
-
       channelClazz = null;
 
       for (Connection connection : connections.values()) {
@@ -720,6 +716,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
 
       paused = false;
+
+      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
+      // 3000ms elapsed.
+      eventLoopGroup.shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS).addListener(f -> callback.run());
+      eventLoopGroup = null;
    }
 
    @Override

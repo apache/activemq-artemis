@@ -16,26 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-
 public interface ActiveMQComponent {
 
    void start() throws Exception;
 
    void stop() throws Exception;
 
-   default Future<?> asyncStop() {
-      CompletableFuture<?> future = new CompletableFuture<>();
+   default void asyncStop(Runnable callback) throws Exception {
+      stop();
 
-      try {
-         stop();
-         future.complete(null);
-      } catch (Throwable t) {
-         future.completeExceptionally(t);
-      }
-
-      return future;
+      callback.run();
    }
 
    boolean isStarted();
