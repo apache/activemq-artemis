@@ -412,7 +412,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       CountDownLatch acceptorCountDownLatch = new CountDownLatch(acceptors.size());
       for (Acceptor acceptor : acceptors.values()) {
          try {
-            acceptor.asyncStop(() -> acceptorCountDownLatch.countDown());
+            acceptor.asyncStop(acceptorCountDownLatch::countDown);
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
