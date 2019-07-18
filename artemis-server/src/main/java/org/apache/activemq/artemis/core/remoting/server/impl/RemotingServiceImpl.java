@@ -79,6 +79,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private static final Logger logger = Logger.getLogger(RemotingServiceImpl.class);
 
+   private static final int ACCEPTOR_STOP_TIMEOUT = 3000;
+
    // Attributes ----------------------------------------------------
 
    private volatile boolean started = false;
@@ -407,13 +409,16 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          conn.disconnect(criticalError);
       }
 
+      CountDownLatch acceptorCountDownLatch = new CountDownLatch(acceptors.size());
       for (Acceptor acceptor : acceptors.values()) {
          try {
-            acceptor.stop();
+            acceptor.asyncStop(() -> acceptorCountDownLatch.countDown());
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
       }
+      //In some cases an acceptor stopping could be locked ie NettyAcceptor stopping could be locked by a network failure.
+      acceptorCountDownLatch.await(ACCEPTOR_STOP_TIMEOUT, TimeUnit.MILLISECONDS);
 
       acceptors.clear();
 
