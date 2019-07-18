@@ -22,10 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.UnaryOperator;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoop;
@@ -35,6 +38,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExecutorNettyAdapter;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
@@ -71,6 +75,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final String AMQP_CONTAINER_ID = "amqp-container-id";
+   private static final FutureTask<Void> VOID_FUTURE = new FutureTask<>(() -> { }, null);
 
    protected final ProtonHandler handler;
 
@@ -87,9 +92,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private final boolean useCoreSubscriptionNaming;
 
-   private boolean isSchedulingCancelled;
-   private ScheduledFuture scheduledFuture;
-   private final Object schedulingLock = new Object();
+   private final ScheduleOperator scheduleOp = new ScheduleOperator(new ScheduleRunnable());
+   private final AtomicReference<Future<?>> scheduledFutureRef = new AtomicReference(VOID_FUTURE);
 
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
                                 AMQPConnectionCallback connectionSP,
@@ -117,8 +121,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          this.connectionProperties.putAll(connectionProperties);
       }
 
-      this.scheduledFuture = null;
-      this.isSchedulingCancelled = false;
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
       EventLoop nettyExecutor;
@@ -191,17 +193,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    public void close(ErrorCondition errorCondition) {
-      synchronized (schedulingLock) {
-         isSchedulingCancelled = true;
+      Future<?> scheduledFuture = scheduledFutureRef.getAndSet(null);
 
-         if (scheduledPool != null && scheduledPool instanceof ThreadPoolExecutor &&
-            scheduledFuture != null && scheduledFuture instanceof Runnable) {
-            if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture) &&
-               !scheduledFuture.isCancelled() && !scheduledFuture.isDone()) {
-               log.warn("Scheduled task can't be removed from scheduledPool.");
-            } else {
-               scheduledFuture = null;
-            }
+      if (scheduledPool instanceof ThreadPoolExecutor && scheduledFuture != null &&
+         scheduledFuture != VOID_FUTURE && scheduledFuture instanceof Runnable) {
+         if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture) &&
+            !scheduledFuture.isCancelled() && !scheduledFuture.isDone()) {
+            ActiveMQAMQPProtocolLogger.LOGGER.cantRemovingScheduledTask();
          }
       }
 
@@ -416,42 +414,57 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
        * */
       if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
          long nextKeepAliveTime = handler.tick(true);
-         synchronized (schedulingLock) {
-            if (nextKeepAliveTime != 0 && scheduledPool != null && !isSchedulingCancelled) {
-               scheduledFuture = scheduledPool.schedule(new ScheduleRunnable(), (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
-            }
+
+         if (nextKeepAliveTime != 0 && scheduledPool != null) {
+            scheduleOp.setDelay(nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+
+            scheduledFutureRef.getAndUpdate(scheduleOp);
          }
       }
    }
 
-   class TickerRunnable implements Runnable {
+   class ScheduleOperator implements UnaryOperator<Future<?>> {
 
+      private long delay;
       final ScheduleRunnable scheduleRunnable;
 
-      TickerRunnable(ScheduleRunnable scheduleRunnable) {
+      ScheduleOperator(ScheduleRunnable scheduleRunnable) {
          this.scheduleRunnable = scheduleRunnable;
       }
+
+      @Override
+      public Future<?> apply(Future<?> future) {
+         return (future != null) ? scheduledPool.schedule(scheduleRunnable, delay, TimeUnit.MILLISECONDS) : null;
+      }
+
+      public void setDelay(long delay) {
+         this.delay = delay;
+      }
+   }
+
+
+   class TickerRunnable implements Runnable {
 
       @Override
       public void run() {
          Long rescheduleAt = handler.tick(false);
 
-         synchronized (schedulingLock) {
-            if (!isSchedulingCancelled) {
-               if (rescheduleAt == null) {
-                  // this mean tick could not acquire a lock, we will just retry in 10 milliseconds.
-                  scheduledFuture = scheduledPool.schedule(scheduleRunnable, 10, TimeUnit.MILLISECONDS);
-               } else if (rescheduleAt != 0) {
-                  scheduledFuture = scheduledPool.schedule(scheduleRunnable, rescheduleAt - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()), TimeUnit.MILLISECONDS);
-               }
-            }
+         if (rescheduleAt == null) {
+            // this mean tick could not acquire a lock, we will just retry in 10 milliseconds.
+            scheduleOp.setDelay(10);
+
+            scheduledFutureRef.getAndUpdate(scheduleOp);
+         } else if (rescheduleAt != 0) {
+            scheduleOp.setDelay(rescheduleAt - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+
+            scheduledFutureRef.getAndUpdate(scheduleOp);
          }
       }
    }
 
    class ScheduleRunnable implements Runnable {
 
-      TickerRunnable tickerRunnable = new TickerRunnable(this);
+      final TickerRunnable tickerRunnable = new TickerRunnable();
 
       @Override
       public void run() {
