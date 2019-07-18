@@ -333,11 +333,12 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          }
       }
 
-      assertEquals(2, conf.getAddressesSettings().size());
+      assertEquals(3, conf.getAddressesSettings().size());
 
       assertTrue(conf.getAddressesSettings().get("a1") != null);
       assertTrue(conf.getAddressesSettings().get("a2") != null);
 
+      assertEquals("DLA.x1", conf.getAddressesSettings().get("#").resolveDealLetterAddress(new SimpleString("x1")).toString());
       assertEquals("a1.1", conf.getAddressesSettings().get("a1").getDeadLetterAddress().toString());
       assertEquals("a1.2", conf.getAddressesSettings().get("a1").getExpiryAddress().toString());
       assertEquals(1, conf.getAddressesSettings().get("a1").getRedeliveryDelay());

@@ -2843,9 +2843,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       // First check DLA
       if (maxDeliveries > 0 && deliveryCount >= maxDeliveries) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Sending reference " + reference + " to DLA = " + addressSettings.getDeadLetterAddress() + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
+            logger.trace("Sending reference " + reference + " to DLA = " + addressSettings.resolveDealLetterAddress(address) + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
          }
-         boolean dlaResult = sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
+
+         boolean dlaResult = sendToDeadLetterAddress(null, reference, addressSettings.resolveDealLetterAddress(address));
 
          return new Pair<>(false, dlaResult);
       } else {
@@ -3115,8 +3116,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+
    public boolean sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
-      return sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
+      return sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).resolveDealLetterAddress(address));
    }
 
    private boolean sendToDeadLetterAddress(final Transaction tx,
@@ -3913,7 +3915,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void checkDeadLetterAddressAndExpiryAddress(final AddressSettings settings) {
       if (!Env.isTestEnv() && !internalQueue && !address.equals(server.getConfiguration().getManagementNotificationAddress())) {
-         if (settings.getDeadLetterAddress() == null) {
+         if (settings.resolveDealLetterAddress(address) == null) {
             ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
          }
          if (settings.getExpiryAddress() == null) {

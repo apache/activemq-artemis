@@ -2939,6 +2939,13 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="dead-letter-address-prefix" type="xsd:string">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the prefix of the address to send dead messages to
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
 
             <xsd:element name="expiry-address" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
