@@ -430,6 +430,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221080, value = "Deploying address {0} supporting {1}", format = Message.Format.MESSAGE_FORMAT)
    void deployAddress(String addressName, String routingTypes);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221081, value = "There is no address with ID {0}, deleting record {1}", format = Message.Format.MESSAGE_FORMAT)
+   void infoNoAddressWithID(Long id, Long record);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)

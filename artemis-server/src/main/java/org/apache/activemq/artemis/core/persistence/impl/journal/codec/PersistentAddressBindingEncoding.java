@@ -32,6 +32,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    public SimpleString name;
 
    public boolean autoCreated;
+   public AddressStatusEncoding addressStatusEncoding;
 
    public EnumSet<RoutingType> routingTypes;
 
@@ -80,6 +81,15 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    @Override
    public EnumSet<RoutingType> getRoutingTypes() {
       return routingTypes;
+   }
+
+   @Override
+   public AddressStatusEncoding getAddressStatusEncoding() {
+      return addressStatusEncoding;
+   }
+
+   public void setAddressStatusEncoding(AddressStatusEncoding addressStatusEncoding) {
+      this.addressStatusEncoding = addressStatusEncoding;
    }
 
    @Override

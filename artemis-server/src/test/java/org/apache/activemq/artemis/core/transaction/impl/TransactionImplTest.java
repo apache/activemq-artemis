@@ -40,10 +40,10 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -251,7 +251,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+      public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
          return 0;
       }
 
@@ -712,6 +712,16 @@ public class TransactionImplTest extends ActiveMQTestBase {
       @Override
       public long getCurrentID() {
          return 0;
+      }
+
+      @Override
+      public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+         return 0;
+      }
+
+      @Override
+      public void deleteAddressStatus(long recordID) throws Exception {
+
       }
    }
 }

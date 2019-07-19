@@ -114,6 +114,26 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public void pause() throws Exception {
+            proxy.invokeOperation("pause");
+         }
+
+         @Override
+         public void pause(boolean persist) throws Exception {
+            proxy.invokeOperation("pause", persist);
+         }
+
+         @Override
+         public void resume() throws Exception {
+            proxy.invokeOperation("resume");
+         }
+
+         @Override
+         public boolean isPaused() {
+            return (boolean) proxy.retrieveAttributeValue("paused");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,

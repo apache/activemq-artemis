@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -261,8 +262,8 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.wildfly.common</groupId>
-          <artifactId>wildfly-common</artifactId>
+         <groupId>org.wildfly.common</groupId>
+         <artifactId>wildfly-common</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
@@ -325,7 +326,7 @@
                         <arg>org.apache.activemq:artemis-amqp-protocol:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:${project.version}</arg>
                         <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
-                    </libListWithDeps>
+                     </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
@@ -355,30 +356,59 @@
                            otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
                      <variableName>ARTEMIS-263</variableName>
                   </configuration>
-               </execution>               <execution>
-               <phase>compile</phase>
-               <goals>
-                  <goal>dependency-scan</goal>
-               </goals>
-               <id>270-check</id>
-               <configuration>
-                  <libListWithDeps>
-                     <arg>org.apache.activemq:artemis-jms-server:2.7.0</arg>
-                     <arg>org.apache.activemq:artemis-jms-client:2.7.0</arg>
-                     <arg>org.apache.activemq:artemis-cli:2.7.0</arg>
-                     <arg>org.apache.activemq:artemis-hornetq-protocol:2.7.0</arg>
-                     <arg>org.apache.activemq:artemis-amqp-protocol:2.7.0</arg>
-                     <arg>org.apache.activemq:artemis-hornetq-protocol:2.7.0</arg>
-                     <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
-                  </libListWithDeps>
-                  <libList>
-                     <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
-                  </libList>
-                  <!-- for future maintainers, notice that if you add new variables you also need to add the system property
-                        otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
-                  <variableName>ARTEMIS-270</variableName>
-               </configuration>
-            </execution>
+               </execution>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <id>270-check</id>
+                  <configuration>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:2.7.0</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:2.7.0</arg>
+                        <arg>org.apache.activemq:artemis-cli:2.7.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.7.0</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:2.7.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.7.0</arg>
+                        <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
+                     <variableName>ARTEMIS-270</variableName>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <id>2_10_0-check</id>
+                  <configuration>
+                     <!-- At the time I'm writing this 2.10.0 is not released yet
+                          This could be removed the day 2.10.0 is released.
+                          I am adding this now to make sure we will run tests on 2.10.0 when it is released -->
+                     <optional>true</optional>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:2.10.0</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:2.10.0</arg>
+                        <arg>org.apache.activemq:artemis-cli:2.10.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.10.0</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:2.10.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.10.0</arg>
+                        <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
+                     <variableName>ARTEMIS-2_10_0</variableName>
+                  </configuration>
+               </execution>
                <execution>
                   <phase>compile</phase>
                   <goals>

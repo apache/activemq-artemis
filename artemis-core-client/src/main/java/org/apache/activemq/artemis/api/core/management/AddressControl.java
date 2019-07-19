@@ -135,4 +135,31 @@ public interface AddressControl {
                       @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
                       @Parameter(name = "user", desc = "The user to authenticate with") String user,
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
+
+   /**
+    * Pauses all the queues bound to this address.Messages are no longer delivered to all its bounded queues.
+    * Newly added queue will be paused too until resume is called.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Pauses the queues bound to this address", impact = MBeanOperationInfo.ACTION)
+   void pause() throws Exception;
+
+   /**
+    * Pauses all the queues bound to this address.Messages are no longer delivered to all its bounded queues.Newly added queue will be paused too until resume is called.
+    * @param persist if true, the pause state will be persisted.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Pauses the queues bound to this address", impact = MBeanOperationInfo.ACTION)
+   void pause(@Parameter(name = "persist", desc = "if true, the pause state will be persisted.") boolean persist) throws Exception;
+
+   /**
+    * Resume all the queues bound of this address.Messages are delivered again to all its bounded queues.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Resumes the queues bound to this address", impact = MBeanOperationInfo.ACTION)
+   void resume() throws Exception;
+
+   @Attribute(desc = "indicates if the queues bound to this address are paused")
+   boolean isPaused();
+
 }
