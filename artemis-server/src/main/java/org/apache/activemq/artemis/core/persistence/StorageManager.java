@@ -311,9 +311,13 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @return the id of the journal
     * @throws Exception
     */
-   long storeQueueStatus(long queueID, QueueStatus status) throws Exception;
+   long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception;
 
    void deleteQueueStatus(long recordID) throws Exception;
+
+   long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception;
+
+   void deleteAddressStatus(long recordID) throws Exception;
 
    void addAddressBinding(long tx, AddressInfo addressInfo) throws Exception;
 

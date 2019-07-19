@@ -20,6 +20,7 @@ import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
 
 public interface AddressBindingInfo {
 
@@ -28,4 +29,6 @@ public interface AddressBindingInfo {
    SimpleString getName();
 
    EnumSet<RoutingType> getRoutingTypes();
+
+   AddressStatusEncoding getAddressStatusEncoding();
 }

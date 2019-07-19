@@ -17,30 +17,29 @@
 
 package org.apache.activemq.artemis.core.persistence;
 
-public enum QueueStatus {
+public enum AddressQueueStatus {
    PAUSED((short) 0), RUNNING((short) 1);
 
    public final short id;
 
-   QueueStatus(short id) {
+   AddressQueueStatus(short id) {
       this.id = id;
    }
 
-   public static QueueStatus[] values;
+   public static AddressQueueStatus[] values;
 
    static {
-      QueueStatus[] allValues = QueueStatus.values();
-      values = new QueueStatus[allValues.length];
-      for (QueueStatus v : allValues) {
+      AddressQueueStatus[] allValues = AddressQueueStatus.values();
+      values = new AddressQueueStatus[allValues.length];
+      for (AddressQueueStatus v : allValues) {
          values[v.id] = v;
       }
    }
 
-   public static QueueStatus fromID(short id) {
+   public static AddressQueueStatus fromID(short id) {
       if (id < 0 || id >= values.length) {
          return null;
-      } else {
-         return values[id];
       }
+      return values[id];
    }
 }
