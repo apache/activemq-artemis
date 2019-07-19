@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Test;
 
 public class AmqpMessageRoutingTest extends JMSClientTestSupport {
@@ -100,8 +101,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages("multicast://" + addressA, 1);
 
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA))::getMessageCount);
+      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
    }
 
    @Test(timeout = 60000)
