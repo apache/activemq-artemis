@@ -169,7 +169,7 @@
 
       -->
 
-      <activemq-surefire-argline>-Dbrokerconfig.maxDiskUsage=100 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+      <activemq-surefire-argline>-Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
