@@ -22,8 +22,11 @@ import java.util.Set;
 
 import io.netty.util.Version;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.jboss.logging.Logger;
 
 public class TransportConstants {
+
+   private static final Logger logger = Logger.getLogger(TransportConstants.class);
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
@@ -281,6 +284,35 @@ public class TransportConstants {
 
    public static final int DEFAULT_HANDSHAKE_TIMEOUT = 10;
 
+   public static final String QUIET_PERIOD = "quietPeriod";
+
+   /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
+    *  When running on a real server, this is the default we want.
+    *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml.
+    */
+   public static final int DEFAULT_QUIET_PERIOD = parseDefaultVariable("DEFAULT_QUIET_PERIOD", 100);
+
+   public static final String SHUTDOWN_TIMEOUT = "shutdownTimeout";
+
+   /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
+    *  When running on a real server, this is the default we want.
+    *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml */
+   public static final int DEFAULT_SHUTDOWN_TIMEOUT = parseDefaultVariable("DEFAULT_SHUTDOWN_TIMEOUT", 3_000);
+
+   private static int parseDefaultVariable(String variableName, int defaultValue) {
+      String variable = System.getProperty(TransportConstants.class.getName() + "." + variableName);
+      if (variable != null) {
+         try {
+            return Integer.parseInt(variable);
+         } catch (Throwable ignored) {
+            logger.debug(ignored);
+         }
+      }
+
+      return defaultValue;
+   }
+
+
    static {
       Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
@@ -332,6 +364,8 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableAcceptorKeys.add(TransportConstants.SSL_PROVIDER);
+      allowableAcceptorKeys.add(TransportConstants.SHUTDOWN_TIMEOUT);
+      allowableAcceptorKeys.add(TransportConstants.QUIET_PERIOD);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
