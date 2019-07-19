@@ -19,16 +19,18 @@ package org.apache.activemq.artemis.tests.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.sun.management.UnixOperatingSystemMXBean;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
+import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
@@ -42,17 +44,13 @@ public class NoProcessFilesBehind extends TestWatcher {
    /**
     * -1 on maxVariance means no check
     */
-   public NoProcessFilesBehind(int maxVariance, long maxFiles) {
+   public NoProcessFilesBehind(long maxFiles) {
 
-      this.maxVariance = maxVariance;
       this.maxFiles = maxFiles;
    }
 
    long fdBefore;
-   int maxVariance;
    long maxFiles;
-   List<String> openFilesBefore;
-   List<String> openFilesAfter;
 
    static OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 
@@ -68,7 +66,6 @@ public class NoProcessFilesBehind extends TestWatcher {
    protected void starting(Description description) {
       LibaioContext.isLoaded();
       fdBefore = getOpenFD();
-      openFilesBefore = getOpenFiles(true);
    }
 
    public static List<String> getOpenFiles(boolean filtered) {
@@ -92,27 +89,6 @@ public class NoProcessFilesBehind extends TestWatcher {
 
       return openFiles;
    }
-
-   private static List<String> getDiffFiles(List<String> xOpenFiles, List<String> yOpenFiles) {
-      ArrayList<String> diffOpenFiles = new ArrayList<>();
-      for (String xOpenFile : xOpenFiles) {
-         boolean found = false;
-         Iterator<String> yOpenFilesIterator = yOpenFiles.iterator();
-         String xOpenFileS = xOpenFile.replaceAll("\\s+", "\\\\s+");
-
-         while (yOpenFilesIterator.hasNext() && !found) {
-            String yOpenFileS = yOpenFilesIterator.next().replaceAll("\\s+", "\\\\s+");
-            found = yOpenFileS.equals(xOpenFileS);
-         }
-
-         if (!found) {
-            diffOpenFiles.add(xOpenFile);
-         }
-      }
-
-      return diffOpenFiles;
-   }
-
    private static int getProcessId() throws ReflectiveOperationException {
       java.lang.management.RuntimeMXBean runtime = java.lang.management.ManagementFactory.getRuntimeMXBean();
       java.lang.reflect.Field jvmField = runtime.getClass().getDeclaredField("jvm");
@@ -123,9 +99,6 @@ public class NoProcessFilesBehind extends TestWatcher {
       return (Integer) getProcessIdMethod.invoke(jvm);
    }
 
-   public void tearDown() {
-      openFilesAfter = getOpenFiles(true);
-   }
 
    @Override
    protected void failed(Throwable e, Description description) {
@@ -135,68 +108,27 @@ public class NoProcessFilesBehind extends TestWatcher {
    protected void succeeded(Description description) {
    }
 
-   List<String> getVariance() {
-
-      long fdAfter = getOpenFD();
-
-      long variance = fdAfter - fdBefore;
-
-      if (variance > 0) {
-         List<String> currOpenFiles = getOpenFiles(true);
-         List<String> diffOpenFiles = getDiffFiles(currOpenFiles, openFilesBefore);
-         List<String> skippingOpenFiles = getDiffFiles(currOpenFiles, openFilesAfter);
-         List<String> leavingOpenFiles = getDiffFiles(diffOpenFiles, skippingOpenFiles);
-
-         return leavingOpenFiles;
-      } else {
-         return new ArrayList<>();
-      }
-   }
-
    /**
     * Override to tear down your specific external resource.
     */
    @Override
    protected void finished(Description description) {
 
-      long fdAfter = getOpenFD();
-      List<String> variance = getVariance();
-
-      if (variance.size() > 0) {
-         log.warn("test " + description.toString() + " is leaving " + variance.size() + " files open with a total number of files open = " + fdAfter);
-         System.err.println("test " + description.toString() + " is leaving " + variance.size() + " files open with a total number of files open = " + fdAfter);
-
-         for (String openFile : variance) {
-            System.err.println(openFile);
+      Wait.waitFor(() -> getOpenFD() < maxFiles, 5000, 0);
+      if (getOpenFD() >= maxFiles) {
+         List<String> openFiles = getOpenFiles(true);
+         StringWriter stringWriter = new StringWriter();
+         PrintWriter printWriter = new PrintWriter(stringWriter);
+         boolean first = true;
+         for (String str : openFiles) {
+            if (!first) printWriter.print(", ");
+            first = false;
+            printWriter.print(str);
          }
+         Assert.fail("Too many files open (" + maxFiles + "). A possible list: " + stringWriter.toString());
       }
-
-      if (maxVariance > 0) {
-         VarianceCondition varianceCondition = new VarianceCondition();
-         Wait.assertTrue("The test " + description.toString() + " is leaving " + varianceCondition.getVarianceSize() + " files open, which is more than " + maxVariance + " max open", varianceCondition, 5000, 0);
-      }
-
       Wait.assertTrue("Too many open files", () -> getOpenFD() < maxFiles, 5000, 0);
 
-   }
-
-   class VarianceCondition implements Wait.Condition {
-      private List<String> variance = null;
-
-      public long getVarianceSize() {
-         if (variance != null) {
-            return variance.size();
-         } else {
-            return 0;
-         }
-      }
-
-      @Override
-      public boolean isSatisfied() throws Exception {
-         variance = getVariance();
-
-         return variance.size() < maxVariance;
-      }
    }
 
 }
