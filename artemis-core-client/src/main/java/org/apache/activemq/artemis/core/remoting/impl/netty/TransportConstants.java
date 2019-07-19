@@ -300,13 +300,13 @@ public class TransportConstants {
    public static final int DEFAULT_SHUTDOWN_TIMEOUT = parseDefaultVariable("DEFAULT_SHUTDOWN_TIMEOUT", 3_000);
 
    private static int parseDefaultVariable(String variableName, int defaultValue) {
-      String variable = System.getProperty(TransportConstants.class.getName() + "." + variableName);
-      if (variable != null) {
-         try {
+      try {
+         String variable = System.getProperty(TransportConstants.class.getName() + "." + variableName);
+         if (variable != null) {
             return Integer.parseInt(variable);
-         } catch (Throwable ignored) {
-            logger.debug(ignored);
          }
+      } catch (Throwable ignored) {
+         logger.debug(ignored);
       }
 
       return defaultValue;
