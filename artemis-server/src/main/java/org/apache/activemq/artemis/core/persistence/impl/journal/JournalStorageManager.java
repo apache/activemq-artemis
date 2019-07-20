@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
 
@@ -85,6 +86,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    protected String largeMessagesDirectory;
 
    protected ReplicationManager replicator;
+
+   protected final ReusableLatch deletingLargeMessageTasks = new ReusableLatch();
 
    public JournalStorageManager(final Configuration config,
                                 final CriticalAnalyzer analyzer,
@@ -271,6 +274,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          if (journalLoaded && idGenerator != null)
             idGenerator.persistCurrentID();
       }
+
+      deletingLargeMessageTasks.await(30, TimeUnit.SECONDS);
 
       final CountDownLatch latch = new CountDownLatch(1);
       try {
@@ -517,6 +522,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       };
 
+      deletingLargeMessageTasks.countUp();
       getContext(true).executeOnCompletion(new IOCallback() {
          @Override
          public void done() {
@@ -525,11 +531,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             } else {
                executor.execute(deleteAction);
             }
+
+            deletingLargeMessageTasks.countDown();
          }
 
          @Override
          public void onError(int errorCode, String errorMessage) {
-
+            deletingLargeMessageTasks.countDown();
          }
       });
    }
