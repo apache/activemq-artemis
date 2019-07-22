@@ -32,7 +32,7 @@ public class QueueMetricNames {
    public static final String SCHEDULED_MESSAGE_COUNT = "scheduled.message.count";
    public static final String SCHEDULED_DURABLE_MESSAGE_COUNT = "scheduled.durable.message.count";
    public static final String SCHEDULED_PERSISTENT_SIZE = "scheduled.persistent.size";
-   public static final String SCHEDULED_DURABLE_PERSISTENT_SIZE = "scheduled_durable.persistent.size";
+   public static final String SCHEDULED_DURABLE_PERSISTENT_SIZE = "scheduled.durable.persistent.size";
 
    public static final String MESSAGES_ACKNOWLEDGED = "messages.acknowledged";
    public static final String MESSAGES_ADDED = "messages.added";
