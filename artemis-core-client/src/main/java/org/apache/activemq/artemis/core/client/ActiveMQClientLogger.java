@@ -225,8 +225,8 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void cannotFindPacketToClear(Integer lastReceivedCommandID, Integer firstStoredCommandID);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212037, value = "Connection failure has been detected: {0} [code={1}]", format = Message.Format.MESSAGE_FORMAT)
-   void connectionFailureDetected(String message, ActiveMQExceptionType type);
+   @Message(id = 212037, value = "Connection failure to {0} has been detected: {1} [code={2}]", format = Message.Format.MESSAGE_FORMAT)
+   void connectionFailureDetected(String remoteAddress, String message, ActiveMQExceptionType type);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212038, value = "Failure in calling interceptor: {0}", format = Message.Format.MESSAGE_FORMAT)
