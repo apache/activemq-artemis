@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.ActiveMQReplicationTimeooutException;
+import org.apache.activemq.artemis.api.core.ActiveMQResourceLimitException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddress;
@@ -359,10 +360,10 @@ public interface ActiveMQMessageBundle {
    ActiveMQIllegalStateException unsupportedHAPolicyConfiguration(Object o);
 
    @Message(id = 229110, value = "Too many sessions for user ''{0}''. Sessions allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQSessionCreationException sessionLimitReached(String username, int limit);
+   ActiveMQResourceLimitException sessionLimitReached(String username, int limit);
 
    @Message(id = 229111, value = "Too many queues created by user ''{0}''. Queues allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQSessionCreationException queueLimitReached(String username, int limit);
+   ActiveMQResourceLimitException queueLimitReached(String username, int limit);
 
    @Message(id = 229112, value = "Cannot set MBeanServer during startup or while started")
    IllegalStateException cannotSetMBeanserver();

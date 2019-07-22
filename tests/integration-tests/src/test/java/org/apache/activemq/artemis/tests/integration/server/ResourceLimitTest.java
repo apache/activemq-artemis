@@ -18,12 +18,15 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
+import org.apache.activemq.artemis.api.core.ActiveMQResourceLimitException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
@@ -77,7 +80,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
          ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
          fail("creating a session factory here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQResourceLimitException);
       }
 
       clientSession.close();
@@ -89,7 +92,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
          ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
          fail("creating a session factory here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQResourceLimitException);
       }
    }
 
@@ -103,7 +106,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       try {
          clientSession.createQueue("address", RoutingType.ANYCAST, "anotherQueue");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQResourceLimitException);
       }
 
       clientSession.deleteQueue("queue");
@@ -113,13 +116,40 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       try {
          clientSession.createQueue("address", RoutingType.ANYCAST, "anotherQueue");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQResourceLimitException);
       }
 
       try {
          clientSession.createSharedQueue(SimpleString.toSimpleString("address"), SimpleString.toSimpleString("anotherQueue"), false);
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQResourceLimitException);
       }
+   }
+
+   @Test
+   public void testRecreateSessionLimit() throws Exception {
+      ServerLocator locator = addServerLocator(createNonHALocator(false)).setReconnectAttempts(300);
+      ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
+      final CountDownLatch latch = new CountDownLatch(1);
+      clientSessionFactory.addFailoverListener(eventType -> {
+         if (eventType == FailoverEventType.FAILOVER_FAILED) {
+            latch.countDown();
+         }
+      });
+      ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
+
+      server.stop();
+      ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
+      resourceLimitSettings.setMatch(SimpleString.toSimpleString("myUser"));
+      resourceLimitSettings.setMaxConnections(0);
+      resourceLimitSettings.setMaxQueues(1);
+      server.getConfiguration().addResourceLimitSettings(resourceLimitSettings);
+      server.start();
+
+      assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
+
+      clientSessionFactory.close();
+      locator.close();
+      server.stop();
    }
 }

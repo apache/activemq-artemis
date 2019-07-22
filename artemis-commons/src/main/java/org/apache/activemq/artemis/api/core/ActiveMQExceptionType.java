@@ -261,6 +261,12 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQReplicationTimeooutException(msg);
       }
+   },
+   RESOURCE_LIMIT_REACHED(221) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQResourceLimitException(msg);
+      }
    };
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 
