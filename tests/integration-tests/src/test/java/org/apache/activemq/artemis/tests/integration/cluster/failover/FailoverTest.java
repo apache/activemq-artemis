@@ -176,12 +176,12 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    // https://issues.jboss.org/browse/HORNETQ-685
-   @Test(timeout = 120000)
+   @Test
    public void testTimeoutOnFailoverConsume() throws Exception {
-      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100).setAckBatchSize(0);
+      locator.setCallTimeout(100).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(10).setAckBatchSize(0);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+         ((InVMNodeManager) nodeManager).failoverPause = 500L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -210,6 +210,8 @@ public class FailoverTest extends FailoverTestBase {
 
          @Override
          public void onMessage(ClientMessage message) {
+
+            System.out.println("Received " + message);
             Integer counter = message.getIntProperty("counter");
             received.put(counter, message);
             try {
@@ -224,7 +226,7 @@ public class FailoverTest extends FailoverTestBase {
             if (counter.equals(10)) {
                latch.countDown();
             }
-            if (received.size() == 500) {
+            if (received.size() == 100) {
                endLatch.countDown();
             }
          }
@@ -233,8 +235,7 @@ public class FailoverTest extends FailoverTestBase {
       latch.await(10, TimeUnit.SECONDS);
       log.info("crashing session");
       crash(session);
-      endLatch.await(60, TimeUnit.SECONDS);
-      Assert.assertTrue("received only " + received.size(), received.size() == 500);
+      Assert.assertTrue(endLatch.await(60, TimeUnit.SECONDS));
 
       session.close();
    }
