@@ -44,7 +44,6 @@ public class XMLConfigurationUtil {
          validator.validate(name, val);
          return val;
       } else {
-         validator.validate(name, def);
          return def;
       }
    }
@@ -59,7 +58,6 @@ public class XMLConfigurationUtil {
          validator.validate(name, val);
          return val;
       } else {
-         validator.validate(name, def);
          return def;
       }
    }
@@ -74,7 +72,6 @@ public class XMLConfigurationUtil {
          validator.validate(name, val);
          return val;
       } else {
-         validator.validate(name, def);
          return def;
       }
    }
@@ -89,14 +86,13 @@ public class XMLConfigurationUtil {
          validator.validate(name, val);
          return val;
       } else {
-         validator.validate(name, def);
          return def;
       }
    }
 
    public static final Integer getInteger(final Element e,
                                           final String name,
-                                          final int def,
+                                          final Integer def,
                                           final Validators.Validator validator) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
@@ -104,7 +100,6 @@ public class XMLConfigurationUtil {
          validator.validate(name, val);
          return val;
       } else {
-         validator.validate(name, def);
          return def;
       }
    }
