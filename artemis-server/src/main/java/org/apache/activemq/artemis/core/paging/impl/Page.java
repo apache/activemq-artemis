@@ -100,6 +100,10 @@ public final class Page implements Comparable<Page> {
       this.pageCache = pageCache;
    }
 
+   public LivePageCache getLiveCache() {
+      return pageCache;
+   }
+
    public synchronized List<PagedMessage> read(StorageManager storage) throws Exception {
       if (logger.isDebugEnabled()) {
          logger.debug("reading page " + this.pageId + " on address = " + storeName);
