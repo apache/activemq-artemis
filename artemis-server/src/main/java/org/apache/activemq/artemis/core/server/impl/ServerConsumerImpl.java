@@ -1411,7 +1411,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                context = null;
             }
 
-            largeMessage.releaseResources();
+            largeMessage.releaseResources(false);
 
             largeMessage.decrementDelayDeletionCount();
 

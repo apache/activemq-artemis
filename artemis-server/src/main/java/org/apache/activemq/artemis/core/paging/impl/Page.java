@@ -308,15 +308,15 @@ public final class Page implements Comparable<Page> {
       file.position(0);
    }
 
-   public void close() throws Exception {
-      close(false);
+   public void close(boolean sendEvent) throws Exception {
+      close(sendEvent, true);
    }
 
    /**
     * sendEvent means it's a close happening from a major event such moveNext.
     * While reading the cache we don't need (and shouldn't inform the backup
     */
-   public synchronized void close(boolean sendEvent) throws Exception {
+   public synchronized void close(boolean sendEvent, boolean waitSync) throws Exception {
       if (sendEvent && storageManager != null) {
          storageManager.pageClosed(storeName, pageId);
       }
@@ -325,7 +325,7 @@ public final class Page implements Comparable<Page> {
          // leave it to the soft cache to decide when to release it now
          pageCache = null;
       }
-      file.close();
+      file.close(waitSync);
 
       Set<PageSubscriptionCounter> counters = getPendingCounters();
       if (counters != null) {

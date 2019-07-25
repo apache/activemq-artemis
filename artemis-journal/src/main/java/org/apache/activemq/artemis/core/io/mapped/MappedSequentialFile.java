@@ -142,7 +142,7 @@ final class MappedSequentialFile implements SequentialFile {
 
    @Override
    public void delete() {
-      close();
+      close(false);
       if (file.exists() && !file.delete()) {
          ActiveMQJournalLogger.LOGGER.errorDeletingFile(this);
       }
@@ -361,7 +361,7 @@ final class MappedSequentialFile implements SequentialFile {
    @Override
    public void close(boolean waitOnSync) {
       if (this.mappedFile != null) {
-         if (factory.isDatasync())
+         if (waitOnSync && factory.isDatasync())
             this.mappedFile.force();
          this.mappedFile.close();
          this.mappedFile = null;
