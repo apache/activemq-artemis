@@ -113,7 +113,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
          // The server would be doing this
          fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-         fileMessage.releaseResources();
+         fileMessage.releaseResources(false);
 
          session.createQueue("A", RoutingType.ANYCAST, "A");
 
@@ -331,7 +331,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       largeServerMessage.setMessageID(1234);
       largeServerMessage.addBytes(new byte[0]);
       assertTrue(open.get());
-      largeServerMessage.releaseResources();
+      largeServerMessage.releaseResources(true);
       assertTrue(sync.get());
    }
 

@@ -137,7 +137,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
 
          fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-         fileMessage.releaseResources();
+         fileMessage.releaseResources(false);
 
          message = fileMessage;
       } else {

@@ -131,11 +131,16 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
+      close(true);
+   }
+
+   @Override
+   public synchronized void close(boolean waitSync) throws IOException, InterruptedException, ActiveMQException {
       super.close();
 
       try {
          if (channel != null) {
-            if (factory.isDatasync())
+            if (waitSync && factory.isDatasync())
                channel.force(false);
             channel.close();
          }
