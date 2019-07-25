@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -161,6 +162,12 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          connection.close();
       }
       super.tearDown();
+   }
+
+
+   @After
+   public void tearDownConnections() {
+      AbstractStompClientConnection.tearDownConnections();
    }
 
 
