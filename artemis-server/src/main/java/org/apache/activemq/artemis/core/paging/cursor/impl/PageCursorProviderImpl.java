@@ -161,6 +161,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             if (!pagingStore.checkPageFileExists((int) pageId)) {
                return null;
             }
+            Page currentPage = pagingStore.getCurrentPage();
+            // Live page cache might be cleared by gc, we need to retrieve it otherwise partially written page cache is being returned
+            if (currentPage != null && currentPage.getPageId() == pageId && (cache = currentPage.getLiveCache()) != null) {
+               softCache.put(cache.getPageId(), cache);
+               return cache;
+            }
             inProgressReadPage = inProgressReadPages.get(pageId);
             if (inProgressReadPage == null) {
                final CompletableFuture<PageCache> readPage = new CompletableFuture<>();
