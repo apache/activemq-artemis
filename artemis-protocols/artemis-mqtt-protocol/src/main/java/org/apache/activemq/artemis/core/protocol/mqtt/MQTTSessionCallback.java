@@ -60,6 +60,15 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
+   public void afterDeliver(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount) {
+      try {
+         session.getMqttPublishManager().confirmMessage(message.toCore(), consumer, deliveryCount);
+      } catch (Exception e) {
+         log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
+      }
+   }
+
+   @Override
    public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
       return false;
    }
@@ -88,11 +97,6 @@ public class MQTTSessionCallback implements SessionCallback {
       } catch (Exception e) {
          log.error(e.getMessage());
       }
-   }
-
-   @Override
-   public void afterDelivery() throws Exception {
-
    }
 
    @Override

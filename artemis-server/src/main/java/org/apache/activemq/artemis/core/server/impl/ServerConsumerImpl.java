@@ -24,11 +24,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -106,13 +103,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    private final ActiveMQServer server;
 
    private SlowConsumerDetectionListener slowConsumerListener;
-
-   /**
-    * We get a readLock when a message is handled, and return the readLock when the message is finally delivered
-    * When stopping the consumer we need to get a writeLock to make sure we had all delivery finished
-    * otherwise a rollback may get message sneaking in
-    */
-   private final ReadWriteLock lockDelivery = new ReentrantReadWriteLock();
 
    private volatile AtomicInteger availableCredits = new AtomicInteger(0);
 
@@ -392,8 +382,20 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       messageQueue.errorProcessing(this, e, deliveryObject);
    }
 
+   /** This is in case someone is using direct old API */
    @Override
-   public HandleStatus handle(final MessageReference ref) throws Exception {
+   public HandleStatus handle(MessageReference ref) throws Exception {
+      Object refReturn = handleWithGroup(null, false, ref);
+
+      if (refReturn instanceof MessageReference) {
+         return HandleStatus.HANDLED;
+      } else {
+         return (HandleStatus) refReturn;
+      }
+
+   }
+   @Override
+   public Object handleWithGroup(GroupHandler handler, boolean newGroup, final MessageReference ref) throws Exception {
       // available credits can be set back to null with a flow control option.
       AtomicInteger checkInteger = availableCredits;
       if (callback != null && !callback.hasCredits(this) || checkInteger != null && checkInteger.get() <= 0) {
@@ -481,42 +483,46 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          }
 
-         lockDelivery.readLock().lock();
+         MessageReference deliveryReference = ref;
+
+         if (handler != null) {
+            deliveryReference = handler.handleMessageGroup(ref, this, newGroup);
+         }
+
+         proceedDeliver(deliveryReference);
 
          return HandleStatus.HANDLED;
       }
    }
 
-   @Override
-   public void proceedDeliver(MessageReference reference) throws Exception {
-      try {
-         Message message = reference.getMessage();
+   private void proceedDeliver(MessageReference reference) throws Exception {
+      Message message = reference.getMessage();
 
-         if (server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.beforeDeliver(this, reference));
-         }
-
-         if (message.isLargeMessage() && supportLargeMessage) {
-            if (largeMessageDeliverer == null) {
-               // This can't really happen as handle had already crated the deliverer
-               // instead of throwing an exception in weird cases there is no problem on just go ahead and create it
-               // again here
-               largeMessageDeliverer = new LargeMessageDeliverer((LargeServerMessage) message, reference);
-            }
-            // The deliverer was prepared during handle, as we can't have more than one pending large message
-            // as it would return busy if there is anything pending
-            largeMessageDeliverer.deliver();
-         } else {
-            deliverStandardMessage(reference, message);
-         }
-      } finally {
-         lockDelivery.readLock().unlock();
-         callback.afterDelivery();
-         if (server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.afterDeliver(this, reference));
-         }
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.beforeDeliver(this, reference));
       }
 
+      if (message.isLargeMessage() && supportLargeMessage) {
+         if (largeMessageDeliverer == null) {
+            // This can't really happen as handle had already crated the deliverer
+            // instead of throwing an exception in weird cases there is no problem on just go ahead and create it
+            // again here
+            largeMessageDeliverer = new LargeMessageDeliverer((LargeServerMessage) message, reference);
+         }
+         // The deliverer was prepared during handle, as we can't have more than one pending large message
+         // as it would return busy if there is anything pending
+         largeMessageDeliverer.deliver();
+      } else {
+         deliverStandardMessage(reference, message);
+      }
+   }
+
+   @Override
+   public void afterDeliver(MessageReference reference) throws Exception {
+      callback.afterDeliver(reference, reference.getMessage(), ServerConsumerImpl.this, reference.getDeliveryCount());
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.afterDeliver(this, reference));
+      }
    }
 
    @Override
@@ -626,7 +632,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * there are no other messages to be delivered.
     */
    @Override
-   public void forceDelivery(final long sequence)  {
+   public void forceDelivery(final long sequence) {
       forceDelivery(sequence, () -> {
          Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50);
          MessageReference reference = MessageReference.Factory.createReference(forcedDeliveryMessage, messageQueue);
@@ -730,19 +736,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void setStarted(final boolean started) {
       synchronized (lock) {
-         boolean locked = lockDelivery();
-
-         // This is to make sure nothing would sneak to the client while started = false
-         // the client will stop the session and perform a rollback in certain cases.
-         // in case something sneaks to the client you could get to messaging delivering forever until
-         // you restart the server
-         try {
-            this.started = browseOnly || started;
-         } finally {
-            if (locked) {
-               lockDelivery.writeLock().unlock();
-            }
-         }
+         this.started = browseOnly || started;
       }
 
       // Outside the lock
@@ -751,35 +745,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
-   private boolean lockDelivery() {
-      try {
-         if (!lockDelivery.writeLock().tryLock(30, TimeUnit.SECONDS)) {
-            ActiveMQServerLogger.LOGGER.timeoutLockingConsumer();
-            if (server != null) {
-               server.threadDump();
-            }
-            return false;
-         }
-         return true;
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.failedToFinishDelivery(e);
-         return false;
-      }
-   }
-
    @Override
    public void setTransferring(final boolean transferring) {
       synchronized (lock) {
-         // This is to make sure that the delivery process has finished any pending delivery
-         // otherwise a message may sneak in on the client while we are trying to stop the consumer
-         boolean locked = lockDelivery();
-         try {
-            this.transferring = transferring;
-         } finally {
-            if (locked) {
-               lockDelivery.writeLock().unlock();
-            }
-         }
+         this.transferring = transferring;
       }
 
       // Outside the lock
@@ -1275,125 +1244,111 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
 
       public boolean deliver() throws Exception {
-         lockDelivery.readLock().lock();
-         try {
-            if (!started) {
-               return false;
+         if (!started) {
+            return false;
+         }
+
+         LargeServerMessage currentLargeMessage = largeMessage;
+         if (currentLargeMessage == null) {
+            return true;
+         }
+
+         if (availableCredits != null && availableCredits.get() <= 0) {
+            if (logger.isTraceEnabled()) {
+               logger.trace(this + "::FlowControl::delivery largeMessage interrupting as there are no more credits, available=" + availableCredits);
+            }
+            releaseHeapBodyBuffer();
+            return false;
+         }
+
+         if (!sentInitialPacket) {
+            context = currentLargeMessage.getBodyEncoder();
+
+            sizePendingLargeMessage = context.getLargeBodySize();
+
+            context.open();
+
+            sentInitialPacket = true;
+
+            int packetSize = callback.sendLargeMessage(ref, currentLargeMessage, ServerConsumerImpl.this, context.getLargeBodySize(), ref.getDeliveryCount());
+
+            if (availableCredits != null) {
+               final int credits = availableCredits.addAndGet(-packetSize);
+
+               if (credits <= 0) {
+                  releaseHeapBodyBuffer();
+               }
+
+               if (logger.isTraceEnabled()) {
+                  logger.trace(this + "::FlowControl::" + " deliver initialpackage with " + packetSize + " delivered, available now = " + availableCredits);
+               }
             }
 
-            LargeServerMessage currentLargeMessage = largeMessage;
-            if (currentLargeMessage == null) {
-               return true;
-            }
+            // Execute the rest of the large message on a different thread so as not to tie up the delivery thread
+            // for too long
 
+            resumeLargeMessage();
+
+            return false;
+         } else {
             if (availableCredits != null && availableCredits.get() <= 0) {
                if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::FlowControl::delivery largeMessage interrupting as there are no more credits, available=" +
-                                  availableCredits);
+                  logger.trace(this + "::FlowControl::deliverLargeMessage Leaving loop of send LargeMessage because of credits, available=" + availableCredits);
                }
                releaseHeapBodyBuffer();
                return false;
             }
 
-            if (!sentInitialPacket) {
-               context = currentLargeMessage.getBodyEncoder();
+            final int localChunkLen = (int) Math.min(sizePendingLargeMessage - positionPendingLargeMessage, minLargeMessageSize);
 
-               sizePendingLargeMessage = context.getLargeBodySize();
+            final ByteBuffer bodyBuffer = acquireHeapBodyBuffer(localChunkLen);
 
-               context.open();
+            assert bodyBuffer.remaining() == localChunkLen;
 
-               sentInitialPacket = true;
+            final int readBytes = context.encode(bodyBuffer);
 
-               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage, ServerConsumerImpl.this, context.getLargeBodySize(), ref.getDeliveryCount());
+            assert readBytes == localChunkLen;
 
-               if (availableCredits != null) {
-                  final int credits = availableCredits.addAndGet(-packetSize);
+            final byte[] body = bodyBuffer.array();
 
-                  if (credits <= 0) {
-                     releaseHeapBodyBuffer();
-                  }
+            assert body.length == readBytes;
 
-                  if (logger.isTraceEnabled()) {
-                     logger.trace(this + "::FlowControl::" +
-                                     " deliver initialpackage with " +
-                                     packetSize +
-                                     " delivered, available now = " +
-                                     availableCredits);
-                  }
+            //It is possible to recycle the same heap body buffer because it won't be cached by sendLargeMessageContinuation
+            //given that requiresResponse is false: ChannelImpl::send will use the resend cache only if
+            //resendCache != null && packet.isRequiresConfirmations()
+
+            int packetSize = callback.sendLargeMessageContinuation(ServerConsumerImpl.this, body, positionPendingLargeMessage + localChunkLen < sizePendingLargeMessage, false);
+
+            int chunkLen = body.length;
+
+            if (availableCredits != null) {
+               final int credits = availableCredits.addAndGet(-packetSize);
+
+               if (credits <= 0) {
+                  releaseHeapBodyBuffer();
                }
 
-               // Execute the rest of the large message on a different thread so as not to tie up the delivery thread
-               // for too long
+               if (logger.isTraceEnabled()) {
+                  logger.trace(this + "::FlowControl::largeMessage deliver continuation, packetSize=" + packetSize + " available now=" + availableCredits);
+               }
+            }
 
+            positionPendingLargeMessage += chunkLen;
+
+            if (positionPendingLargeMessage < sizePendingLargeMessage) {
                resumeLargeMessage();
 
                return false;
-            } else {
-               if (availableCredits != null && availableCredits.get() <= 0) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace(this + "::FlowControl::deliverLargeMessage Leaving loop of send LargeMessage because of credits, available=" +
-                                     availableCredits);
-                  }
-                  releaseHeapBodyBuffer();
-                  return false;
-               }
-
-               final int localChunkLen = (int) Math.min(sizePendingLargeMessage - positionPendingLargeMessage, minLargeMessageSize);
-
-               final ByteBuffer bodyBuffer = acquireHeapBodyBuffer(localChunkLen);
-
-               assert bodyBuffer.remaining() == localChunkLen;
-
-               final int readBytes = context.encode(bodyBuffer);
-
-               assert readBytes == localChunkLen;
-
-               final byte[] body = bodyBuffer.array();
-
-               assert body.length == readBytes;
-
-               //It is possible to recycle the same heap body buffer because it won't be cached by sendLargeMessageContinuation
-               //given that requiresResponse is false: ChannelImpl::send will use the resend cache only if
-               //resendCache != null && packet.isRequiresConfirmations()
-
-               int packetSize = callback.sendLargeMessageContinuation(ServerConsumerImpl.this, body, positionPendingLargeMessage + localChunkLen < sizePendingLargeMessage, false);
-
-               int chunkLen = body.length;
-
-               if (availableCredits != null) {
-                  final int credits = availableCredits.addAndGet(-packetSize);
-
-                  if (credits <= 0) {
-                     releaseHeapBodyBuffer();
-                  }
-
-                  if (logger.isTraceEnabled()) {
-                     logger.trace(this + "::FlowControl::largeMessage deliver continuation, packetSize=" +
-                                     packetSize +
-                                     " available now=" +
-                                     availableCredits);
-                  }
-               }
-
-               positionPendingLargeMessage += chunkLen;
-
-               if (positionPendingLargeMessage < sizePendingLargeMessage) {
-                  resumeLargeMessage();
-
-                  return false;
-               }
             }
-
-            if (logger.isTraceEnabled()) {
-               logger.trace("Finished deliverLargeMessage");
-            }
-
-            finish();
-
-            return true;
-         } finally {
-            lockDelivery.readLock().unlock();
          }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("Finished deliverLargeMessage");
+         }
+
+         finish();
+
+         return true;
       }
 
       public void finish() throws Exception {
@@ -1453,7 +1408,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                }
 
                if (status == HandleStatus.HANDLED) {
-                  proceedDeliver(current);
+                  afterDeliver(current);
                }
 
                current = null;
@@ -1481,7 +1436,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                }
 
                if (status == HandleStatus.HANDLED) {
-                  proceedDeliver(ref);
+                  afterDeliver(ref);
                } else if (status == HandleStatus.BUSY) {
                   // keep a reference on the current message reference
                   // to handle it next time the browser deliverer is executed

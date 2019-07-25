@@ -186,11 +186,6 @@ public class AMQPSessionCallback implements SessionCallback {
                                                         (String) null, this, true, operationContext, manager.getPrefixes());
    }
 
-   @Override
-   public void afterDelivery() throws Exception {
-
-   }
-
    public void start() {
 
    }
@@ -601,6 +596,11 @@ public class AMQPSessionCallback implements SessionCallback {
          });
          throw new IllegalStateException("Can't deliver message " + e, e);
       }
+
+   }
+
+   @Override
+   public void afterDeliver(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) {
 
    }
 
