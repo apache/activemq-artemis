@@ -65,7 +65,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
       final int readableBytes = buffer.readableBytes();
       lsm.addBytes(buffer);
-      lsm.releaseResources();
+      lsm.releaseResources(true);
       lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);
       return lsm;
    }
@@ -274,7 +274,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          throw new RuntimeException(e);
       } finally {
          try {
-            file.close();
+            file.close(false);
          } catch (Exception ignored) {
          }
       }
@@ -298,7 +298,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       } finally {
          if (closeFile) {
             try {
-               file.close();
+               file.close(false);
             } catch (Exception ignored) {
             }
          }
@@ -313,7 +313,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    @Override
    public synchronized void deleteFile() throws Exception {
       validateFile();
-      releaseResources();
+      releaseResources(false);
       storageManager.deleteLargeMessageFile(this);
    }
 
@@ -328,11 +328,13 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    }
 
    @Override
-   public synchronized void releaseResources() {
+   public synchronized void releaseResources(boolean sync) {
       if (file != null && file.isOpen()) {
          try {
-            file.sync();
-            file.close();
+            if (sync) {
+               file.sync();
+            }
+            file.close(false);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
          }
@@ -410,7 +412,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          file.position(oldPosition);
 
          if (!originallyOpen) {
-            file.close();
+            file.close(false);
             newMessage.getFile().close();
          }
 
@@ -437,7 +439,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
             } else {
                SequentialFile tmpFile = createFile();
                bodySize = tmpFile.size();
-               tmpFile.close();
+               tmpFile.close(false);
             }
          }
          return bodySize;
@@ -519,7 +521,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       public void open() throws ActiveMQException {
          try {
             if (cFile != null && cFile.isOpen()) {
-               cFile.close();
+               cFile.close(false);
             }
             cFile = file.cloneFile();
             cFile.open();
@@ -532,7 +534,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       public void close() throws ActiveMQException {
          try {
             if (cFile != null) {
-               cFile.close();
+               cFile.close(false);
             }
          } catch (Exception e) {
             throw new ActiveMQInternalErrorException(e.getMessage(), e);

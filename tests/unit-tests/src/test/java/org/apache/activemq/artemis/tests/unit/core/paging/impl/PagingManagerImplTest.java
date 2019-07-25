@@ -78,7 +78,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       List<PagedMessage> msgs = page.read(new NullStorageManager());
 
-      page.close();
+      page.close(false, false);
 
       Assert.assertEquals(1, msgs.size());
 

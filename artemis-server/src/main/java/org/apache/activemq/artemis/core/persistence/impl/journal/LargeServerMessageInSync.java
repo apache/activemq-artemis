@@ -96,11 +96,11 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    }
 
    @Override
-   public synchronized void releaseResources() {
+   public synchronized void releaseResources(boolean sync) {
       if (logger.isTraceEnabled()) {
          logger.trace("release resources called on " + mainLM, new Exception("trace"));
       }
-      mainLM.releaseResources();
+      mainLM.releaseResources(sync);
       if (appendFile != null && appendFile.isOpen()) {
          try {
             appendFile.close();

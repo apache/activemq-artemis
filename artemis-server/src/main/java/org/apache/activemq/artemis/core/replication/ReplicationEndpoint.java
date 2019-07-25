@@ -322,7 +322,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       for (ReplicatedLargeMessage largeMessage : largeMessages.values()) {
-         largeMessage.releaseResources();
+         largeMessage.releaseResources(true);
       }
       largeMessages.clear();
 
@@ -343,7 +343,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       for (ConcurrentMap<Integer, Page> map : pageIndex.values()) {
          for (Page page : map.values()) {
             try {
-               page.sync();
                page.close(false);
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorClosingPageOnReplication(e);

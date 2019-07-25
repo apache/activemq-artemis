@@ -224,7 +224,7 @@ public class PrintData extends DBOption {
                Page page = pgStore.createPage(pgid);
                page.open();
                List<PagedMessage> msgs = page.read(sm);
-               page.close();
+               page.close(false, false);
 
                int msgID = 0;
 

@@ -292,7 +292,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          List<PagedMessage> msg = page.read(new NullStorageManager());
 
-         page.close();
+         page.close(false, false);
 
          Assert.assertEquals(5, msg.size());
 
@@ -490,7 +490,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       for (Page page : readPages) {
          page.open();
          List<PagedMessage> msgs = page.read(new NullStorageManager());
-         page.close();
+         page.close(false, false);
 
          for (PagedMessage msg : msgs) {
             long id = msg.getMessage().toCore().getBodyBuffer().readLong();
@@ -551,7 +551,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          List<PagedMessage> msgs = page.read(new NullStorageManager());
 
-         page.close();
+         page.close(false, false);
 
          for (PagedMessage msg : msgs) {
 
@@ -565,7 +565,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       lastPage.open();
       List<PagedMessage> lastMessages = lastPage.read(new NullStorageManager());
-      lastPage.close();
+      lastPage.close(false, false);
       Assert.assertEquals(1, lastMessages.size());
 
       lastMessages.get(0).getMessage().toCore().getBodyBuffer().resetReaderIndex();
@@ -696,7 +696,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                         Assert.assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
                      }
 
-                     page.close();
+                     page.close(false, false);
                      page.delete(null);
                   } else {
                      System.out.println("Depaged!!!! numerOfMessages = " + msgsRead + " of " + NUMBER_OF_MESSAGES);

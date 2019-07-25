@@ -401,7 +401,7 @@ public final class XmlDataExporter extends DBOption {
                   Page page = pageStore.createPage(pageId);
                   page.open();
                   List<PagedMessage> messages = page.read(storageManager);
-                  page.close();
+                  page.close(false, false);
 
                   int messageId = 0;
 

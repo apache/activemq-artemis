@@ -582,7 +582,7 @@ public class PagingStoreImpl implements PagingStore {
 
       file.position(0);
 
-      file.close();
+      file.close(false);
 
       return page;
    }
