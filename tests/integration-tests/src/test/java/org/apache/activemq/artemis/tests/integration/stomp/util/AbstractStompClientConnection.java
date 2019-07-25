@@ -32,6 +32,7 @@ import io.netty.channel.ChannelFuture;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.transport.netty.NettyTransport;
 import org.apache.activemq.transport.netty.NettyTransportFactory;
 import org.apache.activemq.transport.netty.NettyTransportListener;
@@ -54,6 +55,21 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    //protected ReaderThread readerThread;
    protected String scheme;
 
+   private static final ConcurrentHashSet<StompClientConnection> connections = new ConcurrentHashSet<>();
+
+
+   public static final void tearDownConnections() {
+      for (StompClientConnection connection: connections) {
+         try {
+            connection.closeTransport();
+         } catch (Throwable e) {
+            e.printStackTrace();
+         }
+      }
+
+      connections.clear();
+   }
+
    @Deprecated
    public AbstractStompClientConnection(String version, String host, int port) throws IOException {
       this.version = version;
@@ -62,6 +78,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       this.scheme = "tcp";
 
       this.factory = StompFrameFactoryFactory.getFactory(version);
+      connections.add(this);
    }
 
    public AbstractStompClientConnection(URI uri) throws Exception {
@@ -80,6 +97,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       if (!transport.isConnected()) {
          throw new RuntimeException("Could not connect transport");
       }
+      connections.add(this);
    }
 
    public AbstractStompClientConnection(URI uri, boolean autoConnect) throws Exception {
@@ -101,6 +119,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
             throw new RuntimeException("Could not connect transport");
          }
       }
+      connections.add(this);
    }
 
    private void parseURI(URI uri) {
