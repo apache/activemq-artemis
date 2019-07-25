@@ -528,11 +528,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void afterDelivery() throws Exception {
-
-      }
-
-      @Override
       public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
          targetCallback.sendProducerCreditsFailMessage(credits, address);
       }
@@ -556,6 +551,11 @@ public class HangConsumerTest extends ActiveMQTestBase {
             callbackSemaphore.release();
             inCall.countUp();
          }
+      }
+
+      @Override
+      public void afterDeliver(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) {
+
       }
 
       /* (non-Javadoc)

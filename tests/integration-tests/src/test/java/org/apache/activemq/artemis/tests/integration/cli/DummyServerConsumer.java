@@ -190,7 +190,7 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
-   public void proceedDeliver(MessageReference reference) throws Exception {
+   public void afterDeliver(MessageReference reference) throws Exception {
 
    }
 

@@ -59,6 +59,12 @@ public class MQTTPublishManager {
 
    private MQTTSessionState.OutboundStore outboundStore;
 
+   /** this is the last qos that happened during delivery.
+    *  since afterDelivery will happen in the same thread, no other threads should be calling delivery and afterDelivery
+    *  so it is safe to keep this value here.
+    */
+   private Integer currentQos;
+
    public MQTTPublishManager(MQTTSession session) {
       this.session = session;
    }
@@ -108,7 +114,6 @@ public class MQTTPublishManager {
    boolean isManagementConsumer(ServerConsumer consumer) {
       return consumer == managementConsumer;
    }
-
    /**
     * Since MQTT Subscriptions can over lap; a client may receive the same message twice.  When this happens the client
     * returns a PubRec or PubAck with ID.  But we need to know which consumer to ack, since we only have the ID to go on we
@@ -119,20 +124,35 @@ public class MQTTPublishManager {
    protected void sendMessage(ICoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
       // This is to allow retries of PubRel.
       if (isManagementConsumer(consumer)) {
+         currentQos = null;
          sendPubRelMessage(message);
       } else {
          int qos = decideQoS(message, consumer);
+         currentQos = qos;
          if (qos == 0) {
             sendServerMessage((int) message.getMessageID(),  message, deliveryCount, qos);
-            session.getServerSession().individualAcknowledge(consumer.getID(), message.getMessageID());
          } else if (qos == 1 || qos == 2) {
             int mqttid = outboundStore.generateMqttId(message.getMessageID(), consumer.getID());
             outboundStore.publish(mqttid, message.getMessageID(), consumer.getID());
             sendServerMessage(mqttid, message, deliveryCount, qos);
          } else {
+            // this will happen during afterDeliver
+         }
+      }
+   }
+
+   protected void confirmMessage(ICoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
+      if (currentQos != null) {
+         int qos = currentQos.intValue();
+         if (qos == 0) {
+            session.getServerSession().individualAcknowledge(consumer.getID(), message.getMessageID());
+         } else if (qos == 1 || qos == 2) {
+            // everything happened in delivery
+         } else {
             // Client must have disconnected and it's Subscription QoS cleared
             consumer.individualCancel(message.getMessageID(), false);
          }
+
       }
    }
 
