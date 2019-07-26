@@ -2016,4 +2016,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224099, value = "Message with ID {0} has a header too large. More information available on debug level for class {1}",
       format = Message.Format.MESSAGE_FORMAT)
    void messageWithHeaderTooLarge(Long messageID, String loggerClass);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224100, value = "Apache ActiveMQ Artemis is using a scheduled pool without remove on cancel policy, so a cancelled task could be not automatically removed from the work queue, it may also cause unbounded retention of cancelled tasks.", format = Message.Format.MESSAGE_FORMAT)
+   void scheduledPoolWithNoRemoveOnCancelPolicy();
 }
