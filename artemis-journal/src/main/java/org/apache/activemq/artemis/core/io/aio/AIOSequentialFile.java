@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.core.io.aio;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
 import java.nio.ByteBuffer;
 import java.util.PriorityQueue;
 import java.util.concurrent.Executor;
@@ -36,6 +34,7 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.jboss.logging.Logger;
 
 public class AIOSequentialFile extends AbstractSequentialFile {
@@ -115,10 +114,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
             while (!pendingCallbacks.await(10, TimeUnit.SECONDS)) {
                waitCount++;
                if (waitCount == 1) {
-                  final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
-                  for (ThreadInfo threadInfo : threads) {
-                     ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
-                  }
+                  logger.warn(ThreadDumpUtil.threadDump("Timeout on close"));
                   factory.onIOError(new IOException("Timeout on close"), "Timeout on close", this);
                }
                ActiveMQJournalLogger.LOGGER.warn("waiting pending callbacks on " + fileName + " from " + (waitCount * 10) + " seconds!");
