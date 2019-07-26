@@ -176,12 +176,12 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    // https://issues.jboss.org/browse/HORNETQ-685
-   @Test
+   @Test(timeout = 120000)
    public void testTimeoutOnFailoverConsume() throws Exception {
-      locator.setCallTimeout(100).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(10).setAckBatchSize(0);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setRetryInterval(10).setAckBatchSize(0);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 500L;
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
