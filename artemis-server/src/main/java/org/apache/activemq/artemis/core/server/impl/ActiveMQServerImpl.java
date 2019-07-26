@@ -2707,10 +2707,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                return new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, ClientSessionFactoryImpl.class.getClassLoader());
             }
          });
-         scheduledPool = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), tFactory);
+
+         ScheduledThreadPoolExecutor scheduledPoolExecutor = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), tFactory);
+         scheduledPoolExecutor.setRemoveOnCancelPolicy(true);
+         scheduledPool = scheduledPoolExecutor;
       } else {
          this.scheduledPoolSupplied = true;
          this.scheduledPool = serviceRegistry.getScheduledExecutorService();
+
+         if (!(scheduledPool instanceof ScheduledThreadPoolExecutor) ||
+            !((ScheduledThreadPoolExecutor)scheduledPool).getRemoveOnCancelPolicy()) {
+            ActiveMQServerLogger.LOGGER.scheduledPoolWithNoRemoveOnCancelPolicy();
+         }
       }
    }
 
