@@ -133,11 +133,6 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void afterDeliver(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) {
-      // no op
-   }
-
-   @Override
    public void sendProducerCreditsMessage(int credits, SimpleString address) {
       Packet packet = new SessionProducerCreditsMessage(credits, address);
 
@@ -146,6 +141,11 @@ public final class CoreSessionCallback implements SessionCallback {
 
    @Override
    public void browserFinished(ServerConsumer consumer) {
+
+   }
+
+   @Override
+   public void afterDelivery() throws Exception {
 
    }
 

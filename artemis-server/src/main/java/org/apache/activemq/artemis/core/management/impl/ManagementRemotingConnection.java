@@ -212,6 +212,11 @@ public class ManagementRemotingConnection implements RemotingConnection {
       }
 
       @Override
+      public void afterDelivery() throws Exception {
+
+      }
+
+      @Override
       public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
          return false;
       }
@@ -229,11 +234,6 @@ public class ManagementRemotingConnection implements RemotingConnection {
       @Override
       public int sendMessage(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) {
          return 0;
-      }
-
-      @Override
-      public void afterDeliver(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) {
-
       }
 
       @Override

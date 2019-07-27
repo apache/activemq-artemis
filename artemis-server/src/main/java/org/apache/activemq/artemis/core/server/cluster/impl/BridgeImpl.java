@@ -689,7 +689,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    // FailureListener implementation --------------------------------
 
    @Override
-   public void afterDeliver(MessageReference ref) {
+   public void proceedDeliver(MessageReference ref) {
       // no op
    }
 

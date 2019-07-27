@@ -41,10 +41,11 @@ public interface SessionCallback {
     */
    boolean hasCredits(ServerConsumer consumerID);
 
-   // Certain protocols (MQTT) will need to confirm messages doing things such as individualACKS
-   // and these need to be done outside of the main lock.
-   // otherwise we could dead-lock during delivery
-   void afterDeliver(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) throws Exception;
+   /**
+    * This can be used to complete certain operations outside of the lock,
+    * like acks or other operations.
+    */
+   void afterDelivery() throws Exception;
 
    /**
     * Use this to updates specifics on the message after a redelivery happened.
@@ -67,7 +68,6 @@ public interface SessionCallback {
    //
    //       Future developments may change this, but beware why I have chosen to keep the parameter separated here
    int sendMessage(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount);
-
 
    int sendLargeMessage(MessageReference reference,
                         Message message,

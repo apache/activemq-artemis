@@ -193,7 +193,7 @@ public class Redistributor implements Consumer {
    }
 
    @Override
-   public void afterDeliver(MessageReference ref) {
+   public void proceedDeliver(MessageReference ref) {
       // no op
    }
 
