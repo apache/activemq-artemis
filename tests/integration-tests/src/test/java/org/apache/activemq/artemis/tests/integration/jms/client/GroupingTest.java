@@ -271,6 +271,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals(tm.getStringProperty("JMSXGroupID"), jmsxgroupID);
       }
+      Thread.sleep(2000);
       //session.rollback();
       //session.close();
       //consume all msgs from 2nd first consumer
