@@ -110,9 +110,8 @@ public class StompSession implements SessionCallback {
    public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
    }
 
-
    @Override
-   public void afterDeliver(MessageReference ref, Message message, ServerConsumer consumerID, int deliveryCount) throws Exception {
+   public void afterDelivery() throws Exception {
       PendingTask task;
       while ((task = afterDeliveryTasks.poll()) != null) {
          task.run();

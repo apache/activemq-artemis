@@ -1312,21 +1312,12 @@ public class QueueImplTest extends ActiveMQTestBase {
 
          @Override
          public synchronized HandleStatus handle(MessageReference reference) {
-            return HandleStatus.HANDLED;
-         }
-
-         @Override
-         public Object handleWithGroup(GroupHandler groupHandler, boolean newGroup, MessageReference reference) throws Exception {
             if (count == 0) {
                //the first message is handled and will be used to determine this consumer
                //to be the group consumer
                count++;
                firstMessageHandled.countDown();
-               if (groupHandler != null) {
-                  return groupHandler.handleMessageGroup(reference, this, newGroup);
-               } else {
-                  return HandleStatus.HANDLED;
-               }
+               return HandleStatus.HANDLED;
             } else if (count <= 2) {
                //the next two attempts to send the second message will be done
                //attempting a direct delivery and an async one after that
@@ -1338,11 +1329,7 @@ public class QueueImplTest extends ActiveMQTestBase {
                //the second message should have stop the delivery loop:
                //it will succeed just to let the message being handled and
                //reduce the message count to 0
-               if (groupHandler != null) {
-                  return groupHandler.handleMessageGroup(reference, this, newGroup);
-               } else {
-                  return HandleStatus.HANDLED;
-               }
+               return HandleStatus.HANDLED;
             }
          }
       };
