@@ -98,6 +98,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.BooleanUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
@@ -113,7 +114,7 @@ import org.jboss.logging.Logger;
  * <p>
  * Completely non blocking between adding to queue and delivering to consumers.
  */
-public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.GroupHandler {
+public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    protected static final int CRITICAL_PATHS = 5;
    protected static final int CRITICAL_PATH_ADD_TAIL = 0;
@@ -266,6 +267,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
    private AddressSettingsRepositoryListener addressSettingsRepositoryListener;
 
    private final ExpiryScanner expiryScanner = new ExpiryScanner();
+
+   private final ReusableLatch deliveriesInTransit = new ReusableLatch(0);
 
    private final AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
 
@@ -952,7 +955,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
                // directDeliver flag to be re-computed resulting in direct delivery if the queue is empty
                // We don't recompute it on every delivery since executing isEmpty is expensive for a ConcurrentQueue
 
-               if (getExecutor().isFlushed() &&
+               if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() &&
                   intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() &&
                   pageIterator != null && !pageIterator.hasNext() &&
                   pageSubscription != null && !pageSubscription.isPaging()) {
@@ -971,7 +974,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
             }
          }
 
-         if (direct && supportsDirectDeliver && directDeliver && deliverDirect(ref)) {
+         if (direct && supportsDirectDeliver && directDeliver && deliveriesInTransit.getCount() == 0 && deliverDirect(ref)) {
             return;
          }
 
@@ -1000,6 +1003,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
          return true;
       }
       return false;
+   }
+
+   /**
+    * This will wait for any pending deliveries to finish
+    */
+   private boolean flushDeliveriesInTransit() {
+      try {
+         if (deliveriesInTransit.await(DELIVERY_TIMEOUT)) {
+            return true;
+         } else {
+            ActiveMQServerLogger.LOGGER.timeoutFlushInTransit(getName().toString(), getAddress().toString());
+            return false;
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.unableToFlushDeliveries(e);
+         return false;
+      }
    }
 
    @Override
@@ -2346,6 +2366,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
    @Override
    public synchronized void pause(boolean persist) {
       try {
+         this.flushDeliveriesInTransit();
          if (persist && isDurable()) {
             if (pauseStatusRecord >= 0) {
                storageManager.deleteQueueStatus(pauseStatusRecord);
@@ -2586,22 +2607,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
                   consumer = groupConsumer;
                }
 
-               Object handleValue = handle(ref, consumer, groupConsumer == null);
-
-               HandleStatus status;
-
-               if (handleValue instanceof MessageReference) {
-                  ref = (MessageReference) handleValue;
-                  status = HandleStatus.HANDLED;
-               } else {
-                  status = (HandleStatus) handleValue;
-               }
+               HandleStatus status = handle(ref, consumer);
 
                if (status == HandleStatus.HANDLED) {
 
                   // if a message was delivered, any previous negative attemps need to be cleared
                   // this is to avoid breaks on the loop when checking for any other factors.
                   noDelivery = 0;
+
+                  if (redistributor == null) {
+                     ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
+                  }
+
+                  deliveriesInTransit.countUp();
+
 
                   removeMessageReference(holder, ref);
                   handledconsumer = consumer;
@@ -2634,10 +2653,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
                // Round robin'd all
 
                if (noDelivery == this.consumers.size()) {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug(this + "::All the consumers were busy, giving up now");
+                  if (handledconsumer != null) {
+                     // this shouldn't really happen,
+                     // however I'm keeping this as an assertion case future developers ever change the logic here on this class
+                     ActiveMQServerLogger.LOGGER.nonDeliveryHandled();
+                  } else {
+                     if (logger.isDebugEnabled()) {
+                        logger.debug(this + "::All the consumers were busy, giving up now");
+                     }
+                     break;
                   }
-                  break;
                }
 
                noDelivery = 0;
@@ -2645,7 +2670,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
          }
 
          if (handledconsumer != null) {
-            afterDeliver(handledconsumer, ref);
+            proceedDeliver(handledconsumer, ref);
          }
       }
 
@@ -3173,7 +3198,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
       }
    }
 
-   private boolean deliver(MessageReference ref) {
+   private boolean deliver(final MessageReference ref) {
       synchronized (this) {
          if (!supportsDirectDeliver) {
             return false;
@@ -3200,24 +3225,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
                consumer = groupConsumer;
             }
 
-            Object handleValue = handle(ref, consumer, groupConsumer == null);
-
-
-            HandleStatus status;
-
-            final MessageReference reference;
-            if (handleValue instanceof MessageReference) {
-               reference = (MessageReference) handleValue;
-               status = HandleStatus.HANDLED;
-            } else {
-               reference = ref;
-               status = (HandleStatus) handleValue;
-            }
-
+            HandleStatus status = handle(ref, consumer);
 
             if (status == HandleStatus.HANDLED) {
+               final MessageReference reference;
+               if (redistributor == null) {
+                  reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
+               } else {
+                  reference = ref;
+               }
+
                messagesAdded.incrementAndGet();
 
+               deliveriesInTransit.countUp();
+               proceedDeliver(consumer, reference);
                consumers.reset();
                return true;
             }
@@ -3248,16 +3269,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
       return groupConsumer;
    }
 
-   /** This is {@link Consumer.GroupHandler#handleMessageGroup(MessageReference, Consumer, boolean)} */
-   @Override
-   public MessageReference handleMessageGroup(MessageReference ref, Consumer consumer, boolean newGroup) {
-      if (redistributor != null) {
-         // no grouping work on this case
-         return ref;
-      }
-      SimpleString groupID = extractGroupID(ref);
+   private MessageReference handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
       if (exclusive) {
-         if (newGroup) {
+         if (groupConsumer == null) {
             exclusiveConsumer = consumer;
             if (groupFirstKey != null) {
                return new GroupFirstMessageReference(groupFirstKey, ref);
@@ -3268,7 +3282,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
          if (extractGroupSequence(ref) == -1) {
             groups.remove(groupID);
             consumers.repeat();
-         } else if (newGroup) {
+         } else if (groupConsumer == null) {
             groups.put(groupID, consumer);
             if (groupFirstKey != null) {
                return new GroupFirstMessageReference(groupFirstKey, ref);
@@ -3280,11 +3294,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
       return ref;
    }
 
-   private void afterDeliver(Consumer consumer, MessageReference reference) {
+   private void proceedDeliver(Consumer consumer, MessageReference reference) {
       try {
-         consumer.afterDeliver(reference);
+         consumer.proceedDeliver(reference);
       } catch (Throwable t) {
          errorProcessing(consumer, t, reference);
+      } finally {
+         deliveriesInTransit.countDown();
       }
    }
 
@@ -3329,10 +3345,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue, Consumer.
       }
    }
 
-   private synchronized Object handle(final MessageReference reference, final Consumer consumer, boolean newGroup) {
-      Object status;
+   private synchronized HandleStatus handle(final MessageReference reference, final Consumer consumer) {
+      HandleStatus status;
       try {
-         status = consumer.handleWithGroup(this, newGroup, reference);
+         status = consumer.handle(reference);
       } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 

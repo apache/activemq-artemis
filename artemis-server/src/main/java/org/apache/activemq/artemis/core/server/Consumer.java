@@ -25,10 +25,6 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public interface Consumer extends PriorityAware {
 
-   interface GroupHandler {
-      MessageReference handleMessageGroup(MessageReference ref, Consumer consumer, boolean newGroup);
-   }
-
    /**
     *
     * @see SessionCallback#supportsDirectDelivery()
@@ -38,7 +34,13 @@ public interface Consumer extends PriorityAware {
    }
 
    /**
-
+    * There was a change on semantic during 2.3 here.<br>
+    * We now first accept the message, and the actual deliver is done as part of
+    * {@link #proceedDeliver(MessageReference)}. This is to avoid holding a lock on the queues while
+    * the delivery is being accomplished To avoid a lock on the queue in case of misbehaving
+    * consumers.
+    * <p>
+    * This should return busy if handle is called before proceed deliver is called
     *
     * @param reference
     * @return
@@ -46,29 +48,19 @@ public interface Consumer extends PriorityAware {
     */
    HandleStatus handle(MessageReference reference) throws Exception;
 
-   /**
-    * This will return {@link HandleStatus#BUSY} if busy, {@link HandleStatus#NO_MATCH} if no match, or the MessageReference is handled
-    * This should return busy if handle is called before proceed deliver is called
-    * @param groupHandler
-    * @param reference
-    * @return
-    * @throws Exception
-    */
-   default Object handleWithGroup(GroupHandler groupHandler, boolean newGroup, MessageReference reference) throws Exception {
-      return handle(reference);
-   }
-
    /** wakes up internal threads to deliver more messages */
    default void promptDelivery() {
    }
 
    /**
-    * This will called after delivery
-    * Giving protocols a chance to complete their deliveries doing things such as individualACK outside of main locks
+    * This will proceed with the actual delivery.
+    * Notice that handle should hold a readLock and proceedDelivery should release the readLock
+    * any lock operation on Consumer should also get a writeLock on the readWriteLock
+    * to guarantee there are no pending deliveries
     *
     * @throws Exception
     */
-   void afterDeliver(MessageReference reference) throws Exception;
+   void proceedDeliver(MessageReference reference) throws Exception;
 
    Filter getFilter();
 

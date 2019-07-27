@@ -270,6 +270,12 @@ public class AMQSession implements SessionCallback {
 
    }
 
+   // rename actualDest to destination
+   @Override
+   public void afterDelivery() throws Exception {
+
+   }
+
    @Override
    public void browserFinished(ServerConsumer consumer) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
@@ -304,14 +310,6 @@ public class AMQSession implements SessionCallback {
       //clear up possible rolledback ids.
       theConsumer.removeRolledback(reference);
       return theConsumer.handleDeliver(reference, message.toCore(), deliveryCount);
-   }
-
-   @Override
-   public void afterDeliver(MessageReference ref,
-                            org.apache.activemq.artemis.api.core.Message message,
-                            ServerConsumer consumerID,
-                            int deliveryCount) {
-
    }
 
    @Override
