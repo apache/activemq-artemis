@@ -34,7 +34,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -136,7 +135,6 @@ public class StompSession implements SessionCallback {
 
       ICoreMessage  coreMessage = serverMessage.toCore();
 
-      LargeServerMessageImpl largeMessage = null;
       ICoreMessage newServerMessage = serverMessage.toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
@@ -179,13 +177,7 @@ public class StompSession implements SessionCallback {
             ActiveMQStompProtocolLogger.LOGGER.debug(e);
          }
          return 0;
-      } finally {
-         if (largeMessage != null) {
-            largeMessage.releaseResources();
-            largeMessage = null;
-         }
       }
-
    }
 
    @Override
@@ -369,7 +361,7 @@ public class StompSession implements SessionCallback {
 
       largeMessage.addBytes(bytes);
 
-      largeMessage.releaseResources();
+      largeMessage.releaseResources(true);
 
       largeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
 

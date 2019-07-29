@@ -2305,7 +2305,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       // The server would be doing this
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       Assert.assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
    }
@@ -2332,7 +2332,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       // The server would be doing this
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       session.createQueue(ADDRESS, ADDRESS, true);
 
@@ -2497,7 +2497,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       session.createQueue(ADDRESS, ADDRESS, true);
 

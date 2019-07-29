@@ -796,7 +796,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             fileFactory.releaseDirectBuffer(wholeFileBuffer);
          }
          try {
-            file.getFile().close();
+            file.getFile().close(false);
          } catch (Throwable ignored) {
          }
       }
