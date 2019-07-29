@@ -1039,6 +1039,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          remotingConnection.removeFailureListener(cleaner);
       }
+
+      if (server.getAddressInfo(unPrefixedQueueName) == null) {
+         targetAddressInfos.remove(queueToDelete);
+      }
    }
 
    @Override
@@ -1876,7 +1880,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       connectionFailed(me, failedOver);
    }
 
-   private Map<SimpleString, Pair<Object, AtomicLong>> cloneTargetAddresses() {
+   public Map<SimpleString, Pair<Object, AtomicLong>> cloneTargetAddresses() {
       return new HashMap<>(targetAddressInfos);
    }
 
