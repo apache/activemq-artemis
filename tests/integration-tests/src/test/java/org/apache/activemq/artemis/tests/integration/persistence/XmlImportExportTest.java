@@ -468,7 +468,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       session.createQueue("A", RoutingType.MULTICAST, "A", true);
 
@@ -540,7 +540,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       session.createQueue("A", RoutingType.MULTICAST, "A", true);
 
@@ -884,7 +884,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       producer.send(fileMessage);
 

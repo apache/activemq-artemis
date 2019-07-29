@@ -173,7 +173,7 @@ public class RaceOnCursorIteratorTest extends ActiveMQTestBase {
    public void testSkipNullPageCache() throws Exception {
       skipNullPageCache = true;
       // Simulate scenario #2 depicted in https://issues.apache.org/jira/browse/ARTEMIS-2418
-      queue.getPageSubscription().getPagingStore().getCurrentPage().close();
+      queue.getPageSubscription().getPagingStore().getCurrentPage().close(false);
 
       PagedReference ref = queue.getPageSubscription().iterator().next();
       assertTrue("first msg should not be " + (ref == null ? "null" : ref.getPagedMessage().getMessage().getMessageID()),

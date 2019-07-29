@@ -41,7 +41,7 @@ public interface LargeServerMessage extends ReplicatedLargeMessage, ICoreMessage
     * Close the files if opened
     */
    @Override
-   void releaseResources();
+   void releaseResources(boolean sync);
 
    @Override
    void deleteFile() throws Exception;

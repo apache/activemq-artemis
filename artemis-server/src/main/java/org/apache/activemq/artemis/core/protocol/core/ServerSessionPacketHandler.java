@@ -1023,7 +1023,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          currentLargeMessage.addBytes(body);
 
          if (!continues) {
-            currentLargeMessage.releaseResources();
+            currentLargeMessage.releaseResources(true);
 
             if (messageBodySize >= 0) {
                currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
