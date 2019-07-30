@@ -148,6 +148,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                ActiveMQServerLogger.LOGGER.journalUseAIO();
             }
             journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener, getCriticalAnalyzer());
+
+            if (config.getJournalDeviceBlockSize() != null) {
+               journalFF.setAlignment(config.getJournalDeviceBlockSize());
+            }
             break;
          case MAPPED:
             if (criticalErrorListener != null) {

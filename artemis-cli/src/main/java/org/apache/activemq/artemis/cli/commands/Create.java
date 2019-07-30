@@ -266,9 +266,11 @@ public class Create extends InputAbstract {
    @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
    private boolean noJournalSync;
 
+   @Option(name = "--device-block-size", description = "The block size by the device, default at 4096.")
+   private int journalDeviceBlockSize = 4096;
+
    @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
    private String globalMaxSize;
-
 
    @Option(name = "--jdbc", description = "It will activate jdbc")
    boolean jdbc;
@@ -547,6 +549,14 @@ public class Create extends InputAbstract {
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
 
       HashMap<String, String> filters = new LinkedHashMap<>();
+
+      if (journalDeviceBlockSize % 512 != 0) {
+         // This will generate a CLI error
+         // no need to a logger here as this would be just a regular UI output
+         throw new IllegalArgumentException("You must pass a device-block-size multiple of 512");
+      }
+
+      filters.put("${device-block-size}", Integer.toString(journalDeviceBlockSize));
 
       filters.put("${master-slave}", isSlave() ? "slave" : "master");
 

@@ -735,6 +735,17 @@ public interface Configuration {
     */
    Configuration setJournalBufferTimeout_AIO(int journalBufferTimeout);
 
+   /** This is the device block size used on writing.
+    * This is usually translated as st_blksize from fstat.
+    * returning null mans the system should instead make a call on fstat and use st_blksize.
+    *  The intention of this setting was to bypass the value in certain devices that will return a huge number as their block size (e.g. CephFS) */
+   Integer getJournalDeviceBlockSize();
+
+   /**
+    * @see #getJournalDeviceBlockSize()
+    */
+   Configuration setJournalDeviceBlockSize(Integer deviceBlockSize);
+
    /**
     * Returns the buffer size (in bytes) for AIO.
     * <br>
