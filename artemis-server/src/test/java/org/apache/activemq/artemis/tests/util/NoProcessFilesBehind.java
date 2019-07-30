@@ -41,16 +41,26 @@ public class NoProcessFilesBehind extends TestWatcher {
 
    private static Logger log = Logger.getLogger(NoProcessFilesBehind.class);
 
+   public NoProcessFilesBehind(long maxFiles) {
+      this(-1, maxFiles);
+   }
+
    /**
     * -1 on maxVariance means no check
     */
-   public NoProcessFilesBehind(long maxFiles) {
+   public NoProcessFilesBehind(long variance, long maxFiles) {
 
       this.maxFiles = maxFiles;
+      if (variance < 0) {
+         maxvariance = null;
+      } else {
+         this.maxvariance = variance;
+      }
    }
 
    long fdBefore;
    long maxFiles;
+   Long maxvariance;
 
    static OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 
@@ -65,7 +75,9 @@ public class NoProcessFilesBehind extends TestWatcher {
    @Override
    protected void starting(Description description) {
       LibaioContext.isLoaded();
-      fdBefore = getOpenFD();
+      if (maxvariance != null) {
+         fdBefore = getOpenFD();
+      }
    }
 
    public static List<String> getOpenFiles(boolean filtered) {
@@ -115,20 +127,34 @@ public class NoProcessFilesBehind extends TestWatcher {
    protected void finished(Description description) {
 
       Wait.waitFor(() -> getOpenFD() < maxFiles, 5000, 0);
-      if (getOpenFD() >= maxFiles) {
-         List<String> openFiles = getOpenFiles(true);
-         StringWriter stringWriter = new StringWriter();
-         PrintWriter printWriter = new PrintWriter(stringWriter);
-         boolean first = true;
-         for (String str : openFiles) {
-            if (!first) printWriter.print(", ");
-            first = false;
-            printWriter.print(str);
-         }
-         Assert.fail("Too many files open (" + maxFiles + "). A possible list: " + stringWriter.toString());
-      }
-      Wait.assertTrue("Too many open files", () -> getOpenFD() < maxFiles, 5000, 0);
 
+      if (maxvariance != null) {
+         long currentVariance  = getOpenFD() - fdBefore;
+
+         if (currentVariance > 0 && currentVariance > maxvariance) {
+            Assert.fail("too many files were opened files on this test::" + getOpenList());
+         }
+
+      }
+
+      if (!Wait.waitFor(() -> getOpenFD() < maxFiles, 5000, 0)) {
+         String fileList = getOpenList();
+         Assert.fail("Too many files open (" + maxFiles + "). A possible list: " + fileList);
+      }
+
+   }
+
+   private String getOpenList() {
+      List<String> openFiles = getOpenFiles(true);
+      StringWriter stringWriter = new StringWriter();
+      PrintWriter printWriter = new PrintWriter(stringWriter);
+      boolean first = true;
+      for (String str : openFiles) {
+         if (!first) printWriter.print("\n");
+         first = false;
+         printWriter.print(str);
+      }
+      return stringWriter.toString();
    }
 
 }
