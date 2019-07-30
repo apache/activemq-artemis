@@ -146,7 +146,7 @@ public abstract class NodeManager implements ActiveMQComponent {
     * the *current* nodeID
     * </ol>
     */
-   protected final synchronized void setUpServerLockFile() throws IOException {
+   protected synchronized void setUpServerLockFile() throws IOException {
       File serverLockFile = newFile(SERVER_LOCK_NAME);
 
       boolean fileCreated = false;
