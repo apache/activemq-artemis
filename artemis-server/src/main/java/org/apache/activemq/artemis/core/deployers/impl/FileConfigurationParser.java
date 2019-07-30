@@ -605,6 +605,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       int journalMaxIO = getInteger(e, "journal-max-io", config.getJournalType() == JournalType.ASYNCIO ? ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(), Validators.GT_ZERO);
 
+      config.setJournalDeviceBlockSize(getInteger(e, "journal-device-block-size", null, Validators.MINUS_ONE_OR_GE_ZERO));
+
       if (config.getJournalType() == JournalType.ASYNCIO) {
          config.setJournalBufferTimeout_AIO(journalBufferTimeout);
          config.setJournalBufferSize_AIO(journalBufferSize);

@@ -212,6 +212,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected int journalBufferTimeout_AIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutAio();
 
+   protected Integer deviceBlockSize = null;
+
    protected int journalBufferSize_AIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeAio();
 
    protected int journalMaxIO_NIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio();
@@ -1286,6 +1288,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public int getJournalBufferTimeout_AIO() {
       return journalBufferTimeout_AIO;
+   }
+
+   @Override
+   public Integer getJournalDeviceBlockSize() {
+      return deviceBlockSize;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalDeviceBlockSize(Integer deviceBlockSize) {
+      this.deviceBlockSize = deviceBlockSize;
+      return this;
    }
 
    @Override

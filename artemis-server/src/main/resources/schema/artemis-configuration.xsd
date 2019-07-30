@@ -673,6 +673,16 @@
             </xsd:annotation>
          </xsd:element>
 
+
+         <xsd:element name="journal-device-block-size" type="xsd:long" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The size in bytes used by the device. This is usually translated as fstat/st_blksize
+                  And this is a way to bypass the value returned as st_blksize.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="journal-buffer-size" type="xsd:string" default="501760" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
