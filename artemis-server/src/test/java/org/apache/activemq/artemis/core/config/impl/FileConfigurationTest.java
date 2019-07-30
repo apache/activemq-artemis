@@ -117,6 +117,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(25000, conf.getAddressQueueScanPeriod());
       Assert.assertEquals(127, conf.getIDCacheSize());
       Assert.assertEquals(true, conf.isPersistIDCache());
+      Assert.assertEquals(Integer.valueOf(777), conf.getJournalDeviceBlockSize());
       Assert.assertEquals(true, conf.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals("pagingdir", conf.getPagingDirectory());
       Assert.assertEquals("somedir", conf.getBindingsDirectory());

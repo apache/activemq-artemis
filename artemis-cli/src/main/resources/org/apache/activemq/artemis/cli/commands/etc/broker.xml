@@ -52,6 +52,8 @@ ${jdbc}
 
       <journal-pool-files>10</journal-pool-files>
 
+      <journal-device-block-size>${device-block-size}</journal-device-block-size>
+
       <journal-file-size>10M</journal-file-size>
       ${journal-buffer.settings}${ping-config.settings}${connector-config.settings}
 
