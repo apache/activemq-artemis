@@ -260,9 +260,9 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       browser.close();
 
       // Now check that all browser work did not affect the session transaction.
-      assertEquals(5, queueView.getMessageCount());
+      Wait.assertEquals(5, queueView::getMessageCount);
       session.commit();
-      assertEquals(10, queueView.getMessageCount());
+      Wait.assertEquals(10, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
