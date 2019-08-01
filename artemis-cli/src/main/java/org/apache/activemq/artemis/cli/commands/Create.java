@@ -266,7 +266,7 @@ public class Create extends InputAbstract {
    @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
    private boolean noJournalSync;
 
-   @Option(name = "--device-block-size", description = "The block size by the device, default at 4096.")
+   @Option(name = "--journal-device-block-size", description = "The block size by the device, default at 4096.")
    private int journalDeviceBlockSize = 4096;
 
    @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
