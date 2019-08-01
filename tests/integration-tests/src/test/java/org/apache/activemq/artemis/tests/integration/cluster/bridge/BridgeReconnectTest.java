@@ -480,7 +480,6 @@ public class BridgeReconnectTest extends BridgeTestBase {
          ClientMessage r1 = cons1.receive(30000);
          assertNotNull("received expected msg", r1);
          assertEquals("property value matches", i, r1.getObjectProperty(propKey));
-         BridgeReconnectTest.log.info("got message " + r1.getObjectProperty(propKey));
       }
 
       BridgeReconnectTest.log.info("got messages");
