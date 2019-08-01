@@ -218,35 +218,7 @@ var ARTEMIS = (function(ARTEMIS) {
          }
       });
 
-      subLevelTabs = [];
-
-      subLevelTabs.push({
-         content: '<i class="icon-list"></i> Attributes',
-         title: "View the attribute values on your selection",
-         isValid: function () {
-           return true;
-         },
-           href: function () { if (workspace.isTopTabActive("artemis")) return "#/jmx/attributes"; else return  "#/jmx/attributes";}
-      });
-
-      subLevelTabs.push({
-         content: '<i class="icon-leaf"></i> Operations',
-         title: "Execute operations on your selection",
-         isValid: function () {
-           return true;
-         },
-         href: function () { if (workspace.isTopTabActive("artemis")) return "#/jmx/operations"; else return  "#/jmx/operations";}
-      });
-
-      subLevelTabs.push({
-         content: '<i class="icon-bar-chart"></i> Chart',
-         title: "View a chart of the metrics on your selection",
-         isValid: function () {
-           return true;
-         },
-         href: function () { if (workspace.isTopTabActive("artemis")) return "#/jmx/charts"; else return  "#/jmx/charts";}
-      });
-
+      subLevelTabs = workspace.subLevelTabs;
 
       subLevelTabs.push({
          content: '<i class="icon-plus"></i> Create',
