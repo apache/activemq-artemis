@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
 import org.apache.activemq.artemis.cli.factory.security.SecurityManagerFactory;
 import org.apache.activemq.artemis.components.ExternalComponent;
-import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
@@ -83,7 +83,7 @@ public class Run extends LockAbstract {
 
          managementContext.start();
          server.start();
-         server.getServer().registerActivateCallback(new ActivateCallback() {
+         server.getServer().registerActivateCallback(new CleaningActivateCallback() {
             @Override
             public void deActivate() {
                try {

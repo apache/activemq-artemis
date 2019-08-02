@@ -46,10 +46,10 @@ import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
@@ -97,7 +97,7 @@ import org.w3c.dom.NodeList;
  * redeployed.
  */
 @Deprecated
-public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback {
+public class JMSServerManagerImpl extends CleaningActivateCallback implements JMSServerManager {
 
    private static final String REJECT_FILTER = Filter.GENERIC_IGNORED_FILTER;
 

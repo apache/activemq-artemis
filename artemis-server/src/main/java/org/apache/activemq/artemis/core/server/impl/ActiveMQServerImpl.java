@@ -1269,6 +1269,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.analyzer = null;
       }
 
+      for (ActivateCallback callback: activateCallbacks) {
+         if (isShutdown) {
+            callback.shutdown(this);
+         } else {
+            callback.stop(this);
+         }
+      }
+
       if (identity != null) {
          ActiveMQServerLogger.LOGGER.serverStopped("identity=" + identity + ",version=" + getVersion().getFullVersion(), tempNodeID, getUptime());
       } else {
