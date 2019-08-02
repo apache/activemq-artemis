@@ -492,7 +492,7 @@ public final class ChannelImpl implements Channel {
 
             if (response == null) {
                ActiveMQException e = ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(connection.getBlockingCallTimeout(), packet.getType());
-               connection.fail(e);
+               connection.asyncFail(e);
                throw e;
             }
 
