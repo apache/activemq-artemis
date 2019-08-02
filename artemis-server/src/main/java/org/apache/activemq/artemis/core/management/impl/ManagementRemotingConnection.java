@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.management.impl;
 
 import javax.security.auth.Subject;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -108,6 +109,11 @@ public class ManagementRemotingConnection implements RemotingConnection {
    @Override
    public void fail(ActiveMQException me) {
 
+   }
+
+   @Override
+   public Future asyncFail(ActiveMQException me) {
+      return null;
    }
 
    @Override

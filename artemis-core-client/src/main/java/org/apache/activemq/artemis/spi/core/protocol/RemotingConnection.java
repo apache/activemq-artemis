@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -131,6 +132,12 @@ public interface RemotingConnection extends BufferHandler {
     * @param me the exception that caused the failure
     */
    void fail(ActiveMQException me);
+
+   /** Same thing as fail, but using an executor.
+    *  semantic of send here, is asynchrounous.
+    * @param me
+    */
+   Future asyncFail(ActiveMQException me);
 
    /**
     * called when the underlying connection fails.
