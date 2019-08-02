@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -429,7 +430,7 @@ public final class JdbcNodeManager extends NodeManager {
 
          ActiveMQServerLogger.LOGGER.obtainedLiveLock();
 
-         return new ActivateCallback() {
+         return new CleaningActivateCallback() {
             @Override
             public void activationComplete() {
                LOGGER.debug("ENTER activationComplete");

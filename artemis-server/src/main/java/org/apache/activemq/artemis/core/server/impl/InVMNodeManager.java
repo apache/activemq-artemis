@@ -107,7 +107,7 @@ public final class InVMNodeManager extends NodeManager {
    public ActivateCallback startLiveNode() throws Exception {
       state = FAILING_BACK;
       liveLock.acquire();
-      return new ActivateCallback() {
+      return new CleaningActivateCallback() {
          @Override
          public void activationComplete() {
             try {
