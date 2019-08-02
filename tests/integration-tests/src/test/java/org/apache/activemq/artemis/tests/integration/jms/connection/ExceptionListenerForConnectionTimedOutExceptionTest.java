@@ -58,6 +58,7 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
          ((ActiveMQConnectionFactory) cf).setOutgoingInterceptorList(OutBoundPacketCapture.class.getName());
          ((ActiveMQConnectionFactory) cf).setIncomingInterceptorList(SessAcknowledgeCauseResponseTimeout.class.getName());
          ((ActiveMQConnectionFactory) cf).setBlockOnAcknowledge(true);
+         ((ActiveMQConnectionFactory) cf).setCallTimeout(500);
 
          sendConnection = cf.createConnection();
 
@@ -108,6 +109,7 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
       try {
          ((ActiveMQConnectionFactory) cf).setOutgoingInterceptorList(OutBoundPacketCapture.class.getName());
          ((ActiveMQConnectionFactory) cf).setIncomingInterceptorList(SessSendCauseResponseTimeout.class.getName());
+         ((ActiveMQConnectionFactory) cf).setCallTimeout(500);
 
          sendConnection = cf.createConnection();
          sendConnection.setExceptionListener(exceptionOnConnection::set);
