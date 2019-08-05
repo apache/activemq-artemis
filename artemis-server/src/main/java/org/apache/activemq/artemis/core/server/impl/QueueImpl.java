@@ -2762,7 +2762,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
       }
 
-      long maxSize = pageSubscription.getPagingStore().getPageSizeBytes();
+      int maxSize = pageSubscription.getPagingStore().getPageSizeBytes();
 
       long timeout = System.currentTimeMillis() + DELIVERY_TIMEOUT;
 

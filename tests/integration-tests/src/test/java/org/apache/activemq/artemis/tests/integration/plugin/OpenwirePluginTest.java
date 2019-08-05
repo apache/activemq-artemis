@@ -75,7 +75,7 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
 
    @Override
-   protected ActiveMQServer createServer(boolean realFiles, Configuration configuration, long pageSize,
+   protected ActiveMQServer createServer(boolean realFiles, Configuration configuration, int pageSize,
                                          long maxAddressSize, Map<String, AddressSettings> settings) {
       ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
       server.registerBrokerPlugin(verifier);

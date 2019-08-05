@@ -61,7 +61,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    long getFirstPage();
 
-   long getPageSizeBytes();
+   int getPageSizeBytes();
 
    long getAddressSize();
 

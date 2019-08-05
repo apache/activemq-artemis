@@ -1399,14 +1399,14 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
-                                               final long pageSize,
+                                               final int pageSize,
                                                final long maxAddressSize) {
       return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>) null);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
-                                         final long pageSize,
+                                         final int pageSize,
                                          final long maxAddressSize,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
@@ -1426,7 +1426,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
-                                               final long pageSize,
+                                               final int pageSize,
                                                final long maxAddressSize,
                                                final Map<String, AddressSettings> settings,
                                                StoreConfiguration.StoreType storeType) {
