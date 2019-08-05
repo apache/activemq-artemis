@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -42,6 +43,11 @@ public class ProtonClientProtocolManager extends ProtonProtocolManager implement
 
    public ProtonClientProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
       super(factory, server, Collections.emptyList(), Collections.emptyList());
+   }
+
+   @Override
+   public ClientProtocolManager setExecutor(Executor executor) {
+      return null;
    }
 
    @Override

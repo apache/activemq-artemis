@@ -182,14 +182,6 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       }
    }
 
-   public Executor getExeuctor() {
-      if (protonConnectionDelegate != null) {
-         return protonConnectionDelegate.getExecutor();
-      } else {
-         return null;
-      }
-   }
-
    public void setConnection(AMQPConnectionContext connection) {
       this.amqpConnection = connection;
    }

@@ -232,7 +232,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
       OpenWireFormat wf = (OpenWireFormat) wireFactory.createWireFormat();
-      OpenWireConnection owConn = new OpenWireConnection(connection, server, server.getExecutorFactory().getExecutor(), this, wf);
+      OpenWireConnection owConn = new OpenWireConnection(connection, server, this, wf, server.getExecutorFactory().getExecutor());
       owConn.sendHandshake();
 
       //first we setup ttl to -1
