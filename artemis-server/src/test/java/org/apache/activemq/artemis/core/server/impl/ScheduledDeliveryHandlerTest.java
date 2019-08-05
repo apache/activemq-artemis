@@ -1026,6 +1026,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void setRingSize(long ringSize) {
+
+      }
+
+      @Override
+      public long getRingSize() {
+         return 0;
+      }
+
+      @Override
       public void setConsumersRefCount(ReferenceCounter referenceCounter) {
 
       }
@@ -1239,6 +1249,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public long getMessagesKilled() {
+         return 0;
+      }
+
+      @Override
+      public long getMessagesReplaced() {
          return 0;
       }
 

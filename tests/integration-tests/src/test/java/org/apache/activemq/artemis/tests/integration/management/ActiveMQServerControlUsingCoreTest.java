@@ -177,6 +177,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String updateQueue(String name, String routingType, String filter, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets, String groupFirstKey, Boolean nonDestructive, Integer consumersBeforeDispatch, Long delayBeforeDispatch, String user, Long ringSize) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, ringSize);
+         }
+
+         @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
             proxy.invokeOperation("deleteAddress", name);
          }
@@ -222,6 +227,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public String createQueue(String address, String routingType, String name, String filter, boolean durable, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, String groupFirstKey, boolean lastValue, String lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception {
             return (String) proxy.invokeOperation("createQueue", address, routingType, name, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
+         }
+
+         @Override
+         public String createQueue(String address, String routingType, String name, String filter, boolean durable, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, String groupFirstKey, boolean lastValue, String lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress, long ringSize) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
          }
 
          @Override

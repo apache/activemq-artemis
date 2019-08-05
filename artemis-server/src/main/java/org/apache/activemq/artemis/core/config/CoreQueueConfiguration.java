@@ -55,6 +55,8 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Long delayBeforeDispatch;
 
+   private Long ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
+
    private Boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
 
    private RoutingType routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
@@ -118,6 +120,10 @@ public class CoreQueueConfiguration implements Serializable {
       return delayBeforeDispatch;
    }
 
+   public Long getRingSize() {
+      return ringSize;
+   }
+
    /**
     * @param address the address to set
     */
@@ -171,6 +177,14 @@ public class CoreQueueConfiguration implements Serializable {
     */
    public CoreQueueConfiguration setDelayBeforeDispatch(Long delayBeforeDispatch) {
       this.delayBeforeDispatch = delayBeforeDispatch;
+      return this;
+   }
+
+   /**
+    * @param ringSize for this queue, default is -1
+    */
+   public CoreQueueConfiguration setRingSize(Long ringSize) {
+      this.ringSize = ringSize;
       return this;
    }
 

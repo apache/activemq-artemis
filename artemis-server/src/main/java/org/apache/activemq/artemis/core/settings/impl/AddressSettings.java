@@ -179,6 +179,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Long autoDeleteQueuesMessageCount = null;
 
+   private Long defaultRingSize = null;
+
    private DeletionPolicy configDeleteQueues = null;
 
    private Boolean autoCreateAddresses = null;
@@ -260,6 +262,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultGroupRebalance = other.defaultGroupRebalance;
       this.defaultGroupBuckets = other.defaultGroupBuckets;
       this.defaultGroupFirstKey = other.defaultGroupFirstKey;
+      this.defaultRingSize = other.defaultRingSize;
    }
 
    public AddressSettings() {
@@ -733,6 +736,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public long getDefaultRingSize() {
+      return defaultRingSize != null ? defaultRingSize : ActiveMQDefaultConfiguration.DEFAULT_RING_SIZE;
+   }
+
+   public AddressSettings setDefaultRingSize(final long defaultRingSize) {
+      this.defaultRingSize = defaultRingSize;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -883,6 +895,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (defaultGroupBuckets == null) {
          defaultGroupBuckets = merged.defaultGroupBuckets;
+      }
+      if (defaultRingSize == null) {
+         defaultRingSize = merged.defaultRingSize;
       }
    }
 
@@ -1040,6 +1055,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          autoDeleteCreatedQueues = BufferHelper.readNullableBoolean(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultRingSize = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -1089,7 +1108,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalance) +
          BufferHelper.sizeOfNullableInteger(defaultGroupBuckets) +
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
-         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues);
+         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
+         BufferHelper.sizeOfNullableLong(defaultRingSize);
    }
 
    @Override
@@ -1188,6 +1208,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteCreatedQueues);
 
+      BufferHelper.writeNullableLong(buffer, defaultRingSize);
+
    }
 
    /* (non-Javadoc)
@@ -1245,6 +1267,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
       result = prime * result + ((defaultGroupRebalance == null) ? 0 : defaultGroupRebalance.hashCode());
       result = prime * result + ((defaultGroupBuckets == null) ? 0 : defaultGroupBuckets.hashCode());
+      result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
       return result;
    }
 
@@ -1510,6 +1533,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!defaultGroupBuckets.equals(other.defaultGroupBuckets))
          return false;
+
+      if (defaultRingSize == null) {
+         if (other.defaultRingSize != null)
+            return false;
+      } else if (!defaultRingSize.equals(other.defaultRingSize))
+         return false;
       return true;
    }
 
@@ -1611,6 +1640,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultGroupRebalance +
          ", defaultGroupBuckets=" +
          defaultGroupBuckets +
+         ", defaultRingSize=" +
+         defaultRingSize +
          "]";
    }
 }

@@ -192,6 +192,16 @@ public class GroupFirstMessageReference implements MessageReference {
    }
 
    @Override
+   public void setInDelivery(boolean inDelivery) {
+      messageReference.setInDelivery(inDelivery);
+   }
+
+   @Override
+   public boolean isInDelivery() {
+      return messageReference.isInDelivery();
+   }
+
+   @Override
    public void setAlreadyAcked() {
       messageReference.setAlreadyAcked();
    }
