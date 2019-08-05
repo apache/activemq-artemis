@@ -69,7 +69,7 @@ Locate this part of `JAVA_ARGS` in `etc/artemis.profile.cmd`:
 ```
 This needs to be replaced with this:
 ```
--Xbootclasspath/a:%ARTEMIS_HOME%\lib\jboss-logmanager-2.1.10.Final.jar;%ARTEMIS_HOME%\lib\wildfly-common-1.5.1.Final.jar}
+-Xbootclasspath/a:%ARTEMIS_HOME%\lib\jboss-logmanager-2.1.10.Final.jar;%ARTEMIS_HOME%\lib\wildfly-common-1.5.1.Final.jar
 ```
 
 ## 2.8.0
