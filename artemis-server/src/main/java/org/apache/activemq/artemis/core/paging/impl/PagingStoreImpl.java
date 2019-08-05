@@ -91,7 +91,7 @@ public class PagingStoreImpl implements PagingStore {
 
    private long maxSize;
 
-   private long pageSize;
+   private int pageSize;
 
    private volatile AddressFullMessagePolicy addressFullMessagePolicy;
 
@@ -273,7 +273,7 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public long getPageSizeBytes() {
+   public int getPageSizeBytes() {
       return pageSize;
    }
 

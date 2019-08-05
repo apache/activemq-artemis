@@ -70,7 +70,7 @@ public class GlobalPagingTest extends PagingTest {
    @Override
    protected ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
-                                         final long pageSize,
+                                         final int pageSize,
                                          final long maxAddressSize,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));

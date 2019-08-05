@@ -257,6 +257,35 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       assertEquals("helloworld", bconfig.getPassword());
    }
 
+   @Test
+   public void testParsingOverflowPageSize() throws Exception {
+      testParsingOverFlow("<address-settings>" + "\n" + "<address-setting match=\"#\">" + "\n" + "<page-size-bytes>2147483648</page-size-bytes>\n" + "</address-setting>" + "\n" + "</address-settings>" + "\n");
+      testParsingOverFlow("<journal-file-size>2147483648</journal-file-size>");
+      testParsingOverFlow("<journal-buffer-size>2147483648</journal-buffer-size>");
+
+      testParsingOverFlow("<cluster-connections> \n" + "  <cluster-connection name=\"my-cluster\"> \n" + "    <connector-ref>netty</connector-ref>  \n" + "    <min-large-message-size>2147483648</min-large-message-size>\n" + "    <discovery-group-ref discovery-group-name=\"my-discovery-group\"/> \n" + "  </cluster-connection> \n" + "</cluster-connections>");
+      testParsingOverFlow("<cluster-connections> \n" + "  <cluster-connection name=\"my-cluster\"> \n" + "    <connector-ref>netty</connector-ref>  \n" + "    <confirmation-window-size>2147483648</confirmation-window-size>\n" + "    <discovery-group-ref discovery-group-name=\"my-discovery-group\"/> \n" + "  </cluster-connection> \n" + "</cluster-connections>");
+      testParsingOverFlow("<cluster-connections> \n" + "  <cluster-connection name=\"my-cluster\"> \n" + "    <connector-ref>netty</connector-ref>  \n" + "    <producer-window-size>2147483648</producer-window-size>\n" + "    <discovery-group-ref discovery-group-name=\"my-discovery-group\"/> \n" + "  </cluster-connection> \n" + "</cluster-connections>");
+
+      testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <min-large-message-size>2147483648</min-large-message-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>");
+      testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <confirmation-window-size>2147483648</confirmation-window-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>\n");
+      testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <producer-window-size>2147483648</producer-window-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>\n");
+   }
+
+   private void testParsingOverFlow(String config) throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+      String firstPartWithoutAddressSettings = firstPart.substring(0, firstPart.indexOf("<address-settings"));
+
+      String configStr = firstPartWithoutAddressSettings + config + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      try {
+         Configuration configuration = parser.parseMainConfig(input);
+         fail("parsing should have failed bcs of overflow page size");
+      } catch (java.lang.IllegalArgumentException e) {
+      }
+   }
+
    private static String bridgePart = "<bridges>\n" +
            "            <bridge name=\"my-bridge\">\n" +
            "               <queue-name>sausage-factory</queue-name>\n" +

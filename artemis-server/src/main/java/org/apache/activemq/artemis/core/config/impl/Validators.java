@@ -122,6 +122,30 @@ public final class Validators {
       }
    };
 
+   public static final Validator POSITIVE_INT = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val.longValue() > 0 && val.longValue() <= Integer.MAX_VALUE) {
+            // OK
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveInt(name, val);
+         }
+      }
+   };
+
+   public static final Validator MINUS_ONE_OR_POSITIVE_INT = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val.longValue() == -1 || (val.longValue() > 0 && val.longValue() <= Integer.MAX_VALUE)) {
+            // OK
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveIntThanMinusOne(name, val);
+         }
+      }
+   };
+
    public static final Validator THREAD_PRIORITY_RANGE = new Validator() {
       @Override
       public void validate(final String name, final Object value) {
