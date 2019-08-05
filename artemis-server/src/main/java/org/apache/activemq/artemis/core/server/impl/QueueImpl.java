@@ -187,9 +187,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // The estimate of memory being consumed by this queue. Used to calculate instances of messages to depage
    private final AtomicInteger queueMemorySize = new AtomicInteger(0);
 
-   private final QueuePendingMessageMetrics pendingMetrics = new QueuePendingMessageMetrics(this);
+   private final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
 
-   private final QueuePendingMessageMetrics deliveringMetrics = new QueuePendingMessageMetrics(this);
+   private final QueueMessageMetrics deliveringMetrics = new QueueMessageMetrics(this, "delivering");
 
    protected final ScheduledDeliveryHandler scheduledDeliveryHandler;
 
@@ -308,6 +308,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private volatile boolean configurationManaged;
 
    private volatile boolean nonDestructive;
+
+   private volatile long ringSize;
 
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
@@ -461,35 +463,69 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    public QueueImpl(final long id,
-                     final SimpleString address,
-                     final SimpleString name,
-                     final Filter filter,
-                     final PageSubscription pageSubscription,
-                     final SimpleString user,
-                     final boolean durable,
-                     final boolean temporary,
-                     final boolean autoCreated,
-                     final RoutingType routingType,
-                     final Integer maxConsumers,
-                     final Boolean exclusive,
-                     final Boolean groupRebalance,
-                     final Integer groupBuckets,
-                     final SimpleString groupFirstKey,
-                     final Boolean nonDestructive,
-                     final Integer consumersBeforeDispatch,
-                     final Long delayBeforeDispatch,
-                     final Boolean purgeOnNoConsumers,
-                     final Boolean autoDelete,
-                     final Long autoDeleteDelay,
-                     final Long autoDeleteMessageCount,
-                     final boolean configurationManaged,
-                     final ScheduledExecutorService scheduledExecutor,
-                     final PostOffice postOffice,
-                     final StorageManager storageManager,
-                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                     final ArtemisExecutor executor,
-                     final ActiveMQServer server,
-                     final QueueFactory factory) {
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final SimpleString groupFirstKey,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final SimpleString groupFirstKey,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final Long ringSize,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
       this.id = id;
@@ -576,13 +612,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (this.addressInfo != null && this.addressInfo.isPaused()) {
          this.pause(false);
       }
+
+      this.ringSize = ringSize == null ? ActiveMQDefaultConfiguration.getDefaultRingSize() : ringSize;
    }
 
    // Bindable implementation -------------------------------------------------------------------------------------
 
    @Override
    public boolean allowsReferenceCallback() {
-      // non descructive queues will reuse the same reference between multiple consumers
+      // non destructive queues will reuse the same reference between multiple consumers
       // so you cannot really use the callback from the MessageReference
       return !nonDestructive;
    }
@@ -881,13 +919,19 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
-               return;
+            if (ringSize != -1) {
+               enforceRing(ref, scheduling);
             }
 
-            internalAddHead(ref);
+            if (!ref.isAlreadyAcked()) {
+               if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
+                  return;
+               }
 
-            directDeliver = false;
+               internalAddHead(ref);
+
+               directDeliver = false;
+            }
          } finally {
             leaveCritical(CRITICAL_PATH_ADD_HEAD);
          }
@@ -961,7 +1005,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       directDeliver = false;
 
       if (!ref.isPaged()) {
-         messagesAdded.incrementAndGet();
+         incrementMesssagesAdded();
       }
    }
 
@@ -974,6 +1018,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void addTail(final MessageReference ref, final boolean direct) {
       enterCritical(CRITICAL_PATH_ADD_TAIL);
       try {
+         enforceRing();
+
          if (scheduleIfPossible(ref)) {
             return;
          }
@@ -1029,7 +1075,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
          synchronized (this) {
             if (!ref.isPaged()) {
-               messagesAdded.incrementAndGet();
+               incrementMesssagesAdded();
             }
          }
 
@@ -1327,6 +1373,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getConsumerRemovedTimestamp() {
       return consumerRemovedTimestampUpdater.get(this);
+   }
+
+   @Override
+   public long getRingSize() {
+      return ringSize;
+   }
+
+   @Override
+   public synchronized void setRingSize(long ringSize) {
+      this.ringSize = ringSize;
+   }
+
+   public long getMessageCountForRing() {
+      return (long) pendingMetrics.getMessageCount();
    }
 
    @Override
@@ -1809,6 +1869,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getMessagesKilled() {
       return messagesKilled.get();
+   }
+
+   @Override
+   public long getMessagesReplaced() {
+      return messagesReplaced.get();
    }
 
    @Override
@@ -2516,6 +2581,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       int priority = getPriority(ref);
 
       messageReferences.addHead(ref, priority);
+
+      ref.setInDelivery(false);
    }
 
    /**
@@ -2553,7 +2620,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          internalAddTail(ref);
 
          if (!ref.isPaged()) {
-            messagesAdded.incrementAndGet();
+            incrementMesssagesAdded();
          }
 
          if (added++ > MAX_DELIVERIES_IN_LOOP) {
@@ -2685,6 +2752,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
 
                   removeMessageReference(holder, ref);
+                  ref.setInDelivery(true);
                   handledconsumer = consumer;
                   handled++;
                   consumers.reset();
@@ -3304,9 +3372,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   reference = ref;
                }
 
-               messagesAdded.incrementAndGet();
+               incrementMesssagesAdded();
 
                deliveriesInTransit.countUp();
+               reference.setInDelivery(true);
                proceedDeliver(consumer, reference);
                consumers.reset();
                return true;
@@ -3446,6 +3515,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return;
       }
 
+      // this is done to tell the difference between actual acks and just a closed consumer in the non-destructive use-case
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         ref.setInDelivery(false);
+      }
+
       if (reason == AckReason.EXPIRED) {
          messagesExpired.incrementAndGet();
       } else if (reason == AckReason.KILLED) {
@@ -3470,7 +3544,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          message = null;
       }
 
-      if (message == null)
+      if (message == null || (nonDestructive && reason == AckReason.NORMAL))
          return;
 
       boolean durableRef = message.isDurable() && queue.isDurable();
@@ -3940,6 +4014,39 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       if (logger.isDebugEnabled()) {
          logger.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() + "\"; slow-consumer-check-period=" + settings.getSlowConsumerCheckPeriod() + ", slow-consumer-threshold=" + settings.getSlowConsumerThreshold() + ", slow-consumer-policy=" + settings.getSlowConsumerPolicy());
+      }
+   }
+
+   private void enforceRing() {
+      if (ringSize != -1) { // better escaping & inlining when ring isn't being used
+         enforceRing(null, false);
+      }
+   }
+
+   private void enforceRing(MessageReference refToAck, boolean scheduling) {
+      if (getMessageCountForRing() >= ringSize) {
+         refToAck = refToAck == null ? messageReferences.poll() : refToAck;
+
+         if (refToAck != null) {
+            if (logger.isDebugEnabled()) {
+               logger.debugf("Preserving ringSize %d by acking message ref %s", ringSize, refToAck);
+            }
+            referenceHandled(refToAck);
+
+            try {
+               refToAck.acknowledge(null, AckReason.REPLACED, null);
+               if (!refToAck.isInDelivery() && !scheduling) {
+                  refRemoved(refToAck);
+               }
+               refToAck.setAlreadyAcked();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
+            }
+         } else {
+            if (logger.isDebugEnabled()) {
+               logger.debugf("Cannot preserve ringSize %d; message ref is null", ringSize);
+            }
+         }
       }
    }
 

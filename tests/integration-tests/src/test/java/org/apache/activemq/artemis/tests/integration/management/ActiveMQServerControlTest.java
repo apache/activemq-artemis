@@ -336,6 +336,66 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testCreateAndDestroyQueue_5() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+      boolean durable = RandomUtil.randomBoolean();
+      int maxConsumers = RandomUtil.randomInt();
+      boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
+      boolean exclusive = RandomUtil.randomBoolean();
+      boolean groupRebalance = RandomUtil.randomBoolean();
+      int groupBuckets = 1;
+      String groupFirstKey = RandomUtil.randomSimpleString().toString();
+      boolean lastValue = false;
+      String lastValueKey = null;
+      boolean nonDestructive = RandomUtil.randomBoolean();
+      int consumersBeforeDispatch = RandomUtil.randomInt();
+      long delayBeforeDispatch = RandomUtil.randomLong();
+      boolean autoDelete = RandomUtil.randomBoolean();
+      long autoDeleteDelay = RandomUtil.randomLong();
+      long autoDeleteMessageCount = RandomUtil.randomLong();
+      boolean autoCreateAddress = true;
+      long ringSize = RandomUtil.randomLong();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
+      Assert.assertEquals(address.toString(), queueControl.getAddress());
+      Assert.assertEquals(name.toString(), queueControl.getName());
+      Assert.assertNull(queueControl.getFilter());
+      Assert.assertEquals(durable, queueControl.isDurable());
+      Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
+      Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
+      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertEquals(exclusive, queueControl.isExclusive());
+//      Assert.assertEquals(groupRebalance, queueControl.getGroupRebalance());
+//      Assert.assertEquals(groupBuckets, queueControl.getGroupBuckets());
+//      Assert.assertEquals(groupFirstKey, queueControl.getGroupFirstKey());
+      Assert.assertEquals(lastValue, queueControl.isLastValue());
+//      Assert.assertEquals(lastValueKey, queueControl.getLastValueKey());
+//      Assert.assertEquals(nonDestructive, queueControl.isNonDestructive());
+//      Assert.assertEquals(consumersBeforeDispatch, queueControl.getConsumersBeforeDispatch());
+//      Assert.assertEquals(delayBeforeDispatch, queueControl.getDelayBeforeDispatch());
+//      Assert.assertEquals(autoDelete, queueControl.isAutoDelete());
+//      Assert.assertEquals(autoDeleteDelay, queueControl.getAutoDeleteDelay());
+//      Assert.assertEquals(autoDeleteMessageCount, queueControl.autoDeleteMessageCount());
+      Assert.assertEquals(ringSize, queueControl.getRingSize());
+
+      checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
+      Assert.assertEquals(address.toString(), addressControl.getAddress());
+
+      serverControl.destroyQueue(name.toString(), true, true);
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
+   }
+
+   @Test
    public void testCreateAndDestroyQueueClosingConsumers() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();

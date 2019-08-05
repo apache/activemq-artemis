@@ -243,6 +243,7 @@ Name | Description | Default
 [default-max-consumers](address-model.md#shared-durable-subscription-queue-using-max-consumers) | `max-consumers` value if none is set on the queue | -1
 [default-queue-routing-type](address-model.md#routing-type) | Routing type for auto-created queues if the type can't be otherwise determined | `MULTICAST`
 [default-address-routing-type](address-model.md#routing-type) | Routing type for auto-created addresses if the type can't be otherwise determined | `MULTICAST`
+[default-ring-size](ring-queues.md) | The ring-size applied to queues without an explicit `ring-size` configured | `-1`
 
 
 ## bridge type
@@ -359,6 +360,7 @@ user | the name of the user to associate with the creation of the queue | n/a
 [purge-on-no-consumers](address-model.md#non-durable-subscription-queue) | whether or not to delete all messages and prevent routing when no consumers are connected | `false`
 [exclusive](exclusive-queues.md) | only deliver messages to one of the connected consumers | `false`
 [last-value](last-value-queues.md) | use last-value semantics | `false`
+[ring-size](ring-queues.md) | the size this queue should maintain according to ring semantics | based on `default-ring-size` `address-setting`
 consumers-before-dispatch | number of consumers required before dispatching messages | 0
 delay-before-dispatch | milliseconds to wait for `consumers-before-dispatch` to be met before dispatching messages anyway | -1 (wait forever)
 

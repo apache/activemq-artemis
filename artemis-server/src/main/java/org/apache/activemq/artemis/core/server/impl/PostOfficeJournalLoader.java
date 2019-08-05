@@ -164,7 +164,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .autoDeleteDelay(queueBindingInfo.getAutoDeleteDelay())
             .autoDeleteMessageCount(queueBindingInfo.getAutoDeleteMessageCount())
             .routingType(RoutingType.getType(queueBindingInfo.getRoutingType()))
-            .configurationManaged((queueBindingInfo.isConfigurationManaged()));
+            .configurationManaged((queueBindingInfo.isConfigurationManaged()))
+            .ringSize(queueBindingInfo.getRingSize());
          final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());
          queue.setConsumersRefCount(new QueueManagerImpl(((PostOfficeImpl)postOffice).getServer(), queueBindingInfo.getQueueName()));
 

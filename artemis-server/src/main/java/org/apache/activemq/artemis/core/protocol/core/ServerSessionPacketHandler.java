@@ -358,7 +358,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   session.createQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isTemporary(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(),
                                       request.isExclusive(), request.isGroupRebalance(), request.getGroupBuckets(), request.getGroupFirstKey(), request.isLastValue(), request.getLastValueKey(), request.isNonDestructive(), request.getConsumersBeforeDispatch(), request.getDelayBeforeDispatch(),
-                                      request.isAutoDelete(), request.getAutoDeleteDelay(), request.getAutoDeleteMessageCount(), request.isAutoCreated());
+                                      request.isAutoDelete(), request.getAutoDeleteDelay(), request.getAutoDeleteMessageCount(), request.isAutoCreated(), request.getRingSize());
                   if (requiresResponse) {
                      response = createNullResponseMessage(packet);
                   }

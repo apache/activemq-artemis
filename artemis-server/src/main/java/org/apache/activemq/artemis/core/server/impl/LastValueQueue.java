@@ -278,6 +278,16 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
+      public void setInDelivery(boolean inDelivery) {
+         ref.setInDelivery(inDelivery);
+      }
+
+      @Override
+      public boolean isInDelivery() {
+         return ref.isInDelivery();
+      }
+
+      @Override
       public Object getProtocolData() {
          return ref.getProtocolData();
       }

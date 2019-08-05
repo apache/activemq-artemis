@@ -63,6 +63,25 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
+   public QueueBinding updateQueue(SimpleString name,
+                                   RoutingType routingType,
+                                   Filter filter,
+                                   Integer maxConsumers,
+                                   Boolean purgeOnNoConsumers,
+                                   Boolean exclusive,
+                                   Boolean groupRebalance,
+                                   Integer groupBuckets,
+                                   SimpleString groupFirstKey,
+                                   Boolean nonDestructive,
+                                   Integer consumersBeforeDispatch,
+                                   Long delayBeforeDispatch,
+                                   SimpleString user,
+                                   Boolean configurationManaged,
+                                   Long ringSize) throws Exception {
+      return null;
+   }
+
+   @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         EnumSet<RoutingType> routingTypes) throws Exception {
       return null;

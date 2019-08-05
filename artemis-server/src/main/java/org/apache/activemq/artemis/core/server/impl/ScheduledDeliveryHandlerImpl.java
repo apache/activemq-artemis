@@ -50,12 +50,12 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    // just adding some information to keep it in order accordingly to the initial operations
    private final TreeSet<RefScheduled> scheduledReferences = new TreeSet<>(new MessageReferenceComparator());
 
-   private final QueuePendingMessageMetrics metrics;
+   private final QueueMessageMetrics metrics;
 
    public ScheduledDeliveryHandlerImpl(final ScheduledExecutorService scheduledExecutor,
          final Queue queue) {
       this.scheduledExecutor = scheduledExecutor;
-      this.metrics = new QueuePendingMessageMetrics(queue);
+      this.metrics = new QueueMessageMetrics(queue, "scheduled");
    }
 
    @Override
