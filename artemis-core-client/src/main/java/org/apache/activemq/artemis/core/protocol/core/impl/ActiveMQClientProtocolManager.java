@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -81,6 +82,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
 
    private ClientSessionFactoryInternal factoryInternal;
+
+   private Executor executor;
 
    /**
     * Guards assignments to {@link #inCreateSession} and {@link #inCreateSessionLatch}
@@ -155,6 +158,12 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       } else {
          return connection.getChannel(1, -1);
       }
+   }
+
+   @Override
+   public ActiveMQClientProtocolManager setExecutor(Executor executor) {
+      this.executor = executor;
+      return this;
    }
 
    @Override
@@ -412,7 +421,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                      List<Interceptor> incomingInterceptors,
                                      List<Interceptor> outgoingInterceptors,
                                      TopologyResponseHandler topologyResponseHandler) {
-      this.connection = new RemotingConnectionImpl(createPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors);
+      this.connection = new RemotingConnectionImpl(createPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors, executor);
 
       this.topologyResponseHandler = topologyResponseHandler;
 

@@ -92,8 +92,9 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                                  final long blockingCallTimeout,
                                  final long blockingCallFailoverTimeout,
                                  final List<Interceptor> incomingInterceptors,
-                                 final List<Interceptor> outgoingInterceptors) {
-      this(packetDecoder, transportConnection, blockingCallTimeout, blockingCallFailoverTimeout, incomingInterceptors, outgoingInterceptors, true, null, null);
+                                 final List<Interceptor> outgoingInterceptors,
+                                 final Executor connectionExecutor) {
+      this(packetDecoder, transportConnection, blockingCallTimeout, blockingCallFailoverTimeout, incomingInterceptors, outgoingInterceptors, true, null, connectionExecutor);
    }
 
    /*
@@ -103,9 +104,9 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                           final Connection transportConnection,
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
-                          final Executor executor,
-                          final SimpleString nodeID) {
-      this(packetDecoder, transportConnection, -1, -1, incomingInterceptors, outgoingInterceptors, false, executor, nodeID);
+                          final SimpleString nodeID,
+                          final Executor connectionExecutor) {
+      this(packetDecoder, transportConnection, -1, -1, incomingInterceptors, outgoingInterceptors, false, nodeID, connectionExecutor);
    }
 
    private RemotingConnectionImpl(final PacketDecoder packetDecoder,
@@ -115,9 +116,9 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                                   final List<Interceptor> incomingInterceptors,
                                   final List<Interceptor> outgoingInterceptors,
                                   final boolean client,
-                                  final Executor executor,
-                                  final SimpleString nodeID) {
-      super(transportConnection, executor);
+                                  final SimpleString nodeID,
+                                  final Executor connectionExecutor) {
+      super(transportConnection, connectionExecutor);
 
       this.packetDecoder = packetDecoder;
 

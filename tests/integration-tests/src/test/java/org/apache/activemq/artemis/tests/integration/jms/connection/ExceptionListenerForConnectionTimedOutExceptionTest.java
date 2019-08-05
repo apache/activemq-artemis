@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -50,6 +51,18 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
 
    @Test(timeout = 60000)
    public void testOnAcknowledge() throws Exception {
+      testOnAcknowledge(false);
+   }
+
+   @Test(timeout = 60000)
+   public void testOnAcknowledgeBlockOnFailover() throws Exception {
+      // this is validating a case where failover would block
+      // and yet the exception should already happen asynchronously
+      testOnAcknowledge(true);
+   }
+
+   public void testOnAcknowledge(boolean blockOnFailover) throws Exception {
+      mayBlock.set(blockOnFailover);
       Connection sendConnection = null;
       Connection connection = null;
       AtomicReference<JMSException> exceptionOnConnection = new AtomicReference<>();
@@ -86,6 +99,10 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
          fail("JMSException expected");
 
       } catch (JMSException e) {
+         if (blockOnFailover) {
+            Wait.assertTrue(blocked::get);
+            unblock();
+         }
          assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
          //Ensure JMS Connection ExceptionListener was also invoked
          assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
@@ -102,6 +119,16 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
 
    @Test(timeout = 60000)
    public void testOnSend() throws Exception {
+      testOnSend(false);
+   }
+
+   @Test(timeout = 60000)
+   public void testOnSendBlockOnFailover() throws Exception {
+      testOnSend(true);
+   }
+
+   public void testOnSend(boolean blockOnFailover) throws Exception {
+      mayBlock.set(blockOnFailover);
       Connection sendConnection = null;
       Connection connection = null;
       AtomicReference<JMSException> exceptionOnConnection = new AtomicReference<>();
@@ -125,6 +152,10 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
          fail("JMSException expected");
 
       } catch (JMSException e) {
+         if (blockOnFailover) {
+            Wait.assertTrue(blocked::get);
+            unblock();
+         }
          assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
          //Ensure JMS Connection ExceptionListener was also invoked
          assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
@@ -138,6 +169,30 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
             sendConnection.close();
          }
       }
+   }
+
+   static AtomicBoolean mayBlock = new AtomicBoolean(true);
+   static AtomicBoolean blocked = new AtomicBoolean(false);
+
+   private static void block() {
+      if (!mayBlock.get()) {
+         return;
+      }
+
+      blocked.set(true);
+
+      try {
+         long timeOut = System.currentTimeMillis() + 5000;
+         while (mayBlock.get() && System.currentTimeMillis() < timeOut) {
+            Thread.yield();
+         }
+      } finally {
+         blocked.set(false);
+      }
+   }
+
+   private static void unblock() {
+      mayBlock.set(false);
    }
 
 
@@ -156,6 +211,12 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
 
       @Override
       public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+         // CheckForFailoverReply is ignored here, as this is simulating an issue where the server is completely not responding, the blocked call should throw an exception asynchrnously to the retry
+         if (packet.getType() == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
+            block();
+            return true;
+         }
+
          if (lastPacketSent.getType() == PacketImpl.SESS_ACKNOWLEDGE && packet.getType() == PacketImpl.NULL_RESPONSE) {
             return false;
          }
@@ -167,9 +228,16 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
 
       @Override
       public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+         // CheckForFailoverReply is ignored here, as this is simulating an issue where the server is completely not responding, the blocked call should throw an exception asynchrnously to the retry
+         if (packet.getType() == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
+            block();
+            return true;
+         }
+
          if (lastPacketSent.getType() == PacketImpl.SESS_SEND && packet.getType() == PacketImpl.NULL_RESPONSE) {
             return false;
          }
+
          return true;
       }
    }

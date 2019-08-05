@@ -198,9 +198,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
-                             Executor executor,
                              OpenWireProtocolManager openWireProtocolManager,
-                             OpenWireFormat wf) {
+                             OpenWireFormat wf,
+                             Executor executor) {
       super(connection, executor);
       this.server = server;
       this.operationContext = server.newOperationContext();

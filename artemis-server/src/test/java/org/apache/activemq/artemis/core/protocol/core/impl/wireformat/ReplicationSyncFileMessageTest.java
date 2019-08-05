@@ -49,7 +49,7 @@ public class ReplicationSyncFileMessageTest extends ActiveMQTestBase {
       FileChannel fileChannel = raf.getChannel();
       ReplicationSyncFileMessage replicationSyncFileMessage = new ReplicationSyncFileMessage(MESSAGES,
                                                                                              null, 10, raf, fileChannel, 0, dataSize);
-      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(null, conn, 10, 10, null, null);
+      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(null, conn, 10, 10, null, null, null);
       ActiveMQBuffer buffer = replicationSyncFileMessage.encode(remotingConnection);
       Assert.assertEquals(buffer.getInt(0), replicationSyncFileMessage.expectedEncodeSize() - DataConstants.SIZE_INT);
       Assert.assertEquals(buffer.capacity(), replicationSyncFileMessage.expectedEncodeSize() - dataSize);
@@ -69,7 +69,7 @@ public class ReplicationSyncFileMessageTest extends ActiveMQTestBase {
       FileChannel fileChannel = raf.getChannel();
       ReplicationSyncFileMessage replicationSyncFileMessage = new ReplicationSyncFileMessage(MESSAGES,
                                                                                              null, fileId, raf, fileChannel, 0, 0);
-      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(null, conn, 10, 10, null, null);
+      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(null, conn, 10, 10, null, null, null);
       ActiveMQBuffer buffer = replicationSyncFileMessage.encode(remotingConnection);
       Assert.assertEquals(buffer.readInt(), replicationSyncFileMessage.expectedEncodeSize() - DataConstants.SIZE_INT);
       Assert.assertEquals(buffer.capacity(), replicationSyncFileMessage.expectedEncodeSize());
