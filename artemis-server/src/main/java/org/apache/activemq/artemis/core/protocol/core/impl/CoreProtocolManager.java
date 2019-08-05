@@ -116,7 +116,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
       Executor connectionExecutor = server.getExecutorFactory().getExecutor();
 
-      final CoreRemotingConnection rc = new RemotingConnectionImpl(new ServerPacketDecoder(), connection, incomingInterceptors, outgoingInterceptors, config.isAsyncConnectionExecutionEnabled() ? connectionExecutor : null, server.getNodeID());
+      final CoreRemotingConnection rc = new RemotingConnectionImpl(new ServerPacketDecoder(), connection, incomingInterceptors, outgoingInterceptors, server.getNodeID(), connectionExecutor);
 
       Channel channel1 = rc.getChannel(CHANNEL_ID.SESSION.id, -1);
 
