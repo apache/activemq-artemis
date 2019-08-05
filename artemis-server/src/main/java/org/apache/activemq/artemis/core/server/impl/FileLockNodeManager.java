@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -34,11 +36,11 @@ public class FileLockNodeManager extends NodeManager {
 
    private static final Logger logger = Logger.getLogger(FileLockNodeManager.class);
 
-   private static final long STATE_LOCK_POS = 0;
+   private static final int STATE_LOCK_POS = 0;
 
-   private static final long LIVE_LOCK_POS = 1;
+   private static final int LIVE_LOCK_POS = 1;
 
-   private static final long BACKUP_LOCK_POS = 2;
+   private static final int BACKUP_LOCK_POS = 2;
 
    private static final long LOCK_LENGTH = 1;
 
@@ -55,6 +57,8 @@ public class FileLockNodeManager extends NodeManager {
    private FileLock liveLock;
 
    private FileLock backupLock;
+
+   private final FileChannel[] lockChannels = new FileChannel[3];
 
    protected long lockAcquisitionTimeout = -1;
 
@@ -80,6 +84,38 @@ public class FileLockNodeManager extends NodeManager {
       }
 
       super.start();
+   }
+
+   @Override
+   protected synchronized void setUpServerLockFile() throws IOException {
+      super.setUpServerLockFile();
+
+      for (int i = 0; i < 3; i++) {
+         if (lockChannels[i] != null && lockChannels[i].isOpen()) {
+            continue;
+         }
+         File fileLock = newFile("serverlock." + i);
+         if (!fileLock.exists()) {
+            fileLock.createNewFile();
+         }
+         RandomAccessFile randomFileLock = new RandomAccessFile(fileLock, "rw");
+         lockChannels[i] = randomFileLock.getChannel();
+      }
+   }
+
+   @Override
+   public synchronized void stop() throws Exception {
+      for (FileChannel channel : lockChannels) {
+         try {
+            channel.close();
+         } catch (Throwable e) {
+            // I do not want to interrupt a shutdown. If anything is wrong here, just log it
+            // it could be a critical error or something like that throwing the system down
+            logger.warn(e.getMessage(), e);
+         }
+      }
+
+      super.stop();
    }
 
    @Override
@@ -172,7 +208,7 @@ public class FileLockNodeManager extends NodeManager {
 
       ActiveMQServerLogger.LOGGER.obtainedLiveLock();
 
-      return new ActivateCallback() {
+      return new CleaningActivateCallback() {
          @Override
          public void activationComplete() {
             try {
@@ -284,10 +320,10 @@ public class FileLockNodeManager extends NodeManager {
       return getNodeId();
    }
 
-   protected FileLock tryLock(final long lockPos) throws IOException {
+   protected FileLock tryLock(final int lockPos) throws IOException {
       try {
          logger.debug("trying to lock position: " + lockPos);
-         FileLock lock = channel.tryLock(lockPos, LOCK_LENGTH, false);
+         FileLock lock = lockChannels[lockPos].tryLock();
          if (lock != null) {
             logger.debug("locked position: " + lockPos);
          } else {
@@ -300,7 +336,7 @@ public class FileLockNodeManager extends NodeManager {
       }
    }
 
-   protected FileLock lock(final long lockPosition) throws Exception {
+   protected FileLock lock(final int lockPosition) throws Exception {
       long start = System.currentTimeMillis();
       boolean isRecurringFailure = false;
 
