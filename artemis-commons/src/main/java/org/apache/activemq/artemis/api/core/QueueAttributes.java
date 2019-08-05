@@ -39,6 +39,7 @@ public class QueueAttributes implements Serializable {
    public static final String AUTO_DELETE = "auto-delete";
    public static final String AUTO_DELETE_DELAY = "auto-delete-delay";
    public static final String AUTO_DELETE_MESSAGE_COUNT = "auto-delete-message-count";
+   public static final String RING_SIZE = "ring-size";
 
    private RoutingType routingType;
    private SimpleString filterString;
@@ -58,6 +59,7 @@ public class QueueAttributes implements Serializable {
    private Boolean autoDelete;
    private Long autoDeleteDelay;
    private Long autoDeleteMessageCount;
+   private Long ringSize;
 
 
    public void set(String key, String value) {
@@ -98,6 +100,8 @@ public class QueueAttributes implements Serializable {
             setAutoDeleteDelay(Long.valueOf(value));
          } else if (key.equals(AUTO_DELETE_MESSAGE_COUNT)) {
             setAutoDeleteMessageCount(Long.valueOf(value));
+         } else if (key.equals(RING_SIZE)) {
+            setRingSize(Long.valueOf(value));
          }
       }
    }
@@ -261,6 +265,15 @@ public class QueueAttributes implements Serializable {
 
    public QueueAttributes setAutoDeleteMessageCount(Long autoDeleteMessageCount) {
       this.autoDeleteMessageCount = autoDeleteMessageCount;
+      return this;
+   }
+
+   public Long getRingSize() {
+      return ringSize;
+   }
+
+   public QueueAttributes setRingSize(Long ringSize) {
+      this.ringSize = ringSize;
       return this;
    }
 }

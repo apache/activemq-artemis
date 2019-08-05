@@ -97,4 +97,6 @@ public interface QueueBindingInfo {
    long getAutoDeleteDelay();
 
    long getAutoDeleteMessageCount();
+
+   long getRingSize();
 }

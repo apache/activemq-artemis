@@ -56,6 +56,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private Long autoDeleteMessageCount;
 
+   private Long ringSize;
+
    public CreateQueueMessage_V2(final SimpleString address,
                                 final SimpleString queueName,
                                 final boolean temporary,
@@ -84,7 +86,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          queueAttributes.getDelayBeforeDispatch(),
          queueAttributes.getAutoDelete(),
          queueAttributes.getAutoDeleteDelay(),
-         queueAttributes.getAutoDeleteMessageCount()
+         queueAttributes.getAutoDeleteMessageCount(),
+         queueAttributes.getRingSize()
       );
    }
 
@@ -109,7 +112,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
                                 final Long delayBeforeDispatch,
                                 final Boolean autoDelete,
                                 final Long autoDeleteDelay,
-                                final Long autoDeleteMessageCount) {
+                                final Long autoDeleteMessageCount,
+                                final Long ringSize) {
       this();
 
       this.address = address;
@@ -134,6 +138,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.autoDelete = autoDelete;
       this.autoDeleteDelay = autoDeleteDelay;
       this.autoDeleteMessageCount = autoDeleteMessageCount;
+      this.ringSize = ringSize;
    }
 
    public CreateQueueMessage_V2() {
@@ -161,6 +166,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", autoDelete=" + autoDelete);
       buff.append(", autoDeleteDelay=" + autoDeleteDelay);
       buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
+      buff.append(", ringSize=" + ringSize);
 
       buff.append("]");
       return buff.toString();
@@ -294,6 +300,14 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.autoDeleteMessageCount = autoDeleteMessageCount;
    }
 
+   public Long getRingSize() {
+      return ringSize;
+   }
+
+   public void setRingSize(Long ringSize) {
+      this.ringSize = ringSize;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
@@ -313,7 +327,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       BufferHelper.writeNullableLong(buffer, autoDeleteDelay);
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
       buffer.writeNullableSimpleString(groupFirstKey);
-
+      BufferHelper.writeNullableLong(buffer, ringSize);
    }
 
    @Override
@@ -341,6 +355,9 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       if (buffer.readableBytes() > 0) {
          groupFirstKey = buffer.readNullableSimpleString();
       }
+      if (buffer.readableBytes() > 0) {
+         ringSize = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -363,6 +380,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       result = prime * result + (autoDelete == null ? 0 : autoDelete.hashCode());
       result = prime * result + (autoDeleteDelay == null ? 0 : autoDeleteDelay.hashCode());
       result = prime * result + (autoDeleteMessageCount == null ? 0 : autoDeleteMessageCount.hashCode());
+      result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
       return result;
    }
 
@@ -440,6 +458,11 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          if (other.autoDeleteMessageCount != null)
             return false;
       } else if (!autoDeleteMessageCount.equals(other.autoDeleteMessageCount))
+         return false;
+      if (ringSize == null) {
+         if (other.ringSize != null)
+            return false;
+      } else if (!ringSize.equals(other.ringSize))
          return false;
       if (routingType == null) {
          if (other.routingType != null)

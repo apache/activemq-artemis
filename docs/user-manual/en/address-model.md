@@ -610,6 +610,7 @@ that would be found in the `broker.xml` file.
       <default-max-consumers>-1</default-max-consumers>
       <default-queue-routing-type></default-queue-routing-type>
       <default-address-routing-type></default-address-routing-type>
+      <default-ring-size>-1</default-ring-size>
    </address-setting>
 </address-settings>
 ```
@@ -844,3 +845,7 @@ client and/or protocol semantics. Default is `MULTICAST`. Read more about
 for a `CORE` protocol consumer, if not defined the default will be set to 
 1 MiB (1024 * 1024 bytes). The consumer will use this value as the window size
 if the value is not set on the client. Read more about [flow control](#flow-control).
+
+`default-ring-size` defines the default `ring-size` value for any matching queue
+which doesn't have `ring-size` explicitly defined. If not defined the default will
+be set to -1. Read more about [ring queues](#ring-queue).

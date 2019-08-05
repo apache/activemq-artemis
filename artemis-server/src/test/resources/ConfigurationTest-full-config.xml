@@ -402,6 +402,7 @@
             <default-max-consumers>5</default-max-consumers>
             <default-queue-routing-type>ANYCAST</default-queue-routing-type>
             <default-address-routing-type>MULTICAST</default-address-routing-type>
+            <default-ring-size>3</default-ring-size>
          </address-setting>
          <address-setting match="a2">
             <dead-letter-address>a2.1</dead-letter-address>
@@ -446,7 +447,7 @@
       <addresses>
          <address name="addr1">
             <anycast>
-               <queue name="q1">
+               <queue name="q1" ring-size="3">
                   <durable>${falseProp}</durable>
                   <filter string="color='blue'"/>
                </queue>

@@ -24,20 +24,23 @@ import org.apache.activemq.artemis.utils.Preconditions;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.jboss.logging.Logger;
 
-public class QueuePendingMessageMetrics {
+public class QueueMessageMetrics {
 
-   private static final AtomicIntegerFieldUpdater<QueuePendingMessageMetrics> COUNT_UPDATER =
-         AtomicIntegerFieldUpdater.newUpdater(QueuePendingMessageMetrics.class, "messageCount");
+   private static final Logger logger = Logger.getLogger(QueueMessageMetrics.class);
 
-   private static final AtomicIntegerFieldUpdater<QueuePendingMessageMetrics> DURABLE_COUNT_UPDATER =
-         AtomicIntegerFieldUpdater.newUpdater(QueuePendingMessageMetrics.class, "durableMessageCount");
+   private static final AtomicIntegerFieldUpdater<QueueMessageMetrics> COUNT_UPDATER =
+         AtomicIntegerFieldUpdater.newUpdater(QueueMessageMetrics.class, "messageCount");
 
-   private static final AtomicLongFieldUpdater<QueuePendingMessageMetrics> SIZE_UPDATER =
-         AtomicLongFieldUpdater.newUpdater(QueuePendingMessageMetrics.class, "persistentSize");
+   private static final AtomicIntegerFieldUpdater<QueueMessageMetrics> DURABLE_COUNT_UPDATER =
+         AtomicIntegerFieldUpdater.newUpdater(QueueMessageMetrics.class, "durableMessageCount");
 
-   private static final AtomicLongFieldUpdater<QueuePendingMessageMetrics> DURABLE_SIZE_UPDATER =
-         AtomicLongFieldUpdater.newUpdater(QueuePendingMessageMetrics.class, "durablePersistentSize");
+   private static final AtomicLongFieldUpdater<QueueMessageMetrics> SIZE_UPDATER =
+         AtomicLongFieldUpdater.newUpdater(QueueMessageMetrics.class, "persistentSize");
+
+   private static final AtomicLongFieldUpdater<QueueMessageMetrics> DURABLE_SIZE_UPDATER =
+         AtomicLongFieldUpdater.newUpdater(QueueMessageMetrics.class, "durablePersistentSize");
 
    private volatile int messageCount;
 
@@ -49,14 +52,20 @@ public class QueuePendingMessageMetrics {
 
    private final Queue queue;
 
-   public QueuePendingMessageMetrics(final Queue queue) {
+   private final String name;
+
+   public QueueMessageMetrics(final Queue queue, final String name) {
       Preconditions.checkNotNull(queue);
       this.queue = queue;
+      this.name = name;
    }
 
    public void incrementMetrics(final MessageReference reference) {
       long size = getPersistentSize(reference);
       COUNT_UPDATER.incrementAndGet(this);
+      if (logger.isDebugEnabled()) {
+         logger.debugf("%s increment messageCount to %d: %s", this, messageCount, reference);
+      }
       SIZE_UPDATER.addAndGet(this, size);
       if (queue.isDurable() && reference.isDurable()) {
          DURABLE_COUNT_UPDATER.incrementAndGet(this);
@@ -67,6 +76,9 @@ public class QueuePendingMessageMetrics {
    public void decrementMetrics(final MessageReference reference) {
       long size = -getPersistentSize(reference);
       COUNT_UPDATER.decrementAndGet(this);
+      if (logger.isDebugEnabled()) {
+         logger.debugf("%s decrement messageCount to %d: %s", this, messageCount, reference);
+      }
       SIZE_UPDATER.addAndGet(this, size);
       if (queue.isDurable() && reference.isDurable()) {
          DURABLE_COUNT_UPDATER.decrementAndGet(this);
@@ -142,6 +154,11 @@ public class QueuePendingMessageMetrics {
       }
 
       return size;
+   }
+
+   @Override
+   public String toString() {
+      return "QueuePendingMessageMetrics[queue=" + queue.getName() + ", name=" + name + "]";
    }
 
 }

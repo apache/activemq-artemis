@@ -264,6 +264,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEFAULT_CONSUMER_WINDOW_SIZE = "default-consumer-window-size";
 
+   private static final String DEFAULT_RING_SIZE = "default-ring-size";
+
 
    // Attributes ----------------------------------------------------
 
@@ -1158,6 +1160,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setDefaultAddressRoutingType(routingType);
          } else if (DEFAULT_CONSUMER_WINDOW_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setDefaultConsumerWindowSize(XMLUtil.parseInt(child));
+         } else if (DEFAULT_RING_SIZE.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultRingSize(XMLUtil.parseLong(child));
          }
       }
       return setting;
@@ -1203,6 +1207,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       Boolean nonDestructive = null;
       Integer consumersBeforeDispatch = null;
       Long delayBeforeDispatch = null;
+      Long ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
 
       NamedNodeMap attributes = node.getAttributes();
       for (int i = 0; i < attributes.getLength(); i++) {
@@ -1230,6 +1235,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             consumersBeforeDispatch = Integer.parseInt(item.getNodeValue());
          } else if (item.getNodeName().equals("delay-before-dispatch")) {
             delayBeforeDispatch = Long.parseLong(item.getNodeValue());
+         } else if (item.getNodeName().equals("ring-size")) {
+            ringSize = Long.parseLong(item.getNodeValue());
          }
       }
 
@@ -1264,7 +1271,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
               .setLastValueKey(lastValueKey)
               .setNonDestructive(nonDestructive)
               .setConsumersBeforeDispatch(consumersBeforeDispatch)
-              .setDelayBeforeDispatch(delayBeforeDispatch);
+              .setDelayBeforeDispatch(delayBeforeDispatch)
+              .setRingSize(ringSize);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {

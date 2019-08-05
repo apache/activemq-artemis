@@ -664,4 +664,10 @@ public interface QueueControl {
    @Operation(desc = "List all the existent group to consumers mappings on the Queue")
    String listGroupsAsJSON() throws Exception;
 
+   /**
+    * Will return the ring size.
+    */
+   @Attribute(desc = "Get the ring size")
+   long getRingSize();
+
 }

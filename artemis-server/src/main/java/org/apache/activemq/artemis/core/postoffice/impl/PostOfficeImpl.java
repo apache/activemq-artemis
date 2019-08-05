@@ -482,6 +482,25 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Long delayBeforeDispatch,
                                    SimpleString user,
                                    Boolean configurationManaged) throws Exception {
+      return updateQueue(name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, configurationManaged, null);
+   }
+
+   @Override
+   public QueueBinding updateQueue(SimpleString name,
+                                   RoutingType routingType,
+                                   Filter filter,
+                                   Integer maxConsumers,
+                                   Boolean purgeOnNoConsumers,
+                                   Boolean exclusive,
+                                   Boolean groupRebalance,
+                                   Integer groupBuckets,
+                                   SimpleString groupFirstKey,
+                                   Boolean nonDestructive,
+                                   Integer consumersBeforeDispatch,
+                                   Long delayBeforeDispatch,
+                                   SimpleString user,
+                                   Boolean configurationManaged,
+                                   Long ringSize) throws Exception {
       synchronized (this) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -569,6 +588,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (user != null && !user.equals(queue.getUser())) {
                changed = true;
                queue.setUser(user);
+            }
+            if (ringSize != null && !ringSize.equals(queue.getRingSize())) {
+               changed = true;
+               queue.setRingSize(ringSize);
             }
 
             if (changed) {
