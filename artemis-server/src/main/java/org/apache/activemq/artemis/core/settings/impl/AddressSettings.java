@@ -42,7 +42,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final AddressFullMessagePolicy DEFAULT_ADDRESS_FULL_MESSAGE_POLICY = AddressFullMessagePolicy.PAGE;
 
-   public static final long DEFAULT_PAGE_SIZE = 10 * 1024 * 1024;
+   public static final int DEFAULT_PAGE_SIZE = 10 * 1024 * 1024;
 
    public static final int DEFAULT_MAX_DELIVERY_ATTEMPTS = 10;
 
@@ -111,7 +111,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Long maxSizeBytes = null;
 
-   private Long pageSizeBytes = null;
+   private Integer pageSizeBytes = null;
 
    private Integer pageMaxCache = null;
 
@@ -500,11 +500,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public long getPageSizeBytes() {
+   public int getPageSizeBytes() {
       return pageSizeBytes != null ? pageSizeBytes : AddressSettings.DEFAULT_PAGE_SIZE;
    }
 
-   public AddressSettings setPageSizeBytes(final long pageSize) {
+   public AddressSettings setPageSizeBytes(final int pageSize) {
       pageSizeBytes = pageSize;
       return this;
    }
@@ -909,7 +909,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       maxSizeBytes = BufferHelper.readNullableLong(buffer);
 
-      pageSizeBytes = BufferHelper.readNullableLong(buffer);
+      Long pageSizeLong = BufferHelper.readNullableLong(buffer);
+      pageSizeBytes = pageSizeLong == null ? null : pageSizeLong.intValue();
 
       pageMaxCache = BufferHelper.readNullableInteger(buffer);
 
@@ -1046,7 +1047,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       return BufferHelper.sizeOfNullableSimpleString(addressFullMessagePolicy != null ? addressFullMessagePolicy.toString() : null) +
          BufferHelper.sizeOfNullableLong(maxSizeBytes) +
-         BufferHelper.sizeOfNullableLong(pageSizeBytes) +
+         BufferHelper.sizeOfNullableLong(Long.valueOf(pageSizeBytes)) +
          BufferHelper.sizeOfNullableInteger(pageMaxCache) +
          BufferHelper.sizeOfNullableBoolean(dropMessagesWhenFull) +
          BufferHelper.sizeOfNullableInteger(maxDeliveryAttempts) +
@@ -1097,7 +1098,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, maxSizeBytes);
 
-      BufferHelper.writeNullableLong(buffer, pageSizeBytes);
+      BufferHelper.writeNullableLong(buffer, Long.valueOf(pageSizeBytes));
 
       BufferHelper.writeNullableInteger(buffer, pageMaxCache);
 
