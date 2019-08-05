@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.remoting;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 
 import io.netty.channel.ChannelPipeline;
@@ -26,6 +27,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public interface ClientProtocolManager {
+
+   ClientProtocolManager setExecutor(Executor executor);
 
    /// Life Cycle Methods:
 

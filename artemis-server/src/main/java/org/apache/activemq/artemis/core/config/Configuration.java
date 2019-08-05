@@ -328,15 +328,18 @@ public interface Configuration {
    Configuration setAmqpUseCoreSubscriptionNaming(boolean amqpUseCoreSubscriptionNaming);
 
    /**
+    * deprecated: we decide based on the semantic context when to make things async or not
     * Returns whether code coming from connection is executed asynchronously or not. <br>
     * Default value is
     * {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.
     */
+   @Deprecated
    boolean isAsyncConnectionExecutionEnabled();
 
    /**
     * Sets whether code coming from connection is executed asynchronously or not.
     */
+   @Deprecated
    Configuration setEnabledAsyncConnectionExecution(boolean enabled);
 
    /**
