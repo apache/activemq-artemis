@@ -106,12 +106,14 @@ public class FileLockNodeManager extends NodeManager {
    @Override
    public synchronized void stop() throws Exception {
       for (FileChannel channel : lockChannels) {
-         try {
-            channel.close();
-         } catch (Throwable e) {
-            // I do not want to interrupt a shutdown. If anything is wrong here, just log it
-            // it could be a critical error or something like that throwing the system down
-            logger.warn(e.getMessage(), e);
+         if (channel != null && channel.isOpen()) {
+            try {
+               channel.close();
+            } catch (Throwable e) {
+               // I do not want to interrupt a shutdown. If anything is wrong here, just log it
+               // it could be a critical error or something like that throwing the system down
+               logger.warn(e.getMessage(), e);
+            }
          }
       }
 
