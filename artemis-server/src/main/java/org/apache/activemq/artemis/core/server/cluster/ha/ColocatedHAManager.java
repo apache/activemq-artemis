@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.cluster.ha;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Pair;
@@ -172,10 +173,19 @@ public class ColocatedHAManager implements HAManager {
     * @throws Exception
     */
    private synchronized boolean activateReplicatedBackup(SimpleString nodeID) throws Exception {
+      final TopologyMember member;
+      try {
+         member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeID.toString());
+         if (!Objects.equals(member.getBackupGroupName(), haPolicy.getBackupPolicy().getBackupGroupName())) {
+            return false;
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.activateReplicatedBackupFailed(e);
+         return false;
+      }
       Configuration configuration = server.getConfiguration().copy();
       ActiveMQServer backup = server.createBackupServer(configuration);
       try {
-         TopologyMember member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeID.toString());
          int portOffset = haPolicy.getBackupPortOffset() * (backupServers.size() + 1);
          String name = "colocated_backup_" + backupServers.size() + 1;
          //make sure we don't restart as we are colocated

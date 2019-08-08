@@ -358,6 +358,8 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertNotNull(livePolicy);
 
          assertEquals(livePolicy.getGroupName(), "purple");
+         assertEquals(livePolicy.getGroupName(), livePolicy.getBackupGroupName());
+         assertEquals(livePolicy.getBackupGroupName(), haPolicy.getBackupGroupName());
          assertTrue(livePolicy.isCheckForLiveServer());
          assertEquals(livePolicy.getClusterName(), "abcdefg");
          ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
