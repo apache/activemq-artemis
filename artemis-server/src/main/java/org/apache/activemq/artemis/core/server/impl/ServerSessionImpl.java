@@ -95,6 +95,7 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
+import org.apache.activemq.artemis.utils.collections.MaxSizeMap;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
@@ -175,7 +176,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private final OperationContext context;
 
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
-   protected final Map<SimpleString, Pair<Object, AtomicLong>> targetAddressInfos = new HashMap<>();
+   protected final Map<SimpleString, Pair<Object, AtomicLong>> targetAddressInfos = new MaxSizeMap<>(100);
 
    private final long creationTime = System.currentTimeMillis();
 
