@@ -256,6 +256,10 @@ and Security Layer (SASL) authentication is currently not supported.
   receive updates made in the LDAP server and update the broker's authorization
   configuration in real-time. The default value is `true`.
 
+- `mapAdminToManage`. Whether or not to map the legacy `admin` permission to the
+  `manage` permission. See details of the mapping semantics below. The default
+   value is `false`.
+
 The name of the queue or topic defined in LDAP will serve as the "match" for
 the security-setting, the permission value will be mapped from the ActiveMQ 5.x
 type to the Artemis type, and the role will be mapped as-is.
@@ -271,20 +275,24 @@ and `manage`. Here's how the old types are mapped to the new types:
 - `read` - `consume`, `browse`
 - `write` - `send`
 - `admin` - `createAddress`, `deleteAddress`, `createDurableQueue`,
-  `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`
+  `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`,
+  `manage` (if `mapAdminToManage` is `true`)
 
 As mentioned, there are a few places where a translation was performed to
 achieve some equivalence.:
 
-- This mapping doesn't include the Artemis `manage` permission type since there
-  is no type analogous for that in ActiveMQ 5.x.
+- This mapping doesn't include the Artemis `manage` permission type by default
+  since there is no type analogous for that in ActiveMQ 5.x. However, if
+  `mapAdminToManage` is `true` then the legacy `admin` permission will be
+  mapped to the `manage` permission.
 
 - The `admin` permission in ActiveMQ 5.x relates to whether or not the broker
   will auto-create a destination if it doesn't exist and the user sends a
   message to it. Artemis automatically allows the automatic creation of a
   destination if the user has permission to send message to it. Therefore, the
-  plugin will map the `admin` permission to the 4 aforementioned permissions in
-  Artemis.
+  plugin will map the `admin` permission to the 6 aforementioned permissions in
+  Artemis by default. If `mapAdminToManage` is `true` then the legacy `admin`
+  permission will be mapped to the `manage` permission as well.
 
 ## Secure Sockets Layer (SSL) Transport
 
