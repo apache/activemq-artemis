@@ -63,7 +63,7 @@ This line should be changed to be:
 
 ##### On Windows
 
-Locate this part of `JAVA_ARGS` in `etc/artemis.profile.cmd`:
+Locate this part of `JAVA_ARGS` in `etc/artemis.profile.cmd` respectively `bin/artemis-service.xml`:
 ```
 -Xbootclasspath/a:%ARTEMIS_HOME%\lib\jboss-logmanager-2.1.10.Final.jar
 ```
