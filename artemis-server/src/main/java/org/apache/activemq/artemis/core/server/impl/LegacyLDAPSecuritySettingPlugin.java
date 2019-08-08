@@ -65,6 +65,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    public static final String READ_PERMISSION_VALUE = "readPermissionValue";
    public static final String WRITE_PERMISSION_VALUE = "writePermissionValue";
    public static final String ENABLE_LISTENER = "enableListener";
+   public static final String MAP_ADMIN_TO_MANAGE = "mapAdminToManage";
 
    private String initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
    private String connectionURL = "ldap://localhost:1024";
@@ -79,6 +80,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    private String readPermissionValue = "read";
    private String writePermissionValue = "write";
    private boolean enableListener = true;
+   private boolean mapAdminToManage = false;
 
    private DirContext context;
    private EventDirContext eventContext;
@@ -101,6 +103,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          readPermissionValue = getOption(options, READ_PERMISSION_VALUE, readPermissionValue);
          writePermissionValue = getOption(options, WRITE_PERMISSION_VALUE, writePermissionValue);
          enableListener = getOption(options, ENABLE_LISTENER, Boolean.TRUE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
+         mapAdminToManage = getOption(options, MAP_ADMIN_TO_MANAGE, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
       }
 
       return this;
@@ -229,6 +232,15 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
    public LegacyLDAPSecuritySettingPlugin setEnableListener(boolean enableListener) {
       this.enableListener = enableListener;
+      return this;
+   }
+
+   public boolean isMapAdminToManage() {
+      return mapAdminToManage;
+   }
+
+   public LegacyLDAPSecuritySettingPlugin setMapAdminToManage(boolean mapAdminToManage) {
+      this.mapAdminToManage = mapAdminToManage;
       return this;
    }
 
@@ -400,7 +412,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                               permissionType.equalsIgnoreCase(adminPermissionValue), // deleteDurableQueue
                               permissionType.equalsIgnoreCase(adminPermissionValue), // createNonDurableQueue
                               permissionType.equalsIgnoreCase(adminPermissionValue), // deleteNonDurableQueue
-                              false, // manage - there is no permission from ActiveMQ 5.x that corresponds to this
+                              mapAdminToManage ? permissionType.equalsIgnoreCase(adminPermissionValue) : false, // manage - map to admin based on configuration
                               permissionType.equalsIgnoreCase(readPermissionValue),  // browse
                               permissionType.equalsIgnoreCase(adminPermissionValue), // createAddress
                               permissionType.equalsIgnoreCase(adminPermissionValue)  // deleteAddress
