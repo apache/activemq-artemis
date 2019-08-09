@@ -71,9 +71,12 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import org.jboss.logging.Logger;
 
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
+
+   private static final Logger logger = Logger.getLogger(AMQPMessage.class);
 
    public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
 
@@ -692,6 +695,7 @@ public class AMQPMessage extends RefCountMessage {
          return AmqpCoreConverter.toCore(
             this, coreMessageObjectPools, header, messageAnnotations, properties, lazyDecodeApplicationProperties(), getBody(), getFooter());
       } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          throw new RuntimeException(e.getMessage(), e);
       }
    }
