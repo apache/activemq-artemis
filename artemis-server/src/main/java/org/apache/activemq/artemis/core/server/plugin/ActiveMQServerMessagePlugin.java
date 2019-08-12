@@ -29,7 +29,59 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
+ * This plugin reports on message events. Beginning of event is reported with a {@code before} method
+ * and ending is reported with either an {@code after} or {@code onException} method.
+ * <p>
+ * Calling these methods is part of the message processing and therefore they need
+ * to return quickly to maintain good broker performance.
+ * <p>
+ * The corresponding initial and final method are guaranteed to be called on the
+ * same thread. This allows using {@link ThreadLocal} to keep some state from the `before` method.
+ * The thread is returned to a ThreadPool after processing is done, so it is important
+ * to clear the {@link ThreadLocal} in the `after` and `onException`.
+ * <p>
+ * Additionally, the same {@link Message} or wrapping {@link MessageReference} object
+ * is passed as parameter, so the methods can refer to and modify the message.
+ * <p>
+ * Successfully accepted incoming message is going to trigger the following events
  *
+ * <pre>
+ * beforeSend
+ *    beforeMessageRoute
+ *    afterMessageRoute
+ * afterSend
+ * </pre>
+ *
+ * <p>
+ * These events are likely called on the same thread. This illustrates that more than
+ * one `before`/`after` pair can be active at the same time. It is guaranteed that the "nested"
+ * event ends with its `after`/`onError` before the previous event is so ended.
+ * <p>
+ * Successful outgoing message is going to trigger following events
+ *
+ * <pre>
+ * beforeDeliver
+ * afterDeliver
+ * onMessageAcknowledged
+ * </pre>
+ *
+ * <p>
+ * If the receiver is already present when the message is arriving, the send and receive
+ * may happen all together, as in
+ *
+ * <pre>
+ * beforeSend
+ *    beforeMessageRoute
+ *       beforeDeliver
+ *       afterDeliver
+ *    afterMessageRoute
+ * afterSend
+ * onMessageAcknowledged
+ * </pre>
+ *
+ * <p>
+ * When HA and/or Clustering is enabled, the outgoing flow may happen on one or more
+ * brokers, possibly not including the one that handled the incoming message.
  */
 public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
