@@ -29,7 +29,8 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
- * This plugin reports on message events. Beginning of event is reported with a {@code before} method
+ * Implement this interface in your {@link ActiveMQServerPlugin} to be notified
+ * about message events. Beginning of event is reported with a {@code before} method
  * and ending is reported with either an {@code after} or {@code onException} method.
  * <p>
  * Calling these methods is part of the message processing and therefore they need
@@ -41,14 +42,14 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  * to clear the {@link ThreadLocal} in the `after` and `onException`.
  * <p>
  * Additionally, the same {@link Message} or wrapping {@link MessageReference} object
- * is passed as parameter, so the methods can refer to and modify the message.
+ * is passed as parameter, so the methods can reference and modify the message.
  * <p>
  * Successfully accepted incoming message is going to trigger the following events
  *
  * <pre>
- * beforeSend
- *    beforeMessageRoute
- *    afterMessageRoute
+ * {@link #beforeSend}
+ *    {@link #beforeMessageRoute}
+ *    {@link #afterMessageRoute}
  * afterSend
  * </pre>
  *
@@ -60,9 +61,9 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  * Successful outgoing message is going to trigger following events
  *
  * <pre>
- * beforeDeliver
- * afterDeliver
- * onMessageAcknowledged
+ * {@link #beforeDeliver}
+ * {@link #afterDeliver}
+ * {@link #messageAcknowledged}
  * </pre>
  *
  * <p>
@@ -70,13 +71,13 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  * may happen all together, as in
  *
  * <pre>
- * beforeSend
- *    beforeMessageRoute
- *       beforeDeliver
- *       afterDeliver
- *    afterMessageRoute
- * afterSend
- * onMessageAcknowledged
+ * {@link #beforeSend}
+ *    {@link #beforeMessageRoute}
+ *       {@link #beforeDeliver}
+ *       {@link #afterDeliver}
+ *    {@link #afterMessageRoute}
+ * {@link #afterSend}
+ * {@link #messageAcknowledged}
  * </pre>
  *
  * <p>
