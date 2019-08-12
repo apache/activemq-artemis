@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentMaxSizeCache;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Connection.
@@ -97,7 +98,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final Set<SimpleString> tempQueues = new ConcurrentHashSet<>();
 
-   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
+   private final ConcurrentMaxSizeCache<SimpleString> knownDestinations = new ConcurrentMaxSizeCache<>(100);
 
    private volatile boolean hasNoLocal;
 
@@ -561,6 +562,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public boolean containsTemporaryQueue(final SimpleString queueAddress) {
       return tempQueues.contains(queueAddress);
+   }
+
+   public ConcurrentMaxSizeCache<SimpleString> getKnownDestinations() {
+      return knownDestinations;
    }
 
    public boolean hasNoLocal() {
