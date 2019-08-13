@@ -124,7 +124,7 @@ public class ColocatedActivation extends LiveActivation {
                BackupRequestMessage backupRequestMessage = (BackupRequestMessage) packet;
                boolean started = false;
                try {
-                  started = colocatedHAManager.activateBackup(backupRequestMessage.getBackupSize(), backupRequestMessage.getJournalDirectory(), backupRequestMessage.getBindingsDirectory(), backupRequestMessage.getLargeMessagesDirectory(), backupRequestMessage.getPagingDirectory(), backupRequestMessage.getNodeID());
+                  started = colocatedHAManager.activateBackup(backupRequestMessage);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.failedToActivateBackup(e);
                }

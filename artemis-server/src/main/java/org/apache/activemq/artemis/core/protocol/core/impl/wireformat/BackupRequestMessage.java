@@ -34,12 +34,14 @@ public class BackupRequestMessage extends PacketImpl {
    }
 
    public BackupRequestMessage(int backupSize,
+                               SimpleString nodeID,
                                String journalDirectory,
                                String bindingsDirectory,
                                String largeMessagesDirectory,
                                String pagingDirectory) {
       super(BACKUP_REQUEST);
       this.backupSize = backupSize;
+      this.nodeID = nodeID;
       this.journalDirectory = journalDirectory;
       this.bindingsDirectory = bindingsDirectory;
       this.largeMessagesDirectory = largeMessagesDirectory;

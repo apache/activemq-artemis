@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRequestMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActivationParams;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -84,19 +85,16 @@ public class ColocatedHAManager implements HAManager {
       return started;
    }
 
-   public synchronized boolean activateBackup(int backupSize,
-                                              String journalDirectory,
-                                              String bindingsDirectory,
-                                              String largeMessagesDirectory,
-                                              String pagingDirectory,
-                                              SimpleString nodeID) throws Exception {
-      if (backupServers.size() >= haPolicy.getMaxBackups() || backupSize != backupServers.size()) {
+   public synchronized boolean activateBackup(BackupRequestMessage message) throws Exception {
+      if (backupServers.size() >= haPolicy.getMaxBackups() || message.getBackupSize() != backupServers.size()) {
          return false;
       }
       if (haPolicy.getBackupPolicy().isSharedStore()) {
-         return activateSharedStoreBackup(journalDirectory, bindingsDirectory, largeMessagesDirectory, pagingDirectory);
+         return activateSharedStoreBackup(message.getNodeID(), message.getJournalDirectory(),
+                                          message.getBindingsDirectory(),
+                                          message.getLargeMessagesDirectory(), message.getPagingDirectory());
       } else {
-         return activateReplicatedBackup(nodeID);
+         return activateReplicatedBackup(message.getNodeID());
       }
    }
 
@@ -131,16 +129,29 @@ public class ColocatedHAManager implements HAManager {
          if (replicated) {
             return clusterControl.requestReplicatedBackup(backupSize, server.getNodeID());
          } else {
-            return clusterControl.requestSharedStoreBackup(backupSize, server.getConfiguration().getJournalLocation().getAbsolutePath(), server.getConfiguration().getBindingsLocation().getAbsolutePath(), server.getConfiguration().getLargeMessagesLocation().getAbsolutePath(), server.getConfiguration().getPagingLocation().getAbsolutePath());
+            return clusterControl.requestSharedStoreBackup(backupSize, server.getNodeID(),
+                                                           server.getConfiguration().getJournalLocation().getAbsolutePath(),
+                                                           server.getConfiguration().getBindingsLocation().getAbsolutePath(),
+                                                           server.getConfiguration().getLargeMessagesLocation().getAbsolutePath(),
+                                                           server.getConfiguration().getPagingLocation().getAbsolutePath());
 
          }
       }
    }
 
-   private synchronized boolean activateSharedStoreBackup(String journalDirectory,
+   private synchronized boolean activateSharedStoreBackup(SimpleString nodeID,
+                                                          String journalDirectory,
                                                           String bindingsDirectory,
                                                           String largeMessagesDirectory,
                                                           String pagingDirectory) throws Exception {
+      try {
+         if (validateBackupGroupName(nodeID) == null) {
+            return false;
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.activateSharedStoreSlaveFailed(e);
+         return false;
+      }
       Configuration configuration = server.getConfiguration().copy();
       ActiveMQServer backup = server.createBackupServer(configuration);
       try {
@@ -163,6 +174,23 @@ public class ColocatedHAManager implements HAManager {
       return true;
    }
 
+   private TopologyMember validateBackupGroupName(SimpleString nodeID) {
+      // Older versions of artemis don't send the nodeID in BackupRequestMessage:
+      // in this case we cannot trust the request, making the requesting server
+      // to pair with this server in any case.
+      if (nodeID == null) {
+         throw new IllegalStateException("Received an anonymous BackupRequestMessage: please upgrade the connected brokers to the same higher version");
+      }
+      final TopologyMember member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeID.toString());
+      if (member == null) {
+         throw new NullPointerException("member with nodeID = " + nodeID + " is null");
+      }
+      if (!Objects.equals(member.getBackupGroupName(), haPolicy.getBackupPolicy().getBackupGroupName())) {
+         return null;
+      }
+      return member;
+   }
+
    /**
     * activate a backup server replicating from a specified node.
     *
@@ -175,8 +203,8 @@ public class ColocatedHAManager implements HAManager {
    private synchronized boolean activateReplicatedBackup(SimpleString nodeID) throws Exception {
       final TopologyMember member;
       try {
-         member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeID.toString());
-         if (!Objects.equals(member.getBackupGroupName(), haPolicy.getBackupPolicy().getBackupGroupName())) {
+         member = validateBackupGroupName(nodeID);
+         if (member == null) {
             return false;
          }
       } catch (Exception e) {
