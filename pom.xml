@@ -92,7 +92,7 @@
       <mockito.version>2.25.0</mockito.version>
       <netty.version>4.1.34.Final</netty.version>
       <netty-tcnative-version>2.0.22.Final</netty-tcnative-version>
-      <proton.version>0.33.1</proton.version>
+      <proton.version>0.33.2</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
       <qpid.jms.version>0.43.0</qpid.jms.version>
