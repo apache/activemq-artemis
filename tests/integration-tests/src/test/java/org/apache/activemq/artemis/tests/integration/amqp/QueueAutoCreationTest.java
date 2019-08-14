@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -130,7 +131,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
          producer.send(session.createTextMessage("hello"));
       }
 
-      Assert.assertTrue(((ActiveMQConnection)connection).containsKnownDestination(addressName));
+      Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
    }
 
    private void sendStringOfSize(int msgSize, boolean useCoreReceive) throws JMSException {
