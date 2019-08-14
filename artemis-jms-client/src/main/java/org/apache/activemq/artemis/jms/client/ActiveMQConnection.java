@@ -97,8 +97,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final Set<SimpleString> tempQueues = new ConcurrentHashSet<>();
 
-   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
-
    private volatile boolean hasNoLocal;
 
    private volatile ExceptionListener exceptionListener;
@@ -543,20 +541,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public void addTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.add(queueAddress);
-      knownDestinations.add(queueAddress);
    }
 
    public void removeTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.remove(queueAddress);
-      knownDestinations.remove(queueAddress);
-   }
-
-   public void addKnownDestination(final SimpleString address) {
-      knownDestinations.add(address);
-   }
-
-   public boolean containsKnownDestination(final SimpleString address) {
-      return knownDestinations.contains(address);
    }
 
    public boolean containsTemporaryQueue(final SimpleString queueAddress) {
