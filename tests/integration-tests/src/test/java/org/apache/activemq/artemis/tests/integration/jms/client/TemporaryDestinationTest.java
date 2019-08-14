@@ -80,6 +80,8 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          consumer.close();
 
+         assertTrue(((ActiveMQDestination) tempQueue).isCreated());
+
          tempQueue.delete();
 
          assertFalse(((ActiveMQDestination) tempQueue).isCreated());
@@ -91,6 +93,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
          }
       }
    }
+
    @Test
    public void testTemporaryQueueDeletedAfterSessionClosed() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
@@ -220,6 +223,45 @@ public class TemporaryDestinationTest extends JMSTestBase {
          temporaryQueue.delete();
          for (ServerSession serverSession : server.getSessions()) {
             assertEquals(0, ((ServerSessionImpl)serverSession).getTempQueueCleanUppers().size());
+         }
+      } finally {
+         if (conn != null) {
+            conn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testForTempQueueTargetInfosLeak() throws Exception {
+      try {
+         conn = createConnection();
+         Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         TemporaryQueue temporaryQueue = s.createTemporaryQueue();
+         MessageProducer producer = s.createProducer(temporaryQueue);
+         producer.send(s.createMessage());
+         temporaryQueue.delete();
+         for (ServerSession serverSession : server.getSessions()) {
+            assertFalse(((ServerSessionImpl)serverSession).cloneTargetAddresses().containsKey(SimpleString.toSimpleString(temporaryQueue.getQueueName())));
+         }
+      } finally {
+         if (conn != null) {
+            conn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testForTempQueueTargetInfosSizeLimit() throws Exception {
+      try {
+         conn = createConnection();
+         Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         for (int i = 0; i < 200; i++) {
+            TemporaryQueue temporaryQueue = s.createTemporaryQueue();
+            MessageProducer producer = s.createProducer(temporaryQueue);
+            producer.send(s.createMessage());
+         }
+         for (ServerSession serverSession : server.getSessions()) {
+            assertTrue(((ServerSessionImpl)serverSession).cloneTargetAddresses().size() <= 100);
          }
       } finally {
          if (conn != null) {

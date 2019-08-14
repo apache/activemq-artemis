@@ -450,6 +450,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
             } else {
                sessionToUse.deleteTemporaryTopic(this);
             }
+            setCreated(false);
          } finally {
             if (openedHere) {
                sessionToUse.close();
