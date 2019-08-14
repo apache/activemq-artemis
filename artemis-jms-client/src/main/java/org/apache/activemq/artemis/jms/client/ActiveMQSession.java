@@ -383,7 +383,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    void checkDestination(ActiveMQDestination destination) throws JMSException {
       SimpleString address = destination.getSimpleAddress();
       // TODO: What to do with FQQN
-      if (!connection.containsKnownDestination(address)) {
+      if (destination.getConnection() != connection && !destination.isCreated()) {
          try {
             ClientSession.AddressQuery addressQuery = session.addressQuery(address);
 
@@ -425,7 +425,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
          // this is done at the end, if no exceptions are thrown
-         connection.addKnownDestination(address);
+         if (destination.getConnection() == connection) {
+            destination.setCreated(true);
+         }
       }
    }
 
@@ -454,7 +456,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQDestination jbdest = (ActiveMQDestination) destination;
 
-      if (jbdest.isTemporary() && !connection.containsTemporaryQueue(jbdest.getSimpleAddress())) {
+      if (jbdest.isTemporary() && connection != jbdest.getConnection()) {
          throw new JMSException("Can not create consumer for temporary destination " + destination +
                                    " from another JMS connection");
       }
@@ -811,7 +813,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                }
             }
 
-            connection.addKnownDestination(dest.getSimpleAddress());
+            if (dest.getConnection() == connection) {
+               dest.setCreated(true);
+            }
 
             consumer = createClientConsumer(dest, null, coreFilterString);
          } else {
@@ -825,7 +829,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                }
             }
 
-            connection.addKnownDestination(dest.getSimpleAddress());
+            if (dest.getConnection() == connection) {
+               dest.setCreated(true);
+            }
 
             SimpleString queueName;
 

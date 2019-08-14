@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
@@ -81,7 +82,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          tempQueue.delete();
 
-         assertFalse(conn.containsKnownDestination(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertFalse(((ActiveMQDestination) tempQueue).isCreated());
 
          assertFalse(conn.containsTemporaryQueue(SimpleString.toSimpleString(tempQueue.getQueueName())));
       } finally {
@@ -219,45 +220,6 @@ public class TemporaryDestinationTest extends JMSTestBase {
          temporaryQueue.delete();
          for (ServerSession serverSession : server.getSessions()) {
             assertEquals(0, ((ServerSessionImpl)serverSession).getTempQueueCleanUppers().size());
-         }
-      } finally {
-         if (conn != null) {
-            conn.close();
-         }
-      }
-   }
-
-   @Test
-   public void testForTempQueueTargetInfosLeak() throws Exception {
-      try {
-         conn = createConnection();
-         Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         TemporaryQueue temporaryQueue = s.createTemporaryQueue();
-         MessageProducer producer = s.createProducer(temporaryQueue);
-         producer.send(s.createMessage());
-         temporaryQueue.delete();
-         for (ServerSession serverSession : server.getSessions()) {
-            assertFalse(((ServerSessionImpl)serverSession).cloneTargetAddresses().containsKey(SimpleString.toSimpleString(temporaryQueue.getQueueName())));
-         }
-      } finally {
-         if (conn != null) {
-            conn.close();
-         }
-      }
-   }
-
-   @Test
-   public void testForTempQueueTargetInfosSizeLimit() throws Exception {
-      try {
-         conn = createConnection();
-         Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         for (int i = 0; i < 200; i++) {
-            TemporaryQueue temporaryQueue = s.createTemporaryQueue();
-            MessageProducer producer = s.createProducer(temporaryQueue);
-            producer.send(s.createMessage());
-         }
-         for (ServerSession serverSession : server.getSessions()) {
-            assertTrue(((ServerSessionImpl)serverSession).cloneTargetAddresses().size() <= 100);
          }
       } finally {
          if (conn != null) {

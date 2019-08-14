@@ -352,6 +352,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
    private final transient ActiveMQSession session;
 
+   private transient boolean created;
    // Constructors --------------------------------------------------
 
    protected ActiveMQDestination(final String address,
@@ -481,6 +482,22 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
    public boolean isTemporary() {
       return temporary;
+   }
+
+   public ActiveMQSession getSession() {
+      return session;
+   }
+
+   public ActiveMQConnection getConnection() {
+      return session == null ? null : session.getConnection();
+   }
+
+   public boolean isCreated() {
+      return created;
+   }
+
+   public void setCreated(boolean created) {
+      this.created = created;
    }
 
    public TYPE getType() {
