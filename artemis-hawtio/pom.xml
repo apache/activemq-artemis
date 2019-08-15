@@ -55,7 +55,7 @@
         <slf4j-api-version>1.6.6</slf4j-api-version>
         <slf4j-version>1.7.21</slf4j-version>
 
-        <war-plugin-version>2.6</war-plugin-version>
+        <war-plugin-version>3.2.3</war-plugin-version>
     </properties>
 
     <dependencyManagement>
