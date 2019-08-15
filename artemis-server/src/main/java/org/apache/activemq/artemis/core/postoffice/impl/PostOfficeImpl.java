@@ -137,8 +137,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ActiveMQServer server;
 
-   private final Object addressLock = new Object();
-
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
                          final PagingManager pagingManager,
@@ -441,7 +439,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    private boolean internalAddressInfo(AddressInfo addressInfo, boolean reload) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
          }
@@ -484,7 +482,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Long delayBeforeDispatch,
                                    SimpleString user,
                                    Boolean configurationManaged) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
             return null;
@@ -597,7 +595,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         EnumSet<RoutingType> routingTypes) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeUpdateAddress(addressName, routingTypes));
          }
@@ -619,7 +617,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeRemoveAddress(address));
          }
@@ -649,9 +647,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo getAddressInfo(SimpleString addressName) {
-      synchronized (addressLock) {
-         return addressManager.getAddressInfo(addressName);
-      }
+      return addressManager.getAddressInfo(addressName);
    }
 
    @Override
