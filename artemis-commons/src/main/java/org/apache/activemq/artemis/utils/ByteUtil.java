@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
@@ -62,7 +64,7 @@ public class ByteUtil {
       StringBuffer buffer = new StringBuffer();
 
       int line = 1;
-      buffer.append("/*  1 */ \"");
+      buffer.append("/*  0 */ \"");
       for (int i = 0; i < str.length(); i += groupSize) {
          buffer.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
 
@@ -72,7 +74,7 @@ public class ByteUtil {
             if (line < 10) {
                buffer.append(" ");
             }
-            buffer.append(Integer.toString(line) + " */ \"");
+            buffer.append(Integer.toString(i) + " */ \"");
          } else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
             buffer.append("\" + \"");
          }
@@ -99,6 +101,30 @@ public class ByteUtil {
          hexChars[j * 2] = hexArray[v >>> 4];
          hexChars[j * 2 + 1] = hexArray[v & 0x0F];
       }
+      return new String(hexChars);
+   }
+
+   /** Simplify reading of a byte array in a programmers understable way */
+   public static String debugByteArray(byte[] byteArray) {
+      StringWriter builder = new StringWriter();
+      PrintWriter writer = new PrintWriter(builder);
+      for (int i = 0; i < byteArray.length; i++) {
+         writer.print("\t[" + i + "]=" + ByteUtil.byteToChar(byteArray[i]) + " / " + byteArray[i]);
+         if (i > 0 && i % 8 == 0) {
+            writer.println();
+         } else {
+            writer.print(" ");
+         }
+      }
+      return builder.toString();
+   }
+
+
+   public static String byteToChar(byte value) {
+      char[] hexChars = new char[2];
+      int v = value & 0xFF;
+      hexChars[0] = hexArray[v >>> 4];
+      hexChars[1] = hexArray[v & 0x0F];
       return new String(hexChars);
    }
 
