@@ -151,7 +151,7 @@ public class NettyReadable implements ReadableBuffer {
 
    @Override
    public int arrayOffset() {
-      return buffer.arrayOffset() + buffer.readerIndex();
+      return buffer.arrayOffset();
    }
 
    @Override
