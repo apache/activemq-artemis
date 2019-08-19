@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -37,8 +39,10 @@ import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,6 +50,8 @@ import io.netty.buffer.Unpooled;
 
 
 public class TestConversions extends Assert {
+
+   private static final Logger logger = Logger.getLogger(TestConversions.class);
 
    @Test
    public void testAmqpValueOfBooleanIsPassedThrough() throws Exception {
@@ -224,6 +230,89 @@ public class TestConversions extends Assert {
       assertEquals("value", new String(((byte[]) textMessage.getObjectProperty("bytesProp"))));
 
       assertEquals(text, textMessage.getText());
+   }
+
+   @Test
+   public void testEditAndConvert() throws Exception {
+
+      Map<String, Object> mapprop = createPropertiesMap();
+      ApplicationProperties properties = new ApplicationProperties(mapprop);
+      properties.getValue().put("hello", "hello");
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      MessageAnnotations annotations = new MessageAnnotations(new HashMap<>());
+      message.setMessageAnnotations(annotations);
+      message.setApplicationProperties(properties);
+
+      String text = "someText";
+      message.setBody(new AmqpValue(text));
+
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
+      TypedProperties extraProperties = new TypedProperties();
+      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+
+      for (int i = 0; i < 10; i++) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Message encoded :: " + encodedMessage.toDebugString());
+         }
+
+         encodedMessage.messageChanged();
+         AmqpValue value = (AmqpValue)encodedMessage.getProtonMessage().getBody();
+         Assert.assertEquals(text, (String)value.getValue());
+
+         // this line is needed to force a failure
+         ICoreMessage coreMessage = encodedMessage.toCore();
+
+         if (logger.isDebugEnabled()) {
+            logger.debug("Converted message: " + coreMessage);
+         }
+      }
+   }
+
+   @Test
+   public void testExpandPropertiesAndConvert() throws Exception {
+
+      Map<String, Object> mapprop = createPropertiesMap();
+      ApplicationProperties properties = new ApplicationProperties(mapprop);
+      properties.getValue().put("hello", "hello");
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      MessageAnnotations annotations = new MessageAnnotations(new HashMap<>());
+      message.setMessageAnnotations(annotations);
+      message.setApplicationProperties(properties);
+
+      String text = "someText";
+      message.setBody(new AmqpValue(text));
+
+      AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
+      TypedProperties extraProperties = new TypedProperties();
+      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+
+      for (int i = 0; i < 100; i++) {
+         encodedMessage.getApplicationProperties().getValue().put("another" + i, "value" + i);
+         encodedMessage.messageChanged();
+         encodedMessage.reencode();
+         AmqpValue value = (AmqpValue)encodedMessage.getProtonMessage().getBody();
+         Assert.assertEquals(text, (String)value.getValue());
+         ICoreMessage coreMessage = encodedMessage.toCore();
+         if (logger.isDebugEnabled()) {
+            logger.debug("Converted message: " + coreMessage);
+         }
+
+         // I'm going to replace the message every 10 messages by a re-encoded version to check if the wiring still acturate.
+         // I want to mix replacing and not replacing to make sure the re-encoding is not giving me any surprises
+         if (i > 0 && i % 10 == 0) {
+            ByteBuf buf = Unpooled.buffer(15 * 1024, 150 * 1024);
+            encodedMessage.sendBuffer(buf, 1);
+            byte[] messageBytes = new byte[buf.writerIndex()];
+            buf.readBytes(messageBytes);
+
+            message = (MessageImpl) Message.Factory.create();
+            message.decode(ByteBuffer.wrap(messageBytes));
+            // This is replacing the message by the new expanded version
+            encodedMessage = encodeAndCreateAMQPMessage(message);
+
+         }
+
+      }
    }
 
    private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
