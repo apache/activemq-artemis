@@ -90,6 +90,7 @@
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.25.0</mockito.version>
+      <jctools.version>2.1.1</jctools.version>
       <netty.version>4.1.34.Final</netty.version>
       <netty-tcnative-version>2.0.22.Final</netty-tcnative-version>
       <proton.version>0.33.2</proton.version>
@@ -493,6 +494,12 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <!--needed to compile transport jar-->
+         <dependency>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>${jctools.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
          <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>

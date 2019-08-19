@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.jboss.logging.Logger;
 
 public final class PageSubscriptionImpl implements PageSubscription {
@@ -98,6 +99,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
    private final AtomicLong deliveredCount = new AtomicLong(0);
 
    private final AtomicLong deliveredSize = new AtomicLong(0);
+
+   // Each CursorIterator will record their current PageReader in this map
+   private final ConcurrentLongHashMap<PageReader> pageReaders = new ConcurrentLongHashMap<>();
 
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,
@@ -366,7 +370,15 @@ public final class PageSubscriptionImpl implements PageSubscription {
    }
 
    private PagedReference getReference(PagePosition pos) {
-      return cursorProvider.newReference(pos, cursorProvider.getMessage(pos), this);
+      PagedMessage pagedMessage;
+      PageReader pageReader = pageReaders.get(pos.getPageNr());
+      if (pageReader != null) {
+         pagedMessage = pageReader.getMessage(pos, true, false);
+      } else {
+         pagedMessage = cursorProvider.getMessage(pos);
+      }
+
+      return cursorProvider.newReference(pos, pagedMessage, this);
    }
 
    @Override
@@ -379,13 +391,19 @@ public final class PageSubscriptionImpl implements PageSubscription {
       return new CursorIterator(browsing);
    }
 
-   private PagedReference internalGetNext(final PagePosition pos) {
-      PagePosition retPos = pos.nextMessage();
+   private PagedReference internalGetNext(final PagePositionAndFileOffset pos) {
+      PagePosition retPos = pos.nextPagePostion();
 
       PageCache cache = null;
 
       while (retPos.getPageNr() <= pageStore.getCurrentWritingPage()) {
-         cache = cursorProvider.getPageCache(retPos.getPageNr());
+         PageReader pageReader = pageReaders.get(retPos.getPageNr());
+         if (pageReader == null) {
+            cache = cursorProvider.getPageCache(retPos.getPageNr());
+         } else {
+            cache = pageReader;
+         }
+
          /**
           * In following cases, we should move to the next page
           * case 1: cache == null means file might be deleted unexpectedly.
@@ -404,7 +422,17 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       if (cache != null) {
-         PagedMessage serverMessage = cache.getMessage(retPos.getMessageNr());
+         PagedMessage serverMessage;
+         if (cache instanceof PageReader) {
+            serverMessage = ((PageReader) cache).getMessage(retPos, false, true);
+            PageCache previousPageCache = pageReaders.putIfAbsent(retPos.getPageNr(), (PageReader) cache);
+            if (previousPageCache != null && previousPageCache != cache) {
+               // Maybe other cursor iterators have added page reader, we have to close this one to avoid file leak
+               cache.close();
+            }
+         } else {
+            serverMessage = cache.getMessage(retPos);
+         }
 
          if (serverMessage != null) {
             return cursorProvider.newReference(retPos, serverMessage, this);
@@ -415,6 +443,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    private PagePosition moveNextPage(final PagePosition pos) {
       PagePosition retPos = pos;
+      PageReader pageReader = pageReaders.remove(pos.getPageNr());
+      if (pageReader != null) {
+         pageReader.close();
+      }
       while (true) {
          retPos = retPos.nextPage();
          synchronized (consumedPages) {
@@ -441,8 +473,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
    /**
     *
     */
-   private synchronized PagePosition getStartPosition() {
-      return new PagePositionImpl(pageStore.getFirstPage(), -1);
+   private synchronized PagePositionAndFileOffset getStartPosition() {
+      return new PagePositionAndFileOffset(-1, new PagePositionImpl(pageStore.getFirstPage(), -1));
    }
 
    @Override
@@ -585,7 +617,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public PagedMessage queryMessage(PagePosition pos) {
-      return cursorProvider.getMessage(pos);
+      PageReader pageReader = pageReaders.get(pos.getPageNr());
+      if (pageReader != null) {
+         return pageReader.getMessage(pos, true, false);
+      } else {
+         return cursorProvider.getMessage(pos);
+      }
    }
 
    /**
@@ -892,7 +929,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          if (persistentSize < 0) {
             //cache.getMessage is potentially expensive depending
             //on the current cache size and which message is queried
-            size = getPersistentSize(cache.getMessage(position.getMessageNr()));
+            size = getPersistentSize(cache.getMessage(position));
          } else {
             size = persistentSize;
          }
@@ -1209,9 +1246,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    private class CursorIterator implements PageIterator {
 
-      private PagePosition position = null;
+      private PagePositionAndFileOffset position = null;
 
-      private PagePosition lastOperation = null;
+      private PagePositionAndFileOffset lastOperation = null;
 
       private volatile boolean isredelivery = false;
 
@@ -1233,7 +1270,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
       private CursorIterator(boolean browsing) {
          this.browsing = browsing;
       }
-
 
       private CursorIterator() {
          this.browsing = false;
@@ -1284,8 +1320,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
             PagedReference message;
 
-            PagePosition lastPosition = position;
-            PagePosition tmpPosition = position;
+            PagePositionAndFileOffset lastPosition = position;
+            PagePositionAndFileOffset tmpPosition = position;
 
             do {
                synchronized (redeliveries) {
@@ -1310,7 +1346,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   break;
                }
 
-               tmpPosition = message.getPosition();
+               int nextFileOffset = message.getPosition().getFileOffset() == -1 ? -1 : message.getPosition().getFileOffset() + message.getPagedMessage().getEncodeSize() + Page.SIZE_RECORD;
+               tmpPosition = new PagePositionAndFileOffset(nextFileOffset, message.getPosition());
 
                boolean valid = true;
                boolean ignored = false;
@@ -1361,7 +1398,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   }
                }
 
-               position = message.getPosition();
+               position = tmpPosition;
 
                if (valid) {
                   match = match(message.getMessage());
@@ -1417,6 +1454,13 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
       @Override
       public void close() {
+         // When the CursorIterator(especially browse one) is closed, we need to close page they opened
+         if (position != null) {
+            PageReader pageReader = pageReaders.remove(position.pagePosition.getPageNr());
+            if (pageReader != null) {
+               pageReader.close();
+            }
+         }
       }
    }
 
@@ -1456,6 +1500,22 @@ public final class PageSubscriptionImpl implements PageSubscription {
       } catch (ActiveMQException e) {
          logger.warn("Error computing persistent size of message: " + ref, e);
          return 0;
+      }
+   }
+
+   protected static class PagePositionAndFileOffset {
+
+      private final int nextFileOffset;
+      private final PagePosition pagePosition;
+
+      PagePositionAndFileOffset(int nextFileOffset, PagePosition pagePosition) {
+         this.nextFileOffset = nextFileOffset;
+         this.pagePosition = pagePosition;
+      }
+
+      PagePosition nextPagePostion() {
+         int messageNr = pagePosition.getMessageNr();
+         return new PagePositionImpl(pagePosition.getPageNr(), messageNr + 1, messageNr + 1 == 0 ? 0 : nextFileOffset);
       }
    }
 }

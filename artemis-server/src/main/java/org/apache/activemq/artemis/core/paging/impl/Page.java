@@ -80,6 +80,12 @@ public final class Page implements Comparable<Page> {
     */
    private Set<PageSubscriptionCounter> pendingCounters;
 
+   private int lastReadMessageNumber;
+   private ByteBuffer readFileBuffer;
+   private final ByteBuffer headerBuffer = ByteBuffer.allocate(HEADER_SIZE);
+   private ChannelBufferWrapper readFileBufferWrapper;
+   private int readProcessedBytes;
+
    public Page(final SimpleString storeName,
                final StorageManager storageManager,
                final SequentialFileFactory factory,
@@ -90,6 +96,7 @@ public final class Page implements Comparable<Page> {
       fileFactory = factory;
       this.storageManager = storageManager;
       this.storeName = storeName;
+      resetReadMessageStatus();
    }
 
    public int getPageId() {
@@ -102,6 +109,129 @@ public final class Page implements Comparable<Page> {
 
    public LivePageCache getLiveCache() {
       return pageCache;
+   }
+
+   private synchronized void resetReadMessageStatus() {
+      lastReadMessageNumber = -3;
+      readProcessedBytes = 0;
+   }
+
+   public synchronized PagedMessage readMessage(int startOffset,
+                                                int startMessageNumber,
+                                                int targetMessageNumber) throws Exception {
+      assert startMessageNumber <= targetMessageNumber;
+
+      if (!file.isOpen()) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidPageIO();
+      }
+      final int fileSize = (int) file.size();
+      try {
+         if (readFileBuffer == null) {
+            readProcessedBytes = startOffset;
+            file.position(readProcessedBytes);
+            readFileBuffer = fileFactory.allocateDirectBuffer(Math.min(fileSize - readProcessedBytes, MIN_CHUNK_SIZE));
+            //the wrapper is reused to avoid unnecessary allocations
+            readFileBufferWrapper = wrapWhole(readFileBuffer);
+            readFileBuffer.limit(0);
+         } else if (lastReadMessageNumber + 1 != targetMessageNumber) {
+            readProcessedBytes = startOffset;
+            file.position(readProcessedBytes);
+            readFileBuffer.limit(0);
+         } else {
+            startMessageNumber = targetMessageNumber;
+         }
+
+         int remainingBytes = fileSize - readProcessedBytes;
+         int currentMessageNumber = startMessageNumber;
+         // First we search forward for the file position of the target number message
+         while (remainingBytes >= MINIMUM_MSG_PERSISTENT_SIZE && currentMessageNumber < targetMessageNumber) {
+            headerBuffer.clear();
+            file.read(headerBuffer);
+            headerBuffer.position(0);
+
+            if (headerBuffer.remaining() >= HEADER_SIZE && headerBuffer.get() == START_BYTE) {
+               final int encodedSize = headerBuffer.getInt();
+               final int nextPosition = readProcessedBytes + HEADER_AND_TRAILER_SIZE + encodedSize;
+               if (nextPosition <= fileSize) {
+                  final int endPosition = nextPosition - 1;
+                  file.position(endPosition);
+                  headerBuffer.rewind();
+                  headerBuffer.limit(1);
+                  file.read(headerBuffer);
+                  headerBuffer.position(0);
+
+                  if (headerBuffer.remaining() >= 1 && headerBuffer.get() == END_BYTE) {
+                     readProcessedBytes = nextPosition;
+                     currentMessageNumber++;
+                  } else {
+                     markFileAsSuspect(file.getFileName(), readProcessedBytes, currentMessageNumber);
+                     break;
+                  }
+               } else {
+                  markFileAsSuspect(file.getFileName(), readProcessedBytes, currentMessageNumber);
+                  break;
+               }
+            } else {
+               markFileAsSuspect(file.getFileName(), readProcessedBytes, currentMessageNumber);
+               break;
+            }
+            remainingBytes = fileSize - readProcessedBytes;
+         }
+
+         // Then we read the target message
+         if (currentMessageNumber == targetMessageNumber && remainingBytes >= MINIMUM_MSG_PERSISTENT_SIZE) {
+            final ByteBuffer oldFileBuffer = readFileBuffer;
+            readFileBuffer = readIntoFileBufferIfNecessary(readFileBuffer, MINIMUM_MSG_PERSISTENT_SIZE, true);
+            //change wrapper if fileBuffer has changed
+            if (readFileBuffer != oldFileBuffer) {
+               readFileBufferWrapper = wrapWhole(readFileBuffer);
+            }
+            final byte startByte = readFileBuffer.get();
+            if (startByte == Page.START_BYTE) {
+               final int encodedSize = readFileBuffer.getInt();
+               final int nextPosition = readProcessedBytes + HEADER_AND_TRAILER_SIZE + encodedSize;
+               if (nextPosition <= fileSize) {
+                  final ByteBuffer currentFileBuffer = readFileBuffer;
+                  readFileBuffer = readIntoFileBufferIfNecessary(readFileBuffer, encodedSize + 1, true);
+                  //change wrapper if fileBuffer has changed
+                  if (readFileBuffer != currentFileBuffer) {
+                     readFileBufferWrapper = wrapWhole(readFileBuffer);
+                  }
+                  final int endPosition = readFileBuffer.position() + encodedSize;
+                  //this check must be performed upfront decoding
+                  if (readFileBuffer.remaining() >= (encodedSize + 1) && readFileBuffer.get(endPosition) == Page.END_BYTE) {
+                     final PagedMessageImpl msg = new PagedMessageImpl(storageManager);
+                     readFileBufferWrapper.setIndex(readFileBuffer.position(), endPosition);
+                     msg.decode(readFileBufferWrapper);
+                     readFileBuffer.position(endPosition + 1);
+                     assert readFileBuffer.get(endPosition) == Page.END_BYTE : "decoding cannot change end byte";
+                     msg.initMessage(storageManager);
+                     if (logger.isTraceEnabled()) {
+                        logger.tracef("Reading message %s on pageId=%d for address=%s", msg, pageId, storeName);
+                     }
+                     readProcessedBytes = nextPosition;
+                     lastReadMessageNumber = targetMessageNumber;
+                     return msg;
+                  } else {
+                     markFileAsSuspect(file.getFileName(), readProcessedBytes, currentMessageNumber);
+                  }
+               } else {
+                  markFileAsSuspect(file.getFileName(), readProcessedBytes, currentMessageNumber);
+               }
+            } else {
+               markFileAsSuspect(file.getFileName(), readProcessedBytes, currentMessageNumber);
+            }
+         }
+      } catch (Exception e) {
+         resetReadMessageStatus();
+         throw e;
+      }
+      resetReadMessageStatus();
+      throw new RuntimeException("target message no." + targetMessageNumber + " not found from start offset " + startOffset + " and start message number " + startMessageNumber);
+   }
+
+   public synchronized List<PagedMessage> read() throws Exception {
+      return read(storageManager);
    }
 
    public synchronized List<PagedMessage> read(StorageManager storage) throws Exception {
@@ -122,10 +252,17 @@ public final class Page implements Comparable<Page> {
       return messages;
    }
 
-   private ByteBuffer allocateAndReadIntoFileBuffer(ByteBuffer fileBuffer, int requiredBytes) throws Exception {
-      final ByteBuffer newFileBuffer = fileFactory.newBuffer(Math.max(requiredBytes, MIN_CHUNK_SIZE));
-      newFileBuffer.put(fileBuffer);
-      fileFactory.releaseBuffer(fileBuffer);
+   private ByteBuffer allocateAndReadIntoFileBuffer(ByteBuffer fileBuffer, int requiredBytes, boolean direct) throws Exception {
+      ByteBuffer newFileBuffer;
+      if (direct) {
+         newFileBuffer = fileFactory.allocateDirectBuffer(Math.max(requiredBytes, MIN_CHUNK_SIZE));
+         newFileBuffer.put(fileBuffer);
+         fileFactory.releaseDirectBuffer(fileBuffer);
+      } else {
+         newFileBuffer = fileFactory.newBuffer(Math.max(requiredBytes, MIN_CHUNK_SIZE));
+         newFileBuffer.put(fileBuffer);
+         fileFactory.releaseBuffer(fileBuffer);
+      }
       fileBuffer = newFileBuffer;
       //move the limit to allow reading as much as possible from the file
       fileBuffer.limit(fileBuffer.capacity());
@@ -138,7 +275,7 @@ public final class Page implements Comparable<Page> {
     * It returns a {@link ByteBuffer} that has {@link ByteBuffer#remaining()} bytes >= {@code requiredBytes}
     * of valid data from {@link #file}.
     */
-   private ByteBuffer readIntoFileBufferIfNecessary(ByteBuffer fileBuffer, int requiredBytes) throws Exception {
+   private ByteBuffer readIntoFileBufferIfNecessary(ByteBuffer fileBuffer, int requiredBytes, boolean direct) throws Exception {
       final int remaining = fileBuffer.remaining();
       //fileBuffer::remaining is the current size of valid data
       final int bytesToBeRead = requiredBytes - remaining;
@@ -162,7 +299,7 @@ public final class Page implements Comparable<Page> {
             file.read(fileBuffer);
             fileBuffer.position(0);
          } else {
-            fileBuffer = allocateAndReadIntoFileBuffer(fileBuffer, requiredBytes);
+            fileBuffer = allocateAndReadIntoFileBuffer(fileBuffer, requiredBytes, direct);
          }
       }
       return fileBuffer;
@@ -189,6 +326,7 @@ public final class Page implements Comparable<Page> {
    //sizeOf(START_BYTE) + sizeOf(MESSAGE LENGTH) + sizeOf(END_BYTE)
    private static final int HEADER_AND_TRAILER_SIZE = DataConstants.SIZE_INT + 2;
    private static final int MINIMUM_MSG_PERSISTENT_SIZE = HEADER_AND_TRAILER_SIZE;
+   private static final int HEADER_SIZE = HEADER_AND_TRAILER_SIZE - 1;
    private static final int MIN_CHUNK_SIZE = Env.osPageSize();
 
    private List<PagedMessage> readFromSequentialFile(StorageManager storage) throws Exception {
@@ -208,7 +346,7 @@ public final class Page implements Comparable<Page> {
             fileBuffer.limit(0);
             do {
                final ByteBuffer oldFileBuffer = fileBuffer;
-               fileBuffer = readIntoFileBufferIfNecessary(fileBuffer, MINIMUM_MSG_PERSISTENT_SIZE);
+               fileBuffer = readIntoFileBufferIfNecessary(fileBuffer, MINIMUM_MSG_PERSISTENT_SIZE, false);
                //change wrapper if fileBuffer has changed
                if (fileBuffer != oldFileBuffer) {
                   fileBufferWrapper = wrapWhole(fileBuffer);
@@ -219,7 +357,7 @@ public final class Page implements Comparable<Page> {
                   final int nextPosition = processedBytes + HEADER_AND_TRAILER_SIZE + encodedSize;
                   if (nextPosition <= fileSize) {
                      final ByteBuffer currentFileBuffer = fileBuffer;
-                     fileBuffer = readIntoFileBufferIfNecessary(fileBuffer, encodedSize + 1);
+                     fileBuffer = readIntoFileBufferIfNecessary(fileBuffer, encodedSize + 1, false);
                      //change wrapper if fileBuffer has changed
                      if (fileBuffer != currentFileBuffer) {
                         fileBufferWrapper = wrapWhole(fileBuffer);
@@ -317,6 +455,11 @@ public final class Page implements Comparable<Page> {
     * While reading the cache we don't need (and shouldn't inform the backup
     */
    public synchronized void close(boolean sendEvent, boolean waitSync) throws Exception {
+      if (readFileBuffer != null) {
+         fileFactory.releaseDirectBuffer(readFileBuffer);
+         readFileBuffer = null;
+      }
+
       if (sendEvent && storageManager != null) {
          storageManager.pageClosed(storeName, pageId);
       }

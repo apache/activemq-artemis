@@ -159,6 +159,7 @@ log-delegate-factory-class-name | **deprecated** the name of the factory class t
 name | node name; used in topology notifications if set. | n/a
 [password-codec](masking-passwords.md) | the name of the class (and optional configuration properties) used to decode masked passwords. Only valid when `mask-password` is `true`. | n/a
 [page-max-concurrent-io](paging.md) | The max number of concurrent reads allowed on paging. | 5
+[read-whole-page](paging.md) | If true the whole page would be read, otherwise just seek and read while getting message. | `false`
 [paging-directory](paging.md#configuration)| the directory to store paged messages in. | `data/paging`
 [persist-delivery-count-before-delivery](undelivered-messages.md#delivery-count-persistence) | True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. | `false`
 [persistence-enabled](persistence.md#zero-persistence)| true means that the server will use the file based journal for persistence. | `true`

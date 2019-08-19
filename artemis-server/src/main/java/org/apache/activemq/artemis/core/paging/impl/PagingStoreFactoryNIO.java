@@ -76,6 +76,8 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    private final IOCriticalErrorListener critialErrorListener;
 
+   private final boolean readWholePage;
+
    public File getDirectory() {
       return directory;
    }
@@ -111,6 +113,17 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                 final ExecutorFactory executorFactory,
                                 final boolean syncNonTransactional,
                                 final IOCriticalErrorListener critialErrorListener) {
+      this(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener, false);
+   }
+
+   public PagingStoreFactoryNIO(final StorageManager storageManager,
+                                final File directory,
+                                final long syncTimeout,
+                                final ScheduledExecutorService scheduledExecutor,
+                                final ExecutorFactory executorFactory,
+                                final boolean syncNonTransactional,
+                                final IOCriticalErrorListener critialErrorListener,
+                                final boolean readWholePage) {
       this.storageManager = storageManager;
       this.directory = directory;
       this.executorFactory = executorFactory;
@@ -118,6 +131,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       this.scheduledExecutor = scheduledExecutor;
       this.syncTimeout = syncTimeout;
       this.critialErrorListener = critialErrorListener;
+      this.readWholePage = readWholePage;
    }
 
    // Public --------------------------------------------------------
@@ -146,7 +160,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                                StorageManager storageManager,
                                                AddressSettings addressSettings,
                                                ArtemisExecutor executor) {
-      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
+      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize(), readWholePage);
    }
 
    @Override
