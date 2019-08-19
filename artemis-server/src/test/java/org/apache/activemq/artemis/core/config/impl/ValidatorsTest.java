@@ -120,6 +120,29 @@ public class ValidatorsTest extends Assert {
       ValidatorsTest.failure(Validators.PERCENTAGE_OR_MINUS_ONE, null);
    }
 
+   @Test
+   public void testPOSITIVE_INT() {
+      ValidatorsTest.failure(Validators.POSITIVE_INT, -1);
+      ValidatorsTest.failure(Validators.POSITIVE_INT, 0);
+      ValidatorsTest.failure(Validators.POSITIVE_INT, 0.1);
+      ValidatorsTest.success(Validators.POSITIVE_INT, 1);
+
+      ValidatorsTest.success(Validators.POSITIVE_INT, Integer.MAX_VALUE);
+      ValidatorsTest.failure(Validators.POSITIVE_INT, Integer.MAX_VALUE + 1);
+   }
+
+   @Test
+   public void testMINUS_ONE_OR_POSITIVE_INT() {
+      ValidatorsTest.failure(Validators.MINUS_ONE_OR_POSITIVE_INT, -2);
+      ValidatorsTest.success(Validators.MINUS_ONE_OR_POSITIVE_INT, -1);
+      ValidatorsTest.failure(Validators.MINUS_ONE_OR_POSITIVE_INT, 0);
+      ValidatorsTest.failure(Validators.MINUS_ONE_OR_POSITIVE_INT, 0.1);
+      ValidatorsTest.success(Validators.MINUS_ONE_OR_POSITIVE_INT, 1);
+
+      ValidatorsTest.success(Validators.MINUS_ONE_OR_POSITIVE_INT, Integer.MAX_VALUE);
+      ValidatorsTest.failure(Validators.MINUS_ONE_OR_POSITIVE_INT, Integer.MAX_VALUE + 1);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

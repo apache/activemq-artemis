@@ -303,7 +303,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long getPageSizeBytes() {
+      public int getPageSizeBytes() {
          return 0;
       }
 
