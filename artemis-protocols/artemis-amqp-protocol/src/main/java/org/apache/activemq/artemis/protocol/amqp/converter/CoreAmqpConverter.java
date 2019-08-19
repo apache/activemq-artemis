@@ -31,6 +31,9 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_DELIVERY_ANNOTATION_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_FOOTER_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_FIRST_ACQUIRER;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_FOOTER_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER;
@@ -91,7 +94,9 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
+import org.apache.qpid.proton.codec.ReadableBuffer.ByteBufferReader;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.jboss.logging.Logger;
 
@@ -131,7 +136,7 @@ public class CoreAmqpConverter {
       Map<Symbol, Object> daMap = null;
       final Map<Symbol, Object> maMap = new HashMap<>();
       Map<String, Object> apMap = null;
-      Map<Object, Object> footerMap = null;
+      Map<Symbol, Object> footerMap = null;
 
       Section body = convertBody(message, maMap, properties);
 
@@ -261,9 +266,20 @@ public class CoreAmqpConverter {
                String name = key.substring(JMS_AMQP_DELIVERY_ANNOTATION_PREFIX.length());
                daMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
                continue;
+            } else if (key.startsWith(JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX)) {
+               if (daMap == null) {
+                  daMap = new HashMap<>();
+               }
+               String name = key.substring(JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX.length());
+               daMap.put(Symbol.valueOf(name), decodeEmbeddedAMQPType(message.getObjectProperty(key)));
+               continue;
             } else if (key.startsWith(JMS_AMQP_MESSAGE_ANNOTATION_PREFIX)) {
                String name = key.substring(JMS_AMQP_MESSAGE_ANNOTATION_PREFIX.length());
                maMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
+               continue;
+            } else if (key.startsWith(JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX)) {
+               String name = key.substring(JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX.length());
+               maMap.put(Symbol.valueOf(name), decodeEmbeddedAMQPType(message.getObjectProperty(key)));
                continue;
             } else if (key.equals(JMS_AMQP_CONTENT_TYPE)) {
                properties.setContentType(Symbol.getSymbol(message.getStringProperty(key)));
@@ -277,12 +293,19 @@ public class CoreAmqpConverter {
             } else if (key.equals(JMS_AMQP_ORIGINAL_ENCODING)) {
                // skip..remove annotation from previous inbound transformation
                continue;
+            } else if (key.startsWith(JMS_AMQP_ENCODED_FOOTER_PREFIX)) {
+               if (footerMap == null) {
+                  footerMap = new HashMap<>();
+               }
+               String name = key.substring(JMS_AMQP_ENCODED_FOOTER_PREFIX.length());
+               footerMap.put(Symbol.valueOf(name), decodeEmbeddedAMQPType(message.getObjectProperty(key)));
+               continue;
             } else if (key.startsWith(JMS_AMQP_FOOTER_PREFIX)) {
                if (footerMap == null) {
                   footerMap = new HashMap<>();
                }
                String name = key.substring(JMS_AMQP_FOOTER_PREFIX.length());
-               footerMap.put(name, message.getObjectProperty(key));
+               footerMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
                continue;
             }
          } else if (key.equals(Message.HDR_GROUP_ID.toString())) {
@@ -349,6 +372,23 @@ public class CoreAmqpConverter {
          TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
          buffer.release();
       }
+   }
+
+   private static Object decodeEmbeddedAMQPType(Object payload) {
+      final byte[] encodedType = (byte[]) payload;
+
+      final DecoderImpl decoder = TLSEncode.getDecoder();
+      Object decodedType = null;
+
+      decoder.setBuffer(ByteBufferReader.wrap(encodedType));
+
+      try {
+         decodedType = decoder.readObject();
+      } finally {
+         decoder.setBuffer(null);
+      }
+
+      return decodedType;
    }
 
    private static Section convertBody(ServerJMSMessage message, Map<Symbol, Object> maMap, Properties properties) throws JMSException {
