@@ -155,6 +155,7 @@ public final class AMQPMessageSupport {
    public static final String DELIVERY_ANNOTATION_PREFIX = "DA_";
    public static final String MESSAGE_ANNOTATION_PREFIX = "MA_";
    public static final String FOOTER_PREFIX = "FT_";
+   public static final String ENCODED_PREFIX = "ENCODED_";
 
    public static final String JMS_AMQP_HEADER = JMS_AMQP_PREFIX + HEADER;
    public static final String JMS_AMQP_HEADER_DURABLE = JMS_AMQP_PREFIX + HEADER + DURABLE;
@@ -168,6 +169,9 @@ public final class AMQPMessageSupport {
    public static final String JMS_AMQP_DELIVERY_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + DELIVERY_ANNOTATION_PREFIX;
    public static final String JMS_AMQP_MESSAGE_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + MESSAGE_ANNOTATION_PREFIX;
    public static final String JMS_AMQP_FOOTER_PREFIX = JMS_AMQP_PREFIX + FOOTER_PREFIX;
+   public static final String JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + ENCODED_PREFIX + DELIVERY_ANNOTATION_PREFIX;
+   public static final String JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + ENCODED_PREFIX + MESSAGE_ANNOTATION_PREFIX;
+   public static final String JMS_AMQP_ENCODED_FOOTER_PREFIX = JMS_AMQP_PREFIX + ENCODED_PREFIX + FOOTER_PREFIX;
    public static final String JMS_AMQP_ORIGINAL_ENCODING = JMS_AMQP_PREFIX + ORIGINAL_ENCODING;
 
    // Message body type definitions
