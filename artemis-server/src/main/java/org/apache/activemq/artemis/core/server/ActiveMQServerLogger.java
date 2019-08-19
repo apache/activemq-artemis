@@ -2016,4 +2016,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224099, value = "Message with ID {0} has a header too large. More information available on debug level for class {1}",
       format = Message.Format.MESSAGE_FORMAT)
    void messageWithHeaderTooLarge(Long messageID, String loggerClass);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224100, value = "Timed out waiting for large messages deletion with IDs {0}, might not be deleted if broker crashes atm",
+      format = Message.Format.MESSAGE_FORMAT)
+   void timedOutWaitingForLargeMessagesDeletion(List<Long> largeMessageIds);
 }
