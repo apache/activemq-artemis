@@ -1377,7 +1377,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
                sessionContext.resetName(name);
 
-               for (ClientConsumerInternal consumer : cloneConsumers()) {
+               Map<ConsumerContext, ClientConsumerInternal> clonedConsumerEntries = cloneConsumerEntries();
+
+               for (ClientConsumerInternal consumer : clonedConsumerEntries.values()) {
                   consumer.clearAtFailover();
                }
 
@@ -1395,11 +1397,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                if (!inClose && mayAttemptToFailover) {
                   sessionContext.recreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge);
 
-                  for (Map.Entry<ConsumerContext, ClientConsumerInternal> entryx : consumers.entrySet()) {
+                  for (Map.Entry<ConsumerContext, ClientConsumerInternal> entryx : clonedConsumerEntries.entrySet()) {
 
                      ClientConsumerInternal consumerInternal = entryx.getValue();
-
-                     sessionContext.recreateConsumerOnServer(consumerInternal, entryx.getKey().getId(), started);
+                     synchronized (consumerInternal) {
+                        if (!consumerInternal.isClosed()) {
+                           sessionContext.recreateConsumerOnServer(consumerInternal, entryx.getKey().getId(), started);
+                        }
+                     }
                   }
 
                   if ((!autoCommitAcks || !autoCommitSends) && workDone) {
@@ -1414,7 +1419,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
                   // Now start the session if it was already started
                   if (started) {
-                     for (ClientConsumerInternal consumer : cloneConsumers()) {
+                     for (ClientConsumerInternal consumer : clonedConsumerEntries.values()) {
                         consumer.clearAtFailover();
                         consumer.start();
                      }
@@ -2079,6 +2084,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public Set<ClientConsumerInternal> cloneConsumers() {
       synchronized (consumers) {
          return new HashSet<>(consumers.values());
+      }
+   }
+
+   public Map<ConsumerContext, ClientConsumerInternal> cloneConsumerEntries() {
+      synchronized (consumers) {
+         return new HashMap<>(consumers);
       }
    }
 
