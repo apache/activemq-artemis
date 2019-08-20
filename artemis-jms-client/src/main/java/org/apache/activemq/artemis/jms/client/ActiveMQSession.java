@@ -383,7 +383,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    void checkDestination(ActiveMQDestination destination) throws JMSException {
       SimpleString address = destination.getSimpleAddress();
       // TODO: What to do with FQQN
-      if (!connection.containsKnownDestination(address)) {
+      if (!destination.isCreated()) {
          try {
             ClientSession.AddressQuery addressQuery = session.addressQuery(address);
 
@@ -425,7 +425,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
          // this is done at the end, if no exceptions are thrown
-         connection.addKnownDestination(address);
+         destination.setCreated(true);
       }
    }
 
@@ -811,7 +811,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                }
             }
 
-            connection.addKnownDestination(dest.getSimpleAddress());
+            dest.setCreated(true);
 
             consumer = createClientConsumer(dest, null, coreFilterString);
          } else {
@@ -825,7 +825,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                }
             }
 
-            connection.addKnownDestination(dest.getSimpleAddress());
+            dest.setCreated(true);
 
             SimpleString queueName;
 
@@ -998,6 +998,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          session.createTemporaryQueue(simpleAddress, RoutingType.ANYCAST, simpleAddress);
 
          connection.addTemporaryQueue(simpleAddress);
+
+         queue.setCreated(true);
 
          return queue;
       } catch (ActiveMQException e) {

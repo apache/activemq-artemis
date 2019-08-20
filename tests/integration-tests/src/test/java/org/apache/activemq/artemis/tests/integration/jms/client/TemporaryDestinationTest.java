@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
@@ -79,9 +80,11 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          consumer.close();
 
+         assertTrue(((ActiveMQDestination) tempQueue).isCreated());
+
          tempQueue.delete();
 
-         assertFalse(conn.containsKnownDestination(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertFalse(((ActiveMQDestination) tempQueue).isCreated());
 
          assertFalse(conn.containsTemporaryQueue(SimpleString.toSimpleString(tempQueue.getQueueName())));
       } finally {
