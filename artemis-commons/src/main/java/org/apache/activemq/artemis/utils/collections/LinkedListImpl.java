@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.utils.collections;
 
 import java.lang.reflect.Array;
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -43,8 +44,15 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private int nextIndex;
 
+   private final Comparator<E> comparator;
+
    public LinkedListImpl() {
+      this(null);
+   }
+
+   public LinkedListImpl(Comparator<E> comparator) {
       iters = createIteratorArray(INITIAL_ITERATOR_ARRAY_SIZE);
+      this.comparator = comparator;
    }
 
    @Override
@@ -82,6 +90,45 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
          size++;
       }
+   }
+
+   public void addSorted(E e) {
+      if (comparator == null) {
+         throw new NullPointerException("comparator=null");
+      }
+      if (size == 0) {
+         addHead(e);
+      } else {
+         if (comparator.compare(head.next.val(), e) < 0) {
+            addHead(e);
+            return;
+         }
+
+         Node<E> fetching = head.next;
+
+         while (fetching.next != null) {
+            int fetchingAndE = comparator.compare(fetching.val(), e);
+            int eAndNext = comparator.compare(e, fetching.next.val());
+            if (fetchingAndE >= 0 && eAndNext >= 0) {
+               addAfter(fetching, e);
+               return;
+            }
+            fetching = fetching.next;
+         }
+
+         // nothing worked.. so we just go at the end now
+         addTail(e);
+      }
+   }
+
+   private void addAfter(Node<E> node, E e) {
+      Node<E> newNode = Node.with(e);
+      Node<E> nextNode = node.next;
+      node.next = newNode;
+      newNode.prev = node;
+      newNode.next = nextNode;
+      nextNode.prev = newNode;
+      size++;
    }
 
    @Override

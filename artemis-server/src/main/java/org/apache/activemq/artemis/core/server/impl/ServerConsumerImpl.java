@@ -992,7 +992,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public synchronized void individualCancel(final long messageID, boolean failed) throws Exception {
+   public synchronized void individualCancel(final long messageID, boolean failed, boolean sorted) throws Exception {
       if (browseOnly) {
          return;
       }
@@ -1007,7 +1007,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          ref.decrementDeliveryCount();
       }
 
-      ref.getQueue().cancel(ref, System.currentTimeMillis());
+      ref.getQueue().cancel(ref, System.currentTimeMillis(), sorted);
    }
 
 

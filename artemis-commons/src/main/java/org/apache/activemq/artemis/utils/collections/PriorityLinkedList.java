@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.util.Comparator;
+
 /**
  * A type of linked list which maintains items according to a priority
  * and allows adding and removing of elements at both ends, and peeking.<br>
@@ -26,6 +28,9 @@ public interface PriorityLinkedList<T> {
    void addHead(T t, int priority);
 
    void addTail(T t, int priority);
+
+   /** It will add the message back on its place */
+   void addSorted(T t, int priority);
 
    T poll();
 
