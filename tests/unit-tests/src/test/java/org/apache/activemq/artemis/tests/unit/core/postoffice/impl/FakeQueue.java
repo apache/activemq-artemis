@@ -351,7 +351,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void cancel(final MessageReference reference, final long timeBase) throws Exception {
+   public void cancel(final MessageReference reference, final long timeBase, boolean sorted) throws Exception {
       // no-op
 
    }

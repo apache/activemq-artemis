@@ -179,7 +179,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences = new MpscUnboundedArrayQueue<>(8192);
 
    // This is where messages are stored
-   private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES);
+   private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES, MessageReferenceImpl.getIDComparator());
 
    // The quantity of pagedReferences on messageReferences priority list
    private final AtomicInteger pagedReferences = new AtomicInteger(0);
@@ -1631,11 +1631,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized void cancel(final MessageReference reference, final long timeBase) throws Exception {
+   public synchronized void cancel(final MessageReference reference, final long timeBase, boolean sorted) throws Exception {
       Pair<Boolean, Boolean> redeliveryResult = checkRedelivery(reference, timeBase, false);
       if (redeliveryResult.getA()) {
          if (!scheduledDeliveryHandler.checkAndSchedule(reference, false)) {
-            internalAddHead(reference);
+            if (sorted) {
+               internalAddSorted(reference);
+            } else {
+               internalAddHead(reference);
+            }
          }
 
          resetAllIterators();
@@ -2467,6 +2471,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       int priority = getPriority(ref);
 
       messageReferences.addHead(ref, priority);
+   }
+
+   /**
+    * The caller of this method requires synchronized on the queue.
+    * I'm not going to add synchronized to this method just for a precaution,
+    * as I'm not 100% sure this won't cause any extra runtime.
+    *
+    * @param ref
+    */
+   private void internalAddSorted(final MessageReference ref) {
+      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      pendingMetrics.incrementMetrics(ref);
+      refAdded(ref);
+
+      int priority = getPriority(ref);
+
+      messageReferences.addSorted(ref, priority);
    }
 
    private int getPriority(MessageReference ref) {

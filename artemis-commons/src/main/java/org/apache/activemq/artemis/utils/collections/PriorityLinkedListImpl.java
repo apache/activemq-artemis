@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.utils.collections;
 
 import java.lang.reflect.Array;
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -40,10 +41,15 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
    private int lastPriority = -1;
 
    public PriorityLinkedListImpl(final int priorities) {
+      this(priorities, null);
+   }
+
+
+   public PriorityLinkedListImpl(final int priorities, Comparator<T> comparator) {
       levels = (LinkedListImpl<T>[]) Array.newInstance(LinkedListImpl.class, priorities);
 
       for (int i = 0; i < priorities; i++) {
-         levels[i] = new LinkedListImpl<>();
+         levels[i] = new LinkedListImpl<>(comparator);
       }
    }
 
@@ -76,6 +82,15 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       checkHighest(priority);
 
       levels[priority].addTail(t);
+
+      exclusiveIncrementSize(1);
+   }
+
+   @Override
+   public void addSorted(T t, int priority) {
+      checkHighest(priority);
+
+      levels[priority].addSorted(t);
 
       exclusiveIncrementSize(1);
    }

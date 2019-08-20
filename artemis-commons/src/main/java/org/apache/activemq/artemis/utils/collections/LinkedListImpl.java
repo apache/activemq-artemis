@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.utils.collections;
 
 import java.lang.reflect.Array;
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -43,8 +44,15 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private int nextIndex;
 
+   private final Comparator<E> comparator;
+
    public LinkedListImpl() {
+      this(null);
+   }
+
+   public LinkedListImpl(Comparator<E> comparator) {
       iters = createIteratorArray(INITIAL_ITERATOR_ARRAY_SIZE);
+      this.comparator = comparator;
    }
 
    @Override
@@ -82,6 +90,60 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
          size++;
       }
+   }
+
+   public void addSorted(E e) {
+      if (comparator == null) {
+         throw new NullPointerException("comparator=null");
+      }
+      if (size == 0) {
+         addHead(e);
+      } else {
+         if (comparator.compare(head.next.val(), e) < 0) {
+            addHead(e);
+            return;
+         }
+
+         // in our usage, most of the times we will just add to the end
+         // as the QueueImpl cancellations in AMQP will return the buffer back to the queue, in the order they were consumed.
+         // There is an exception to that case, when there are more messages on the queue.
+         // This would be an optimization for our usage.
+         // avoiding scanning the entire List just to add at the end, so we compare the end first.
+         if (comparator.compare(tail.val(), e) >= 0) {
+            addTail(e);
+            return;
+         }
+
+         Node<E> fetching = head.next;
+         while (fetching.next != null) {
+            int compareNext = comparator.compare(fetching.next.val(), e);
+            if (compareNext <= 0) {
+               addAfter(fetching, e);
+               return;
+            }
+            fetching = fetching.next;
+         }
+
+         // this shouldn't happen as the tail was compared before iterating
+         // the only possibilities for this to happen are:
+         // - there is a bug on the comparator
+         // - This method is buggy
+         // - The list wasn't properly synchronized as this list does't support concurrent access
+         //
+         // Also I'm not bothering about creating a Logger ID for this, because the only reason for this code to exist
+         //      is because my OCD level is not letting this out.
+         throw new IllegalStateException("Cannot find a suitable place for your element, There's a mismatch in the comparator or there was concurrent adccess on the queue");
+      }
+   }
+
+   private void addAfter(Node<E> node, E e) {
+      Node<E> newNode = Node.with(e);
+      Node<E> nextNode = node.next;
+      node.next = newNode;
+      newNode.prev = node;
+      newNode.next = nextNode;
+      nextNode.prev = newNode;
+      size++;
    }
 
    @Override
