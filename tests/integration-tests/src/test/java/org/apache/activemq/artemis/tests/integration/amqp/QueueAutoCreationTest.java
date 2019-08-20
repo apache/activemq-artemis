@@ -134,6 +134,62 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
    }
 
+   @Test(timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnTopicManySends() throws Exception {
+      ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
+      Connection connection = factory.createConnection();
+      SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+      System.out.println("Address is " + addressName);
+      clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      for (int i = 0; i < 10; i++) {
+         Topic topic = new ActiveMQTopic(addressName.toString());
+         MessageProducer producer = session.createProducer(topic);
+         producer.send(session.createTextMessage("hello"));
+         producer.close();
+         Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
+      }
+
+   }
+
+   @Test(timeout = 30000)
+   // QueueAutoCreationTest was created to validate auto-creation of queues
+   // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
+   public void testAutoCreateOnTopicAndConsume() throws Exception {
+      ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
+      Connection connection = factory.createConnection();
+      SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+      System.out.println("Address is " + addressName);
+      clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
+
+      Connection recConnection = factory.createConnection();
+      Session recSession = recConnection.createSession(Session.AUTO_ACKNOWLEDGE);
+      Topic topicConsumer = recSession.createTopic(addressName.toString());
+      MessageConsumer consumer = recSession.createConsumer(topicConsumer);
+      recConnection.start();
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      for (int i = 0; i < 10; i++) {
+         Topic topic = session.createTopic(addressName.toString());
+         MessageProducer producer = session.createProducer(topic);
+         producer.send(session.createTextMessage("hello"));
+         producer.close();
+         Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
+      }
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = (TextMessage)consumer.receive(10_000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals("hello", message.getText());
+      }
+
+      Assert.assertNull(consumer.receiveNoWait());
+
+   }
+
    private void sendStringOfSize(int msgSize, boolean useCoreReceive) throws JMSException {
 
       Connection conn = this.createConnection();
