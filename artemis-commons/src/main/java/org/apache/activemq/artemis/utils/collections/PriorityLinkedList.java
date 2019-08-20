@@ -27,6 +27,8 @@ public interface PriorityLinkedList<T> {
 
    void addTail(T t, int priority);
 
+   void addSorted(T t, int priority);
+
    T poll();
 
    void clear();

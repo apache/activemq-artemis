@@ -150,7 +150,7 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
-   public void individualCancel(long messageID, boolean failed) throws Exception {
+   public void individualCancel(long messageID, boolean failed, boolean sorted) throws Exception {
 
    }
 

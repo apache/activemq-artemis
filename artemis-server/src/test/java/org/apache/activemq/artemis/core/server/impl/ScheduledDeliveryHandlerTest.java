@@ -1108,7 +1108,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void cancel(MessageReference reference, long timeBase) throws Exception {
+      public void cancel(MessageReference reference, long timeBase, boolean backInPlace) throws Exception {
 
       }
 
