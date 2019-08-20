@@ -145,7 +145,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             };
 
             if (discharge.getFail()) {
-               sessionSPI.withinContext(() -> tx.rollback());
+               sessionSPI.withinContext(() -> sessionSPI.getServerSession().doRollback(false, false, tx));
                sessionSPI.afterIO(ioAction);
             } else {
                sessionSPI.withinContext(() -> tx.commit());

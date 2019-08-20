@@ -1928,7 +1928,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return RoutingStatus.OK;
    }
 
-   private void doRollback(final boolean clientFailed,
+   @Override
+   public void doRollback(final boolean clientFailed,
                            final boolean lastMessageAsDelived,
                            final Transaction theTx) throws Exception {
       boolean wasStarted = started;

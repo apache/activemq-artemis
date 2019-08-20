@@ -405,8 +405,15 @@ public class AMQPSessionCallback implements SessionCallback {
    public void cancel(Object brokerConsumer, Message message, boolean updateCounts) throws Exception {
       OperationContext oldContext = recoverContext();
       try {
-         ((ServerConsumer) brokerConsumer).individualCancel(message.getMessageID(), updateCounts);
-         ((ServerConsumer) brokerConsumer).getQueue().forceDelivery();
+         try {
+            ((ServerConsumer) brokerConsumer).individualCancel(message.getMessageID(), updateCounts);
+            ((ServerConsumer) brokerConsumer).getQueue().forceDelivery();
+         } catch (IllegalStateException e) {
+            //Ignore this silently, can occur if already cancelled.
+            if (logger.isDebugEnabled()) {
+               logger.debug("silently ignoring cancel", e);
+            }
+         }
       } finally {
          resetContext(oldContext);
       }
@@ -647,6 +654,10 @@ public class AMQPSessionCallback implements SessionCallback {
       } else {
          return false;
       }
+   }
+
+   public ServerSession getServerSession() {
+      return serverSession;
    }
 
    @Override

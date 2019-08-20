@@ -286,6 +286,10 @@ public interface ServerSession extends SecurityAuth {
                       RoutingContext routingContext) throws Exception;
 
 
+   void doRollback(boolean clientFailed,
+                 boolean lastMessageAsDelived,
+                 Transaction theTx) throws Exception;
+
    RoutingStatus doSend(Transaction tx,
                         Message msg,
                         SimpleString originalAddress,

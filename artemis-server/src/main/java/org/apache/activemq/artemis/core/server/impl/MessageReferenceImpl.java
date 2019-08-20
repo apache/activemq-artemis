@@ -89,7 +89,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    @Override
    public void onDelivery(Consumer<? super MessageReference> onDelivery) {
-      assert this.onDelivery == null;
+      assert onDelivery == null || this.onDelivery == null;
       this.onDelivery = onDelivery;
    }
 

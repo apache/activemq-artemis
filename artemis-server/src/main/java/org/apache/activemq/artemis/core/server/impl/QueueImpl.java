@@ -2466,6 +2466,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       int priority = getPriority(ref);
 
+      ref.onDelivery(null);
       messageReferences.addHead(ref, priority);
    }
 
