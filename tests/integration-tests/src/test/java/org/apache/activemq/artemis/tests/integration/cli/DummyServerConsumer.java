@@ -91,6 +91,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public void close(boolean failed, boolean sorted) throws Exception {
+
+   }
+
+   @Override
    public void removeItself() throws Exception {
 
    }
