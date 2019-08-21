@@ -26,7 +26,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -47,6 +49,23 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
 
       start();
    }
+
+   /**
+    * @param serverID
+    * @return
+    * @throws Exception
+    */
+   @Override
+   protected ConfigurationImpl createBasicConfig(final int serverID) {
+      ConfigurationImpl configuration = super.createBasicConfig(serverID);
+
+      // this particular test can't rush things as it's clustering it has to come after proper syncs
+      configuration.setJournalBufferTimeout_AIO(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutAio()).
+         setJournalBufferTimeout_NIO(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio());
+
+      return configuration;
+   }
+
 
    private void start() throws Exception {
       setupServers();
