@@ -269,6 +269,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void addSorted(MessageReference ref, boolean scheduling) {
+
+   }
+
+   @Override
    public void addHead(List<MessageReference> ref, boolean scheduling) {
       // no-op
 
@@ -457,6 +462,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    @Override
    public ReferenceCounter getConsumersRefCount() {
       return null;  //To change body of implemented methods use File | Settings | File Templates.
+   }
+
+   @Override
+   public void addSorted(List<MessageReference> refs, boolean scheduling) {
+
    }
 
    @Override

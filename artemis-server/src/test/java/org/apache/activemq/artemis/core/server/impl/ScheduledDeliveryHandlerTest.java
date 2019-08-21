@@ -1036,6 +1036,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void addSorted(List<MessageReference> refs, boolean scheduling) {
+         addHead(refs, scheduling);
+      }
+
+      @Override
       public void reload(MessageReference ref) {
 
       }
@@ -1052,6 +1057,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public void addHead(MessageReference ref, boolean scheduling) {
+
+      }
+
+      @Override
+      public void addSorted(MessageReference ref, boolean scheduling) {
 
       }
 

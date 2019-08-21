@@ -129,4 +129,54 @@ public class JMSOrderTest extends JMSTestBase {
 
    }
 
+   @Test(timeout = 60000)
+   public void testReceiveSomeThenClose() throws Exception {
+      Connection connection = protocolCF.createConnection();
+      try {
+         connection.start();
+
+         int totalCount = 5;
+         int consumeBeforeRollback = 2;
+
+         sendToAmqQueue(totalCount);
+
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(name.getMethodName());
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         for (int i = 1; i <= consumeBeforeRollback; i++) {
+            Message message = consumer.receive(3000);
+            assertNotNull(message);
+            assertEquals("Unexpected message number", i, message.getIntProperty("nr"));
+         }
+
+         session.close();
+
+         session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         queue = session.createQueue(name.getMethodName());
+         consumer = session.createConsumer(queue);
+
+         // Consume again.. the previously consumed messages should get delivered
+         // again after the rollback and then the remainder should follow
+         List<Integer> messageNumbers = new ArrayList<>();
+         for (int i = 1; i <= totalCount; i++) {
+            Message message = consumer.receive(3000);
+            assertNotNull("Failed to receive message: " + i, message);
+            int msgNum = message.getIntProperty("nr");
+            System.out.println("Received " + msgNum);
+            messageNumbers.add(msgNum);
+         }
+
+         session.commit();
+
+         assertEquals("Unexpected size of list", totalCount, messageNumbers.size());
+         for (int i = 0; i < messageNumbers.size(); i++) {
+            assertEquals("Unexpected order of messages: " + messageNumbers, Integer.valueOf(i + 1), messageNumbers.get(i));
+         }
+      } finally {
+         connection.close();
+      }
+
+   }
+
 }

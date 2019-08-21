@@ -146,6 +146,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    ReferenceCounter getConsumersRefCount();
 
+   /* Called when a message is cancelled back into the queue */
+   void addSorted(List<MessageReference> refs, boolean scheduling);
+
    void reload(MessageReference ref);
 
    void addTail(MessageReference ref);
@@ -153,6 +156,9 @@ public interface Queue extends Bindable,CriticalComponent {
    void addTail(MessageReference ref, boolean direct);
 
    void addHead(MessageReference ref, boolean scheduling);
+
+   /* Called when a message is cancelled back into the queue */
+   void addSorted(MessageReference ref, boolean scheduling);
 
    void addHead(List<MessageReference> refs, boolean scheduling);
 
