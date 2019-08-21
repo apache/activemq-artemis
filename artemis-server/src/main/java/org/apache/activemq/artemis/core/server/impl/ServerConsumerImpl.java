@@ -529,7 +529,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public synchronized void close(final boolean failed) throws Exception {
+   public void close(final boolean failed) throws Exception {
+      close(failed, false);
+   }
+
+   @Override
+   public synchronized void close(final boolean failed, boolean sorted) throws Exception {
 
       // Close should only ever be done once per consumer.
       if (isClosed) return;
@@ -555,7 +560,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       List<MessageReference> refs = cancelRefs(failed, false, null);
 
-      Transaction tx = new TransactionImpl(storageManager);
+      Transaction tx = new TransactionImpl(storageManager, sorted);
 
       refs.forEach(ref -> {
          if (logger.isTraceEnabled()) {

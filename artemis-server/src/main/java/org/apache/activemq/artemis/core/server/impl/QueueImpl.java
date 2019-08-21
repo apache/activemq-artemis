@@ -896,12 +896,50 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    /* Called when a message is cancelled back into the queue */
    @Override
+   public void addSorted(final MessageReference ref, boolean scheduling) {
+      enterCritical(CRITICAL_PATH_ADD_HEAD);
+      synchronized (this) {
+         try {
+            if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
+               return;
+            }
+
+            internalAddSorted(ref);
+
+            directDeliver = false;
+         } finally {
+            leaveCritical(CRITICAL_PATH_ADD_HEAD);
+         }
+      }
+   }
+
+   /* Called when a message is cancelled back into the queue */
+   @Override
    public void addHead(final List<MessageReference> refs, boolean scheduling) {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
             for (MessageReference ref : refs) {
                addHead(ref, scheduling);
+            }
+
+            resetAllIterators();
+
+            deliverAsync();
+         } finally {
+            leaveCritical(CRITICAL_PATH_ADD_HEAD);
+         }
+      }
+   }
+
+   /* Called when a message is cancelled back into the queue */
+   @Override
+   public void addSorted(final List<MessageReference> refs, boolean scheduling) {
+      enterCritical(CRITICAL_PATH_ADD_HEAD);
+      synchronized (this) {
+         try {
+            for (MessageReference ref : refs) {
+               addSorted(ref, scheduling);
             }
 
             resetAllIterators();
@@ -3461,13 +3499,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    void postRollback(final LinkedList<MessageReference> refs) {
+      postRollback(refs, false);
+   }
+
+   void postRollback(final LinkedList<MessageReference> refs, boolean sorted) {
       //if we have purged then ignore adding the messages back
       if (purgeOnNoConsumers && getConsumerCount() == 0) {
          purgeAfterRollback(refs);
 
          return;
       }
-      addHead(refs, false);
+      if (sorted) {
+         addSorted(refs, false);
+      } else {
+         addHead(refs, false);
+      }
    }
 
    private void purgeAfterRollback(LinkedList<MessageReference> refs) {
