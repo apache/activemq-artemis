@@ -17,14 +17,18 @@
 package org.apache.activemq.artemis.tests.unit.util;
 
 import java.lang.ref.WeakReference;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +41,74 @@ public class LinkedListTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      list = new LinkedListImpl<>();
+      list = new LinkedListImpl<>(integerComparator);
+   }
+
+   Comparator<Integer> integerComparator = new Comparator<Integer>() {
+      @Override
+      public int compare(Integer o1, Integer o2) {
+         if (o1.intValue() == o2.intValue()) {
+            return 0;
+         }
+         if (o2.intValue() > o1.intValue()) {
+            return 1;
+         } else {
+            return -1;
+         }
+      }
+   };
+
+   @Test
+   public void addSorted() {
+
+      list.addSorted(1);
+      list.addSorted(3);
+      list.addSorted(2);
+      list.addSorted(0);
+      validateOrder(null);
+      Assert.assertEquals(4, list.size());
+
+   }
+
+
+   @Test
+   public void randomSorted() {
+
+      HashSet<Integer> values = new HashSet<>();
+      for (int i = 0; i < 1000; i++) {
+
+         int value = RandomUtil.randomInt();
+         if (!values.contains(value)) {
+            values.add(value);
+            list.addSorted(value);
+         }
+      }
+
+      Assert.assertEquals(values.size(), list.size());
+
+      validateOrder(values);
+
+      Assert.assertEquals(0, values.size());
+
+   }
+
+   private void validateOrder(HashSet<Integer> values) {
+      Integer previous = null;
+      LinkedListIterator<Integer> integerIterator = list.iterator();
+      while (integerIterator.hasNext()) {
+
+         Integer value = integerIterator.next();
+         if (previous != null) {
+            Assert.assertTrue(value + " should be > " + previous, integerComparator.compare(previous, value) > 0);
+            Assert.assertTrue(value + " should be > " + previous, value.intValue() > previous.intValue());
+         }
+
+         if (values != null) {
+            values.remove(value);
+         }
+         previous = value;
+      }
+      integerIterator.close();
    }
 
    @Test
