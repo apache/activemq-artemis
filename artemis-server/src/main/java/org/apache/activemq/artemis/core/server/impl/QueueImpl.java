@@ -1593,28 +1593,35 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
       RefsOperation refsOperation = getRefsOperation(tx, reason);
 
-      if (ref.isPaged()) {
-         pageSubscription.ackTx(tx, (PagedReference) ref);
-
-         refsOperation.addAck(ref);
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         refsOperation.addOnlyRefAck(ref);
+         if (logger.isDebugEnabled()) {
+            logger.debug("acknowledge tx ignored nonDestructive=true and reason=NORMAL");
+         }
       } else {
-         Message message = ref.getMessage();
+         if (ref.isPaged()) {
+            pageSubscription.ackTx(tx, (PagedReference) ref);
 
-         boolean durableRef = message.isDurable() && isDurable();
+            refsOperation.addAck(ref);
+         } else {
+            Message message = ref.getMessage();
 
-         if (durableRef) {
-            storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
+            boolean durableRef = message.isDurable() && isDurable();
 
-            tx.setContainsPersistent();
+            if (durableRef) {
+               storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
+
+               tx.setContainsPersistent();
+            }
+
+            ackAttempts.incrementAndGet();
+
+            refsOperation.addAck(ref);
          }
 
-         ackAttempts.incrementAndGet();
-
-         refsOperation.addAck(ref);
-      }
-
-      if (server != null && server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+         if (server != null && server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+         }
       }
    }
 
@@ -3435,6 +3442,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
       queue.decDelivering(ref);
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         return;
+      }
 
       if (reason == AckReason.EXPIRED) {
          messagesExpired.incrementAndGet();
