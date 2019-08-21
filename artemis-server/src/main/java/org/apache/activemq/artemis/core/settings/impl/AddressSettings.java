@@ -1047,7 +1047,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       return BufferHelper.sizeOfNullableSimpleString(addressFullMessagePolicy != null ? addressFullMessagePolicy.toString() : null) +
          BufferHelper.sizeOfNullableLong(maxSizeBytes) +
-         BufferHelper.sizeOfNullableLong(Long.valueOf(pageSizeBytes)) +
+         BufferHelper.sizeOfNullableLong(pageSizeBytes == null ? null : Long.valueOf(pageSizeBytes)) +
          BufferHelper.sizeOfNullableInteger(pageMaxCache) +
          BufferHelper.sizeOfNullableBoolean(dropMessagesWhenFull) +
          BufferHelper.sizeOfNullableInteger(maxDeliveryAttempts) +
@@ -1098,7 +1098,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, maxSizeBytes);
 
-      BufferHelper.writeNullableLong(buffer, Long.valueOf(pageSizeBytes));
+      BufferHelper.writeNullableLong(buffer, pageSizeBytes == null ? null : Long.valueOf(pageSizeBytes));
 
       BufferHelper.writeNullableInteger(buffer, pageMaxCache);
 
