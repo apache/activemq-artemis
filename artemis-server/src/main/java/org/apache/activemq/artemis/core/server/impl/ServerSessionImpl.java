@@ -1146,7 +1146,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer != null) {
-         consumer.individualCancel(messageID, failed);
+         consumer.individualCancel(messageID, failed, false);
       }
 
    }

@@ -63,6 +63,8 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void close(boolean failed) throws Exception;
 
+   void close(boolean failed, boolean sorted) throws Exception;
+
    /**
     * This method is just to remove itself from Queues.
     * If for any reason during a close an exception occurred, the exception treatment
@@ -98,7 +100,7 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void reject(long messageID) throws Exception;
 
-   void individualCancel(long messageID, boolean failed) throws Exception;
+   void individualCancel(long messageID, boolean failed, boolean sorted) throws Exception;
 
    void forceDelivery(long sequence);
 

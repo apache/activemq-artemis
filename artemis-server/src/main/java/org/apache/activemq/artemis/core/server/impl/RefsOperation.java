@@ -79,6 +79,11 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    @Override
    public void afterRollback(final Transaction tx) {
+      afterRollback(tx, false);
+   }
+
+   @Override
+   public void afterRollback(final Transaction tx, boolean sorted) {
       Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<>();
 
       long timeBase = System.currentTimeMillis();
@@ -109,7 +114,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          QueueImpl queue = entry.getKey();
 
          synchronized (queue) {
-            queue.postRollback(refs);
+            queue.postRollback(refs, sorted);
          }
       }
 
