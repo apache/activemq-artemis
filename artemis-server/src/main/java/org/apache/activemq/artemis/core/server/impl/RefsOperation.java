@@ -64,6 +64,10 @@ public class RefsOperation extends TransactionOperationAbstract {
       ignoreRedeliveryCheck = true;
    }
 
+   synchronized void addOnlyRefAck(final MessageReference ref) {
+      refsToAck.add(ref);
+   }
+
    synchronized void addAck(final MessageReference ref) {
       refsToAck.add(ref);
       if (ref.isPaged()) {

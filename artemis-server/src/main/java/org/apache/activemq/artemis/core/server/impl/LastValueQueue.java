@@ -187,10 +187,21 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
-      if (isNonDestructive() && reason == AckReason.EXPIRED || reason == AckReason.KILLED ) {
+      if (isNonDestructive() && reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
          removeIfCurrent(ref);
       }
       super.acknowledge(ref, reason, consumer);
+   }
+
+   @Override
+   public void acknowledge(Transaction tx,
+                           MessageReference ref,
+                           AckReason reason,
+                           ServerConsumer consumer) throws Exception {
+      if (isNonDestructive() && reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
+         removeIfCurrent(ref);
+      }
+      super.acknowledge(tx, ref, reason, consumer);
    }
 
    private synchronized void removeIfCurrent(MessageReference ref) {
