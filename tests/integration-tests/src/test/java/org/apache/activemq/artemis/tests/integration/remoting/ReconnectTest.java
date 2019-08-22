@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -414,14 +415,22 @@ public class ReconnectTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer2 = session.createConsumer(queueName1);
       clientConsumer1.close();
 
+      Wait.assertEquals(1, () -> getConsumerCount(server, session));
+
       Set<ServerConsumer> serverConsumers = server.getSessionByID(session.getName()).getServerConsumers();
       ServerConsumer serverConsumer = serverConsumers.iterator().next();
-      assertEquals(1, serverConsumers.size());
       assertEquals(clientConsumer2.getConsumerContext().getId(), serverConsumer.getID());
+
 
       session.close();
       sf.close();
       server.stop();
+   }
+
+   private int getConsumerCount(ActiveMQServer server, ClientSessionInternal session) {
+      Set<ServerConsumer> serverConsumers = server.getSessionByID(session.getName()).getServerConsumers();
+      return serverConsumers.size();
+
    }
 
    // Package protected ---------------------------------------------
