@@ -266,7 +266,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       PageStoreFactoryTestable testablePageStoreFactory = (PageStoreFactoryTestable) ((PagingManagerImpl) backupServer.getPagingManager()).getPagingStoreFactory();
 
-      Assert.assertEquals(openCount.get(), closeCount.get());
+      Wait.assertTrue(() -> openCount.get() ==  closeCount.get());
    }
 
    static AtomicInteger openCount = new AtomicInteger(0);

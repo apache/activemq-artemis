@@ -186,7 +186,7 @@ public class FailoverTest extends FailoverTestBase {
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
-      final ClientSession session = createSession(sf1, true, true);
+      final ClientSession session = createSession(sf1, true, false);
 
       session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
 
@@ -218,7 +218,13 @@ public class FailoverTest extends FailoverTestBase {
                log.debug("acking message = id = " + message.getMessageID() + ", counter = " +
                             message.getIntProperty("counter"));
                message.acknowledge();
+               session.commit();
             } catch (ActiveMQException e) {
+               try {
+                  session.rollback();
+               } catch (Exception e2) {
+                  e.printStackTrace();
+               }
                e.printStackTrace();
                return;
             }
