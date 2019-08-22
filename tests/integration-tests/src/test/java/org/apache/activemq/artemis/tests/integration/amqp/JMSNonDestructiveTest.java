@@ -24,6 +24,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,7 +38,10 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class JMSNonDestructiveTest extends JMSClientTestSupport {
 
    private static final String NON_DESTRUCTIVE_QUEUE_NAME = "NON_DESTRUCTIVE_QUEUE";
@@ -46,6 +52,18 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
    private ConnectionSupplier AMQPConnection = () -> createConnection();
    private ConnectionSupplier CoreConnection = () -> createCoreConnection();
 
+   protected final boolean persistenceEnabled;
+
+   public JMSNonDestructiveTest(boolean persistenceEnabled) {
+      this.persistenceEnabled = persistenceEnabled;
+   }
+
+   @Parameterized.Parameters(name = "persistenceEnabled={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{false}, {true}};
+      return Arrays.asList(params);
+   }
+
    @Override
    protected String getConfiguredProtocols() {
       return "AMQP,OPENWIRE,CORE";
@@ -53,7 +71,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
-      server.getConfiguration().setPersistenceEnabled(false);
+      server.getConfiguration().setPersistenceEnabled(persistenceEnabled);
       server.getConfiguration().setMessageExpiryScanPeriod(100);
       server.getAddressSettingsRepository().addMatch(NON_DESTRUCTIVE_QUEUE_NAME, new AddressSettings().setDefaultNonDestructive(true));
       server.getAddressSettingsRepository().addMatch(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME, new AddressSettings().setDefaultNonDestructive(true).setExpiryDelay(100L));
