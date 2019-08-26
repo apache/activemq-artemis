@@ -54,6 +54,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final double DEFAULT_REDELIVER_MULTIPLIER = 1.0;
 
+   public static final double DEFAULT_REDELIVER_COLLISION_AVOIDANCE_FACTOR = 0.0;
+
    public static final boolean DEFAULT_LAST_VALUE_QUEUE = false;
 
    @Deprecated
@@ -124,6 +126,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private Long redeliveryDelay = null;
 
    private Double redeliveryMultiplier = null;
+
+   private Double redeliveryCollisionAvoidanceFactor = null;
 
    private Long maxRedeliveryDelay = null;
 
@@ -223,6 +227,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.messageCounterHistoryDayLimit = other.messageCounterHistoryDayLimit;
       this.redeliveryDelay = other.redeliveryDelay;
       this.redeliveryMultiplier = other.redeliveryMultiplier;
+      this.redeliveryCollisionAvoidanceFactor = other.redeliveryCollisionAvoidanceFactor;
       this.maxRedeliveryDelay = other.maxRedeliveryDelay;
       this.deadLetterAddress = other.deadLetterAddress;
       this.expiryAddress = other.expiryAddress;
@@ -566,6 +571,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public double getRedeliveryCollisionAvoidanceFactor() {
+      return redeliveryCollisionAvoidanceFactor != null ? redeliveryCollisionAvoidanceFactor : AddressSettings.DEFAULT_REDELIVER_COLLISION_AVOIDANCE_FACTOR;
+   }
+
+   public AddressSettings setRedeliveryCollisionAvoidanceFactor(final double redeliveryCollisionAvoidanceFactor) {
+      this.redeliveryCollisionAvoidanceFactor = redeliveryCollisionAvoidanceFactor;
+      return this;
+   }
+
    public long getMaxRedeliveryDelay() {
       // default is redelivery-delay * 10 as specified on the docs and at this JIRA:
       // https://issues.jboss.org/browse/HORNETQ-1263
@@ -775,6 +789,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (redeliveryMultiplier == null) {
          redeliveryMultiplier = merged.redeliveryMultiplier;
+      }
+      if (redeliveryCollisionAvoidanceFactor == null) {
+         redeliveryCollisionAvoidanceFactor = merged.redeliveryCollisionAvoidanceFactor;
       }
       if (maxRedeliveryDelay == null) {
          maxRedeliveryDelay = merged.maxRedeliveryDelay;
@@ -1059,6 +1076,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          defaultRingSize = BufferHelper.readNullableLong(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         redeliveryCollisionAvoidanceFactor = BufferHelper.readNullableDouble(buffer);
+      }
    }
 
    @Override
@@ -1073,6 +1094,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableInteger(messageCounterHistoryDayLimit) +
          BufferHelper.sizeOfNullableLong(redeliveryDelay) +
          BufferHelper.sizeOfNullableDouble(redeliveryMultiplier) +
+         BufferHelper.sizeOfNullableDouble(redeliveryCollisionAvoidanceFactor) +
          BufferHelper.sizeOfNullableLong(maxRedeliveryDelay) +
          SimpleString.sizeofNullableString(deadLetterAddress) +
          SimpleString.sizeofNullableString(expiryAddress) +
@@ -1210,6 +1232,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, defaultRingSize);
 
+      BufferHelper.writeNullableDouble(buffer, redeliveryCollisionAvoidanceFactor);
+
    }
 
    /* (non-Javadoc)
@@ -1235,6 +1259,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((pageMaxCache == null) ? 0 : pageMaxCache.hashCode());
       result = prime * result + ((redeliveryDelay == null) ? 0 : redeliveryDelay.hashCode());
       result = prime * result + ((redeliveryMultiplier == null) ? 0 : redeliveryMultiplier.hashCode());
+      result = prime * result + ((redeliveryCollisionAvoidanceFactor == null) ? 0 : redeliveryCollisionAvoidanceFactor.hashCode());
       result = prime * result + ((maxRedeliveryDelay == null) ? 0 : maxRedeliveryDelay.hashCode());
       result = prime * result + ((redistributionDelay == null) ? 0 : redistributionDelay.hashCode());
       result = prime * result + ((sendToDLAOnNoRoute == null) ? 0 : sendToDLAOnNoRoute.hashCode());
@@ -1362,6 +1387,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.redeliveryMultiplier != null)
             return false;
       } else if (!redeliveryMultiplier.equals(other.redeliveryMultiplier))
+         return false;
+      if (redeliveryCollisionAvoidanceFactor == null) {
+         if (other.redeliveryCollisionAvoidanceFactor != null)
+            return false;
+      } else if (!redeliveryCollisionAvoidanceFactor.equals(other.redeliveryCollisionAvoidanceFactor))
          return false;
       if (maxRedeliveryDelay == null) {
          if (other.maxRedeliveryDelay != null)
@@ -1580,6 +1610,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          redeliveryDelay +
          ", redeliveryMultiplier=" +
          redeliveryMultiplier +
+         ", redeliveryCollisionAvoidanceFactor=" +
+         redeliveryCollisionAvoidanceFactor +
          ", maxRedeliveryDelay=" +
          maxRedeliveryDelay +
          ", redistributionDelay=" +

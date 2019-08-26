@@ -573,6 +573,7 @@ that would be found in the `broker.xml` file.
       <expiry-delay>123</expiry-delay>
       <redelivery-delay>5000</redelivery-delay>
       <redelivery-delay-multiplier>1.0</redelivery-delay-multiplier>
+      <redelivery-collision-avoidance-factor>0.0</redelivery-collision-avoidance-factor>
       <max-redelivery-delay>10000</max-redelivery-delay>
       <max-delivery-attempts>3</max-delivery-attempts>
       <max-size-bytes>100000</max-size-bytes>
@@ -658,6 +659,11 @@ messages](undelivered-messages.md#configuring-delayed-redelivery).
 `redelivery-delay-multiplier` defines the number by which the
 `redelivery-delay` will be multiplied on each subsequent redelivery attempt.
 Default is `1.0`. Read more about [undelivered
+messages](undelivered-messages.md#configuring-delayed-redelivery).
+
+`redelivery-collision-avoidance-factor` defines an additional factor used to
+calculate an adjustment to the `redelivery-delay` (up or down). Default is
+`0.0`. Valid values are between 0.0 and 1.0. Read more about [undelivered
 messages](undelivered-messages.md#configuring-delayed-redelivery).
 
 `max-size-bytes`, `page-size-bytes`, & `page-max-cache-size` are used to

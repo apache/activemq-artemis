@@ -479,4 +479,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229227, value = "{0}  must be equals to -1 or greater than 0 and less than or equal to Integer.MAX_VALUE (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException inRangeOfPositiveIntThanMinusOne(String name, Number val);
+
+   @Message(id = 229228, value = "{0} must be less than or equal to 1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException lessThanOrEqualToOne(String name, Number val);
 }
