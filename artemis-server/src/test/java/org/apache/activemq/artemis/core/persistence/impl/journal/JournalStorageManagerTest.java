@@ -42,8 +42,6 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -51,7 +49,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.Mockito;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.is;
@@ -213,76 +210,6 @@ public class JournalStorageManagerTest extends ActiveMQTestBase {
          file.close();
          file.delete();
       }
-   }
-
-   @Test
-   public void testDeletingLargeMessagePendingTasksOnShutdown() throws Exception {
-      if (journalType == JournalType.ASYNCIO) {
-         assumeTrue("AIO is not supported on this platform", AIOSequentialFileFactory.isSupported());
-      }
-      final Configuration configuration = createDefaultInVMConfig().setJournalType(journalType);
-      final ExecutorFactory executorFactory = spy(new OrderedExecutorFactory(executor));
-      final ExecutorFactory ioExecutorFactory = new OrderedExecutorFactory(ioExecutor);
-      final ArtemisExecutor artemisExecutor = executorFactory.getExecutor();
-      final ArtemisExecutor artemisExecutorWrapper = spy(artemisExecutor);
-      Mockito.when(executorFactory.getExecutor()).thenReturn(artemisExecutorWrapper);
-      final JournalStorageManager manager = new JournalStorageManager(configuration, null, executorFactory, null, ioExecutorFactory);
-      manager.start();
-      manager.loadBindingJournal(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-      final PostOffice postOffice = mock(PostOffice.class);
-      final JournalLoader journalLoader = mock(JournalLoader.class);
-      manager.loadMessageJournal(postOffice, null, null, null, null, null, null, journalLoader);
-      final LargeServerMessage largeMessage = manager.createLargeMessage(manager.generateID() + 1, new CoreMessage().setDurable(true));
-      final SequentialFile file = largeMessage.getFile();
-
-      boolean fileExists = file.exists();
-      manager.getContext(true).storeLineUp();
-      Assert.assertTrue(fileExists);
-      manager.deleteLargeMessageFile(largeMessage);
-
-      final Thread currentThread = Thread.currentThread();
-      final CountDownLatch beforeLatch = new CountDownLatch(1);
-      final CountDownLatch afterStopLatch = new CountDownLatch(1);
-
-      //Simulate an executor task that begins after store done and ends after manager stop begins.
-      artemisExecutor.execute(() -> {
-         try {
-            //Wait until thread is ready to start executing manager stop.
-            Assert.assertTrue(beforeLatch.await(30000, TimeUnit.MILLISECONDS));
-
-            //Wait until thread executing manager stop is waiting for another thread.
-            Assert.assertTrue(Wait.waitFor(() -> currentThread.getState() == Thread.State.TIMED_WAITING, 30000));
-         } catch (Exception ignore) {
-         }
-      });
-
-      Mockito.doAnswer(invocationOnMock -> {
-         invocationOnMock.callRealMethod();
-
-         if (Thread.currentThread().equals(currentThread) &&
-            invocationOnMock.getArgument(0).getClass().getName().contains(JournalStorageManager.class.getName())) {
-
-            //Simulate an executor task that ends after manager stop.
-            artemisExecutor.execute(() -> {
-               try {
-                  //Wait until manager stop is executed.
-                  afterStopLatch.await(30000, TimeUnit.MILLISECONDS);
-               } catch (Exception ignore) {
-               }
-            });
-         }
-
-         return null;
-      }).when(artemisExecutorWrapper).execute(Mockito.any(Runnable.class));
-
-      manager.getContext(true).done();
-
-      beforeLatch.countDown();
-      manager.stop();
-      fileExists = file.exists();
-      afterStopLatch.countDown();
-
-      Assert.assertFalse(fileExists);
    }
 
 }
