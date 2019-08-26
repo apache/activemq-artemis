@@ -2021,4 +2021,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224100, value = "Timed out waiting for large messages deletion with IDs {0}, might not be deleted if broker crashes atm",
       format = Message.Format.MESSAGE_FORMAT)
    void timedOutWaitingForLargeMessagesDeletion(List<Long> largeMessageIds);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224101, value = "Apache ActiveMQ Artemis is using a scheduled pool without remove on cancel policy, so a cancelled task could be not automatically removed from the work queue, it may also cause unbounded retention of cancelled tasks.", format = Message.Format.MESSAGE_FORMAT)
+   void scheduledPoolWithNoRemoveOnCancelPolicy();
 }
