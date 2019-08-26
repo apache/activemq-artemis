@@ -60,6 +60,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    protected Integer defaultConsumerWindowSize;
 
+   private Long ringSize;
+
    public SessionQueueQueryResponseMessage_V3(final QueueQueryResult result) {
       this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers(), result.isExclusive(), result.isGroupRebalance(), result.getGroupBuckets(), result.getGroupFirstKey(), result.isLastValue(), result.getLastValueKey(), result.isNonDestructive(), result.getConsumersBeforeDispatch(), result.getDelayBeforeDispatch(), result.isAutoDelete(), result.getAutoDeleteDelay(), result.getAutoDeleteMessageCount(), result.getDefaultConsumerWindowSize());
    }
@@ -273,6 +275,10 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       return autoDeleteMessageCount;
    }
 
+   public Long getRingSize() {
+      return ringSize;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
@@ -293,6 +299,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       BufferHelper.writeNullableLong(buffer, autoDeleteDelay);
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
       buffer.writeNullableSimpleString(groupFirstKey);
+      BufferHelper.writeNullableLong(buffer, ringSize);
 
    }
 
@@ -324,6 +331,9 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       if (buffer.readableBytes() > 0) {
          groupFirstKey = buffer.readNullableSimpleString();
       }
+      if (buffer.readableBytes() > 0) {
+         ringSize = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -347,6 +357,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       result = prime * result + (autoDeleteDelay == null ? 0 : autoDeleteDelay.hashCode());
       result = prime * result + (autoDeleteMessageCount == null ? 0 : autoDeleteMessageCount.hashCode());
       result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
+      result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
       return result;
    }
 
@@ -377,12 +388,13 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       buff.append(", autoDeleteDelay=" + autoDeleteDelay);
       buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
       buff.append(", defaultConsumerWindowSize=" + defaultConsumerWindowSize);
+      buff.append(", ringSize=" + ringSize);
       return buff.toString();
    }
 
    @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType(), isExclusive(), isGroupRebalance(), getGroupBuckets(), getGroupFirstKey(), isLastValue(), getLastValueKey(), isNonDestructive(), getConsumersBeforeDispatch(), getDelayBeforeDispatch(), isAutoDelete(), getAutoDeleteDelay(), getAutoDeleteMessageCount(), getDefaultConsumerWindowSize());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType(), isExclusive(), isGroupRebalance(), getGroupBuckets(), getGroupFirstKey(), isLastValue(), getLastValueKey(), isNonDestructive(), getConsumersBeforeDispatch(), getDelayBeforeDispatch(), isAutoDelete(), getAutoDeleteDelay(), getAutoDeleteMessageCount(), getDefaultConsumerWindowSize(), getRingSize());
    }
 
    @Override
@@ -457,6 +469,11 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
          if (other.autoDeleteMessageCount != null)
             return false;
       } else if (!autoDeleteMessageCount.equals(other.autoDeleteMessageCount))
+         return false;
+      if (ringSize == null) {
+         if (other.ringSize != null)
+            return false;
+      } else if (!ringSize.equals(other.ringSize))
          return false;
       if (defaultConsumerWindowSize == null) {
          if (other.defaultConsumerWindowSize != null)

@@ -82,6 +82,15 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long getRingSize() {
+            try {
+               return (Long) proxy.invokeOperation(Integer.TYPE, "getRingSize");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
          public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
             return (Boolean) proxy.invokeOperation("changeMessagePriority", messageID, newPriority);
          }

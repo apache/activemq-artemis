@@ -1552,6 +1552,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getRingSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRingSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getRingSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String listConsumersAsJSON() throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.listConsumersAsJSON(queue);
