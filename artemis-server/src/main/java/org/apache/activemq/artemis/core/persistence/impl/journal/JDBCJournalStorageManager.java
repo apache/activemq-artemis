@@ -108,6 +108,8 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
             idGenerator.persistCurrentID();
       }
 
+      deletingLargeMessageTasks.await(30, TimeUnit.SECONDS);
+
       final CountDownLatch latch = new CountDownLatch(1);
       executor.execute(new Runnable() {
          @Override
