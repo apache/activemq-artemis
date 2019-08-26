@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +41,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
@@ -42,6 +50,7 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -126,6 +135,85 @@ public class DivertTest extends ActiveMQTestBase {
       }
 
       Assert.assertNull(consumer2.receiveImmediate());
+   }
+
+   @Test
+   public void testCrossProtocol() throws Exception {
+      final String testForConvert = "testConvert";
+
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).
+         setRoutingType(ComponentConfigurationRoutingType.ANYCAST);
+
+      Configuration config = createDefaultNettyConfig().addDivertConfiguration(divertConf);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+
+      server.start();
+
+      final SimpleString queueName1 = SimpleString.toSimpleString(testAddress);
+
+      final SimpleString queueName2 = SimpleString.toSimpleString(forwardAddress);
+
+      { // this is setting up the queues
+         ServerLocator locator = createInVMNonHALocator();
+
+         ClientSessionFactory sf = createSessionFactory(locator);
+
+         ClientSession session = sf.createSession(false, true, true);
+
+         session.createQueue(new SimpleString(testAddress), RoutingType.ANYCAST, queueName1, null, true);
+
+         session.createQueue(new SimpleString(testForConvert), RoutingType.ANYCAST, SimpleString.toSimpleString(testForConvert), null, true);
+
+         session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName2, null, true);
+      }
+
+      ConnectionFactory coreCF = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+      Connection coreConnection = coreCF.createConnection();
+      Session coreSession = coreConnection.createSession(Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producerCore = coreSession.createProducer(coreSession.createQueue(testForConvert));
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage textMessage = coreSession.createTextMessage("text" + i);
+         //if (i % 2 == 0) textMessage.setIntProperty("key", i);
+         producerCore.send(textMessage);
+      }
+
+      producerCore.close();
+
+      ConnectionFactory amqpCF = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616");
+
+      Connection amqpConnection = amqpCF.createConnection();
+      Session amqpSession = amqpConnection.createSession(Session.AUTO_ACKNOWLEDGE);
+      Queue amqpQueue = amqpSession.createQueue(testAddress);
+      MessageProducer producer = amqpSession.createProducer(amqpQueue);
+      MessageConsumer consumerFromConvert = amqpSession.createConsumer(amqpSession.createQueue(testForConvert));
+      amqpConnection.start();
+
+      for (int i = 0; i < 10; i++) {
+         javax.jms.Message received =  consumerFromConvert.receive(5000);
+         Assert.assertNotNull(received);
+         producer.send(received);
+      }
+
+
+      Queue outQueue = coreSession.createQueue(queueName2.toString());
+      MessageConsumer consumer = coreSession.createConsumer(outQueue);
+      coreConnection.start();
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage textMessage = (TextMessage)consumer.receive(5000);
+         Assert.assertNotNull(textMessage);
+         Assert.assertEquals("text" + i, textMessage.getText());
+         //if (i % 2 == 0) Assert.assertEquals(i, textMessage.getIntProperty("key"));
+      }
+
+      Assert.assertNull(consumer.receiveNoWait());
+
    }
 
    @Test
