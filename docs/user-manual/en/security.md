@@ -910,6 +910,30 @@ users=system,user
 guests=guest
 ```
 
+
+#### Krb5LoginModule
+
+The Kerberos login module is used to propagate a validated SASL GSSAPI kerberos token
+identity into a validated JAAS UserPrincipal. This allows subsequent login modules to
+do role mapping for the kerberos identity.
+
+```
+org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule required
+    ;
+```
+
+#### ExternalCertificateLoginModule
+
+The external certificate login module is used to propagate a validated TLS client
+certificate's subjectDN into a JAAS UserPrincipal. This allows subsequent login modules to
+do role mapping for the TLS client certificate.
+
+```
+org.apache.activemq.artemis.spi.core.security.jaas.ExternalCertificateLoginModule required
+    ;
+```    
+ 
+
 The simplest way to make the login configuration available to JAAS is to add
 the directory containing the file, `login.config`, to your CLASSPATH.
 
