@@ -3514,12 +3514,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       queue.decDelivering(ref);
       if (nonDestructive && reason == AckReason.NORMAL) {
-         return;
-      }
-
-      // this is done to tell the difference between actual acks and just a closed consumer in the non-destructive use-case
-      if (nonDestructive && reason == AckReason.NORMAL) {
+         // this is done to tell the difference between actual acks and just a closed consumer in the non-destructive use-case
          ref.setInDelivery(false);
+         return;
       }
 
       if (reason == AckReason.EXPIRED) {
