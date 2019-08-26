@@ -766,7 +766,9 @@ once the last subscription on the topic has been closed. Default is `true`.
 `auto-create-queues`. Whether or not the broker should automatically create a
 queue when a message is sent or a consumer tries to connect to a queue whose
 name fits the address `match`. Queues which are auto-created are durable,
-non-temporary, and non-transient. Default is `true`.
+non-temporary, and non-transient. Default is `true`. **Note:** automatic queue
+creation does *not* work for the core client. The core API is a low-level API
+and is not meant to have such automation.
 
 `auto-delete-queues`. Whether or not the broker should automatically delete
 auto-created queues when they have both 0 consumers and the message count is 
@@ -805,7 +807,9 @@ reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
 `auto-create-addresses`. Whether or not the broker should automatically create
 an address when a message is sent to or a consumer tries to consume from a
 queue which is mapped to an address whose name fits the address `match`.
-Default is `true`.
+Default is `true`. **Note:** automatic address creation does *not* work for the
+core client. The core API is a low-level API and is not meant to have such
+automation.
 
 `auto-delete-addresses`. Whether or not the broker should automatically delete
 auto-created addresses once the address no longer has any queues. Default is
