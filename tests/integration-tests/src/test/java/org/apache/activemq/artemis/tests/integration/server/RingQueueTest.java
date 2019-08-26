@@ -182,14 +182,13 @@ public class RingQueueTest extends ActiveMQTestBase {
 
       ClientMessage m0 = createTextMessage(clientSession, "hello0");
       long time = System.currentTimeMillis();
-      time += 3000;
+      time += 500;
       m0.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m0);
       Wait.assertTrue(() -> queue.getScheduledCount() == 1, 2000, 100);
       Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0, 2000, 100);
-      Thread.sleep(1500);
       time = System.currentTimeMillis();
-      time += 3000;
+      time += 500;
       m0.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m0);
       Wait.assertTrue(() -> queue.getScheduledCount() == 2, 2000, 100);
@@ -327,7 +326,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ClientConsumer consumer = clientSession.createConsumer(qName);
       Wait.assertTrue(() -> queue.getDeliveringCount() == 1, 2000, 100);
       consumer.close();
-      Thread.sleep(3000);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 0, 2000, 100);
       Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
    }
 
