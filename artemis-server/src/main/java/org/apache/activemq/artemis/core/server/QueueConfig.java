@@ -52,6 +52,7 @@ public final class QueueConfig {
    private final boolean autoDelete;
    private final long autoDeleteDelay;
    private final long autoDeleteMessageCount;
+   private final long ringSize;
 
    public static final class Builder {
 
@@ -79,6 +80,7 @@ public final class QueueConfig {
       private boolean autoDelete;
       private long autoDeleteDelay;
       private long autoDeleteMessageCount;
+      private long ringSize;
       private boolean configurationManaged;
 
       private Builder(final long id, final SimpleString name) {
@@ -110,6 +112,7 @@ public final class QueueConfig {
          this.autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated);
          this.autoDeleteDelay = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay();
          this.autoDeleteMessageCount = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount();
+         this.ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
          this.configurationManaged = false;
          validateState();
       }
@@ -217,6 +220,11 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder ringSize(final long ringSize) {
+         this.ringSize = ringSize;
+         return this;
+      }
+
 
       public Builder groupRebalance(final boolean groupRebalance) {
          this.groupRebalance = groupRebalance;
@@ -266,7 +274,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, ringSize, configurationManaged);
       }
 
    }
@@ -323,6 +331,7 @@ public final class QueueConfig {
                        final boolean autoDelete,
                        final long autoDeleteDelay,
                        final long autoDeleteMessageCount,
+                       final long ringSize,
                        final boolean configurationManaged) {
       this.id = id;
       this.address = address;
@@ -348,6 +357,7 @@ public final class QueueConfig {
       this.autoDelete = autoDelete;
       this.autoDeleteDelay = autoDeleteDelay;
       this.autoDeleteMessageCount = autoDeleteMessageCount;
+      this.ringSize = ringSize;
       this.configurationManaged = configurationManaged;
    }
 
@@ -451,6 +461,10 @@ public final class QueueConfig {
       return autoDeleteMessageCount;
    }
 
+   public long getRingSize() {
+      return ringSize;
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o)
@@ -508,6 +522,8 @@ public final class QueueConfig {
          return false;
       if (autoDeleteMessageCount != that.autoDeleteMessageCount)
          return false;
+      if (ringSize != that.ringSize)
+         return false;
       if (configurationManaged != that.configurationManaged)
          return false;
       return user != null ? user.equals(that.user) : that.user == null;
@@ -540,6 +556,7 @@ public final class QueueConfig {
       result = 31 * result + (autoDelete ? 1 : 0);
       result = 31 * result + Long.hashCode(autoDeleteDelay);
       result = 31 * result + Long.hashCode(autoDeleteMessageCount);
+      result = 31 * result + Long.hashCode(ringSize);
       result = 31 * result + (configurationManaged ? 1 : 0);
       return result;
    }
@@ -571,6 +588,7 @@ public final class QueueConfig {
          + ", autoDelete=" + autoDelete
          + ", autoDeleteDelay=" + autoDeleteDelay
          + ", autoDeleteMessageCount=" + autoDeleteMessageCount
+         + ", ringSize=" + ringSize
          + ", configurationManaged=" + configurationManaged + '}';
    }
 }

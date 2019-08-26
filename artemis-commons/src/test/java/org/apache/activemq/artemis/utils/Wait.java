@@ -28,6 +28,7 @@ public class Wait {
 
    public static final long MAX_WAIT_MILLIS = 30 * 1000;
    public static final int SLEEP_MILLIS = 1000;
+   public static final String DEFAULT_FAILURE_MESSAGE = "Condition wasn't met";
 
    public interface Condition {
 
@@ -81,7 +82,7 @@ public class Wait {
    }
 
    public static void assertTrue(Condition condition) {
-      assertTrue("Condition wasn't met", condition);
+      assertTrue(DEFAULT_FAILURE_MESSAGE, condition);
    }
 
    public static void assertFalse(Condition condition) throws Exception {
@@ -90,6 +91,14 @@ public class Wait {
 
    public static void assertFalse(String failureMessage, Condition condition) {
       assertTrue(failureMessage, () -> !condition.isSatisfied());
+   }
+
+   public static void assertFalse(String failureMessage, Condition condition, final long duration) {
+      assertTrue(failureMessage, () -> !condition.isSatisfied(), duration, SLEEP_MILLIS);
+   }
+
+   public static void assertFalse(Condition condition, final long duration, final long sleep) {
+      assertTrue(DEFAULT_FAILURE_MESSAGE, () -> !condition.isSatisfied(), duration, sleep);
    }
 
 
@@ -102,7 +111,7 @@ public class Wait {
    }
 
    public static void assertTrue(Condition condition, final long duration, final long sleep) throws Exception {
-      assertTrue("condition not met", condition, duration, sleep);
+      assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }
 
 

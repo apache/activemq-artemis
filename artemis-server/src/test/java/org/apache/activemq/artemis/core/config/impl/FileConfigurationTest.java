@@ -360,6 +360,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(5, conf.getAddressesSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a1").getDefaultQueueRoutingType());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a1").getDefaultAddressRoutingType());
+      assertEquals(3, conf.getAddressesSettings().get("a1").getDefaultRingSize());
 
       assertEquals("a2.1", conf.getAddressesSettings().get("a2").getDeadLetterAddress().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
@@ -382,6 +383,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a2").getDefaultQueueRoutingType());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a2").getDefaultAddressRoutingType());
       assertEquals(10000, conf.getAddressesSettings().get("a2").getDefaultConsumerWindowSize());
+      assertEquals(-1, conf.getAddressesSettings().get("a2").getDefaultRingSize());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
       assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());
@@ -462,6 +464,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       CoreQueueConfiguration queueConfiguration = addressConfiguration.getQueueConfigurations().get(0);
 
       assertEquals("q1", queueConfiguration.getName());
+      assertEquals(3L, queueConfiguration.getRingSize().longValue());
       assertFalse(queueConfiguration.isDurable());
       assertEquals("color='blue'", queueConfiguration.getFilterString());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.getPurgeOnNoConsumers());
@@ -473,6 +476,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       queueConfiguration = addressConfiguration.getQueueConfigurations().get(1);
 
       assertEquals("q2", queueConfiguration.getName());
+      assertEquals(-1, queueConfiguration.getRingSize().longValue());
       assertTrue(queueConfiguration.isDurable());
       assertEquals("color='green'", queueConfiguration.getFilterString());
       assertEquals(Queue.MAX_CONSUMERS_UNLIMITED, queueConfiguration.getMaxConsumers().intValue());

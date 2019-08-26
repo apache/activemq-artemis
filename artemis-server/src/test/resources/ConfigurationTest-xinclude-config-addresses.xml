@@ -17,7 +17,7 @@
 <addresses xmlns="urn:activemq:core">
    <address name="addr1">
       <anycast>
-         <queue name="q1">
+         <queue name="q1" ring-size="3">
             <durable>${falseProp}</durable>
             <filter string="color='blue'"/>
          </queue>

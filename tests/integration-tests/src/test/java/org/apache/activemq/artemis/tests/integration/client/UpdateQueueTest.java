@@ -132,7 +132,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false, "newUser");
+      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, null, 1, false, true, true, 5, "gfk", true, 1, 10L, "newUser", 180L);
 
       conn.close();
       factory.close();
@@ -145,8 +145,17 @@ public class UpdateQueueTest extends ActiveMQTestBase {
       queue = server.locateQueue(ADDRESS);
 
       Assert.assertNotNull("queue not found", queue);
-
+      Assert.assertEquals(1, queue.getMaxConsumers());
+      Assert.assertEquals(false, queue.isPurgeOnNoConsumers());
+      Assert.assertEquals(true, queue.isExclusive());
+      Assert.assertEquals(true, queue.isGroupRebalance());
+      Assert.assertEquals(5, queue.getGroupBuckets());
+      Assert.assertEquals("gfk", queue.getGroupFirstKey().toString());
+      Assert.assertEquals(true, queue.isNonDestructive());
+      Assert.assertEquals(1, queue.getConsumersBeforeDispatch());
+      Assert.assertEquals(10L, queue.getDelayBeforeDispatch());
       Assert.assertEquals("newUser", queue.getUser().toString());
+      Assert.assertEquals(180L, queue.getRingSize());
 
       factory = new ActiveMQConnectionFactory();
 
@@ -161,8 +170,6 @@ public class UpdateQueueTest extends ActiveMQTestBase {
       }
 
       Assert.assertNull(consumer.receiveNoWait());
-
-      Assert.assertEquals(1, queue.getMaxConsumers());
 
       conn.close();
 
