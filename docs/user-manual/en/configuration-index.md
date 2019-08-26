@@ -204,10 +204,11 @@ Name | Description | Default
 [match](address-model.md) | The filter to apply to the setting | n/a
 [dead-letter-address](undelivered-messages.md) | Dead letter address | n/a
 [expiry-address](message-expiry.md) | Expired messages address | n/a
-[expiry-delay](address-model.md) | Expiration time override; -1 don't override | -1
+[expiry-delay](message-expiry.md) | Expiration time override; -1 don't override | -1
 [redelivery-delay](undelivered-messages.md) | Time to wait before redelivering a message | 0
-[redelivery-delay-multiplier](address-model.md) | Multiplier to apply to the `redelivery-delay` | 1.0
-[max-redelivery-delay](address-model.md) | Max value for the `redelivery-delay` | 10 \* `redelivery-delay`
+[redelivery-delay-multiplier](undelivered-messages.md) | Multiplier to apply to the `redelivery-delay` | 1.0
+[redelivery-collision-avoidance-factor](undelivered-messages.md) | an additional factor used to calculate an adjustment to the `redelivery-delay` (up or down) | 0.0
+[max-redelivery-delay](undelivered-messages.md) | Max value for the `redelivery-delay` | 10 \* `redelivery-delay`
 [max-delivery-attempts](undelivered-messages.md)| Number of retries before dead letter address| 10
 [max-size-bytes](paging.md)| Max size a queue can be before invoking `address-full-policy` | -1
 [max-size-bytes-reject-threshold]() | Used with `BLOCK`, the max size an address can reach before messages are rejected; works in combination with `max-size-bytes` **for AMQP clients only**. | -1

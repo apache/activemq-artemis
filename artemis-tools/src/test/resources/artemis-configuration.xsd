@@ -2957,6 +2957,14 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="redelivery-collision-avoidance-factor" type="xsd:double" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     factor by which to modify the redelivery delay slightly to avoid collisions
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="max-redelivery-delay" type="xsd:long" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
