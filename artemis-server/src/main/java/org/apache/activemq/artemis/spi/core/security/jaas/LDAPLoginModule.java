@@ -308,8 +308,9 @@ public class LDAPLoginModule implements LoginModule {
          throw ex;
       }
 
-      if (!isLoginPropertySet(USER_SEARCH_MATCHING))
-         return dn;
+      if (!isLoginPropertySet(USER_SEARCH_MATCHING)) {
+         return username;
+      }
 
       userSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(USER_SEARCH_MATCHING));
       userSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(USER_SEARCH_SUBTREE)).booleanValue();

@@ -117,3 +117,10 @@ objectclass: groupOfUniqueNames
 objectclass: top
 cn: admin
 uniquemember: uid=role1
+
+## group with member identified just by DN from SASL external tls certificate subject DN
+dn: cn=widgets,ou=system
+cn: widgets
+member: uid=O=Internet Widgits Pty Ltd,C=AU,ST=Some-State,CN=lakalkalaoioislkxn
+objectClass: groupOfNames
+objectClass: top
