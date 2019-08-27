@@ -428,7 +428,11 @@ public class ReconnectTest extends ActiveMQTestBase {
    }
 
    private int getConsumerCount(ActiveMQServer server, ClientSessionInternal session) {
-      Set<ServerConsumer> serverConsumers = server.getSessionByID(session.getName()).getServerConsumers();
+      ServerSession serverSession = server.getSessionByID(session.getName());
+      if (serverSession == null) {
+         return 0;
+      }
+      Set<ServerConsumer> serverConsumers = serverSession.getServerConsumers();
       return serverConsumers.size();
 
    }
