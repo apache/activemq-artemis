@@ -53,7 +53,6 @@ public class QuorumFailOverLiveVotesTest extends StaticClusterWithBackupFailover
 
    }
 
-
    @Test
    public void testQuorumVotingLiveNotDead() throws Exception {
       int[] liveServerIDs = new int[]{0, 1, 2};
@@ -69,6 +68,10 @@ public class QuorumFailOverLiveVotesTest extends StaticClusterWithBackupFailover
       waitForFailoverTopology(3, 0, 1, 2);
       waitForFailoverTopology(4, 0, 1, 2);
       waitForFailoverTopology(5, 0, 1, 2);
+
+      Wait.assertTrue(servers[0]::isReplicaSync);
+      Wait.assertTrue(servers[1]::isReplicaSync);
+      Wait.assertTrue(servers[2]::isReplicaSync);
 
       for (int i : liveServerIDs) {
          setupSessionFactory(i, i + 3, isNetty(), false);
@@ -91,7 +94,6 @@ public class QuorumFailOverLiveVotesTest extends StaticClusterWithBackupFailover
       assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
 
       SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) servers[0].getActivation();
-     // ;
       servers[0].getRemotingService().freeze(null, null);
       waitForFailoverTopology(4, 3, 1, 2);
       waitForFailoverTopology(5, 3, 1, 2);
@@ -99,6 +101,7 @@ public class QuorumFailOverLiveVotesTest extends StaticClusterWithBackupFailover
       assertTrue(servers[3].waitForActivation(2, TimeUnit.SECONDS));
       Wait.assertTrue(servers[3]::isStarted);
       Wait.assertTrue(servers[3]::isActive);
+      Wait.assertTrue(servers[0]::isReplicaSync);
       liveActivation.freezeReplication();
       Wait.assertFalse(servers[0]::isStarted);
       Wait.assertFalse(servers[0]::isActive);
