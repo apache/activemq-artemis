@@ -19,9 +19,13 @@ package org.apache.activemq.artemis.tests.integration.replication;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -223,6 +227,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
       locator.setCallTimeout(60_000L);
       locator.setConnectionTTL(60_000L);
+      locator.setBlockOnDurableSend(false);
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
@@ -243,8 +248,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       sess.close();
 
-      openCount.set(0);
-      closeCount.set(0);
+      TestableSequentialFile.openFiles.clear();
       // start backup
       Configuration backupConfiguration = createBackupConfiguration().setNetworkCheckURLList(null);
 
@@ -264,13 +268,16 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       Wait.waitFor(backupServer::isReplicaSync, 30000);
 
-      PageStoreFactoryTestable testablePageStoreFactory = (PageStoreFactoryTestable) ((PagingManagerImpl) backupServer.getPagingManager()).getPagingStoreFactory();
-
-      Wait.assertTrue(() -> openCount.get() ==  closeCount.get());
+      // Asserting for file leaks
+      if (!Wait.waitFor(() -> TestableSequentialFile.openFiles.size() == 0, 5000)) {
+         StringWriter writer = new StringWriter();
+         PrintWriter print = new PrintWriter(writer);
+         for (Object fileOpen : TestableSequentialFile.openFiles.keySet()) {
+            print.println("File still open ::" + fileOpen);
+         }
+         Assert.fail(writer.toString());
+      }
    }
-
-   static AtomicInteger openCount = new AtomicInteger(0);
-   static AtomicInteger closeCount = new AtomicInteger(0);
 
    private static class PageStoreFactoryTestable extends PagingStoreFactoryNIO {
 
@@ -308,6 +315,24 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
    public static class TestableSequentialFile extends NIOSequentialFile {
 
+      @Override
+      public boolean equals(Object obj) {
+         TestableSequentialFile other = (TestableSequentialFile)obj;
+         return other.getFile().equals(this.getFile());
+      }
+
+      @Override
+      public String toString() {
+         return "TestableSequentialFile::" + getFile().toString();
+      }
+
+      @Override
+      public int hashCode() {
+         return getFile().hashCode();
+      }
+
+      static Map<TestableSequentialFile, Exception> openFiles = new ConcurrentHashMap<>();
+
       public TestableSequentialFile(SequentialFileFactory factory,
                                     File directory,
                                     String file,
@@ -319,13 +344,13 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       @Override
       public void open(int maxIO, boolean useExecutor) throws IOException {
          super.open(maxIO, useExecutor);
-         openCount.incrementAndGet();
+         openFiles.put(TestableSequentialFile.this, new Exception("open"));
       }
 
       @Override
-      public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
-         super.close();
-         closeCount.incrementAndGet();
+      public synchronized void close(boolean waitSync) throws IOException, InterruptedException, ActiveMQException {
+         super.close(waitSync);
+         openFiles.remove(TestableSequentialFile.this);
       }
    }
 
