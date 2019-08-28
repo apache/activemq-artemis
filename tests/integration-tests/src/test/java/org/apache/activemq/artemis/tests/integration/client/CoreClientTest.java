@@ -264,12 +264,12 @@ public class CoreClientTest extends ActiveMQTestBase {
                assertNotNull(message);
                message.acknowledge();
             }
-            assertNull(consumer.receive(1000));
+            assertNull(consumer.receiveImmediate());
          }
 
          for (String multicastPrefix : multicastPrefixes) {
             ClientConsumer consumer = consumerMap.get(multicastPrefix + baseAddress);
-            assertNull(consumer.receive(100));
+            assertNull(consumer.receiveImmediate());
          }
       }
 

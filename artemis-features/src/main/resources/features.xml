@@ -44,7 +44,6 @@
 	<feature name="artemis-common" version="${pom.version}" description="ActiveMQ Artemis Common libraries">
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
-		<bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
 		<bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons.beanutils.version}</bundle>
 		<bundle dependency="true">mvn:commons-collections/commons-collections/${commons.collections.version}</bundle>
 
@@ -65,6 +64,7 @@
 		<bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons.config.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-text/1.6</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang.version}</bundle>
+		<bundle dependency="true">mvn:org.jctools/jctools-core/${jctools.version}</bundle>
 		<!-- Micrometer can't be included until it supports OSGi. It is currently an "optional" Maven dependency. -->
 		<!--bundle dependency="true">mvn:io.micrometer/micrometer-core/${version.micrometer}</bundle-->
 

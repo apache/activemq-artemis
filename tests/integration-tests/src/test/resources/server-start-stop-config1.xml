@@ -26,7 +26,10 @@
          <connector name="netty-connector">tcp://localhost:61616</connector>
       </connectors>
 
-      <journal-directory>./target/tmp/activemq-unit-test/start-stop-data</journal-directory>
+      <journal-directory>./target/tmp/activemq-unit-test/start-stop-data/journal</journal-directory>
+      <paging-directory>./target/tmp/activemq-unit-test/start-stop-data/paging</paging-directory>
+      <bindings-directory>./target/tmp/activemq-unit-test/start-stop-data/paging</bindings-directory>
+      <large-messages-directory>./target/tmp/activemq-unit-test/start-stop-data/paging</large-messages-directory>
 
       <acceptors>
          <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>

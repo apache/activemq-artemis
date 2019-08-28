@@ -176,6 +176,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int maxConcurrentPageIO = ActiveMQDefaultConfiguration.getDefaultMaxConcurrentPageIo();
 
+   private boolean readWholePage = ActiveMQDefaultConfiguration.isDefaultReadWholePage();
+
    protected String largeMessagesDirectory = ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir();
 
    protected String bindingsDirectory = ActiveMQDefaultConfiguration.getDefaultBindingsDirectory();
@@ -211,6 +213,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected int journalMaxIO_AIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
 
    protected int journalBufferTimeout_AIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutAio();
+
+   protected Integer deviceBlockSize = null;
 
    protected int journalBufferSize_AIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeAio();
 
@@ -810,6 +814,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public boolean isReadWholePage() {
+      return readWholePage;
+   }
+
+   @Override
+   public ConfigurationImpl setReadWholePage(boolean read) {
+      readWholePage = read;
+      return this;
+   }
+
+   @Override
    public File getJournalLocation() {
       return subFolder(getJournalDirectory());
    }
@@ -1286,6 +1301,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public int getJournalBufferTimeout_AIO() {
       return journalBufferTimeout_AIO;
+   }
+
+   @Override
+   public Integer getJournalDeviceBlockSize() {
+      return deviceBlockSize;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalDeviceBlockSize(Integer deviceBlockSize) {
+      this.deviceBlockSize = deviceBlockSize;
+      return this;
    }
 
    @Override

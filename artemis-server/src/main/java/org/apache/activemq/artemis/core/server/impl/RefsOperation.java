@@ -64,6 +64,10 @@ public class RefsOperation extends TransactionOperationAbstract {
       ignoreRedeliveryCheck = true;
    }
 
+   synchronized void addOnlyRefAck(final MessageReference ref) {
+      refsToAck.add(ref);
+   }
+
    synchronized void addAck(final MessageReference ref) {
       refsToAck.add(ref);
       if (ref.isPaged()) {
@@ -79,6 +83,11 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    @Override
    public void afterRollback(final Transaction tx) {
+      afterRollback(tx, false);
+   }
+
+   @Override
+   public void afterRollback(final Transaction tx, boolean sorted) {
       Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<>();
 
       long timeBase = System.currentTimeMillis();
@@ -109,7 +118,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          QueueImpl queue = entry.getKey();
 
          synchronized (queue) {
-            queue.postRollback(refs);
+            queue.postRollback(refs, sorted);
          }
       }
 
@@ -150,7 +159,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
       // if ignore redelivery check, we just perform redelivery straight
-      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck)) {
+      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck).getA()) {
          LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
 
          if (toCancel == null) {

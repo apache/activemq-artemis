@@ -217,6 +217,14 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
          // ignore
       }
 
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+      }
+
       session.close();
       cf.close();
    }
@@ -274,6 +282,36 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
       // CONSUME
       try {
          session.createConsumer(QUEUE);
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
+         // don't enable manage permission by default; must set mapAdminToManage=true in plugin config
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+      }
+
+      session.close();
+      cf.close();
+   }
+
+   @Test
+   public void testPluginAuthorizationPositiveMappingAdminToManage() throws Exception {
+      ((LegacyLDAPSecuritySettingPlugin)server.getConfiguration().getSecuritySettingPlugins().get(0)).setMapAdminToManage(true);
+
+      server.start();
+
+      ClientSessionFactory cf = locator.createSessionFactory();
+      ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
+
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }

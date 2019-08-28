@@ -328,15 +328,18 @@ public interface Configuration {
    Configuration setAmqpUseCoreSubscriptionNaming(boolean amqpUseCoreSubscriptionNaming);
 
    /**
+    * deprecated: we decide based on the semantic context when to make things async or not
     * Returns whether code coming from connection is executed asynchronously or not. <br>
     * Default value is
     * {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.
     */
+   @Deprecated
    boolean isAsyncConnectionExecutionEnabled();
 
    /**
     * Sets whether code coming from connection is executed asynchronously or not.
     */
+   @Deprecated
    Configuration setEnabledAsyncConnectionExecution(boolean enabled);
 
    /**
@@ -585,6 +588,17 @@ public interface Configuration {
    Configuration setPageMaxConcurrentIO(int maxIO);
 
    /**
+    * Returns whether the whole page is read while getting message after page cache is evicted. <br>
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_READ_WHOLE_PAGE}.
+    */
+   boolean isReadWholePage();
+
+   /**
+    * Sets whether the whole page is read while getting message after page cache is evicted.
+    */
+   Configuration setReadWholePage(boolean read);
+
+   /**
     * Returns the file system directory used to store journal log. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
     */
@@ -734,6 +748,17 @@ public interface Configuration {
     * Sets the timeout (in nanoseconds) used to flush buffers in the AIO queue.
     */
    Configuration setJournalBufferTimeout_AIO(int journalBufferTimeout);
+
+   /** This is the device block size used on writing.
+    * This is usually translated as st_blksize from fstat.
+    * returning null mans the system should instead make a call on fstat and use st_blksize.
+    *  The intention of this setting was to bypass the value in certain devices that will return a huge number as their block size (e.g. CephFS) */
+   Integer getJournalDeviceBlockSize();
+
+   /**
+    * @see #getJournalDeviceBlockSize()
+    */
+   Configuration setJournalDeviceBlockSize(Integer deviceBlockSize);
 
    /**
     * Returns the buffer size (in bytes) for AIO.

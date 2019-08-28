@@ -61,6 +61,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
+
       ActiveMQJAASSecurityManager sm = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
       server = addServer(new ActiveMQServerImpl(fc, sm));

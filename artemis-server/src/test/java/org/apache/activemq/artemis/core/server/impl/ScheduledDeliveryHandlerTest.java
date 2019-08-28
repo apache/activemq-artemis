@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -1025,6 +1026,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void setRingSize(long ringSize) {
+
+      }
+
+      @Override
+      public long getRingSize() {
+         return 0;
+      }
+
+      @Override
       public void setConsumersRefCount(ReferenceCounter referenceCounter) {
 
       }
@@ -1032,6 +1043,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public ReferenceCounter getConsumersRefCount() {
          return null;
+      }
+
+      @Override
+      public void addSorted(List<MessageReference> refs, boolean scheduling) {
+         addHead(refs, scheduling);
       }
 
       @Override
@@ -1051,6 +1067,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public void addHead(MessageReference ref, boolean scheduling) {
+
+      }
+
+      @Override
+      public void addSorted(MessageReference ref, boolean scheduling) {
 
       }
 
@@ -1107,7 +1128,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void cancel(MessageReference reference, long timeBase) throws Exception {
+      public void cancel(MessageReference reference, long timeBase, boolean backInPlace) throws Exception {
 
       }
 
@@ -1232,6 +1253,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public long getMessagesReplaced() {
+         return 0;
+      }
+
+      @Override
       public MessageReference removeReferenceWithID(long id) throws Exception {
          return null;
       }
@@ -1292,7 +1318,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+      public boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+         return false;
       }
 
       @Override
@@ -1375,10 +1402,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public boolean checkRedelivery(MessageReference ref,
-                                     long timeBase,
-                                     boolean ignoreRedeliveryDelay) throws Exception {
-         return false;
+      public Pair<Boolean, Boolean> checkRedelivery(MessageReference ref,
+                                                    long timeBase,
+                                                    boolean ignoreRedeliveryDelay) throws Exception {
+         return new Pair<>(false, false);
       }
 
       @Override

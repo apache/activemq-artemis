@@ -109,6 +109,10 @@ public final class UUIDGenerator {
       return new UUID(UUID.TYPE_TIME_BASED, contents);
    }
 
+   public UUID fromJavaUUID(java.util.UUID uuid) {
+      return new UUID(uuid);
+   }
+
    public byte[] generateDummyAddress() {
       Random rnd = getRandomNumberGenerator();
       byte[] dummy = new byte[6];

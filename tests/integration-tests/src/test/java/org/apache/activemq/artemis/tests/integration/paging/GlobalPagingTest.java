@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -70,7 +70,7 @@ public class GlobalPagingTest extends PagingTest {
    @Override
    protected ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
-                                         final long pageSize,
+                                         final int pageSize,
                                          final long maxAddressSize,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));

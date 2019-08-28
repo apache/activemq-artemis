@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -172,8 +173,8 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
-
+   public boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+      return false;
    }
 
    @Override
@@ -268,6 +269,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void addSorted(MessageReference ref, boolean scheduling) {
+
+   }
+
+   @Override
    public void addHead(List<MessageReference> ref, boolean scheduling) {
       // no-op
 
@@ -350,7 +356,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void cancel(final MessageReference reference, final long timeBase) throws Exception {
+   public void cancel(final MessageReference reference, final long timeBase, boolean sorted) throws Exception {
       // no-op
 
    }
@@ -380,11 +386,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean checkRedelivery(final MessageReference ref,
+   public Pair<Boolean, Boolean> checkRedelivery(final MessageReference ref,
                                   final long timeBase,
                                   final boolean check) throws Exception {
       // no-op
-      return false;
+      return new Pair<>(false, false);
    }
 
    @Override
@@ -454,8 +460,23 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void setRingSize(long ringSize) {
+
+   }
+
+   @Override
+   public long getRingSize() {
+      return 0;
+   }
+
+   @Override
    public ReferenceCounter getConsumersRefCount() {
       return null;  //To change body of implemented methods use File | Settings | File Templates.
+   }
+
+   @Override
+   public void addSorted(List<MessageReference> refs, boolean scheduling) {
+
    }
 
    @Override
@@ -545,6 +566,12 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    @Override
    public long getMessagesKilled() {
+      // no-op
+      return 0;
+   }
+
+   @Override
+   public long getMessagesReplaced() {
       // no-op
       return 0;
    }

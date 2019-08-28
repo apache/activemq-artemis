@@ -80,6 +80,22 @@ public interface PostOffice extends ActiveMQComponent {
                             SimpleString user,
                             Boolean configurationManaged) throws Exception;
 
+   QueueBinding updateQueue(SimpleString name,
+                            RoutingType routingType,
+                            Filter filter,
+                            Integer maxConsumers,
+                            Boolean purgeOnNoConsumers,
+                            Boolean exclusive,
+                            Boolean groupRebalance,
+                            Integer groupBuckets,
+                            SimpleString groupFirstKey,
+                            Boolean nonDestructive,
+                            Integer consumersBeforeDispatch,
+                            Long delayBeforeDispatch,
+                            SimpleString user,
+                            Boolean configurationManaged,
+                            Long ringSize) throws Exception;
+
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 
 

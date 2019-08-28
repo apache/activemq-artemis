@@ -132,8 +132,6 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       if (AuditLogger.isEnabled()) {
          AuditLogger.getQueueNames(this.addressInfo);
       }
-
-      String[] result;
       clearIO();
       try {
          Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
@@ -373,6 +371,54 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       return MBeanInfoHelper.getMBeanAttributesInfo(AddressControl.class);
    }
 
+   @Override
+   public void pause() {
+      pause(false);
+   }
+
+   @Override
+   public void pause(boolean persist) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.pause(addressInfo);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         addressInfo.setPostOffice(server.getPostOffice());
+         addressInfo.setStorageManager(server.getStorageManager());
+         addressInfo.pause(persist);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
+   public void resume() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resume(addressInfo);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         addressInfo.setPostOffice(server.getPostOffice());
+         addressInfo.setStorageManager(server.getStorageManager());
+         addressInfo.resume();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isPaused() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPaused(this.addressInfo);
+      }
+      return addressInfo.isPaused();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -406,6 +452,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          return matchingQueues;
       } catch (Exception e) {
          return Collections.emptyList();
+      }
+   }
+
+   private void checkStarted() {
+      if (!server.getPostOffice().isStarted()) {
+         throw new IllegalStateException("Broker is not started. Queues can not be managed yet");
       }
    }
 

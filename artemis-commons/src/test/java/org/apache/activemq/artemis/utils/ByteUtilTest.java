@@ -318,4 +318,32 @@ public class ByteUtilTest {
          assertEquals(randomInt, ByteUtil.bytesToInt(actual));
       }
    }
+
+   @Test
+   public void testLongToBytes() {
+      ByteBuffer buffer = ByteBuffer.allocate(8);
+      long randomLong = RandomUtil.randomLong();
+      buffer.putLong(randomLong);
+      byte[] longArrayAssert = buffer.array();
+
+      byte[] convertedArray = ByteUtil.longToBytes(randomLong);
+
+      assertArrayEquals(longArrayAssert, convertedArray);
+   }
+
+   @Test
+   public void testDoubleLongToBytes() {
+      long randomLong1 = RandomUtil.randomLong();
+      long randomLong2 = RandomUtil.randomLong();
+      ByteBuffer buffer = ByteBuffer.allocate(16);
+      buffer.putLong(randomLong1);
+      buffer.putLong(randomLong2);
+      byte[] assertContent = buffer.array();
+
+      byte[] convertedContent = ByteUtil.doubleLongToBytes(randomLong1, randomLong2);
+
+      assertArrayEquals(assertContent, convertedContent);
+   }
+
+
 }

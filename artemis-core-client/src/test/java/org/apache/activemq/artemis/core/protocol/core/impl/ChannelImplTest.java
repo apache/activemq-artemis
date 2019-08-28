@@ -17,7 +17,10 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import javax.security.auth.Subject;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.Unpooled;
@@ -316,6 +319,11 @@ public class ChannelImplTest {
       }
 
       @Override
+      public Future asyncFail(ActiveMQException me) {
+         return null;
+      }
+
+      @Override
       public void fail(ActiveMQException me, String scaleDownTargetNodeID) {
 
       }
@@ -383,6 +391,15 @@ public class ChannelImplTest {
 
             @Override
             public void write(ActiveMQBuffer buffer) {
+
+            }
+
+            @Override
+            public void write(RandomAccessFile raf,
+                              FileChannel fileChannel,
+                              long offset,
+                              int dataSize,
+                              ChannelFutureListener channelFutureListener) {
 
             }
 

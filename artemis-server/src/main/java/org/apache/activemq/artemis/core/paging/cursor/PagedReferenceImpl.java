@@ -253,6 +253,16 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    }
 
    @Override
+   public void setInDelivery(boolean inDelivery) {
+
+   }
+
+   @Override
+   public boolean isInDelivery() {
+      return false;
+   }
+
+   @Override
    public void setAlreadyAcked() {
       alreadyAcked = true;
    }

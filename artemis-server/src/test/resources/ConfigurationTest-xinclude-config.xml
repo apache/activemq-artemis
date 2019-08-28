@@ -256,6 +256,7 @@
       <bindings-directory>somedir</bindings-directory>
       <create-bindings-dir>false</create-bindings-dir>
       <page-max-concurrent-io>17</page-max-concurrent-io>
+      <read-whole-page>true</read-whole-page>
       <journal-directory>somedir2</journal-directory>
       <create-journal-dir>false</create-journal-dir>
       <journal-type>NIO</journal-type>
@@ -270,6 +271,7 @@
       <journal-compact-min-files>123</journal-compact-min-files>
       <journal-max-io>56546</journal-max-io>
       <journal-file-open-timeout>9876</journal-file-open-timeout>
+      <journal-device-block-size>777</journal-device-block-size>
       <server-dump-interval>5000</server-dump-interval>
       <memory-warning-threshold>95</memory-warning-threshold>
       <memory-measure-interval>54321</memory-measure-interval>

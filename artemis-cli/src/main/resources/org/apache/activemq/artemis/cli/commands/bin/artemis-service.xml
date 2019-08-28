@@ -33,7 +33,7 @@
    <logmode>roll</logmode>
 
    <executable>%JAVA_HOME%\bin\java.exe</executable>
-   <startargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</startargument>
+   <startargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager};%ARTEMIS_HOME%\lib\${wildfly-common}</startargument>
    <startargument>-XX:+UseParallelGC</startargument>
    <startargument>-Xms512M</startargument>
    <startargument>-Xmx1024M</startargument>

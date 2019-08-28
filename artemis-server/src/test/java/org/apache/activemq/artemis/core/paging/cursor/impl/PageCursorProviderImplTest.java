@@ -74,4 +74,41 @@ public class PageCursorProviderImplTest {
       }
    }
 
+   @Test(timeout = 30_000)
+   public void returnPageCacheImplIfEvicted() throws Exception {
+      returnCacheIfEvicted(true);
+   }
+
+   @Test(timeout = 30_000)
+   public void returnPageReaderIfEvicted() throws Exception {
+      returnCacheIfEvicted(false);
+   }
+
+   private void returnCacheIfEvicted(boolean readWholePage) throws Exception {
+      final PagingStore pagingStore = mock(PagingStore.class);
+      final StorageManager storageManager = mock(StorageManager.class);
+      when(storageManager.beforePageRead(anyLong(), any(TimeUnit.class))).thenReturn(true);
+      final int pages = 2;
+      final ArtemisExecutor artemisExecutor = mock(ArtemisExecutor.class);
+      final PageCursorProviderImpl pageCursorProvider = new PageCursorProviderImpl(pagingStore, storageManager, artemisExecutor, 1, readWholePage);
+      when(pagingStore.getCurrentWritingPage()).thenReturn(pages);
+      when(pagingStore.checkPageFileExists(anyInt())).thenReturn(true);
+      final Page firstPage = mock(Page.class);
+      when(firstPage.getPageId()).thenReturn(1);
+      when(pagingStore.createPage(1)).thenReturn(firstPage);
+      final Page secondPage = mock(Page.class);
+      when(secondPage.getPageId()).thenReturn(2);
+      when(pagingStore.createPage(2)).thenReturn(secondPage);
+
+      Assert.assertTrue(pageCursorProvider.getPageCache(1) instanceof PageCacheImpl);
+      Assert.assertTrue(pageCursorProvider.getPageCache(2) instanceof PageCacheImpl);
+      if (readWholePage) {
+         Assert.assertTrue(pageCursorProvider.getPageCache(1) instanceof PageCacheImpl);
+      } else {
+         Assert.assertTrue(pageCursorProvider.getPageCache(1) instanceof PageReader);
+      }
+      Assert.assertEquals(pageCursorProvider.getCacheSize(), 1);
+      Assert.assertTrue(pageCursorProvider.getPageCache(2) instanceof PageCacheImpl);
+      pageCursorProvider.stop();
+   }
 }

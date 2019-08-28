@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.junit.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -161,6 +161,56 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       consumer.close();
       assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+   }
+
+   @Test
+   public void testAddressDeleteDelay() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      final long deleteAddressesDelay = 500;
+
+      AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createAddress(address, RoutingType.MULTICAST, true);
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+      session.deleteQueue(queue);
+
+      assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+   }
+
+   @Test
+   public void testAddressDeleteDelayNegative() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      final long deleteAddressesDelay = 500;
+
+      AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      // the address should not be deleted since it is not auto-created
+      session.createAddress(address, RoutingType.MULTICAST, false);
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+      session.deleteQueue(queue);
+
+      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+   }
+
+   @Test
+   public void testAddressDeleteDelayNegative2() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      final long deleteAddressesDelay = 500;
+
+      // the address should not be deleted since autoDeleteAddresses = false
+      AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay).setAutoDeleteAddresses(false);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createAddress(address, RoutingType.MULTICAST, true);
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+      session.deleteQueue(queue);
+
+      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
    }
 
    @Override

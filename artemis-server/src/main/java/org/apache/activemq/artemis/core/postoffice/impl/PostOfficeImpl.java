@@ -137,8 +137,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ActiveMQServer server;
 
-   private final Object addressLock = new Object();
-
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
                          final PagingManager pagingManager,
@@ -441,7 +439,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    private boolean internalAddressInfo(AddressInfo addressInfo, boolean reload) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
          }
@@ -484,7 +482,26 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    Long delayBeforeDispatch,
                                    SimpleString user,
                                    Boolean configurationManaged) throws Exception {
-      synchronized (addressLock) {
+      return updateQueue(name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, configurationManaged, null);
+   }
+
+   @Override
+   public QueueBinding updateQueue(SimpleString name,
+                                   RoutingType routingType,
+                                   Filter filter,
+                                   Integer maxConsumers,
+                                   Boolean purgeOnNoConsumers,
+                                   Boolean exclusive,
+                                   Boolean groupRebalance,
+                                   Integer groupBuckets,
+                                   SimpleString groupFirstKey,
+                                   Boolean nonDestructive,
+                                   Integer consumersBeforeDispatch,
+                                   Long delayBeforeDispatch,
+                                   SimpleString user,
+                                   Boolean configurationManaged,
+                                   Long ringSize) throws Exception {
+      synchronized (this) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
             return null;
@@ -572,6 +589,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                changed = true;
                queue.setUser(user);
             }
+            if (ringSize != null && !ringSize.equals(queue.getRingSize())) {
+               changed = true;
+               queue.setRingSize(ringSize);
+            }
 
             if (changed) {
                final long txID = storageManager.generateID();
@@ -597,7 +618,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         EnumSet<RoutingType> routingTypes) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeUpdateAddress(addressName, routingTypes));
          }
@@ -619,7 +640,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception {
-      synchronized (addressLock) {
+      synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeRemoveAddress(address));
          }
@@ -649,9 +670,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo getAddressInfo(SimpleString addressName) {
-      synchronized (addressLock) {
-         return addressManager.getAddressInfo(addressName);
-      }
+      return addressManager.getAddressInfo(addressName);
    }
 
    @Override
@@ -1512,7 +1531,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return true;
    }
 
-  /**
+   /**
     * The expiry scanner can't be started until the whole server has been started other wise you may get races
     */
    @Override
@@ -1601,10 +1620,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
             try {
-               if (addressInfo != null && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
+               if (settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
 
                   if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.info("deleting auto-created address \"" + address + ".\"");
+                     ActiveMQServerLogger.LOGGER.debug("deleting auto-created address \"" + address + ".\"");
                   }
 
                   server.removeAddressInfo(address, null);

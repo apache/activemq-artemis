@@ -21,6 +21,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.UUID;
+
 public class UUIDGeneratorTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
@@ -31,6 +33,14 @@ public class UUIDGeneratorTest extends ActiveMQTestBase {
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
+
+   @Test
+   public void testFromJavaUUID() throws Exception {
+      UUID javaId = UUID.randomUUID();
+      UUIDGenerator gen = UUIDGenerator.getInstance();
+      org.apache.activemq.artemis.utils.UUID nativeId = gen.fromJavaUUID(javaId);
+      assertEquals(javaId.toString(), nativeId.toString());
+   }
 
    @Test
    public void testGetHardwareAddress() throws Exception {

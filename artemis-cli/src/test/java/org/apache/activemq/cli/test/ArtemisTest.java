@@ -68,11 +68,11 @@ import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.junit.Wait;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.StringUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
@@ -966,6 +966,8 @@ public class ArtemisTest extends CliTestBase {
          Assert.assertEquals("Added count", "15", parts[5].trim());
          Assert.assertEquals("Delivering count", "10", parts[6].trim());
          Assert.assertEquals("Acked count", "5", parts[7].trim());
+         Assert.assertEquals("Scheduled count", "0", parts[8].trim());
+         Assert.assertEquals("Routing type", "ANYCAST", parts[9].trim());
 
          //check all queues containing address "Test1" are displayed using Filter field ADDRESS
          context = new TestActionContext();

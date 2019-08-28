@@ -1068,11 +1068,59 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              long autoDeleteDelay,
                              long autoDeleteMessageCount,
                              boolean autoCreateAddress) throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address == null ? name : address);
+      return createQueue(
+         address,
+         routingType,
+         name,
+         filterStr,
+         durable,
+         maxConsumers,
+         purgeOnNoConsumers,
+         exclusive,
+         groupRebalance,
+         groupBuckets,
+         groupFirstKey,
+         lastValue,
+         lastValueKey,
+         nonDestructive,
+         consumersBeforeDispatch,
+         delayBeforeDispatch,
+         autoDelete,
+         autoDeleteDelay,
+         autoDeleteMessageCount,
+         autoCreateAddress,
+         addressSettings.getDefaultRingSize()
+      );
+   }
+
+   @Override
+   public String createQueue(String address,
+                             String routingType,
+                             String name,
+                             String filterStr,
+                             boolean durable,
+                             int maxConsumers,
+                             boolean purgeOnNoConsumers,
+                             boolean exclusive,
+                             boolean groupRebalance,
+                             int groupBuckets,
+                             String groupFirstKey,
+                             boolean lastValue,
+                             String lastValueKey,
+                             boolean nonDestructive,
+                             int consumersBeforeDispatch,
+                             long delayBeforeDispatch,
+                             boolean autoDelete,
+                             long autoDeleteDelay,
+                             long autoDeleteMessageCount,
+                             boolean autoCreateAddress,
+                             long ringSize) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.createQueue(this.server, address, routingType, name, filterStr, durable,
                   maxConsumers, purgeOnNoConsumers, exclusive, groupBuckets, lastValue,
                   lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete,
-                  autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
+                  autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
       }
       checkStarted();
 
@@ -1084,7 +1132,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, SimpleString.toSimpleString(groupFirstKey), lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
+         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, SimpleString.toSimpleString(groupFirstKey), lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
@@ -1152,9 +1200,27 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              Integer consumersBeforeDispatch,
                              Long delayBeforeDispatch,
                              String user) throws Exception {
+      return updateQueue(name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, null);
+   }
+
+   @Override
+   public String updateQueue(String name,
+                             String routingType,
+                             String filter,
+                             Integer maxConsumers,
+                             Boolean purgeOnNoConsumers,
+                             Boolean exclusive,
+                             Boolean groupRebalance,
+                             Integer groupBuckets,
+                             String groupFirstKey,
+                             Boolean nonDestructive,
+                             Integer consumersBeforeDispatch,
+                             Long delayBeforeDispatch,
+                             String user,
+                             Long ringSize) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.updateQueue(this.server, name, routingType, filter, maxConsumers, purgeOnNoConsumers,
-                  exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
+                  exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, ringSize);
       }
       checkStarted();
 

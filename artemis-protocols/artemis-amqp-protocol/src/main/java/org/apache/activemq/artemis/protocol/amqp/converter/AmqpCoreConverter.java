@@ -28,6 +28,8 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_STRING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_FOOTER_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_FIRST_ACQUIRER;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_FOOTER_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER;
@@ -55,10 +57,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -67,6 +71,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
@@ -86,6 +91,7 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
 import io.netty.buffer.ByteBuf;
@@ -278,7 +284,11 @@ public class AmqpCoreConverter {
                }
             }
 
-            setProperty(jms, JMS_AMQP_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
+            try {
+               setProperty(jms, JMS_AMQP_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
+            } catch (ActiveMQPropertyConversionException e) {
+               encodeUnsupportedMessagePropertyType(jms, JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
+            }
          }
       }
 
@@ -311,7 +321,15 @@ public class AmqpCoreConverter {
       if (properties != null) {
          if (properties.getMessageId() != null) {
             jms.setJMSMessageID(AMQPMessageIdHelper.INSTANCE.toMessageIdString(properties.getMessageId()));
+            //core jms clients get JMSMessageID from UserID which is a UUID object
+            if (properties.getMessageId() instanceof UUID) {
+               //AMQP's message ID can be a UUID, keep it
+               jms.getInnerMessage().setUserID(UUIDGenerator.getInstance().fromJavaUUID((UUID) properties.getMessageId()));
+            } else {
+               jms.getInnerMessage().setUserID(UUIDGenerator.getInstance().generateUUID());
+            }
          }
+
          Binary userId = properties.getUserId();
          if (userId != null) {
             jms.setStringProperty("JMSXUserID", new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
@@ -345,6 +363,7 @@ public class AmqpCoreConverter {
             }
          }
          Object correlationID = properties.getCorrelationId();
+
          if (correlationID != null) {
             try {
                jms.getInnerMessage().setCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(correlationID));
@@ -374,7 +393,6 @@ public class AmqpCoreConverter {
             jms.setJMSExpiration(properties.getAbsoluteExpiryTime().getTime());
          }
       }
-
       return jms;
    }
 
@@ -393,13 +411,36 @@ public class AmqpCoreConverter {
    @SuppressWarnings("unchecked")
    private static ServerJMSMessage processFooter(ServerJMSMessage jms, Footer footer) throws Exception {
       if (footer != null && footer.getValue() != null) {
-         for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) footer.getValue().entrySet()) {
+         for (Map.Entry<Symbol, Object> entry : (Set<Map.Entry<Symbol, Object>>) footer.getValue().entrySet()) {
             String key = entry.getKey().toString();
-            setProperty(jms, JMS_AMQP_FOOTER_PREFIX + key, entry.getValue());
+            try {
+               setProperty(jms, JMS_AMQP_FOOTER_PREFIX + key, entry.getValue());
+            } catch (ActiveMQPropertyConversionException e) {
+               encodeUnsupportedMessagePropertyType(jms, JMS_AMQP_ENCODED_FOOTER_PREFIX + key, entry.getValue());
+            }
          }
       }
 
       return jms;
+   }
+
+   private static void encodeUnsupportedMessagePropertyType(ServerJMSMessage jms, String key, Object value) throws JMSException {
+      final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer();
+      final EncoderImpl encoder = TLSEncode.getEncoder();
+
+      try {
+         encoder.setByteBuffer(new NettyWritable(buffer));
+         encoder.writeObject(value);
+
+         final byte[] encodedBytes = new byte[buffer.writerIndex()];
+
+         buffer.readBytes(encodedBytes);
+
+         setProperty(jms, key, encodedBytes);
+      } finally {
+         encoder.setByteBuffer((WritableBuffer) null);
+         buffer.release();
+      }
    }
 
    private static void setProperty(javax.jms.Message msg, String key, Object value) throws JMSException {

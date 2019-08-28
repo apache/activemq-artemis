@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
@@ -110,7 +112,7 @@ public final class StompConnection implements RemotingConnection {
 
    private final ScheduledExecutorService scheduledExecutorService;
 
-   private final ExecutorFactory factory;
+   private final ExecutorFactory executorFactory;
 
    @Override
    public boolean isSupportReconnect() {
@@ -136,7 +138,7 @@ public final class StompConnection implements RemotingConnection {
             case ActiveMQStompException.INVALID_EOL_V10:
                if (version != null)
                   throw e;
-               frameHandler = new StompFrameHandlerV12(this, scheduledExecutorService, factory);
+               frameHandler = new StompFrameHandlerV12(this, scheduledExecutorService, executorFactory);
                buffer.resetReaderIndex();
                frame = decode(buffer);
                break;
@@ -164,16 +166,16 @@ public final class StompConnection implements RemotingConnection {
                    final Connection transportConnection,
                    final StompProtocolManager manager,
                    final ScheduledExecutorService scheduledExecutorService,
-                   final ExecutorFactory factory) {
+                   final ExecutorFactory executorFactory) {
       this.scheduledExecutorService = scheduledExecutorService;
 
-      this.factory = factory;
+      this.executorFactory = executorFactory;
 
       this.transportConnection = transportConnection;
 
       this.manager = manager;
 
-      this.frameHandler = new StompFrameHandlerV10(this, scheduledExecutorService, factory);
+      this.frameHandler = new StompFrameHandlerV10(this, scheduledExecutorService, executorFactory);
 
       this.creationTime = System.currentTimeMillis();
 
@@ -380,6 +382,24 @@ public final class StompConnection implements RemotingConnection {
    }
 
    @Override
+   public Future asyncFail(ActiveMQException me) {
+
+      FutureTask<Void> task = new FutureTask(() -> {
+         fail(me);
+         return null;
+      });
+
+      if (this.executorFactory == null) {
+         // only tests cases can do this
+         task.run();
+      } else {
+         executorFactory.getExecutor().execute(task);
+      }
+
+      return task;
+   }
+
+   @Override
    public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       fail(me);
    }
@@ -528,7 +548,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       if (this.version != (StompVersions.V1_0)) {
-         VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version, scheduledExecutorService, factory);
+         VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version, scheduledExecutorService, executorFactory);
          newHandler.initDecoder(this.frameHandler);
          this.frameHandler = newHandler;
       }

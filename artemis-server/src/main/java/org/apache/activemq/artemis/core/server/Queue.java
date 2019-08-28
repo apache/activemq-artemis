@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -134,6 +135,10 @@ public interface Queue extends Bindable,CriticalComponent {
 
    long getConsumerRemovedTimestamp();
 
+   void setRingSize(long ringSize);
+
+   long getRingSize();
+
     /**
     * This will set a reference counter for every consumer present on the queue.
     * The ReferenceCounter will know what to do when the counter became zeroed.
@@ -145,6 +150,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    ReferenceCounter getConsumersRefCount();
 
+   /* Called when a message is cancelled back into the queue */
+   void addSorted(List<MessageReference> refs, boolean scheduling);
+
    void reload(MessageReference ref);
 
    void addTail(MessageReference ref);
@@ -152,6 +160,9 @@ public interface Queue extends Bindable,CriticalComponent {
    void addTail(MessageReference ref, boolean direct);
 
    void addHead(MessageReference ref, boolean scheduling);
+
+   /* Called when a message is cancelled back into the queue */
+   void addSorted(MessageReference ref, boolean scheduling);
 
    void addHead(List<MessageReference> refs, boolean scheduling);
 
@@ -171,7 +182,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void cancel(Transaction tx, MessageReference ref, boolean ignoreRedeliveryCheck);
 
-   void cancel(MessageReference reference, long timeBase) throws Exception;
+   /** @param sorted it should use the messageID as a reference to where to add it in the queue */
+   void cancel(MessageReference reference, long timeBase, boolean sorted) throws Exception;
 
    void deliverAsync();
 
@@ -246,6 +258,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    long getMessagesKilled();
 
+   long getMessagesReplaced();
+
    MessageReference removeReferenceWithID(long id) throws Exception;
 
    MessageReference getReference(long id) throws ActiveMQException;
@@ -281,7 +295,14 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int sendMessagesToDeadLetterAddress(Filter filter) throws Exception;
 
-   void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception;
+   /**
+    *
+    * @param tx
+    * @param ref
+    * @return whether or not the message was actually sent to a DLA with bindings
+    * @throws Exception
+    */
+   boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception;
 
    boolean changeReferencePriority(long messageID, byte newPriority) throws Exception;
 
@@ -315,7 +336,16 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int getGroupCount();
 
-   boolean checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
+   /**
+    *
+    * @param ref
+    * @param timeBase
+    * @param ignoreRedeliveryDelay
+    * @return a Pair of Booleans: the first indicates whether or not redelivery happened; the second indicates whether
+    *         or not the message was actually sent to a DLA with bindings
+    * @throws Exception
+    */
+   Pair<Boolean, Boolean> checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
    /**
     * It will iterate thorugh memory only (not paging)

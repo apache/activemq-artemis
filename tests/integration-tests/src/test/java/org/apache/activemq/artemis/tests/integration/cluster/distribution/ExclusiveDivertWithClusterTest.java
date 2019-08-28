@@ -45,7 +45,7 @@ public class ExclusiveDivertWithClusterTest extends ClusterTestBase {
    @Override
    protected ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
-                                         final long pageSize,
+                                         final int pageSize,
                                          final long maxAddressSize,
                                          final Map<String, AddressSettings> settings) {
       DivertConfiguration divertConf = new DivertConfiguration().setName("notifications-divert").setAddress("*.Provider.*.Agent.*.Status").setForwardingAddress("Notifications").setExclusive(true);

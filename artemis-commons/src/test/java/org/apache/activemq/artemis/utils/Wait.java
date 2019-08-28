@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.junit;
+package org.apache.activemq.artemis.utils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +28,7 @@ public class Wait {
 
    public static final long MAX_WAIT_MILLIS = 30 * 1000;
    public static final int SLEEP_MILLIS = 1000;
+   public static final String DEFAULT_FAILURE_MESSAGE = "Condition wasn't met";
 
    public interface Condition {
 
@@ -80,33 +81,41 @@ public class Wait {
       }
    }
 
-   public static void assertTrue(Condition condition) throws Exception {
-      assertTrue("Condition wasn't met", condition);
+   public static void assertTrue(Condition condition) {
+      assertTrue(DEFAULT_FAILURE_MESSAGE, condition);
    }
 
    public static void assertFalse(Condition condition) throws Exception {
       assertTrue(() -> !condition.isSatisfied());
    }
 
-   public static void assertFalse(String failureMessage, Condition condition) throws Exception {
+   public static void assertFalse(String failureMessage, Condition condition) {
       assertTrue(failureMessage, () -> !condition.isSatisfied());
    }
 
+   public static void assertFalse(String failureMessage, Condition condition, final long duration) {
+      assertTrue(failureMessage, () -> !condition.isSatisfied(), duration, SLEEP_MILLIS);
+   }
 
-   public static void assertTrue(String failureMessage, Condition condition) throws Exception {
+   public static void assertFalse(Condition condition, final long duration, final long sleep) {
+      assertTrue(DEFAULT_FAILURE_MESSAGE, () -> !condition.isSatisfied(), duration, sleep);
+   }
+
+
+   public static void assertTrue(String failureMessage, Condition condition) {
       assertTrue(failureMessage, condition, MAX_WAIT_MILLIS);
    }
 
-   public static void assertTrue(String failureMessage, Condition condition, final long duration) throws Exception {
+   public static void assertTrue(String failureMessage, Condition condition, final long duration) {
       assertTrue(failureMessage, condition, duration, SLEEP_MILLIS);
    }
 
    public static void assertTrue(Condition condition, final long duration, final long sleep) throws Exception {
-      assertTrue("condition not met", condition, duration, sleep);
+      assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }
 
 
-   public static void assertTrue(String failureMessage, Condition condition, final long duration, final long sleep) throws Exception {
+   public static void assertTrue(String failureMessage, Condition condition, final long duration, final long sleep) {
 
       boolean result = waitFor(condition, duration, sleep);
 
@@ -121,15 +130,23 @@ public class Wait {
 
    public static boolean waitFor(final Condition condition,
                                  final long durationMillis,
-                                 final long sleepMillis) throws Exception {
+                                 final long sleepMillis) {
 
-      final long expiry = System.currentTimeMillis() + durationMillis;
-      boolean conditionSatisified = condition.isSatisfied();
-      while (!conditionSatisified && System.currentTimeMillis() < expiry) {
-         TimeUnit.MILLISECONDS.sleep(sleepMillis);
-         conditionSatisified = condition.isSatisfied();
+      try {
+         final long expiry = System.currentTimeMillis() + durationMillis;
+         boolean conditionSatisified = condition.isSatisfied();
+         while (!conditionSatisified && System.currentTimeMillis() < expiry) {
+            if (sleepMillis == 0) {
+               Thread.yield();
+            } else {
+               TimeUnit.MILLISECONDS.sleep(sleepMillis);
+            }
+            conditionSatisified = condition.isSatisfied();
+         }
+         return conditionSatisified;
+      } catch (Exception e) {
+         throw new IllegalStateException(e);
       }
-      return conditionSatisified;
    }
 
 

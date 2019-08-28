@@ -71,7 +71,6 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
-import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -82,6 +81,7 @@ import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -553,7 +553,7 @@ public class ManagementServiceImpl implements ManagementService {
        * Ensure the management notification address is created otherwise if auto-create-address = false then cluster
        * bridges won't be able to connect.
        */
-      messagingServer.registerActivateCallback(new ActivateCallback() {
+      messagingServer.registerActivateCallback(new CleaningActivateCallback() {
          @Override
          public void activated() {
             try {
@@ -801,9 +801,10 @@ public class ManagementServiceImpl implements ManagementService {
          // CoreMessage#getUserId returns UUID, so to implement this part a alternative API that returned object. This part of the
          // change is a nice to have for my point of view. I suggested it for completeness.  The application could
          // always supply unique correl ids on the request and achieve the same effect.  I'd be happy to drop this part.
-         Object underlying = request.getUserID() != null ? request.getUserID() : request.getStringProperty(NATIVE_MESSAGE_ID);
+         Object underlying = request.getStringProperty(NATIVE_MESSAGE_ID) != null ? request.getStringProperty(NATIVE_MESSAGE_ID) : request.getUserID();
          correlationId = underlying == null ? null : String.valueOf(underlying);
       }
+
       return correlationId;
    }
 

@@ -42,6 +42,8 @@ Delayed redelivery is defined in the address-setting configuration:
    <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
    <!-- default is 0 (no delay) -->
    <redelivery-delay>5000</redelivery-delay>
+   <!-- default is 0.0) -->
+   <redelivery-collision-avoidance-factor>0.15</redelivery-collision-avoidance-factor>
    <!-- default is redelivery-delay * 10 -->
    <max-redelivery-delay>50000</max-redelivery-delay>
 </address-setting>
@@ -59,23 +61,59 @@ message will be sent asynchronously back to the queue after the delay.
 You can specify a multiplier (the `redelivery-delay-multiplier`) that will
 take effect on top of the `redelivery-delay`.  Each time a message is redelivered
 the delay period will be equal to the previous delay * `redelivery-delay-multiplier`.
-A max-redelivery-delay can be set to prevent the delay from becoming too large.
-The max-redelivery-delay is defaulted to redelivery-delay \* 10.
+A `max-redelivery-delay` can be set to prevent the delay from becoming too large.
+The `max-redelivery-delay` is defaulted to `redelivery-delay` \* 10.
 
-Example:
+**Example:**
 
-    - redelivery-delay=5000, redelivery-delay-multiplier=2, max-redelivery-delay=15000
+- redelivery-delay=5000, redelivery-delay-multiplier=2, max-redelivery-delay=15000,
+  redelivery-collision-avoidance-factor=0.0
 
-    1. Delivery Attempt 1. (Unsuccessful)
-    2. Wait Delay Period: 5000
-    3. Delivery Attempt 2. (Unsuccessful)
-    4. Wait Delay Period: 10000                   // (5000  * 2) < max-delay-period.  Use 10000
-    5. Delivery Attempt 3: (Unsuccessful)
-    6. Wait Delay Period: 15000                   // (10000 * 2) > max-delay-period:  Use max-delay-delivery
+1. Delivery Attempt 1. (Unsuccessful)
+2. Wait Delay Period: 5000
+3. Delivery Attempt 2. (Unsuccessful)
+4. Wait Delay Period: 10000                   // (5000  * 2) < max-delay-period.  Use 10000
+5. Delivery Attempt 3: (Unsuccessful)
+6. Wait Delay Period: 15000                   // (10000 * 2) > max-delay-period:  Use max-delay-delivery
 
 Address wildcards can be used to configure redelivery delay for a set of
 addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)), so you don't have to specify redelivery delay
 individually for each address.
+
+The `redelivery-delay` can be also be modified by configuring the
+`redelivery-collision-avoidance-factor`. This factor will be made either
+positive or negative at random to control whether the ultimate value will
+increase or decrease the `redelivery-delay`. Then it's multiplied by a random
+number between 0.0 and 1.0. This result is then multiplied by the
+`redelivery-delay` and then added to the `redelivery-delay` to arrive at the
+final value.
+
+The algorithm may sound complicated but the bottom line is quite simple: the
+larger `redelivery-collision-avoidance-factor` you choose the larger the variance
+of the `redelivery-delay` will be. The `redelivery-collision-avoidance-factor`
+must be between 0.0 and 1.0.
+
+**Example:**
+
+- redelivery-delay=1000, redelivery-delay-multiplier=1, max-redelivery-delay=15000,
+  redelivery-collision-avoidance-factor=0.5, (bold values chosen using
+  `java.util.Random`)
+
+1. Delivery Attempt 1. (Unsuccessful)
+2. Wait Delay Period: 875                     // 1000 + (1000 * ((0.5 * __-1__) * __.25__)
+3. Delivery Attempt 2. (Unsuccessful)
+4. Wait Delay Period: 1375                    // 1000 + (1000 * ((0.5 * __1__) * __.75__)
+5. Delivery Attempt 3: (Unsuccessful)
+6. Wait Delay Period: 975                     // 1000 + (1000 * ((0.5 * __-1__) * __.05__)
+
+This feature can be particularly useful in environments where there are
+multiple consumers on the same queue all interacting transactionally
+with the same external system (e.g. a database). If there is overlapping
+data in messages which are consumed concurrently then one transaction can
+succeed while all the rest fail. If those failed messages are redelivered
+at the same time then this process where one consumer succeeds and the
+rest fail will continue. By randomly padding the redelivery-delay by a
+small, configurable amount these redelivery "collisions" can be avoided.
 
 ### Example
 

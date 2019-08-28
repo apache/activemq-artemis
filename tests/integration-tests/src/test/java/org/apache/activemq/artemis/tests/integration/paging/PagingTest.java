@@ -25,6 +25,7 @@ import javax.transaction.xa.Xid;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -489,6 +490,70 @@ public class PagingTest extends ActiveMQTestBase {
       assertTrue(pgComplete == null || pgComplete.get() == 0);
 
       System.out.println("pgComplete = " + pgComplete);
+   }
+
+   @Test
+   public void testEmptyAddress() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.FILE) {
+         clearDataRecreateServerDirs();
+
+         Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+
+         server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+         server.start();
+
+         final int numberOfMessages = 5000;
+
+         locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+         sf = createSessionFactory(locator);
+
+         ClientSession session = sf.createSession(false, false, false);
+
+         session.createQueue(PagingTest.ADDRESS, RoutingType.ANYCAST, PagingTest.ADDRESS, null, true);
+
+         ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+         byte[] body = new byte[MESSAGE_SIZE];
+
+         ByteBuffer bb = ByteBuffer.wrap(body);
+
+         for (int j = 1; j <= MESSAGE_SIZE; j++) {
+            bb.put(getSamplebyte(j));
+         }
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            ClientMessage message = session.createMessage(true);
+
+            message.getBodyBuffer().writeBytes(body);
+
+            producer.send(message);
+            if (i % 1000 == 0) {
+               session.commit();
+            }
+         }
+         session.commit();
+         producer.close();
+         session.close();
+
+         String addressTxt = server.getPagingManager().getPageStore(PagingTest.ADDRESS).getFolder().getAbsolutePath() + File.separator + PagingStoreFactoryNIO.ADDRESS_FILE;
+
+         server.stop();
+
+         // delete contents of address.txt
+         new PrintWriter(addressTxt).close();
+
+         final AtomicBoolean activationFailures = new AtomicBoolean();
+
+         server.registerActivationFailureListener(exception -> activationFailures.set(true));
+
+         server.start();
+
+         server.stop();
+
+         assertFalse(activationFailures.get());
+      }
    }
 
    @Test
@@ -5768,7 +5833,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          locator.close();
 
-         Wait.assertEquals(1, store::getNumberOfPages);
+         Wait.assertEquals(2, store::getNumberOfPages);
 
       } finally {
          try {
@@ -6519,6 +6584,69 @@ public class PagingTest extends ActiveMQTestBase {
       locator = null;
       sf = null;
       server.stop();
+   }
+
+   // We send messages to page, evict live page cache, send last message when mid consumed, and expect to receive all messages
+   @Test
+   public void testLivePageCacheEvicted() throws Throwable {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server.start();
+
+      try {
+         ServerLocator locator = createInVMNonHALocator().setBlockOnDurableSend(true);
+         ClientSessionFactory sf = locator.createSessionFactory();
+         ClientSession session = sf.createSession(true, true, 0);
+
+         session.createQueue(ADDRESS, ADDRESS, null, true);
+
+         PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
+         store.startPaging();
+
+         ClientProducer prod = session.createProducer(ADDRESS);
+         int num = 10;
+         for (int i = 0; i < num; i++) {
+            ClientMessage msg = session.createMessage(true);
+            msg.putIntProperty("index", i);
+            prod.send(msg);
+         }
+
+         session.start();
+         ClientConsumer cons = session.createConsumer(ADDRESS);
+         ClientMessage msgReceivedCons = null;
+         // simulate the live page cache evicted
+         store.getCursorProvider().clearCache();
+         for (int i = 0; i < num; i++) {
+            msgReceivedCons = cons.receive(1000);
+            assertNotNull(msgReceivedCons);
+            assertTrue(msgReceivedCons.getIntProperty("index") == i);
+            msgReceivedCons.acknowledge();
+
+            session.commit();
+
+            if (i == num / 2) {
+               ClientMessage msg = session.createMessage(true);
+               msg.putIntProperty("index", num);
+               prod.send(msg);
+            }
+         }
+
+         msgReceivedCons = cons.receive(1000);
+         assertNotNull(msgReceivedCons);
+         assertTrue(msgReceivedCons.getIntProperty("index") == num);
+         msgReceivedCons.acknowledge();
+
+         assertNull(cons.receiveImmediate());
+
+         session.commit();
+         session.close();
+
+         waitForNotPaging(store);
+      } finally {
+         server.stop();
+      }
    }
 
    @Override

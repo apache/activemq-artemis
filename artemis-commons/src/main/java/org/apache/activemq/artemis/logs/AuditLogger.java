@@ -2242,6 +2242,13 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601267, value = "User {0} is creating a core session on target resource {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void createCoreSession(String user, Object source, Object... args);
 
+   static void getProducedRate(Object source) {
+      LOGGER.getProducedRate(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601268, value = "User {0} is getting produced message rate on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getProducedRate(String user, Object source, Object... args);
 
    //hot path log using a different logger
    static void coreSendMessage(Object source, String user, Object... args) {
@@ -2258,8 +2265,16 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601501, value = "User {0} is getting messages acknowledged attemps on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601501, value = "User {0} is getting messages acknowledged attempts on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getAcknowledgeAttempts(String user, Object source, Object... args);
+
+   static void getRingSize(Object source, Object... args) {
+      LOGGER.getRingSize(getCaller(), source, arrayToString(args));
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601502, value = "User {0} is getting ring size on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getRingSize(String user, Object source, Object... args);
 
 
 }

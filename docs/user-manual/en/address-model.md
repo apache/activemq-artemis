@@ -573,6 +573,7 @@ that would be found in the `broker.xml` file.
       <expiry-delay>123</expiry-delay>
       <redelivery-delay>5000</redelivery-delay>
       <redelivery-delay-multiplier>1.0</redelivery-delay-multiplier>
+      <redelivery-collision-avoidance-factor>0.0</redelivery-collision-avoidance-factor>
       <max-redelivery-delay>10000</max-redelivery-delay>
       <max-delivery-attempts>3</max-delivery-attempts>
       <max-size-bytes>100000</max-size-bytes>
@@ -610,6 +611,7 @@ that would be found in the `broker.xml` file.
       <default-max-consumers>-1</default-max-consumers>
       <default-queue-routing-type></default-queue-routing-type>
       <default-address-routing-type></default-address-routing-type>
+      <default-ring-size>-1</default-ring-size>
    </address-setting>
 </address-settings>
 ```
@@ -657,6 +659,11 @@ messages](undelivered-messages.md#configuring-delayed-redelivery).
 `redelivery-delay-multiplier` defines the number by which the
 `redelivery-delay` will be multiplied on each subsequent redelivery attempt.
 Default is `1.0`. Read more about [undelivered
+messages](undelivered-messages.md#configuring-delayed-redelivery).
+
+`redelivery-collision-avoidance-factor` defines an additional factor used to
+calculate an adjustment to the `redelivery-delay` (up or down). Default is
+`0.0`. Valid values are between 0.0 and 1.0. Read more about [undelivered
 messages](undelivered-messages.md#configuring-delayed-redelivery).
 
 `max-size-bytes`, `page-size-bytes`, & `page-max-cache-size` are used to
@@ -759,7 +766,9 @@ once the last subscription on the topic has been closed. Default is `true`.
 `auto-create-queues`. Whether or not the broker should automatically create a
 queue when a message is sent or a consumer tries to connect to a queue whose
 name fits the address `match`. Queues which are auto-created are durable,
-non-temporary, and non-transient. Default is `true`.
+non-temporary, and non-transient. Default is `true`. **Note:** automatic queue
+creation does *not* work for the core client. The core API is a low-level API
+and is not meant to have such automation.
 
 `auto-delete-queues`. Whether or not the broker should automatically delete
 auto-created queues when they have both 0 consumers and the message count is 
@@ -798,7 +807,9 @@ reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
 `auto-create-addresses`. Whether or not the broker should automatically create
 an address when a message is sent to or a consumer tries to consume from a
 queue which is mapped to an address whose name fits the address `match`.
-Default is `true`.
+Default is `true`. **Note:** automatic address creation does *not* work for the
+core client. The core API is a low-level API and is not meant to have such
+automation.
 
 `auto-delete-addresses`. Whether or not the broker should automatically delete
 auto-created addresses once the address no longer has any queues. Default is
@@ -844,3 +855,7 @@ client and/or protocol semantics. Default is `MULTICAST`. Read more about
 for a `CORE` protocol consumer, if not defined the default will be set to 
 1 MiB (1024 * 1024 bytes). The consumer will use this value as the window size
 if the value is not set on the client. Read more about [flow control](#flow-control).
+
+`default-ring-size` defines the default `ring-size` value for any matching queue
+which doesn't have `ring-size` explicitly defined. If not defined the default will
+be set to -1. Read more about [ring queues](#ring-queue).

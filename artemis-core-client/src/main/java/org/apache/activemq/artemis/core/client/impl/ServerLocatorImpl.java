@@ -587,7 +587,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    @Override
    public ClientProtocolManager newProtocolManager() {
-      return getProtocolManagerFactory().newProtocolManager();
+      if (threadPool == null) {
+         throw new NullPointerException("No Thread Pool");
+      }
+      return getProtocolManagerFactory().newProtocolManager().setExecutor(new OrderedExecutor(threadPool));
    }
 
    @Override

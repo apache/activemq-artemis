@@ -342,6 +342,7 @@
       <bindings-directory>somedir</bindings-directory>
       <create-bindings-dir>false</create-bindings-dir>
       <page-max-concurrent-io>17</page-max-concurrent-io>
+      <read-whole-page>true</read-whole-page>
       <journal-directory>somedir2</journal-directory>
       <create-journal-dir>false</create-journal-dir>
       <journal-type>NIO</journal-type>
@@ -356,6 +357,7 @@
       <journal-compact-min-files>123</journal-compact-min-files>
       <journal-max-io>56546</journal-max-io>
       <journal-file-open-timeout>9876</journal-file-open-timeout>
+      <journal-device-block-size>777</journal-device-block-size>
       <server-dump-interval>5000</server-dump-interval>
       <memory-warning-threshold>95</memory-warning-threshold>
       <memory-measure-interval>54321</memory-measure-interval>
@@ -381,8 +383,9 @@
             <dead-letter-address>a1.1</dead-letter-address>
             <expiry-address>a1.2</expiry-address>
             <redelivery-delay>1</redelivery-delay>
+            <redelivery-collision-avoidance-factor>0.5</redelivery-collision-avoidance-factor>
             <max-size-bytes>817M</max-size-bytes>
-            <page-size-bytes>81738173872337</page-size-bytes>
+            <page-size-bytes>817381738</page-size-bytes>
             <page-max-cache-size>10</page-max-cache-size>
             <message-counter-history-day-limit>4</message-counter-history-day-limit>
             <slow-consumer-threshold>10</slow-consumer-threshold>
@@ -400,13 +403,14 @@
             <default-max-consumers>5</default-max-consumers>
             <default-queue-routing-type>ANYCAST</default-queue-routing-type>
             <default-address-routing-type>MULTICAST</default-address-routing-type>
+            <default-ring-size>3</default-ring-size>
          </address-setting>
          <address-setting match="a2">
             <dead-letter-address>a2.1</dead-letter-address>
             <expiry-address>a2.2</expiry-address>
             <redelivery-delay>5</redelivery-delay>
             <max-size-bytes>932489234928324</max-size-bytes>
-            <page-size-bytes>7126716262626</page-size-bytes>
+            <page-size-bytes>712671626</page-size-bytes>
             <page-max-cache-size>20</page-max-cache-size>
             <message-counter-history-day-limit>8</message-counter-history-day-limit>
             <slow-consumer-threshold>20</slow-consumer-threshold>
@@ -444,7 +448,7 @@
       <addresses>
          <address name="addr1">
             <anycast>
-               <queue name="q1">
+               <queue name="q1" ring-size="3">
                   <durable>${falseProp}</durable>
                   <filter string="color='blue'"/>
                </queue>

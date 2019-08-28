@@ -20,6 +20,8 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -164,6 +166,22 @@ public class MQTTConnection implements RemotingConnection {
             listener.connectionFailed(me, false);
          }
       }
+   }
+
+   @Override
+   public Future asyncFail(ActiveMQException me) {
+      FutureTask<Void> task = new FutureTask(() -> {
+         fail(me);
+         return null;
+      });
+
+
+      // I don't expect asyncFail happening on MQTT, in case of happens this is semantically correct
+      Thread t = new Thread(task);
+
+      t.start();
+
+      return task;
    }
 
    @Override

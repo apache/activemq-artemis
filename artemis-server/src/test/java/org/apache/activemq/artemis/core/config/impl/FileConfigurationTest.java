@@ -117,6 +117,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(25000, conf.getAddressQueueScanPeriod());
       Assert.assertEquals(127, conf.getIDCacheSize());
       Assert.assertEquals(true, conf.isPersistIDCache());
+      Assert.assertEquals(Integer.valueOf(777), conf.getJournalDeviceBlockSize());
       Assert.assertEquals(true, conf.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals("pagingdir", conf.getPagingDirectory());
       Assert.assertEquals("somedir", conf.getBindingsDirectory());
@@ -124,6 +125,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(true, conf.isAmqpUseCoreSubscriptionNaming());
 
       Assert.assertEquals("max concurrent io", 17, conf.getPageMaxConcurrentIO());
+      Assert.assertEquals(true, conf.isReadWholePage());
       Assert.assertEquals("somedir2", conf.getJournalDirectory());
       Assert.assertEquals(false, conf.isCreateJournalDir());
       Assert.assertEquals(JournalType.NIO, conf.getJournalType());
@@ -341,8 +343,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("a1.1", conf.getAddressesSettings().get("a1").getDeadLetterAddress().toString());
       assertEquals("a1.2", conf.getAddressesSettings().get("a1").getExpiryAddress().toString());
       assertEquals(1, conf.getAddressesSettings().get("a1").getRedeliveryDelay());
+      assertEquals(0.5, conf.getAddressesSettings().get("a1").getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(856686592L, conf.getAddressesSettings().get("a1").getMaxSizeBytes());
-      assertEquals(81738173872337L, conf.getAddressesSettings().get("a1").getPageSizeBytes());
+      assertEquals(817381738L, conf.getAddressesSettings().get("a1").getPageSizeBytes());
       assertEquals(10, conf.getAddressesSettings().get("a1").getPageCacheMaxSize());
       assertEquals(4, conf.getAddressesSettings().get("a1").getMessageCounterHistoryDayLimit());
       assertEquals(10, conf.getAddressesSettings().get("a1").getSlowConsumerThreshold());
@@ -358,12 +361,14 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(5, conf.getAddressesSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a1").getDefaultQueueRoutingType());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a1").getDefaultAddressRoutingType());
+      assertEquals(3, conf.getAddressesSettings().get("a1").getDefaultRingSize());
 
       assertEquals("a2.1", conf.getAddressesSettings().get("a2").getDeadLetterAddress().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
       assertEquals(5, conf.getAddressesSettings().get("a2").getRedeliveryDelay());
+      assertEquals(0.0, conf.getAddressesSettings().get("a2").getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(932489234928324L, conf.getAddressesSettings().get("a2").getMaxSizeBytes());
-      assertEquals(7126716262626L, conf.getAddressesSettings().get("a2").getPageSizeBytes());
+      assertEquals(712671626L, conf.getAddressesSettings().get("a2").getPageSizeBytes());
       assertEquals(20, conf.getAddressesSettings().get("a2").getPageCacheMaxSize());
       assertEquals(8, conf.getAddressesSettings().get("a2").getMessageCounterHistoryDayLimit());
       assertEquals(20, conf.getAddressesSettings().get("a2").getSlowConsumerThreshold());
@@ -380,6 +385,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a2").getDefaultQueueRoutingType());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a2").getDefaultAddressRoutingType());
       assertEquals(10000, conf.getAddressesSettings().get("a2").getDefaultConsumerWindowSize());
+      assertEquals(-1, conf.getAddressesSettings().get("a2").getDefaultRingSize());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
       assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());
@@ -460,6 +466,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       CoreQueueConfiguration queueConfiguration = addressConfiguration.getQueueConfigurations().get(0);
 
       assertEquals("q1", queueConfiguration.getName());
+      assertEquals(3L, queueConfiguration.getRingSize().longValue());
       assertFalse(queueConfiguration.isDurable());
       assertEquals("color='blue'", queueConfiguration.getFilterString());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.getPurgeOnNoConsumers());
@@ -471,6 +478,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       queueConfiguration = addressConfiguration.getQueueConfigurations().get(1);
 
       assertEquals("q2", queueConfiguration.getName());
+      assertEquals(-1, queueConfiguration.getRingSize().longValue());
       assertTrue(queueConfiguration.isDurable());
       assertEquals("color='green'", queueConfiguration.getFilterString());
       assertEquals(Queue.MAX_CONSUMERS_UNLIMITED, queueConfiguration.getMaxConsumers().intValue());

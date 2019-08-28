@@ -617,6 +617,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="read-whole-page" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Whether the whole page is read while getting message after page cache is evicted.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="journal-directory" type="xsd:string" default="data/journal" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -2949,6 +2957,14 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="redelivery-collision-avoidance-factor" type="xsd:double" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     factor by which to modify the redelivery delay slightly to avoid collisions
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="max-redelivery-delay" type="xsd:long" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -3339,6 +3355,15 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="default-ring-size" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the default ring-size value for any matching queue which doesn't have `ring-size` explicitly
+                     defined
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
          </xsd:all>
 
          <xsd:attribute name="match" type="xsd:string" use="required">
@@ -3472,6 +3497,7 @@
       <xsd:attribute name="non-destructive" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="consumers-before-dispatch" type="xsd:int" use="optional"/>
       <xsd:attribute name="delay-before-dispatch" type="xsd:long" use="optional"/>
+      <xsd:attribute name="ring-size" type="xsd:long" use="optional"/>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 

@@ -24,6 +24,7 @@ under the License.
 
    <core xmlns="urn:activemq:core">
       <security-enabled>false</security-enabled>
+      <persistence-enabled>false</persistence-enabled>
 
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports ActiveMQ Artemis Core, OpenWire, STOMP, AMQP, MQTT, and HornetQ Core. -->

@@ -58,7 +58,7 @@ public class EmbeddedJMSResourceTopicTest {
    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource();
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServer);
+   public RuleChain rulechain = RuleChain.outerRule(jmsServer);
 
    Message pushed = null;
 
@@ -79,7 +79,6 @@ public class EmbeddedJMSResourceTopicTest {
    @After
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_DESTINATION_NAME), pushed);
-      Wait.assertEquals(1L, () -> jmsServer.getMessageCount(TEST_DESTINATION_NAME), (long)30_000, (long)10);
 
       consumer.close();
       session.close();

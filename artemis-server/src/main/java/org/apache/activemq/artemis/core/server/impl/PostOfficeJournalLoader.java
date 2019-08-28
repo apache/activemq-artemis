@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AddMessageRecord;
@@ -164,13 +164,14 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .autoDeleteDelay(queueBindingInfo.getAutoDeleteDelay())
             .autoDeleteMessageCount(queueBindingInfo.getAutoDeleteMessageCount())
             .routingType(RoutingType.getType(queueBindingInfo.getRoutingType()))
-            .configurationManaged((queueBindingInfo.isConfigurationManaged()));
+            .configurationManaged((queueBindingInfo.isConfigurationManaged()))
+            .ringSize(queueBindingInfo.getRingSize());
          final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());
          queue.setConsumersRefCount(new QueueManagerImpl(((PostOfficeImpl)postOffice).getServer(), queueBindingInfo.getQueueName()));
 
          if (queueBindingInfo.getQueueStatusEncodings() != null) {
             for (QueueStatusEncoding encoding : queueBindingInfo.getQueueStatusEncodings()) {
-               if (encoding.getStatus() == QueueStatus.PAUSED)
+               if (encoding.getStatus() == AddressQueueStatus.PAUSED)
                queue.reloadPause(encoding.getId());
             }
          }
@@ -193,6 +194,11 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
          AddressInfo addressInfo = new AddressInfo(addressBindingInfo.getName()).setRoutingTypes(addressBindingInfo.getRoutingTypes());
          addressInfo.setId(addressBindingInfo.getId());
+         if (addressBindingInfo.getAddressStatusEncoding() != null && addressBindingInfo.getAddressStatusEncoding().getStatus() == AddressQueueStatus.PAUSED) {
+            addressInfo.setStorageManager(storageManager);
+            addressInfo.setPostOffice(postOffice);
+            addressInfo.reloadPause(addressBindingInfo.getAddressStatusEncoding().getId());
+         }
          postOffice.reloadAddressInfo(addressInfo);
       }
    }

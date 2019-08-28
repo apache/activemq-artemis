@@ -171,6 +171,17 @@ public abstract class ActiveMQTestBase extends Assert {
    @ClassRule
    public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
 
+   @ClassRule
+   public static NoProcessFilesBehind noProcessFilesBehind = new NoProcessFilesBehind(1000);
+
+   /** We should not under any circunstance create data outside of ./target
+    *  if you have a test failing because because of this rule for any reason,
+    *  even if you use afterClass events, move the test to ./target and always cleanup after
+    *  your data even under ./target.
+    *  Do not try to disable this rule! Fix your test! */
+   @Rule
+   public NoFilesBehind noFilesBehind = new NoFilesBehind("data");
+
    /** This will cleanup any system property changed inside tests */
    @Rule
    public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
@@ -464,6 +475,9 @@ public abstract class ActiveMQTestBase extends Assert {
     */
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
+
+      // When it comes to the testsuite, we don't need any batching, I will leave some minimal batching to exercise the codebase
+      configuration.setJournalBufferTimeout_AIO(100).setJournalBufferTimeout_NIO(100);
 
       return configuration;
    }
@@ -1385,14 +1399,14 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
-                                               final long pageSize,
+                                               final int pageSize,
                                                final long maxAddressSize) {
       return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>) null);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
-                                         final long pageSize,
+                                         final int pageSize,
                                          final long maxAddressSize,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
@@ -1412,7 +1426,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
-                                               final long pageSize,
+                                               final int pageSize,
                                                final long maxAddressSize,
                                                final Map<String, AddressSettings> settings,
                                                StoreConfiguration.StoreType storeType) {

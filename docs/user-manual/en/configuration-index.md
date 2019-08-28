@@ -159,6 +159,7 @@ log-delegate-factory-class-name | **deprecated** the name of the factory class t
 name | node name; used in topology notifications if set. | n/a
 [password-codec](masking-passwords.md) | the name of the class (and optional configuration properties) used to decode masked passwords. Only valid when `mask-password` is `true`. | n/a
 [page-max-concurrent-io](paging.md) | The max number of concurrent reads allowed on paging. | 5
+[read-whole-page](paging.md) | If true the whole page would be read, otherwise just seek and read while getting message. | `false`
 [paging-directory](paging.md#configuration)| the directory to store paged messages in. | `data/paging`
 [persist-delivery-count-before-delivery](undelivered-messages.md#delivery-count-persistence) | True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. | `false`
 [persistence-enabled](persistence.md#zero-persistence)| true means that the server will use the file based journal for persistence. | `true`
@@ -203,10 +204,11 @@ Name | Description | Default
 [match](address-model.md) | The filter to apply to the setting | n/a
 [dead-letter-address](undelivered-messages.md) | Dead letter address | n/a
 [expiry-address](message-expiry.md) | Expired messages address | n/a
-[expiry-delay](address-model.md) | Expiration time override; -1 don't override | -1
+[expiry-delay](message-expiry.md) | Expiration time override; -1 don't override | -1
 [redelivery-delay](undelivered-messages.md) | Time to wait before redelivering a message | 0
-[redelivery-delay-multiplier](address-model.md) | Multiplier to apply to the `redelivery-delay` | 1.0
-[max-redelivery-delay](address-model.md) | Max value for the `redelivery-delay` | 10 \* `redelivery-delay`
+[redelivery-delay-multiplier](undelivered-messages.md) | Multiplier to apply to the `redelivery-delay` | 1.0
+[redelivery-collision-avoidance-factor](undelivered-messages.md) | an additional factor used to calculate an adjustment to the `redelivery-delay` (up or down) | 0.0
+[max-redelivery-delay](undelivered-messages.md) | Max value for the `redelivery-delay` | 10 \* `redelivery-delay`
 [max-delivery-attempts](undelivered-messages.md)| Number of retries before dead letter address| 10
 [max-size-bytes](paging.md)| Max size a queue can be before invoking `address-full-policy` | -1
 [max-size-bytes-reject-threshold]() | Used with `BLOCK`, the max size an address can reach before messages are rejected; works in combination with `max-size-bytes` **for AMQP clients only**. | -1
@@ -242,6 +244,7 @@ Name | Description | Default
 [default-max-consumers](address-model.md#shared-durable-subscription-queue-using-max-consumers) | `max-consumers` value if none is set on the queue | -1
 [default-queue-routing-type](address-model.md#routing-type) | Routing type for auto-created queues if the type can't be otherwise determined | `MULTICAST`
 [default-address-routing-type](address-model.md#routing-type) | Routing type for auto-created addresses if the type can't be otherwise determined | `MULTICAST`
+[default-ring-size](ring-queues.md) | The ring-size applied to queues without an explicit `ring-size` configured | `-1`
 
 
 ## bridge type
@@ -358,6 +361,7 @@ user | the name of the user to associate with the creation of the queue | n/a
 [purge-on-no-consumers](address-model.md#non-durable-subscription-queue) | whether or not to delete all messages and prevent routing when no consumers are connected | `false`
 [exclusive](exclusive-queues.md) | only deliver messages to one of the connected consumers | `false`
 [last-value](last-value-queues.md) | use last-value semantics | `false`
+[ring-size](ring-queues.md) | the size this queue should maintain according to ring semantics | based on `default-ring-size` `address-setting`
 consumers-before-dispatch | number of consumers required before dispatching messages | 0
 delay-before-dispatch | milliseconds to wait for `consumers-before-dispatch` to be met before dispatching messages anyway | -1 (wait forever)
 

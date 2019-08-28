@@ -100,44 +100,57 @@ public class StompV11Test extends StompTestBase {
       server.getSecurityStore().setSecurityEnabled(true);
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection(v10Uri);
 
-      connection.connect(defUser, defPass);
+      try {
 
-      assertTrue(connection.isConnected());
+         connection.connect(defUser, defPass);
 
-      assertEquals("1.0", connection.getVersion());
+         assertTrue(connection.isConnected());
 
-      connection.disconnect();
+         assertEquals("1.0", connection.getVersion());
 
-      connection = StompClientConnectionFactory.createClientConnection(uri);
+         connection.disconnect();
 
-      connection.connect(defUser, defPass);
+         connection.closeTransport();
 
-      assertTrue(connection.isConnected());
+         connection = StompClientConnectionFactory.createClientConnection(uri);
 
-      assertEquals("1.1", connection.getVersion());
+         connection.connect(defUser, defPass);
 
-      connection.disconnect();
+         assertTrue(connection.isConnected());
 
-      connection = StompClientConnectionFactory.createClientConnection(uri);
+         assertEquals("1.1", connection.getVersion());
 
-      connection.connect();
+         connection.disconnect();
 
-      assertFalse(connection.isConnected());
+         connection.closeTransport();
 
-      //new way of connection
-      StompClientConnectionV11 conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection(uri);
-      conn.connect1(defUser, defPass);
+         connection = StompClientConnectionFactory.createClientConnection(uri);
 
-      assertTrue(conn.isConnected());
+         connection.connect();
 
-      conn.disconnect();
+         assertFalse(connection.isConnected());
 
-      //invalid user
-      conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection(uri);
-      ClientStompFrame frame = conn.connect("invaliduser", defPass);
-      assertFalse(conn.isConnected());
-      assertTrue(Stomp.Responses.ERROR.equals(frame.getCommand()));
-      assertTrue(frame.getBody().contains("Security Error occurred"));
+         //new way of connection
+         StompClientConnectionV11 conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection(uri);
+         conn.connect1(defUser, defPass);
+
+         assertTrue(conn.isConnected());
+
+         conn.disconnect();
+
+         conn.closeTransport();
+
+         //invalid user
+         conn = (StompClientConnectionV11) StompClientConnectionFactory.createClientConnection(uri);
+         ClientStompFrame frame = conn.connect("invaliduser", defPass);
+         assertFalse(conn.isConnected());
+         assertTrue(Stomp.Responses.ERROR.equals(frame.getCommand()));
+         assertTrue(frame.getBody().contains("Security Error occurred"));
+
+         conn.closeTransport();
+      } finally {
+         connection.closeTransport();
+      }
    }
 
    @Test

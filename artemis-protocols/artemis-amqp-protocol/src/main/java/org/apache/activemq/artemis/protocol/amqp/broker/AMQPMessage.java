@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
@@ -71,9 +72,12 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import org.jboss.logging.Logger;
 
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
+
+   private static final Logger logger = Logger.getLogger(AMQPMessage.class);
 
    public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
 
@@ -204,8 +208,10 @@ public class AMQPMessage extends RefCountMessage {
     * @return a MessageImpl that wraps the AMQP message data in this {@link AMQPMessage}
     */
    public MessageImpl getProtonMessage() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      if (data == null) {
+         throw new NullPointerException("Data is not initialized");
+      }
+      ensureScanning();
 
       MessageImpl protonMessage = null;
       if (data != null) {
@@ -224,9 +230,13 @@ public class AMQPMessage extends RefCountMessage {
     * @return a copy of the Message Header if one exists or null if none present.
     */
    public Header getHeader() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
       return scanForMessageSection(headerPosition, Header.class);
+   }
+
+   private void ensureScanning() {
+      ensureDataIsValid();
+      ensureMessageDataScanned();
    }
 
    /**
@@ -236,8 +246,7 @@ public class AMQPMessage extends RefCountMessage {
     * @return a copy of the {@link DeliveryAnnotations} present in the message or null if non present.
     */
    public DeliveryAnnotations getDeliveryAnnotations() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
       return scanForMessageSection(deliveryAnnotationsPosition, DeliveryAnnotations.class);
    }
 
@@ -263,8 +272,7 @@ public class AMQPMessage extends RefCountMessage {
     * @return a copy of the {@link MessageAnnotations} present in the message or null if non present.
     */
    public MessageAnnotations getMessageAnnotations() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
       return scanForMessageSection(messageAnnotationsPosition, MessageAnnotations.class);
    }
 
@@ -275,8 +283,7 @@ public class AMQPMessage extends RefCountMessage {
     * @return a copy of the Message Properties if one exists or null if none present.
     */
    public Properties getProperties() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
       return scanForMessageSection(propertiesPosition, Properties.class);
    }
 
@@ -287,9 +294,14 @@ public class AMQPMessage extends RefCountMessage {
     * @return a copy of the {@link ApplicationProperties} present in the message or null if non present.
     */
    public ApplicationProperties getApplicationProperties() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
       return scanForMessageSection(applicationPropertiesPosition, ApplicationProperties.class);
+   }
+
+   /** This is different from toString, as this will print an expanded version of the buffer
+    *  in Hex and programmers's readable format */
+   public String toDebugString() {
+      return ByteUtil.debugByteArray(data.array());
    }
 
    /**
@@ -300,8 +312,7 @@ public class AMQPMessage extends RefCountMessage {
     * @return the Section that makes up the body of this message.
     */
    public Section getBody() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
 
       // We only handle Sections of AmqpSequence, AmqpValue and Data types so we filter on those.
       // There could also be a Footer and no body so this will prevent a faulty return type in case
@@ -317,8 +328,7 @@ public class AMQPMessage extends RefCountMessage {
     * @return the Footer that was encoded into this AMQP Message.
     */
    public Footer getFooter() {
-      ensureMessageDataScanned();
-      ensureDataIsValid();
+      ensureScanning();
       return scanForMessageSection(Math.max(0, remainingBodyPosition), Footer.class);
    }
 
@@ -435,11 +445,11 @@ public class AMQPMessage extends RefCountMessage {
    private synchronized void ensureMessageDataScanned() {
       if (!messageDataScanned) {
          scanMessageData();
-         messageDataScanned = true;
       }
    }
 
    private synchronized void scanMessageData() {
+      this.messageDataScanned = true;
       DecoderImpl decoder = TLSEncode.getDecoder();
       decoder.setBuffer(data.rewind());
 
@@ -692,6 +702,7 @@ public class AMQPMessage extends RefCountMessage {
          return AmqpCoreConverter.toCore(
             this, coreMessageObjectPools, header, messageAnnotations, properties, lazyDecodeApplicationProperties(), getBody(), getFooter());
       } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          throw new RuntimeException(e.getMessage(), e);
       }
    }
@@ -770,21 +781,17 @@ public class AMQPMessage extends RefCountMessage {
 
       encodeMessage();
       scanMessageData();
-
-      messageDataScanned = true;
-      modified = false;
    }
 
    private synchronized void ensureDataIsValid() {
-      assert data != null;
-
       if (modified) {
          encodeMessage();
-         modified = false;
       }
    }
 
    private synchronized void encodeMessage() {
+      this.modified = false;
+      this.messageDataScanned = false;
       int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
       EncoderImpl encoder = TLSEncode.getEncoder();
@@ -1531,14 +1538,15 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public String toString() {
-      return "AMQPMessage [durable=" + isDurable() +
+      /* return "AMQPMessage [durable=" + isDurable() +
          ", messageID=" + getMessageID() +
          ", address=" + getAddress() +
          ", size=" + getEncodeSize() +
          ", applicationProperties=" + applicationProperties +
          ", properties=" + properties +
          ", extraProperties = " + getExtraProperties() +
-         "]";
+         "]"; */
+      return super.toString();
    }
 
    @Override

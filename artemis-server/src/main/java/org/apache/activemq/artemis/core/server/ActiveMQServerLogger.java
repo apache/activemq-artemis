@@ -430,6 +430,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221080, value = "Deploying address {0} supporting {1}", format = Message.Format.MESSAGE_FORMAT)
    void deployAddress(String addressName, String routingTypes);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221081, value = "There is no address with ID {0}, deleting record {1}", format = Message.Format.MESSAGE_FORMAT)
+   void infoNoAddressWithID(Long id, Long record);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
@@ -1629,6 +1633,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222281, value = "Federation upstream {0} policy ref {1} are too self referential, avoiding stack overflow , ", format = Message.Format.MESSAGE_FORMAT)
    void federationAvoidStackOverflowPolicyRef(String upstreamName, String policyRef);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222282, value = "File {0} at {1} is empty. Delete the empty file to stop this message.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void emptyAddressFile(String addressFile, String directory);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
@@ -1998,4 +2007,22 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224097, value = "Failed to start server", format = Message.Format.MESSAGE_FORMAT)
    void failedToStartServer(@Cause Throwable t);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224098, value = "Received a vote saying the backup is live with connector: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void qourumBackupIsLive(String liveConnector);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224099, value = "Message with ID {0} has a header too large. More information available on debug level for class {1}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void messageWithHeaderTooLarge(Long messageID, String loggerClass);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224100, value = "Timed out waiting for large messages deletion with IDs {0}, might not be deleted if broker crashes atm",
+      format = Message.Format.MESSAGE_FORMAT)
+   void timedOutWaitingForLargeMessagesDeletion(List<Long> largeMessageIds);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224101, value = "Apache ActiveMQ Artemis is using a scheduled pool without remove on cancel policy, so a cancelled task could be not automatically removed from the work queue, it may also cause unbounded retention of cancelled tasks.", format = Message.Format.MESSAGE_FORMAT)
+   void scheduledPoolWithNoRemoveOnCancelPolicy();
 }

@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -50,6 +52,7 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
@@ -109,6 +112,52 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
          ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
          receiveJMS(nMsgs, factory);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAMQPMessageWithComplexAnnotationsReceiveCore() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         connection.connect();
+
+         String annotation = "x-opt-embedded-map";
+         Map<String, String> embeddedMap = new LinkedHashMap<>();
+         embeddedMap.put("test-key-1", "value-1");
+         embeddedMap.put("test-key-2", "value-2");
+         embeddedMap.put("test-key-3", "value-3");
+
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(testQueueName);
+         AmqpMessage message = createAmqpMessage((byte) 'A', PAYLOAD);
+
+         message.setApplicationProperty("IntProperty", (Integer) 42);
+         message.setDurable(true);
+         message.setMessageAnnotation(annotation, embeddedMap);
+         sender.send(message);
+
+         session.close();
+
+         Wait.assertEquals(1, () -> getMessageCount(server.getPostOffice(), testQueueName));
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection2 = factory.createConnection()) {
+
+            Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            connection2.start();
+            MessageConsumer consumer = session2.createConsumer(session2.createQueue(testQueueName));
+
+            Message received = consumer.receive(5000);
+            Assert.assertNotNull(received);
+            Assert.assertEquals(42, received.getIntProperty("IntProperty"));
+
+            connection2.close();
+         }
       } finally {
          connection.close();
       }
@@ -205,6 +254,62 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testSendAMQPMessageWithComplexAnnotationsReceiveAMQP() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      String testQueueName = "ConnectionFrameSize";
+      int nMsgs = 200;
+
+      AmqpClient client = createAmqpClient();
+
+      Symbol annotation = Symbol.valueOf("x-opt-embedded-map");
+      Map<String, String> embeddedMap = new LinkedHashMap<>();
+      embeddedMap.put("test-key-1", "value-1");
+      embeddedMap.put("test-key-2", "value-2");
+      embeddedMap.put("test-key-3", "value-3");
+
+      {
+         AmqpConnection connection = addConnection(client.connect());
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(testQueueName);
+         AmqpMessage message = createAmqpMessage((byte) 'A', PAYLOAD);
+
+         message.setApplicationProperty("IntProperty", (Integer) 42);
+         message.setDurable(true);
+         message.setMessageAnnotation(annotation.toString(), embeddedMap);
+         sender.send(message);
+         session.close();
+         connection.close();
+      }
+
+      Wait.assertEquals(1, () -> getMessageCount(server.getPostOffice(), testQueueName));
+
+      {
+         AmqpConnection connection = addConnection(client.connect());
+         AmqpSession session = connection.createSession();
+         AmqpReceiver receiver = session.createReceiver(testQueueName);
+         receiver.flow(nMsgs);
+
+         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull("Failed to read message with embedded map in annotations", message);
+         MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
+         if (wrapped.getBody() instanceof Data) {
+            Data data = (Data) wrapped.getBody();
+            System.out.println("received : message: " + data.getValue().getLength());
+            assertEquals(PAYLOAD, data.getValue().getLength());
+         }
+
+         assertNotNull(message.getWrappedMessage().getMessageAnnotations());
+         assertNotNull(message.getWrappedMessage().getMessageAnnotations().getValue());
+         assertEquals(embeddedMap, message.getWrappedMessage().getMessageAnnotations().getValue().get(annotation));
+
+         message.accept();
+         session.close();
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
    public void testSendAMQPReceiveAMQPViaJMSObjectMessage() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -263,6 +368,51 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       LOG.debug("Created buffer with size : " + sizeInBytes + " bytes");
       return payload;
+   }
+
+   @Test(timeout = 60000)
+   public void testSendHugeHeader() throws Exception {
+      doTestSendHugeHeader(PAYLOAD);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendLargeMessageWithHugeHeader() throws Exception {
+      doTestSendHugeHeader(1024 * 1024);
+   }
+
+   public void doTestSendHugeHeader(int expectedSize) throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+
+         connection.connect();
+
+         final int strLength = 512 * 1024;
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(testQueueName);
+
+         AmqpMessage message = createAmqpMessage((byte) 'A', expectedSize);
+         StringBuffer buffer = new StringBuffer();
+         for (int i = 0; i < strLength; i++) {
+            buffer.append(" ");
+         }
+         message.setApplicationProperty("str", buffer.toString());
+         message.setDurable(true);
+
+         try {
+            sender.send(message);
+            fail();
+         } catch (IOException e) {
+            Assert.assertTrue(e.getCause() instanceof JMSException);
+            Assert.assertTrue(e.getMessage().contains("AMQ149005"));
+         }
+
+         session.close();
+      } finally {
+         connection.close();
+      }
    }
 
    @Test(timeout = 60000)

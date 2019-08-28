@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 
@@ -32,6 +33,28 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
  * Implementation of a MessageReference
  */
 public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference, Runnable {
+
+   private static final MessageReferenceComparatorByID idComparator = new MessageReferenceComparatorByID();
+
+   public static Comparator<MessageReference> getIDComparator() {
+      return idComparator;
+   }
+
+   private static class MessageReferenceComparatorByID implements Comparator<MessageReference> {
+
+      @Override
+      public int compare(MessageReference o1, MessageReference o2) {
+         long value = o2.getMessage().getMessageID() - o1.getMessage().getMessageID();
+         if (value > 0) {
+            return 1;
+         } else if (value < 0) {
+            return -1;
+         } else {
+            return 0;
+         }
+      }
+   }
+
 
    private static final AtomicIntegerFieldUpdater<MessageReferenceImpl> DELIVERY_COUNT_UPDATER = AtomicIntegerFieldUpdater
       .newUpdater(MessageReferenceImpl.class, "deliveryCount");
@@ -52,6 +75,8 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    private boolean hasConsumerID = false;
 
    private boolean alreadyAcked;
+
+   private boolean deliveredDirectly;
 
    private Object protocolData;
 
@@ -197,6 +222,16 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    @Override
    public void handled() {
       queue.referenceHandled(this);
+   }
+
+   @Override
+   public void setInDelivery(boolean inDelivery) {
+      this.deliveredDirectly = inDelivery;
+   }
+
+   @Override
+   public boolean isInDelivery() {
+      return deliveredDirectly;
    }
 
    @Override

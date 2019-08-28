@@ -251,6 +251,9 @@ public final class ActiveMQDefaultConfiguration {
    // The max number of concurrent reads allowed on paging
    private static int DEFAULT_MAX_CONCURRENT_PAGE_IO = 5;
 
+   // If true the whole page would be read, otherwise just seek and read while getting message
+   private static boolean DEFAULT_READ_WHOLE_PAGE = false;
+
    // the directory to store the journal files in
    private static String DEFAULT_JOURNAL_DIR = "data/journal";
 
@@ -517,6 +520,8 @@ public final class ActiveMQDefaultConfiguration {
    public static final long DEFAULT_QUEUE_AUTO_DELETE_DELAY = 0;
 
    public static final long DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT = 0;
+
+   public static final long DEFAULT_RING_SIZE = -1;
 
    public static final int DEFAULT_CONSUMERS_BEFORE_DISPATCH = 0;
 
@@ -841,6 +846,11 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getDefaultMaxConcurrentPageIo() {
       return DEFAULT_MAX_CONCURRENT_PAGE_IO;
+   }
+
+
+   public static boolean isDefaultReadWholePage() {
+      return DEFAULT_READ_WHOLE_PAGE;
    }
 
    /**
@@ -1421,6 +1431,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultQueueAutoDeleteMessageCount() {
       return DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT;
+   }
+
+   public static long getDefaultRingSize() {
+      return DEFAULT_RING_SIZE;
    }
 
    public static int getDefaultConsumersBeforeDispatch() {

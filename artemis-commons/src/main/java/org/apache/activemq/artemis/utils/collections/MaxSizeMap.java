@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,32 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.persistence;
+package org.apache.activemq.artemis.utils.collections;
 
-public enum QueueStatus {
-   PAUSED((short) 0), RUNNING((short) 1);
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-   public final short id;
+public class MaxSizeMap<K, V> extends LinkedHashMap<K, V> {
+   private final int maxSize;
 
-   QueueStatus(short id) {
-      this.id = id;
+   public MaxSizeMap(int maxSize) {
+      this.maxSize = maxSize;
    }
 
-   public static QueueStatus[] values;
-
-   static {
-      QueueStatus[] allValues = QueueStatus.values();
-      values = new QueueStatus[allValues.length];
-      for (QueueStatus v : allValues) {
-         values[v.id] = v;
-      }
-   }
-
-   public static QueueStatus fromID(short id) {
-      if (id < 0 || id >= values.length) {
-         return null;
-      } else {
-         return values[id];
-      }
+   @Override
+   protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+      return size() > maxSize;
    }
 }

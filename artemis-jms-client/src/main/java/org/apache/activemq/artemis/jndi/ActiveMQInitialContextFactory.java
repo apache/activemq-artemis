@@ -56,7 +56,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
       Map<String, Object> data = new ConcurrentHashMap<>();
 
       String providerUrl = (String) environment.get(javax.naming.Context.PROVIDER_URL);
-      if (providerUrl != null) {
+      if (providerUrl != null && !providerUrl.isEmpty()) {
          try {
             JMSFactoryType providedFactoryType = getFactoryType(providerUrl);
             if (providedFactoryType == null) {

@@ -42,4 +42,15 @@ public interface ActivateCallback {
     */
    default void activationComplete() {
    }
+
+   /*
+    * This is called when the broker is stopped (no shutdown in place)
+    */
+   default void stop(ActiveMQServer server) {
+   }
+
+   default void shutdown(ActiveMQServer server) {
+   }
+
+
 }

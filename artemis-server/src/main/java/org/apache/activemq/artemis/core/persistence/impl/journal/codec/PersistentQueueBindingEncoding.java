@@ -74,6 +74,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public long autoDeleteMessageCount;
 
+   public long ringSize;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -145,7 +147,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final long autoDeleteDelay,
                                          final long autoDeleteMessageCount,
                                          final byte routingType,
-                                         final boolean configurationManaged) {
+                                         final boolean configurationManaged,
+                                         final long ringSize) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -167,6 +170,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.autoDeleteMessageCount = autoDeleteMessageCount;
       this.routingType = routingType;
       this.configurationManaged = configurationManaged;
+      this.ringSize = ringSize;
    }
 
    @Override
@@ -352,6 +356,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public long getRingSize() {
+      return ringSize;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       address = buffer.readSimpleString();
@@ -447,6 +456,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
       }
+      if (buffer.readableBytes() > 0) {
+         ringSize = buffer.readLong();
+      } else {
+         ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
+      }
    }
 
    @Override
@@ -472,6 +486,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeLong(autoDeleteDelay);
       buffer.writeLong(autoDeleteMessageCount);
       buffer.writeNullableSimpleString(groupFirstKey);
+      buffer.writeLong(ringSize);
    }
 
    @Override
@@ -494,7 +509,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_LONG +
          DataConstants.SIZE_LONG +
-         SimpleString.sizeofNullableString(groupFirstKey);
+         SimpleString.sizeofNullableString(groupFirstKey) +
+         DataConstants.SIZE_LONG;
    }
 
    private SimpleString createMetadata() {

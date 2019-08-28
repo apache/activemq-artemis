@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -99,6 +100,9 @@ import org.jboss.logging.Logger;
  * A Netty TCP Acceptor that is embedding Netty.
  */
 public class NettyAcceptor extends AbstractAcceptor {
+
+   private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
+
 
    public static String INVM_ACCEPTOR_TYPE = "IN-VM";
    public static String NIO_ACCEPTOR_TYPE = "NIO";
@@ -199,6 +203,12 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private NotificationService notificationService;
 
+   /** The amount of time we wait before new tasks are added during a shutdown period. */
+   private int quietPeriod;
+
+   /** The total amount of time we wait before a hard shutdown. */
+   private int shutdownTimeout;
+
    private boolean paused;
 
    private BatchFlusher flusher;
@@ -215,7 +225,6 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private Map<String, Object> extraConfigs;
 
-   private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
@@ -259,6 +268,10 @@ public class NettyAcceptor extends AbstractAcceptor {
       this.protocolHandler = new ProtocolHandler(protocolMap, this, scheduledThreadPool);
 
       this.protocolsString = getProtocols(protocolMap);
+
+      this.quietPeriod = ConfigurationHelper.getIntProperty(TransportConstants.QUIET_PERIOD, TransportConstants.DEFAULT_QUIET_PERIOD, configuration);
+
+      this.shutdownTimeout = ConfigurationHelper.getIntProperty(TransportConstants.SHUTDOWN_TIMEOUT, TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT, configuration);
 
       host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
       port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
@@ -646,8 +659,18 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    @Override
-   public synchronized void stop() {
+   public void stop() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+
+      asyncStop(latch::countDown);
+
+      latch.await();
+   }
+
+   @Override
+   public synchronized void asyncStop(Runnable callback) {
       if (channelClazz == null) {
+         callback.run();
          return;
       }
 
@@ -683,11 +706,6 @@ public class NettyAcceptor extends AbstractAcceptor {
          }
       }
 
-      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
-      // 3000ms elapsed.
-      eventLoopGroup.shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS);
-      eventLoopGroup = null;
-
       channelClazz = null;
 
       for (Connection connection : connections.values()) {
@@ -710,6 +728,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
 
       paused = false;
+
+      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
+      // 3000ms elapsed.
+      eventLoopGroup.shutdownGracefully(quietPeriod, shutdownTimeout, TimeUnit.MILLISECONDS).addListener(f -> callback.run());
+      eventLoopGroup = null;
    }
 
    @Override
@@ -774,6 +797,24 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    public ConnectionCreator createConnectionCreator() {
       return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener(), failureExecutor);
+   }
+
+   public int getQuietPeriod() {
+      return quietPeriod;
+   }
+
+   public NettyAcceptor setQuietPeriod(int quietPeriod) {
+      this.quietPeriod = quietPeriod;
+      return this;
+   }
+
+   public int getShutdownTimeout() {
+      return shutdownTimeout;
+   }
+
+   public NettyAcceptor setShutdownTimeout(int shutdownTimeout) {
+      this.shutdownTimeout = shutdownTimeout;
+      return this;
    }
 
    private static String getProtocols(Map<String, ProtocolManager> protocolManager) {

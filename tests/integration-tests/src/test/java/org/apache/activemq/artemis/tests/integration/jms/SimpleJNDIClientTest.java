@@ -104,6 +104,18 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testEmptyConnectionFactoryString() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0");
+
+      //IIB v10 assumes this property is mandatory and sets it to an empty string when not specified
+      props.put("java.naming.provider.url", "");
+      new InitialContext(props);//Must not throw an exception
+
+   }
+
+   @Test
    public void testVMCF1() throws NamingException, JMSException {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");

@@ -18,12 +18,15 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQLockAcquisitionTimeoutException;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
@@ -33,11 +36,11 @@ public class FileLockNodeManager extends NodeManager {
 
    private static final Logger logger = Logger.getLogger(FileLockNodeManager.class);
 
-   private static final long STATE_LOCK_POS = 0;
+   private static final int STATE_LOCK_POS = 0;
 
-   private static final long LIVE_LOCK_POS = 1;
+   private static final int LIVE_LOCK_POS = 1;
 
-   private static final long BACKUP_LOCK_POS = 2;
+   private static final int BACKUP_LOCK_POS = 2;
 
    private static final long LOCK_LENGTH = 1;
 
@@ -49,9 +52,13 @@ public class FileLockNodeManager extends NodeManager {
 
    private static final byte NOT_STARTED = 'N';
 
+   private static final long LOCK_ACCESS_FAILURE_WAIT_TIME = 2000;
+
    private FileLock liveLock;
 
    private FileLock backupLock;
+
+   private final FileChannel[] lockChannels = new FileChannel[3];
 
    protected long lockAcquisitionTimeout = -1;
 
@@ -77,6 +84,40 @@ public class FileLockNodeManager extends NodeManager {
       }
 
       super.start();
+   }
+
+   @Override
+   protected synchronized void setUpServerLockFile() throws IOException {
+      super.setUpServerLockFile();
+
+      for (int i = 0; i < 3; i++) {
+         if (lockChannels[i] != null && lockChannels[i].isOpen()) {
+            continue;
+         }
+         File fileLock = newFile("serverlock." + i);
+         if (!fileLock.exists()) {
+            fileLock.createNewFile();
+         }
+         RandomAccessFile randomFileLock = new RandomAccessFile(fileLock, "rw");
+         lockChannels[i] = randomFileLock.getChannel();
+      }
+   }
+
+   @Override
+   public synchronized void stop() throws Exception {
+      for (FileChannel channel : lockChannels) {
+         if (channel != null && channel.isOpen()) {
+            try {
+               channel.close();
+            } catch (Throwable e) {
+               // I do not want to interrupt a shutdown. If anything is wrong here, just log it
+               // it could be a critical error or something like that throwing the system down
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      }
+
+      super.stop();
    }
 
    @Override
@@ -169,7 +210,7 @@ public class FileLockNodeManager extends NodeManager {
 
       ActiveMQServerLogger.LOGGER.obtainedLiveLock();
 
-      return new ActivateCallback() {
+      return new CleaningActivateCallback() {
          @Override
          public void activationComplete() {
             try {
@@ -281,10 +322,10 @@ public class FileLockNodeManager extends NodeManager {
       return getNodeId();
    }
 
-   protected FileLock tryLock(final long lockPos) throws IOException {
+   protected FileLock tryLock(final int lockPos) throws IOException {
       try {
          logger.debug("trying to lock position: " + lockPos);
-         FileLock lock = channel.tryLock(lockPos, LOCK_LENGTH, false);
+         FileLock lock = lockChannels[lockPos].tryLock();
          if (lock != null) {
             logger.debug("locked position: " + lockPos);
          } else {
@@ -297,46 +338,54 @@ public class FileLockNodeManager extends NodeManager {
       }
    }
 
-   protected FileLock lock(final long lockPosition) throws Exception {
+   protected FileLock lock(final int lockPosition) throws Exception {
       long start = System.currentTimeMillis();
+      boolean isRecurringFailure = false;
 
       while (!interrupted) {
-         FileLock lock = tryLock(lockPosition);
+         try {
+            FileLock lock = tryLock(lockPosition);
+            isRecurringFailure = false;
 
-         if (lock == null) {
+            if (lock == null) {
+               try {
+                  Thread.sleep(500);
+               } catch (InterruptedException e) {
+                  return null;
+               }
+
+               if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout) {
+                  throw new ActiveMQLockAcquisitionTimeoutException("timed out waiting for lock");
+               }
+            } else {
+               return lock;
+            }
+         } catch (IOException e) {
+            // IOException during trylock() may be a temporary issue, e.g. NFS volume not being accessible
+
+            logger.log(isRecurringFailure ? Logger.Level.DEBUG : Logger.Level.WARN,
+                    "Failure when accessing a lock file", e);
+            isRecurringFailure = true;
+
+            long waitTime = LOCK_ACCESS_FAILURE_WAIT_TIME;
+            if (lockAcquisitionTimeout != -1) {
+               final long remainingTime = lockAcquisitionTimeout - (System.currentTimeMillis() - start);
+               if (remainingTime <= 0) {
+                  throw new ActiveMQLockAcquisitionTimeoutException("timed out waiting for lock");
+               }
+               waitTime = Math.min(waitTime, remainingTime);
+            }
+
             try {
-               Thread.sleep(500);
-            } catch (InterruptedException e) {
+               Thread.sleep(waitTime);
+            } catch (InterruptedException interrupt) {
                return null;
             }
-
-            if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout) {
-               throw new Exception("timed out waiting for lock");
-            }
-         } else {
-            return lock;
          }
       }
 
-      // todo this is here because sometimes channel.lock throws a resource deadlock exception but trylock works,
-      // need to investigate further and review
-      FileLock lock;
-      do {
-         lock = tryLock(lockPosition);
-         if (lock == null) {
-            try {
-               Thread.sleep(500);
-            } catch (InterruptedException e1) {
-               //
-            }
-         }
-         if (interrupted) {
-            interrupted = false;
-            throw new IOException("Lock was interrupted");
-         }
-      }
-      while (lock == null);
-      return lock;
+      // presumed interrupted
+      return null;
    }
 
 }

@@ -135,6 +135,13 @@ Individual addresses can be managed using the `AddressControl` interface.
   `removeRole()` methods. You can list all the roles associated to the queue with
   the `getRoles()` method
 
+- Pausing and resuming Address
+
+  The `AddressControl` can pause and resume an address and all the queues that
+  are bound to it. Newly added queue will be paused too until the address is resumed.
+  Thus all messages sent to the address will be recived but not delivered. When it is
+  resumed, delivering will occur again.
+
 #### Queue Management
 
 The bulk of the management API deals with queues. The `QueueControl` interface

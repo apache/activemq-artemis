@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 
 /**
  * The caching associated to a single page.
@@ -43,9 +44,9 @@ class PageCacheImpl implements PageCache {
    // Public --------------------------------------------------------
 
    @Override
-   public PagedMessage getMessage(final int messageNumber) {
-      if (messageNumber < messages.length) {
-         return messages[messageNumber];
+   public PagedMessage getMessage(PagePosition pagePosition) {
+      if (pagePosition.getMessageNr() < messages.length) {
+         return messages[pagePosition.getMessageNr()];
       } else {
          return null;
       }

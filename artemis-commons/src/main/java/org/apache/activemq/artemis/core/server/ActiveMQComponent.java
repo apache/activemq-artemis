@@ -22,5 +22,11 @@ public interface ActiveMQComponent {
 
    void stop() throws Exception;
 
+   default void asyncStop(Runnable callback) throws Exception {
+      stop();
+
+      callback.run();
+   }
+
    boolean isStarted();
 }

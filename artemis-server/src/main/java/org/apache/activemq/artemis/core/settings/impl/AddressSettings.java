@@ -42,7 +42,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final AddressFullMessagePolicy DEFAULT_ADDRESS_FULL_MESSAGE_POLICY = AddressFullMessagePolicy.PAGE;
 
-   public static final long DEFAULT_PAGE_SIZE = 10 * 1024 * 1024;
+   public static final int DEFAULT_PAGE_SIZE = 10 * 1024 * 1024;
 
    public static final int DEFAULT_MAX_DELIVERY_ATTEMPTS = 10;
 
@@ -53,6 +53,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    public static final long DEFAULT_REDELIVER_DELAY = 0L;
 
    public static final double DEFAULT_REDELIVER_MULTIPLIER = 1.0;
+
+   public static final double DEFAULT_REDELIVER_COLLISION_AVOIDANCE_FACTOR = 0.0;
 
    public static final boolean DEFAULT_LAST_VALUE_QUEUE = false;
 
@@ -111,7 +113,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Long maxSizeBytes = null;
 
-   private Long pageSizeBytes = null;
+   private Integer pageSizeBytes = null;
 
    private Integer pageMaxCache = null;
 
@@ -124,6 +126,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private Long redeliveryDelay = null;
 
    private Double redeliveryMultiplier = null;
+
+   private Double redeliveryCollisionAvoidanceFactor = null;
 
    private Long maxRedeliveryDelay = null;
 
@@ -179,6 +183,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Long autoDeleteQueuesMessageCount = null;
 
+   private Long defaultRingSize = null;
+
    private DeletionPolicy configDeleteQueues = null;
 
    private Boolean autoCreateAddresses = null;
@@ -221,6 +227,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.messageCounterHistoryDayLimit = other.messageCounterHistoryDayLimit;
       this.redeliveryDelay = other.redeliveryDelay;
       this.redeliveryMultiplier = other.redeliveryMultiplier;
+      this.redeliveryCollisionAvoidanceFactor = other.redeliveryCollisionAvoidanceFactor;
       this.maxRedeliveryDelay = other.maxRedeliveryDelay;
       this.deadLetterAddress = other.deadLetterAddress;
       this.expiryAddress = other.expiryAddress;
@@ -260,6 +267,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultGroupRebalance = other.defaultGroupRebalance;
       this.defaultGroupBuckets = other.defaultGroupBuckets;
       this.defaultGroupFirstKey = other.defaultGroupFirstKey;
+      this.defaultRingSize = other.defaultRingSize;
    }
 
    public AddressSettings() {
@@ -500,11 +508,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public long getPageSizeBytes() {
+   public int getPageSizeBytes() {
       return pageSizeBytes != null ? pageSizeBytes : AddressSettings.DEFAULT_PAGE_SIZE;
    }
 
-   public AddressSettings setPageSizeBytes(final long pageSize) {
+   public AddressSettings setPageSizeBytes(final int pageSize) {
       pageSizeBytes = pageSize;
       return this;
    }
@@ -560,6 +568,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setRedeliveryMultiplier(final double redeliveryMultiplier) {
       this.redeliveryMultiplier = redeliveryMultiplier;
+      return this;
+   }
+
+   public double getRedeliveryCollisionAvoidanceFactor() {
+      return redeliveryCollisionAvoidanceFactor != null ? redeliveryCollisionAvoidanceFactor : AddressSettings.DEFAULT_REDELIVER_COLLISION_AVOIDANCE_FACTOR;
+   }
+
+   public AddressSettings setRedeliveryCollisionAvoidanceFactor(final double redeliveryCollisionAvoidanceFactor) {
+      this.redeliveryCollisionAvoidanceFactor = redeliveryCollisionAvoidanceFactor;
       return this;
    }
 
@@ -733,6 +750,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public long getDefaultRingSize() {
+      return defaultRingSize != null ? defaultRingSize : ActiveMQDefaultConfiguration.DEFAULT_RING_SIZE;
+   }
+
+   public AddressSettings setDefaultRingSize(final long defaultRingSize) {
+      this.defaultRingSize = defaultRingSize;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -763,6 +789,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (redeliveryMultiplier == null) {
          redeliveryMultiplier = merged.redeliveryMultiplier;
+      }
+      if (redeliveryCollisionAvoidanceFactor == null) {
+         redeliveryCollisionAvoidanceFactor = merged.redeliveryCollisionAvoidanceFactor;
       }
       if (maxRedeliveryDelay == null) {
          maxRedeliveryDelay = merged.maxRedeliveryDelay;
@@ -884,6 +913,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (defaultGroupBuckets == null) {
          defaultGroupBuckets = merged.defaultGroupBuckets;
       }
+      if (defaultRingSize == null) {
+         defaultRingSize = merged.defaultRingSize;
+      }
    }
 
    @Override
@@ -909,7 +941,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       maxSizeBytes = BufferHelper.readNullableLong(buffer);
 
-      pageSizeBytes = BufferHelper.readNullableLong(buffer);
+      Long pageSizeLong = BufferHelper.readNullableLong(buffer);
+      pageSizeBytes = pageSizeLong == null ? null : pageSizeLong.intValue();
 
       pageMaxCache = BufferHelper.readNullableInteger(buffer);
 
@@ -1039,6 +1072,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          autoDeleteCreatedQueues = BufferHelper.readNullableBoolean(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultRingSize = BufferHelper.readNullableLong(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         redeliveryCollisionAvoidanceFactor = BufferHelper.readNullableDouble(buffer);
+      }
    }
 
    @Override
@@ -1046,13 +1087,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       return BufferHelper.sizeOfNullableSimpleString(addressFullMessagePolicy != null ? addressFullMessagePolicy.toString() : null) +
          BufferHelper.sizeOfNullableLong(maxSizeBytes) +
-         BufferHelper.sizeOfNullableLong(pageSizeBytes) +
+         BufferHelper.sizeOfNullableLong(pageSizeBytes == null ? null : Long.valueOf(pageSizeBytes)) +
          BufferHelper.sizeOfNullableInteger(pageMaxCache) +
          BufferHelper.sizeOfNullableBoolean(dropMessagesWhenFull) +
          BufferHelper.sizeOfNullableInteger(maxDeliveryAttempts) +
          BufferHelper.sizeOfNullableInteger(messageCounterHistoryDayLimit) +
          BufferHelper.sizeOfNullableLong(redeliveryDelay) +
          BufferHelper.sizeOfNullableDouble(redeliveryMultiplier) +
+         BufferHelper.sizeOfNullableDouble(redeliveryCollisionAvoidanceFactor) +
          BufferHelper.sizeOfNullableLong(maxRedeliveryDelay) +
          SimpleString.sizeofNullableString(deadLetterAddress) +
          SimpleString.sizeofNullableString(expiryAddress) +
@@ -1088,7 +1130,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalance) +
          BufferHelper.sizeOfNullableInteger(defaultGroupBuckets) +
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
-         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues);
+         BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
+         BufferHelper.sizeOfNullableLong(defaultRingSize);
    }
 
    @Override
@@ -1097,7 +1140,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, maxSizeBytes);
 
-      BufferHelper.writeNullableLong(buffer, pageSizeBytes);
+      BufferHelper.writeNullableLong(buffer, pageSizeBytes == null ? null : Long.valueOf(pageSizeBytes));
 
       BufferHelper.writeNullableInteger(buffer, pageMaxCache);
 
@@ -1187,6 +1230,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteCreatedQueues);
 
+      BufferHelper.writeNullableLong(buffer, defaultRingSize);
+
+      BufferHelper.writeNullableDouble(buffer, redeliveryCollisionAvoidanceFactor);
+
    }
 
    /* (non-Javadoc)
@@ -1212,6 +1259,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((pageMaxCache == null) ? 0 : pageMaxCache.hashCode());
       result = prime * result + ((redeliveryDelay == null) ? 0 : redeliveryDelay.hashCode());
       result = prime * result + ((redeliveryMultiplier == null) ? 0 : redeliveryMultiplier.hashCode());
+      result = prime * result + ((redeliveryCollisionAvoidanceFactor == null) ? 0 : redeliveryCollisionAvoidanceFactor.hashCode());
       result = prime * result + ((maxRedeliveryDelay == null) ? 0 : maxRedeliveryDelay.hashCode());
       result = prime * result + ((redistributionDelay == null) ? 0 : redistributionDelay.hashCode());
       result = prime * result + ((sendToDLAOnNoRoute == null) ? 0 : sendToDLAOnNoRoute.hashCode());
@@ -1244,6 +1292,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
       result = prime * result + ((defaultGroupRebalance == null) ? 0 : defaultGroupRebalance.hashCode());
       result = prime * result + ((defaultGroupBuckets == null) ? 0 : defaultGroupBuckets.hashCode());
+      result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
       return result;
    }
 
@@ -1338,6 +1387,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.redeliveryMultiplier != null)
             return false;
       } else if (!redeliveryMultiplier.equals(other.redeliveryMultiplier))
+         return false;
+      if (redeliveryCollisionAvoidanceFactor == null) {
+         if (other.redeliveryCollisionAvoidanceFactor != null)
+            return false;
+      } else if (!redeliveryCollisionAvoidanceFactor.equals(other.redeliveryCollisionAvoidanceFactor))
          return false;
       if (maxRedeliveryDelay == null) {
          if (other.maxRedeliveryDelay != null)
@@ -1509,6 +1563,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!defaultGroupBuckets.equals(other.defaultGroupBuckets))
          return false;
+
+      if (defaultRingSize == null) {
+         if (other.defaultRingSize != null)
+            return false;
+      } else if (!defaultRingSize.equals(other.defaultRingSize))
+         return false;
       return true;
    }
 
@@ -1550,6 +1610,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          redeliveryDelay +
          ", redeliveryMultiplier=" +
          redeliveryMultiplier +
+         ", redeliveryCollisionAvoidanceFactor=" +
+         redeliveryCollisionAvoidanceFactor +
          ", maxRedeliveryDelay=" +
          maxRedeliveryDelay +
          ", redistributionDelay=" +
@@ -1610,6 +1672,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultGroupRebalance +
          ", defaultGroupBuckets=" +
          defaultGroupBuckets +
+         ", defaultRingSize=" +
+         defaultRingSize +
          "]";
    }
 }

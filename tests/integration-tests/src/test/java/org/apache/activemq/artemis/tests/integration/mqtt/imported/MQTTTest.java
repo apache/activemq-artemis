@@ -477,7 +477,7 @@ public class MQTTTest extends MQTTTestSupport {
             assertTrue("RETAINED prefix " + wildcard + " msg " + msgPayload, msgPayload.startsWith(RETAINED));
             assertTrue("RETAINED matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
-            msg = connection.receive(5000, TimeUnit.MILLISECONDS);
+            msg = connection.receive(500, TimeUnit.MILLISECONDS);
          }
          while (msg != null);
 
@@ -490,7 +490,7 @@ public class MQTTTest extends MQTTTestSupport {
             assertNotNull("Non-retained Null " + wildcard, msg);
             assertTrue("Non-retained matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
-            msg = connection.receive(1000, TimeUnit.MILLISECONDS);
+            msg = connection.receive(500, TimeUnit.MILLISECONDS);
          }
          while (msg != null);
 
@@ -528,12 +528,8 @@ public class MQTTTest extends MQTTTestSupport {
          final Message msg = connection.receive(5000, TimeUnit.MILLISECONDS);
          assertNotNull(msg);
          assertEquals(topic, new String(msg.getPayload()));
-         int waitCount = 0;
-         while (actualQoS[0] == -1 && waitCount < 10) {
-            Thread.sleep(1000);
-            waitCount++;
-         }
-         assertEquals(i, actualQoS[0]);
+
+         Wait.assertEquals(i, () -> actualQoS[0]);
          msg.ack();
 
          connection.unsubscribe(new String[]{topic});
@@ -573,12 +569,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No message for " + qos, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         int waitCount = 0;
-         while (actualQoS[0] == -1 && waitCount < 10) {
-            Thread.sleep(1000);
-            waitCount++;
-         }
-         assertEquals(qos.ordinal(), actualQoS[0]);
+         Wait.assertEquals(qos.ordinal(), () -> actualQoS[0]);
          actualQoS[0] = -1;
       }
 
@@ -1021,9 +1012,6 @@ public class MQTTTest extends MQTTTestSupport {
       connection.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       // kill transport
       connection.kill();
-
-      // FIXME Wait for the previous connection to timeout.  This is not required in ActiveMQ.  Needs investigating.
-      Thread.sleep(10000);
 
       final BlockingConnection newConnection = mqtt.blockingConnection();
       newConnection.connect();
