@@ -40,6 +40,7 @@
 * [Scheduled Messages](scheduled-messages.md)
 * [Last-Value Queues](last-value-queues.md)
 * [Ring Queues](ring-queues.md)
+* [Retroactive Addresses](retroactive-addresses.md)
 * [Exclusive Queues](exclusive-queues.md)
 * [Message Grouping](message-grouping.md)
 * [Consumer Priority](consumer-priority.md)

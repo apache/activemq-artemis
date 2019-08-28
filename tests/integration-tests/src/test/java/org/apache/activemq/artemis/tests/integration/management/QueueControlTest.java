@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.api.core.management.DayCounterInfo;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
@@ -67,8 +68,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -119,6 +120,27 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertFalse(queueControl.isTemporary());
 
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testRetroactiveResourceAttribute() throws Exception {
+      SimpleString baseAddress = RandomUtil.randomSimpleString();
+      String internalNamingPrefix = server.getInternalNamingPrefix();
+      String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
+      SimpleString address = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, baseAddress);
+      SimpleString multicastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, baseAddress, RoutingType.MULTICAST);
+      SimpleString anycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, baseAddress, RoutingType.ANYCAST);
+
+      session.createQueue(address, RoutingType.MULTICAST, multicastQueue, null, durable);
+      session.createQueue(address, RoutingType.MULTICAST, anycastQueue, null, durable);
+
+      QueueControl queueControl = createManagementControl(address, multicastQueue);
+      Assert.assertTrue(queueControl.isRetroactiveResource());
+      queueControl = createManagementControl(address, anycastQueue);
+      Assert.assertTrue(queueControl.isRetroactiveResource());
+
+      session.deleteQueue(multicastQueue);
+      session.deleteQueue(anycastQueue);
    }
 
    @Test

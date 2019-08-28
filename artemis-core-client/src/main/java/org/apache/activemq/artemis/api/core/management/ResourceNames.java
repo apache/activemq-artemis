@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * Helper class used to build resource names used by management messages.
  * <br>
@@ -39,7 +42,33 @@ public final class ResourceNames {
 
    public static final String BROADCAST_GROUP = "broadcastgroup.";
 
-   private ResourceNames() {
+   public static final String RETROACTIVE_SUFFIX = "retro";
+
+   public static SimpleString getRetroactiveResourceQueueName(String prefix, String delimiter, SimpleString address, RoutingType routingType) {
+      return getRetroactiveResourceName(prefix, delimiter, address, trimLastCharacter(QUEUE).concat(delimiter).concat(routingType.toString().toLowerCase()));
    }
 
+   public static SimpleString getRetroactiveResourceAddressName(String prefix, String delimiter, SimpleString address) {
+      return getRetroactiveResourceName(prefix, delimiter, address, trimLastCharacter(ADDRESS));
+   }
+
+   public static SimpleString getRetroactiveResourceDivertName(String prefix, String delimiter, SimpleString address) {
+      return getRetroactiveResourceName(prefix, delimiter, address, trimLastCharacter(DIVERT));
+   }
+
+   private static SimpleString getRetroactiveResourceName(String prefix, String delimiter, SimpleString address, String resourceType) {
+      return SimpleString.toSimpleString(prefix.concat(address.toString()).concat(delimiter).concat(resourceType).concat(delimiter).concat(RETROACTIVE_SUFFIX));
+   }
+
+   public static boolean isRetroactiveResource(String prefix, SimpleString address) {
+      return address.toString().startsWith(prefix) && address.toString().endsWith(RETROACTIVE_SUFFIX);
+   }
+
+   public static String decomposeRetroactiveResourceAddressName(String prefix, String delimiter, String address) {
+      return address.substring(address.indexOf(prefix) + prefix.length(), address.indexOf(delimiter + trimLastCharacter(ADDRESS)));
+   }
+
+   private static String trimLastCharacter(String toTrim) {
+      return toTrim.substring(0, toTrim.length() - 1);
+   }
 }

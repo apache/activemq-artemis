@@ -419,6 +419,14 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       return addressInfo.isPaused();
    }
 
+   @Override
+   public boolean isRetroactiveResource() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isRetroactiveResource(this.addressInfo);
+      }
+      return ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName());
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

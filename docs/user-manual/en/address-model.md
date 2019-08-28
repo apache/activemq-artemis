@@ -613,6 +613,7 @@ that would be found in the `broker.xml` file.
       <default-queue-routing-type></default-queue-routing-type>
       <default-address-routing-type></default-address-routing-type>
       <default-ring-size>-1</default-ring-size>
+      <retroactive-message-count>0</retroactive-message-count>
    </address-setting>
 </address-settings>
 ```
@@ -855,8 +856,13 @@ client and/or protocol semantics. Default is `MULTICAST`. Read more about
 `default-consumer-window-size` defines the default `consumerWindowSize` value 
 for a `CORE` protocol consumer, if not defined the default will be set to 
 1 MiB (1024 * 1024 bytes). The consumer will use this value as the window size
-if the value is not set on the client. Read more about [flow control](#flow-control).
+if the value is not set on the client. Read more about
+[flow control](flow-control.md).
 
 `default-ring-size` defines the default `ring-size` value for any matching queue
 which doesn't have `ring-size` explicitly defined. If not defined the default will
-be set to -1. Read more about [ring queues](#ring-queue).
+be set to -1. Read more about [ring queues](ring-queues.md).
+
+`retroactive-message-count` defines the number of messages to preserve for future
+queues created on the matching address. Defaults to 0. Read more about
+[retroactive addresses](retroactive-addresses.md).

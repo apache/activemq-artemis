@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.metrics.AddressMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 
@@ -65,6 +66,7 @@ public class AddressInfo {
 
    private PostOffice postOffice;
    private StorageManager storageManager;
+   private HierarchicalRepositoryChangeListener repositoryChangeListener;
 
    public AddressInfo(SimpleString name) {
       this(name, EnumSet.noneOf(RoutingType.class));
@@ -279,8 +281,9 @@ public class AddressInfo {
       return this.internal;
    }
 
-   public void setInternal(boolean internal) {
+   public AddressInfo setInternal(boolean internal) {
       this.internal = internal;
+      return this;
    }
 
    public AddressInfo create(SimpleString name, RoutingType routingType) {
@@ -316,6 +319,15 @@ public class AddressInfo {
 
    public long getUnRoutedMessageCount() {
       return unRoutedMessageCountUpdater.get(this);
+   }
+
+   public HierarchicalRepositoryChangeListener getRepositoryChangeListener() {
+      return repositoryChangeListener;
+   }
+
+   public AddressInfo setRepositoryChangeListener(HierarchicalRepositoryChangeListener repositoryChangeListener) {
+      this.repositoryChangeListener = repositoryChangeListener;
+      return this;
    }
 
    public void registerMeters(MetricsManager metricsManager) {
