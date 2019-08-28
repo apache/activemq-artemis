@@ -3398,6 +3398,14 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
+
+            <xsd:element name="retroactive-message-count" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the number of messages to preserve for future queues created on the matching address
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
             
          </xsd:all>
 

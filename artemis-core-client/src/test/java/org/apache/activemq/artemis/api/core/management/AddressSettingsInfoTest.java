@@ -76,7 +76,8 @@ public class AddressSettingsInfoTest {
          "\"autoDeleteQueuesDelay\":4,\n" +
          "\"autoDeleteQueuesMessageCount\":8,\n" +
          "\"autoDeleteAddressesDelay\":3003,\n" +
-         "\"redeliveryCollisionAvoidanceFactor\":1.1\n" +
+         "\"redeliveryCollisionAvoidanceFactor\":1.1,\n" +
+         "\"retroactiveMessageCount\":101\n" +
          "}";
       AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.from(json);
       assertEquals("fullPolicy", addressSettingsInfo.getAddressFullMessagePolicy());
@@ -125,6 +126,7 @@ public class AddressSettingsInfoTest {
       assertEquals(8, addressSettingsInfo.getAutoDeleteQueuesMessageCount());
       assertEquals(3003, addressSettingsInfo.getAutoDeleteAddressesDelay());
       assertEquals(1.1, addressSettingsInfo.getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(101, addressSettingsInfo.getRetroactiveMessageCount());
    }
 
 }

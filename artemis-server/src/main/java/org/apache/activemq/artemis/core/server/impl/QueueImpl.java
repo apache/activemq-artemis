@@ -1954,6 +1954,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private int iterQueue(final int flushLimit,
                                       final Filter filter1,
                                       QueueIterateAction messageAction) throws Exception {
+      return iterQueue(flushLimit, filter1, messageAction, true);
+   }
+
+   /**
+    * This is a generic method for any method interacting on the Queue to move or delete messages
+    * Instead of duplicate the feature we created an abstract class where you pass the logic for
+    * each message.
+    *
+    * @param filter1
+    * @param messageAction
+    * @return
+    * @throws Exception
+    */
+   private synchronized int iterQueue(final int flushLimit,
+                                      final Filter filter1,
+                                      QueueIterateAction messageAction,
+                                      final boolean remove) throws Exception {
       int count = 0;
       int txCount = 0;
 
@@ -1974,7 +1991,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                if (filter1 == null || filter1.match(ref.getMessage())) {
                   messageAction.actMessage(tx, ref);
-                  iter.remove();
+                  if (remove) {
+                     iter.remove();
+                  }
                   txCount++;
                   count++;
                }
@@ -2397,6 +2416,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             moveBetweenSnFQueues(queueSuffix, tx, ref);
          }
       });
+   }
+
+   public synchronized int rerouteMessages(final SimpleString queueName, final Filter filter) throws Exception {
+      return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
+         @Override
+         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
+            RoutingContext routingContext = new RoutingContextImpl(tx);
+            routingContext.setAddress(server.locateQueue(queueName).getAddress());
+            server.getPostOffice().getBinding(queueName).route(ref.getMessage(), routingContext);
+            postOffice.processRoute(ref.getMessage(), routingContext, false);
+         }
+      }, false);
    }
 
    @Override

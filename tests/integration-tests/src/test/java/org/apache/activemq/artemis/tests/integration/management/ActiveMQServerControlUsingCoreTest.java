@@ -954,7 +954,8 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "delay for deleting auto-created queues", name = "autoDeleteQueuesDelay") long autoDeleteQueuesDelay,
                                         @Parameter(desc = "the message count the queue must be at or below before it can be auto deleted", name = "autoDeleteQueuesMessageCount") long autoDeleteQueuesMessageCount,
                                         @Parameter(desc = "delay for deleting auto-created addresses", name = "autoDeleteAddressesDelay") long autoDeleteAddressesDelay,
-                                        @Parameter(desc = "factor by which to modify the redelivery delay slightly to avoid collisions", name = "redeliveryCollisionAvoidanceFactor") double redeliveryCollisionAvoidanceFactor) throws Exception {
+                                        @Parameter(desc = "factor by which to modify the redelivery delay slightly to avoid collisions", name = "redeliveryCollisionAvoidanceFactor") double redeliveryCollisionAvoidanceFactor,
+                                        @Parameter(desc = "the number of messages to preserve for future queues created on the matching address", name = "retroactiveMessageCount") long retroactiveMessageCount) throws Exception {
             proxy.invokeOperation("addAddressSettings",
                                   addressMatch,
                                   DLA,
@@ -1003,7 +1004,8 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   autoDeleteQueuesDelay,
                                   autoDeleteQueuesMessageCount,
                                   autoDeleteAddressesDelay,
-                                  redeliveryCollisionAvoidanceFactor);
+                                  redeliveryCollisionAvoidanceFactor,
+                                  retroactiveMessageCount);
          }
 
          @Override

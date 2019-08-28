@@ -311,6 +311,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isRetroactiveResource() {
+            return (Boolean) proxy.retrieveAttributeValue("retroactiveResource");
+         }
+
+         @Override
          public String listMessageCounter() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounter");
          }

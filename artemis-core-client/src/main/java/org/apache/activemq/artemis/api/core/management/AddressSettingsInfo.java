@@ -115,6 +115,8 @@ public final class AddressSettingsInfo {
 
    private final double redeliveryCollisionAvoidanceFactor;
 
+   private final long retroactiveMessageCount;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) {
@@ -164,7 +166,8 @@ public final class AddressSettingsInfo {
                                      object.getJsonNumber("autoDeleteQueuesDelay").longValue(),
                                      object.getJsonNumber("autoDeleteQueuesMessageCount").longValue(),
                                      object.getJsonNumber("autoDeleteAddressesDelay").longValue(),
-                                     object.getJsonNumber("redeliveryCollisionAvoidanceFactor").doubleValue());
+                                     object.getJsonNumber("redeliveryCollisionAvoidanceFactor").doubleValue(),
+                                     object.getJsonNumber("retroactiveMessageCount").longValue());
    }
 
    // Constructors --------------------------------------------------
@@ -214,7 +217,8 @@ public final class AddressSettingsInfo {
                               long autoDeleteQueuesDelay,
                               long autoDeleteQueuesMessageCount,
                               long autoDeleteAddressesDelay,
-                              double redeliveryCollisionAvoidanceFactor) {
+                              double redeliveryCollisionAvoidanceFactor,
+                              long retroactiveMessageCount) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -261,6 +265,7 @@ public final class AddressSettingsInfo {
       this.autoDeleteQueuesMessageCount = autoDeleteQueuesMessageCount;
       this.autoDeleteAddressesDelay = autoDeleteAddressesDelay;
       this.redeliveryCollisionAvoidanceFactor = redeliveryCollisionAvoidanceFactor;
+      this.retroactiveMessageCount = retroactiveMessageCount;
    }
 
    // Public --------------------------------------------------------
@@ -455,6 +460,10 @@ public final class AddressSettingsInfo {
 
    public double getRedeliveryCollisionAvoidanceFactor() {
       return redeliveryCollisionAvoidanceFactor;
+   }
+
+   public long getRetroactiveMessageCount() {
+      return retroactiveMessageCount;
    }
 }
 
