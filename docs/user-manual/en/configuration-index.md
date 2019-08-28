@@ -248,6 +248,7 @@ Name | Description | Default
 [default-queue-routing-type](address-model.md#routing-type) | Routing type for auto-created queues if the type can't be otherwise determined | `MULTICAST`
 [default-address-routing-type](address-model.md#routing-type) | Routing type for auto-created addresses if the type can't be otherwise determined | `MULTICAST`
 [default-ring-size](ring-queues.md) | The ring-size applied to queues without an explicit `ring-size` configured | `-1`
+[retroactive-message-count](retroactive-addresses.md) | the number of messages to preserve for future queues created on the matching address | `0`
 
 
 ## bridge type

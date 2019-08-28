@@ -362,6 +362,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a1").getDefaultQueueRoutingType());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a1").getDefaultAddressRoutingType());
       assertEquals(3, conf.getAddressesSettings().get("a1").getDefaultRingSize());
+      assertEquals(0, conf.getAddressesSettings().get("a1").getRetroactiveMessageCount());
 
       assertEquals("a2.1", conf.getAddressesSettings().get("a2").getDeadLetterAddress().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
@@ -386,6 +387,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a2").getDefaultAddressRoutingType());
       assertEquals(10000, conf.getAddressesSettings().get("a2").getDefaultConsumerWindowSize());
       assertEquals(-1, conf.getAddressesSettings().get("a2").getDefaultRingSize());
+      assertEquals(10, conf.getAddressesSettings().get("a2").getRetroactiveMessageCount());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
       assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());

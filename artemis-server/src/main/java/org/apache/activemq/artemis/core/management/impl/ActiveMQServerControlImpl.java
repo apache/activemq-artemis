@@ -2752,6 +2752,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("autoDeleteQueuesMessageCount", addressSettings.getAutoDeleteQueuesMessageCount())
             .add("autoDeleteAddressesDelay", addressSettings.getAutoDeleteAddressesDelay())
             .add("redeliveryCollisionAvoidanceFactor", addressSettings.getRedeliveryCollisionAvoidanceFactor())
+            .add("retroactiveMessageCount", addressSettings.getRetroactiveMessageCount())
             .build()
             .toString();
    }
@@ -2863,12 +2864,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                          AddressSettings.DEFAULT_CONFIG_DELETE_QUEUES.toString(),
                          AddressSettings.DEFAULT_CONFIG_DELETE_ADDRESSES.toString(),
                          AddressSettings.DEFAULT_ADDRESS_REJECT_THRESHOLD,
-                         ActiveMQDefaultConfiguration.getDefaultLastValueKey().toString(),
+                         ActiveMQDefaultConfiguration.getDefaultLastValueKey() == null ? null : ActiveMQDefaultConfiguration.getDefaultLastValueKey().toString(),
                          ActiveMQDefaultConfiguration.getDefaultNonDestructive(),
                          ActiveMQDefaultConfiguration.getDefaultExclusive(),
                          ActiveMQDefaultConfiguration.getDefaultGroupRebalance(),
                          ActiveMQDefaultConfiguration.getDefaultGroupBuckets(),
-                         ActiveMQDefaultConfiguration.getDefaultGroupFirstKey().toString(),
+                         ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() == null ? null : ActiveMQDefaultConfiguration.getDefaultGroupFirstKey().toString(),
                          ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                          ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch(),
@@ -2881,7 +2882,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                          AddressSettings.DEFAULT_AUTO_DELETE_QUEUES_DELAY,
                          AddressSettings.DEFAULT_AUTO_DELETE_QUEUES_MESSAGE_COUNT,
                          AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES_DELAY,
-                         AddressSettings.DEFAULT_REDELIVER_COLLISION_AVOIDANCE_FACTOR);
+                         AddressSettings.DEFAULT_REDELIVER_COLLISION_AVOIDANCE_FACTOR,
+                         ActiveMQDefaultConfiguration.getDefaultRetroactiveMessageCount());
    }
 
    @Override
@@ -2932,7 +2934,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final long autoDeleteQueuesDelay,
                                   final long autoDeleteQueuesMessageCount,
                                   final long autoDeleteAddressesDelay,
-                                  final double redeliveryCollisionAvoidanceFactor) throws Exception {
+                                  final double redeliveryCollisionAvoidanceFactor,
+                                  final long retroactiveMessageCount) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.addAddressSettings(this.server, address, DLA, expiryAddress, expiryDelay, defaultLastValueQueue, maxDeliveryAttempts,
                   maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier,
@@ -2944,7 +2947,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                   defaultGroupFirstKey, defaultMaxConsumers, defaultPurgeOnNoConsumers, defaultConsumersBeforeDispatch,
                   defaultDelayBeforeDispatch, defaultQueueRoutingType, defaultAddressRoutingType, defaultConsumerWindowSize,
                   defaultRingSize, autoDeleteCreatedQueues, autoDeleteQueuesDelay, autoDeleteQueuesMessageCount,
-                  autoDeleteAddressesDelay, redeliveryCollisionAvoidanceFactor);
+                  autoDeleteAddressesDelay, redeliveryCollisionAvoidanceFactor, retroactiveMessageCount);
       }
       checkStarted();
 
@@ -3005,6 +3008,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoDeleteQueuesMessageCount(autoDeleteQueuesMessageCount);
       addressSettings.setAutoDeleteAddressesDelay(autoDeleteAddressesDelay);
       addressSettings.setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor);
+      addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
 
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 

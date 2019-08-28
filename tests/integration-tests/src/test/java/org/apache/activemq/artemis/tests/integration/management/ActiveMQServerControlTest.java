@@ -727,7 +727,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       boolean autoDeleteJmsQueues = RandomUtil.randomBoolean();
       boolean autoCreateJmsTopics = RandomUtil.randomBoolean();
       boolean autoDeleteJmsTopics = RandomUtil.randomBoolean();
-
       boolean autoCreateQueues = RandomUtil.randomBoolean();
       boolean autoDeleteQueues = RandomUtil.randomBoolean();
       boolean autoCreateAddresses = RandomUtil.randomBoolean();
@@ -754,6 +753,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       long autoDeleteQueuesMessageCount = RandomUtil.randomPositiveLong();
       long autoDeleteAddressesDelay = RandomUtil.randomPositiveLong();
       double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
+      long retroactiveMessageCount = RandomUtil.randomPositiveLong();
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -802,7 +802,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        autoDeleteQueuesDelay,
                                        autoDeleteQueuesMessageCount,
                                        autoDeleteAddressesDelay,
-                                       redeliveryCollisionAvoidanceFactor);
+                                       redeliveryCollisionAvoidanceFactor,
+                                       retroactiveMessageCount);
 
       boolean ex = false;
       try {
@@ -853,7 +854,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           autoDeleteQueuesDelay,
                                           autoDeleteQueuesMessageCount,
                                           autoDeleteAddressesDelay,
-                                          redeliveryCollisionAvoidanceFactor);
+                                          redeliveryCollisionAvoidanceFactor,
+                                          retroactiveMessageCount);
       } catch (Exception expected) {
          ex = true;
       }
@@ -911,6 +913,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoDeleteQueuesMessageCount, info.getAutoDeleteQueuesMessageCount());
       assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
       assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(retroactiveMessageCount, info.getRetroactiveMessageCount());
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -959,7 +962,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        autoDeleteQueuesDelay,
                                        autoDeleteQueuesMessageCount,
                                        autoDeleteAddressesDelay,
-                                       redeliveryCollisionAvoidanceFactor);
+                                       redeliveryCollisionAvoidanceFactor,
+                                       retroactiveMessageCount);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -1010,6 +1014,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoDeleteQueuesMessageCount, info.getAutoDeleteQueuesMessageCount());
       assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
       assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(retroactiveMessageCount, info.getRetroactiveMessageCount());
 
       ex = false;
       try {
@@ -1060,7 +1065,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           autoDeleteQueuesDelay,
                                           autoDeleteQueuesMessageCount,
                                           autoDeleteAddressesDelay,
-                                          redeliveryCollisionAvoidanceFactor);
+                                          redeliveryCollisionAvoidanceFactor,
+                                          retroactiveMessageCount);
       } catch (Exception e) {
          ex = true;
       }

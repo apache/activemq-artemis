@@ -38,8 +38,7 @@ public interface JournalLoader {
    void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap,
                    List<QueueBindingInfo> queueBindingInfos) throws Exception;
 
-   void initAddresses(Map<Long, AddressBindingInfo> addressBindingInfosMap,
-                      List<AddressBindingInfo> addressBindingInfo) throws Exception;
+   void initAddresses(List<AddressBindingInfo> addressBindingInfo) throws Exception;
 
    void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception;
 

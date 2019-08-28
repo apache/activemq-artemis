@@ -70,6 +70,12 @@ public interface QueueControl {
    boolean isTemporary();
 
    /**
+    * Returns whether this queue is used for a retroactive address.
+    */
+   @Attribute(desc = "whether this queue is used for a retroactive address")
+   boolean isRetroactiveResource();
+
+   /**
     * Returns whether this queue is durable.
     */
    @Attribute(desc = "whether this queue is durable")

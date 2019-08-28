@@ -186,12 +186,9 @@ public class PostOfficeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void initAddresses(Map<Long, AddressBindingInfo> addressBindingInfosMap,
-                          List<AddressBindingInfo> addressBindingInfos) throws Exception {
+   public void initAddresses(List<AddressBindingInfo> addressBindingInfos) throws Exception {
 
       for (AddressBindingInfo addressBindingInfo : addressBindingInfos) {
-         addressBindingInfosMap.put(addressBindingInfo.getId(), addressBindingInfo);
-
          AddressInfo addressInfo = new AddressInfo(addressBindingInfo.getName()).setRoutingTypes(addressBindingInfo.getRoutingTypes());
          addressInfo.setId(addressBindingInfo.getId());
          if (addressBindingInfo.getAddressStatusEncoding() != null && addressBindingInfo.getAddressStatusEncoding().getStatus() == AddressQueueStatus.PAUSED) {

@@ -185,6 +185,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Long defaultRingSize = null;
 
+   private Long retroactiveMessageCount = null;
+
    private DeletionPolicy configDeleteQueues = null;
 
    private Boolean autoCreateAddresses = null;
@@ -759,6 +761,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public long getRetroactiveMessageCount() {
+      return retroactiveMessageCount != null ? retroactiveMessageCount : ActiveMQDefaultConfiguration.DEFAULT_RETROACTIVE_MESSAGE_COUNT;
+   }
+
+   public AddressSettings setRetroactiveMessageCount(final long defaultRetroactiveMessageCount) {
+      this.retroactiveMessageCount = defaultRetroactiveMessageCount;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -918,6 +929,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (defaultRingSize == null) {
          defaultRingSize = merged.defaultRingSize;
+      }
+      if (retroactiveMessageCount == null) {
+         retroactiveMessageCount = merged.retroactiveMessageCount;
       }
    }
 
@@ -1087,6 +1101,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          defaultGroupFirstKey = buffer.readNullableSimpleString();
       }
+
+      if (buffer.readableBytes() > 0) {
+         retroactiveMessageCount = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -1139,7 +1157,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          SimpleString.sizeofNullableString(defaultGroupFirstKey) +
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
-         BufferHelper.sizeOfNullableLong(defaultRingSize);
+         BufferHelper.sizeOfNullableLong(defaultRingSize) +
+         BufferHelper.sizeOfNullableLong(retroactiveMessageCount);
    }
 
    @Override
@@ -1243,6 +1262,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableDouble(buffer, redeliveryCollisionAvoidanceFactor);
 
       buffer.writeNullableSimpleString(defaultGroupFirstKey);
+
+      BufferHelper.writeNullableLong(buffer, retroactiveMessageCount);
    }
 
    /* (non-Javadoc)
@@ -1303,6 +1324,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultGroupBuckets == null) ? 0 : defaultGroupBuckets.hashCode());
       result = prime * result + ((defaultGroupFirstKey == null) ? 0 : defaultGroupFirstKey.hashCode());
       result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
+      result = prime * result + ((retroactiveMessageCount == null) ? 0 : retroactiveMessageCount.hashCode());
       return result;
    }
 
@@ -1585,6 +1607,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!defaultRingSize.equals(other.defaultRingSize))
          return false;
+
+      if (retroactiveMessageCount == null) {
+         if (other.retroactiveMessageCount != null)
+            return false;
+      } else if (!retroactiveMessageCount.equals(other.retroactiveMessageCount))
+         return false;
       return true;
    }
 
@@ -1692,6 +1720,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultGroupFirstKey +
          ", defaultRingSize=" +
          defaultRingSize +
+         ", retroactiveMessageCount=" +
+         retroactiveMessageCount +
          "]";
    }
 }

@@ -258,7 +258,7 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public boolean reloadAddressInfo(AddressInfo addressInfo) throws Exception {
+   public boolean reloadAddressInfo(AddressInfo addressInfo) {
       boolean added = addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
       if (added) {
          addressInfo.registerMeters(metricsManager);

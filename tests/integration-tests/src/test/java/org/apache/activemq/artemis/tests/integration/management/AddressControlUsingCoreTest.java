@@ -134,6 +134,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public boolean isRetroactiveResource() {
+            return (boolean) proxy.retrieveAttributeValue("retroactiveResource");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,
