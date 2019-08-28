@@ -22,11 +22,15 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class ScaleDownAnnounceMessage extends PacketImpl {
 
-   private SimpleString targetNodeId;
-   private SimpleString scaledDownNodeId;
+   protected SimpleString targetNodeId;
+   protected SimpleString scaledDownNodeId;
 
    public ScaleDownAnnounceMessage() {
       super(SCALEDOWN_ANNOUNCEMENT);
+   }
+
+   public ScaleDownAnnounceMessage(byte type) {
+      super(type);
    }
 
    public ScaleDownAnnounceMessage(SimpleString targetNodeId, SimpleString scaledDownNodeId) {

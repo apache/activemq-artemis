@@ -277,6 +277,7 @@ public class PacketImpl implements Packet {
 
    public static final byte SESS_BINDINGQUERY_RESP_V4 = -15;
 
+   public static final byte SCALEDOWN_ANNOUNCEMENT_V2 = -16;
 
    // Static --------------------------------------------------------
 

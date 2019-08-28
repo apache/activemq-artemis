@@ -889,6 +889,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean internalDelete() {
+         return false;
+      }
+
+      @Override
       public void unproposed(SimpleString groupID) {
 
       }

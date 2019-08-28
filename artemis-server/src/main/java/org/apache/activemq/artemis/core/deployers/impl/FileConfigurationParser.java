@@ -1578,6 +1578,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          Element scaleDownElement = (Element) scaleDownNode.item(0);
 
+         scaleDownConfiguration.setCleanupSfQueue(getBoolean(scaleDownElement, "cleanup-sf-queue", scaleDownConfiguration.isCleanupSfQueue()));
+
          scaleDownConfiguration.setEnabled(getBoolean(scaleDownElement, "enabled", scaleDownConfiguration.isEnabled()));
 
          NodeList discoveryGroupRef = scaleDownElement.getElementsByTagName("discovery-group-ref");
@@ -1790,8 +1792,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
 
       int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
-
-      String scaleDownConnector = e.getAttribute("scale-down-connector");
 
       String discoveryGroupName = null;
 
