@@ -710,7 +710,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // New node - create a new flow record
 
-               final SimpleString queueName = new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+               final SimpleString queueName = getSfQueueName(nodeID);
 
                Binding queueBinding = postOffice.getBinding(queueName);
 
@@ -741,6 +741,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
+   public SimpleString getSfQueueName(String nodeID) {
+      return new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+   }
+
    @Override
    public synchronized void informClusterOfBackup() {
       String nodeID = server.getNodeID().toString();
@@ -768,6 +772,27 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    public BridgeMetrics getBridgeMetrics(String nodeId) {
       final MessageFlowRecord record = records.get(nodeId);
       return record != null && record.getBridge() != null ? record.getBridge().getMetrics() : null;
+   }
+
+   @Override
+   public void removeSfQueue(SimpleString scaledDownNodeId) {
+      SimpleString sfQName = getSfQueueName(scaledDownNodeId.toString());
+      Binding binding = server.getPostOffice().getBinding(sfQName);
+
+      if (binding != null) {
+         removeSfQueue((Queue) binding.getBindable());
+      }
+   }
+
+   @Override
+   public void removeSfQueue(Queue queue) {
+      if (queue.internalDelete()) {
+         try {
+            server.removeAddressInfo(queue.getAddress(), null);
+         } catch (Exception e) {
+            logger.debug("Failed to remove sf address: " + queue.getAddress(), e);
+         }
+      }
    }
 
    private void createNewRecord(final long eventUID,

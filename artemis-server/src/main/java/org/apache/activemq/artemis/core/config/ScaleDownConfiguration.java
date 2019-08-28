@@ -34,6 +34,8 @@ public class ScaleDownConfiguration implements Serializable {
 
    private boolean enabled = ActiveMQDefaultConfiguration.isDefaultScaleDownEnabled();
 
+   private boolean cleanupSfQueue = ActiveMQDefaultConfiguration.isDefaultCleanupSfQueue();
+
    public List<String> getConnectors() {
       return connectors;
    }
@@ -81,6 +83,15 @@ public class ScaleDownConfiguration implements Serializable {
 
    public ScaleDownConfiguration setEnabled(boolean enabled) {
       this.enabled = enabled;
+      return this;
+   }
+
+   public Boolean isCleanupSfQueue() {
+      return this.cleanupSfQueue;
+   }
+
+   public ScaleDownConfiguration setCleanupSfQueue(Boolean cleanupSfQueue) {
+      this.cleanupSfQueue = cleanupSfQueue;
       return this;
    }
 }
