@@ -87,6 +87,7 @@ public class PropertySQLProvider implements SQLProvider {
       return new String[] {
               format(sql("create-journal-table"), tableName),
               format(sql("create-journal-index"), tableName),
+              format(sql("create-journal-tx-index"), tableName)
       };
    }
 
