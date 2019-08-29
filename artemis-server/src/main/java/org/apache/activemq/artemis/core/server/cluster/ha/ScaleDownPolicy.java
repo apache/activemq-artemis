@@ -41,21 +41,25 @@ public class ScaleDownPolicy {
 
    private boolean enabled;
 
+   private boolean isCleanupSfQueue;
+
    public ScaleDownPolicy() {
    }
 
-   public ScaleDownPolicy(List<String> connectors, String groupName, String clusterName, boolean enabled) {
+   public ScaleDownPolicy(List<String> connectors, String groupName, String clusterName, boolean enabled, boolean isCleanupSfQueue) {
       this.connectors = connectors;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.enabled = enabled;
+      this.isCleanupSfQueue = isCleanupSfQueue;
    }
 
-   public ScaleDownPolicy(String discoveryGroup, String groupName, String clusterName, boolean enabled) {
+   public ScaleDownPolicy(String discoveryGroup, String groupName, String clusterName, boolean enabled, boolean isCleanupSfQueue) {
       this.discoveryGroup = discoveryGroup;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.enabled = enabled;
+      this.isCleanupSfQueue = isCleanupSfQueue;
    }
 
    public List<String> getConnectors() {
@@ -123,5 +127,9 @@ public class ScaleDownPolicy {
    private static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames,
                                                                     ActiveMQServer activeMQServer) {
       return activeMQServer.getConfiguration().getTransportConfigurations(connectorNames);
+   }
+
+   public boolean isCleanupSfQueue() {
+      return this.isCleanupSfQueue;
    }
 }
