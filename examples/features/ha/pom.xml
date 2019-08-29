@@ -60,6 +60,7 @@ under the License.
             <module>replicated-multiple-failover</module>
             <module>replicated-transaction-failover</module>
             <module>scale-down</module>
+            <module>shared-storage-static-cluster</module>
             <module>stop-server-failover</module>
             <module>transaction-failover</module>
          </modules>
@@ -80,6 +81,7 @@ under the License.
             <module>replicated-multiple-failover</module>
             <module>replicated-transaction-failover</module>
             <module>scale-down</module>
+            <module>shared-storage-static-cluster</module>
             <module>transaction-failover</module>
          </modules>
       </profile>
