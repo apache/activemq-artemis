@@ -331,7 +331,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       }
 
       try {
-         if (address.isReachable(networkInterface, 0, networkTimeout)) {
+         if (!hasCustomPingCommand() && isReachable(address)) {
             if (logger.isTraceEnabled()) {
                logger.tracef(address + " OK");
             }
@@ -343,6 +343,10 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          ActiveMQUtilLogger.LOGGER.failedToCheckAddress(e, address.toString());
          return false;
       }
+   }
+
+   protected boolean isReachable(InetAddress address) throws IOException {
+      return address.isReachable(networkInterface, 0, networkTimeout);
    }
 
    public boolean purePing(InetAddress address) throws IOException, InterruptedException {
@@ -414,5 +418,9 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    public boolean isEmpty() {
       return addresses.isEmpty() && urls.isEmpty();
+   }
+
+   public boolean hasCustomPingCommand() {
+      return !getIpv4Command().equals(IPV4_DEFAULT_COMMAND) || !getIpv6Command().equals(IPV6_DEFAULT_COMMAND);
    }
 }

@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -267,6 +268,63 @@ public class NetworkHealthTest {
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
       Assert.assertTrue(component.isStarted());
 
+   }
+
+
+   @Test
+   public void testValidateCommand() throws Throwable {
+      AtomicInteger purePing = new AtomicInteger(0);
+      AtomicInteger isReacheable = new AtomicInteger(0);
+      NetworkHealthCheck myCheck =
+         new NetworkHealthCheck() {
+            @Override
+            protected boolean isReachable(InetAddress address) throws IOException {
+               isReacheable.incrementAndGet();
+               return false;
+            }
+
+            @Override
+            public boolean purePing(InetAddress address) throws IOException, InterruptedException {
+               purePing.incrementAndGet();
+               return false;
+            }
+         };
+
+      myCheck.setIpv4Command("whatever");
+      myCheck.setIpv6Command("whatever");
+
+      myCheck.check(InetAddress.getByName("127.0.0.1"));
+
+      Assert.assertEquals(0, isReacheable.get());
+      Assert.assertEquals(1, purePing.get());
+   }
+
+   @Test
+   public void testValidateIsReachable() throws Throwable {
+      AtomicInteger purePing = new AtomicInteger(0);
+      AtomicInteger isReacheable = new AtomicInteger(0);
+      NetworkHealthCheck myCheck =
+         new NetworkHealthCheck() {
+            @Override
+            protected boolean isReachable(InetAddress address) throws IOException {
+               isReacheable.incrementAndGet();
+               return true;
+            }
+
+            @Override
+            public boolean purePing(InetAddress address) throws IOException, InterruptedException {
+               purePing.incrementAndGet();
+               return false;
+            }
+         };
+
+      //myCheck.setIpv4Command("whatever");
+      //myCheck.setIpv6Command("whatever");
+
+      myCheck.check(InetAddress.getByName("127.0.0.1"));
+
+      Assert.assertEquals(1, isReacheable.get());
+      Assert.assertEquals(0, purePing.get());
    }
 
 }
