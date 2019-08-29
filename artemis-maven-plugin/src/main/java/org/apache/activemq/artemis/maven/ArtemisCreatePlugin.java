@@ -102,6 +102,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "false")
    private boolean slave;
 
+   @Parameter
+   private String staticCluster;
+
    @Parameter(defaultValue = "./data")
    String dataFolder;
 
@@ -190,6 +193,10 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          add(listCommands, "--allow-anonymous");
       } else {
          add(listCommands, "--require-login");
+      }
+
+      if (staticCluster != null) {
+         add(listCommands, "--staticCluster", staticCluster);
       }
 
       if (!javaOptions.isEmpty()) {

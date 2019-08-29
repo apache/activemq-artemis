@@ -49,6 +49,7 @@ public class StreamClassPathTest {
       testStream(Create.class, Create.ETC_SHARED_STORE_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CLUSTER_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_CLUSTER_STATIC_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CONNECTOR_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_BOOTSTRAP_WEB_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_JOURNAL_BUFFER_SETTINGS);
