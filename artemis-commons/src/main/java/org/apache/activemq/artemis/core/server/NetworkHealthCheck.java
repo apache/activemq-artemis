@@ -417,6 +417,6 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    }
 
    public boolean hasCustomPingCommand() {
-      return getIpv4Command().equals(IPV4_DEFAULT_COMMAND) && getIpv6Command().equals(IPV6_DEFAULT_COMMAND);
+      return !getIpv4Command().equals(IPV4_DEFAULT_COMMAND) || !getIpv6Command().equals(IPV6_DEFAULT_COMMAND);
    }
 }
