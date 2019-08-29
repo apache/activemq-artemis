@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NodeAnnoun
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessageV2;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -195,8 +196,10 @@ public class ClusterControl implements AutoCloseable {
       return requestBackup(backupRequestMessage);
    }
 
-   public void announceScaleDown(SimpleString targetNodeId, SimpleString scaledDownNodeId) {
-      ScaleDownAnnounceMessage announceMessage = new ScaleDownAnnounceMessage(targetNodeId, scaledDownNodeId);
+   public void announceScaleDown(SimpleString targetNodeId, SimpleString scaledDownNodeId, boolean isCleanupSfQueue) {
+
+      ScaleDownAnnounceMessage announceMessage = isCleanupSfQueue ? new ScaleDownAnnounceMessageV2(targetNodeId, scaledDownNodeId) : new ScaleDownAnnounceMessage(targetNodeId, scaledDownNodeId);
+
       clusterChannel.send(announceMessage);
    }
 

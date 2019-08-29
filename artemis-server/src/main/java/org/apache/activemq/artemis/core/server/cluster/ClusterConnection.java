@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionMetrics;
 
@@ -96,4 +97,11 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
     * @return
     */
    BridgeMetrics getBridgeMetrics(String nodeId);
+
+   /**
+    * Remove the store-and-forward queue after scale down
+    */
+   void removeSfQueue(SimpleString scaledDownNodeId);
+
+   void removeSfQueue(Queue queue);
 }
