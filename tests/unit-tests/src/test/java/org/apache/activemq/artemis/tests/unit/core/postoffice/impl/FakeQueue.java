@@ -355,6 +355,16 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void addLingerSession(String sessionId) {
+
+   }
+
+   @Override
+   public void removeLingerSession(String sessionId) {
+
+   }
+
+   @Override
    public void addRedistributor(final long delay) {
       // no-op
 

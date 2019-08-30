@@ -52,6 +52,8 @@ public class RefsOperation extends TransactionOperationAbstract {
     */
    protected boolean ignoreRedeliveryCheck = false;
 
+   private String lingerSessionId = null;
+
    public RefsOperation(Queue queue, AckReason reason, StorageManager storageManager) {
       this.queue = queue;
       this.reason = reason;
@@ -97,6 +99,8 @@ public class RefsOperation extends TransactionOperationAbstract {
       List<MessageReference> ackedRefs = new ArrayList<>();
 
       for (MessageReference ref : refsToAck) {
+         clearLingerRef(ref);
+
          ref.emptyConsumerID();
 
          if (logger.isTraceEnabled()) {
@@ -175,8 +179,10 @@ public class RefsOperation extends TransactionOperationAbstract {
    @Override
    public void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
+         clearLingerRef(ref);
+
          synchronized (ref.getQueue()) {
-            queue.postAcknowledge(ref, reason);
+            ref.getQueue().postAcknowledge(ref, reason);
          }
       }
 
@@ -187,6 +193,12 @@ public class RefsOperation extends TransactionOperationAbstract {
                decrementRefCount(refmsg);
             }
          }
+      }
+   }
+
+   private void clearLingerRef(MessageReference ref) {
+      if (!ref.hasConsumerId() && lingerSessionId != null) {
+         ref.getQueue().removeLingerSession(lingerSessionId);
       }
    }
 
@@ -228,4 +240,18 @@ public class RefsOperation extends TransactionOperationAbstract {
       return refsToAck;
    }
 
+   public synchronized List<MessageReference> getLingerMessages() {
+      List<MessageReference> list = new LinkedList<>();
+      for (MessageReference ref : refsToAck) {
+         if (!ref.hasConsumerId() && lingerSessionId != null) {
+            list.add(ref);
+         }
+      }
+
+      return list;
+   }
+
+   public void setLingerSession(String lingerSessionId) {
+      this.lingerSessionId = lingerSessionId;
+   }
 }

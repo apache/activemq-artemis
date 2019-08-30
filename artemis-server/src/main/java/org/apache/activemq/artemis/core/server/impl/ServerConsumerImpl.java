@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -571,6 +571,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       tx.rollback();
 
+      addLingerRefs();
+
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
 
@@ -604,6 +606,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       if (server.hasBrokerConsumerPlugins()) {
          server.callBrokerConsumerPlugins(plugin -> plugin.afterCloseConsumer(this, failed));
+      }
+   }
+
+   private void addLingerRefs() throws Exception {
+      if (!browseOnly) {
+         List<MessageReference> lingerRefs = session.getInTXMessagesForConsumer(this.id);
+         if (lingerRefs != null && !lingerRefs.isEmpty()) {
+            session.addLingerConsumer(this);
+         }
       }
    }
 

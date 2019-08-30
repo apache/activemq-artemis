@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.Redistributor;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -101,6 +102,7 @@ import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
@@ -320,6 +322,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * to guarantee ordering will be always be correct
     */
    private final Object directDeliveryGuard = new Object();
+
+   private final ConcurrentHashSet<String> lingerSessionIds = new ConcurrentHashSet<>();
 
    public String debug() {
       StringWriter str = new StringWriter();
@@ -1261,6 +1265,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void addLingerSession(String sessionId) {
+      lingerSessionIds.add(sessionId);
+   }
+
+   @Override
+   public void removeLingerSession(String sessionId) {
+      lingerSessionIds.remove(sessionId);
+   }
+
+   @Override
    public void removeConsumer(final Consumer consumer) {
 
       enterCritical(CRITICAL_CONSUMER);
@@ -1585,6 +1599,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             mapReturn.put(holder.consumer.toManagementString(), msgs);
          }
       }
+
+      for (String lingerSessionId : lingerSessionIds) {
+         ServerSession serverSession = server.getSessionByID(lingerSessionId);
+         List<MessageReference> refs = serverSession == null ? null : serverSession.getInTxLingerMessages();
+         if (refs != null && !refs.isEmpty()) {
+            mapReturn.put(serverSession.toManagementString(), refs);
+         }
+      }
+
       return mapReturn;
    }
 
