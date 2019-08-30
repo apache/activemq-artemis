@@ -129,6 +129,10 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void addConsumer(Consumer consumer) throws Exception;
 
+   void addLingerSession(String sessionId);
+
+   void removeLingerSession(String sessionId);
+
    void removeConsumer(Consumer consumer);
 
    int getConsumerCount();
