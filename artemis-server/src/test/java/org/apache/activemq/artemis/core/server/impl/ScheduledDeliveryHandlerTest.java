@@ -1006,6 +1006,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void addLingerSession(String sessionId) {
+
+      }
+
+      @Override
+      public void removeLingerSession(String sessionId) {
+
+      }
+
+      @Override
       public void removeConsumer(Consumer consumer) {
 
       }

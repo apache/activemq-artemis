@@ -2114,6 +2114,41 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
+   public List<MessageReference> getInTxLingerMessages() {
+      Transaction transaction = tx;
+      if (transaction == null && callback != null) {
+         transaction = callback.getCurrentTransaction();
+      }
+      RefsOperation operation = transaction == null ? null : (RefsOperation) transaction.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
+
+      return operation == null ? null : operation.getLingerMessages();
+   }
+
+   @Override
+   public void addLingerConsumer(ServerConsumer consumer) {
+      Transaction transaction = tx;
+      if (transaction == null && callback != null) {
+         transaction = callback.getCurrentTransaction();
+      }
+      if (transaction != null) {
+         synchronized (transaction) {
+            // Transaction might be committed/rolledback, we need to synchronize and judge state
+            if (transaction.getState() != State.COMMITTED && transaction.getState() != State.ROLLEDBACK) {
+               RefsOperation operation = (RefsOperation) transaction.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
+               List<MessageReference> refs = operation == null ? null : operation.getListOnConsumer(consumer.getID());
+               if (refs != null && !refs.isEmpty()) {
+                  for (MessageReference ref : refs) {
+                     ref.emptyConsumerID();
+                  }
+                  operation.setLingerSession(name);
+                  consumer.getQueue().addLingerSession(name);
+               }
+            }
+         }
+      }
+   }
+
+   @Override
    public SimpleString removePrefix(SimpleString address) {
       if (prefixEnabled && address != null) {
          return PrefixUtil.getAddress(address, prefixes);
@@ -2182,5 +2217,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public int getDefaultConsumerWindowSize(SimpleString address) {
       AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
       return as.getDefaultConsumerWindowSize();
+   }
+
+   @Override
+   public String toManagementString() {
+      return "ServerSession [id=" + getConnectionID() + ":" + getName() + "]";
    }
 }
