@@ -72,6 +72,13 @@
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
       <!-- License: Apache 2.0 -->
+      <!-- see https://github.com/google/guava/issues/3006: checker-compat-qual could be excluded -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.checkerframework</groupId>
+          <artifactId>checker-compat-qual</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
