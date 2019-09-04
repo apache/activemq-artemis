@@ -639,6 +639,43 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testListDeliveringMessagesOnClosedConsumer() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      int intValue = RandomUtil.randomInt();
+      session.createQueue(address, RoutingType.MULTICAST, queue, null, durable);
+
+      Queue srvqueue = server.locateQueue(queue);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(durable);
+      message.putIntProperty(new SimpleString("key"), intValue);
+      producer.send(message);
+      producer.send(session.createMessage(durable));
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      session.start();
+      ClientMessage msgRec = consumer.receive(5000);
+      assertNotNull(msgRec);
+      assertEquals(msgRec.getIntProperty("key").intValue(), intValue);
+      assertEquals(1, srvqueue.getDeliveringCount());
+      assertEquals(1, queueControl.listDeliveringMessages().size());
+
+      msgRec.acknowledge();
+      consumer.close();
+      assertEquals(1, srvqueue.getDeliveringCount());
+
+      System.out.println(queueControl.listDeliveringMessagesAsJSON());
+
+      Map<String, Map<String, Object>[]> deliveringMap = queueControl.listDeliveringMessages();
+      assertEquals(1, deliveringMap.size());
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testListScheduledMessages() throws Exception {
       long delay = 2000;
       SimpleString address = RandomUtil.randomSimpleString();

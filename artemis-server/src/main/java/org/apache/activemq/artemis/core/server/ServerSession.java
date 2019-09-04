@@ -429,6 +429,10 @@ public interface ServerSession extends SecurityAuth {
 
    List<MessageReference> getInTXMessagesForConsumer(long consumerId);
 
+   List<MessageReference> getInTxLingerMessages();
+
+   void addLingerConsumer(ServerConsumer consumer);
+
    String getValidatedUser();
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
@@ -490,4 +494,6 @@ public interface ServerSession extends SecurityAuth {
    int getProducerCount();
 
    int getDefaultConsumerWindowSize(SimpleString address);
+
+   String toManagementString();
 }

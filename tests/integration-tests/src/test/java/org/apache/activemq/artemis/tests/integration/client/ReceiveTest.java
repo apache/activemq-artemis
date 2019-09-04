@@ -41,7 +41,11 @@ public class ReceiveTest extends ActiveMQTestBase {
 
    SimpleString addressA;
 
+   SimpleString addressB;
+
    SimpleString queueA;
+
+   SimpleString queueB;
 
    private ServerLocator locator;
 
@@ -54,6 +58,8 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       addressA = RandomUtil.randomSimpleString();
       queueA = RandomUtil.randomSimpleString();
+      addressB = RandomUtil.randomSimpleString();
+      queueB = RandomUtil.randomSimpleString();
 
       locator = createInVMNonHALocator();
       server = createServer(false);
@@ -159,6 +165,39 @@ public class ReceiveTest extends ActiveMQTestBase {
       if (cc.receiveImmediate() == null) {
          Assert.assertNotNull(cc2.receiveImmediate());
       }
+      session.close();
+      sendSession.close();
+   }
+
+   @Test
+   public void testMultiConsumersOnSession() throws Exception {
+      ClientSessionFactory cf = createSessionFactory(locator.setCallTimeout(10000000));
+      ClientSession sendSession = cf.createSession(false, true, true);
+      ClientProducer cp1 = sendSession.createProducer(addressA);
+      ClientProducer cp2 = sendSession.createProducer(addressB);
+
+      ClientSession session = cf.createSession(false, true, false);
+      session.createQueue(addressA, queueA, false);
+      session.createQueue(addressB, queueB, false);
+
+      ClientConsumer cc1 = session.createConsumer(queueA);
+      ClientConsumer cc2 = session.createConsumer(queueB);
+      session.start();
+
+      cp1.send(sendSession.createMessage(false));
+      cp2.send(sendSession.createMessage(false));
+      Assert.assertNotNull(cc1.receive().acknowledge());
+      Assert.assertNotNull(cc2.receive().acknowledge());
+      session.commit();
+
+      final Queue queue1 = server.locateQueue(queueA);
+      final Queue queue2 = server.locateQueue(queueB);
+
+      Wait.assertTrue(() -> queue1.getMessageCount() == 0, 500, 100);
+      Wait.assertTrue(() -> queue1.getMessagesAcknowledged() == 1, 500, 100);
+      Wait.assertTrue(() -> queue2.getMessageCount() == 0, 500, 100);
+      Wait.assertTrue(() -> queue2.getMessagesAcknowledged() == 1, 500, 100);
+
       session.close();
       sendSession.close();
    }
