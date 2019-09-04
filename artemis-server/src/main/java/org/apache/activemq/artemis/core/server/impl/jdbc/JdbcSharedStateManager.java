@@ -76,6 +76,26 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
                                                        null,
                                                        locksExpirationMillis,
                                                        jdbcConnectionUrl,
+                                                       null,
+                                                       null,
+                                                       jdbcDriverClass,
+                                                       provider);
+   }
+
+   public static JdbcSharedStateManager usingConnectionUrl(String holderId,
+                                                           long locksExpirationMillis,
+                                                           String jdbcConnectionUrl,
+                                                           String user,
+                                                           String password,
+                                                           String jdbcDriverClass,
+                                                           SQLProvider provider) {
+      return JdbcSharedStateManager.usingConnectionUrl(holderId,
+                                                       -1,
+                                                       null,
+                                                       locksExpirationMillis,
+                                                       jdbcConnectionUrl,
+                                                       user,
+                                                       password,
                                                        jdbcDriverClass,
                                                        provider);
    }
@@ -85,6 +105,8 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
                                                            Executor networkTimeoutExecutor,
                                                            long locksExpirationMillis,
                                                            String jdbcConnectionUrl,
+                                                           String user,
+                                                           String password,
                                                            String jdbcDriverClass,
                                                            SQLProvider provider) {
       final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis);
@@ -92,6 +114,8 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       sharedStateManager.setJdbcConnectionUrl(jdbcConnectionUrl);
       sharedStateManager.setJdbcDriverClass(jdbcDriverClass);
       sharedStateManager.setSqlProvider(provider);
+      sharedStateManager.setUser(user);
+      sharedStateManager.setPassword(password);
       try {
          sharedStateManager.start();
          return sharedStateManager;
