@@ -85,12 +85,14 @@ public class CreditsSemaphoreTest {
 
       Assert.assertEquals(0, semaphore.getCredits());
 
-      long timeout = System.currentTimeMillis() + 1000;
-      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout) {
+      // TODO: Wait.assertTrue is not available at this package. So, this is making what we would be doing with a Wait Clause
+      //       we could replace this next block with a Wait clause on hasQueuedThreads
+      int i = 0;
+      for (i = 0; i < 1000 && !semaphore.hasQueuedThreads(); i++) {
          Thread.sleep(10);
       }
 
-      Assert.assertTrue(semaphore.hasQueuedThreads());
+      Assert.assertTrue(i < 1000);
 
       semaphore.release(2);
 
