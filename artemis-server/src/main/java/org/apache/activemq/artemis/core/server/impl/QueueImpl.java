@@ -2902,6 +2902,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
+   protected void addRefSize(MessageReference ref) {
+      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      pendingMetrics.incrementMetrics(ref);
+   }
+
    protected void refAdded(final MessageReference ref) {
       if (ref.isPaged()) {
          pagedReferences.incrementAndGet();
