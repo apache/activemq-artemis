@@ -671,6 +671,26 @@ public class LVQTest extends ActiveMQTestBase {
       clientSessionTxReceives.commit();
    }
 
+   @Test
+   public void testSizeInReplace() throws Exception {
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientMessage m1 = createTextMessage(clientSession, "m1");
+      SimpleString rh = new SimpleString("SMID1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+
+      ClientMessage m2 = clientSession.createMessage(true);
+      m2.setBodyInputStream(createFakeLargeStream(10 * 1024));
+      m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+
+      Queue queue = server.locateQueue(qName1);
+      producer.send(m1);
+      long oldSize = queue.getPersistentSize();
+      producer.send(m2);
+      assertEquals(queue.getDeliveringSize(), 0);
+      assertNotEquals(queue.getPersistentSize(), oldSize);
+      assertTrue(queue.getPersistentSize() > 10 * 1024);
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
