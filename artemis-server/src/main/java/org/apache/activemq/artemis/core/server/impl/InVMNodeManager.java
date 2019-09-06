@@ -70,17 +70,17 @@ public final class InVMNodeManager extends NodeManager {
    public void awaitLiveNode() throws Exception {
       do {
          while (state == NOT_STARTED) {
-            Thread.sleep(2000);
+            Thread.sleep(10);
          }
 
          liveLock.acquire();
 
          if (state == PAUSED) {
             liveLock.release();
-            Thread.sleep(2000);
+            Thread.sleep(10);
          } else if (state == FAILING_BACK) {
             liveLock.release();
-            Thread.sleep(2000);
+            Thread.sleep(10);
          } else if (state == LIVE) {
             break;
          }
