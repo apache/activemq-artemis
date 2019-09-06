@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -248,10 +249,10 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
-      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -343,10 +344,10 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
-      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -415,7 +416,7 @@ public class FailoverTest extends FailoverTestBase {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(500);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 6000L;
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -472,7 +473,7 @@ public class FailoverTest extends FailoverTestBase {
          expected.printStackTrace();
       }
 
-      Thread.sleep(2000);
+      Thread.sleep(1000);
 
       m = null;
       for (int i = 0; i < 500; i++) {
@@ -493,7 +494,7 @@ public class FailoverTest extends FailoverTestBase {
       locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+         ((InVMNodeManager) nodeManager).failoverPause = 1000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -533,7 +534,7 @@ public class FailoverTest extends FailoverTestBase {
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       session.start();
 
-      ClientMessage m = consumer.receive(1000);
+      ClientMessage m = consumer.receiveImmediate();
       Assert.assertNull(m);
 
    }
@@ -708,10 +709,7 @@ public class FailoverTest extends FailoverTestBase {
       liveServer.getServer().start();
 
       Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
-      int i = 0;
-      while (!backupServer.isStarted() && i++ < 100) {
-         Thread.sleep(100);
-      }
+      Wait.assertTrue(backupServer::isStarted);
       liveServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
       Assert.assertTrue(backupServer.isStarted());
 
@@ -1807,7 +1805,7 @@ public class FailoverTest extends FailoverTestBase {
             message = repeatMessage;
             repeatMessage = null;
          } else {
-            message = consumer.receive(1000);
+            message = consumer.receive(50);
          }
 
          if (message != null) {

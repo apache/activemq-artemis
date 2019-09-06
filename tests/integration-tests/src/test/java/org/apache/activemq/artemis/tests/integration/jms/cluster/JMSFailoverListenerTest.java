@@ -98,9 +98,12 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
    public void testAutomaticFailover() throws Exception {
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
       jbcf.setReconnectAttempts(-1);
-      jbcf.setRetryInterval(10);
+      jbcf.setRetryInterval(100);
+      jbcf.setConnectionTTL(500);
+      jbcf.setClientFailureCheckPeriod(100);
       jbcf.setBlockOnDurableSend(true);
       jbcf.setBlockOnNonDurableSend(true);
+      jbcf.setCallTimeout(1000);
 
       // Note we set consumer window size to a value so we can verify that consumer credit re-sending
       // works properly on failover
@@ -152,7 +155,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
-      Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
+      Wait.assertTrue(() -> FailoverEventType.FAILURE_DETECTED == listener.get(0));
       for (int i = 0; i < numMessages; i++) {
          JMSFailoverListenerTest.log.info("got message " + i);
 
@@ -178,12 +181,14 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       jbcfLive.setBlockOnNonDurableSend(true);
       jbcfLive.setBlockOnDurableSend(true);
+      jbcfLive.setCallTimeout(1000);
 
       ActiveMQConnectionFactory jbcfBackup = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams));
       jbcfBackup.setBlockOnNonDurableSend(true);
       jbcfBackup.setBlockOnDurableSend(true);
       jbcfBackup.setInitialConnectAttempts(-1);
       jbcfBackup.setReconnectAttempts(-1);
+      jbcfBackup.setRetryInterval(100);
 
       ActiveMQConnection connLive = (ActiveMQConnection) jbcfLive.createConnection();
 
