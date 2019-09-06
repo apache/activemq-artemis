@@ -162,6 +162,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
          return true;
       } else {
          for (Filter filter : filters) {
+            assert filter != null : "filters contains a null filter";
             if (filter.match(message)) {
                return true;
             }
@@ -203,7 +204,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    @Override
    public synchronized void addConsumer(final SimpleString filterString) throws Exception {
-      if (filterString != null) {
+      if (filterString != null && !filterString.isEmpty()) {
          // There can actually be many consumers on the same queue with the same filter, so we need to maintain a ref
          // count
 
@@ -223,7 +224,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    @Override
    public synchronized void removeConsumer(final SimpleString filterString) throws Exception {
-      if (filterString != null) {
+      if (filterString != null && !filterString.isEmpty()) {
          Integer i = filterCounts.get(filterString);
 
          if (i != null) {
