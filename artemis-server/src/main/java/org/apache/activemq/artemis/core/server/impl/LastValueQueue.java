@@ -166,7 +166,8 @@ public class LastValueQueue extends QueueImpl {
    private void replaceLVQMessage(MessageReference ref, HolderReference hr) {
       MessageReference oldRef = hr.getReference();
 
-      referenceHandled(ref);
+      referenceHandled(oldRef);
+      super.refRemoved(oldRef);
 
       try {
          oldRef.acknowledge(null, AckReason.REPLACED, null);
@@ -175,6 +176,8 @@ public class LastValueQueue extends QueueImpl {
       }
 
       hr.setReference(ref);
+      addRefSize(ref);
+      refAdded(ref);
    }
 
    @Override
