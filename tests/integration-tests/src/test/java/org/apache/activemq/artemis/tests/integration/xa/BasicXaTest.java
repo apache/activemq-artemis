@@ -40,12 +40,14 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAXAResource;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -233,7 +235,12 @@ public class BasicXaTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
+      Queue queueAtestQ = messagingService.locateQueue(atestq);
+      Assert.assertNotNull(queueAtestQ);
+
       clientSession.getSessionFactory().getConnection().destroy();
+
+      Wait.assertEquals(0, queueAtestQ::getConsumerCount);
 
       messagingService.destroyQueue(atestq);
 
