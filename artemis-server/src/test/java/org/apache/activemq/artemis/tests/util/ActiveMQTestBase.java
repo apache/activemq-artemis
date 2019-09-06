@@ -586,7 +586,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       ClusterConnectionConfiguration clusterConnectionConfiguration = new ClusterConnectionConfiguration().
          setName("cluster1").setAddress("jms").setConnectorName(connectorName).
-         setRetryInterval(1000).setDuplicateDetection(false).setMaxHops(1).
+         setRetryInterval(100).setDuplicateDetection(false).setMaxHops(1).
          setConfirmationWindowSize(1).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).
          setStaticConnectors(connectors0);
 
