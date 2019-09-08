@@ -793,6 +793,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       });
 
+      ActiveMQServerLogger.LOGGER.initializingMetricsPlugin(clazz, properties.toString());
       config.setMetricsPlugin(metricsPlugin.init(properties));
 
       return metricsPlugin;
