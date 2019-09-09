@@ -34,6 +34,9 @@ public class CheckDependencies {
    public static final boolean isEpollAvailable() {
       try {
          return Env.isLinuxOs() && Epoll.isAvailable();
+      } catch (NoClassDefFoundError noClassDefFoundError) {
+         ActiveMQClientLogger.LOGGER.unableToCheckEpollAvailabilitynoClass();
+         return false;
       } catch (Throwable e)  {
          ActiveMQClientLogger.LOGGER.unableToCheckEpollAvailability(e);
          return false;
@@ -43,6 +46,9 @@ public class CheckDependencies {
    public static final boolean isKQueueAvailable() {
       try {
          return Env.isMacOs() && KQueue.isAvailable();
+      } catch (NoClassDefFoundError noClassDefFoundError) {
+         ActiveMQClientLogger.LOGGER.unableToCheckKQueueAvailabilityNoClass();
+         return false;
       } catch (Throwable e) {
          ActiveMQClientLogger.LOGGER.unableToCheckKQueueAvailability(e);
          return false;
