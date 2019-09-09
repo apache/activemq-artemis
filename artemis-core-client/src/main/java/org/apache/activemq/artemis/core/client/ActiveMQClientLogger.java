@@ -410,6 +410,15 @@ public interface ActiveMQClientLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void confirmationNotSet();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212075, value = "KQueue is not available, please add to the classpath or configure useKQueue=false to remove this warning",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckKQueueAvailabilityNoClass();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212076, value = "Epoll is not available, please add to the classpath or configure useEpoll=false to remove this warning",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckEpollAvailabilitynoClass();
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
