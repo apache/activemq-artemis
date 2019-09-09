@@ -2745,9 +2745,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      logger.trace("Reference " + ref + " being expired");
                   }
                   removeMessageReference(holder, ref);
-
-
-
                   handled++;
                   consumers.reset();
                   continue;
@@ -2778,8 +2775,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                   deliveriesInTransit.countUp();
 
-
-                  removeMessageReference(holder, ref);
+                  if (!nonDestructive) {
+                     removeMessageReference(holder, ref);
+                  }
                   ref.setInDelivery(true);
                   handledconsumer = consumer;
                   handled++;
@@ -2836,10 +2834,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    protected void removeMessageReference(ConsumerHolder<? extends Consumer> holder, MessageReference ref) {
-      if (!nonDestructive) {
-         holder.iter.remove();
-         refRemoved(ref);
-      }
+      holder.iter.remove();
+      refRemoved(ref);
    }
 
    private void checkDepage() {
