@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.ra.ActiveMQRASession;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 
 public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
@@ -193,6 +194,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       spec.setMaxSession(CONSUMER_COUNT);
       spec.setSetupAttempts(5);
       spec.setSetupInterval(200L);
+      spec.setRetryInterval(100L);
       spec.setReconnectAttempts(reconnectAttempts);
       spec.setHA(true); // if this isn't true then the topology listener won't get nodeDown notifications
       spec.setCallTimeout(500L); // if this isn't set then it may take a long time for tearDown to occur on the MDB connection
@@ -220,32 +222,25 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       assertNotNull(endpoint.lastMessage);
       assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "test");
 
-      for (int i = 0; i < 10; i++) {
-         secondaryServer.stop();
+      try {
+         for (int i = 0; i < 10; i++) {
+            secondaryServer.stop();
 
-         long mark = System.currentTimeMillis();
-         long timeout = 5000;
-         while (primaryQueue.getConsumerCount() < CONSUMER_COUNT && (System.currentTimeMillis() - mark) < timeout) {
-            Thread.sleep(100);
+            Wait.assertTrue(() -> primaryQueue.getConsumerCount() == CONSUMER_COUNT);
+
+            secondaryServer.start();
+            waitForServerToStart(secondaryServer);
+            secondaryQueue = secondaryServer.locateQueue(MDBQUEUEPREFIXEDSIMPLE);
+
+            Queue secondaryQueueRef = secondaryQueue;
+            Wait.assertTrue(() -> primaryQueue.getConsumerCount() <= CONSUMER_COUNT);
+            Wait.assertTrue(() -> secondaryQueueRef.getConsumerCount() <= CONSUMER_COUNT);
+            Wait.assertTrue(() -> primaryQueue.getConsumerCount() + secondaryQueueRef.getConsumerCount() == CONSUMER_COUNT);
          }
-
-         assertTrue(primaryQueue.getConsumerCount() == CONSUMER_COUNT);
-
-         secondaryServer.start();
-         waitForServerToStart(secondaryServer);
-         secondaryQueue = secondaryServer.locateQueue(MDBQUEUEPREFIXEDSIMPLE);
-
-         mark = System.currentTimeMillis();
-         while (((primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount()) < (CONSUMER_COUNT) || primaryQueue.getConsumerCount() == CONSUMER_COUNT) && (System.currentTimeMillis() - mark) <= timeout) {
-            Thread.sleep(100);
-         }
-
-         assertTrue(primaryQueue.getConsumerCount() < CONSUMER_COUNT);
-         assertTrue(secondaryQueue.getConsumerCount() < CONSUMER_COUNT);
-         assertTrue(primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount() == CONSUMER_COUNT);
+      } finally {
+         qResourceAdapter.endpointDeactivation(endpointFactory, spec);
+         qResourceAdapter.stop();
       }
 
-      qResourceAdapter.endpointDeactivation(endpointFactory, spec);
-      qResourceAdapter.stop();
    }
 }

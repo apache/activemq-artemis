@@ -60,4 +60,6 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
    ConfirmationWindowWarning getConfirmationWindowWarning();
 
    Lock lockFailover();
+
+   boolean waitForRetry(long interval);
 }
