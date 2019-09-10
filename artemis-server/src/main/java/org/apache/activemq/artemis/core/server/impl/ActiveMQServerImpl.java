@@ -3019,15 +3019,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (!addressesInConfig.contains(addressName.toString()) && addressSettings.getConfigDeleteAddresses() == DeletionPolicy.FORCE) {
             for (Queue queue : listQueues(addressName)) {
                ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
-               queue.deleteQueue(true);
+               try {
+                  queue.deleteQueue(true);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.unableToUndeployQueue(addressName, e.getMessage());
+               }
             }
             ActiveMQServerLogger.LOGGER.undeployAddress(addressName);
-            removeAddressInfo(addressName, null);
+            try {
+               removeAddressInfo(addressName, null);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.unableToUndeployAddress(addressName, e.getMessage());
+            }
          } else if (addressSettings.getConfigDeleteQueues() == DeletionPolicy.FORCE) {
             for (Queue queue : listConfiguredQueues(addressName)) {
                if (!queuesInConfig.contains(queue.getName().toString())) {
                   ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
-                  queue.deleteQueue(true);
+                  try {
+                     queue.deleteQueue(true);
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.unableToUndeployQueue(addressName, e.getMessage());
+                  }
                }
             }
          }
