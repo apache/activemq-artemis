@@ -19,7 +19,10 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
@@ -29,6 +32,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -268,7 +272,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          file.open();
          int fileSize = (int) file.size();
          ByteBuffer buffer = ByteBuffer.allocate(fileSize);
-         file.read(buffer);
+         read(file, buffer);
          return new ChannelBufferWrapper(Unpooled.wrappedBuffer(buffer));
       } catch (Exception e) {
          throw new RuntimeException(e);
@@ -363,6 +367,30 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       return newMessage;
    }
 
+   private static void copy(SequentialFile from, LargeServerMessage newMessage, boolean directPooled) throws Exception {
+      assert from.isOpen() && from.position() == 0;
+      final int chunkSize = JournalStorageManager.LARGE_MESSAGE_CHUNK_SIZE;
+      final ByteBuf byteBuf = directPooled ? PooledByteBufAllocator.DEFAULT.directBuffer(chunkSize, chunkSize) : Unpooled.buffer(chunkSize, chunkSize);
+      try {
+         final ActiveMQBuffer amqBuffer = ActiveMQBuffers.wrappedBuffer(byteBuf);
+         while (true) {
+            //going to reset it for the next file read (if any)
+            final ByteBuffer nioBuffer = byteBuf.internalNioBuffer(0, chunkSize);
+            final int readBytes = from.read(nioBuffer);
+            if (readBytes <= 0) {
+               break;
+            }
+            amqBuffer.clear();
+            amqBuffer.writerIndex(readBytes);
+            //no need to care about replication: JournalStorageManager::addBytesToLargeMessage should handle it already
+            //and should not pool it
+            newMessage.addBytes(amqBuffer);
+         }
+      } finally {
+         byteBuf.release();
+      }
+   }
+
    @Override
    public Message copy(final long newID) {
       try {
@@ -372,10 +400,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
 
          validateFile();
 
-         byte[] bufferBytes = new byte[100 * 1024];
-
-         ByteBuffer buffer = ByteBuffer.wrap(bufferBytes);
-
          long oldPosition = file.position();
 
          if (!file.isOpen()) {
@@ -383,31 +407,8 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          }
          file.position(0);
 
-         for (;;) {
-            // The buffer is reused...
-            // We need to make sure we clear the limits and the buffer before reusing it
-            buffer.clear();
-            int bytesRead = file.read(buffer);
-
-            byte[] bufferToWrite;
-            if (bytesRead <= 0) {
-               break;
-            } else if (bytesRead == bufferBytes.length && !this.storageManager.isReplicated()) {
-               // ARTEMIS-1220: We cannot reuse the same buffer if it's replicated
-               // otherwise there could be another thread still using the buffer on a
-               // replication.
-               bufferToWrite = bufferBytes;
-            } else {
-               bufferToWrite = new byte[bytesRead];
-               System.arraycopy(bufferBytes, 0, bufferToWrite, 0, bytesRead);
-            }
-
-            newMessage.addBytes(bufferToWrite);
-
-            if (bytesRead < bufferBytes.length) {
-               break;
-            }
-         }
+         //TODO: we could use FileChannel::transferTo to bulk copy just when not replicating
+         copy(file, newMessage, file instanceof NIOSequentialFile);
 
          file.position(oldPosition);
 
@@ -511,6 +512,44 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       }
    }
 
+   private static int read(final SequentialFile file, final ByteBuffer bufferRead) throws Exception {
+      if (bufferRead.position() != 0) {
+         throw new IllegalStateException("the buffer used to read the file should have position = 0");
+      }
+      if (file instanceof NIOSequentialFile) {
+         if (bufferRead.isDirect()) {
+            return file.read(bufferRead);
+         } else {
+            final int chunkSize = JournalStorageManager.LARGE_MESSAGE_CHUNK_SIZE;
+            final int requiredCapacity = Math.min(bufferRead.remaining(), chunkSize);
+            final ByteBuf byteBuf = PooledByteBufAllocator.DEFAULT.directBuffer(requiredCapacity, requiredCapacity);
+            try {
+               final int originalCapacity = bufferRead.capacity();
+               while (bufferRead.hasRemaining()) {
+                  final int size = Math.min(bufferRead.remaining(), chunkSize);
+                  final ByteBuffer nioBuffer = byteBuf.internalNioBuffer(0, size);
+                  final int readBytes = file.read(nioBuffer);
+                  if (readBytes <= 0) {
+                     //it should happen only if the buffer used to read from cFile is bigger then cFile::size
+                     break;
+                  }
+                  //artificial limit bufferRead to prevent getBytes from throwing IOOBE
+                  bufferRead.limit(bufferRead.position() + readBytes);
+                  byteBuf.getBytes(0, bufferRead);
+                  bufferRead.limit(originalCapacity);
+               }
+               bufferRead.flip();
+               return bufferRead.remaining();
+            } finally {
+               byteBuf.release();
+            }
+         }
+      } else {
+         //JDBCSequentialFile support reading in direct ByteBuffers too
+         return file.read(bufferRead);
+      }
+   }
+
    // Inner classes -------------------------------------------------
 
    class DecodingContext implements LargeBodyEncoder {
@@ -544,7 +583,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       @Override
       public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
          try {
-            return cFile.read(bufferRead);
+            return read(cFile, bufferRead);
          } catch (Exception e) {
             throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }

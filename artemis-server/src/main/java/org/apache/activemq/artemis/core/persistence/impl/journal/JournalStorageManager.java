@@ -31,6 +31,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -45,6 +47,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFile;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
@@ -832,6 +835,31 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
+   static final int LARGE_MESSAGE_CHUNK_SIZE = 100 * 1024;
+
+   private void addBytesUsingTempNativeBuffer(final SequentialFile file, final ActiveMQBuffer bytes) throws Exception {
+      assert file instanceof NIOSequentialFile;
+      //we can't use the actual content of it as it is and need to perform a copy into a direct ByteBuffer
+      int readableBytes = bytes.readableBytes();
+      final int requiredCapacity = Math.min(LARGE_MESSAGE_CHUNK_SIZE, readableBytes);
+      final ByteBuf tempBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(requiredCapacity, requiredCapacity);
+      try {
+         int readerIndex = bytes.readerIndex();
+         while (readableBytes > 0) {
+            final int size = Math.min(readableBytes, LARGE_MESSAGE_CHUNK_SIZE);
+            final ByteBuffer nioBytes = tempBuffer.internalNioBuffer(0, size);
+            final int position = nioBytes.position();
+            bytes.getBytes(readerIndex, nioBytes);
+            nioBytes.position(position);
+            file.blockingWriteDirect(nioBytes, false, false);
+            readerIndex += size;
+            readableBytes -= size;
+         }
+      } finally {
+         tempBuffer.release();
+      }
+   }
+
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
                                             final ActiveMQBuffer bytes) throws Exception {
@@ -839,22 +867,51 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       try {
          file.position(file.size());
          if (bytes.byteBuf() != null && bytes.byteBuf().nioBufferCount() == 1) {
-            final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
-            file.blockingWriteDirect(nioBytes, false, false);
-
-            if (isReplicated()) {
-               //copy defensively bytes
-               final byte[] bytesCopy = new byte[bytes.readableBytes()];
-               bytes.getBytes(bytes.readerIndex(), bytesCopy);
-               replicator.largeMessageWrite(messageId, bytesCopy);
+            //NIO -> need direct ByteBuffers, while JDBC the opposite
+            if (file instanceof NIOSequentialFile) {
+               if (bytes.byteBuf().isDirect()) {
+                  final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
+                  file.blockingWriteDirect(nioBytes, false, false);
+               } else {
+                  addBytesUsingTempNativeBuffer(file, bytes);
+               }
+            } else if (!bytes.byteBuf().isDirect()) {
+               final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
+               file.blockingWriteDirect(nioBytes, false, false);
+            } else {
+               //JDBCSequentialFile doesn't support yet writing direct ByteBuffer(s)
+               final byte[] heapBuf = new byte[bytes.readableBytes()];
+               bytes.getBytes(bytes.readerIndex(), heapBuf);
+               addHeapBytesAndReplicate(file, messageId, heapBuf);
+               return;
             }
          } else {
+            if (file instanceof NIOSequentialFile) {
+               addBytesUsingTempNativeBuffer(file, bytes);
+            } else {
+               final byte[] heapBuf = new byte[bytes.readableBytes()];
+               bytes.getBytes(bytes.readerIndex(), heapBuf);
+               addHeapBytesAndReplicate(file, messageId, heapBuf);
+               return;
+            }
+         }
+         if (isReplicated()) {
+            //copy defensively bytes
             final byte[] bytesCopy = new byte[bytes.readableBytes()];
-            bytes.readBytes(bytesCopy);
-            addBytesToLargeMessage(file, messageId, bytesCopy);
+            bytes.getBytes(bytes.readerIndex(), bytesCopy);
+            replicator.largeMessageWrite(messageId, bytesCopy);
          }
       } finally {
          readUnLock();
+      }
+   }
+
+   private void addHeapBytesAndReplicate(final SequentialFile file,
+                                         final long messageId,
+                                         final byte[] bytes) throws Exception {
+      file.blockingWriteDirect(ByteBuffer.wrap(bytes), false, false);
+      if (isReplicated()) {
+         replicator.largeMessageWrite(messageId, bytes);
       }
    }
 
@@ -865,13 +922,30 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       readLock();
       try {
          file.position(file.size());
-         //that's an additional precaution to avoid ByteBuffer to be pooled:
-         //NIOSequentialFileFactory doesn't pool heap ByteBuffer, but better to make evident
-         //the intention by calling the right method
-         file.blockingWriteDirect(ByteBuffer.wrap(bytes), false, false);
-
-         if (isReplicated()) {
-            replicator.largeMessageWrite(messageId, bytes);
+         if (!(file instanceof NIOSequentialFile)) {
+            addHeapBytesAndReplicate(file, messageId, bytes);
+         } else {
+            int readableBytes = bytes.length;
+            final int requiredCapacity = Math.min(LARGE_MESSAGE_CHUNK_SIZE, readableBytes);
+            final ByteBuf tempBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(requiredCapacity);
+            try {
+               int readerIndex = 0;
+               while (readableBytes > 0) {
+                  final int size = Math.min(readableBytes, LARGE_MESSAGE_CHUNK_SIZE);
+                  final ByteBuffer nioBytes = tempBuffer.internalNioBuffer(0, size);
+                  final int position = nioBytes.position();
+                  nioBytes.put(bytes, readerIndex, size);
+                  nioBytes.position(position);
+                  file.blockingWriteDirect(nioBytes, false, false);
+                  readerIndex += size;
+                  readableBytes -= size;
+               }
+            } finally {
+               tempBuffer.release();
+            }
+            if (isReplicated()) {
+               replicator.largeMessageWrite(messageId, bytes);
+            }
          }
       } finally {
          readUnLock();
