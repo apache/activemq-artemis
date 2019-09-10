@@ -826,13 +826,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                   ClientSessionFactoryImpl.logger.trace("Waiting " + interval + " milliseconds before next retry. RetryInterval=" + retryInterval + " and multiplier=" + retryIntervalMultiplier);
                }
 
-               try {
-                  if (clientProtocolManager.waitOnLatch(interval)) {
-                     return;
-                  }
-               } catch (InterruptedException ignore) {
-                  throw new ActiveMQInterruptedException(createTrace);
-               }
+               if (waitForRetry(interval))
+                  return;
 
                // Exponential back-off
                long newInterval = (long) (interval * retryIntervalMultiplier);
@@ -848,6 +843,18 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             }
          }
       }
+   }
+
+   @Override
+   public boolean waitForRetry(long interval) {
+      try {
+         if (clientProtocolManager.waitOnLatch(interval)) {
+            return true;
+         }
+      } catch (InterruptedException ignore) {
+         throw new ActiveMQInterruptedException(createTrace);
+      }
+      return false;
    }
 
    private void cancelScheduledTasks() {
