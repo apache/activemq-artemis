@@ -563,6 +563,24 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   private int getConnectorsSize() {
+      Pair<TransportConfiguration, TransportConfiguration>[] usedTopology;
+
+      flushTopology();
+
+      synchronized (topologyArrayGuard) {
+         usedTopology = topologyArray;
+      }
+
+      synchronized (this) {
+         if (usedTopology != null && useTopologyForLoadBalancing) {
+            return usedTopology.length;
+         } else {
+            return initialConnectors.length;
+         }
+      }
+   }
+
    @Override
    public void start(Executor executor) throws Exception {
       initialize();
@@ -764,9 +782,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       ClientSessionFactoryInternal factory = null;
 
       synchronized (this) {
-         boolean retry;
+         boolean retry = true;
          int attempts = 0;
-         do {
+         while (retry && !isClosed()) {
             retry = false;
 
             TransportConfiguration tc = selectConnector();
@@ -780,31 +798,36 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                factory = new ClientSessionFactoryImpl(this, tc, callTimeout, callFailoverTimeout, clientFailureCheckPeriod, connectionTTL, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
                try {
                   addToConnecting(factory);
-                  factory.connect(initialConnectAttempts, failoverOnInitialConnection);
+                  // We always try to connect here with only one attempt,
+                  // as we will perform the initial retry here, looking for all possible connectors
+                  factory.connect(1, false);
                } finally {
                   removeFromConnecting(factory);
                }
             } catch (ActiveMQException e) {
-               factory.close();
-               if (e.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
-                  attempts++;
+               try {
+                  if (e.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+                     attempts++;
 
-                  synchronized (topologyArrayGuard) {
+                     int connectorsSize = getConnectorsSize();
+                     int maxAttempts = initialConnectAttempts == 0 ? 1 : initialConnectAttempts;
 
-                     if (topologyArray != null && attempts == topologyArray.length) {
+                     if (initialConnectAttempts >= 0 && attempts >= maxAttempts * connectorsSize) {
                         throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
                      }
-                     if (topologyArray == null && attempts == this.getNumInitialConnectors()) {
+                     if (factory.waitForRetry(retryInterval)) {
                         throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
                      }
+                     retry = true;
+                  } else {
+                     throw e;
                   }
-                  retry = true;
-               } else {
-                  throw e;
+               } finally {
+
+                  factory.close();
                }
             }
          }
-         while (retry);
       }
 
       // ATM topology is never != null. Checking here just to be consistent with
