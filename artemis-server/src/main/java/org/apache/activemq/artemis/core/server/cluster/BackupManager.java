@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
@@ -69,6 +70,12 @@ public class BackupManager implements ActiveMQComponent {
       this.nodeManager = nodeManager;
       this.configuration = configuration;
       this.clusterManager = clusterManager;
+   }
+
+   /** This is meant for testing and assertions, please don't do anything stupid with it!
+    *  I mean, please don't use it outside of testing context */
+   public List<BackupConnector> getBackupConnectors() {
+      return backupConnectors;
    }
 
    /*
@@ -174,12 +181,12 @@ public class BackupManager implements ActiveMQComponent {
    /*
    * A backup connector will connect to the cluster and announce that we are a backup server ready to fail over.
    * */
-   private abstract class BackupConnector {
+   public abstract class BackupConnector {
 
       private volatile ServerLocatorInternal backupServerLocator;
       private String name;
       private TransportConfiguration connector;
-      private long retryInterval;
+      protected long retryInterval;
       private ClusterManager clusterManager;
       private boolean stopping = false;
       private boolean announcingBackup;
@@ -199,6 +206,11 @@ public class BackupManager implements ActiveMQComponent {
       * used to create the server locator needed, will be connectors or discovery
       * */
       abstract ServerLocatorInternal createServerLocator(Topology topology);
+
+      /** This is for test assertions, please be careful, don't use outside of testing! */
+      public ServerLocator getBackupServerLocator() {
+         return backupServerLocator;
+      }
 
       /*
       * start the connector by creating the server locator to use.
@@ -261,18 +273,23 @@ public class BackupManager implements ActiveMQComponent {
                      return;
                   ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(e);
 
-                  scheduledExecutor.schedule(new Runnable() {
-                     @Override
-                     public void run() {
-                        announceBackup();
-                     }
-
-                  }, retryInterval, TimeUnit.MILLISECONDS);
+                  retryConnection();
                } finally {
                   announcingBackup = false;
                }
             }
          });
+      }
+
+      /** it will re-schedule the connection after a timeout, using a scheduled executor */
+      protected void retryConnection() {
+         scheduledExecutor.schedule(new Runnable() {
+            @Override
+            public void run() {
+               announceBackup();
+            }
+
+         }, retryInterval, TimeUnit.MILLISECONDS);
       }
 
       /*
@@ -341,6 +358,7 @@ public class BackupManager implements ActiveMQComponent {
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
+            locator.setRetryInterval(retryInterval);
             locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator));
             return locator;
          }
@@ -372,7 +390,7 @@ public class BackupManager implements ActiveMQComponent {
 
       @Override
       public ServerLocatorInternal createServerLocator(Topology topology) {
-         return new ServerLocatorImpl(topology, true, discoveryGroupConfiguration);
+         return new ServerLocatorImpl(topology, true, discoveryGroupConfiguration).setRetryInterval(retryInterval);
       }
 
       @Override
