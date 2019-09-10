@@ -95,6 +95,7 @@ public class Create extends InputAbstract {
    public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
    public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
+   public static final String ETC_CLUSTER_STATIC_SETTINGS_TXT = "etc/cluster-static-settings.txt";
    public static final String ETC_CONNECTOR_SETTINGS_TXT = "etc/connector-settings.txt";
    public static final String ETC_BOOTSTRAP_WEB_SETTINGS_TXT = "etc/bootstrap-web-settings.txt";
    public static final String ETC_JOURNAL_BUFFER_SETTINGS = "etc/journal-buffer-settings.txt";
@@ -274,6 +275,17 @@ public class Create extends InputAbstract {
 
    @Option(name = "--jdbc", description = "It will activate jdbc")
    boolean jdbc;
+
+   @Option(name = "--staticCluster", description = "Cluster node connectors list, separated by comma: Example \"tcp://server:61616,tcp://server2:61616,tcp://server3:61616\"")
+   String staticNode;
+
+   public String[] getStaticNodes() {
+      if (staticNode == null) {
+         return new String[0];
+      } else {
+         return staticNode.split(",");
+      }
+   }
 
    @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindigns table")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
@@ -571,6 +583,10 @@ public class Create extends InputAbstract {
          filters.put("${ping-config.settings}", readTextFile(ETC_COMMENTED_PING_TXT, filters));
       }
 
+      if (staticNode != null) {
+         clustered = true;
+      }
+
       if (replicated) {
          clustered = true;
          filters.put("${replicated.settings}", readTextFile(ETC_REPLICATED_SETTINGS_TXT, filters));
@@ -650,12 +666,27 @@ public class Create extends InputAbstract {
          if (name == null) {
             name = getHostForClustered();
          }
-         String connectorSettings = readTextFile(ETC_CONNECTOR_SETTINGS_TXT, filters);
+         String connectorSettings = getConnectors(filters);
 
          filters.put("${name}", name);
          filters.put("${connector-config.settings}", connectorSettings);
          filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT, filters));
-         filters.put("${cluster.settings}", readTextFile(ETC_CLUSTER_SETTINGS_TXT, filters));
+         if (staticNode != null) {
+
+            String staticCluster = readTextFile(ETC_CLUSTER_STATIC_SETTINGS_TXT, filters);
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            int countCluster = getStaticNodes().length;
+            for (int i = 0; i < countCluster; i++) {
+               printWriter.println("               <connector-ref>node" + i + "</connector-ref>");
+            }
+            filters.put("${connectors-list}", stringWriter.toString());
+
+            staticCluster = applyFilters(staticCluster, filters);
+            filters.put("${cluster.settings}", staticCluster);
+         } else {
+            filters.put("${cluster.settings}", readTextFile(ETC_CLUSTER_SETTINGS_TXT, filters));
+         }
          filters.put("${cluster-user}", getClusterUser());
          filters.put("${cluster-password}", getClusterPassword());
       } else {
@@ -826,6 +857,24 @@ public class Create extends InputAbstract {
       }
 
       return null;
+   }
+
+   private String getConnectors(HashMap<String, String> filters) throws IOException {
+      if (staticNode != null) {
+         StringWriter stringWriter = new StringWriter();
+         PrintWriter printer = new PrintWriter(stringWriter);
+         printer.println("      <connectors>");
+         printer.println("            <!-- Connector used to be announced through cluster connections and notifications -->");
+         printer.println(applyFilters("            <connector name=\"artemis\">tcp://${host}:${default.port}</connector>", filters));
+         int counter = 0;
+         for (String node: getStaticNodes()) {
+            printer.println("            <connector name = \"node" + (counter++) + "\">" + node + "</connector>");
+         }
+         printer.println("      </connectors>");
+         return stringWriter.toString();
+      } else {
+         return readTextFile(ETC_CONNECTOR_SETTINGS_TXT, filters);
+      }
    }
 
    private void printStar(String message) {
