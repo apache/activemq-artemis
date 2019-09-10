@@ -143,6 +143,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -2025,17 +2026,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   private void checkFilesUsage() {
-
-      long timeout = System.currentTimeMillis() + 15000;
-
-      while (LibaioContext.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout) {
-         try {
-            Thread.sleep(100);
-         } catch (Exception ignored) {
-         }
-      }
-
+   private void checkFilesUsage() throws Exception {
       int invmSize = InVMRegistry.instance.size();
       if (invmSize > 0) {
          InVMRegistry.instance.clear();
@@ -2043,11 +2034,11 @@ public abstract class ActiveMQTestBase extends Assert {
          fail("invm registry still had acceptors registered");
       }
 
-      final long totalMaxIO = LibaioContext.getTotalMaxIO();
-      if (totalMaxIO != 0) {
-         LibaioContext.resetMaxAIO();
-         Assert.fail("test did not close all its files " + totalMaxIO);
+      if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
+         Assert.fail("There are still libaio files open :: " + LibaioContext.getTotalMaxIO());
+         Assert.fail("test did not close all its files " + LibaioContext.getTotalMaxIO());
       }
+
    }
 
    private void cleanupPools() {
