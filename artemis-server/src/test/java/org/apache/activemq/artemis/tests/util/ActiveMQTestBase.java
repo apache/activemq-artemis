@@ -2035,7 +2035,6 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
-         Assert.fail("There are still libaio files open :: " + LibaioContext.getTotalMaxIO());
          Assert.fail("test did not close all its files " + LibaioContext.getTotalMaxIO());
       }
 
