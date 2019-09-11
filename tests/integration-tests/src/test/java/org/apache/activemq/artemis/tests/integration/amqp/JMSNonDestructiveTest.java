@@ -332,7 +332,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
             assertNotNull(msg);
             assertEquals(Integer.toString(j), msg.getText());
          }
-         TextMessage msg = (TextMessage) consumer.receive(200);
+         TextMessage msg = (TextMessage) consumer.receiveNoWait();
          assertNull(msg);
          consumer.close();
       }
@@ -356,7 +356,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue consumerQueue = consumerSession.createQueue(queueName);
          MessageConsumer consumer = consumerSession.createConsumer(consumerQueue);
-         TextMessage msg = (TextMessage) consumer.receive(2000);
+         TextMessage msg = (TextMessage) consumer.receiveNoWait();
          assertNull(msg);
          consumer.close();
       }
@@ -395,9 +395,9 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
             assertEquals(Integer.toString(j), msg.getText());
             assertEquals(Integer.toString(j), msg2.getText());
          }
-         TextMessage msg = (TextMessage) consumer.receive(200);
+         TextMessage msg = (TextMessage) consumer.receiveNoWait();
          assertNull(msg);
-         TextMessage msg2 = (TextMessage) consumer2.receive(200);
+         TextMessage msg2 = (TextMessage) consumer2.receiveNoWait();
          assertNull(msg2);
          consumer.close();
          consumer2.close();
@@ -468,7 +468,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
       try (Connection connection = consumerConnectionSupplier.createConnection();
            Session session = connection.createSession();
            MessageConsumer consumer = session.createConsumer(session.createQueue(queueName))) {
-         TextMessage msg = (TextMessage) consumer.receive(1000);
+         TextMessage msg = (TextMessage) consumer.receiveNoWait();
          assertNull(msg);
       }
    }
