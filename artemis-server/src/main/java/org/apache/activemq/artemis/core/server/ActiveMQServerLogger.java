@@ -434,6 +434,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221081, value = "There is no address with ID {0}, deleting record {1}", format = Message.Format.MESSAGE_FORMAT)
    void infoNoAddressWithID(Long id, Long record);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221082, value = "Initializing metrics plugin {0} with properties: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void initializingMetricsPlugin(String clazz, String properties);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
