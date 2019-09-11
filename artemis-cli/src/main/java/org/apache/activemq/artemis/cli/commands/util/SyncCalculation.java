@@ -77,7 +77,10 @@ public class SyncCalculation {
                                int maxAIO,
                                JournalType journalType) throws Exception {
       SequentialFileFactory factory = newFactory(datafolder, fsync, journalType, blockSize * blocks, maxAIO);
-      final boolean asyncWrites = journalType == JournalType.ASYNCIO && !syncWrites;
+
+      if (factory instanceof AIOSequentialFileFactory) {
+         factory.setAlignment(blockSize);
+      }
       //the write latencies could be taken only when writes are effectively synchronous
 
       if (journalType == JournalType.ASYNCIO && syncWrites) {
