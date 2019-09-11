@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
@@ -53,6 +54,9 @@ public class QuorumFailOverLiveVotesTest extends StaticClusterWithBackupFailover
 
    }
 
+   /** Ignored per https://issues.apache.org/jira/browse/ARTEMIS-2484.
+    *   Please remove this javadoc and the @Ignore when fixed */
+   @Ignore
    @Test
    public void testQuorumVotingLiveNotDead() throws Exception {
       int[] liveServerIDs = new int[]{0, 1, 2};
