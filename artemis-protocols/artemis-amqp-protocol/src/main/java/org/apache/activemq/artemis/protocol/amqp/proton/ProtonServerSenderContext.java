@@ -320,7 +320,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
             queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
          } else {
-            addressToUse = new SimpleString(source.getAddress());
+            addressToUse = SimpleString.toSimpleString(source.getAddress());
          }
          //check to see if the client has defined how we act
          boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
