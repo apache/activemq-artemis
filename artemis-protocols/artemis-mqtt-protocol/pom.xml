@@ -95,6 +95,47 @@
          <groupId>org.osgi</groupId>
          <artifactId>osgi.cmpn</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-junit</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+       <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.paho</groupId>
+         <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+         <version>1.2.0</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.github.javafaker</groupId>
+         <artifactId>javafaker</artifactId>
+         <version>0.15</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.awaitility</groupId>
+         <artifactId>awaitility</artifactId>
+         <version>4.0.1</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
+   <repositories>
+      <repository>
+         <id>bintray</id>
+         <url>https://jcenter.bintray.com</url>
+         <releases>
+            <enabled>true</enabled>
+         </releases>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+   </repositories>
 </project>
