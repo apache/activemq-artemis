@@ -8,6 +8,38 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.10.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12345602).
+
+This was mainly a bug-fix release with a notable dependency change impacting version upgrade.
+
+#### Upgrading from 2.9.0
+
+Due to the WildFly dependency upgrade the broker start scripts/configuration need to be adjusted after upgrading.
+
+##### On \*nix
+
+Locate this statement in `bin/artemis`:
+```
+WILDFLY_COMMON="$ARTEMIS_HOME/lib/wildfly-common-1.5.1.Final.jar"
+```
+This needs to be replaced with this:
+```
+WILDFLY_COMMON="$ARTEMIS_HOME/lib/wildfly-common-1.5.2.Final.jar"
+```
+
+##### On Windows
+
+Locate this part of `JAVA_ARGS` in `etc/artemis.profile.cmd` respectively `bin/artemis-service.xml`:
+```
+%ARTEMIS_HOME%\lib\wildfly-common-1.5.1.Final.jar
+```
+This needs to be replaced with this:
+```
+%ARTEMIS_HOME%\lib\wildfly-common-1.5.2.Final.jar
+```
+
 ## 2.9.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12345527).
