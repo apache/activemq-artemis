@@ -52,19 +52,12 @@ public class MQTTRetainMessageManager {
          queue = session.getServer().createQueue(retainAddress, retainAddress, null, true, false);
       }
 
-      try (LinkedListIterator<MessageReference> iterator = queue.iterator()) {
-         synchronized (queue) {
-            if (iterator.hasNext()) {
-               MessageReference ref = iterator.next();
-               iterator.remove();
-               queue.acknowledge(tx, ref);
-            }
+      queue.deleteAllReferences();
 
-            if (!reset) {
-               sendToQueue(message.copy(session.getServer().getStorageManager().generateID()), queue, tx);
-            }
-         }
+      if (!reset) {
+         sendToQueue(message.copy(session.getServer().getStorageManager().generateID()), queue, tx);
       }
+
    }
 
    // SEND to Queue.
@@ -76,18 +69,23 @@ public class MQTTRetainMessageManager {
       // Iterate over all matching retain queues and add the queue
       Transaction tx = session.getServerSession().newTransaction();
       try {
-         synchronized (queue) {
-            for (SimpleString retainedQueueName : bindingQueryResult.getQueueNames()) {
-               Queue retainedQueue = session.getServer().locateQueue(retainedQueueName);
-               try (LinkedListIterator<MessageReference> i = retainedQueue.iterator()) {
-                  if (i.hasNext()) {
-                     Message message = i.next().getMessage().copy(session.getServer().getStorageManager().generateID());
-                     sendToQueue(message, queue, tx);
+         for (SimpleString retainedQueueName : bindingQueryResult.getQueueNames()) {
+            Queue retainedQueue = session.getServer().locateQueue(retainedQueueName);
+            try (LinkedListIterator<MessageReference> i = retainedQueue.iterator()) {
+               if (i.hasNext()) {
+                  MessageReference ref = i.next();
+                  while (i.hasNext()) {
+                     ref = i.next();
+                     if (i.hasNext()) {
+                        i.remove();
+                     }
                   }
+                  Message message = ref.getMessage().copy(session.getServer().getStorageManager().generateID());
+                  sendToQueue(message, queue, tx);
                }
             }
          }
-      } catch (Throwable t) {
+      } catch (Exception t) {
          tx.rollback();
          throw t;
       }
