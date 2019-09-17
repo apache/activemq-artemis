@@ -315,8 +315,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile long ringSize;
 
-   private Boolean removeSf;
-
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
     * to guarantee ordering will be always be correct
@@ -2557,7 +2555,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void setInternalQueue(boolean internalQueue) {
       this.internalQueue = internalQueue;
-      this.removeSf = null;
    }
 
    // Public
@@ -3485,29 +3482,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          // The message failed to be delivered, hence we try again
          addHead(reference, false);
       }
-   }
-
-   /**
-    * Delete the store and forward queue
-    * Only the second caller (if there is one) of this method does the actual deletion.
-    * The logic makes sure the sf queue is deleted only after bridge is stopped.
-    */
-   @Override
-   public synchronized boolean internalDelete() {
-      if (this.isInternalQueue()) {
-         if (removeSf == null) {
-            removeSf = false;
-         } else if (removeSf == false) {
-            try {
-               deleteQueue();
-               removeSf = true;
-               return true;
-            } catch (Exception e) {
-               logger.debug("Error removing sf queue " + getName(), e);
-            }
-         }
-      }
-      return false;
    }
 
    private boolean checkExpired(final MessageReference reference) {

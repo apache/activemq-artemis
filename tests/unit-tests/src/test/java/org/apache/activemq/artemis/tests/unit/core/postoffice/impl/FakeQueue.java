@@ -197,11 +197,6 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean internalDelete() {
-      return false;
-   }
-
-   @Override
    public boolean isPersistedPause() {
       return false;
    }
