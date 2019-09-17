@@ -682,4 +682,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       }
       return mappedDestination;
    }
+
+   public List<OpenWireConnection> getConnections() {
+      return connections;
+   }
 }
