@@ -202,6 +202,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void deleteQueue(boolean removeConsumers) throws Exception;
 
+   /** This method will push a removeAddress call into server's remove address */
+   void removeAddress() throws Exception;
+
    void destroyPaging() throws Exception;
 
    long getMessageCount();
