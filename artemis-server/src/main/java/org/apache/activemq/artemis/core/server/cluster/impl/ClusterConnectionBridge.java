@@ -397,13 +397,23 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected void fail(final boolean permanently) {
+   protected void fail(final boolean permanently, final boolean scaleDown) {
       logger.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
-      super.fail(permanently);
+      super.fail(permanently, scaleDown);
 
       if (permanently) {
          logger.debug("cluster node for bridge " + this.getName() + " is permanently down");
          clusterConnection.removeRecord(targetNodeID);
+
+         if (scaleDown) {
+            try {
+               queue.deleteQueue(true);
+               queue.removeAddress();
+
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
       } else {
          clusterConnection.disconnectRecord(targetNodeID);
       }

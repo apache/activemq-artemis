@@ -723,28 +723,33 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
 
       if (scaleDownTargetNodeID != null && !scaleDownTargetNodeID.equals(nodeUUID.toString())) {
-         synchronized (this) {
-            try {
-               logger.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
-               ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.toSimpleString(scaleDownTargetNodeID));
-
-               // stop the bridge from trying to reconnect and clean up all the bindings
-               fail(true);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-            }
-         }
+         scaleDown(scaleDownTargetNodeID);
       } else if (scaleDownTargetNodeID != null) {
          // the disconnected node is scaling down to me, no need to reconnect to it
          logger.debug("Received scaleDownTargetNodeID: " + scaleDownTargetNodeID + "; cancelling reconnect.");
-         fail(true);
+         fail(true, true);
       } else {
          logger.debug("Received invalid scaleDownTargetNodeID: " + scaleDownTargetNodeID);
 
-         fail(me.getType() == ActiveMQExceptionType.DISCONNECTED);
+         fail(me.getType() == ActiveMQExceptionType.DISCONNECTED, false);
       }
 
       tryScheduleRetryReconnect(me.getType());
+   }
+
+   protected void scaleDown(String scaleDownTargetNodeID) {
+      synchronized (this) {
+         try {
+            logger.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
+            ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.toSimpleString(scaleDownTargetNodeID));
+
+            // stop the bridge from trying to reconnect and clean up all the bindings
+            fail(true, true);
+
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         }
+      }
    }
 
    protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type) {
@@ -865,7 +870,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       return transformer;
    }
 
-   protected void fail(final boolean permanently) {
+   protected void fail(final boolean permanently, boolean scaleDown) {
       logger.debug(this + "\n\t::fail being called, permanently=" + permanently);
       //we need to make sure we remove the node from the topology so any incoming quorum requests are voted correctly
       if (targetNodeID != null) {
@@ -1050,7 +1055,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                } catch (Throwable ignored) {
                }
             }
-            fail(false);
+            fail(false, false);
             scheduleRetryConnect();
          }
       }
@@ -1069,7 +1074,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       if (reconnectAttemptsInUse >= 0 && retryCount > reconnectAttemptsInUse) {
          ActiveMQServerLogger.LOGGER.bridgeAbortStart(name, retryCount, reconnectAttempts);
-         fail(true);
+         fail(true, false);
          return;
       }
 
