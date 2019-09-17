@@ -299,7 +299,6 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertNotNull(lopc.getScaleDownConfiguration());
       assertEquals(lopc.getScaleDownConfiguration().getGroupName(), "boo!");
       assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "dg1");
-      assertFalse(lopc.getScaleDownConfiguration().isCleanupSfQueue());
 
       for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations()) {
          if (ccc.getName().equals("cluster-connection1")) {
