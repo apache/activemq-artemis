@@ -284,7 +284,6 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
                "         <connectors>\n" +
                "            <connector-ref>server0-connector</connector-ref>\n" +
                "         </connectors>\n" +
-               "         <cleanup-sf-queue>true</cleanup-sf-queue>\n" +
                "      </scale-down>\n" +
                "   </live-only>\n" +
                "</ha-policy>\n" + lastPart;
@@ -297,7 +296,6 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
       LiveOnlyPolicyConfiguration liveOnlyCfg = (LiveOnlyPolicyConfiguration) haConfig;
       ScaleDownConfiguration scaledownCfg = liveOnlyCfg.getScaleDownConfiguration();
-      assertTrue(scaledownCfg.isCleanupSfQueue());
       List<String> connectors = scaledownCfg.getConnectors();
       assertEquals(1, connectors.size());
       String connector = connectors.get(0);

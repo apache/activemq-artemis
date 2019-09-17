@@ -21,8 +21,6 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.artemis.core.server.AddressQueryResult;
-import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -31,25 +29,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
-import java.util.Collection;
 
-@RunWith(value = Parameterized.class)
 public class ScaleDownRemoveSFTest extends ClusterTestBase {
 
-   @Parameterized.Parameters(name = "RemoveOption={0}")
-   public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"default"}, {"true"}, {"false"}});
+   public ScaleDownRemoveSFTest() {
    }
-
-   public ScaleDownRemoveSFTest(String option) {
-      this.option = option;
-   }
-
-   private String option;
 
    @Override
    @Before
@@ -57,9 +42,6 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       super.setUp();
 
       ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
-      if (!"default".equals(option)) {
-         scaleDownConfiguration.setCleanupSfQueue("true".equals(this.option));
-      }
       setupLiveServer(0, isFileStorage(), isNetty(), true);
       setupLiveServer(1, isFileStorage(), isNetty(), true);
       LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
@@ -116,8 +98,8 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       SimpleString sfQueueName = clusterconn1.getSfQueueName(servers[0].getNodeID().toString());
 
       System.out.println("[sf queue on server 1]: " + sfQueueName);
-      QueueQueryResult result = servers[1].queueQuery(sfQueueName);
-      assertTrue(result.isExists());
+
+      Assert.assertTrue(servers[1].queueQuery(sfQueueName).isExists());
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
@@ -133,15 +115,8 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       removeConsumer(0);
 
       //check
-      result = servers[1].queueQuery(sfQueueName);
-      AddressQueryResult result2 = servers[1].addressQuery(sfQueueName);
-      if ("true".equals(option)) {
-         assertFalse(result.isExists());
-         assertFalse(result2.isExists());
-      } else {
-         assertTrue(result.isExists());
-         assertTrue(result2.isExists());
-      }
+      Assert.assertFalse(servers[1].queueQuery(sfQueueName).isExists());
+      Assert.assertFalse(servers[1].addressQuery(sfQueueName).isExists());
 
    }
 

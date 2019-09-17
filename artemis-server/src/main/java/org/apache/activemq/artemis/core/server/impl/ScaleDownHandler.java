@@ -57,7 +57,6 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
-import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
@@ -92,15 +91,14 @@ public class ScaleDownHandler {
                          ResourceManager resourceManager,
                          Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                          SimpleString managementAddress,
-                         SimpleString targetNodeId,
-                         ScaleDownPolicy scaleDownPolicy) throws Exception {
+                         SimpleString targetNodeId) throws Exception {
       ClusterControl clusterControl = clusterController.connectToNodeInCluster((ClientSessionFactoryInternal) sessionFactory);
       clusterControl.authorize();
       long num = scaleDownMessages(sessionFactory, targetNodeId, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
       ActiveMQServerLogger.LOGGER.infoScaledDownMessages(num);
       scaleDownTransactions(sessionFactory, resourceManager, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
       scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
-      clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId(), scaleDownPolicy.isCleanupSfQueue());
+      clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId());
       return num;
    }
 

@@ -795,6 +795,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void removeAddress() throws Exception {
+      }
+
+      @Override
       public long getAcknowledgeAttempts() {
          return 0;
       }
@@ -886,11 +890,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public void recheckRefCount(OperationContext context) {
-      }
-
-      @Override
-      public boolean internalDelete() {
-         return false;
       }
 
       @Override

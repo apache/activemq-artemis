@@ -774,27 +774,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       return record != null && record.getBridge() != null ? record.getBridge().getMetrics() : null;
    }
 
-   @Override
-   public void removeSfQueue(SimpleString scaledDownNodeId) {
-      SimpleString sfQName = getSfQueueName(scaledDownNodeId.toString());
-      Binding binding = server.getPostOffice().getBinding(sfQName);
-
-      if (binding != null) {
-         removeSfQueue((Queue) binding.getBindable());
-      }
-   }
-
-   @Override
-   public void removeSfQueue(Queue queue) {
-      if (queue.internalDelete()) {
-         try {
-            server.removeAddressInfo(queue.getAddress(), null);
-         } catch (Exception e) {
-            logger.debug("Failed to remove sf address: " + queue.getAddress(), e);
-         }
-      }
-   }
-
    private void createNewRecord(final long eventUID,
                                 final String targetNodeID,
                                 final TransportConfiguration connector,
