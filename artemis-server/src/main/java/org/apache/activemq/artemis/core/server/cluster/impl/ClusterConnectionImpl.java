@@ -710,7 +710,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // New node - create a new flow record
 
-               final SimpleString queueName = new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+               final SimpleString queueName = getSfQueueName(nodeID);
 
                Binding queueBinding = postOffice.getBinding(queueName);
 
@@ -739,6 +739,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             ActiveMQServerLogger.LOGGER.errorUpdatingTopology(e);
          }
       }
+   }
+
+   public SimpleString getSfQueueName(String nodeID) {
+      return new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
    }
 
    @Override

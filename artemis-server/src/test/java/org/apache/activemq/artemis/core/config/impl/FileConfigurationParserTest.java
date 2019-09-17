@@ -28,7 +28,9 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -271,6 +273,35 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <confirmation-window-size>2147483648</confirmation-window-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>\n");
       testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <producer-window-size>2147483648</producer-window-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>\n");
    }
+
+   @Test
+   public void testParsingScaleDownConfig() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart + "<ha-policy>\n" +
+               "   <live-only>\n" +
+               "      <scale-down>\n" +
+               "         <connectors>\n" +
+               "            <connector-ref>server0-connector</connector-ref>\n" +
+               "         </connectors>\n" +
+               "      </scale-down>\n" +
+               "   </live-only>\n" +
+               "</ha-policy>\n" + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      HAPolicyConfiguration haConfig = config.getHAPolicyConfiguration();
+      assertTrue(haConfig instanceof LiveOnlyPolicyConfiguration);
+
+      LiveOnlyPolicyConfiguration liveOnlyCfg = (LiveOnlyPolicyConfiguration) haConfig;
+      ScaleDownConfiguration scaledownCfg = liveOnlyCfg.getScaleDownConfiguration();
+      List<String> connectors = scaledownCfg.getConnectors();
+      assertEquals(1, connectors.size());
+      String connector = connectors.get(0);
+      assertEquals("server0-connector", connector);
+   }
+
 
    private void testParsingOverFlow(String config) throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
