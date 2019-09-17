@@ -1178,16 +1178,15 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          // Don't let new consumers or producers get added while we are closing
          // this down.
          session.shutdown();
-         // Cascade the connection stop producers.
-         // we don't stop consumer because in core
-         // closing the session will do the job
+
          for (ProducerId producerId : session.getProducerIds()) {
-            try {
-               processRemoveProducer(producerId);
-            } catch (Throwable e) {
-               // LOG.warn("Failed to remove producer: {}", producerId, e);
-            }
+            processRemoveProducer(producerId);
          }
+
+         for (ConsumerId consumerId : session.getConsumerIds()) {
+            processRemoveConsumer(consumerId, lastDeliveredSequenceId);
+         }
+
          state.removeSession(id);
          propagateLastSequenceId(session, lastDeliveredSequenceId);
          removeSession(context, session.getInfo());
