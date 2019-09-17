@@ -382,11 +382,6 @@ public class ClusterConnectionBridge extends BridgeImpl {
       super.nodeUP(member, last);
    }
 
-   @Override
-   protected void postStop() {
-      clusterConnection.removeSfQueue(queue);
-   }
-
 
    @Override
    protected void afterConnect() throws Exception {

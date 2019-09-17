@@ -695,30 +695,6 @@ transactions are there for the client when it reconnects. The normal
 reconnect settings apply when the client is reconnecting so these should
 be high enough to deal with the time needed to scale down.
 
-#### Automatic Deleting Store-and-Forward Queue after Scale Down
-
-By default after the node is scaled down to a target node the internal
-SF queue is not deleted. There is a boolean configuration parameter called 
-"cleanup-sf-queue" that can be used in case you want to delete it.
-
-To do so you need to add this parameter to the scale-down policy and
-set it to "true". For example:
-
-```xml
-<ha-policy>
-   <live-only>
-      <scale-down>
-         ...
-         <cleanup-sf-queue>true</cleanup-sf-queue>
-      </scale-down>
-   </live-only>
-</ha-policy>
-```
-
-With the above config in place when the scale down node is
-stopped, it will send a message to the target node once the scale down
-is complete. The target node will then properly delete the SF queue and its address.
-
 ## Failover Modes
 
 Apache ActiveMQ Artemis defines two types of client failover:

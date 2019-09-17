@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.server.cluster;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -401,18 +400,11 @@ public class ClusterController implements ActiveMQComponent {
                Vote vote = quorumManager.vote(quorumVoteMessage.getHandler(), quorumVoteMessage.getVote());
                ActiveMQServerLogger.LOGGER.sendingQuorumVoteResponse(vote.toString());
                clusterChannel.send(new QuorumVoteReplyMessage(quorumVoteMessage.getHandler(), vote));
-            } else if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT || packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT_V2) {
+            } else if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT) {
                ScaleDownAnnounceMessage message = (ScaleDownAnnounceMessage) packet;
                //we don't really need to check as it should always be true
                if (server.getNodeID().equals(message.getTargetNodeId())) {
                   server.addScaledDownNode(message.getScaledDownNodeId());
-               }
-               if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT_V2) {
-                  ClusterManager clusterManager = ClusterController.this.server.getClusterManager();
-                  Set<ClusterConnection> ccs = clusterManager.getClusterConnections();
-                  for (ClusterConnection cc : ccs) {
-                     cc.removeSfQueue(message.getScaledDownNodeId());
-                  }
                }
             } else if (channelHandler != null) {
                channelHandler.handlePacket(packet);

@@ -430,9 +430,6 @@ public final class ActiveMQDefaultConfiguration {
    // its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
    private static boolean DEFAULT_SCALE_DOWN_ENABLED = true;
 
-   // will the target node delete the store-and-forward queue for the scaled down node.
-   private static boolean DEFAULT_SCALE_DOWN_CLEANUP_SF_QUEUE = false;
-
    // How long to wait for a decision
    private static int DEFAULT_GROUPING_HANDLER_TIMEOUT = 5000;
 
@@ -1533,9 +1530,5 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultRetryReplicationWait() {
       return DEFAULT_RETRY_REPLICATION_WAIT;
-   }
-
-   public static boolean isDefaultCleanupSfQueue() {
-      return DEFAULT_SCALE_DOWN_CLEANUP_SF_QUEUE;
    }
 }
