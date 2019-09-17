@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,6 +77,10 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       IntegrationTestLogger.LOGGER.info("Node 1: " + servers[1].getClusterManager().getNodeId());
       IntegrationTestLogger.LOGGER.info("Node 2: " + servers[2].getClusterManager().getNodeId());
       IntegrationTestLogger.LOGGER.info("===============================");
+
+      servers[0].setIdentity("Node0");
+      servers[1].setIdentity("Node1");
+      servers[2].setIdentity("Node2");
    }
 
    protected boolean isNetty() {
@@ -117,7 +122,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       createQueue(2, addressName, queueName1, null, false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
 
       // pause the SnF queue so that when the server tries to redistribute a message it won't actually go across the cluster bridge
-      String snfAddress = servers[0].getInternalNamingPrefix() + "sf.cluster0." + servers[0].getNodeID().toString();
+      final String snfAddress = servers[0].getInternalNamingPrefix() + "sf.cluster0." + servers[0].getNodeID().toString();
       Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))).getQueue();
       snfQueue.pause();
 
@@ -156,20 +161,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       // add a consumer to node 0 to trigger redistribution here
       addConsumer(0, 0, queueName1, null, true, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
 
-      // allow some time for redistribution to move the message to the SnF queue
-      long timeout = 10000;
-      long start = System.currentTimeMillis();
-      long messageCount = 0;
-
-      while (System.currentTimeMillis() - start < timeout) {
-         // ensure the message is not in the queue on node 2
-         messageCount = getMessageCount(snfQueue);
-         if (messageCount < TEST_SIZE) {
-            Thread.sleep(200);
-         } else {
-            break;
-         }
-      }
+      Wait.assertEquals(TEST_SIZE, snfQueue::getMessageCount);
 
       // ensure the message is in the SnF queue
       Assert.assertEquals(TEST_SIZE, getMessageCount(snfQueue));
@@ -179,37 +171,16 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       removeConsumer(0);
       servers[0].stop();
 
-      start = System.currentTimeMillis();
+      Queue queueServer2 = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue();
 
-      while (System.currentTimeMillis() - start < timeout) {
-         // ensure the message is not in the queue on node 2
-         messageCount = getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
-         if (messageCount > 0) {
-            Thread.sleep(200);
-         } else {
-            break;
-         }
-      }
-
-      Assert.assertEquals(0, messageCount);
+      Wait.assertEquals(0, queueServer2::getMessageCount);
 
       // get the messages from queue 1 on node 1
       addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
 
-      // allow some time for redistribution to move the message to node 1
-      start = System.currentTimeMillis();
-      while (System.currentTimeMillis() - start < timeout) {
-         // ensure the message is not in the queue on node 2
-         messageCount = getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
-         if (messageCount < TEST_SIZE) {
-            Thread.sleep(200);
-         } else {
-            break;
-         }
-      }
-
       // ensure the message is in queue 1 on node 1 as expected
-      Assert.assertEquals(TEST_SIZE, messageCount);
+      Queue queueServer1 = ((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue();
+      Wait.assertEquals(TEST_SIZE, queueServer1::getMessageCount);
 
       for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
@@ -229,6 +200,12 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
       Assert.assertNull(clientMessage);
       removeConsumer(0);
+
+      Wait.assertTrue(() -> (servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))) == null);
+      Wait.assertTrue(() -> (servers[1].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))) == null);
+
+      Assert.assertFalse(servers[1].queueQuery(SimpleString.toSimpleString(snfAddress)).isExists());
+      Assert.assertFalse(servers[1].addressQuery(SimpleString.toSimpleString(snfAddress)).isExists());
    }
 
    @Test
@@ -278,23 +255,8 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       addConsumer(0, 0, queueName1, null, true, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
       addConsumer(1, 0, queueName3, null, true, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
 
-      // allow some time for redistribution to move the message to the SnF queue
-      long timeout = 10000;
-      long start = System.currentTimeMillis();
-      long messageCount = 0;
-
-      while (System.currentTimeMillis() - start < timeout) {
-         // ensure the message is not in the queue on node 2
-         messageCount = getMessageCount(snfQueue);
-         if (messageCount < TEST_SIZE * 2) {
-            Thread.sleep(200);
-         } else {
-            break;
-         }
-      }
-
       // ensure the message is in the SnF queue
-      Assert.assertEquals(TEST_SIZE * 2, getMessageCount(snfQueue));
+      Wait.assertEquals(TEST_SIZE * 2, snfQueue::getMessageCount);
 
       // trigger scaleDown from node 0 to node 1
       IntegrationTestLogger.LOGGER.info("============ Stopping " + servers[0].getNodeID());
@@ -302,20 +264,8 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       removeConsumer(1);
       servers[0].stop();
 
-      start = System.currentTimeMillis();
-
-      while (System.currentTimeMillis() - start < timeout) {
-         // ensure the messages are not in the queues on node 2
-         messageCount = getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
-         messageCount += getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue());
-         if (messageCount > 0) {
-            Thread.sleep(200);
-         } else {
-            break;
-         }
-      }
-
-      Assert.assertEquals(0, messageCount);
+      Wait.assertEquals(0, () -> getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()) +
+         getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue()));
 
       Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
 
@@ -323,21 +273,9 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
       addConsumer(1, 1, queueName3, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
 
-      // allow some time for redistribution to move the message to node 1
-      start = System.currentTimeMillis();
-      while (System.currentTimeMillis() - start < timeout) {
-         // ensure the message is not in the queue on node 2
-         messageCount = getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
-         messageCount += getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue());
-         if (messageCount < TEST_SIZE * 2) {
-            Thread.sleep(200);
-         } else {
-            break;
-         }
-      }
-
+      Wait.assertEquals(TEST_SIZE * 2, () -> getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()) +
+         getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue()));
       // ensure the message is in queue 1 on node 1 as expected
-      Assert.assertEquals(TEST_SIZE * 2, messageCount);
 
       for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(1000);

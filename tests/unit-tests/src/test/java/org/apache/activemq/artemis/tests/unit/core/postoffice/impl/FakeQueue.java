@@ -60,6 +60,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void removeAddress() throws Exception {
+
+   }
+
+   @Override
    public long getDelayBeforeDispatch() {
       return 0;
    }
