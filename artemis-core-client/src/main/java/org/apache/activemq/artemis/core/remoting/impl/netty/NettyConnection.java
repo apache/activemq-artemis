@@ -16,10 +16,7 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.SocketAddress;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +29,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.stream.ChunkedFile;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -355,18 +350,6 @@ public class NettyConnection implements Connection {
       return canWrite;
    }
 
-   private Object getFileObject(RandomAccessFile raf, FileChannel fileChannel, long offset, int dataSize) {
-      if (channel.pipeline().get(SslHandler.class) == null) {
-         return new NonClosingDefaultFileRegion(fileChannel, offset, dataSize);
-      } else {
-         try {
-            return new ChunkedFile(raf, offset, dataSize, 8192);
-         } catch (IOException e) {
-            throw new RuntimeException(e);
-         }
-      }
-   }
-
    @Override
    public final void write(ActiveMQBuffer buffer,
                            final boolean flush,
@@ -404,30 +387,6 @@ public class NettyConnection implements Connection {
       if (flush) {
          //NOTE: this code path seems used only on RemotingConnection::disconnect
          flushAndWait(channel, promise);
-      }
-   }
-
-   @Override
-   public void write(RandomAccessFile raf,
-                     FileChannel fileChannel,
-                     long offset,
-                     int dataSize,
-                     final ChannelFutureListener futureListener) {
-      final int readableBytes = dataSize;
-      if (logger.isDebugEnabled()) {
-         final int remainingBytes = this.writeBufferHighWaterMark - readableBytes;
-         if (remainingBytes < 0) {
-            logger.debug("a write request is exceeding by " + (-remainingBytes) + " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark + " ] : consider to set it at least of " + readableBytes + " bytes");
-         }
-      }
-
-      //no need to lock because the Netty's channel is thread-safe
-      //and the order of write is ensured by the order of the write calls
-      final Channel channel = this.channel;
-      assert readableBytes >= 0;
-      ChannelFuture channelFuture = channel.writeAndFlush(getFileObject(raf, fileChannel, offset, dataSize));
-      if (futureListener != null) {
-         channelFuture.addListener(futureListener);
       }
    }
 
