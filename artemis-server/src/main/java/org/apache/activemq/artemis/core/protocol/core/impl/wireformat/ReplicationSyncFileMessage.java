@@ -189,7 +189,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
 
    @Override
    public ActiveMQBuffer encode(CoreRemotingConnection connection) {
-      if (fileId != -1 && dataSize > 0) {
+      if (fileId != -1 && dataSize >= 0) {
          ActiveMQBuffer buffer;
          int bufferSize = expectedEncodeSize();
          int encodedSize = bufferSize;
