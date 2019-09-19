@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +29,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -80,29 +75,6 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       buff.writeByte((byte) 0x00); // Netty buffer does lazy initialization.
       Assert.assertEquals(size, buff.capacity());
 
-   }
-
-   @Test
-   public void testWritePacketAndFile() throws Exception {
-      EmbeddedChannel channel = createChannel();
-      NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
-
-      final int size = 1234;
-
-      ActiveMQBuffer buff = conn.createTransportBuffer(size);
-      buff.writeByte((byte) 0x00); // Netty buffer does lazy initialization.
-      SequentialFileFactory factory = new NIOSequentialFileFactory(temporaryFolder.getRoot(), 100);
-      SequentialFile file = factory.createSequentialFile("file1.bin");
-      file.open();
-      RandomAccessFile raf = new RandomAccessFile(file.getJavaFile(), "r");
-      FileChannel fileChannel = raf.getChannel();
-
-      conn.write(buff);
-      conn.write(raf, fileChannel, 0, size, future -> raf.close());
-      channel.runPendingTasks();
-      Assert.assertEquals(2, channel.outboundMessages().size());
-      Assert.assertFalse(fileChannel.isOpen());
-      file.close();
    }
 
    @Test(expected = IllegalStateException.class)

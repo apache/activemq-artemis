@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -27,7 +25,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -277,60 +274,6 @@ public final class ChannelImpl implements Channel {
       }
    }
 
-   private ActiveMQBuffer beforeSend(final Packet packet, final int reconnectID) {
-      packet.setChannelID(id);
-
-      if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
-         packet.setCorrelationID(responseAsyncCache.nextCorrelationID());
-      }
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Sending packet nonblocking " + packet + " on channelID=" + id);
-      }
-
-      ActiveMQBuffer buffer = packet.encode(connection);
-
-      lock.lock();
-
-      try {
-         if (failingOver) {
-            waitForFailOver("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " timed-out waiting for fail-over condition on non-blocking send");
-         }
-
-         // Sanity check
-         if (transferring) {
-            throw ActiveMQClientMessageBundle.BUNDLE.cannotSendPacketDuringFailover();
-         }
-
-         if (resendCache != null && packet.isRequiresConfirmations()) {
-            addResendPacket(packet);
-         }
-
-      } finally {
-         lock.unlock();
-      }
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Writing buffer for channelID=" + id);
-      }
-
-      checkReconnectID(reconnectID);
-
-      //We do this outside the lock as ResponseCache is threadsafe and allows responses to come in,
-      //As the send could block if the response cache cannot add, preventing responses to be handled.
-      if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
-         while (!responseAsyncCache.add(packet)) {
-            try {
-               Thread.sleep(1);
-            } catch (Exception e) {
-               // Ignore
-            }
-         }
-      }
-
-      return buffer;
-   }
-
    // This must never called by more than one thread concurrently
    private boolean send(final Packet packet, final int reconnectID, final boolean flush, final boolean batch) {
       if (invokeInterceptors(packet, interceptors, connection) != null) {
@@ -338,43 +281,60 @@ public final class ChannelImpl implements Channel {
       }
 
       synchronized (sendLock) {
-         ActiveMQBuffer buffer = beforeSend(packet, reconnectID);
+         packet.setChannelID(id);
+
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            packet.setCorrelationID(responseAsyncCache.nextCorrelationID());
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Sending packet nonblocking " + packet + " on channelID=" + id);
+         }
+
+         ActiveMQBuffer buffer = packet.encode(connection);
+
+         lock.lock();
+
+         try {
+            if (failingOver) {
+               waitForFailOver("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " timed-out waiting for fail-over condition on non-blocking send");
+            }
+
+            // Sanity check
+            if (transferring) {
+               throw ActiveMQClientMessageBundle.BUNDLE.cannotSendPacketDuringFailover();
+            }
+
+            if (resendCache != null && packet.isRequiresConfirmations()) {
+               addResendPacket(packet);
+            }
+
+         } finally {
+            lock.unlock();
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Writing buffer for channelID=" + id);
+         }
+
+         checkReconnectID(reconnectID);
+
+         //We do this outside the lock as ResponseCache is threadsafe and allows responses to come in,
+         //As the send could block if the response cache cannot add, preventing responses to be handled.
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            while (!responseAsyncCache.add(packet)) {
+               try {
+                  Thread.sleep(1);
+               } catch (Exception e) {
+                  // Ignore
+               }
+            }
+         }
 
          // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
          // buffer is full, preventing any incoming buffers being handled and blocking failover
          try {
             connection.getTransportConnection().write(buffer, flush, batch);
-         } catch (Throwable t) {
-            //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
-            //The client would get still know about this as the exception bubbles up the call stack instead.
-            if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
-               responseAsyncCache.remove(packet.getCorrelationID());
-            }
-            throw t;
-         }
-         return true;
-      }
-   }
-
-   @Override
-   public boolean send(Packet packet,
-                       RandomAccessFile raf,
-                       FileChannel fileChannel,
-                       long offset,
-                       int dataSize,
-                       Callback callback) {
-      if (invokeInterceptors(packet, interceptors, connection) != null) {
-         return false;
-      }
-
-      synchronized (sendLock) {
-         ActiveMQBuffer buffer = beforeSend(packet, -1);
-
-         // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
-         // buffer is full, preventing any incoming buffers being handled and blocking failover
-         try {
-            connection.getTransportConnection().write(buffer);
-            connection.getTransportConnection().write(raf, fileChannel, offset, dataSize, callback == null ? null : (ChannelFutureListener) future -> callback.done(future == null || future.isSuccess()));
          } catch (Throwable t) {
             //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
             //The client would get still know about this as the exception bubbles up the call stack instead.
