@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelFutureListener;
@@ -102,8 +100,6 @@ public interface Connection {
     * @param buffer the buffer to write
     */
    void write(ActiveMQBuffer buffer);
-
-   void write(RandomAccessFile raf, FileChannel fileChannel, long offset, int dataSize, ChannelFutureListener futureListener);
 
    /**
     * This should close the internal channel without calling any listeners.
