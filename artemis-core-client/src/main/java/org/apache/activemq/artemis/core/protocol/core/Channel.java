@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.core;
 
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.locks.Lock;
 
@@ -72,7 +71,6 @@ public interface Channel {
     * Sends a packet and file on this channel.
     *
     * @param packet the packet to send
-    * @param raf the file to send
     * @param fileChannel the file channel retrieved from raf
     * @param offset the position of the raf
     * @param dataSize the data size to send
@@ -80,7 +78,7 @@ public interface Channel {
     * @return false if the packet was rejected by an outgoing interceptor; true if the send was
     * successful
     */
-   boolean send(Packet packet, RandomAccessFile raf, FileChannel fileChannel, long offset, int dataSize, Callback callback);
+   boolean send(Packet packet, FileChannel fileChannel, long offset, int dataSize, Callback callback);
 
    /**
     * Sends a packet on this channel.

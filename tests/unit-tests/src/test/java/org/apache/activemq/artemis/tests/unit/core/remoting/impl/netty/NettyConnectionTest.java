@@ -98,7 +98,7 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       FileChannel fileChannel = raf.getChannel();
 
       conn.write(buff);
-      conn.write(raf, fileChannel, 0, size, future -> raf.close());
+      conn.write(fileChannel, 0, size, future -> raf.close());
       channel.runPendingTasks();
       Assert.assertEquals(2, channel.outboundMessages().size());
       Assert.assertFalse(fileChannel.isOpen());

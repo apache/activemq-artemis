@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.invm;
 
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -245,8 +244,7 @@ public class InVMConnection implements Connection {
    }
 
    @Override
-   public void write(RandomAccessFile raf,
-                     FileChannel fileChannel,
+   public void write(FileChannel fileChannel,
                      long offset,
                      int dataSize,
                      final ChannelFutureListener futureListener) {

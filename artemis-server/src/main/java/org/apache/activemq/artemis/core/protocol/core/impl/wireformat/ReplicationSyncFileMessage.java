@@ -258,7 +258,19 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
 
    private void readFile(ByteBuffer buffer) {
       try {
-         fileChannel.read(buffer, offset);
+         if (buffer.hasArray()) {
+            raf.seek(offset);
+            final int position = buffer.position();
+            final int read = raf.read(buffer.array(), buffer.arrayOffset() + position, buffer.remaining());
+            if (read >= 0) {
+               buffer.position(position + read);
+            }
+         } else {
+            if (!buffer.isDirect()) {
+               logger.debug("Expected direct ByteBuffer while using FileChannel: it can cause leaks unless -Djdk.nio.maxCachedBufferSize is correctly set");
+            }
+            fileChannel.read(buffer, offset);
+         }
       } catch (IOException e) {
          throw new RuntimeException(e);
       }

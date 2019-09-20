@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import javax.security.auth.Subject;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -395,8 +394,7 @@ public class ChannelImplTest {
             }
 
             @Override
-            public void write(RandomAccessFile raf,
-                              FileChannel fileChannel,
+            public void write(FileChannel fileChannel,
                               long offset,
                               int dataSize,
                               ChannelFutureListener channelFutureListener) {

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.EnumSet;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ResponseHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.ConcurrentUtil;
 import org.jboss.logging.Logger;
@@ -151,6 +151,11 @@ public final class ChannelImpl implements Channel {
       }
 
       this.interceptors = interceptors;
+      //zero copy transfer is initialized only for replication channels
+      if (id == CHANNEL_ID.REPLICATION.id && connection.getTransportConnection() instanceof NettyConnection) {
+         final NettyConnection nettyConnection = (NettyConnection) connection.getTransportConnection();
+         nettyConnection.initializeZeroCopyTransfer();
+      }
    }
 
    @Override
@@ -358,7 +363,6 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean send(Packet packet,
-                       RandomAccessFile raf,
                        FileChannel fileChannel,
                        long offset,
                        int dataSize,
@@ -374,7 +378,7 @@ public final class ChannelImpl implements Channel {
          // buffer is full, preventing any incoming buffers being handled and blocking failover
          try {
             connection.getTransportConnection().write(buffer);
-            connection.getTransportConnection().write(raf, fileChannel, offset, dataSize, callback == null ? null : (ChannelFutureListener) future -> callback.done(future == null || future.isSuccess()));
+            connection.getTransportConnection().write(fileChannel, offset, dataSize, callback == null ? null : (ChannelFutureListener) future -> callback.done(future == null || future.isSuccess()));
          } catch (Throwable t) {
             //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
             //The client would get still know about this as the exception bubbles up the call stack instead.

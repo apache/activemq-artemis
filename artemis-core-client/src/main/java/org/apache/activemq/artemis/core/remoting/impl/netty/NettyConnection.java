@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.SocketAddress;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -30,10 +29,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.EventLoop;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.stream.ChunkedFile;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -51,8 +53,10 @@ import org.jboss.logging.Logger;
 public class NettyConnection implements Connection {
 
    private static final Logger logger = Logger.getLogger(NettyConnection.class);
-
+   public static final String USE_FILE_REGION_PROP_NAME = "io.netty.file.region";
+   private final boolean USE_FILE_REGION = SystemPropertyUtil.getBoolean(USE_FILE_REGION_PROP_NAME, true);
    private static final int DEFAULT_BATCH_BYTES = Integer.getInteger("io.netty.batch.bytes", 8192);
+   private static final int CHUNKED_NIO_BYTES = 32 * 1024;
    private static final int DEFAULT_WAIT_MILLIS = 10_000;
 
    protected final Channel channel;
@@ -93,6 +97,20 @@ public class NettyConnection implements Connection {
       this.writeBufferHighWaterMark = this.channel.config().getWriteBufferHighWaterMark();
 
       this.batchLimit = batchingEnabled ? Math.min(this.writeBufferHighWaterMark, DEFAULT_BATCH_BYTES) : 0;
+   }
+
+   /**
+    * It prepares the {@link #getNettyChannel()}'s pipeline to be able to handle
+    * {@link io.netty.handler.stream.ChunkedInput} objects, if {@link DefaultFileRegion} are not supported.
+    * This method is not thread-safe and should be called only once on a connection lifecycle.
+    */
+   public void initializeZeroCopyTransfer() {
+      final ChannelPipeline pipeline = channel.pipeline();
+      if (!USE_FILE_REGION || pipeline.get(SslHandler.class) != null) {
+         if (pipeline.get(ChunkedWriteHandler.class) == null) {
+            pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
+         }
+      }
    }
 
    private static void waitFor(ChannelPromise promise, long millis) {
@@ -355,12 +373,24 @@ public class NettyConnection implements Connection {
       return canWrite;
    }
 
-   private Object getFileObject(RandomAccessFile raf, FileChannel fileChannel, long offset, int dataSize) {
-      if (channel.pipeline().get(SslHandler.class) == null) {
-         return new NonClosingDefaultFileRegion(fileChannel, offset, dataSize);
+   private Object getFileObject(FileChannel fileChannel, long offset, int dataSize) {
+      if (USE_FILE_REGION && channel.pipeline().get(SslHandler.class) == null) {
+         return new DefaultFileRegion(fileChannel, offset, dataSize) {
+            @Override
+            protected void deallocate() {
+               //no op
+            }
+         };
       } else {
+         assert channel.pipeline().get(ChunkedWriteHandler.class) != null :
+            "ChunkedWriteHandler needs to be added to the pipeline to handle ChunkedNioFile";
          try {
-            return new ChunkedFile(raf, offset, dataSize, 8192);
+            return new AbsoluteChunkedNioFile(fileChannel, offset, dataSize, CHUNKED_NIO_BYTES) {
+               @Override
+               public void close() throws Exception {
+                  //no op
+               }
+            };
          } catch (IOException e) {
             throw new RuntimeException(e);
          }
@@ -408,24 +438,12 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public void write(RandomAccessFile raf,
-                     FileChannel fileChannel,
+   public void write(FileChannel fileChannel,
                      long offset,
                      int dataSize,
                      final ChannelFutureListener futureListener) {
-      final int readableBytes = dataSize;
-      if (logger.isDebugEnabled()) {
-         final int remainingBytes = this.writeBufferHighWaterMark - readableBytes;
-         if (remainingBytes < 0) {
-            logger.debug("a write request is exceeding by " + (-remainingBytes) + " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark + " ] : consider to set it at least of " + readableBytes + " bytes");
-         }
-      }
-
-      //no need to lock because the Netty's channel is thread-safe
-      //and the order of write is ensured by the order of the write calls
-      final Channel channel = this.channel;
-      assert readableBytes >= 0;
-      ChannelFuture channelFuture = channel.writeAndFlush(getFileObject(raf, fileChannel, offset, dataSize));
+      final ChannelPromise promise = futureListener != null ? channel.newPromise() : channel.voidPromise();
+      ChannelFuture channelFuture = channel.writeAndFlush(getFileObject(fileChannel, offset, dataSize), promise);
       if (futureListener != null) {
          channelFuture.addListener(futureListener);
       }

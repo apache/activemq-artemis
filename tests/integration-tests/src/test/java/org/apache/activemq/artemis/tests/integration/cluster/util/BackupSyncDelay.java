@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
 
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.locks.Lock;
 
@@ -214,7 +213,7 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
-      public boolean send(Packet packet, RandomAccessFile raf, FileChannel fileChannel, long offset, int dataSize, Callback callback) {
+      public boolean send(Packet packet, FileChannel fileChannel, long offset, int dataSize, Callback callback) {
          return true;
       }
 

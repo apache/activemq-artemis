@@ -404,7 +404,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                pendingTokens.add(repliToken);
                flowControl(syncFileMessage.expectedEncodeSize());
                if (syncFileMessage.getFileId() != -1 && syncFileMessage.getDataSize() > 0) {
-                  replicatingChannel.send(syncFileMessage, syncFileMessage.getRaf(), syncFileMessage.getFileChannel(),
+                  replicatingChannel.send(syncFileMessage, syncFileMessage.getFileChannel(),
                                           syncFileMessage.getOffset(), syncFileMessage.getDataSize(),
                                           lastChunk ? (Channel.Callback) success -> syncFileMessage.release() : null);
                } else {

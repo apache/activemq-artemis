@@ -62,7 +62,11 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    @Override
    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-      listener.connectionReadyForWrites(channelId(ctx.channel()), ctx.channel().isWritable());
+      try {
+         listener.connectionReadyForWrites(channelId(ctx.channel()), ctx.channel().isWritable());
+      } finally {
+         ctx.fireChannelWritabilityChanged();
+      }
    }
 
    @Override
