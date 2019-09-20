@@ -440,6 +440,7 @@ public class AMQPSessionCallback implements SessionCallback {
          // Anonymous relay must set a To value
          address = message.getAddressSimpleString();
          if (address == null) {
+            // Errors are not currently handled as required by AMQP 1.0 anonterm-v1.0
             rejectMessage(delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
             return;
          }
@@ -457,14 +458,14 @@ public class AMQPSessionCallback implements SessionCallback {
          PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddressSimpleString());
          if (store != null && store.isRejectingMessages()) {
             // We drop pre-settled messages (and abort any associated Tx)
+            String amqpAddress = delivery.getLink().getTarget().getAddress();
+            ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
             if (delivery.remotelySettled()) {
                if (transaction != null) {
-                  String amqpAddress = delivery.getLink().getTarget().getAddress();
-                  ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
                   transaction.markAsRollbackOnly(e);
                }
             } else {
-               rejectMessage(delivery, AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + address);
+               throw e;
             }
          } else {
             serverSend(context, transaction, message, delivery, receiver, routingContext);

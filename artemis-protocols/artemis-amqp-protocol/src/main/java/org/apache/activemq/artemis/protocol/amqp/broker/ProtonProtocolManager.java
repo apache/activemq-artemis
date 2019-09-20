@@ -69,6 +69,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private int amqpLowCredits = AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
 
+   private boolean amqpUseModifiedForTransientDeliveryErrors = AmqpSupport.AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
+
    private int initialRemoteMaxFrameSize = 4 * 1024;
 
    private String[] saslMechanisms = MechanismFinder.getKnownMechanisms();
@@ -292,5 +294,23 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    public void setInitialRemoteMaxFrameSize(int initialRemoteMaxFrameSize) {
       this.initialRemoteMaxFrameSize = initialRemoteMaxFrameSize;
    }
+
+   /**
+    * Returns true if transient delivery errors should be handled with a Modified disposition
+    * (if permitted by link)
+    */
+   public boolean isUseModifiedForTransientDeliveryErrors() {
+      return this.amqpUseModifiedForTransientDeliveryErrors;
+   }
+
+   /**
+    * Sets if transient delivery errors should be handled with a Modified disposition
+    * (if permitted by link)
+    */
+   public ProtonProtocolManager setAmqpUseModifiedForTransientDeliveryErrors(boolean amqpUseModifiedForTransientDeliveryErrors) {
+      this.amqpUseModifiedForTransientDeliveryErrors = amqpUseModifiedForTransientDeliveryErrors;
+      return this;
+   }
+
 
 }
