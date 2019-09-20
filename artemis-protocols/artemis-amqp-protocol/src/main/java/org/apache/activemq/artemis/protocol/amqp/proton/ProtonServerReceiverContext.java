@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -40,10 +42,14 @@ import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.Modified;
+import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
+import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
+import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.codec.ReadableBuffer;
@@ -77,6 +83,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
     * We set it as ran as the first one should always go through
     */
    protected final AtomicRunnable creditRunnable;
+   private final boolean useModified;
 
    /**
     * This Credit Runnable may be used in Mock tests to simulate the credit semantic here
@@ -125,6 +132,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       this.amqpCredits = connection.getAmqpCredits();
       this.minCreditRefresh = connection.getAmqpLowCredits();
       this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection).setRan();
+      useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
    }
 
    @Override
@@ -304,26 +312,61 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          sessionSPI.serverSend(this, tx, receiver, delivery, address, delivery.getMessageFormat(), data, routingContext);
       } catch (Exception e) {
          log.warn(e.getMessage(), e);
-         Rejected rejected = new Rejected();
-         ErrorCondition condition = new ErrorCondition();
-
-         if (e instanceof ActiveMQSecurityException) {
-            condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-         } else {
-            condition.setCondition(Symbol.valueOf("failed"));
-         }
+         DeliveryState deliveryState = determineDeliveryState(((Source) receiver.getSource()),
+                                                              useModified,
+                                                              e);
          connection.runLater(() -> {
-
-            condition.setDescription(e.getMessage());
-            rejected.setError(condition);
-
-            delivery.disposition(rejected);
+            delivery.disposition(deliveryState);
             delivery.settle();
             flow();
             connection.flush();
          });
 
       }
+   }
+
+   private DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
+      Outcome defaultOutcome = getEffectiveDefaultOutcome(source);
+
+      if (isAddressFull(e) && useModified &&
+          (outcomeSupported(source, Modified.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Modified)) {
+         Modified modified = new Modified();
+         modified.setDeliveryFailed(true);
+         return modified;
+      } else {
+         if (outcomeSupported(source, Rejected.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Rejected) {
+            return createRejected(e);
+         } else if (source.getDefaultOutcome() instanceof DeliveryState) {
+            return ((DeliveryState) source.getDefaultOutcome());
+         } else {
+            // The AMQP specification requires that Accepted is returned for this case. However there exist
+            // implementations that set neither outcomes/default-outcome but use/expect for full range of outcomes.
+            // To maintain compatibility with these implementations, we maintain previous behaviour.
+            return createRejected(e);
+         }
+      }
+   }
+
+   private boolean isAddressFull(final Exception e) {
+      return e instanceof ActiveMQException && ActiveMQExceptionType.ADDRESS_FULL.equals(((ActiveMQException) e).getType());
+   }
+
+   private Rejected createRejected(final Exception e) {
+      ErrorCondition condition = new ErrorCondition();
+
+      // Set condition
+      if (e instanceof ActiveMQSecurityException) {
+         condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
+      } else if (isAddressFull(e)) {
+         condition.setCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED);
+      } else {
+         condition.setCondition(Symbol.valueOf("failed"));
+      }
+      condition.setDescription(e.getMessage());
+
+      Rejected rejected = new Rejected();
+      rejected.setError(condition);
+      return rejected;
    }
 
    @Override
@@ -374,5 +417,16 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    public boolean isDraining() {
       return receiver.draining();
+   }
+
+   private boolean outcomeSupported(final Source source, final Symbol outcome) {
+      if (source != null && source.getOutcomes() != null) {
+         return Arrays.asList(( source).getOutcomes()).contains(outcome);
+      }
+      return false;
+   }
+
+   private Outcome getEffectiveDefaultOutcome(final Source source) {
+      return (source.getOutcomes() == null || source.getOutcomes().length == 0) ? source.getDefaultOutcome() : null;
    }
 }
