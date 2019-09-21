@@ -173,6 +173,43 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       return read(bytes, null);
    }
 
+   //This value has been tuned just to reduce the memory footprint
+   //of read/write of the whole file size: given that this value
+   //is > 8192, RandomAccessFile JNI code will use malloc/free instead
+   //of using a copy on the stack, but it has been proven to NOT be
+   //a bottleneck
+   private static final int BUF_SIZE = 2 * 1024 * 1024;
+
+   private static int readRaf(RandomAccessFile raf, byte[] b, int off, int len, int ioSize) throws IOException {
+      int remaining = len;
+      int offset = off;
+      while (remaining > 0) {
+         final int chunkSize = Math.min(ioSize, remaining);
+         final int read = raf.read(b, offset, chunkSize);
+         assert read != 0;
+         if (read == -1) {
+            if (len == remaining) {
+               return -1;
+            }
+            break;
+         }
+         offset += read;
+         remaining -= read;
+      }
+      return len - remaining;
+   }
+
+   private static void writeRaf(RandomAccessFile raf, byte[] b, int off, int len, int ioSize) throws IOException {
+      int remaining = len;
+      int offset = off;
+      while (remaining > 0) {
+         final int chunkSize = Math.min(ioSize, remaining);
+         raf.write(b, offset, chunkSize);
+         offset += chunkSize;
+         remaining -= chunkSize;
+      }
+   }
+
    @Override
    public synchronized int read(final ByteBuffer bytes,
                                 final IOCallback callback) throws IOException, ActiveMQIllegalStateException {
@@ -182,7 +219,11 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          }
          final int bytesRead;
          if (bytes.hasArray()) {
-            bytesRead = rfile.read(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            if (bytes.remaining() > BUF_SIZE) {
+               bytesRead = readRaf(rfile, bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining(), BUF_SIZE);
+            } else {
+               bytesRead = rfile.read(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            }
             if (bytesRead > 0) {
                bytes.position(bytes.position() + bytesRead);
             }
@@ -332,7 +373,11 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                                 boolean releaseBuffer) throws IOException {
       try {
          if (bytes.hasArray()) {
-            rfile.write(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            if (bytes.remaining() > BUF_SIZE) {
+               writeRaf(rfile, bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining(), BUF_SIZE);
+            } else {
+               rfile.write(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
+            }
             bytes.position(bytes.limit());
          } else {
             channel.write(bytes);
