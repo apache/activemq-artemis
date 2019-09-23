@@ -450,7 +450,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public void copyHeadersAndProperties(final Message msg) {
+   public void moveHeadersAndProperties(final Message msg) {
       messageID = msg.getMessageID();
       address = msg.getAddressSimpleString();
       userID = (UUID) msg.getUserID();
