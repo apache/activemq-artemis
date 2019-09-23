@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.broker</groupId>
       <artifactId>jms-examples</artifactId>
-      <version>2.11.0-SNAPSHOT</version>
+      <version>2.10.1</version>
    </parent>
 
    <artifactId>temp-queue</artifactId>
