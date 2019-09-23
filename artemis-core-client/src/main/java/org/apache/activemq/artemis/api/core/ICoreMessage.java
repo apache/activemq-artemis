@@ -83,9 +83,10 @@ public interface ICoreMessage extends Message {
    int getEndOfBodyPosition();
 
    /**
-    * Used on large messages treatment
+    * Used on large messages treatment.
+    * this method will move
     */
-   void copyHeadersAndProperties(Message msg);
+   void moveHeadersAndProperties(Message msg);
 
    void sendBuffer_1X(ByteBuf sendBuffer);
 
