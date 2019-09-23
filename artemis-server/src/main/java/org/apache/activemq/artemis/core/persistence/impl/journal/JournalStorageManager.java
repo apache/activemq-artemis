@@ -549,7 +549,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          LargeServerMessageImpl largeMessage = (LargeServerMessageImpl) createLargeMessage();
 
-         largeMessage.copyHeadersAndProperties(message);
+         largeMessage.moveHeadersAndProperties(message);
 
          largeMessage.setMessageID(id);
 

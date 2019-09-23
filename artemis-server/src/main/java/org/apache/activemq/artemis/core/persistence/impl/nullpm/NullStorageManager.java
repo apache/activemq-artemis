@@ -291,7 +291,7 @@ public class NullStorageManager implements StorageManager {
    public LargeServerMessage createLargeMessage(final long id, final Message message) {
       NullStorageLargeServerMessage largeMessage = new NullStorageLargeServerMessage();
 
-      largeMessage.copyHeadersAndProperties(message);
+      largeMessage.moveHeadersAndProperties(message);
 
       largeMessage.setMessageID(id);
 
