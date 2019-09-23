@@ -83,9 +83,15 @@ public interface ICoreMessage extends Message {
    int getEndOfBodyPosition();
 
    /**
-    * Used on large messages treatment
+    * Used on large messages treatment.
+    * this method is used to transfer properties from a temporary CoreMessage to a definitive one.
+    * This is used when before a Message was defined as a LargeMessages, its properties are then moved from the
+    * Temporary message to its final LargeMessage object.
+    *
+    * Be careful as this will not perform a copy of the Properties.
+    * For real copy, use the copy methods or copy constructors.
     */
-   void copyHeadersAndProperties(Message msg);
+   void moveHeadersAndProperties(Message msg);
 
    void sendBuffer_1X(ByteBuf sendBuffer);
 
