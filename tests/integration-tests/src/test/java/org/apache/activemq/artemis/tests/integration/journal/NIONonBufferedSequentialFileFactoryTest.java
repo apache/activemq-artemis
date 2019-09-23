@@ -17,16 +17,149 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
    @Override
    protected SequentialFileFactory createFactory(String folder) {
       return new NIOSequentialFileFactory(new File(folder), false, 1);
+   }
+
+   @Test
+   public void writeHeapBufferNotFromBeginningAndReadWithDirectBuffer() throws Exception {
+      writeHeapBufferNotFromBeginningAndRead(false);
+   }
+
+   @Test
+   public void writeHeapBufferNotFromBeginningAndReadWithHeapBuffer() throws Exception {
+      writeHeapBufferNotFromBeginningAndRead(true);
+   }
+
+   private void writeHeapBufferNotFromBeginningAndRead(boolean useHeapByteBufferToRead) throws Exception {
+      final SequentialFile file = factory.createSequentialFile("write.amq");
+      file.open();
+      Assert.assertEquals(0, file.size());
+      Assert.assertEquals(0, file.position());
+      try {
+         final String data = "writeDirectArray";
+         final byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
+         file.position(factory.calculateBlockSize(bytes.length));
+         file.writeDirect(ByteBuffer.wrap(bytes), false);
+         final ByteBuffer readBuffer;
+         if (!useHeapByteBufferToRead) {
+            readBuffer = factory.newBuffer(bytes.length);
+         } else {
+            readBuffer = ByteBuffer.allocate(bytes.length);
+         }
+         try {
+            file.position(factory.calculateBlockSize(bytes.length));
+            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+         } finally {
+            if (!useHeapByteBufferToRead) {
+               factory.releaseBuffer(readBuffer);
+            }
+         }
+      } finally {
+         file.close();
+         file.delete();
+      }
+   }
+
+   @Test
+   public void writeHeapBufferAndReadWithDirectBuffer() throws Exception {
+      writeHeapBufferAndRead(false);
+   }
+
+   @Test
+   public void writeHeapBufferAndReadWithHeapBuffer() throws Exception {
+      writeHeapBufferAndRead(true);
+   }
+
+   private void writeHeapBufferAndRead(boolean useHeapByteBufferToRead) throws Exception {
+      final SequentialFile file = factory.createSequentialFile("write.amq");
+      file.open();
+      Assert.assertEquals(0, file.size());
+      Assert.assertEquals(0, file.position());
+      try {
+         final String data = "writeDirectArray";
+         final byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
+         file.writeDirect(ByteBuffer.wrap(bytes), false);
+         final ByteBuffer readBuffer;
+         if (!useHeapByteBufferToRead) {
+            readBuffer = factory.newBuffer(bytes.length);
+         } else {
+            readBuffer = ByteBuffer.allocate(bytes.length);
+         }
+         try {
+            file.position(0);
+            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+         } finally {
+            if (!useHeapByteBufferToRead) {
+               factory.releaseBuffer(readBuffer);
+            }
+         }
+      } finally {
+         file.close();
+         file.delete();
+      }
+   }
+
+   @Test
+   public void writeHeapAndDirectBufferAndReadWithDirectBuffer() throws Exception {
+      writeHeapAndDirectBufferAndRead(false);
+   }
+
+   @Test
+   public void writeHeapAndDirectBufferAndReadWithHeapBuffer() throws Exception {
+      writeHeapAndDirectBufferAndRead(true);
+   }
+
+   private void writeHeapAndDirectBufferAndRead(boolean useHeapByteBufferToRead) throws Exception {
+      final SequentialFile file = factory.createSequentialFile("write.amq");
+      file.open();
+      Assert.assertEquals(0, file.size());
+      Assert.assertEquals(0, file.position());
+      try {
+         final String data = "writeDirectArray";
+         final byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
+         file.writeDirect(ByteBuffer.wrap(bytes), false);
+         final ByteBuffer byteBuffer = factory.newBuffer(bytes.length);
+         byteBuffer.put(bytes);
+         byteBuffer.flip();
+         file.writeDirect(byteBuffer, false);
+         final ByteBuffer readBuffer;
+         if (!useHeapByteBufferToRead) {
+            readBuffer = factory.newBuffer(bytes.length);
+         } else {
+            readBuffer = ByteBuffer.allocate(bytes.length);
+         }
+         try {
+            file.position(0);
+            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+            readBuffer.flip();
+            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+         } finally {
+            if (!useHeapByteBufferToRead) {
+               factory.releaseBuffer(readBuffer);
+            }
+         }
+      } finally {
+         file.close();
+         file.delete();
+      }
    }
 
 }
