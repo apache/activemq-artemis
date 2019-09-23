@@ -461,7 +461,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       priority = msg.getPriority();
 
       if (msg instanceof CoreMessage) {
-         properties = ((CoreMessage) msg).getProperties();
+         properties = new TypedProperties(((CoreMessage) msg).getProperties());
       }
    }
 
