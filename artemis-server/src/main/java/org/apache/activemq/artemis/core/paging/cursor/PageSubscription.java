@@ -55,7 +55,7 @@ public interface PageSubscription {
     */
    boolean isPaging();
 
-   LinkedListIterator<PagedReference> iterator();
+   PageIterator iterator();
 
    LinkedListIterator<PagedReference> iterator(boolean jumpRemoves);
 
