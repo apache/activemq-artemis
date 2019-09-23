@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -61,9 +62,13 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.server.impl.QueueImpl.DELIVERY_TIMEOUT;
+
 public final class PageSubscriptionImpl implements PageSubscription {
 
    private static final Logger logger = Logger.getLogger(PageSubscriptionImpl.class);
+
+   private static final PagedReference dummyPagedRef = new PagedReferenceImpl(null, null, null);
 
    private boolean empty = true;
 
@@ -1323,7 +1328,13 @@ public final class PageSubscriptionImpl implements PageSubscription {
             PagePositionAndFileOffset lastPosition = position;
             PagePositionAndFileOffset tmpPosition = position;
 
+            long timeout = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_TIMEOUT);
+
             do {
+               if (System.nanoTime() - timeout > 0) {
+                  return dummyPagedRef;
+               }
+
                synchronized (redeliveries) {
                   PagePosition redelivery = redeliveries.poll();
 
@@ -1363,6 +1374,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
                PageCursorInfo info = getPageInfo(message.getPosition().getPageNr());
 
+               position = tmpPosition;
+
                if (!browsing && info != null && (info.isRemoved(message.getPosition()) || info.getCompleteInfo() != null)) {
                   continue;
                }
@@ -1398,8 +1411,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   }
                }
 
-               position = tmpPosition;
-
                if (valid) {
                   match = match(message.getMessage());
 
@@ -1420,24 +1431,36 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
       }
 
+      @Override
+      public synchronized int tryNext() {
+         // if an unbehaved program called hasNext twice before next, we only cache it once.
+         if (cachedNext != null) {
+            return 1;
+         }
+
+         if (!pageStore.isPaging()) {
+            return 0;
+         }
+
+         PagedReference pagedReference = next();
+         if (pagedReference == dummyPagedRef) {
+            return 2;
+         } else {
+            cachedNext = pagedReference;
+            return cachedNext == null ? 0 : 1;
+         }
+      }
+
       /**
        * QueueImpl::deliver could be calling hasNext while QueueImpl.depage could be using next and hasNext as well.
        * It would be a rare race condition but I would prefer avoiding that scenario
        */
       @Override
       public synchronized boolean hasNext() {
-         // if an unbehaved program called hasNext twice before next, we only cache it once.
-         if (cachedNext != null) {
-            return true;
+         int status;
+         while ((status = tryNext()) == 2) {
          }
-
-         if (!pageStore.isPaging()) {
-            return false;
-         }
-
-         cachedNext = next();
-
-         return cachedNext != null;
+         return status == 0 ? false : true;
       }
 
       @Override
