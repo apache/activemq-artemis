@@ -266,7 +266,7 @@ public class MessageImplTest extends ActiveMQTestBase {
 
       CoreMessage msg2 = new CoreMessage(456, 18);
 
-      msg2.copyHeadersAndProperties(msg1);
+      msg2.moveHeadersAndProperties(msg1);
 
       assertEquals(msg1.getAddress(), msg2.getAddress());
       assertEquals(msg1.getUserID(), msg2.getUserID());
