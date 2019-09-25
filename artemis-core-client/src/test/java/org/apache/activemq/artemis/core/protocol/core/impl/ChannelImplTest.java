@@ -238,7 +238,7 @@ public class ChannelImplTest {
       }
 
       @Override
-      public boolean blockUntilWritable(int size, long timeout) {
+      public boolean blockUntilWritable(long timeout) {
          return false;
       }
 

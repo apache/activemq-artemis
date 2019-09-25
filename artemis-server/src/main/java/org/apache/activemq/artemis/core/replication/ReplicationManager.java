@@ -378,7 +378,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       replicationStream.execute(() -> {
          if (enabled) {
             pendingTokens.add(repliToken);
-            flowControl(packet.expectedEncodeSize());
+            flowControl();
             replicatingChannel.send(packet);
          } else {
             packet.release();
@@ -402,7 +402,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          if (enabled) {
             try {
                pendingTokens.add(repliToken);
-               flowControl(syncFileMessage.expectedEncodeSize());
+               flowControl();
                if (syncFileMessage.getFileId() != -1 && syncFileMessage.getDataSize() > 0) {
                   replicatingChannel.send(syncFileMessage, syncFileMessage.getFileChannel(),
                                           syncFileMessage.getOffset(), syncFileMessage.getDataSize(),
@@ -426,8 +426,8 @@ public final class ReplicationManager implements ActiveMQComponent {
     * This was written as a refactoring of sendReplicatePacket.
     * In case you refactor this in any way, this method must hold a lock on replication lock. .
     */
-   private boolean flowControl(int size) {
-      boolean flowWorked = replicatingChannel.getConnection().blockUntilWritable(size, timeout);
+   private boolean flowControl() {
+      boolean flowWorked = replicatingChannel.getConnection().blockUntilWritable(timeout);
 
       if (!flowWorked) {
          try {

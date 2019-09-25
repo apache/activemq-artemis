@@ -47,18 +47,16 @@ public interface Connection {
    boolean isOpen();
 
    /**
-    * Causes the current thread to wait until the connection can enqueue the required capacity unless the specified waiting time elapses.
-    * The available capacity of the connection could change concurrently hence this method is suitable to perform precise flow-control
-    * only in a single writer case, while its precision decrease inversely proportional with the rate and the number of concurrent writers.
+    * Causes the current thread to wait until the connection can enqueue a write request unless the specified waiting time elapses.
+    * The available capacity of the connection could change concurrently hence this method is not suitable to perform precise flow-control.
     * If the current thread is not allowed to block the timeout will be ignored dependently on the connection type.
     *
-    * @param requiredCapacity the capacity in bytes to be enqueued
     * @param timeout          the maximum time to wait
     * @param timeUnit         the time unit of the timeout argument
     * @return {@code true} if the connection can enqueue {@code requiredCapacity} bytes, {@code false} otherwise
     * @throws IllegalStateException if the connection is closed
     */
-   default boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
+   default boolean blockUntilWritable(final long timeout, final TimeUnit timeUnit) {
       return true;
    }
 

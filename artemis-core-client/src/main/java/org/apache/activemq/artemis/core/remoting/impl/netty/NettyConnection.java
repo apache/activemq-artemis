@@ -140,10 +140,6 @@ public class NettyConnection implements Connection {
       return writtenBytes;
    }
 
-   public final int pendingWritesOnChannel() {
-      return batchBufferSize(this.channel, this.writeBufferHighWaterMark);
-   }
-
    public final Channel getNettyChannel() {
       return channel;
    }
@@ -316,7 +312,7 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public final boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
+   public final boolean blockUntilWritable(final long timeout, final TimeUnit timeUnit) {
       checkConnectionState();
       final boolean isAllowedToBlock = isAllowedToBlock();
       if (!isAllowedToBlock) {
@@ -331,7 +327,7 @@ public class NettyConnection implements Connection {
          if (logger.isDebugEnabled()) {
             logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
          }
-         return canWrite(requiredCapacity);
+         return channel.isWritable();
       } else {
          final long timeoutNanos = timeUnit.toNanos(timeout);
          final long deadline = System.nanoTime() + timeoutNanos;
@@ -345,7 +341,7 @@ public class NettyConnection implements Connection {
             parkNanos = 1000L;
          }
          boolean canWrite;
-         while (!(canWrite = canWrite(requiredCapacity)) && (System.nanoTime() - deadline) < 0) {
+         while (!(canWrite = channel.isWritable()) && (System.nanoTime() - deadline) < 0) {
             //periodically check the connection state
             checkConnectionState();
             LockSupport.parkNanos(parkNanos);
@@ -358,19 +354,6 @@ public class NettyConnection implements Connection {
       final EventLoop eventLoop = channel.eventLoop();
       final boolean inEventLoop = eventLoop.inEventLoop();
       return !inEventLoop;
-   }
-
-   private boolean canWrite(final int requiredCapacity) {
-      //evaluate if the write request could be taken:
-      //there is enough space in the write buffer?
-      final long totalPendingWrites = this.pendingWritesOnChannel();
-      final boolean canWrite;
-      if (requiredCapacity > this.writeBufferHighWaterMark) {
-         canWrite = totalPendingWrites == 0;
-      } else {
-         canWrite = (totalPendingWrites + requiredCapacity) <= this.writeBufferHighWaterMark;
-      }
-      return canWrite;
    }
 
    private Object getFileObject(FileChannel fileChannel, long offset, int dataSize) {

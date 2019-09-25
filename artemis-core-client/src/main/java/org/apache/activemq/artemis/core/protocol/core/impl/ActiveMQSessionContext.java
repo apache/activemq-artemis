@@ -1017,13 +1017,14 @@ public class ActiveMQSessionContext extends SessionContext {
       final long blockingCallTimeoutMillis = Math.max(0, connection.getBlockingCallTimeout());
       final long startFlowControl = System.nanoTime();
       try {
-         final boolean isWritable = connection.blockUntilWritable(expectedEncodeSize, blockingCallTimeoutMillis);
+         final boolean isWritable = connection.blockUntilWritable(blockingCallTimeoutMillis);
          if (!isWritable) {
             final long endFlowControl = System.nanoTime();
             final long elapsedFlowControl = endFlowControl - startFlowControl;
             final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedFlowControl);
             ActiveMQClientLogger.LOGGER.timeoutStreamingLargeMessage();
-            logger.debug("try to write " + expectedEncodeSize + " bytes after blocked " + elapsedMillis + " ms on a not writable connection: [" + connection.getID() + "]");
+            logger.debugf("try to write %d bytes after blocked %d ms on a not writable connection: [%s]",
+                          expectedEncodeSize, elapsedMillis, connection.getID());
          }
          if (requiresResponse) {
             // When sending it blocking, only the last chunk will be blocking.
