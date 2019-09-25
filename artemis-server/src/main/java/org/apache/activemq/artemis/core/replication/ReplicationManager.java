@@ -570,6 +570,16 @@ public final class ReplicationManager implements ActiveMQComponent {
       }
    }
 
+   private void sendEmptyFile(AbstractJournalStorageManager.JournalContent content,
+                              SimpleString pageStore,
+                              final long id,
+                              String fileName) throws Exception {
+      logger.debugf("sending empty file %s", fileName);
+      final FlushAction action = new FlushAction();
+      sendSyncFileMessage(new ReplicationSyncFileMessage(content, pageStore, id, null, null, 0, 0), true);
+      flushReplicationStream(action);
+   }
+
    /**
     * Sends large files in reasonably sized chunks to the backup during replication synchronization.
     *
@@ -591,8 +601,13 @@ public final class ReplicationManager implements ActiveMQComponent {
          file.open();
       }
       final int size = 1024 * 1024;
-      long fileSize = file.size();
-
+      final long fileSize = file.size();
+      if (fileSize == 0) {
+         final String fileName = file.getFileName();
+         file.close();
+         sendEmptyFile(content, pageStore, id, fileName);
+         return;
+      }
       int flowControlSize = 10;
 
       int packetsSent = 0;
