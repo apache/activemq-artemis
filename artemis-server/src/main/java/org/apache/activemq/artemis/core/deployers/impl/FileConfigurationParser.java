@@ -174,6 +174,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_SIZE_BYTES_NODE_NAME = "max-size-bytes";
 
+   private static final String MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME = "max-size-bytes-reject-threshold";
+
    private static final String ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME = "address-full-policy";
 
    private static final String PAGE_SIZE_BYTES_NODE_NAME = "page-size-bytes";
@@ -1058,6 +1060,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setMaxRedeliveryDelay(XMLUtil.parseLong(child));
          } else if (MAX_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytes(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
+         } else if (MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setMaxSizeBytesRejectThreshold(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
          } else if (PAGE_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             long pageSizeLong = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
             Validators.POSITIVE_INT.validate(PAGE_SIZE_BYTES_NODE_NAME, pageSizeLong);
