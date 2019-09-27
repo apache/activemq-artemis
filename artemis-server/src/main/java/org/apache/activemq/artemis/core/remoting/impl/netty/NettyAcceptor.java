@@ -462,6 +462,12 @@ public class NettyAcceptor extends AbstractAcceptor {
       return name;
    }
 
+
+   //for test purpose
+   public Map<Object, NettyServerConnection> getConnections() {
+      return connections;
+   }
+
    // only for testing purposes
    public void setKeyStorePath(String keyStorePath) {
       this.keyStorePath = keyStorePath;
