@@ -243,10 +243,6 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       // MQTT transport connectors as needed, the port variable is always supposed to be
       // assigned the primary MQTT connector's port.
 
-      Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "" + port);
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "MQTT");
-
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:");
 
       LOG.info("Added connector {} to broker", getProtocolScheme());
