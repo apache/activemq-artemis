@@ -148,6 +148,7 @@ public class MQTTConnection implements RemotingConnection {
       for (FailureListener listener : copy) {
          listener.connectionFailed(me, false);
       }
+      transportConnection.close();
    }
 
    private List<FailureListener> copyFailureListeners() {
