@@ -87,6 +87,7 @@
             <include>io.netty:netty-tcnative-boringssl-static</include>
             <include>org.apache.qpid:proton-j</include>
             <include>org.apache.activemq:activemq-client</include>
+            <include>org.apache.activemq:activemq-openwire-legacy</include>
             <include>org.slf4j:slf4j-api</include>
             <include>io.airlift:airline</include>
             <include>com.google.guava:guava</include>
