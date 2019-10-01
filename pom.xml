@@ -569,6 +569,12 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-openwire-legacy</artifactId>
+            <version>${activemq5-version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
            <groupId>org.slf4j</groupId>
            <artifactId>slf4j-api</artifactId>
            <version>${slf4j.version}</version>
