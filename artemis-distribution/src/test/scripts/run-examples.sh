@@ -115,6 +115,7 @@ cd clustered-topic; mvn verify; cd ..
 cd clustered-topic-uri; mvn verify; cd ..
 cd queue-message-redistribution; mvn verify; cd ..
 cd symmetric-cluster; mvn verify; cd ..
+cd shared-storage-static-cluster; mvn verify; cd ..
 
 
 # TODO: these will hung eventually when ran in series
