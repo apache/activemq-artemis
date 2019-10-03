@@ -59,6 +59,7 @@ under the License.
             <module>clustered-topic-uri</module>
             <module>queue-message-redistribution</module>
             <module>symmetric-cluster</module>
+            <module>shared-storage-static-cluster</module>
          </modules>
       </profile>
       <profile>
@@ -76,6 +77,7 @@ under the License.
             <module>clustered-topic-uri</module>
             <module>queue-message-redistribution</module>
             <module>symmetric-cluster</module>
+            <module>shared-storage-static-cluster</module>
          </modules>
       </profile>
    </profiles>
