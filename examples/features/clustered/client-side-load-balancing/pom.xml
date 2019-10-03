@@ -58,6 +58,10 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server0</instance>
                      <clustered>true</clustered>
+                     <args>
+                        <arg>--queues</arg>
+                        <arg>exampleQueue</arg>
+                     </args>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
@@ -74,6 +78,10 @@ under the License.
                      <portOffset>1</portOffset>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <args>
+                        <arg>--queues</arg>
+                        <arg>exampleQueue</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
@@ -88,6 +96,10 @@ under the License.
                      <portOffset>2</portOffset>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <args>
+                        <arg>--queues</arg>
+                        <arg>exampleQueue</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
