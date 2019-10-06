@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.engine.Sender;
+
 import org.junit.Test;
 
 import java.util.Collections;
@@ -34,8 +37,11 @@ public class ProtonServerSenderContextTest {
 
    @Test(expected = ActiveMQAMQPNotFoundException.class)
    public void testAcceptsNullSourceAddressWhenInitialising() throws Exception {
+      ProtonProtocolManager mock = mock(ProtonProtocolManager.class);
+      when(mock.getServer()).thenReturn(mock(ActiveMQServer.class));
       Sender mockSender = mock(Sender.class);
       AMQPConnectionContext mockConnContext = mock(AMQPConnectionContext.class);
+      when(mockConnContext.getProtocolManager()).thenReturn(mock);
 
       AMQPSessionCallback mockSessionCallback = mock(AMQPSessionCallback.class);
 
