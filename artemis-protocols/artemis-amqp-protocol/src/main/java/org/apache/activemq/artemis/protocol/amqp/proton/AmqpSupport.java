@@ -32,6 +32,9 @@ public class AmqpSupport {
    public static final int AMQP_CREDITS_DEFAULT = 1000;
    public static final int AMQP_LOW_CREDITS_DEFAULT = 300;
 
+   // Defaults for controlling the interpretation of AMQP dispositions
+   public static final boolean AMQP_TREAT_REJECT_AS_UNMODIFIED_DELIVERY_FAILURE = false;
+
    // Identification values used to locating JMS selector types.
    public static final UnsignedLong JMS_SELECTOR_CODE = UnsignedLong.valueOf(0x0000468C00000004L);
    public static final Symbol JMS_SELECTOR_NAME = Symbol.valueOf("apache.org:selector-filter:string");
