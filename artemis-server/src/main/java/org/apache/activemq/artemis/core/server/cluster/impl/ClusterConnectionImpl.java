@@ -1292,7 +1292,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             return;
          }
 
-         postOffice.removeBinding(binding.getUniqueName(), null, false);
+         postOffice.removeBinding(binding.getUniqueName(), null, true);
       }
 
       private synchronized void resetBinding(final SimpleString clusterName) throws Exception {
