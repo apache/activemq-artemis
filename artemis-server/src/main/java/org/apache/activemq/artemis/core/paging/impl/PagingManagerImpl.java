@@ -191,6 +191,8 @@ public final class PagingManagerImpl implements PagingManager {
 
    class LocalMonitor implements FileStoreMonitor.Callback {
 
+      private final Logger logger = Logger.getLogger(LocalMonitor.class);
+
       @Override
       public void tick(FileStore store, double usage) {
          logger.tracef("Tick from store:: %s, usage at %f", store, usage);
