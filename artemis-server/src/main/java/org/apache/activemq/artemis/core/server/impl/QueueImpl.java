@@ -1915,7 +1915,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter1, AckReason ackReason) throws Exception {
+   public int deleteMatchingReferences(final int flushLimit, final Filter filter1, AckReason ackReason) throws Exception {
       return iterQueue(flushLimit, filter1, createDeleteMatchingAction(ackReason));
    }
 
@@ -1947,7 +1947,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     * @throws Exception
     */
-   private synchronized int iterQueue(final int flushLimit,
+   private int iterQueue(final int flushLimit,
                                       final Filter filter1,
                                       QueueIterateAction messageAction) throws Exception {
       int count = 0;
@@ -1955,45 +1955,47 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       Transaction tx = new TransactionImpl(storageManager);
 
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
+      synchronized (this) {
+         try (LinkedListIterator<MessageReference> iter = iterator()) {
 
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
+            while (iter.hasNext()) {
+               MessageReference ref = iter.next();
 
-            if (ref.isPaged() && queueDestroyed) {
-               // this means the queue is being removed
-               // hence paged references are just going away through
-               // page cleanup
-               continue;
+               if (ref.isPaged() && queueDestroyed) {
+                  // this means the queue is being removed
+                  // hence paged references are just going away through
+                  // page cleanup
+                  continue;
+               }
+
+               if (filter1 == null || filter1.match(ref.getMessage())) {
+                  messageAction.actMessage(tx, ref);
+                  iter.remove();
+                  txCount++;
+                  count++;
+               }
             }
 
-            if (filter1 == null || filter1.match(ref.getMessage())) {
-               messageAction.actMessage(tx, ref);
-               iter.remove();
-               txCount++;
+            if (txCount > 0) {
+               tx.commit();
+
+               tx = new TransactionImpl(storageManager);
+
+               txCount = 0;
+            }
+
+            List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
+            for (MessageReference messageReference : cancelled) {
+               messageAction.actMessage(tx, messageReference, false);
                count++;
+               txCount++;
             }
-         }
 
-         if (txCount > 0) {
-            tx.commit();
-
-            tx = new TransactionImpl(storageManager);
-
-            txCount = 0;
-         }
-
-         List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
-         for (MessageReference messageReference : cancelled) {
-            messageAction.actMessage(tx, messageReference, false);
-            count++;
-            txCount++;
-         }
-
-         if (txCount > 0) {
-            tx.commit();
-            tx = new TransactionImpl(storageManager);
-            txCount = 0;
+            if (txCount > 0) {
+               tx.commit();
+               tx = new TransactionImpl(storageManager);
+               txCount = 0;
+            }
          }
 
          if (pageIterator != null && !queueDestroyed) {
@@ -2350,7 +2352,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized int moveReferences(final int flushLimit,
+   public int moveReferences(final int flushLimit,
                                           final Filter filter,
                                           final SimpleString toAddress,
                                           final boolean rejectDuplicates,
@@ -2384,7 +2386,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       });
    }
 
-   public synchronized int moveReferencesBetweenSnFQueues(final SimpleString queueSuffix) throws Exception {
+   public int moveReferencesBetweenSnFQueues(final SimpleString queueSuffix) throws Exception {
       return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction() {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
