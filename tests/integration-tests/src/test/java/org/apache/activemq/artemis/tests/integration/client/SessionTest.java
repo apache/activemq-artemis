@@ -331,18 +331,11 @@ public class SessionTest extends ActiveMQTestBase {
       ClientSession clientSession = cf.createSession(false, false, true);
       clientSession.createQueue(queueName, queueName, false);
       ClientProducer cp = clientSession.createProducer(queueName);
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
+      for (int i = 0; i < 10; i++) {
+         cp.send(clientSession.createMessage(false));
+      }
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(0, getMessageCount(q));
+      Wait.assertEquals(0, () -> getMessageCount(q));
       clientSession.commit();
       Assert.assertTrue(Wait.waitFor(() -> getMessageCount(q) == 10, 2000, 100));
       clientSession.close();
@@ -354,23 +347,16 @@ public class SessionTest extends ActiveMQTestBase {
       ClientSession clientSession = cf.createSession(false, false, true);
       clientSession.createQueue(queueName, queueName, false);
       ClientProducer cp = clientSession.createProducer(queueName);
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
+      for (int i = 0; i < 10; i++) {
+         cp.send(clientSession.createMessage(false));
+      }
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(0, getMessageCount(q));
+      Wait.assertEquals(0, () -> getMessageCount(q));
       clientSession.rollback();
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       clientSession.commit();
-      Assert.assertEquals(2, getMessageCount(q));
+      Wait.assertEquals(2, () -> getMessageCount(q));
       clientSession.close();
    }
 
@@ -382,52 +368,22 @@ public class SessionTest extends ActiveMQTestBase {
       ClientProducer cp = sendSession.createProducer(queueName);
       ClientSession clientSession = cf.createSession(false, true, false);
       clientSession.createQueue(queueName, queueName, false);
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
+      for (int i = 0; i < 10; i++) {
+         cp.send(clientSession.createMessage(false));
+      }
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(10, getMessageCount(q));
+      Wait.assertEquals(10, () -> getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
-      ClientMessage m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
+
+      for (int i = 0; i < 10; i++) {
+         ClientMessage m = cc.receive(5000);
+         Assert.assertNotNull(m);
+         m.acknowledge();
+      }
       clientSession.commit();
-      Assert.assertEquals(0, getMessageCount(q));
+      Assert.assertNull(cc.receiveImmediate());
+      Wait.assertEquals(0, () -> getMessageCount(q));
       clientSession.close();
       sendSession.close();
    }
@@ -440,51 +396,18 @@ public class SessionTest extends ActiveMQTestBase {
       ClientProducer cp = sendSession.createProducer(queueName);
       ClientSession clientSession = cf.createSession(false, true, false);
       clientSession.createQueue(queueName, queueName, false);
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
+      for (int i = 0; i < 10; i++) {
+         cp.send(clientSession.createMessage(false));
+      }
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(10, getMessageCount(q));
+      Wait.assertEquals(10, () -> getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
-      ClientMessage m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      m = cc.receive(5000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      clientSession.rollback();
+      for (int i = 0; i < 10; i++) {
+         ClientMessage m = cc.receive(5000);
+         Assert.assertNotNull(m);
+         m.acknowledge();
+      }
       Wait.assertEquals(10, () -> getMessageCount(q));
       clientSession.close();
       sendSession.close();
