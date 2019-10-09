@@ -368,52 +368,51 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       try {
          LargeServerMessage newMessage = storageManager.createLargeMessage(newID, this);
 
-         boolean originallyOpen = file != null && file.isOpen();
+         //clone a SequentialFile to avoid concurrent access
+         ensureFileExists(false);
+         SequentialFile cloneFile = file.cloneFile();
 
-         validateFile();
+         try {
+            byte[] bufferBytes = new byte[100 * 1024];
 
-         byte[] bufferBytes = new byte[100 * 1024];
+            ByteBuffer buffer = ByteBuffer.wrap(bufferBytes);
 
-         ByteBuffer buffer = ByteBuffer.wrap(bufferBytes);
-
-         long oldPosition = file.position();
-
-         if (!file.isOpen()) {
-            file.open();
-         }
-         file.position(0);
-
-         for (;;) {
-            // The buffer is reused...
-            // We need to make sure we clear the limits and the buffer before reusing it
-            buffer.clear();
-            int bytesRead = file.read(buffer);
-
-            byte[] bufferToWrite;
-            if (bytesRead <= 0) {
-               break;
-            } else if (bytesRead == bufferBytes.length && !this.storageManager.isReplicated()) {
-               // ARTEMIS-1220: We cannot reuse the same buffer if it's replicated
-               // otherwise there could be another thread still using the buffer on a
-               // replication.
-               bufferToWrite = bufferBytes;
-            } else {
-               bufferToWrite = new byte[bytesRead];
-               System.arraycopy(bufferBytes, 0, bufferToWrite, 0, bytesRead);
+            if (!cloneFile.isOpen()) {
+               cloneFile.open();
             }
 
-            newMessage.addBytes(bufferToWrite);
+            cloneFile.position(0);
 
-            if (bytesRead < bufferBytes.length) {
-               break;
+            for (;;) {
+               // The buffer is reused...
+               // We need to make sure we clear the limits and the buffer before reusing it
+               buffer.clear();
+               int bytesRead = cloneFile.read(buffer);
+
+               byte[] bufferToWrite;
+               if (bytesRead <= 0) {
+                  break;
+               } else if (bytesRead == bufferBytes.length && !this.storageManager.isReplicated()) {
+                  // ARTEMIS-1220: We cannot reuse the same buffer if it's replicated
+                  // otherwise there could be another thread still using the buffer on a
+                  // replication.
+                  bufferToWrite = bufferBytes;
+               } else {
+                  bufferToWrite = new byte[bytesRead];
+                  System.arraycopy(bufferBytes, 0, bufferToWrite, 0, bytesRead);
+               }
+
+               newMessage.addBytes(bufferToWrite);
+
+               if (bytesRead < bufferBytes.length) {
+                  break;
+               }
             }
-         }
-
-         file.position(oldPosition);
-
-         if (!originallyOpen) {
-            file.close(false);
-            newMessage.getFile().close();
+         } finally {
+            if (!file.isOpen()) {
+               newMessage.getFile().close();
+            }
+            cloneFile.close();
          }
 
          return newMessage;
@@ -469,9 +468,11 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
       }
    }
 
-   // Private -------------------------------------------------------
-
    public synchronized void validateFile() throws ActiveMQException {
+      this.ensureFileExists(true);
+   }
+
+   public synchronized void ensureFileExists(boolean toOpen) throws ActiveMQException {
       try {
          if (file == null) {
             if (messageID <= 0) {
@@ -480,7 +481,9 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
 
             file = createFile();
 
-            openFile();
+            if (toOpen) {
+               openFile();
+            }
 
             bodySize = file.size();
          }

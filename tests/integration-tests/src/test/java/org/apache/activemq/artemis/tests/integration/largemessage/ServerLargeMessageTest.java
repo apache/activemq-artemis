@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.largemessage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.io.AbstractSequentialFile;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
@@ -47,6 +49,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
@@ -335,6 +338,40 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       assertTrue(sync.get());
    }
 
+   @Test
+   public void testLargeServerMessageCopyIsolation() throws Exception {
+      ActiveMQServer server = createServer(true);
+      server.start();
+
+      try {
+         LargeServerMessageImpl largeMessage = new LargeServerMessageImpl((JournalStorageManager)server.getStorageManager());
+         largeMessage.setMessageID(23456);
+
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+            largeMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+         }
+
+         //now replace the underlying file with a fake
+         replaceFile(largeMessage);
+
+         Message copied = largeMessage.copy(99999);
+         assertEquals(99999, copied.getMessageID());
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   private void replaceFile(LargeServerMessageImpl largeMessage) throws Exception {
+      SequentialFile originalFile = largeMessage.getFile();
+      MockSequentialFile mockFile = new MockSequentialFile(originalFile);
+
+      Field fileField = LargeServerMessageImpl.class.getDeclaredField("file");
+      fileField.setAccessible(true);
+      fileField.set(largeMessage, mockFile);
+      mockFile.close();
+   }
+
       // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -342,5 +379,81 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
+   private class MockSequentialFile extends AbstractSequentialFile {
+
+      private SequentialFile originalFile;
+
+      MockSequentialFile(SequentialFile originalFile) throws Exception {
+         super(originalFile.getJavaFile().getParentFile(), originalFile.getFileName(), new FakeSequentialFileFactory(), null);
+         this.originalFile = originalFile;
+         this.originalFile.close();
+      }
+
+      @Override
+      public void open() throws Exception {
+         //open and close it right away to simulate failure condition
+         originalFile.open();
+         originalFile.close();
+      }
+
+      @Override
+      public void open(int maxIO, boolean useExecutor) throws Exception {
+      }
+
+      @Override
+      public boolean isOpen() {
+         return originalFile.isOpen();
+      }
+
+      @Override
+      public int calculateBlockStart(int position) throws Exception {
+         return originalFile.calculateBlockStart(position);
+      }
+
+      @Override
+      public void fill(int size) throws Exception {
+         originalFile.fill(size);
+      }
+
+      @Override
+      public void writeDirect(ByteBuffer bytes, boolean sync, IOCallback callback) {
+         originalFile.writeDirect(bytes, sync, callback);
+      }
+
+      @Override
+      public void writeDirect(ByteBuffer bytes, boolean sync) throws Exception {
+         originalFile.writeDirect(bytes, sync);
+      }
+
+      @Override
+      public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
+         originalFile.blockingWriteDirect(bytes, sync, releaseBuffer);
+      }
+
+      @Override
+      public int read(ByteBuffer bytes, IOCallback callback) throws Exception {
+         return originalFile.read(bytes, callback);
+      }
+
+      @Override
+      public int read(ByteBuffer bytes) throws Exception {
+         return originalFile.read(bytes);
+      }
+
+      @Override
+      public void sync() throws IOException {
+         originalFile.sync();
+      }
+
+      @Override
+      public long size() throws Exception {
+         return originalFile.size();
+      }
+
+      @Override
+      public SequentialFile cloneFile() {
+         return originalFile.cloneFile();
+      }
+   }
 
 }
