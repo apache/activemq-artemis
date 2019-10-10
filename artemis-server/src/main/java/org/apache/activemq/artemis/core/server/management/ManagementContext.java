@@ -20,9 +20,9 @@ package org.apache.activemq.artemis.core.server.management;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 
-public class ManagementContext implements ActiveMQComponent {
+public class ManagementContext implements ServiceComponent {
    private AtomicBoolean isStarted = new AtomicBoolean(false);
    private JMXAccessControlList accessControlList;
    private JMXConnectorConfiguration jmxConnectorConfiguration;
@@ -51,6 +51,13 @@ public class ManagementContext implements ActiveMQComponent {
          if (mBeanServer != null) {
             mBeanServer.stop();
          }
+      }
+   }
+
+   @Override
+   public void stop(boolean shutdown) throws Exception {
+      if (shutdown) {
+         stop();
       }
    }
 
