@@ -83,11 +83,11 @@ public class ServerUtil {
       return process;
    }
 
-   public static void waitForServerToStart(int id, int timeout) throws InterruptedException {
-      waitForServerToStart("tcp://localhost:" + (61616 + id), timeout);
+   public static boolean waitForServerToStart(int id, int timeout) throws InterruptedException {
+      return waitForServerToStart("tcp://localhost:" + (61616 + id), timeout);
    }
 
-   public static void waitForServerToStart(String uri, long timeout) throws InterruptedException {
+   public static boolean waitForServerToStart(String uri, long timeout) throws InterruptedException {
       long realTimeout = System.currentTimeMillis() + timeout;
       while (System.currentTimeMillis() < realTimeout) {
          try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
@@ -98,8 +98,10 @@ public class ServerUtil {
             Thread.sleep(500);
             continue;
          }
-         break;
+         return true;
       }
+
+      return false;
    }
 
    public static void killServer(final Process server) throws Exception {
