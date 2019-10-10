@@ -16,7 +16,28 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+
 public class FileXIncludeConfigurationTest extends FileConfigurationTest {
+
+   @BeforeClass
+   public static void setupProperties() {
+      System.setProperty("xincludePath", "./src/test/resources");
+      System.setProperty("a2Prop", "a2");
+      System.setProperty("falseProp", "false");
+      System.setProperty("trueProp", "true");
+      System.setProperty("ninetyTwoProp", "92");
+   }
+
+   @AfterClass
+   public static void clearProperties() {
+      System.clearProperty("xincludePath");
+      System.clearProperty("a2Prop");
+      System.clearProperty("falseProp");
+      System.clearProperty("trueProp");
+      System.clearProperty("ninetyTwoProp");
+   }
 
    @Override
    protected String getConfigurationName() {
