@@ -247,9 +247,48 @@
                      </args>
                   </configuration>
                </execution>
-
-            </executions>
-            <dependencies>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-jmx-failback</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/jmx-failback1</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/jmx-failback1</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-jmx-failback2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/jmx-failback2</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/jmx-failback2</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+         </executions>
+         <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.tests</groupId>
                   <artifactId>smoke-tests</artifactId>
