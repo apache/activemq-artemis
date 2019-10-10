@@ -81,7 +81,7 @@ public final class XMLUtil {
       factory.setNamespaceAware(true);
       factory.setXIncludeAware(true);
       DocumentBuilder parser = factory.newDocumentBuilder();
-      Document doc = replaceSystemPropsInXml(parser.parse(new InputSource(r)));
+      Document doc = replaceSystemPropsInXml(parser.parse(new InputSource(new StringReader(replaceSystemPropsInString(readerToString(r))))));
       return doc.getDocumentElement();
    }
 
