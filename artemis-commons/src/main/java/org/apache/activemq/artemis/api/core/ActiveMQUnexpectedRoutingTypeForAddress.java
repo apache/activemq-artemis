@@ -22,10 +22,10 @@ package org.apache.activemq.artemis.api.core;
 public final class ActiveMQUnexpectedRoutingTypeForAddress extends ActiveMQException {
 
    public ActiveMQUnexpectedRoutingTypeForAddress() {
-      super(ActiveMQExceptionType.MAX_CONSUMER_LIMIT_EXCEEDED);
+      super(ActiveMQExceptionType.UNEXPECTED_ROUTING_TYPE_FOR_ADDRESS);
    }
 
    public ActiveMQUnexpectedRoutingTypeForAddress(String msg) {
-      super(ActiveMQExceptionType.MAX_CONSUMER_LIMIT_EXCEEDED, msg);
+      super(ActiveMQExceptionType.UNEXPECTED_ROUTING_TYPE_FOR_ADDRESS, msg);
    }
 }
