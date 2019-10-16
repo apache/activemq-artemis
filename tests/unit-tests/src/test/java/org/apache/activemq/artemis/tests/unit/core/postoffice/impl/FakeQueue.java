@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -46,6 +47,31 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    @Override
    public void setPurgeOnNoConsumers(boolean value) {
+
+   }
+
+   @Override
+   public PagingStore getPagingStore() {
+      return null;
+   }
+
+   @Override
+   public int durableUp(Message message) {
+      return 1;
+   }
+
+   @Override
+   public int durableDown(Message message) {
+      return 1;
+   }
+
+   @Override
+   public void refUp(Message message) {
+
+   }
+
+   @Override
+   public void refDown(Message message) {
 
    }
 

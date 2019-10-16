@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
@@ -295,7 +295,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       return conf;
    }
 
-   static class SlowMessagePersister extends CoreMessagePersister implements Persister<Message, CoreMessageObjectPools> {
+   static class SlowMessagePersister extends CoreMessagePersister implements Persister<Message> {
 
       boolean used = false;
 
@@ -344,8 +344,8 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pool) {
-         return persister.decode(buffer, pool);
+      public Message decode(ActiveMQBuffer buffer, Message message, CoreMessageObjectPools pool) {
+         return persister.decode(buffer, message, pool);
       }
    }
 

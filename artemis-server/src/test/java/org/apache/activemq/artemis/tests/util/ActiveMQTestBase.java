@@ -1942,26 +1942,16 @@ public abstract class ActiveMQTestBase extends Assert {
       return false;
    }
 
+   protected int getNumberOfFiles(File directory) {
+      return directory.listFiles().length;
+   }
    /**
     * Deleting a file on LargeDir is an asynchronous process. We need to keep looking for a while if
     * the file hasn't been deleted yet.
     */
    protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception {
       File largeMessagesFileDir = new File(directory);
-
-      // Deleting the file is async... we keep looking for a period of the time until the file is really gone
-      long timeout = System.currentTimeMillis() + 5000;
-      while (timeout > System.currentTimeMillis() && largeMessagesFileDir.listFiles().length != expect) {
-         Thread.sleep(100);
-      }
-
-      if (expect != largeMessagesFileDir.listFiles().length) {
-         for (File file : largeMessagesFileDir.listFiles()) {
-            System.out.println("File " + file + " still on ");
-         }
-      }
-
-      Assert.assertEquals(expect, largeMessagesFileDir.listFiles().length);
+      Wait.assertEquals(expect, () -> getNumberOfFiles(largeMessagesFileDir));
    }
 
    /**

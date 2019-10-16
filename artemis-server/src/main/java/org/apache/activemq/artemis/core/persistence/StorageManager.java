@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -265,6 +267,17 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     */
    SequentialFile createFileForLargeMessage(long messageID, LargeMessageExtension extension);
 
+   void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException;
+
+   default SequentialFile createFileForLargeMessage(long messageID, boolean durable) {
+      if (durable) {
+         return createFileForLargeMessage(messageID, LargeMessageExtension.DURABLE);
+      } else {
+         return createFileForLargeMessage(messageID, LargeMessageExtension.TEMPORARY);
+      }
+   }
+
+
    void prepare(long txID, Xid xid) throws Exception;
 
    void commit(long txID) throws Exception;
@@ -415,6 +428,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @param bytes
     */
    void addBytesToLargeMessage(SequentialFile appendFile, long messageID, byte[] bytes) throws Exception;
+
+   void addBytesToLargeMessage(SequentialFile file,
+                               long messageId,
+                               ActiveMQBuffer bytes) throws Exception;
 
    /**
     * Stores the id from IDManager.

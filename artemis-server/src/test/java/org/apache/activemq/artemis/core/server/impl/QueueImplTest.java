@@ -76,7 +76,7 @@ public class QueueImplTest {
          return null;
       }).when(storageManager).afterCompleteOperations(Mockito.any(IOCallback.class));
 
-      QueueImpl queue = new QueueImpl(0, address, address, null, pageSubscription, null, false,
+      QueueImpl queue = new QueueImpl(0, address, address, null, null, pageSubscription, null, false,
                                       false, false, Mockito.mock(ScheduledExecutorService.class),
                                       Mockito.mock(PostOffice.class), storageManager, null,
                                       Mockito.mock(ArtemisExecutor.class), Mockito.mock(ActiveMQServer.class),

@@ -40,7 +40,7 @@ public class DeleteEncoding implements EncodingSupport {
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)
+    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#readInto(org.apache.activemq.artemis.api.core.ActiveMQBuffer)
     */
    @Override
    public void encode(ActiveMQBuffer buffer) {

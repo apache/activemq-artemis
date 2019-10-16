@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.largemessage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
@@ -231,6 +230,11 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
                }
 
                @Override
+               public ByteBuffer map(int position, long size) throws IOException {
+                  return null;
+               }
+
+               @Override
                public String getFileName() {
                   return null;
                }
@@ -363,12 +367,10 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
    }
 
    private void replaceFile(LargeServerMessageImpl largeMessage) throws Exception {
-      SequentialFile originalFile = largeMessage.getFile();
+      SequentialFile originalFile = largeMessage.getAppendFile();
       MockSequentialFile mockFile = new MockSequentialFile(originalFile);
 
-      Field fileField = LargeServerMessageImpl.class.getDeclaredField("file");
-      fileField.setAccessible(true);
-      fileField.set(largeMessage, mockFile);
+      largeMessage.getLargeBody().replaceFile(mockFile);
       mockFile.close();
    }
 
@@ -398,6 +400,11 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
       @Override
       public void open(int maxIO, boolean useExecutor) throws Exception {
+      }
+
+      @Override
+      public ByteBuffer map(int position, long size) throws IOException {
+         return null;
       }
 
       @Override

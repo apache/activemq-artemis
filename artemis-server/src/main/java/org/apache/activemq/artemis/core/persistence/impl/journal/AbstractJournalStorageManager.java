@@ -58,7 +58,7 @@ import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -133,6 +133,19 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected static final int CRITICAL_STORE = 0;
    protected static final int CRITICAL_STOP = 1;
    protected static final int CRITICAL_STOP_2 = 2;
+
+
+   public static ThreadLocal<StorageManager> storageManagerThreadLocal = new ThreadLocal<>();
+
+   /** Persisters may need to access this on reloading of the journal,
+    *  for large message processing */
+   public static void setupThreadLocal(StorageManager manager) {
+      storageManagerThreadLocal.set(manager);
+   }
+
+   public static StorageManager getThreadLocal() {
+      return storageManagerThreadLocal.get();
+   }
 
    private static final Logger logger = Logger.getLogger(AbstractJournalStorageManager.class);
 
@@ -359,7 +372,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          // Note that we don't sync, the add reference that comes immediately after will sync if
          // appropriate
 
-         if (message.isLargeMessage()) {
+         if (message.isLargeMessage() && message instanceof LargeServerMessageImpl) {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message, false, getContext(false));
          } else {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message, false, getContext(false));
@@ -480,7 +493,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       readLock();
       try {
-         if (message.isLargeMessage()) {
+         if (message.isLargeMessage() && message instanceof LargeServerMessageImpl) {
+            // this is a core large message
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message);
          } else {
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message);
@@ -843,6 +857,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       Map<Long, Message> messages = new HashMap<>();
       readLock();
+      setupThreadLocal(this);
       try {
 
          JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(this));
@@ -908,7 +923,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   case JournalRecordIds.ADD_LARGE_MESSAGE: {
                      LargeServerMessage largeMessage = parseLargeMessage(buff);
 
-                     messages.put(record.id, largeMessage);
+                     messages.put(record.id, largeMessage.toMessage());
 
                      largeMessages.add(largeMessage);
 
@@ -920,7 +935,15 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
 
-                     Message message = MessagePersister.getInstance().decode(buff, pools);
+                     Message message = MessagePersister.getInstance().decode(buff, null, pools);
+
+                     /* if (message instanceof LargeServerMessage) {
+                        try {
+                           ((LargeServerMessage) message).finishParse();
+                        } catch (Exception e) {
+                           logger.warn(e.getMessage(), e);
+                        }
+                     } */
 
                      messages.put(record.id, message);
 
@@ -1194,9 +1217,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          }
 
          for (LargeServerMessage msg : largeMessages) {
-            if (msg.getRefCount() == 0) {
+            if (msg.toMessage().getRefCount() == 0) {
                ActiveMQServerLogger.LOGGER.largeMessageWithNoRef(msg.getMessageID());
-               msg.decrementDelayDeletionCount();
+               msg.toMessage().usageDown();
             }
          }
 
@@ -1217,6 +1240,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          return info;
       } finally {
          readUnLock();
+         // need to clear it, otherwise we may have a permanent leak
+         setupThreadLocal(null);
       }
    }
 
@@ -1712,7 +1737,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          if (largeServerMessage.getPendingRecordID() >= 0) {
             try {
                confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
-               largeServerMessage.setPendingRecordID(LargeServerMessage.NO_PENDING_ID);
+               largeServerMessage.clearPendingRecordID();
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
@@ -1758,7 +1783,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
             switch (recordType) {
                case JournalRecordIds.ADD_LARGE_MESSAGE: {
-                  messages.put(record.id, parseLargeMessage(buff));
+                  messages.put(record.id, parseLargeMessage(buff).toMessage());
 
                   break;
                }
@@ -1770,7 +1795,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   if (pools == null) {
                      pools = new CoreMessageObjectPools();
                   }
-                  Message message = MessagePersister.getInstance().decode(buff, pools);
+                  Message message = MessagePersister.getInstance().decode(buff, null, pools);
 
                   messages.put(record.id, message);
 

@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -699,7 +700,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          try {
             final SessionSendMessage message = (SessionSendMessage) packet;
             requiresResponse = message.isRequiresResponse();
-            this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage()), this.direct);
+            this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage(), storageManager), this.direct);
             if (requiresResponse) {
                response = createNullResponseMessage(packet);
             }
@@ -1026,12 +1027,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             currentLargeMessage.releaseResources(true);
 
             if (messageBodySize >= 0) {
-               currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
+               currentLargeMessage.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
             }
 
             LargeServerMessage message = currentLargeMessage;
             currentLargeMessage = null;
-            session.doSend(session.getCurrentTransaction(), message, null, false, false);
+            session.doSend(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), null, false, false);
          }
       }
    }

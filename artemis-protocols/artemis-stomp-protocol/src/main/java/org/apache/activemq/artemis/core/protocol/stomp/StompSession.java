@@ -363,11 +363,9 @@ public class StompSession implements SessionCallback {
 
       largeMessage.releaseResources(true);
 
-      largeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
+      largeMessage.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
 
-      session.send(largeMessage, direct);
-
-      largeMessage = null;
+      session.send(largeMessage.toMessage(), direct);
    }
 
 }

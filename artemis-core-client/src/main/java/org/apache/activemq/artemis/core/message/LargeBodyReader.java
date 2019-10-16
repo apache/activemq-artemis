@@ -21,16 +21,32 @@ import java.nio.ByteBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
- * Class used to encode message body into buffers.
+ * Class used to readInto message body into buffers.
  * <br>
  * Used to send large streams over the wire
+ *
+ * None of these methods should be caleld from Clients
  */
-public interface LargeBodyEncoder {
+public interface LargeBodyReader {
 
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
    void open() throws ActiveMQException;
+
+   /**
+    * This method must not be called directly by ActiveMQ Artemis clients.
+    *
+    * This is the reading position.
+    */
+   void position(long position) throws ActiveMQException;
+
+   /**
+    * This method must not be called directly by ActiveMQ Artemis clients.
+    *
+    * This is the reading position.
+    */
+   long position();
 
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
@@ -40,10 +56,10 @@ public interface LargeBodyEncoder {
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
-   int encode(ByteBuffer bufferRead) throws ActiveMQException;
+   int readInto(ByteBuffer bufferRead) throws ActiveMQException;
 
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
-   long getLargeBodySize() throws ActiveMQException;
+   long getSize() throws ActiveMQException;
 }

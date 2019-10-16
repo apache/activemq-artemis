@@ -177,7 +177,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    }
 
    public void retrieveExistingData(ClientMessageInternal clMessage) {
-      this.messageID = clMessage.getMessageID();
+      this.internalSetMessageID(clMessage.getMessageID());
       this.address = clMessage.getAddressSimpleString();
       this.setUserID(clMessage.getUserID());
       this.setFlowControlSize(clMessage.getFlowControlSize());

@@ -832,8 +832,6 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       msg.setAddress(destination);
 
-      msg.setContext(store);
-
       msg.getBodyBuffer().resetReaderIndex();
       msg.getBodyBuffer().resetWriterIndex();
 

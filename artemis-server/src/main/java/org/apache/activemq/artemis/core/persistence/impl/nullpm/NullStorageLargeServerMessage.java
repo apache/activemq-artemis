@@ -22,9 +22,11 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeBody;
+import org.apache.activemq.artemis.core.server.CoreLargeServerMessage;
 
-class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMessage {
+class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServerMessage {
 
    NullStorageLargeServerMessage() {
       super();
@@ -39,6 +41,21 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
    }
 
    @Override
+   public LargeBody getLargeBody() {
+      return null;
+   }
+
+   @Override
+   public StorageManager getStorageManager() {
+      return null;
+   }
+
+   @Override
+   public Message toMessage() {
+      return this;
+   }
+
+   @Override
    public synchronized void addBytes(final byte[] bytes) {
       if (buffer == null) {
          buffer = Unpooled.buffer(bytes.length);
@@ -46,6 +63,11 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
 
       // expand the buffer
       buffer.writeBytes(bytes);
+   }
+
+   @Override
+   public void finishParse() throws Exception {
+
    }
 
    @Override
@@ -83,15 +105,6 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
       return true;
    }
 
-   @Override
-   public void decrementDelayDeletionCount() {
-
-   }
-
-   @Override
-   public void incrementDelayDeletionCount() {
-
-   }
 
    @Override
    public boolean isServerMessage() {
@@ -124,12 +137,22 @@ class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMe
    }
 
    @Override
+   public void clearPendingRecordID() {
+
+   }
+
+   @Override
+   public boolean hasPendingRecord() {
+      return false;
+   }
+
+   @Override
    public long getPendingRecordID() {
       return -1;
    }
 
    @Override
-   public SequentialFile getFile() {
+   public SequentialFile getAppendFile() {
       return null;
    }
 

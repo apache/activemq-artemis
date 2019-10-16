@@ -79,6 +79,11 @@ public class AIOSequentialFile extends AbstractSequentialFile {
    }
 
    @Override
+   public ByteBuffer map(int position, long size) throws IOException {
+      return null;
+   }
+
+   @Override
    public boolean isOpen() {
       return opened;
    }

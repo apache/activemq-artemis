@@ -348,14 +348,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
-   protected SequentialFile createFileForLargeMessage(final long messageID, final boolean durable) {
-      if (durable) {
-         return createFileForLargeMessage(messageID, LargeMessageExtension.DURABLE);
-      } else {
-         return createFileForLargeMessage(messageID, LargeMessageExtension.TEMPORARY);
-      }
-   }
-
    @Override
    /**
     * @param buff
@@ -365,13 +357,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    protected LargeServerMessage parseLargeMessage(final ActiveMQBuffer buff) throws Exception {
       LargeServerMessage largeMessage = createLargeMessage();
 
-      LargeMessagePersister.getInstance().decode(buff, largeMessage);
+      LargeMessagePersister.getInstance().decode(buff, largeMessage, null);
 
-      if (largeMessage.containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
+      if (largeMessage.toMessage().containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
          // for compatibility: couple with old behaviour, copying the old file to avoid message loss
-         long originalMessageID = largeMessage.getLongProperty(Message.HDR_ORIG_MESSAGE_ID);
+         long originalMessageID = largeMessage.toMessage().getLongProperty(Message.HDR_ORIG_MESSAGE_ID);
 
-         SequentialFile currentFile = createFileForLargeMessage(largeMessage.getMessageID(), true);
+         SequentialFile currentFile = createFileForLargeMessage(largeMessage.toMessage().getMessageID(), true);
 
          if (!currentFile.exists()) {
             SequentialFile linkedFile = createFileForLargeMessage(originalMessageID, true);
@@ -442,18 +434,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       journalFF.releaseBuffer(buffer);
    }
 
-   public long storePendingLargeMessage(final long messageID, long recordID) throws Exception {
+   public long storePendingLargeMessage(final long messageID) throws Exception {
       readLock();
       try {
-         if (recordID == LargeServerMessage.NO_PENDING_ID) {
-            recordID = generateID();
-         } else {
-            //this means the large message doesn't
-            //have a pendingRecordID, but one has been
-            //generated (coming from live server) for use.
-            recordID = -recordID;
-         }
-
+         long recordID = generateID();
          messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
 
          return recordID;
@@ -462,31 +446,31 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
-   // This should be accessed from this package only
-   void deleteLargeMessageFile(final LargeServerMessage largeServerMessage) throws ActiveMQException {
+   @Override
+   public void deleteLargeMessageBody(final LargeServerMessage largeServerMessage) throws ActiveMQException {
       synchronized (largeServerMessage) {
-         if (largeServerMessage.getPendingRecordID() < 0) {
+         if (!largeServerMessage.hasPendingRecord()) {
             try {
                // The delete file happens asynchronously
                // And the client won't be waiting for the actual file to be deleted.
                // We set a temporary record (short lived) on the journal
                // to avoid a situation where the server is restarted and pending large message stays on forever
-               largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID()));
+               largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.toMessage().getMessageID()));
             } catch (Exception e) {
                throw new ActiveMQInternalErrorException(e.getMessage(), e);
             }
          }
       }
-      final SequentialFile file = largeServerMessage.getFile();
+      final SequentialFile file = largeServerMessage.getAppendFile();
       if (file == null) {
          return;
       }
 
-      if (largeServerMessage.isDurable() && isReplicated()) {
+      if (largeServerMessage.toMessage().isDurable() && isReplicated()) {
          readLock();
          try {
             if (isReplicated() && replicator.isSynchronizing()) {
-               largeMessagesToDelete.put(largeServerMessage.getMessageID(), largeServerMessage);
+               largeMessagesToDelete.put(largeServerMessage.toMessage().getMessageID(), largeServerMessage);
                return;
             }
          } finally {
@@ -500,7 +484,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                readLock();
                try {
                   if (replicator != null) {
-                     replicator.largeMessageDelete(largeServerMessage.getMessageID(), JournalStorageManager.this);
+                     replicator.largeMessageDelete(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
                   }
                   file.delete();
 
@@ -510,7 +494,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                   readUnLock();
                }
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.getMessageID());
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.toMessage().getMessageID());
             }
          }
 
@@ -575,7 +559,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          if (largeMessage.isDurable()) {
             // We store a marker on the journal that the large file is pending
-            long pendingRecordID = storePendingLargeMessage(id, LargeServerMessage.NO_PENDING_ID);
+            long pendingRecordID = storePendingLargeMessage(id);
 
             largeMessage.setPendingRecordID(pendingRecordID);
          }
@@ -831,6 +815,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
+   @Override
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
                                             final ActiveMQBuffer bytes) throws Exception {

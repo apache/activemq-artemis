@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 /**
@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
  */
 public interface ICoreMessage extends Message {
 
-   LargeBodyEncoder getBodyEncoder() throws ActiveMQException;
+   LargeBodyReader getLargeBodyReader() throws ActiveMQException;
 
    int getHeadersAndPropertiesEncodeSize();
 

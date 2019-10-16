@@ -40,7 +40,7 @@ public class PendingLargeMessageEncoding implements EncodingSupport {
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
+    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#readInto(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
     */
    @Override
    public void encode(final ActiveMQBuffer buffer) {

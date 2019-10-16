@@ -73,22 +73,22 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
    }
 
    @Override
-   public int incrementRefCount() throws Exception {
+   public int refUp() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int decrementRefCount() throws Exception {
+   public int refDown() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int incrementDurableRefCount() {
+   public int durableUp() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int decrementDurableRefCount() {
+   public int durableDown() {
       throw new UnsupportedOperationException();
    }
 

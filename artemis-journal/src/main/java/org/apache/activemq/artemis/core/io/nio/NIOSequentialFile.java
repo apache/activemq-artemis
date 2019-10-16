@@ -18,12 +18,17 @@ package org.apache.activemq.artemis.core.io.nio;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -41,6 +46,8 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.Env;
 
 public class NIOSequentialFile extends AbstractSequentialFile {
+
+   private static final boolean DEBUG_OPENS = false;
 
    /* This value has been tuned just to reduce the memory footprint
       of read/write of the whole file size: given that this value
@@ -92,6 +99,45 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    }
 
    @Override
+   public ByteBuffer map(int position, long size) throws IOException {
+      return channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+   }
+
+   public static void clearDebug() {
+      counters.clear();
+   }
+
+   public static void printDebug() {
+      for (Map.Entry<String, AtomicInteger> entry : counters.entrySet()) {
+         System.out.println(entry.getValue() + " " + entry.getKey());
+      }
+   }
+
+   public static AtomicInteger getDebugCounter(Exception location) {
+      StringWriter writer = new StringWriter();
+      PrintWriter printWriter = new PrintWriter(writer);
+      location.printStackTrace(printWriter);
+
+      String strLocation = writer.toString();
+
+      return getDebugCounter(strLocation);
+   }
+
+   public static AtomicInteger getDebugCounter(String strLocation) {
+      AtomicInteger value = counters.get(strLocation);
+      if (value == null) {
+         value = new AtomicInteger(0);
+         AtomicInteger oldvalue = counters.putIfAbsent(strLocation, value);
+         if (oldvalue != null) {
+            value = oldvalue;
+         }
+      }
+
+      return value;
+   }
+
+   private static Map<String, AtomicInteger> counters = new ConcurrentHashMap<>();
+   @Override
    public void open(final int maxIO, final boolean useExecutor) throws IOException {
       try {
          rfile = new RandomAccessFile(getFile(), "rw");
@@ -99,6 +145,11 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          channel = rfile.getChannel();
 
          fileSize = channel.size();
+
+         if (DEBUG_OPENS) {
+            getDebugCounter(new Exception("open")).incrementAndGet();
+            getDebugCounter("open").incrementAndGet();
+         }
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
@@ -151,6 +202,11 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    @Override
    public synchronized void close(boolean waitSync) throws IOException, InterruptedException, ActiveMQException {
       super.close();
+
+      if (DEBUG_OPENS) {
+         getDebugCounter(new Exception("Close")).incrementAndGet();
+         getDebugCounter("close").incrementAndGet();
+      }
 
       try {
          try {
