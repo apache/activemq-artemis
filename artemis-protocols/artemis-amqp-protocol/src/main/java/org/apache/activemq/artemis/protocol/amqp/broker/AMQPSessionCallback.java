@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -106,8 +106,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private final boolean directDeliver;
 
-
-   private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
+   private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
 
@@ -127,6 +126,14 @@ public class AMQPSessionCallback implements SessionCallback {
       this.sessionExecutor = executor;
       this.operationContext = operationContext;
       this.directDeliver = manager.isDirectDeliver();
+   }
+
+   public StorageManager getStorageManager() {
+      return storageManager;
+   }
+
+   public CoreMessageObjectPools getCoreMessageObjectPools() {
+      return coreMessageObjectPools;
    }
 
    @Override
@@ -425,6 +432,10 @@ public class AMQPSessionCallback implements SessionCallback {
       ((ServerConsumer) consumer).receiveCredits(-1);
    }
 
+   public AMQPStandardMessage createStandardMessage(Delivery delivery, ReadableBuffer data) {
+      return new AMQPStandardMessage(delivery.getMessageFormat(), data, null, coreMessageObjectPools);
+   }
+
    public void serverSend(final ProtonServerReceiverContext context,
                           final Transaction transaction,
                           final Receiver receiver,
@@ -433,7 +444,17 @@ public class AMQPSessionCallback implements SessionCallback {
                           int messageFormat,
                           ReadableBuffer data,
                           RoutingContext routingContext) throws Exception {
-      AMQPMessage message = new AMQPMessage(messageFormat, data, null, coreMessageObjectPools);
+      AMQPStandardMessage message = new AMQPStandardMessage(messageFormat, data, null, coreMessageObjectPools);
+      serverSend(context, transaction, receiver, delivery, address, routingContext, message);
+   }
+
+   public void serverSend(ProtonServerReceiverContext context,
+                          Transaction transaction,
+                          Receiver receiver,
+                          Delivery delivery,
+                          SimpleString address,
+                          RoutingContext routingContext,
+                          AMQPMessage message) throws Exception {
       if (address != null) {
          message.setAddress(address);
       } else {

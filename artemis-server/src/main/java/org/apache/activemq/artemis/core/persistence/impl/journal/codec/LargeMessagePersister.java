@@ -19,13 +19,22 @@ package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 
-public class LargeMessagePersister implements Persister<LargeServerMessage, LargeServerMessage> {
+import static org.apache.activemq.artemis.core.persistence.PersisterIDs.CoreLargeMessagePersister_ID;
+
+public class LargeMessagePersister implements Persister<LargeServerMessage> {
+
+   public static final byte ID = CoreLargeMessagePersister_ID;
 
    private static final LargeMessagePersister theInstance = new LargeMessagePersister();
 
+   @Override
+   public byte getID() {
+      return ID;
+   }
 
    public static LargeMessagePersister getInstance() {
       return theInstance;
@@ -38,7 +47,7 @@ public class LargeMessagePersister implements Persister<LargeServerMessage, Larg
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
     */
    @Override
-   public LargeServerMessage decode(final ActiveMQBuffer buffer, LargeServerMessage message) {
+   public LargeServerMessage decode(final ActiveMQBuffer buffer, LargeServerMessage message, CoreMessageObjectPools objectPools) {
       ((CoreMessage)message).decodeHeadersAndProperties(buffer.byteBuf());
       return message;
    }
@@ -56,7 +65,7 @@ public class LargeMessagePersister implements Persister<LargeServerMessage, Larg
     */
    @Override
    public int getEncodeSize(LargeServerMessage message) {
-      return message.getEncodeSize();
+      return message.toMessage().getEncodeSize();
    }
 
 }

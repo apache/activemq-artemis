@@ -107,11 +107,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
 
    @Test(timeout = 30000)
    public void testHugeString() throws Exception {
-      //amqp doesn't support large message receive.
-      //using core to receive, it can verify
-      //that the large message is indeed stored in core
-      //via amqp send.
-      sendStringOfSize(1024 * 1024, true);
+      sendStringOfSize(1024 * 1024, false);
    }
 
 

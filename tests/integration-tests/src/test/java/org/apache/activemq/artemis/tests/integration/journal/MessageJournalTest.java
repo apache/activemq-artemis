@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
@@ -95,7 +95,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       MessageImpl protonJMessage = (MessageImpl) Message.Factory.create();
 
-      AMQPMessage message = encodeAndCreateAMQPMessage(protonJMessage);
+      AMQPStandardMessage message = encodeAndCreateAMQPMessage(protonJMessage);
 
       message.setMessageID(333);
 
@@ -127,12 +127,12 @@ public class MessageJournalTest extends ActiveMQTestBase {
       }
    }
 
-   private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+   private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {
       NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
       message.encode(encoded);
 
       NettyReadable readable = new NettyReadable(encoded.getByteBuf());
 
-      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+      return new AMQPStandardMessage(AMQPStandardMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 }

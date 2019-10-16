@@ -19,12 +19,14 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import static org.apache.activemq.artemis.core.persistence.PersisterIDs.AMQPMessagePersisterV2_ID;
 
 public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
-   public static final byte ID = 3;
+
+   public static final byte ID = AMQPMessagePersisterV2_ID;
 
    public static AMQPMessagePersisterV2 theInstance;
 
@@ -70,8 +72,8 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
    }
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pool) {
-      AMQPMessage message = (AMQPMessage) super.decode(buffer, pool);
+   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pool) {
+      AMQPMessage message = (AMQPMessage) super.decode(buffer, record, pool);
       int size = buffer.readInt();
 
       if (size != 0) {

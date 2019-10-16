@@ -48,22 +48,22 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
    private static final int MESSAGES = 1;
 
    private final boolean persistenceEnabled;
-   private final boolean compressLargeMessages;
 
-   @Parameterized.Parameters(name = "persistenceEnabled = {0}, compressLargeMessages = {1}")
+   @Parameterized.Parameters(name = "persistenceEnabled = {0}")
    public static Iterable<? extends Object> persistenceEnabled() {
-      return Arrays.asList(new Object[][]{{true, false}, {false, false}, {true, true}, {false, true}});
+      return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
-   public AMQPLargeMessageClusterTest(boolean persistenceEnabled, boolean compressLargeMessages) {
+   public AMQPLargeMessageClusterTest(boolean persistenceEnabled) {
       this.persistenceEnabled = persistenceEnabled;
-      this.compressLargeMessages = compressLargeMessages;
    }
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
+      deleteDirectory(temporaryFolder.getRoot());
+      temporaryFolder.getRoot().mkdirs();
 
       start();
    }
@@ -96,21 +96,16 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
 
       waitForBindings(0, queueName, /**/1, 0, false);
       waitForBindings(1, queueName, 1, 0, false);
+
       String producerUri = "amqp://localhost:61616";
-      if (compressLargeMessages) {
-         producerUri = producerUri + "?compressLargeMessages=true";
-      }
       final JmsConnectionFactory producerFactory = new JmsConnectionFactory(producerUri);
       try (Connection producerConnection = producerFactory.createConnection(); Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
          producerConnection.start();
          final Destination queue = producerSession.createQueue(queueName);
          String consumerUri = "amqp://localhost:61617";
-         if (compressLargeMessages) {
-            consumerUri = consumerUri + "?compressLargeMessages=true";
-         }
          final JmsConnectionFactory consumerConnectionFactory = new JmsConnectionFactory(consumerUri);
          try (Connection consumerConnection = consumerConnectionFactory.createConnection(); Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE); MessageConsumer consumer = consumerSession.createConsumer(queue); MessageProducer producer = producerSession.createProducer(queue)) {
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
             consumerConnection.start();
             final byte[] largeMessageContent = new byte[MESSAGE_SIZE];
             final byte[] receivedContent = new byte[largeMessageContent.length];
@@ -122,11 +117,18 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
                final Message receivedMessage = consumer.receive(RECEIVE_TIMEOUT_MILLIS);
                Assert.assertNotNull("A message should be received in " + RECEIVE_TIMEOUT_MILLIS + " ms", receivedMessage);
                Assert.assertThat(receivedMessage, IsInstanceOf.instanceOf(sentMessage.getClass()));
-               Assert.assertEquals(largeMessageContent.length, ((BytesMessage) receivedMessage).readBytes(receivedContent));
-               Assert.assertArrayEquals(largeMessageContent, receivedContent);
+               try {
+                  Assert.assertEquals(largeMessageContent.length, ((BytesMessage) receivedMessage).readBytes(receivedContent));
+                  Assert.assertArrayEquals(largeMessageContent, receivedContent);
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  System.exit(-1);
+               }
             }
          }
       }
+
+      stopServers(0, 1);
    }
 
    protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {

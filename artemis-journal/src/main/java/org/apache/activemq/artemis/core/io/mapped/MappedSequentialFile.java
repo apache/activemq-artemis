@@ -419,6 +419,11 @@ final class MappedSequentialFile implements SequentialFile {
    }
 
    @Override
+   public ByteBuffer map(int position, long size) throws IOException {
+      return null;
+   }
+
+   @Override
    @Deprecated
    public void setTimedBuffer(TimedBuffer buffer) {
       throw new UnsupportedOperationException("the timed buffer is not currently supported");

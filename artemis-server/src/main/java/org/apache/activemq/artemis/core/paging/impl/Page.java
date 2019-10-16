@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -35,7 +34,6 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -494,14 +492,10 @@ public final class Page implements Comparable<Page> {
       List<Long> largeMessageIds = new ArrayList<>();
       if (messages != null) {
          for (PagedMessage msg : messages) {
-            if (msg.getMessage() instanceof ICoreMessage && (msg.getMessage()).isLargeMessage()) {
-               LargeServerMessage lmsg = (LargeServerMessage) msg.getMessage();
-
-               // Remember, cannot call delete directly here
-               // Because the large-message may be linked to another message
-               // or it may still being delivered even though it has been acked already
-               lmsg.decrementDelayDeletionCount();
-               largeMessageIds.add(lmsg.getMessageID());
+            // this will trigger large message delete
+            msg.getMessage().usageDown();
+            if ((msg.getMessage()).isLargeMessage()) {
+               largeMessageIds.add(msg.getMessage().getMessageID());
             }
          }
       }

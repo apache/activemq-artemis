@@ -52,7 +52,7 @@ public class LargeMessageRedistributionTest extends MessageRedistributionTest {
       waitForBindings(0, "queues.testaddress", 1, 0, false);
       waitForBindings(1, "queues.testaddress", 1, 0, false);
 
-      send(0, "queues.testaddress", numMessages, false, null);
+      send(0, "queues.testaddress", numMessages, true, null);
       addConsumer(0, 0, "queue0", null);
 
       verifyReceiveAll(numMessages, 0);

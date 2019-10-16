@@ -18,18 +18,25 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeBody;
 import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
 
-public interface LargeServerMessage extends ReplicatedLargeMessage, ICoreMessage {
+public interface LargeServerMessage extends ReplicatedLargeMessage {
 
-   long NO_PENDING_ID = -1;
+   Message toMessage();
+
+   StorageManager getStorageManager();
 
    @Override
    void addBytes(byte[] bytes) throws Exception;
 
    void addBytes(ActiveMQBuffer bytes) throws Exception;
+
+   long getMessageID();
 
    /**
     * We have to copy the large message content in case of DLQ and paged messages
@@ -46,13 +53,16 @@ public interface LargeServerMessage extends ReplicatedLargeMessage, ICoreMessage
    @Override
    void deleteFile() throws Exception;
 
-   void incrementDelayDeletionCount();
-
-   void decrementDelayDeletionCount() throws Exception;
-
    /**
+    * This will return the File suitable for appending the message
     * @return
     * @throws ActiveMQException
     */
-   SequentialFile getFile() throws ActiveMQException;
+   SequentialFile getAppendFile() throws ActiveMQException;
+
+   LargeBodyReader getLargeBodyReader() throws ActiveMQException;
+
+   LargeBody getLargeBody();
+
+   void finishParse() throws Exception;
 }

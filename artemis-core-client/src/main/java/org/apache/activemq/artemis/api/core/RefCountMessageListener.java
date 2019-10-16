@@ -25,7 +25,14 @@ public interface RefCountMessageListener {
 
    void durableDown(Message message, int durableCount);
 
-   void nonDurableUp(Message message, int nonDurableCoun);
+   void refUp(Message message, int nonDurableCoun);
 
-   void nonDurableDown(Message message, int nonDurableCoun);
+   void refDown(Message message, int nonDurableCoun);
+
+   default void usageUp(Message message, int usageCount) {
+   }
+
+   default void usageDown(Message message, int usageCount) {
+
+   }
 }

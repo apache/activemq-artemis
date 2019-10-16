@@ -236,7 +236,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                              final StorageManager storageManager,
                              final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                              final ArtemisExecutor executor, final ActiveMQServer server) {
-            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, deliveryMode,
+            super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, deliveryMode,
                   maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager,
                   addressSettingsRepository, executor, server, null);
          }

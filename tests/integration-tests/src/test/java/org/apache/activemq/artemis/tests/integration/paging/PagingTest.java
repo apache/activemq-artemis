@@ -1524,7 +1524,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Wait.assertEquals(numberOfMessages, queue::getMessageCount);
 
-      ClientMessage msg = consumer.receive(5000);
+      ClientMessage msg = consumer.receiveImmediate();
       if (msg != null) {
          while (true) {
             ClientMessage msg2 = consumer.receive(1000);
@@ -2983,6 +2983,8 @@ public class PagingTest extends ActiveMQTestBase {
             break;
          }
          numberOfMessages++;
+
+         Assert.assertTrue("something is not letting the system to enter page mode, the test became invalid", numberOfMessages < 2000);
 
          producer.send(message);
       }

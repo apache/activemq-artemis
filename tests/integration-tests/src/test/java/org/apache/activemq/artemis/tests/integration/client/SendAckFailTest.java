@@ -29,6 +29,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -801,6 +803,16 @@ public class SendAckFailTest extends SpawnedTestBase {
       @Override
       public void injectMonitor(FileStoreMonitor monitor) throws Exception {
          manager.injectMonitor(monitor);
+      }
+
+      @Override
+      public void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException {
+         manager.deleteLargeMessageBody(largeServerMessage);
+      }
+
+      @Override
+      public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
+         manager.addBytesToLargeMessage(file, messageId, bytes);
       }
 
       private final StorageManager manager;
