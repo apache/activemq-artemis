@@ -374,6 +374,9 @@ Name | Description
 [permission](security.md) |
 [permission.type](security.md) | the type of permission
 [permission.roles](security.md) | a comma-separated list of roles to apply the permission to
+[role-mapping](security.md) | A simple role mapping that can be used to map roles from external authentication providers (i.e. LDAP) to internal roles
+[role-mapping.from](security.md) | The external role which should be mapped
+[role-mapping.to](security.md) | The internal role which should be assigned to the authenticated user
 
 
 ## broker-plugin type
