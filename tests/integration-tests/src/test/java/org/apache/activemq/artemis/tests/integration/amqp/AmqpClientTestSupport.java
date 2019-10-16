@@ -323,6 +323,9 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       sendMessages(destinationName, count, routingType, durable, Collections.emptyMap());
    }
 
+   protected void setData(AmqpMessage amqpMessage) throws Exception {
+   }
+
    protected void sendMessages(String destinationName,
                                int count,
                                RoutingType routingType,
@@ -344,6 +347,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
             if (routingType != null) {
                message.setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE.toString(), routingType.getType());
             }
+            setData(message);
             sender.send(message);
          }
       } finally {

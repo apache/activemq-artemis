@@ -561,16 +561,15 @@ public final class DescribeJournal {
 
             LargeServerMessage largeMessage = new LargeServerMessageImpl(storageManager);
 
-            LargeMessagePersister.getInstance().decode(buffer, largeMessage);
+            LargeMessagePersister.getInstance().decode(buffer, largeMessage, null);
 
-            return new MessageDescribe(largeMessage);
+            return new MessageDescribe(largeMessage.toMessage());
          }
          case ADD_MESSAGE: {
             return "ADD-MESSAGE is not supported any longer, use export/import";
          }
          case ADD_MESSAGE_PROTOCOL: {
-            Message message = MessagePersister.getInstance().decode(buffer, null);
-
+            Message message = MessagePersister.getInstance().decode(buffer, null, null);
             return new MessageDescribe(message);
          }
          case ADD_REF: {

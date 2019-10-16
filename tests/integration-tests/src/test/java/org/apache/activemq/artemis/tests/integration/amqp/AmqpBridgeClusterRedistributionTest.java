@@ -59,15 +59,15 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
    private SimpleString bridgeNotificationsQueue;
    private SimpleString notificationsQueue;
 
-   private String getServer0URL() {
+   protected String getServer0URL() {
       return "tcp://localhost:61616";
    }
 
-   private String getServer1URL() {
+   protected String getServer1URL() {
       return "tcp://localhost:61617";
    }
 
-   private String getServer2URL() {
+   protected String getServer2URL() {
       return "tcp://localhost:61618";
    }
 
@@ -105,9 +105,9 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      server0 = createServer(false, createBasicConfig());
-      server1 = createServer(false, createBasicConfig());
-      server2 = createServer(false, createBasicConfig());
+      server0 = createServer(true, createBasicConfig(0));
+      server1 = createServer(true, createBasicConfig(1));
+      server2 = createServer(true, createBasicConfig(2));
 
       servers[0] = server0;
       servers[1] = server1;

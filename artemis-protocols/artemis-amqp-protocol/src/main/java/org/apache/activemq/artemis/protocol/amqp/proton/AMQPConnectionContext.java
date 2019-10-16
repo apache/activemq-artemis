@@ -188,6 +188,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return false;
    }
 
+   public void instantFlush() {
+      handler.instantFlush();
+   }
    public void flush() {
       handler.flush();
    }

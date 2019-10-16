@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -168,7 +169,7 @@ public class TestConversions extends Assert {
       assertEquals(1, mapMessage.getInt("someint"));
       assertEquals("value", mapMessage.getString("somestr"));
 
-      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage());
+      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage(), null);
       assertNotNull(newAMQP.getBody());
    }
 
@@ -286,7 +287,7 @@ public class TestConversions extends Assert {
       assertTrue(mapMessage.propertyExists(JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX + annotationName));
       assertArrayEquals(encodedEmbeddedMap, (byte[]) mapMessage.getObjectProperty(JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX + annotationName));
 
-      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage());
+      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage(), null);
       assertNotNull(newAMQP.getBody());
       assertNotNull(newAMQP.getMessageAnnotations());
       assertNotNull(newAMQP.getMessageAnnotations().getValue());
@@ -338,7 +339,7 @@ public class TestConversions extends Assert {
       assertTrue(mapMessage.propertyExists(JMS_AMQP_ENCODED_FOOTER_PREFIX + footerName));
       assertArrayEquals(encodedEmbeddedMap, (byte[]) mapMessage.getObjectProperty(JMS_AMQP_ENCODED_FOOTER_PREFIX + footerName));
 
-      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage());
+      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage(), null);
       assertNotNull(newAMQP.getBody());
       assertNotNull(newAMQP.getFooter());
       assertNotNull(newAMQP.getFooter().getValue());
@@ -368,7 +369,7 @@ public class TestConversions extends Assert {
       serverMessage.setObjectProperty(JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX + annotationName, encodedEmbeddedMap);
       serverMessage.encode();
 
-      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(serverMessage.getInnerMessage());
+      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(serverMessage.getInnerMessage(), null);
       assertNull(newAMQP.getBody());
       assertNotNull(newAMQP.getDeliveryAnnotations());
       assertNotNull(newAMQP.getDeliveryAnnotations().getValue());
@@ -520,7 +521,7 @@ public class TestConversions extends Assert {
 
       NettyReadable readable = new NettyReadable(encoded.getByteBuf());
 
-      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+      return new AMQPStandardMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 
    private ServerJMSMessage createMessage() {

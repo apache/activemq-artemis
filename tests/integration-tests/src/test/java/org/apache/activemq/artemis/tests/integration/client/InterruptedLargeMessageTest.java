@@ -519,7 +519,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                         StorageManager storageManager,
                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
                         ArtemisExecutor executor) {
-            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
+            super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
                   postOffice, storageManager, addressSettingsRepository, executor, null, null);
          }
 

@@ -188,8 +188,6 @@ public class RaceOnCursorIteratorTest extends ActiveMQTestBase {
 
       msg.setAddress(ADDRESS);
 
-      msg.setContext(pagingStore);
-
       msg.getBodyBuffer().resetReaderIndex();
       msg.getBodyBuffer().resetWriterIndex();
 

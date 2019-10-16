@@ -79,6 +79,11 @@ final class TimedSequentialFile implements SequentialFile {
    }
 
    @Override
+   public ByteBuffer map(int position, long size) throws IOException {
+      return null;
+   }
+
+   @Override
    public int calculateBlockStart(int position) throws Exception {
       return this.sequentialFile.calculateBlockStart(position);
    }

@@ -26,6 +26,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -550,6 +552,10 @@ public class NullStorageManager implements StorageManager {
       // no-op
    }
 
+   @Override
+   public void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException {
+
+   }
 
    @Override
    public boolean addToPage(PagingStore store,
@@ -582,6 +588,11 @@ public class NullStorageManager implements StorageManager {
    @Override
    public void addBytesToLargeMessage(SequentialFile appendFile, long messageID, byte[] bytes) throws Exception {
       // no-op
+   }
+
+   @Override
+   public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
+
    }
 
    @Override

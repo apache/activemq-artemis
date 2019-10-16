@@ -306,6 +306,11 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       }
 
       @Override
+      public ByteBuffer map(int position, long size) throws IOException {
+         return null;
+      }
+
+      @Override
       public void delete() {
          if (open) {
             close();

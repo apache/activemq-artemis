@@ -20,11 +20,13 @@ package org.apache.activemq.artemis.core.message.impl;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class CoreMessagePersister implements Persister<Message, CoreMessageObjectPools> {
-   public static final byte ID = 1;
+import static org.apache.activemq.artemis.core.persistence.PersisterIDs.CoreMessagePersister_ID;
+public class CoreMessagePersister implements Persister<Message> {
+   public static final byte ID = CoreMessagePersister_ID;
 
    private static CoreMessagePersister theInstance;
 
@@ -68,8 +70,9 @@ public class CoreMessagePersister implements Persister<Message, CoreMessageObjec
       record.persist(buffer);
    }
 
+
    @Override
-   public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pool) {
+   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pool) {
       // the caller must consume the first byte already, as that will be used to decide what persister (protocol) to use
       long id = buffer.readLong();
       final SimpleString address;
@@ -78,7 +81,7 @@ public class CoreMessagePersister implements Persister<Message, CoreMessageObjec
       } else {
          address = SimpleString.readNullableSimpleString(buffer.byteBuf(), pool.getAddressDecoderPool());
       }
-      CoreMessage record = new CoreMessage();
+      record = new CoreMessage();
       record.reloadPersistence(buffer, pool);
       record.setMessageID(id);
       record.setAddress(address);

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
@@ -58,7 +59,7 @@ public class MessageTransformationTest {
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
       ICoreMessage core = encodeAndCreateAMQPMessage(incomingMessage).toCore();
-      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core, null);
 
       assertNull(outboudMessage.getHeader());
 
@@ -76,7 +77,7 @@ public class MessageTransformationTest {
       incomingMessage.setMessageId("ID:SomeQualifier:0:0:1");
 
       ICoreMessage core = encodeAndCreateAMQPMessage(incomingMessage).toCore();
-      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core, null);
 
       assertNull(outboudMessage.getHeader());
       assertNotNull(outboudMessage.getProperties());
@@ -90,7 +91,7 @@ public class MessageTransformationTest {
       incomingMessage.setDurable(true);
 
       ICoreMessage core = encodeAndCreateAMQPMessage(incomingMessage).toCore();
-      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core, null);
 
       assertNotNull(outboudMessage.getHeader());
 
@@ -145,7 +146,7 @@ public class MessageTransformationTest {
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
       ICoreMessage core = encodeAndCreateAMQPMessage(message).toCore();
-      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core);
+      AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core, null);
 
       assertEquals(10, outboudMessage.getApplicationProperties().getValue().size());
       assertEquals(4, outboudMessage.getMessageAnnotations().getValue().size());
@@ -157,6 +158,6 @@ public class MessageTransformationTest {
 
       NettyReadable readable = new NettyReadable(encoded.getByteBuf());
 
-      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+      return new AMQPStandardMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 }

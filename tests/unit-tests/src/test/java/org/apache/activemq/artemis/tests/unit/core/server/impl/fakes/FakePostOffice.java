@@ -230,10 +230,10 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public MessageReference reroute(final Message message,
+   public MessageReference reload(final Message message,
                                    final Queue queue,
                                    final Transaction tx) throws Exception {
-      message.incrementRefCount();
+      message.refUp();
       return new MessageReferenceImpl();
    }
 
