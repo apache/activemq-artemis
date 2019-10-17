@@ -1022,6 +1022,20 @@ superseded by SASL GSSAPI. However, for clients that don't support SASL (core
 client), using TLS can provide Kerberos authentication over an *unsecure*
 channel.
 
+## Mapping external roles
+Roles from external authentication providers (i.e. LDAP) can be mapped to internally used roles. The is done through role-mapping entries in the security-settings block:
+
+```xml
+<security-settings>
+   [...]
+   <role-mapping from="cn=admins,ou=Group,ou=ActiveMQ,ou=system" to="my-admin-role"/>
+   <role-mapping from="cn=users,ou=Group,ou=ActiveMQ,ou=system" to="my-user-role"/>
+</security-settings>
+```
+
+Note: Role mapping is additive. That means the user will keep the original role(s) as well as the newly assigned role(s).
+
+Note: This role mapping only affects the roles which are used to authorize queue access through the configured acceptors. It can not be used to map the role required to access the web console.
 
 ## SASL
 [AMQP](using-AMQP.md) supports SASL. The following mechanisms are supported; PLAIN, EXTERNAL, ANONYMOUS, GSSAPI.
