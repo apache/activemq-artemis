@@ -18,79 +18,95 @@ package org.apache.activemq.artemis.core.server.management;
 
 import javax.management.ObjectName;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 public class JMXAccessControlList {
+   private static final String WILDCARD = "*";
 
-   private Access defaultAccess = new Access("*");
-   private Map<String, Access> domainAccess = new HashMap<>();
-   private ConcurrentHashMap<String, List<String>> whitelist = new ConcurrentHashMap<>();
-
-
-   public void addToWhiteList(String domain, String match) {
-      List<String> list = new ArrayList<>();
-      list = whitelist.putIfAbsent(domain, list);
-      if (list == null) {
-         list = whitelist.get(domain);
+   private Access defaultAccess = new Access(WILDCARD);
+   private ConcurrentHashMap<String, TreeMap<String, Access>> domainAccess = new ConcurrentHashMap<>();
+   private ConcurrentHashMap<String, TreeMap<String, Access>> whitelist = new ConcurrentHashMap<>();
+   private Comparator<String> keyComparator = (key1, key2) -> {
+      boolean key1ContainsWildCard = key1.contains(WILDCARD);
+      boolean key2ContainsWildcard = key2.contains(WILDCARD);
+      if (key1ContainsWildCard && !key2ContainsWildcard) {
+         return +1;
+      } else if (!key1ContainsWildCard && key2ContainsWildcard) {
+         return -1;
+      } else if (key1ContainsWildCard && key2ContainsWildcard) {
+         return key2.length() - key1.length();
       }
-      list.add(match != null ? match : "*");
+      return key1.length() - key2.length();
+   };
+
+   public void addToWhiteList(String domain, String key) {
+      TreeMap<String, Access> domainMap = new TreeMap<>(keyComparator);
+      domainMap = whitelist.putIfAbsent(domain, domainMap);
+      if (domainMap == null) {
+         domainMap = whitelist.get(domain);
+      }
+      Access access = new Access(domain, normalizeKey(key));
+      domainMap.putIfAbsent(access.getKey(), access);
    }
 
 
    public List<String> getRolesForObject(ObjectName objectName, String methodName) {
-      Hashtable<String, String> keyPropertyList = objectName.getKeyPropertyList();
-      for (Map.Entry<String, String> keyEntry : keyPropertyList.entrySet()) {
-         String key = keyEntry.getKey() + "=" + keyEntry.getValue();
-         Access access = domainAccess.get(getObjectID(objectName.getDomain(), key));
+      TreeMap<String, Access> domainMap = domainAccess.get(objectName.getDomain());
+      if (domainMap != null) {
+         Hashtable<String, String> keyPropertyList = objectName.getKeyPropertyList();
+         for (Map.Entry<String, String> keyEntry : keyPropertyList.entrySet()) {
+            String key = normalizeKey(keyEntry.getKey() + "=" + keyEntry.getValue());
+            for (Access accessEntry : domainMap.values()) {
+               if (accessEntry.getKeyPattern().matcher(key).matches()) {
+                  return accessEntry.getMatchingRolesForMethod(methodName);
+               }
+            }
+         }
+
+         Access access = domainMap.get("");
          if (access != null) {
             return access.getMatchingRolesForMethod(methodName);
          }
       }
-      for (Map.Entry<String, String> keyEntry : keyPropertyList.entrySet()) {
-         String key = keyEntry.getKey() + "=*";
-         Access access = domainAccess.get(getObjectID(objectName.getDomain(), key));
-         if (access != null) {
-            return access.getMatchingRolesForMethod(methodName);
-         }
-      }
-      Access access = domainAccess.get(objectName.getDomain());
-      if (access == null) {
-         access = defaultAccess;
-      }
-      return access.getMatchingRolesForMethod(methodName);
+
+      return defaultAccess.getMatchingRolesForMethod(methodName);
    }
 
    public boolean isInWhiteList(ObjectName objectName) {
-      List<String> matches = whitelist.get(objectName.getDomain());
-      if (matches != null) {
-         for (String match : matches) {
-            if (match.equals("*")) {
-               return true;
-            } else {
-               String[] split = match.split("=");
-               String key = split[0];
-               String val = split[1];
-               String propVal = objectName.getKeyProperty(key);
-               if (propVal != null && (val.equals("*") || propVal.equals(val))) {
+      TreeMap<String, Access> domainMap = whitelist.get(objectName.getDomain());
+      if (domainMap != null) {
+         if (domainMap.containsKey("")) {
+            return true;
+         }
+
+         Hashtable<String, String> keyPropertyList = objectName.getKeyPropertyList();
+         for (Map.Entry<String, String> keyEntry : keyPropertyList.entrySet()) {
+            String key = normalizeKey(keyEntry.getKey() + "=" + keyEntry.getValue());
+            for (Access accessEntry : domainMap.values()) {
+               if (accessEntry.getKeyPattern().matcher(key).matches()) {
                   return true;
                }
             }
          }
       }
+
       return false;
    }
 
    public void addToDefaultAccess(String method, String... roles) {
       if (roles != null) {
-         if ( method.equals("*")) {
+         if ( method.equals(WILDCARD)) {
             defaultAccess.addCatchAll(roles);
-         } else if (method.endsWith("*")) {
-            String prefix = method.replace("*", "");
+         } else if (method.endsWith(WILDCARD)) {
+            String prefix = method.replace(WILDCARD, "");
             defaultAccess.addMethodsPrefixes(prefix, roles);
          } else {
             defaultAccess.addMethods(method, roles);
@@ -99,44 +115,54 @@ public class JMXAccessControlList {
    }
 
    public void addToRoleAccess(String domain,String key, String method, String... roles) {
-      String id = getObjectID(domain, key);
-      Access access = domainAccess.get(id);
-      if (access == null) {
-         access = new Access(domain);
-         domainAccess.put(id, access);
+      TreeMap<String, Access> domainMap = new TreeMap<>(keyComparator);
+      domainMap = domainAccess.putIfAbsent(domain, domainMap);
+      if (domainMap == null) {
+         domainMap = domainAccess.get(domain);
       }
 
-      if (method.equals("*")) {
+      String accessKey = normalizeKey(key);
+      Access access = domainMap.get(accessKey);
+      if (access == null) {
+         access = new Access(domain, accessKey);
+         domainMap.put(accessKey, access);
+      }
+
+      if (method.equals(WILDCARD)) {
          access.addCatchAll(roles);
-      } else if (method.endsWith("*")) {
-         String prefix = method.replace("*", "");
+      } else if (method.endsWith(WILDCARD)) {
+         String prefix = method.replace(WILDCARD, "");
          access.addMethodsPrefixes(prefix, roles);
       } else {
          access.addMethods(method, roles);
       }
    }
 
-   private String getObjectID(String domain, String key) {
-      String id = domain;
-
-      if (key != null) {
-         String actualKey = key;
-         if (key.endsWith("\"")) {
-            actualKey = actualKey.replace("\"", "");
-         }
-         id += ":" + actualKey;
+   private String normalizeKey(final String key) {
+      if (key == null) {
+         return "";
+      } else if (key.endsWith("\"")) {
+         return key.replace("\"", "");
       }
-      return id;
+      return key;
    }
 
    static class Access {
-      private final String domain;
+      private final String id;
+      private final String key;
+      private final Pattern keyPattern;
       List<String> catchAllRoles = new ArrayList<>();
       Map<String, List<String>> methodRoles = new HashMap<>();
       Map<String, List<String>> methodPrefixRoles = new LinkedHashMap<>();
 
-      Access(String domain) {
-         this.domain = domain;
+      Access(String id) {
+         this(id, "");
+      }
+
+      Access(String id, String key) {
+         this.id = id;
+         this.key = key;
+         this.keyPattern = Pattern.compile(key.replace(WILDCARD, ".*"));
       }
 
       public synchronized void addMethods(String prefix, String... roles) {
@@ -167,8 +193,16 @@ public class JMXAccessControlList {
          }
       }
 
-      public String getDomain() {
-         return domain;
+      public String getId() {
+         return id;
+      }
+
+      public String getKey() {
+         return key;
+      }
+
+      public Pattern getKeyPattern() {
+         return keyPattern;
       }
 
       public List<String> getMatchingRolesForMethod(String methodName) {
@@ -184,22 +218,23 @@ public class JMXAccessControlList {
          return catchAllRoles;
       }
    }
+
    public static JMXAccessControlList createDefaultList() {
       JMXAccessControlList accessControlList = new JMXAccessControlList();
 
       accessControlList.addToWhiteList("hawtio", "type=*");
 
       accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "list*", "view", "update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"get*", "view", "update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"is*", "view", "update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"set*","update", "amq");
-      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null,"*", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "get*", "view", "update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "is*", "view", "update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "set*", "update", "amq");
+      accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, WILDCARD, "amq");
 
       accessControlList.addToDefaultAccess("list*", "view", "update", "amq");
       accessControlList.addToDefaultAccess("get*", "view", "update", "amq");
       accessControlList.addToDefaultAccess("is*", "view", "update", "amq");
       accessControlList.addToDefaultAccess("set*", "update", "amq");
-      accessControlList.addToDefaultAccess("*", "amq");
+      accessControlList.addToDefaultAccess(WILDCARD, "amq");
 
       return accessControlList;
    }

@@ -96,6 +96,16 @@ public class JMXAccessControlListTest {
    }
 
    @Test
+   public void testBasicRoleWithWildcardInKey() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "type=foo*","listSomething", "update");
+      controlList.addToRoleAccess("org.myDomain", "type=foo.bar*","listSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null,"listSomething", "view");
+      List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo.bar.test"), "listSomething");
+      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+   }
+
+   @Test
    public void testMutipleBasicRoles() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin", "view", "update");
