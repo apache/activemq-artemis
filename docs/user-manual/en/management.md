@@ -388,6 +388,19 @@ by configuring:
 </match>
 ```
 
+You can also use wildcards for the mBean properties so the following would
+also match, allowing prefix match for the mBean properties.
+
+```xml
+<match domain="org.apache.activemq.artemis" key="queue=example*">
+   <access method="list*" roles="view,update,amq"/>
+   <access method="get*" roles="view,update,amq"/>
+   <access method="is*" roles="view,update,amq"/>
+   <access method="set*" roles="update,amq"/>
+   <access method="*" roles="amq"/>
+</match>
+```
+
 Access to JMX mBean attributes are converted to method calls so these are
 controlled via the `set*`, `get*` and `is*`.  The `*` access is the catch all
 for everything other method that isn't specifically matched.
