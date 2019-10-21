@@ -1654,6 +1654,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void emptyAddressFile(String addressFile, String directory);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222286, value = "Error executing {0} federation plugin method.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void federationPluginExecutionError(@Cause Throwable e, String pluginMethod);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

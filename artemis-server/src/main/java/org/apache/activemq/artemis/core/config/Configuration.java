@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
@@ -1269,6 +1270,11 @@ public interface Configuration {
     * @return
     */
    List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins();
+
+   /**
+    * @return
+    */
+   List<ActiveMQServerFederationPlugin> getBrokerFederationPlugins();
 
    /**
     * @return

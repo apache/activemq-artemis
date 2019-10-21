@@ -17,93 +17,26 @@
 
 package org.apache.activemq.artemis.core.server.federation;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.federation.FederationStreamConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.federation.address.FederatedAddress;
-import org.apache.activemq.artemis.core.server.federation.queue.FederatedQueue;
-import org.jboss.logging.Logger;
 
-public abstract class FederationStream {
+public interface FederationStream {
 
+   void start();
 
-   private static final Logger logger = Logger.getLogger(FederationStream.class);
-   protected final ActiveMQServer server;
-   protected final Federation federation;
-   protected final SimpleString name;
-   protected final FederationConnection connection;
-   private FederationStreamConfiguration config;
-   protected Map<String, FederatedQueue> federatedQueueMap = new HashMap<>();
-   protected Map<String, FederatedAddress> federatedAddressMap = new HashMap<>();
+   void stop();
 
+   Federation getFederation();
 
-   public FederationStream(ActiveMQServer server, Federation federation, String name, FederationStreamConfiguration config) {
-      this(server, federation, name, config, null);
-   }
+   FederationStreamConfiguration getConfig();
 
-   public FederationStream(final ActiveMQServer server, final Federation federation, final String name, final FederationStreamConfiguration config,
-                           final FederationConnection connection) {
-      this.server = server;
-      this.federation = federation;
-      Objects.requireNonNull(config.getName());
-      this.name = SimpleString.toSimpleString(config.getName());
-      this.config = config;
-      this.connection = connection != null ? connection : new FederationConnection(server.getConfiguration(), name, config.getConnectionConfiguration());
-   }
+   SimpleString getName();
 
-   public synchronized void start() {
-      if (connection != null) {
-         connection.start();
-      }
-   }
+   FederationConnection getConnection();
 
-   public synchronized void stop() {
-      if (connection != null) {
-         connection.stop();
-      }
-   }
+   String getUser();
 
-   public Federation getFederation() {
-      return federation;
-   }
+   String getPassword();
 
-   public FederationStreamConfiguration getConfig() {
-      return config;
-   }
-
-   public SimpleString getName() {
-      return name;
-   }
-
-   public FederationConnection getConnection() {
-      return connection;
-   }
-
-
-   public String getUser() {
-      String user = config.getConnectionConfiguration().getUsername();
-      if (user == null || user.isEmpty()) {
-         return federation.getFederationUser();
-      } else {
-         return user;
-      }
-   }
-
-   public String getPassword() {
-      String password = config.getConnectionConfiguration().getPassword();
-      if (password == null || password.isEmpty()) {
-         return federation.getFederationPassword();
-      } else {
-         return password;
-      }
-   }
-
-   public int getPriorityAdjustment() {
-      return config.getConnectionConfiguration().getPriorityAdjustment();
-   }
-
+   int getPriorityAdjustment();
 }
