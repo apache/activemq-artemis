@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.federation.address.FederatedAddress;
 import org.apache.activemq.artemis.core.server.federation.queue.FederatedQueue;
 
-public class FederationUpstream extends FederationStream {
+public class FederationUpstream extends AbstractFederationStream {
    private FederationUpstreamConfiguration config;
 
    public FederationUpstream(ActiveMQServer server, Federation federation, String name, FederationUpstreamConfiguration config) {
@@ -49,6 +49,8 @@ public class FederationUpstream extends FederationStream {
       for (FederatedAddress federatedAddress : federatedAddressMap.values()) {
          federatedAddress.start();
       }
+
+      callFederationStreamStartedPlugins();
    }
 
    @Override
@@ -64,6 +66,8 @@ public class FederationUpstream extends FederationStream {
       federatedQueueMap.clear();
 
       super.stop();
+
+      callFederationStreamStoppedPlugins();
    }
 
    public void deploy(Set<String> policyRefsToDeploy, Map<String, FederationPolicy> policyMap) throws ActiveMQException {

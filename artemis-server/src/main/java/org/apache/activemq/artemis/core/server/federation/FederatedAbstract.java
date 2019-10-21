@@ -19,14 +19,20 @@ package org.apache.activemq.artemis.core.server.federation;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumer.ClientSessionCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumerImpl.ClientSessionCallback;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.jboss.logging.Logger;
 
 public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
+
+   private static final Logger logger = Logger.getLogger(FederatedAbstract.class);
 
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    protected final Federation federation;
@@ -104,9 +110,27 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
       if (started) {
          FederatedQueueConsumer remoteQueueConsumer = remoteQueueConsumers.get(key);
          if (remoteQueueConsumer == null) {
-            remoteQueueConsumer = new FederatedQueueConsumer(federation, server, transformer, key, upstream, callback);
+            if (server.hasBrokerFederationPlugins()) {
+               try {
+                  server.callBrokerFederationPlugins(plugin -> plugin.beforeCreateFederatedQueueConsumer(key));
+               } catch (ActiveMQException t) {
+                  ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "beforeCreateFederatedQueueConsumer");
+                  throw new IllegalStateException(t.getMessage(), t.getCause());
+               }
+            }
+            remoteQueueConsumer = new FederatedQueueConsumerImpl(federation, server, transformer, key, upstream, callback);
             remoteQueueConsumer.start();
             remoteQueueConsumers.put(key, remoteQueueConsumer);
+
+            if (server.hasBrokerFederationPlugins()) {
+               try {
+                  final FederatedQueueConsumer finalConsumer = remoteQueueConsumer;
+                  server.callBrokerFederationPlugins(plugin -> plugin.afterCreateFederatedQueueConsumer(finalConsumer));
+               } catch (ActiveMQException t) {
+                  ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "afterCreateFederatedQueueConsumer");
+                  throw new IllegalStateException(t.getMessage(), t.getCause());
+               }
+            }
          }
          remoteQueueConsumer.incrementCount();
       }
@@ -116,9 +140,25 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
    public synchronized void removeRemoteConsumer(FederatedConsumerKey key) {
       FederatedQueueConsumer remoteQueueConsumer = remoteQueueConsumers.get(key);
       if (remoteQueueConsumer != null) {
+         if (server.hasBrokerFederationPlugins()) {
+            try {
+               server.callBrokerFederationPlugins(plugin -> plugin.beforeCloseFederatedQueueConsumer(remoteQueueConsumer));
+            } catch (ActiveMQException t) {
+               ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "beforeCloseFederatedQueueConsumer");
+               throw new IllegalStateException(t.getMessage(), t.getCause());
+            }
+         }
          if (remoteQueueConsumer.decrementCount() <= 0) {
             remoteQueueConsumer.close();
             remoteQueueConsumers.remove(key);
+         }
+         if (server.hasBrokerFederationPlugins()) {
+            try {
+               server.callBrokerFederationPlugins(plugin -> plugin.afterCloseFederatedQueueConsumer(remoteQueueConsumer));
+            } catch (ActiveMQException t) {
+               ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "afterCloseFederatedQueueConsumer");
+               throw new IllegalStateException(t.getMessage(), t.getCause());
+            }
          }
       }
    }

@@ -156,6 +156,7 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.core.server.metrics.BrokerMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
@@ -2331,6 +2332,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public List<ActiveMQServerFederationPlugin> getBrokerFederationPlugins() {
+      return configuration.getBrokerFederationPlugins();
+   }
+
+   @Override
    public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) throws ActiveMQException {
       callBrokerPlugins(getBrokerPlugins(), pluginRun);
    }
@@ -2378,6 +2384,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void callBrokerCriticalPlugins(final ActiveMQPluginRunnable<ActiveMQServerCriticalPlugin> pluginRun) throws ActiveMQException {
       callBrokerPlugins(getBrokerCriticalPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerFederationPlugins(final ActiveMQPluginRunnable<ActiveMQServerFederationPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerFederationPlugins(), pluginRun);
    }
 
    private <P extends ActiveMQServerBasePlugin> void callBrokerPlugins(final List<P> plugins, final ActiveMQPluginRunnable<P> pluginRun) throws ActiveMQException {
@@ -2445,6 +2456,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean hasBrokerCriticalPlugins() {
       return !getBrokerCriticalPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerFederationPlugins() {
+      return !getBrokerFederationPlugins().isEmpty();
    }
 
    @Override

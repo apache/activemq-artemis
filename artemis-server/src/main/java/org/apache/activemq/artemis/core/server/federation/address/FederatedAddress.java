@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -36,6 +37,7 @@ import org.apache.activemq.artemis.core.config.federation.FederationAddressPolic
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.federation.FederatedAbstract;
 import org.apache.activemq.artemis.core.server.federation.FederatedConsumerKey;
@@ -45,6 +47,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.jboss.logging.Logger;
 
 /**
  * Federated Address, replicate messages from the remote brokers address to itself.
@@ -58,7 +61,9 @@ import org.apache.activemq.artemis.utils.ByteUtil;
  */
 public class FederatedAddress extends FederatedAbstract implements ActiveMQServerQueuePlugin, Serializable {
 
+   private static final Logger logger = Logger.getLogger(FederatedAddress.class);
    public static final String FEDERATED_QUEUE_PREFIX = "federated";
+
    public static final SimpleString HDR_HOPS = new SimpleString("_AMQ_Hops");
    private final SimpleString queueNameFormat;
    private final SimpleString filterString;
@@ -105,7 +110,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
             .stream()
             .filter(b -> b instanceof QueueBinding)
             .map(b -> ((QueueBinding) b).getQueue())
-            .forEach(this::createRemoteConsumer);
+            .forEach(this::conditionalCreateRemoteConsumer);
    }
 
    /**
@@ -115,6 +120,24 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
     */
    @Override
    public synchronized void afterCreateQueue(Queue queue) {
+      conditionalCreateRemoteConsumer(queue);
+   }
+
+   private void conditionalCreateRemoteConsumer(Queue queue) {
+      if (server.hasBrokerFederationPlugins()) {
+         final AtomicBoolean conditionalCreate = new AtomicBoolean(true);
+         try {
+            server.callBrokerFederationPlugins(plugin -> {
+               conditionalCreate.set(conditionalCreate.get() && plugin.federatedAddressConditionalCreateConsumer(queue));
+            });
+         } catch (ActiveMQException t) {
+            ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "federatedAddressConditionalCreateConsumer");
+            throw new IllegalStateException(t.getMessage(), t.getCause());
+         }
+         if (!conditionalCreate.get()) {
+            return;
+         }
+      }
       createRemoteConsumer(queue);
    }
 
