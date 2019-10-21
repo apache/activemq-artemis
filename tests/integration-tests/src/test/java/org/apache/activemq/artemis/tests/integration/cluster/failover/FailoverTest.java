@@ -780,7 +780,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testFailBackLiveRestartsBackupIsGone() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -833,7 +832,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testWithoutUsingTheBackup() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -884,7 +882,6 @@ public class FailoverTest extends FailoverTestBase {
     * @throws Exception
     */
    private void simpleFailover(boolean isReplicated, boolean doFailBack) throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -1029,7 +1026,7 @@ public class FailoverTest extends FailoverTestBase {
    // https://jira.jboss.org/jira/browse/HORNETQ-285
    @Test(timeout = 120000)
    public void testFailoverOnInitialConnection() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
@@ -1653,7 +1650,7 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testCreateNewFactoryAfterFailover() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
       ClientSession session = sendAndConsume(sf, true);
@@ -2195,7 +2192,6 @@ public class FailoverTest extends FailoverTestBase {
       if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreSlavePolicy)) {
          return;
       }
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
 
       ClientSession session = sendAndConsume(sf, true);
@@ -2225,7 +2221,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testLiveAndBackupLiveComesBack() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -2257,7 +2252,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -2306,7 +2300,7 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
