@@ -113,6 +113,7 @@ public final class ActiveMQClient {
 
    public static final int INITIAL_CONNECT_ATTEMPTS = 1;
 
+   @Deprecated
    public static final boolean DEFAULT_FAILOVER_ON_INITIAL_CONNECTION = false;
 
    public static final boolean DEFAULT_IS_HA = false;

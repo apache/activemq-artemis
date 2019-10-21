@@ -231,7 +231,7 @@ public class FailBackAutoTest extends FailoverTestBase {
    }
 
    private void createSessionFactory() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true) // unnecessary?
          .setReconnectAttempts(15);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
    }

@@ -162,8 +162,10 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
 
    ConnectionFactoryConfiguration setReconnectAttempts(int reconnectAttempts);
 
+   @Deprecated
    boolean isFailoverOnInitialConnection();
 
+   @Deprecated
    ConnectionFactoryConfiguration setFailoverOnInitialConnection(boolean failover);
 
    String getGroupID();

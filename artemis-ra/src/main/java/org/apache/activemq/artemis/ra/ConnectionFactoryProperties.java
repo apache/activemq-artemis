@@ -79,8 +79,6 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private Integer confirmationWindowSize;
 
-   private Boolean failoverOnInitialConnection;
-
    private Integer producerMaxRate;
 
    private Integer minLargeMessageSize;
@@ -415,13 +413,13 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       this.confirmationWindowSize = confirmationWindowSize;
    }
 
+   @Deprecated
    public Boolean isFailoverOnInitialConnection() {
-      return failoverOnInitialConnection;
+      return false;
    }
 
+   @Deprecated
    public void setFailoverOnInitialConnection(Boolean failoverOnInitialConnection) {
-      hasBeenUpdated = true;
-      this.failoverOnInitialConnection = failoverOnInitialConnection;
    }
 
    public Integer getProducerMaxRate() {
@@ -799,11 +797,6 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
             return false;
       } else if (!this.compressLargeMessage.equals(other.compressLargeMessage))
          return false;
-      if (this.failoverOnInitialConnection == null) {
-         if (other.failoverOnInitialConnection != null)
-            return false;
-      } else if (!this.failoverOnInitialConnection.equals(other.failoverOnInitialConnection))
-         return false;
       if (this.ha == null) {
          if (other.ha != null)
             return false;
@@ -1039,7 +1032,6 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       result = prime * result + ((protocolManagerFactoryStr == null) ? 0 : protocolManagerFactoryStr.hashCode());
       result = prime * result + ((consumerMaxRate == null) ? 0 : consumerMaxRate.hashCode());
       result = prime * result + ((confirmationWindowSize == null) ? 0 : confirmationWindowSize.hashCode());
-      result = prime * result + ((failoverOnInitialConnection == null) ? 0 : failoverOnInitialConnection.hashCode());
       result = prime * result + ((producerMaxRate == null) ? 0 : producerMaxRate.hashCode());
       result = prime * result + ((minLargeMessageSize == null) ? 0 : minLargeMessageSize.hashCode());
       result = prime * result + ((blockOnAcknowledge == null) ? 0 : blockOnAcknowledge.hashCode());

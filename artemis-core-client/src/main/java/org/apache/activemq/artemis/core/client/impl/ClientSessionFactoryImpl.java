@@ -235,8 +235,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public void connect(final int initialConnectAttempts,
-                       final boolean failoverOnInitialConnection) throws ActiveMQException {
+   public void connect(final int initialConnectAttempts) throws ActiveMQException {
       // Get the connection
       getConnectionWithRetry(initialConnectAttempts, null);
 
@@ -248,6 +247,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          throw new ActiveMQNotConnectedException(msg.toString());
       }
 
+   }
+
+   @Deprecated
+   @Override
+   public void connect(final int initialConnectAttempts,
+                       final boolean failoverOnInitialConnection) throws ActiveMQException {
+      connect(initialConnectAttempts);
    }
 
    @Override
