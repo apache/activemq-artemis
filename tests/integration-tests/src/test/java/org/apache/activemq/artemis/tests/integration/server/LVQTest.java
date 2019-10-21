@@ -26,10 +26,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -689,6 +692,60 @@ public class LVQTest extends ActiveMQTestBase {
       assertEquals(queue.getDeliveringSize(), 0);
       assertNotEquals(queue.getPersistentSize(), oldSize);
       assertTrue(queue.getPersistentSize() > 10 * 1024);
+   }
+
+   @Test
+   public void testDeleteReference() throws Exception {
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientMessage m1 = createTextMessage(clientSession, "m1");
+      SimpleString rh = new SimpleString("SMID1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+      m1.setBodyInputStream(createFakeLargeStream(2 * 1024));
+
+      ClientMessage m2 = clientSession.createMessage(true);
+      m2.setBodyInputStream(createFakeLargeStream(10 * 1024));
+      m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+
+      Queue queue = server.locateQueue(qName1);
+      producer.send(m1);
+      LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
+      // Wait for message delivered to queue
+      Wait.assertTrue(() -> browserIterator.hasNext(), 10, 2);
+      long messageId = browserIterator.next().getMessage().getMessageID();
+      browserIterator.close();
+
+      queue.deleteReference(messageId);
+      // Wait for delete tx's afterCommit called
+      Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 10, 2);
+      assertEquals(queue.getPersistentSize(), 0);
+      assertTrue(((LastValueQueue)queue).getLastValueKeys().isEmpty());
+
+      producer.send(m2);
+      // Wait for message delivered to queue
+      Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024, 10, 2);
+      assertEquals(queue.getDeliveringSize(), 0);
+   }
+
+   @Test
+   public void testChangeReferencePriority() throws Exception {
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientMessage m1 = createTextMessage(clientSession, "m1");
+      SimpleString rh = new SimpleString("SMID1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+
+      Queue queue = server.locateQueue(qName1);
+      producer.send(m1);
+      LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
+      // Wait for message delivered to queue
+      Wait.assertTrue(() -> browserIterator.hasNext(), 10, 2);
+      long messageId = browserIterator.next().getMessage().getMessageID();
+      browserIterator.close();
+      long oldSize = queue.getPersistentSize();
+
+      assertTrue(queue.changeReferencePriority(messageId, (byte) 1));
+      // Wait for message delivered to queue
+      Wait.assertEquals(oldSize, () -> queue.getPersistentSize(), 10, 2);
+      assertEquals(queue.getDeliveringSize(), 0);
    }
 
    @Override
