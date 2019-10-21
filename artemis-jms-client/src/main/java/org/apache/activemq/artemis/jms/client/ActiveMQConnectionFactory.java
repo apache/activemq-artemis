@@ -740,13 +740,13 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       return serverLocator.getInitialConnectAttempts();
    }
 
+   @Deprecated
    public synchronized boolean isFailoverOnInitialConnection() {
-      return serverLocator.isFailoverOnInitialConnection();
+      return false;
    }
 
+   @Deprecated
    public synchronized void setFailoverOnInitialConnection(final boolean failover) {
-      checkWrite();
-      serverLocator.setFailoverOnInitialConnection(failover);
    }
 
    public synchronized boolean isUseGlobalPools() {

@@ -614,12 +614,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     *
     * @param failoverOnInitialConnection The value
     */
+   @Deprecated
    public void setFailoverOnInitialConnection(final Boolean failoverOnInitialConnection) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setFailoverOnInitialConnection(" + failoverOnInitialConnection + ")");
-      }
-
-      raProperties.setFailoverOnInitialConnection(failoverOnInitialConnection);
    }
 
    /**
@@ -627,12 +623,9 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     *
     * @return The value
     */
+   @Deprecated
    public Boolean isFailoverOnInitialConnection() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isFailoverOnInitialConnection()");
-      }
-
-      return raProperties.isFailoverOnInitialConnection();
+      return false;
    }
 
    /**
@@ -1953,11 +1946,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       val = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
       if (val != null) {
          cf.setCompressLargeMessage(val);
-      }
-
-      val = overrideProperties.isFailoverOnInitialConnection() != null ? overrideProperties.isFailoverOnInitialConnection() : raProperties.isFailoverOnInitialConnection();
-      if (val != null) {
-         cf.setFailoverOnInitialConnection(val);
       }
 
       val = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();

@@ -61,7 +61,7 @@ public class ConnectionTest extends JMSTestBase {
                                                            "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
                                                            "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
                                                            "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
-                                                           "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
+                                                           "consumerMaxRate=-1&retryInterval=2000&producerWindowSize=65536&" +
                                                            "port=61616&host=localhost#");
 
       testThroughNewConnectionFactory(connectionFactory);

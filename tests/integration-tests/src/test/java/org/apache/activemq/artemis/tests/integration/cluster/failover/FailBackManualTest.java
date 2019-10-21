@@ -50,7 +50,7 @@ public class FailBackManualTest extends FailoverTestBase {
 
    @Test
    public void testNoAutoFailback() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(15);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
