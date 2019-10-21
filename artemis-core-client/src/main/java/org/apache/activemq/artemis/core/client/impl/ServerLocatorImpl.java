@@ -187,8 +187,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private int initialConnectAttempts;
 
-   private boolean failoverOnInitialConnection;
-
    private int initialMessagePacketSize;
 
    private final Object stateGuard = new Object();
@@ -386,8 +384,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       initialConnectAttempts = ActiveMQClient.INITIAL_CONNECT_ATTEMPTS;
 
-      failoverOnInitialConnection = ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION;
-
       cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
 
       initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
@@ -523,7 +519,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       maxRetryInterval = locator.maxRetryInterval;
       reconnectAttempts = locator.reconnectAttempts;
       initialConnectAttempts = locator.initialConnectAttempts;
-      failoverOnInitialConnection = locator.failoverOnInitialConnection;
       initialMessagePacketSize = locator.initialMessagePacketSize;
       startExecutor = locator.startExecutor;
       afterConnectListener = locator.afterConnectListener;
@@ -700,6 +695,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    @Override
    public ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration) throws Exception {
+      return createSessionFactory(transportConfiguration, reconnectAttempts);
+   }
+
+   @Override
+   public ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration,
+                                                    int reconnectAttempts) throws Exception {
       assertOpen();
 
       initialize();
@@ -709,7 +710,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       addToConnecting(factory);
       try {
          try {
-            factory.connect(reconnectAttempts, failoverOnInitialConnection);
+            factory.connect(reconnectAttempts);
          } catch (ActiveMQException e1) {
             //we need to make sure is closed just for garbage collection
             factory.close();
@@ -722,30 +723,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Deprecated
    @Override
    public ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration,
                                                     int reconnectAttempts,
                                                     boolean failoverOnInitialConnection) throws Exception {
-      assertOpen();
-
-      initialize();
-
-      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, callTimeout, callFailoverTimeout, clientFailureCheckPeriod, connectionTTL, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
-
-      addToConnecting(factory);
-      try {
-         try {
-            factory.connect(reconnectAttempts, failoverOnInitialConnection);
-         } catch (ActiveMQException e1) {
-            //we need to make sure is closed just for garbage collection
-            factory.close();
-            throw e1;
-         }
-         addFactory(factory);
-         return factory;
-      } finally {
-         removeFromConnecting(factory);
-      }
+      return createSessionFactory(transportConfiguration, reconnectAttempts);
    }
 
    private void removeFromConnecting(ClientSessionFactoryInternal factory) {
@@ -1183,15 +1166,15 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return initialConnectAttempts;
    }
 
+   @Deprecated
    @Override
    public boolean isFailoverOnInitialConnection() {
-      return this.failoverOnInitialConnection;
+      return false;
    }
 
+   @Deprecated
    @Override
    public ServerLocatorImpl setFailoverOnInitialConnection(final boolean failover) {
-      checkWrite();
-      this.failoverOnInitialConnection = failover;
       return this;
    }
 

@@ -144,7 +144,7 @@ public class FailoverListenerTest extends FailoverTestBase {
     */
    @Test
    public void testFailoverFailed() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true) // unnecessary?
          .setReconnectAttempts(1);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
@@ -170,7 +170,7 @@ public class FailoverListenerTest extends FailoverTestBase {
    }
 
    private void createSessionFactory(int members) throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true) // unnecessary?
          .setReconnectAttempts(15);
       sf = createSessionFactoryAndWaitForTopology(locator, members);
    }

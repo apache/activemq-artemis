@@ -111,8 +111,6 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private int reconnectAttempts = ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS;
 
-   private boolean failoverOnInitialConnection = ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION;
-
    private String groupID = null;
 
    private String protocolManagerFactoryStr;
@@ -518,14 +516,15 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return this;
    }
 
+   @Deprecated
    @Override
    public boolean isFailoverOnInitialConnection() {
-      return failoverOnInitialConnection;
+      return false;
    }
 
+   @Deprecated
    @Override
    public ConnectionFactoryConfiguration setFailoverOnInitialConnection(final boolean failover) {
-      failoverOnInitialConnection = failover;
       return this;
    }
 
@@ -629,7 +628,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       reconnectAttempts = buffer.readInt();
 
-      failoverOnInitialConnection = buffer.readBoolean();
+      buffer.readBoolean();
+      // failoverOnInitialConnection
 
       compressLargeMessage = buffer.readBoolean();
 
@@ -724,7 +724,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       buffer.writeInt(reconnectAttempts);
 
-      buffer.writeBoolean(failoverOnInitialConnection);
+      buffer.writeBoolean(false);
+      // failoverOnInitialConnection
 
       buffer.writeBoolean(compressLargeMessage);
 

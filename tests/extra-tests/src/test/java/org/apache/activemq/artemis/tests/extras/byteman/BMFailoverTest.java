@@ -166,7 +166,7 @@ public class BMFailoverTest extends FailoverTestBase {
          action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
    public void testFailoverOnCommit2() throws Exception {
       serverToStop = liveServer;
-      locator = getServerLocator().setFailoverOnInitialConnection(true);
+      locator = getServerLocator();
       SimpleString inQueue = new SimpleString("inQueue");
       SimpleString outQueue = new SimpleString("outQueue");
       createSessionFactory();
@@ -253,7 +253,7 @@ public class BMFailoverTest extends FailoverTestBase {
          action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
    public void testFailoverOnCommit() throws Exception {
       serverToStop = liveServer;
-      locator = getServerLocator().setFailoverOnInitialConnection(true);
+      locator = getServerLocator();
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -282,7 +282,7 @@ public class BMFailoverTest extends FailoverTestBase {
          action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
    public void testFailoverOnReceiveCommit() throws Exception {
       serverToStop = liveServer;
-      locator = getServerLocator().setFailoverOnInitialConnection(true);
+      locator = getServerLocator();
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
