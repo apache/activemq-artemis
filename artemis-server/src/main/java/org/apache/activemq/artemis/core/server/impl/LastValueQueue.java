@@ -182,15 +182,13 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    protected void refRemoved(MessageReference ref) {
-      if (isNonDestructive()) {
-         removeIfCurrent(ref);
-      }
+      removeIfCurrent(ref);
       super.refRemoved(ref);
    }
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
-      if (isNonDestructive() && reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
+      if (reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
          removeIfCurrent(ref);
       }
       super.acknowledge(ref, reason, consumer);
@@ -201,7 +199,7 @@ public class LastValueQueue extends QueueImpl {
                            MessageReference ref,
                            AckReason reason,
                            ServerConsumer consumer) throws Exception {
-      if (isNonDestructive() && reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
+      if (reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
          removeIfCurrent(ref);
       }
       super.acknowledge(tx, ref, reason, consumer);
