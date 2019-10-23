@@ -175,16 +175,17 @@ public class PrintData extends DBOption {
    }
 
    private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe) {
+      ActiveMQThreadFactory daemonFactory = new ActiveMQThreadFactory("cli", true, PrintData.class.getClassLoader());
+      final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, daemonFactory);
+      final ExecutorService executor = Executors.newFixedThreadPool(10, daemonFactory);
+      ExecutorFactory execfactory = new ExecutorFactory() {
+         @Override
+         public ArtemisExecutor getExecutor() {
+            return ArtemisExecutor.delegate(executor);
+         }
+      };
       try {
 
-         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
-         final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
-         ExecutorFactory execfactory = new ExecutorFactory() {
-            @Override
-            public ArtemisExecutor getExecutor() {
-               return ArtemisExecutor.delegate(executor);
-            }
-         };
          final StorageManager sm = new NullStorageManager();
          PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(sm, pageDirectory, 1000L, scheduled, execfactory, false, null);
          HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>();
@@ -194,6 +195,9 @@ public class PrintData extends DBOption {
          printPages(describeJournal, sm, manager, out, safe);
       } catch (Exception e) {
          e.printStackTrace();
+      } finally {
+         executor.shutdownNow();
+         scheduled.shutdownNow();
       }
    }
 
