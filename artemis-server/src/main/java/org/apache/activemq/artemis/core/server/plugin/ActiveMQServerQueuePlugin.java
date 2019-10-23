@@ -57,7 +57,10 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
     * @param removeConsumers
     * @param autoDeleteAddress
     * @throws ActiveMQException
+    *
+    * @deprecated use {@link #beforeDestroyQueue(Queue, SecurityAuth, boolean, boolean, boolean)}
     */
+   @Deprecated
    default void beforeDestroyQueue(SimpleString queueName, final SecurityAuth session, boolean checkConsumerCount,
                                    boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
 
@@ -75,6 +78,7 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
     */
    default void beforeDestroyQueue(Queue queue, final SecurityAuth session, boolean checkConsumerCount,
                                    boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
+      //by default call the old method for backwards compatibility
       beforeDestroyQueue(queue.getName(), session, checkConsumerCount, removeConsumers, autoDeleteAddress);
    }
 

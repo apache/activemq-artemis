@@ -2145,7 +2145,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          Queue queue = (Queue) binding.getBindable();
 
          if (hasBrokerQueuePlugins()) {
-            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
+            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queue, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
          }
 
          if (session != null) {
