@@ -583,7 +583,8 @@ that would be found in the `broker.xml` file.
       <address-full-policy>PAGE</address-full-policy>
       <message-counter-history-day-limit></message-counter-history-day-limit>
       <last-value-queue>true</last-value-queue> <!-- deprecated! see default-last-value-queue -->
-      <default-last-value-queue>true</default-last-value-queue>
+      <default-last-value-queue>false</default-last-value-queue>
+      <default-non-destructive>false</default-non-destructive>
       <default-exclusive-queue>false</default-exclusive-queue>
       <default-consumers-before-dispatch>0</default-consumers-before-dispatch>
       <default-delay-before-dispatch>-1</default-delay-before-dispatch>

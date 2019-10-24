@@ -63,11 +63,108 @@ public final class AddressSettingsInfo {
 
    private final boolean autoDeleteJmsTopics;
 
+   private final boolean autoCreateQueues;
+
+   private final boolean autoDeleteQueues;
+
+   private final boolean autoCreateAddresses;
+
+   private final boolean autoDeleteAddresses;
+
+   private final String configDeleteQueues;
+
+   private final String configDeleteAddresses;
+
+   private final long maxSizeBytesRejectThreshold;
+
+   private final String defaultLastValueKey;
+
+   private final boolean defaultNonDestructive;
+
+   private final boolean defaultExclusiveQueue;
+
+   private final boolean defaultGroupRebalance;
+
+   private final int defaultGroupBuckets;
+
+   private final String defaultGroupFirstKey;
+
+   private final int defaultMaxConsumers;
+
+   private final boolean defaultPurgeOnNoConsumers;
+
+   private final int defaultConsumersBeforeDispatch;
+
+   private final long defaultDelayBeforeDispatch;
+
+   private final String defaultQueueRoutingType;
+
+   private final String defaultAddressRoutingType;
+
+   private final int defaultConsumerWindowSize;
+
+   private final long defaultRingSize;
+
+   private final boolean autoDeleteCreatedQueues;
+
+   private final long autoDeleteQueuesDelay;
+
+   private final long autoDeleteQueuesMessageCount;
+
+   private final long autoDeleteAddressesDelay;
+
+   private final double redeliveryCollisionAvoidanceFactor;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) {
       JsonObject object = JsonUtil.readJsonObject(jsonString);
-      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getJsonNumber("maxSizeBytes").longValue(), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getJsonNumber("redeliveryDelay").longValue(), object.getJsonNumber("redeliveryMultiplier").doubleValue(), object.getJsonNumber("maxRedeliveryDelay").longValue(), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getJsonNumber("redistributionDelay").longValue(), object.getBoolean("sendToDLAOnNoRoute"), object.getJsonNumber("slowConsumerThreshold").longValue(), object.getJsonNumber("slowConsumerCheckPeriod").longValue(), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoCreateJmsTopics"), object.getBoolean("autoDeleteJmsQueues"), object.getBoolean("autoDeleteJmsTopics"));
+      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"),
+                                     object.getJsonNumber("maxSizeBytes").longValue(),
+                                     object.getInt("pageSizeBytes"),
+                                     object.getInt("pageCacheMaxSize"),
+                                     object.getInt("maxDeliveryAttempts"),
+                                     object.getJsonNumber("redeliveryDelay").longValue(),
+                                     object.getJsonNumber("redeliveryMultiplier").doubleValue(),
+                                     object.getJsonNumber("maxRedeliveryDelay").longValue(),
+                                     object.getString("DLA"),
+                                     object.getString("expiryAddress"),
+                                     object.getBoolean("lastValueQueue"),
+                                     object.getJsonNumber("redistributionDelay").longValue(),
+                                     object.getBoolean("sendToDLAOnNoRoute"),
+                                     object.getJsonNumber("slowConsumerThreshold").longValue(),
+                                     object.getJsonNumber("slowConsumerCheckPeriod").longValue(),
+                                     object.getString("slowConsumerPolicy"),
+                                     object.getBoolean("autoCreateJmsQueues"),
+                                     object.getBoolean("autoCreateJmsTopics"),
+                                     object.getBoolean("autoDeleteJmsQueues"),
+                                     object.getBoolean("autoDeleteJmsTopics"),
+                                     object.getBoolean("autoCreateQueues"),
+                                     object.getBoolean("autoDeleteQueues"),
+                                     object.getBoolean("autoCreateAddresses"),
+                                     object.getBoolean("autoDeleteAddresses"),
+                                     object.getString("configDeleteQueues"),
+                                     object.getString("configDeleteAddresses"),
+                                     object.getJsonNumber("maxSizeBytesRejectThreshold").longValue(),
+                                     object.getString("defaultLastValueKey"),
+                                     object.getBoolean("defaultNonDestructive"),
+                                     object.getBoolean("defaultExclusiveQueue"),
+                                     object.getBoolean("defaultGroupRebalance"),
+                                     object.getInt("defaultGroupBuckets"),
+                                     object.getString("defaultGroupFirstKey"),
+                                     object.getInt("defaultMaxConsumers"),
+                                     object.getBoolean("defaultPurgeOnNoConsumers"),
+                                     object.getInt("defaultConsumersBeforeDispatch"),
+                                     object.getJsonNumber("defaultDelayBeforeDispatch").longValue(),
+                                     object.getString("defaultQueueRoutingType"),
+                                     object.getString("defaultAddressRoutingType"),
+                                     object.getInt("defaultConsumerWindowSize"),
+                                     object.getJsonNumber("defaultRingSize").longValue(),
+                                     object.getBoolean("autoDeleteCreatedQueues"),
+                                     object.getJsonNumber("autoDeleteQueuesDelay").longValue(),
+                                     object.getJsonNumber("autoDeleteQueuesMessageCount").longValue(),
+                                     object.getJsonNumber("autoDeleteAddressesDelay").longValue(),
+                                     object.getJsonNumber("redeliveryCollisionAvoidanceFactor").doubleValue());
    }
 
    // Constructors --------------------------------------------------
@@ -91,7 +188,33 @@ public final class AddressSettingsInfo {
                               boolean autoCreateJmsQueues,
                               boolean autoCreateJmsTopics,
                               boolean autoDeleteJmsQueues,
-                              boolean autoDeleteJmsTopics) {
+                              boolean autoDeleteJmsTopics,
+                              boolean autoCreateQueues,
+                              boolean autoDeleteQueues,
+                              boolean autoCreateAddresses,
+                              boolean autoDeleteAddresses,
+                              String configDeleteQueues,
+                              String configDeleteAddresses,
+                              long maxSizeBytesRejectThreshold,
+                              String defaultLastValueKey,
+                              boolean defaultNonDestructive,
+                              boolean defaultExclusiveQueue,
+                              boolean defaultGroupRebalance,
+                              int defaultGroupBuckets,
+                              String defaultGroupFirstKey,
+                              int defaultMaxConsumers,
+                              boolean defaultPurgeOnNoConsumers,
+                              int defaultConsumersBeforeDispatch,
+                              long defaultDelayBeforeDispatch,
+                              String defaultQueueRoutingType,
+                              String defaultAddressRoutingType,
+                              int defaultConsumerWindowSize,
+                              long defaultRingSize,
+                              boolean autoDeleteCreatedQueues,
+                              long autoDeleteQueuesDelay,
+                              long autoDeleteQueuesMessageCount,
+                              long autoDeleteAddressesDelay,
+                              double redeliveryCollisionAvoidanceFactor) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -112,6 +235,32 @@ public final class AddressSettingsInfo {
       this.autoDeleteJmsQueues = autoDeleteJmsQueues;
       this.autoCreateJmsTopics = autoCreateJmsTopics;
       this.autoDeleteJmsTopics = autoDeleteJmsTopics;
+      this.autoCreateQueues = autoCreateQueues;
+      this.autoDeleteQueues = autoDeleteQueues;
+      this.autoCreateAddresses = autoCreateAddresses;
+      this.autoDeleteAddresses = autoDeleteAddresses;
+      this.configDeleteQueues = configDeleteQueues;
+      this.configDeleteAddresses = configDeleteAddresses;
+      this.maxSizeBytesRejectThreshold = maxSizeBytesRejectThreshold;
+      this.defaultLastValueKey = defaultLastValueKey;
+      this.defaultNonDestructive = defaultNonDestructive;
+      this.defaultExclusiveQueue = defaultExclusiveQueue;
+      this.defaultGroupRebalance = defaultGroupRebalance;
+      this.defaultGroupBuckets = defaultGroupBuckets;
+      this.defaultGroupFirstKey = defaultGroupFirstKey;
+      this.defaultMaxConsumers = defaultMaxConsumers;
+      this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
+      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
+      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
+      this.defaultQueueRoutingType = defaultQueueRoutingType;
+      this.defaultAddressRoutingType = defaultAddressRoutingType;
+      this.defaultConsumerWindowSize = defaultConsumerWindowSize;
+      this.defaultRingSize = defaultRingSize;
+      this.autoDeleteCreatedQueues = autoDeleteCreatedQueues;
+      this.autoDeleteQueuesDelay = autoDeleteQueuesDelay;
+      this.autoDeleteQueuesMessageCount = autoDeleteQueuesMessageCount;
+      this.autoDeleteAddressesDelay = autoDeleteAddressesDelay;
+      this.redeliveryCollisionAvoidanceFactor = redeliveryCollisionAvoidanceFactor;
    }
 
    // Public --------------------------------------------------------
@@ -184,20 +333,128 @@ public final class AddressSettingsInfo {
       return slowConsumerPolicy;
    }
 
+   @Deprecated
    public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 
+   @Deprecated
    public boolean isAutoDeleteJmsQueues() {
       return autoDeleteJmsQueues;
    }
 
+   @Deprecated
    public boolean isAutoCreateJmsTopics() {
       return autoCreateJmsTopics;
    }
 
+   @Deprecated
    public boolean isAutoDeleteJmsTopics() {
       return autoDeleteJmsTopics;
+   }
+
+   public boolean isAutoCreateQueues() {
+      return autoCreateQueues;
+   }
+
+   public boolean isAutoDeleteQueues() {
+      return autoDeleteQueues;
+   }
+
+   public boolean isAutoCreateAddresses() {
+      return autoCreateAddresses;
+   }
+
+   public boolean isAutoDeleteAddresses() {
+      return autoDeleteAddresses;
+   }
+
+   public String getConfigDeleteQueues() {
+      return configDeleteQueues;
+   }
+
+   public String getConfigDeleteAddresses() {
+      return configDeleteAddresses;
+   }
+
+   public long getMaxSizeBytesRejectThreshold() {
+      return maxSizeBytesRejectThreshold;
+   }
+
+   public String getDefaultLastValueKey() {
+      return defaultLastValueKey;
+   }
+
+   public boolean isDefaultNonDestructive() {
+      return defaultNonDestructive;
+   }
+
+   public boolean isDefaultExclusiveQueue() {
+      return defaultExclusiveQueue;
+   }
+
+   public boolean isDefaultGroupRebalance() {
+      return defaultGroupRebalance;
+   }
+
+   public int getDefaultGroupBuckets() {
+      return defaultGroupBuckets;
+   }
+
+   public String getDefaultGroupFirstKey() {
+      return defaultGroupFirstKey;
+   }
+
+   public int getDefaultMaxConsumers() {
+      return defaultMaxConsumers;
+   }
+
+   public boolean isDefaultPurgeOnNoConsumers() {
+      return defaultPurgeOnNoConsumers;
+   }
+
+   public int getDefaultConsumersBeforeDispatch() {
+      return defaultConsumersBeforeDispatch;
+   }
+
+   public long getDefaultDelayBeforeDispatch() {
+      return defaultDelayBeforeDispatch;
+   }
+
+   public String getDefaultQueueRoutingType() {
+      return defaultQueueRoutingType;
+   }
+
+   public String getDefaultAddressRoutingType() {
+      return defaultAddressRoutingType;
+   }
+
+   public int getDefaultConsumerWindowSize() {
+      return defaultConsumerWindowSize;
+   }
+
+   public long getDefaultRingSize() {
+      return defaultRingSize;
+   }
+
+   public boolean isAutoDeleteCreatedQueues() {
+      return autoDeleteCreatedQueues;
+   }
+
+   public long getAutoDeleteQueuesDelay() {
+      return autoDeleteQueuesDelay;
+   }
+
+   public long getAutoDeleteQueuesMessageCount() {
+      return autoDeleteQueuesMessageCount;
+   }
+
+   public long getAutoDeleteAddressesDelay() {
+      return autoDeleteAddressesDelay;
+   }
+
+   public double getRedeliveryCollisionAvoidanceFactor() {
+      return redeliveryCollisionAvoidanceFactor;
    }
 }
 

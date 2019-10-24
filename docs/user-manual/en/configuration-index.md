@@ -218,7 +218,9 @@ Name | Description | Default
 [message-counter-history-day-limit](address-model.md) | Days to keep message counter data | 0
 [last-value-queue](last-value-queues.md) | **deprecated** Queue is a last value queue; see `default-last-value-queue` instead | `false`
 [default-last-value-queue](last-value-queues.md)| `last-value` value if none is set on the queue | `false`
+[default-last-value-key](last-value-queues.md)| `last-value-key` value if none is set on the queue | `null`
 [default-exclusive-queue](exclusive-queues.md) | `exclusive` value if none is set on the queue | `false`
+[default-non-destructive](exclusive-queues.md) | `non-destructive` value if none is set on the queue | `false`
 [default-consumers-before-dispatch](exclusive-queues.md) | `consumers-before-dispatch` value if none is set on the queue | 0
 [default-delay-before-dispatch](exclusive-queues.md) | `delay-before-dispatch` value if none is set on the queue | -1
 [redistribution-delay](clusters.md) | Timeout before redistributing values after no consumers | -1
@@ -234,6 +236,7 @@ Name | Description | Default
 [auto-delete-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created queues automatically | `true`
 [auto-delete-created-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete created queues automatically | `false`
 [auto-delete-queues-delay](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delay for deleting auto-created queues | 0
+[auto-delete-queues-message-count](address-model.md#configuring-addresses-and-queues-via-address-settings) | Message count the queue must be at or below before it can be auto deleted | 0
 [config-delete-queues](config-reload.md)| How to deal with queues deleted from XML at runtime| `OFF`
 [auto-create-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Create addresses automatically | `true`
 [auto-delete-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created addresses automatically | `true`

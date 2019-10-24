@@ -18,4 +18,15 @@ package org.apache.activemq.artemis.core.settings.impl;
 
 public enum DeletionPolicy {
    OFF, FORCE;
+
+   public static DeletionPolicy getType(int type) {
+      switch (type) {
+         case 0:
+            return OFF;
+         case 1:
+            return FORCE;
+         default:
+            return null;
+      }
+   }
 }
