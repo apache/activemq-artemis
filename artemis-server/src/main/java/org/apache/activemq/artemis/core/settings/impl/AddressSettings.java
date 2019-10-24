@@ -913,6 +913,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (defaultGroupBuckets == null) {
          defaultGroupBuckets = merged.defaultGroupBuckets;
       }
+      if (defaultGroupFirstKey == null) {
+         defaultGroupFirstKey = merged.defaultGroupFirstKey;
+      }
       if (defaultRingSize == null) {
          defaultRingSize = merged.defaultRingSize;
       }
@@ -1080,6 +1083,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          redeliveryCollisionAvoidanceFactor = BufferHelper.readNullableDouble(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         defaultGroupFirstKey = buffer.readNullableSimpleString();
+      }
    }
 
    @Override
@@ -1129,6 +1136,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(autoDeleteAddressesDelay) +
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalance) +
          BufferHelper.sizeOfNullableInteger(defaultGroupBuckets) +
+         SimpleString.sizeofNullableString(defaultGroupFirstKey) +
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
          BufferHelper.sizeOfNullableLong(defaultRingSize);
@@ -1234,6 +1242,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableDouble(buffer, redeliveryCollisionAvoidanceFactor);
 
+      buffer.writeNullableSimpleString(defaultGroupFirstKey);
    }
 
    /* (non-Javadoc)
@@ -1292,6 +1301,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
       result = prime * result + ((defaultGroupRebalance == null) ? 0 : defaultGroupRebalance.hashCode());
       result = prime * result + ((defaultGroupBuckets == null) ? 0 : defaultGroupBuckets.hashCode());
+      result = prime * result + ((defaultGroupFirstKey == null) ? 0 : defaultGroupFirstKey.hashCode());
       result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
       return result;
    }
@@ -1564,6 +1574,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!defaultGroupBuckets.equals(other.defaultGroupBuckets))
          return false;
 
+      if (defaultGroupFirstKey == null) {
+         if (other.defaultGroupFirstKey != null)
+            return false;
+      } else if (!defaultGroupFirstKey.equals(other.defaultGroupFirstKey))
+         return false;
+
       if (defaultRingSize == null) {
          if (other.defaultRingSize != null)
             return false;
@@ -1672,6 +1688,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultGroupRebalance +
          ", defaultGroupBuckets=" +
          defaultGroupBuckets +
+         ", defaultGroupFirstKey=" +
+         defaultGroupFirstKey +
          ", defaultRingSize=" +
          defaultRingSize +
          "]";

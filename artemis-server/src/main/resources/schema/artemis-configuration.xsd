@@ -3278,7 +3278,8 @@
             <xsd:element name="auto-delete-queues-message-count" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     the message count the queue must be at or below before it can be evaluated to be auto deleted, 0 waits until empty queue (default) and -1 disables this check.                  </xsd:documentation>
+                     the message count the queue must be at or below before it can be evaluated to be auto deleted, 0 waits until empty queue (default) and -1 disables this check.
+                  </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
 
