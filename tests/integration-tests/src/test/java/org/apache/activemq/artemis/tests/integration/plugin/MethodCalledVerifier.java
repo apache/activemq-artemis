@@ -239,9 +239,9 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
-   public void beforeDestroyQueue(SimpleString queueName, SecurityAuth session, boolean checkConsumerCount,
+   public void beforeDestroyQueue(Queue queue, SecurityAuth session, boolean checkConsumerCount,
          boolean removeConsumers, boolean autoDeleteAddress) {
-      Preconditions.checkNotNull(queueName);
+      Preconditions.checkNotNull(queue);
       methodCalled(BEFORE_DESTROY_QUEUE);
    }
 
