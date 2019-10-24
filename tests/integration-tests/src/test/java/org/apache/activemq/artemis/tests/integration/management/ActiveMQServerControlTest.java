@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
@@ -721,23 +722,144 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String addressFullMessagePolicy = "PAGE";
       long slowConsumerThreshold = 5;
       long slowConsumerCheckPeriod = 10;
-      String slowConsumerPolicy = SlowConsumerPolicy.KILL.toString();
-      boolean autoCreateJmsQueues = false;
-      boolean autoDeleteJmsQueues = false;
-      boolean autoCreateJmsTopics = false;
-      boolean autoDeleteJmsTopics = false;
+      String slowConsumerPolicy = SlowConsumerPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
+      boolean autoCreateJmsQueues = RandomUtil.randomBoolean();
+      boolean autoDeleteJmsQueues = RandomUtil.randomBoolean();
+      boolean autoCreateJmsTopics = RandomUtil.randomBoolean();
+      boolean autoDeleteJmsTopics = RandomUtil.randomBoolean();
 
-      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+      boolean autoCreateQueues = RandomUtil.randomBoolean();
+      boolean autoDeleteQueues = RandomUtil.randomBoolean();
+      boolean autoCreateAddresses = RandomUtil.randomBoolean();
+      boolean autoDeleteAddresses = RandomUtil.randomBoolean();
+      String configDeleteQueues = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
+      String configDeleteAddresses = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
+      long maxSizeBytesRejectThreshold = RandomUtil.randomPositiveLong();
+      String defaultLastValueKey = RandomUtil.randomString();
+      boolean defaultNonDestructive = RandomUtil.randomBoolean();
+      boolean defaultExclusiveQueue = RandomUtil.randomBoolean();
+      boolean defaultGroupRebalance = RandomUtil.randomBoolean();
+      int defaultGroupBuckets = RandomUtil.randomPositiveInt();
+      String defaultGroupFirstKey = RandomUtil.randomString();
+      int defaultMaxConsumers = RandomUtil.randomPositiveInt();
+      boolean defaultPurgeOnNoConsumers = RandomUtil.randomBoolean();
+      int defaultConsumersBeforeDispatch = RandomUtil.randomPositiveInt();
+      long defaultDelayBeforeDispatch = RandomUtil.randomPositiveLong();
+      String defaultQueueRoutingType = RoutingType.getType((byte) (RandomUtil.randomPositiveInt() % 2)).toString();
+      String defaultAddressRoutingType = RoutingType.getType((byte) (RandomUtil.randomPositiveInt() % 2)).toString();
+      int defaultConsumerWindowSize = RandomUtil.randomPositiveInt();
+      long defaultRingSize = RandomUtil.randomPositiveLong();
+      boolean autoDeleteCreatedQueues = RandomUtil.randomBoolean();
+      long autoDeleteQueuesDelay = RandomUtil.randomPositiveLong();
+      long autoDeleteQueuesMessageCount = RandomUtil.randomPositiveLong();
+      long autoDeleteAddressesDelay = RandomUtil.randomPositiveLong();
+      double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
+
+      serverControl.addAddressSettings(addressMatch,
+                                       DLA,
+                                       expiryAddress,
+                                       expiryDelay,
+                                       lastValueQueue,
+                                       deliveryAttempts,
+                                       maxSizeBytes,
+                                       pageSizeBytes,
+                                       pageMaxCacheSize,
+                                       redeliveryDelay,
+                                       redeliveryMultiplier,
+                                       maxRedeliveryDelay,
+                                       redistributionDelay,
+                                       sendToDLAOnNoRoute,
+                                       addressFullMessagePolicy,
+                                       slowConsumerThreshold,
+                                       slowConsumerCheckPeriod,
+                                       slowConsumerPolicy,
+                                       autoCreateJmsQueues,
+                                       autoDeleteJmsQueues,
+                                       autoCreateJmsTopics,
+                                       autoDeleteJmsTopics,
+                                       autoCreateQueues,
+                                       autoDeleteQueues,
+                                       autoCreateAddresses,
+                                       autoDeleteAddresses,
+                                       configDeleteQueues,
+                                       configDeleteAddresses,
+                                       maxSizeBytesRejectThreshold,
+                                       defaultLastValueKey,
+                                       defaultNonDestructive,
+                                       defaultExclusiveQueue,
+                                       defaultGroupRebalance,
+                                       defaultGroupBuckets,
+                                       defaultGroupFirstKey,
+                                       defaultMaxConsumers,
+                                       defaultPurgeOnNoConsumers,
+                                       defaultConsumersBeforeDispatch,
+                                       defaultDelayBeforeDispatch,
+                                       defaultQueueRoutingType,
+                                       defaultAddressRoutingType,
+                                       defaultConsumerWindowSize,
+                                       defaultRingSize,
+                                       autoDeleteCreatedQueues,
+                                       autoDeleteQueuesDelay,
+                                       autoDeleteQueuesMessageCount,
+                                       autoDeleteAddressesDelay,
+                                       redeliveryCollisionAvoidanceFactor);
 
       boolean ex = false;
       try {
-         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, 100, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+         serverControl.addAddressSettings(addressMatch,
+                                          DLA,
+                                          expiryAddress,
+                                          expiryDelay,
+                                          lastValueQueue,
+                                          deliveryAttempts,
+                                          100,
+                                          1000,
+                                          pageMaxCacheSize,
+                                          redeliveryDelay,
+                                          redeliveryMultiplier,
+                                          maxRedeliveryDelay,
+                                          redistributionDelay,
+                                          sendToDLAOnNoRoute,
+                                          addressFullMessagePolicy,
+                                          slowConsumerThreshold,
+                                          slowConsumerCheckPeriod,
+                                          slowConsumerPolicy,
+                                          autoCreateJmsQueues,
+                                          autoDeleteJmsQueues,
+                                          autoCreateJmsTopics,
+                                          autoDeleteJmsTopics,
+                                          autoCreateQueues,
+                                          autoDeleteQueues,
+                                          autoCreateAddresses,
+                                          autoDeleteAddresses,
+                                          configDeleteQueues,
+                                          configDeleteAddresses,
+                                          maxSizeBytesRejectThreshold,
+                                          defaultLastValueKey,
+                                          defaultNonDestructive,
+                                          defaultExclusiveQueue,
+                                          defaultGroupRebalance,
+                                          defaultGroupBuckets,
+                                          defaultGroupFirstKey,
+                                          defaultMaxConsumers,
+                                          defaultPurgeOnNoConsumers,
+                                          defaultConsumersBeforeDispatch,
+                                          defaultDelayBeforeDispatch,
+                                          defaultQueueRoutingType,
+                                          defaultAddressRoutingType,
+                                          defaultConsumerWindowSize,
+                                          defaultRingSize,
+                                          autoDeleteCreatedQueues,
+                                          autoDeleteQueuesDelay,
+                                          autoDeleteQueuesMessageCount,
+                                          autoDeleteAddressesDelay,
+                                          redeliveryCollisionAvoidanceFactor);
       } catch (Exception expected) {
          ex = true;
       }
 
       assertTrue("Exception expected", ex);
-      //restartServer();
+      restartServer();
       serverControl = createManagementControl();
 
       String jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
@@ -761,10 +883,83 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-      //      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
+      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
+      assertEquals(autoCreateQueues, info.isAutoCreateQueues());
+      assertEquals(autoDeleteQueues, info.isAutoDeleteQueues());
+      assertEquals(autoCreateAddresses, info.isAutoCreateAddresses());
+      assertEquals(autoDeleteAddresses, info.isAutoDeleteAddresses());
+      assertEquals(configDeleteQueues, info.getConfigDeleteQueues());
+      assertEquals(configDeleteAddresses, info.getConfigDeleteAddresses());
+      assertEquals(maxSizeBytesRejectThreshold, info.getMaxSizeBytesRejectThreshold());
+      assertEquals(defaultLastValueKey, info.getDefaultLastValueKey());
+      assertEquals(defaultNonDestructive, info.isDefaultNonDestructive());
+      assertEquals(defaultExclusiveQueue, info.isDefaultExclusiveQueue());
+      assertEquals(defaultGroupRebalance, info.isDefaultGroupRebalance());
+      assertEquals(defaultGroupBuckets, info.getDefaultGroupBuckets());
+      assertEquals(defaultGroupFirstKey, info.getDefaultGroupFirstKey());
+      assertEquals(defaultMaxConsumers, info.getDefaultMaxConsumers());
+      assertEquals(defaultPurgeOnNoConsumers, info.isDefaultPurgeOnNoConsumers());
+      assertEquals(defaultConsumersBeforeDispatch, info.getDefaultConsumersBeforeDispatch());
+      assertEquals(defaultDelayBeforeDispatch, info.getDefaultDelayBeforeDispatch());
+      assertEquals(defaultQueueRoutingType, info.getDefaultQueueRoutingType());
+      assertEquals(defaultAddressRoutingType, info.getDefaultAddressRoutingType());
+      assertEquals(defaultConsumerWindowSize, info.getDefaultConsumerWindowSize());
+      assertEquals(defaultRingSize, info.getDefaultRingSize());
+      assertEquals(autoDeleteCreatedQueues, info.isAutoDeleteCreatedQueues());
+      assertEquals(autoDeleteQueuesDelay, info.getAutoDeleteQueuesDelay());
+      assertEquals(autoDeleteQueuesMessageCount, info.getAutoDeleteQueuesMessageCount());
+      assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
+      assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
 
-      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+      serverControl.addAddressSettings(addressMatch,
+                                       DLA,
+                                       expiryAddress,
+                                       expiryDelay,
+                                       lastValueQueue,
+                                       deliveryAttempts,
+                                       -1,
+                                       1000,
+                                       pageMaxCacheSize,
+                                       redeliveryDelay,
+                                       redeliveryMultiplier,
+                                       maxRedeliveryDelay,
+                                       redistributionDelay,
+                                       sendToDLAOnNoRoute,
+                                       addressFullMessagePolicy,
+                                       slowConsumerThreshold,
+                                       slowConsumerCheckPeriod,
+                                       slowConsumerPolicy,
+                                       autoCreateJmsQueues,
+                                       autoDeleteJmsQueues,
+                                       autoCreateJmsTopics,
+                                       autoDeleteJmsTopics,
+                                       autoCreateQueues,
+                                       autoDeleteQueues,
+                                       autoCreateAddresses,
+                                       autoDeleteAddresses,
+                                       configDeleteQueues,
+                                       configDeleteAddresses,
+                                       maxSizeBytesRejectThreshold,
+                                       defaultLastValueKey,
+                                       defaultNonDestructive,
+                                       defaultExclusiveQueue,
+                                       defaultGroupRebalance,
+                                       defaultGroupBuckets,
+                                       defaultGroupFirstKey,
+                                       defaultMaxConsumers,
+                                       defaultPurgeOnNoConsumers,
+                                       defaultConsumersBeforeDispatch,
+                                       defaultDelayBeforeDispatch,
+                                       defaultQueueRoutingType,
+                                       defaultAddressRoutingType,
+                                       defaultConsumerWindowSize,
+                                       defaultRingSize,
+                                       autoDeleteCreatedQueues,
+                                       autoDeleteQueuesDelay,
+                                       autoDeleteQueuesMessageCount,
+                                       autoDeleteAddressesDelay,
+                                       redeliveryCollisionAvoidanceFactor);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -787,12 +982,85 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-      //      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
+      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
+      assertEquals(autoCreateQueues, info.isAutoCreateQueues());
+      assertEquals(autoDeleteQueues, info.isAutoDeleteQueues());
+      assertEquals(autoCreateAddresses, info.isAutoCreateAddresses());
+      assertEquals(autoDeleteAddresses, info.isAutoDeleteAddresses());
+      assertEquals(configDeleteQueues, info.getConfigDeleteQueues());
+      assertEquals(configDeleteAddresses, info.getConfigDeleteAddresses());
+      assertEquals(maxSizeBytesRejectThreshold, info.getMaxSizeBytesRejectThreshold());
+      assertEquals(defaultLastValueKey, info.getDefaultLastValueKey());
+      assertEquals(defaultNonDestructive, info.isDefaultNonDestructive());
+      assertEquals(defaultExclusiveQueue, info.isDefaultExclusiveQueue());
+      assertEquals(defaultGroupRebalance, info.isDefaultGroupRebalance());
+      assertEquals(defaultGroupBuckets, info.getDefaultGroupBuckets());
+      assertEquals(defaultGroupFirstKey, info.getDefaultGroupFirstKey());
+      assertEquals(defaultMaxConsumers, info.getDefaultMaxConsumers());
+      assertEquals(defaultPurgeOnNoConsumers, info.isDefaultPurgeOnNoConsumers());
+      assertEquals(defaultConsumersBeforeDispatch, info.getDefaultConsumersBeforeDispatch());
+      assertEquals(defaultDelayBeforeDispatch, info.getDefaultDelayBeforeDispatch());
+      assertEquals(defaultQueueRoutingType, info.getDefaultQueueRoutingType());
+      assertEquals(defaultAddressRoutingType, info.getDefaultAddressRoutingType());
+      assertEquals(defaultConsumerWindowSize, info.getDefaultConsumerWindowSize());
+      assertEquals(defaultRingSize, info.getDefaultRingSize());
+      assertEquals(autoDeleteCreatedQueues, info.isAutoDeleteCreatedQueues());
+      assertEquals(autoDeleteQueuesDelay, info.getAutoDeleteQueuesDelay());
+      assertEquals(autoDeleteQueuesMessageCount, info.getAutoDeleteQueuesMessageCount());
+      assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
+      assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
 
       ex = false;
       try {
-         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -2, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+         serverControl.addAddressSettings(addressMatch,
+                                          DLA,
+                                          expiryAddress,
+                                          expiryDelay,
+                                          lastValueQueue,
+                                          deliveryAttempts,
+                                          -2,
+                                          1000,
+                                          pageMaxCacheSize,
+                                          redeliveryDelay,
+                                          redeliveryMultiplier,
+                                          maxRedeliveryDelay,
+                                          redistributionDelay,
+                                          sendToDLAOnNoRoute,
+                                          addressFullMessagePolicy,
+                                          slowConsumerThreshold,
+                                          slowConsumerCheckPeriod,
+                                          slowConsumerPolicy,
+                                          autoCreateJmsQueues,
+                                          autoDeleteJmsQueues,
+                                          autoCreateJmsTopics,
+                                          autoDeleteJmsTopics,
+                                          autoCreateQueues,
+                                          autoDeleteQueues,
+                                          autoCreateAddresses,
+                                          autoDeleteAddresses,
+                                          configDeleteQueues,
+                                          configDeleteAddresses,
+                                          maxSizeBytesRejectThreshold,
+                                          defaultLastValueKey,
+                                          defaultNonDestructive,
+                                          defaultExclusiveQueue,
+                                          defaultGroupRebalance,
+                                          defaultGroupBuckets,
+                                          defaultGroupFirstKey,
+                                          defaultMaxConsumers,
+                                          defaultPurgeOnNoConsumers,
+                                          defaultConsumersBeforeDispatch,
+                                          defaultDelayBeforeDispatch,
+                                          defaultQueueRoutingType,
+                                          defaultAddressRoutingType,
+                                          defaultConsumerWindowSize,
+                                          defaultRingSize,
+                                          autoDeleteCreatedQueues,
+                                          autoDeleteQueuesDelay,
+                                          autoDeleteQueuesMessageCount,
+                                          autoDeleteAddressesDelay,
+                                          redeliveryCollisionAvoidanceFactor);
       } catch (Exception e) {
          ex = true;
       }
