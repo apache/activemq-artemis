@@ -177,6 +177,10 @@ public class FederatedQueueTest extends FederatedTestBase {
          producer1.send(session1.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
 
+         //Wait to see if extra consumers are created - this tests to make sure there is no loop and tests the FederatedQueue metaDataFilterString
+         //is working properly - should only be 1 consumer on each (1 for the local consumer on broker0 and 1 for the federated consumer on broker1)
+         assertFalse(Wait.waitFor(() -> getServer(0).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
+         assertFalse(Wait.waitFor(() -> getServer(1).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
 
          //Test consumer move from broker 0, to broker 1
          consumer0.close();

@@ -63,7 +63,7 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
       Objects.requireNonNull(config.getName());
       this.config = config;
       this.priorityAdjustment = federationUpstream.getPriorityAdjustment() + (config.getPriorityAdjustment() == null ? -1 : config.getPriorityAdjustment());
-      String metaDataFilterString = config.isIncludeFederated() ? null : FederatedQueueConsumer.FEDERATION_NAME +  " IS NOT NULL";
+      String metaDataFilterString = config.isIncludeFederated() ? null : "hyphenated_props:" + FederatedQueueConsumer.FEDERATION_NAME +  " IS NOT NULL";
       metaDataFilter = FilterImpl.createFilter(metaDataFilterString);
       if (config.getIncludes().isEmpty()) {
          includes = Collections.emptySet();
