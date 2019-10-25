@@ -93,13 +93,10 @@ Let's take a look at all the parameters in turn:
   string will be forwarded. The filter string follows the ActiveMQ Artemis filter
   expression syntax described in [Filter Expressions](filter-expressions.md).
 
-- `transformer-class-name`. An optional transformer-class-name can be
-  specified. This is the name of a user-defined class which implements the
-  `org.apache.activemq.artemis.core.server.transformer.Transformer` interface.
-
-  If this is specified then the transformer's `transform()` method will be
-  invoked with the message before it is forwarded. This gives you the opportunity
-  to transform the message's header or body before forwarding it.
+- `transformer-class-name`. An *optional* transformer can be specified. This
+  gives you the opportunity to transform the message's header or body before
+  forwarding it. See the [transformer chapter](transformers.md) for more details
+  about transformer-specific configuration.
 
 - `ha`. This optional parameter determines whether or not this bridge should
   support high availability. True means it will connect to any available server
