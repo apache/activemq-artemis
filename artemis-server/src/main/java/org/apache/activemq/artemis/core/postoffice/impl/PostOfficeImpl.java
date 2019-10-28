@@ -42,6 +42,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.NotificationType;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -63,6 +65,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -78,6 +81,7 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
@@ -459,11 +463,139 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                if (server.hasBrokerAddressPlugins()) {
                   server.callBrokerAddressPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
                }
+               long retroactiveMessageCount = addressSettingsRepository.getMatch(addressInfo.getName().toString()).getRetroactiveMessageCount();
+               if (retroactiveMessageCount > 0) {
+                  createRetroactiveResources(addressInfo.getName(), retroactiveMessageCount, reload);
+               }
+               if (ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName())) {
+                  registerRepositoryListenerForRetroactiveAddress(addressInfo.getName());
+               }
             } catch (Exception e) {
                e.printStackTrace();
             }
          }
          return result;
+      }
+   }
+
+   private void registerRepositoryListenerForRetroactiveAddress(SimpleString name) {
+      HierarchicalRepositoryChangeListener repositoryChangeListener = () -> {
+         String prefix = server.getInternalNamingPrefix();
+         String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
+         String address = ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, name.toString());
+         AddressSettings settings = addressSettingsRepository.getMatch(address);
+         Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.toSimpleString(address), RoutingType.ANYCAST));
+         if (internalAnycastQueue != null && internalAnycastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
+            internalAnycastQueue.setRingSize(settings.getRetroactiveMessageCount());
+         }
+         Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+         if (internalMulticastQueue != null && internalMulticastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
+            internalMulticastQueue.setRingSize(settings.getRetroactiveMessageCount());
+         }
+      };
+      addressSettingsRepository.registerListener(repositoryChangeListener);
+      server.getAddressInfo(name).setRepositoryChangeListener(repositoryChangeListener);
+   }
+
+   private void createRetroactiveResources(final SimpleString retroactiveAddressName, final long retroactiveMessageCount, final boolean reload) throws Exception {
+      String prefix = server.getInternalNamingPrefix();
+      String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
+      final SimpleString internalAddressName = ResourceNames.getRetroactiveResourceAddressName(prefix, delimiter, retroactiveAddressName);
+      final SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, retroactiveAddressName, RoutingType.ANYCAST);
+      final SimpleString internalMulticastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, retroactiveAddressName, RoutingType.MULTICAST);
+      final SimpleString internalDivertName = ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter, retroactiveAddressName);
+
+      if (!reload) {
+         AddressInfo addressInfo = new AddressInfo(internalAddressName)
+            .addRoutingType(RoutingType.MULTICAST)
+            .addRoutingType(RoutingType.ANYCAST)
+            .setInternal(false);
+         addAddressInfo(addressInfo);
+         AddressSettings addressSettings = addressSettingsRepository.getMatch(internalAddressName.toString());
+         server.createQueue(internalAddressName,
+                            RoutingType.MULTICAST,
+                            internalMulticastQueueName,
+                            null,
+                            null,
+                            true,
+                            false,
+                            false,
+                            false,
+                            false,
+                            0,
+                            false,
+                            false,
+                            false,
+                            addressSettings.getDefaultGroupBuckets(),
+                            null,
+                            addressSettings.isDefaultLastValueQueue(),
+                            addressSettings.getDefaultLastValueKey(),
+                            false,
+                            0,
+                            0L,
+                            false,
+                            0L,
+                            0L,
+                            false,
+                            retroactiveMessageCount);
+
+         server.createQueue(internalAddressName,
+                            RoutingType.ANYCAST,
+                            internalAnycastQueueName,
+                            null,
+                            null,
+                            true,
+                            false,
+                            false,
+                            false,
+                            false,
+                            0,
+                            false,
+                            false,
+                            false,
+                            addressSettings.getDefaultGroupBuckets(),
+                            null,
+                            addressSettings.isDefaultLastValueQueue(),
+                            addressSettings.getDefaultLastValueKey(),
+                            false,
+                            0,
+                            0L,
+                            false,
+                            0L,
+                            0L,
+                            false,
+                            retroactiveMessageCount);
+      }
+      server.deployDivert(new DivertConfiguration()
+                             .setName(internalDivertName.toString())
+                             .setAddress(retroactiveAddressName.toString())
+                             .setExclusive(false)
+                             .setForwardingAddress(internalAddressName.toString())
+                             .setRoutingType(ComponentConfigurationRoutingType.PASS));
+   }
+
+   private void removeRetroactiveResources(SimpleString address) throws Exception {
+      String prefix = server.getInternalNamingPrefix();
+      String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
+
+      SimpleString internalDivertName = ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter, address);
+      if (getBinding(internalDivertName) != null) {
+         server.destroyDivert(internalDivertName);
+      }
+
+      SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, address, RoutingType.ANYCAST);
+      if (server.locateQueue(internalAnycastQueueName) != null) {
+         server.destroyQueue(internalAnycastQueueName);
+      }
+
+      SimpleString internalMulticastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, address, RoutingType.MULTICAST);
+      if (server.locateQueue(internalMulticastQueueName) != null) {
+         server.destroyQueue(internalMulticastQueueName);
+      }
+
+      SimpleString internalAddressName = ResourceNames.getRetroactiveResourceAddressName(prefix, delimiter, address);
+      if (server.getAddressInfo(internalAddressName) != null) {
+         server.removeAddressInfo(internalAddressName, null);
       }
    }
 
@@ -660,6 +792,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
          managementService.unregisterAddress(address);
          final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
+         removeRetroactiveResources(address);
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.afterRemoveAddress(address, addressInfo));
          }

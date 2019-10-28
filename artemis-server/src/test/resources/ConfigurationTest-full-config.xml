@@ -431,6 +431,7 @@
             <default-queue-routing-type>MULTICAST</default-queue-routing-type>
             <default-address-routing-type>ANYCAST</default-address-routing-type>
             <default-consumer-window-size>10000</default-consumer-window-size>
+            <retroactive-message-count>10</retroactive-message-count>
          </address-setting>
       </address-settings>
       <resource-limit-settings>

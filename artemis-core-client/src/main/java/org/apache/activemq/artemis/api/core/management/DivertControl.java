@@ -85,4 +85,7 @@ public interface DivertControl {
     */
    @Attribute(desc = "routing type used by this divert")
    String getRoutingType();
+
+   @Attribute(desc = "whether this divert is for a retroactive address")
+   boolean isRetroactiveResource();
 }

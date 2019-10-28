@@ -68,7 +68,7 @@ public interface RoutingContext {
 
    void setAddress(SimpleString address);
 
-   void setRoutingType(RoutingType routingType);
+   RoutingContext setRoutingType(RoutingType routingType);
 
    SimpleString getAddress(Message message);
 

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.Divert;
@@ -38,6 +39,8 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    private final DivertConfiguration configuration;
 
+   private final String internalNamingPrefix;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -46,10 +49,12 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    public DivertControlImpl(final Divert divert,
                             final StorageManager storageManager,
-                            final DivertConfiguration configuration) throws Exception {
+                            final DivertConfiguration configuration,
+                            final String internalNamingPrefix) throws Exception {
       super(DivertControl.class, storageManager);
       this.divert = divert;
       this.configuration = configuration;
+      this.internalNamingPrefix = internalNamingPrefix;
    }
 
    @Override
@@ -175,6 +180,14 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       } finally {
          blockOnIO();
       }
+   }
+
+   @Override
+   public boolean isRetroactiveResource() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isRetroactiveResource(this.divert);
+      }
+      return ResourceNames.isRetroactiveResource(internalNamingPrefix, divert.getUniqueName());
    }
 
    @Override

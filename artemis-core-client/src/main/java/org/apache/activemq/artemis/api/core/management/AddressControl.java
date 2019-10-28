@@ -162,4 +162,7 @@ public interface AddressControl {
    @Attribute(desc = "indicates if the queues bound to this address are paused")
    boolean isPaused();
 
+   @Attribute(desc = "whether this address is used for a retroactive address")
+   boolean isRetroactiveResource();
+
 }

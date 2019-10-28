@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
@@ -229,6 +230,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          return queue.isTemporary();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isRetroactiveResource() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isRetroactiveResource(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), queue.getName());
       } finally {
          blockOnIO();
       }

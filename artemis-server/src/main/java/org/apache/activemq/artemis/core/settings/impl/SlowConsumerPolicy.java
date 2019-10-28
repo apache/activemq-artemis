@@ -18,4 +18,15 @@ package org.apache.activemq.artemis.core.settings.impl;
 
 public enum SlowConsumerPolicy {
    KILL, NOTIFY;
+
+   public static SlowConsumerPolicy getType(int type) {
+      switch (type) {
+         case 0:
+            return KILL;
+         case 1:
+            return NOTIFY;
+         default:
+            return null;
+      }
+   }
 }

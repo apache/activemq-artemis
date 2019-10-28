@@ -270,6 +270,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEFAULT_RING_SIZE = "default-ring-size";
 
+   private static final String RETROACTIVE_MESSAGE_COUNT = "retroactive-message-count";
+
 
    // Attributes ----------------------------------------------------
 
@@ -1174,6 +1176,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setDefaultConsumerWindowSize(XMLUtil.parseInt(child));
          } else if (DEFAULT_RING_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setDefaultRingSize(XMLUtil.parseLong(child));
+         } else if (RETROACTIVE_MESSAGE_COUNT.equalsIgnoreCase(name)) {
+            long retroactiveMessageCount = XMLUtil.parseLong(child);
+            Validators.GE_ZERO.validate(RETROACTIVE_MESSAGE_COUNT, retroactiveMessageCount);
+            addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
          }
       }
       return setting;
