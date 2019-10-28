@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -82,6 +83,18 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals(address.toString(), addressControl.getAddress());
 
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testIsRetroactiveResource() throws Exception {
+      SimpleString baseAddress = RandomUtil.randomSimpleString();
+      SimpleString address = ResourceNames.getRetroactiveResourceAddressName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), baseAddress);
+
+      session.createAddress(address, RoutingType.MULTICAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+
+      Assert.assertTrue(addressControl.isRetroactiveResource());
    }
 
    @Test

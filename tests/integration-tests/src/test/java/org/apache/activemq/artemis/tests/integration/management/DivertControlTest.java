@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
@@ -66,6 +68,28 @@ public class DivertControlTest extends ManagementTestBase {
       Assert.assertEquals(divertConfig.getTransformerConfiguration().getClassName(), divertControl.getTransformerClassName());
 
       Assert.assertEquals(divertConfig.getTransformerConfiguration().getProperties(), divertControl.getTransformerProperties());
+   }
+
+   @Test
+   public void testRetroactiveResourceAttribute() throws Exception {
+      String address = RandomUtil.randomString();
+      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
+      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration().setAddress(address).setName(RandomUtil.randomString()).setDurable(false);
+
+      divertConfig = new DivertConfiguration()
+         .setName(ResourceNames.getRetroactiveResourceDivertName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), SimpleString.toSimpleString(address)).toString())
+         .setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress())
+         .setForwardingAddress(forwardQueueConfig.getAddress())
+         .setExclusive(RandomUtil.randomBoolean())
+         .setTransformerConfiguration(new TransformerConfiguration(AddHeadersTransformer.class.getName()));
+
+      server.deployDivert(divertConfig);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(divertConfig.getName(), divertConfig.getAddress()));
+
+      DivertControl divertControl = createDivertManagementControl(divertConfig.getName(), divertConfig.getAddress());
+
+      Assert.assertTrue(divertControl.isRetroactiveResource());
    }
 
    // Package protected ---------------------------------------------

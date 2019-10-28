@@ -3175,9 +3175,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       recoverStoredConfigs();
 
-      Map<Long, AddressBindingInfo> addressBindingInfosMap = new HashMap<>();
-
-      journalLoader.initAddresses(addressBindingInfosMap, addressBindingInfos);
+      journalLoader.initAddresses(addressBindingInfos);
 
       Map<Long, QueueBindingInfo> queueBindingInfosMap = new HashMap<>();
 
@@ -3283,6 +3281,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       AddressInfo addressInfo = getAddressInfo(address);
       if (postOffice.removeAddressInfo(address, force) == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
+      }
+
+      if (addressInfo.getRepositoryChangeListener() != null) {
+         addressSettingsRepository.unRegisterListener(addressInfo.getRepositoryChangeListener());
+         addressInfo.setRepositoryChangeListener(null);
       }
 
       long txID = storageManager.generateID();
@@ -3446,6 +3449,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          managementService.registerQueue(queue, queue.getAddress(), storageManager);
       }
 
+      copyRetroactiveMessages(queue);
+
       if (hasBrokerQueuePlugins()) {
          callBrokerQueuePlugins(plugin -> plugin.afterCreateQueue(queue));
       }
@@ -3453,6 +3458,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       callPostQueueCreationCallbacks(queue.getName());
 
       return queue;
+   }
+
+   private void copyRetroactiveMessages(Queue queue) throws Exception {
+      if (addressSettingsRepository.getMatch(queue.getAddress().toString()).getRetroactiveMessageCount() > 0) {
+         Queue retroQueue = locateQueue(ResourceNames.getRetroactiveResourceQueueName(getInternalNamingPrefix(), getConfiguration().getWildcardConfiguration().getDelimiterString(), queue.getAddress(), queue.getRoutingType()));
+         if (retroQueue != null && retroQueue instanceof QueueImpl) {
+            ((QueueImpl) retroQueue).rerouteMessages(queue.getName(), queue.getFilter());
+         }
+      }
    }
 
    @Override

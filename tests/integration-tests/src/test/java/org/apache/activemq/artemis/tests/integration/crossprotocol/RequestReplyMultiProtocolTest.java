@@ -28,14 +28,12 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -44,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
 
 @RunWith(Parameterized.class)
@@ -92,7 +91,7 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
       this.server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false, -1, false, true);
       this.server.createQueue(replyQueue, RoutingType.ANYCAST, replyQueue, null, true, false, -1, false, true);
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
-      ((PostOfficeImpl)this.server.getPostOffice()).getAddressManager().addAddressInfo(info);
+      this.server.addAddressInfo(info);
    }
 
 

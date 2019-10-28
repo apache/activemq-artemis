@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.UUID;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -30,10 +24,12 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.Topic;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -47,6 +43,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
 
 @RunWith(Parameterized.class)
 public class RequestReplyNonJMSTest extends OpenWireTestBase {
@@ -84,7 +82,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       this.server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false, -1, false, true);
       this.server.createQueue(replyQueue, RoutingType.ANYCAST, replyQueue, null, true, false, -1, false, true);
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
-      ((PostOfficeImpl)this.server.getPostOffice()).getAddressManager().addAddressInfo(info);
+      this.server.addAddressInfo(info);
    }
 
    @Test

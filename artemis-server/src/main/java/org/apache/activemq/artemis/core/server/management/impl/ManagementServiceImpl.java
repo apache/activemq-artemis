@@ -282,7 +282,7 @@ public class ManagementServiceImpl implements ManagementService {
    @Override
    public synchronized void registerDivert(final Divert divert, final DivertConfiguration config) throws Exception {
       ObjectName objectName = objectNameBuilder.getDivertObjectName(divert.getUniqueName().toString(), config.getAddress());
-      DivertControl divertControl = new DivertControlImpl(divert, storageManager, config);
+      DivertControl divertControl = new DivertControlImpl(divert, storageManager, config, messagingServer.getInternalNamingPrefix());
       registerInJMX(objectName, divertControl);
       registerInRegistry(ResourceNames.DIVERT + config.getName(), divertControl);
 

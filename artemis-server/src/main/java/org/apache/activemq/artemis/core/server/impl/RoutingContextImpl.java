@@ -196,11 +196,12 @@ public final class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public void setRoutingType(RoutingType routingType) {
+   public RoutingContext setRoutingType(RoutingType routingType) {
       if (this.routingType == null || this.routingType != routingType) {
          this.clear();
       }
       this.routingType = routingType;
+      return this;
    }
 
    @Override
