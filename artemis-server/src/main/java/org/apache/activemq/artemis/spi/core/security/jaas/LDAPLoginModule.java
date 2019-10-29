@@ -23,6 +23,7 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.PartialResultException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -84,6 +85,7 @@ public class LDAPLoginModule implements LoginModule {
    private static final String SASL_LOGIN_CONFIG_SCOPE = "saslLoginConfigScope";
    private static final String AUTHENTICATE_USER = "authenticateUser";
    private static final String REFERRAL = "referral";
+   private static final String IGNORE_PARTIAL_RESULT_EXCEPTION = "ignorePartialResultException";
    private static final String PASSWORD_CODEC = "passwordCodec";
    private static final String CONNECTION_POOL = "connectionPool";
    private static final String CONNECTION_TIMEOUT = "connectionTimeout";
@@ -131,6 +133,7 @@ public class LDAPLoginModule implements LoginModule {
                                        new LDAPLoginProperty(SASL_LOGIN_CONFIG_SCOPE, (String) options.get(SASL_LOGIN_CONFIG_SCOPE)),
                                        new LDAPLoginProperty(AUTHENTICATE_USER, (String) options.get(AUTHENTICATE_USER)),
                                        new LDAPLoginProperty(REFERRAL, (String) options.get(REFERRAL)),
+                                       new LDAPLoginProperty(IGNORE_PARTIAL_RESULT_EXCEPTION, (String) options.get(IGNORE_PARTIAL_RESULT_EXCEPTION)),
                                        new LDAPLoginProperty(CONNECTION_POOL, (String) options.get(CONNECTION_POOL)),
                                        new LDAPLoginProperty(CONNECTION_TIMEOUT, (String) options.get(CONNECTION_TIMEOUT))};
 
@@ -296,6 +299,7 @@ public class LDAPLoginModule implements LoginModule {
 
       MessageFormat userSearchMatchingFormat;
       boolean userSearchSubtreeBool;
+      boolean ignorePartialResultExceptionBool;
 
       if (logger.isDebugEnabled()) {
          logger.debug("Create the LDAP initial context.");
@@ -314,6 +318,7 @@ public class LDAPLoginModule implements LoginModule {
 
       userSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(USER_SEARCH_MATCHING));
       userSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(USER_SEARCH_SUBTREE)).booleanValue();
+      ignorePartialResultExceptionBool = Boolean.valueOf(getLDAPPropertyValue(IGNORE_PARTIAL_RESULT_EXCEPTION)).booleanValue();
 
       try {
 
@@ -357,8 +362,17 @@ public class LDAPLoginModule implements LoginModule {
 
          SearchResult result = results.next();
 
-         if (results.hasMore()) {
-            // ignore for now
+         try {
+            if (results.hasMore()) {
+               // ignore for now
+            }
+         } catch (PartialResultException e) {
+            // Workaround for AD servers not handling referrals correctly.
+            if (ignorePartialResultExceptionBool) {
+               logger.debug("PartialResultException encountered and ignored", e);
+            } else {
+               throw e;
+            }
          }
 
          if (result.isRelative()) {
@@ -447,9 +461,11 @@ public class LDAPLoginModule implements LoginModule {
       MessageFormat roleSearchMatchingFormat;
       boolean roleSearchSubtreeBool;
       boolean expandRolesBool;
+      boolean ignorePartialResultExceptionBool;
       roleSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(ROLE_SEARCH_MATCHING));
       roleSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(ROLE_SEARCH_SUBTREE)).booleanValue();
       expandRolesBool = Boolean.valueOf(getLDAPPropertyValue(EXPAND_ROLES)).booleanValue();
+      ignorePartialResultExceptionBool = Boolean.valueOf(getLDAPPropertyValue(IGNORE_PARTIAL_RESULT_EXCEPTION)).booleanValue();
 
       final String filter = roleSearchMatchingFormat.format(new String[]{doRFC2254Encoding(dn), doRFC2254Encoding(username)});
 
@@ -477,13 +493,22 @@ public class LDAPLoginModule implements LoginModule {
          throw ex;
       }
 
-      while (results.hasMore()) {
-         SearchResult result = results.next();
-         if (expandRolesBool) {
-            haveSeenNames.add(result.getNameInNamespace());
-            pendingNameExpansion.add(result.getNameInNamespace());
+      try {
+         while (results.hasMore()) {
+            SearchResult result = results.next();
+            if (expandRolesBool) {
+               haveSeenNames.add(result.getNameInNamespace());
+               pendingNameExpansion.add(result.getNameInNamespace());
+            }
+            addRoleAttribute(result, currentRoles);
          }
-         addRoleAttribute(result, currentRoles);
+      } catch (PartialResultException e) {
+         // Workaround for AD servers not handling referrals correctly.
+         if (ignorePartialResultExceptionBool) {
+            logger.debug("PartialResultException encountered and ignored", e);
+         } else {
+            throw e;
+         }
       }
       if (expandRolesBool) {
          MessageFormat expandRolesMatchingFormat = new MessageFormat(getLDAPPropertyValue(EXPAND_ROLES_MATCHING));
@@ -504,13 +529,22 @@ public class LDAPLoginModule implements LoginModule {
                ex.initCause(cause);
                throw ex;
             }
-            while (results.hasMore()) {
-               SearchResult result = results.next();
-               name = result.getNameInNamespace();
-               if (!haveSeenNames.contains(name)) {
-                  addRoleAttribute(result, currentRoles);
-                  haveSeenNames.add(name);
-                  pendingNameExpansion.add(name);
+            try {
+               while (results.hasMore()) {
+                  SearchResult result = results.next();
+                  name = result.getNameInNamespace();
+                  if (!haveSeenNames.contains(name)) {
+                     addRoleAttribute(result, currentRoles);
+                     haveSeenNames.add(name);
+                     pendingNameExpansion.add(name);
+                  }
+               }
+            } catch (PartialResultException e) {
+               // Workaround for AD servers not handling referrals correctly.
+               if (ignorePartialResultExceptionBool) {
+                  logger.debug("PartialResultException encountered and ignored", e);
+               } else {
+                  throw e;
                }
             }
          }

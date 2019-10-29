@@ -708,6 +708,12 @@ system. It is implemented by
 
 - `referral` - specify how to handle referrals; valid values: `ignore`,
   `follow`, `throw`; default is `ignore`.
+  
+- `ignorePartialResultException` - boolean flag for use when searching Active
+  Directory (AD). AD servers don't handle referrals automatically, which causes 
+  a `PartialResultException` to be thrown when referrals are encountered by a 
+  search, even if `referral` is set to `ignore`. Set to `true` to ignore these 
+  exceptions; default is `false`.
 
 - `expandRoles` - boolean indicating whether to enable the role expansion
   functionality or not; default false. If enabled, then roles within roles will
