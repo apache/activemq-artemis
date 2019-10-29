@@ -74,7 +74,7 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
-      <activemq-artemis-native-version>1.0.0</activemq-artemis-native-version>
+      <activemq-artemis-native-version>1.0.1</activemq-artemis-native-version>
       <karaf.version>4.0.6</karaf.version>
       <pax.exam.version>4.9.1</pax.exam.version>
       <commons.config.version>2.4</commons.config.version>
