@@ -3014,9 +3014,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
               .collect(Collectors.toSet());
 
       for (SimpleString addressName : listAddressNames()) {
+         AddressInfo addressInfo = getAddressInfo(addressName);
          AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
 
-         if (!addressesInConfig.contains(addressName.toString()) && addressSettings.getConfigDeleteAddresses() == DeletionPolicy.FORCE) {
+         if (!addressesInConfig.contains(addressName.toString()) && addressInfo != null && !addressInfo.isAutoCreated() &&
+            addressSettings.getConfigDeleteAddresses() == DeletionPolicy.FORCE) {
             for (Queue queue : listQueues(addressName)) {
                ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
                try {
