@@ -84,6 +84,8 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertNotNull("Address wasn't autocreated accordingly", consumer.receive(5000));
       }
 
+      Assert.assertNotNull(getQueue(embeddedActiveMQ, "autoQueue"));
+
       // this simulates a remote queue or other type being added that wouldnt get deleted, its not valid to have this happen but it can happen when addresses and queues are auto created in a clustered env
       embeddedActiveMQ.getActiveMQServer().getPostOffice().addBinding(new RemoteQueueBindingImpl(5L,
               new SimpleString("autoQueue"),
@@ -116,6 +118,8 @@ public class RedeployTest extends ActiveMQTestBase {
          latch.await(10, TimeUnit.SECONDS);
 
          Assert.assertTrue(tryConsume());
+
+         Assert.assertNotNull(getQueue(embeddedActiveMQ, "autoQueue"));
 
          factory = new ActiveMQConnectionFactory();
          try (Connection connection = factory.createConnection()) {
