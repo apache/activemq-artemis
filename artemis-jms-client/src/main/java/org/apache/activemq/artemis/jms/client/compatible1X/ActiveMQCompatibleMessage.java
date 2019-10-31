@@ -164,18 +164,15 @@ public class ActiveMQCompatibleMessage extends ActiveMQMessage {
       ActiveMQMessage msg;
 
       switch (type) {
-         case ActiveMQMessage.TYPE: // 0
-         {
+         case ActiveMQMessage.TYPE: { // 0
             msg = new ActiveMQCompatibleMessage(message, session);
             break;
          }
-         case ActiveMQBytesMessage.TYPE: // 4
-         {
+         case ActiveMQBytesMessage.TYPE: { // 4
             msg = new ActiveMQBytesCompatibleMessage(message, session);
             break;
          }
-         case ActiveMQMapMessage.TYPE: // 5
-         {
+         case ActiveMQMapMessage.TYPE: { // 5
             msg = new ActiveMQMapCompatibleMessage(message, session);
             break;
          }
@@ -183,13 +180,11 @@ public class ActiveMQCompatibleMessage extends ActiveMQMessage {
             msg = new ActiveMQObjectCompatibleMessage(message, session, options);
             break;
          }
-         case ActiveMQStreamMessage.TYPE: // 6
-         {
+         case ActiveMQStreamMessage.TYPE: { // 6
             msg = new ActiveMQStreamCompatibleMessage(message, session);
             break;
          }
-         case ActiveMQTextMessage.TYPE: // 3
-         {
+         case ActiveMQTextMessage.TYPE: { // 3
             msg = new ActiveMQTextCompatibleMessage(message, session);
             break;
          }
