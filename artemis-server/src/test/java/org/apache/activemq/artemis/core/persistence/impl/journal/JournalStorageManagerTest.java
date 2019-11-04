@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -54,6 +55,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -124,8 +126,14 @@ public class JournalStorageManagerTest extends ActiveMQTestBase {
       manager.loadMessageJournal(postOffice, null, null, null, null, null, null, journalLoader);
       final ReplicationManager replicationManager = mock(ReplicationManager.class);
       final PagingManager pagingManager = mock(PagingManager.class);
+      when(replicationManager.syncJournalFile(any(JournalFile.class), any(AbstractJournalStorageManager.JournalContent.class)))
+         .thenReturn(CompletableFuture.completedFuture(null));
+      when(replicationManager.syncLargeMessageFile(any(SequentialFile.class), anyLong(), anyLong()))
+         .thenReturn(CompletableFuture.completedFuture(null));
+      when(replicationManager.syncPages(any(SequentialFile.class), anyLong(), any(SimpleString.class)))
+         .thenReturn(CompletableFuture.completedFuture(null));
       when(pagingManager.getStoreNames()).thenReturn(new SimpleString[0]);
-      manager.startReplication(replicationManager, pagingManager, UUID.randomUUID().toString(), false, 0);
+      manager.startReplication(replicationManager, pagingManager, UUID.randomUUID().toString(), false, Long.MAX_VALUE);
       final LargeServerMessage largeMessage = manager.createLargeMessage(manager.generateID() + 1, new CoreMessage());
       largeMessage.setDurable(true);
       when(replicationManager.isSynchronizing()).thenReturn(true);
