@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.replication;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -389,10 +392,13 @@ public final class ReplicationManager implements ActiveMQComponent {
       return repliToken;
    }
 
-   private OperationContext sendSyncFileMessage(final ReplicationSyncFileMessage syncFileMessage, boolean lastChunk) {
+   private void sendSyncFileMessage(final ReplicationSyncFileMessage syncFileMessage, boolean lastChunk, CompletableFuture<?> flushed) {
       if (!enabled) {
          syncFileMessage.release();
-         return null;
+         if (flushed != null) {
+            flushed.completeExceptionally(new IllegalStateException("ReplicationManager wasn't enabled!"));
+         }
+         return;
       }
 
       final OperationContext repliToken = OperationContextImpl.getContext(ioExecutorFactory);
@@ -403,12 +409,26 @@ public final class ReplicationManager implements ActiveMQComponent {
             try {
                pendingTokens.add(repliToken);
                flowControl();
+               Channel.Callback callback = null;
+               if (flushed != null || lastChunk) {
+                  callback = success -> {
+                     if (lastChunk) {
+                        syncFileMessage.release();
+                     }
+                     if (flushed != null) {
+                        if (success) {
+                           flushed.complete(null);
+                        } else {
+                           flushed.completeExceptionally(new IOException("The file hasn't been flushed to the network"));
+                        }
+                     }
+                  };
+               }
                if (syncFileMessage.getFileId() != -1 && syncFileMessage.getDataSize() > 0) {
                   replicatingChannel.send(syncFileMessage, syncFileMessage.getFileChannel(),
-                                          syncFileMessage.getOffset(), syncFileMessage.getDataSize(),
-                                          lastChunk ? (Channel.Callback) success -> syncFileMessage.release() : null);
+                                          syncFileMessage.getOffset(), syncFileMessage.getDataSize(), callback);
                } else {
-                  replicatingChannel.send(syncFileMessage);
+                  replicatingChannel.send(syncFileMessage, callback);
                }
             } catch (Exception e) {
                syncFileMessage.release();
@@ -418,8 +438,6 @@ public final class ReplicationManager implements ActiveMQComponent {
             repliToken.replicationDone();
          }
       });
-
-      return repliToken;
    }
 
    /**
@@ -527,29 +545,23 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @throws ActiveMQException
     * @throws Exception
     */
-   public void syncJournalFile(JournalFile jf, AbstractJournalStorageManager.JournalContent content) throws Exception {
-      if (!enabled) {
-         return;
-      }
+   public CompletableFuture<?> syncJournalFile(JournalFile jf, AbstractJournalStorageManager.JournalContent content) throws Exception {
       SequentialFile file = jf.getFile().cloneFile();
       try {
          ActiveMQServerLogger.LOGGER.replicaSyncFile(file, file.size());
-         sendLargeFile(content, null, jf.getFileID(), file, Long.MAX_VALUE);
+         return sendLargeFile(content, null, jf.getFileID(), file, Long.MAX_VALUE);
       } finally {
          if (file.isOpen())
             file.close();
       }
    }
 
-   public void syncLargeMessageFile(SequentialFile file, long size, long id) throws Exception {
-      if (enabled) {
-         sendLargeFile(null, null, id, file, size);
-      }
+   public CompletableFuture<?> syncLargeMessageFile(SequentialFile file, long size, long id) throws Exception {
+      return sendLargeFile(null, null, id, file, size);
    }
 
-   public void syncPages(SequentialFile file, long id, SimpleString queueName) throws Exception {
-      if (enabled)
-         sendLargeFile(null, queueName, id, file, Long.MAX_VALUE);
+   public CompletableFuture<?> syncPages(SequentialFile file, long id, SimpleString queueName) throws Exception {
+      return sendLargeFile(null, queueName, id, file, Long.MAX_VALUE);
    }
 
    private class FlushAction implements Runnable {
@@ -573,10 +585,12 @@ public final class ReplicationManager implements ActiveMQComponent {
    private void sendEmptyFile(AbstractJournalStorageManager.JournalContent content,
                               SimpleString pageStore,
                               final long id,
-                              String fileName) throws Exception {
+                              String fileName,
+                              CompletableFuture<?> onFlushed) throws Exception {
       logger.debugf("sending empty file %s", fileName);
       final FlushAction action = new FlushAction();
-      sendSyncFileMessage(new ReplicationSyncFileMessage(content, pageStore, id, null, null, 0, 0), true);
+      sendSyncFileMessage(new ReplicationSyncFileMessage(content, pageStore, id, null,
+                                                         null, 0, 0), true, onFlushed);
       flushReplicationStream(action);
    }
 
@@ -590,23 +604,25 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @param maxBytesToSend maximum number of bytes to read and send from the file
     * @throws Exception
     */
-   private void sendLargeFile(AbstractJournalStorageManager.JournalContent content,
-                              SimpleString pageStore,
-                              final long id,
-                              SequentialFile file,
-                              long maxBytesToSend) throws Exception {
+   private CompletableFuture<?> sendLargeFile(AbstractJournalStorageManager.JournalContent content,
+                                                 SimpleString pageStore,
+                                                 final long id,
+                                                 SequentialFile file,
+                                                 long maxBytesToSend) throws Exception {
       if (!enabled)
-         return;
+         return CompletableFuture.completedFuture(null);
       if (!file.isOpen()) {
          file.open();
       }
       final int size = 1024 * 1024;
       final long fileSize = file.size();
+      final File javaFile = file.getJavaFile();
       if (fileSize == 0) {
          final String fileName = file.getFileName();
          file.close();
-         sendEmptyFile(content, pageStore, id, fileName);
-         return;
+         final CompletableFuture<?> onFlushed = new CompletableFuture<>();
+         sendEmptyFile(content, pageStore, id, fileName, onFlushed);
+         return onFlushed;
       }
       int flowControlSize = 10;
 
@@ -616,8 +632,9 @@ public final class ReplicationManager implements ActiveMQComponent {
       long offset = 0;
       RandomAccessFile raf = null;
       FileChannel fileChannel = null;
+      CompletableFuture<?> onFlushed = null;
       try {
-         raf = new RandomAccessFile(file.getJavaFile(), "r");
+         raf = new RandomAccessFile(javaFile, "r");
          fileChannel = raf.getChannel();
          while (true) {
             long chunkSize = Math.min(size, fileSize - offset);
@@ -630,12 +647,18 @@ public final class ReplicationManager implements ActiveMQComponent {
                   maxBytesToSend = maxBytesToSend - chunkSize;
                }
             }
-            logger.debug("sending " + toSend + " bytes on file " + file.getFileName());
+            logger.debugf("sending %d bytes on file %s", toSend, file.getFileName());
             // sending -1 or 0 bytes will close the file at the backup
             // We cannot simply send everything of a file through the executor,
             // otherwise we would run out of memory.
             // so we don't use the executor here
-            sendSyncFileMessage(new ReplicationSyncFileMessage(content, pageStore, id, raf, fileChannel, offset, toSend), offset + toSend == fileSize);
+            final boolean lastChunk = offset + toSend == fileSize;
+            if (lastChunk && (toSend == 0 || maxBytesToSend == 0)) {
+               onFlushed = new CompletableFuture<>();
+            } else {
+               onFlushed = null;
+            }
+            sendSyncFileMessage(new ReplicationSyncFileMessage(content, pageStore, id, raf, fileChannel, offset, toSend), lastChunk, onFlushed);
             packetsSent++;
             offset += toSend;
 
@@ -646,10 +669,12 @@ public final class ReplicationManager implements ActiveMQComponent {
                break;
          }
          flushReplicationStream(action);
-
+         assert onFlushed != null;
+         return onFlushed;
       } catch (Exception e) {
          if (raf != null)
             raf.close();
+         onFlushed.completeExceptionally(e);
          throw e;
       } finally {
          if (file.isOpen())

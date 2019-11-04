@@ -1185,7 +1185,9 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception {
+   public void sendPages(ReplicationManager replicator,
+                         Collection<Integer> pageIds,
+                         long flushFileTimeoutMillis) throws Exception {
       final SequentialFileFactory factory = fileFactory;
       for (Integer id : pageIds) {
          SequentialFile sFile = factory.createSequentialFile(createFileName(id));
@@ -1193,7 +1195,7 @@ public class PagingStoreImpl implements PagingStore {
             continue;
          }
          ActiveMQServerLogger.LOGGER.replicaSyncFile(sFile, sFile.size());
-         replicator.syncPages(sFile, id, getAddress());
+         replicator.syncPages(sFile, id, getAddress()).get(flushFileTimeoutMillis, TimeUnit.MILLISECONDS);
       }
    }
 

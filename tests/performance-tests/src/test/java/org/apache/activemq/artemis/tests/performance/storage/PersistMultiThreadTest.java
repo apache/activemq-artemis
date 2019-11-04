@@ -441,7 +441,9 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception {
+      public void sendPages(ReplicationManager replicator,
+                            Collection<Integer> pageIds,
+                            long flushFileTimeoutMillis) throws Exception {
 
       }
 

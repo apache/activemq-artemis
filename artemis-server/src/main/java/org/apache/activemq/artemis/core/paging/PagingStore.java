@@ -178,9 +178,12 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     *
     * @param replicator
     * @param pageIds
+    * @param flushFileTimeoutMillis
     * @throws Exception
     */
-   void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception;
+   void sendPages(ReplicationManager replicator,
+                  Collection<Integer> pageIds,
+                  long flushFileTimeoutMillis) throws Exception;
 
    /**
     * This method will disable cleanup of pages. No page will be deleted after this call.

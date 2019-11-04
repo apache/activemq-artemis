@@ -68,6 +68,16 @@ public interface Channel {
    boolean send(Packet packet);
 
    /**
+    * Sends a packet on this channel.
+    *
+    * @param packet   the packet to send
+    * @param callback callback after send
+    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
+    * successful
+    */
+   boolean send(Packet packet, Callback callback);
+
+   /**
     * Sends a packet and file on this channel.
     *
     * @param packet the packet to send

@@ -257,9 +257,11 @@ class DelayPagingStoreImpl extends PagingStoreImpl {
    }
 
    @Override
-   public void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception {
+   public void sendPages(ReplicationManager replicator,
+                         Collection<Integer> pageIds,
+                         long flushFileTimeoutMillis) throws Exception {
       //in order to extend the synchronization time
       Thread.sleep(20 * 1000);
-      super.sendPages(replicator, pageIds);
+      super.sendPages(replicator, pageIds, flushFileTimeoutMillis);
    }
 }

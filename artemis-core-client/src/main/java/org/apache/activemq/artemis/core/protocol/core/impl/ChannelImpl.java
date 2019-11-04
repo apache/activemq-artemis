@@ -336,9 +336,16 @@ public final class ChannelImpl implements Channel {
       return buffer;
    }
 
-   // This must never called by more than one thread concurrently
    private boolean send(final Packet packet, final int reconnectID, final boolean flush, final boolean batch) {
+      return send(packet, reconnectID, flush, batch, null);
+   }
+
+   // This must never called by more than one thread concurrently
+   private boolean send(final Packet packet, final int reconnectID, final boolean flush, final boolean batch, Callback callback) {
       if (invokeInterceptors(packet, interceptors, connection) != null) {
+         if (callback != null) {
+            callback.done(false);
+         }
          return false;
       }
 
@@ -348,17 +355,29 @@ public final class ChannelImpl implements Channel {
          // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
          // buffer is full, preventing any incoming buffers being handled and blocking failover
          try {
-            connection.getTransportConnection().write(buffer, flush, batch);
+            if (callback == null) {
+               connection.getTransportConnection().write(buffer, flush, batch);
+            } else {
+               connection.getTransportConnection().write(buffer, flush, batch, (ChannelFutureListener) future -> callback.done(future == null || future.isSuccess()));
+            }
          } catch (Throwable t) {
             //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
             //The client would get still know about this as the exception bubbles up the call stack instead.
             if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
                responseAsyncCache.remove(packet.getCorrelationID());
             }
+            if (callback != null) {
+               callback.done(false);
+            }
             throw t;
          }
          return true;
       }
+   }
+
+   @Override
+   public boolean send(Packet packet, Callback callback) {
+      return send(packet, -1, false, false, callback);
    }
 
    @Override
@@ -368,6 +387,9 @@ public final class ChannelImpl implements Channel {
                        int dataSize,
                        Callback callback) {
       if (invokeInterceptors(packet, interceptors, connection) != null) {
+         if (callback != null) {
+            callback.done(false);
+         }
          return false;
       }
 
@@ -384,6 +406,9 @@ public final class ChannelImpl implements Channel {
             //The client would get still know about this as the exception bubbles up the call stack instead.
             if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
                responseAsyncCache.remove(packet.getCorrelationID());
+            }
+            if (callback != null) {
+               callback.done(false);
             }
             throw t;
          }

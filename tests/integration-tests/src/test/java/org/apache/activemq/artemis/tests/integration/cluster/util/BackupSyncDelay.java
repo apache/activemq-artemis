@@ -213,7 +213,18 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
+      public boolean send(Packet packet, Callback callback) {
+         if (callback != null) {
+            callback.done(true);
+         }
+         return true;
+      }
+
+      @Override
       public boolean send(Packet packet, FileChannel fileChannel, long offset, int dataSize, Callback callback) {
+         if (callback != null) {
+            callback.done(true);
+         }
          return true;
       }
 

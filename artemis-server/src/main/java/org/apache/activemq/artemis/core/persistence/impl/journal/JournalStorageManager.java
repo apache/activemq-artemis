@@ -595,11 +595,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    /**
     * Send an entire journal file to a replicating backup server.
     */
-   private void sendJournalFile(JournalFile[] journalFiles, JournalContent type) throws Exception {
+   private void sendJournalFile(JournalFile[] journalFiles,
+                                JournalContent type,
+                                long flushFileTimeoutMillis) throws Exception {
       for (JournalFile jf : journalFiles) {
          if (!started)
             return;
-         replicator.syncJournalFile(jf, type);
+         replicator.syncJournalFile(jf, type).get(flushFileTimeoutMillis, TimeUnit.MILLISECONDS);
       }
    }
 
@@ -688,10 +690,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             storageManagerLock.writeLock().unlock();
          }
 
-         sendJournalFile(messageFiles, JournalContent.MESSAGES);
-         sendJournalFile(bindingsFiles, JournalContent.BINDINGS);
-         sendLargeMessageFiles(pendingLargeMessages);
-         sendPagesToBackup(pageFilesToSync, pagingManager);
+         sendJournalFile(messageFiles, JournalContent.MESSAGES, initialReplicationSyncTimeout);
+         sendJournalFile(bindingsFiles, JournalContent.BINDINGS, initialReplicationSyncTimeout);
+         sendLargeMessageFiles(pendingLargeMessages, initialReplicationSyncTimeout);
+         sendPagesToBackup(pageFilesToSync, pagingManager, initialReplicationSyncTimeout);
 
          storageManagerLock.writeLock().lock();
          try {
@@ -714,7 +716,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
-   private void sendLargeMessageFiles(final Map<Long, Pair<String, Long>> pendingLargeMessages) throws Exception {
+   private void sendLargeMessageFiles(final Map<Long, Pair<String, Long>> pendingLargeMessages, long flushFileTimeoutMillis) throws Exception {
       Iterator<Map.Entry<Long, Pair<String, Long>>> iter = pendingLargeMessages.entrySet().iterator();
       while (started && iter.hasNext()) {
          Map.Entry<Long, Pair<String, Long>> entry = iter.next();
@@ -725,7 +727,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          if (!seqFile.exists())
             continue;
          if (replicator != null) {
-            replicator.syncLargeMessageFile(seqFile, size, id);
+            replicator.syncLargeMessageFile(seqFile, size, id).get(flushFileTimeoutMillis, TimeUnit.MILLISECONDS);
          } else {
             throw ActiveMQMessageBundle.BUNDLE.replicatorIsNull();
          }
@@ -792,12 +794,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     * @throws Exception
     */
    private void sendPagesToBackup(Map<SimpleString, Collection<Integer>> pageFilesToSync,
-                                  PagingManager manager) throws Exception {
+                                  PagingManager manager,
+                                  long flushFileTimeoutMillis) throws Exception {
       for (Map.Entry<SimpleString, Collection<Integer>> entry : pageFilesToSync.entrySet()) {
          if (!started)
             return;
          PagingStore store = manager.getPageStore(entry.getKey());
-         store.sendPages(replicator, entry.getValue());
+         store.sendPages(replicator, entry.getValue(), flushFileTimeoutMillis);
       }
    }
 
