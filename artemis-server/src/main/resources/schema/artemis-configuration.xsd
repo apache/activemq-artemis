@@ -888,6 +888,15 @@
             </xsd:simpleType>
          </xsd:element>
 
+         <xsd:element name="page-sync-timeout" type="xsd:int" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The timeout (in nanoseconds) used to sync pages. The exact default value
+                  depend on whether the journal is ASYNCIO or NIO.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
