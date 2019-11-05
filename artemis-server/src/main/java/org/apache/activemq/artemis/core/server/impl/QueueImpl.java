@@ -227,6 +227,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    //This lock is used to prevent deadlocks between direct and async deliveries
    private final ReentrantLock deliverLock = new ReentrantLock();
 
+   private final ReentrantLock depageLock = new ReentrantLock();
+
    private volatile boolean depagePending = false;
 
    private final StorageManager storageManager;
@@ -1967,57 +1969,62 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     * @throws Exception
     */
-   private synchronized int iterQueue(final int flushLimit,
+   private int iterQueue(final int flushLimit,
                                       final Filter filter1,
                                       QueueIterateAction messageAction,
                                       final boolean remove) throws Exception {
       int count = 0;
       int txCount = 0;
 
-      Transaction tx = new TransactionImpl(storageManager);
+      depageLock.lock();
 
-      synchronized (this) {
-         try (LinkedListIterator<MessageReference> iter = iterator()) {
+      try {
+         Transaction tx = new TransactionImpl(storageManager);
 
-            while (iter.hasNext()) {
-               MessageReference ref = iter.next();
+         synchronized (this) {
 
-               if (ref.isPaged() && queueDestroyed) {
-                  // this means the queue is being removed
-                  // hence paged references are just going away through
-                  // page cleanup
-                  continue;
-               }
+            try (LinkedListIterator<MessageReference> iter = iterator()) {
 
-               if (filter1 == null || filter1.match(ref.getMessage())) {
-                  messageAction.actMessage(tx, ref);
-                  if (remove) {
-                     iter.remove();
+               while (iter.hasNext()) {
+                  MessageReference ref = iter.next();
+
+                  if (ref.isPaged() && queueDestroyed) {
+                     // this means the queue is being removed
+                     // hence paged references are just going away through
+                     // page cleanup
+                     continue;
                   }
-                  txCount++;
-                  count++;
+
+                  if (filter1 == null || filter1.match(ref.getMessage())) {
+                     messageAction.actMessage(tx, ref);
+                     if (remove) {
+                        iter.remove();
+                     }
+                     txCount++;
+                     count++;
+                  }
                }
-            }
 
-            if (txCount > 0) {
-               tx.commit();
+               if (txCount > 0) {
+                  tx.commit();
 
-               tx = new TransactionImpl(storageManager);
+                  tx = new TransactionImpl(storageManager);
 
-               txCount = 0;
-            }
+                  txCount = 0;
+               }
 
-            List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
-            for (MessageReference messageReference : cancelled) {
-               messageAction.actMessage(tx, messageReference, false);
-               count++;
-               txCount++;
-            }
+               List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
+               for (MessageReference messageReference : cancelled) {
+                  messageAction.actMessage(tx, messageReference, false);
+                  count++;
+                  txCount++;
+               }
 
-            if (txCount > 0) {
-               tx.commit();
-               tx = new TransactionImpl(storageManager);
-               txCount = 0;
+               if (txCount > 0) {
+                  tx.commit();
+                  tx = new TransactionImpl(storageManager);
+                  txCount = 0;
+               }
             }
          }
 
@@ -2052,6 +2059,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          return count;
+      } finally {
+         depageLock.unlock();
       }
    }
 
@@ -3879,10 +3888,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       @Override
       public void run() {
+         depageLock.lock();
          try {
             depage(scheduleExpiry);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorDelivering(e);
+         } finally {
+            depageLock.unlock();
          }
       }
    }
