@@ -1194,6 +1194,18 @@ public interface Configuration {
    String getInternalNamingPrefix();
 
    /**
+    * Returns the timeout (in nanoseconds) used to sync pages.
+    * <br>
+    * Default value is {@link org.apache.activemq.artemis.ArtemisConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO}.
+    */
+   int getPageSyncTimeout();
+
+   /**
+    * Sets the timeout (in nanoseconds) used to sync pages.
+    */
+   Configuration setPageSyncTimeout(int pageSyncTimeout);
+
+   /**
     * @param plugins
     */
    void registerBrokerPlugins(List<ActiveMQServerBasePlugin> plugins);

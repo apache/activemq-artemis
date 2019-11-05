@@ -338,6 +338,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long criticalAnalyzerCheckPeriod = 0; // non set
 
+   private int pageSyncTimeout = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
+
    /**
     * Parent folder for all data folders.
     */
@@ -2345,6 +2347,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy policy) {
       this.criticalAnalyzerPolicy = policy;
+      return this;
+   }
+
+   @Override
+   public int getPageSyncTimeout() {
+      return pageSyncTimeout;
+   }
+
+   @Override
+   public ConfigurationImpl setPageSyncTimeout(final int pageSyncTimeout) {
+      this.pageSyncTimeout = pageSyncTimeout;
       return this;
    }
 

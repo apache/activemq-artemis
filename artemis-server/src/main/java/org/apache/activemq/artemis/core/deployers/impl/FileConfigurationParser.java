@@ -677,6 +677,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.valueOf(getString(e, "critical-analyzer-policy", config.getCriticalAnalyzerPolicy().name(), Validators.NOT_NULL_OR_EMPTY)));
 
+      config.setPageSyncTimeout(getInteger(e, "page-sync-timeout", config.getJournalBufferTimeout_NIO(), Validators.GE_ZERO));
+
       parseAddressSettings(e, config);
 
       parseResourceLimits(e, config);

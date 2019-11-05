@@ -369,6 +369,7 @@
       <network-check-URL-list>www.apache.org</network-check-URL-list>
       <network-check-ping-command>ping-four</network-check-ping-command>
       <network-check-ping6-command>ping-six</network-check-ping6-command>
+      <page-sync-timeout>1000</page-sync-timeout>
       <security-settings>
          <security-setting match="a1">
             <permission type="createNonDurableQueue" roles="a1.1"/>

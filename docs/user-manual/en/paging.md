@@ -171,6 +171,13 @@ Once that limit is reached any message will be blocked. (unless the protocol
 doesn't support flow control on which case there will be an exception thrown
 and the connection for those clients dropped).
 
+## Page Sync Timeout
+
+The pages are synced periodically and the sync period is configured through
+`page-sync-timeout` in nanoseconds. When using NIO journal, by default has
+the same value of `journal-buffer-timeout`. When using ASYNCIO, the default
+should be `3333333`.
+
 ## Example
 
 See the [Paging Example](examples.md#paging) which shows how to use paging with 
