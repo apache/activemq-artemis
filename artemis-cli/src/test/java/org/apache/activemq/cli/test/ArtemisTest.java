@@ -885,6 +885,27 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
+   public void testAutoTune() throws Exception {
+      File instanceFolder = temporaryFolder.newFolder("autoTuneTest");
+
+      setupAuth(instanceFolder);
+
+      // This is usually set when run from the command line via artemis.profile
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(new File(instanceFolder, "./etc/broker.xml").toURI().toString());
+      deploymentManager.addDeployable(fc);
+
+      fc.setPageSyncTimeout(-1);
+      deploymentManager.readConfiguration();
+
+      Assert.assertNotEquals(-1, fc.getPageSyncTimeout());
+   }
+
+   @Test
    public void testQstat() throws Exception {
 
       File instanceQstat = new File(temporaryFolder.getRoot(), "instanceQStat");

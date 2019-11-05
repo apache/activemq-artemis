@@ -351,6 +351,18 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       assertEquals(expected, addressSettings.getMaxSizeBytesRejectThreshold());
    }
 
+   @Test
+   public void testParsingPageSyncTimeout() throws Exception {
+      int expected = 1000;
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart + String.format("<page-sync-timeout>%d</page-sync-timeout>\n", expected) + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+      assertEquals(expected, config.getPageSyncTimeout());
+   }
+
    private static String firstPart = "<core xmlns=\"urn:activemq:core\">" + "\n" +
       "<name>ActiveMQ.main.config</name>" + "\n" +
       "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
