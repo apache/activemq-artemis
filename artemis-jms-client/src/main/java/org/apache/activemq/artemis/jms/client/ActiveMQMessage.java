@@ -140,18 +140,15 @@ public class ActiveMQMessage implements javax.jms.Message {
       ActiveMQMessage msg;
 
       switch (type) {
-         case ActiveMQMessage.TYPE: // 0
-         {
+         case ActiveMQMessage.TYPE: { // 0
             msg = new ActiveMQMessage(message, session);
             break;
          }
-         case ActiveMQBytesMessage.TYPE: // 4
-         {
+         case ActiveMQBytesMessage.TYPE: { // 4
             msg = new ActiveMQBytesMessage(message, session);
             break;
          }
-         case ActiveMQMapMessage.TYPE: // 5
-         {
+         case ActiveMQMapMessage.TYPE: { // 5
             msg = new ActiveMQMapMessage(message, session);
             break;
          }
@@ -159,13 +156,11 @@ public class ActiveMQMessage implements javax.jms.Message {
             msg = new ActiveMQObjectMessage(message, session, options);
             break;
          }
-         case ActiveMQStreamMessage.TYPE: // 6
-         {
+         case ActiveMQStreamMessage.TYPE: { // 6
             msg = new ActiveMQStreamMessage(message, session);
             break;
          }
-         case ActiveMQTextMessage.TYPE: // 3
-         {
+         case ActiveMQTextMessage.TYPE: { // 3
             msg = new ActiveMQTextMessage(message, session);
             break;
          }
