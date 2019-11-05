@@ -169,7 +169,7 @@ public class DivertTest extends ActiveMQTestBase {
 
          session.createQueue(new SimpleString(testForConvert), RoutingType.ANYCAST, SimpleString.toSimpleString(testForConvert), null, true);
 
-         session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName2, null, true);
+         session.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName2, null, true);
       }
 
       ConnectionFactory coreCF = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
