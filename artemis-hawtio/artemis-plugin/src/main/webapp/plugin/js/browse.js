@@ -63,6 +63,11 @@ var ARTEMIS = (function(ARTEMIS) {
          field: 'redelivered',
          displayName: 'Redelivered',
          width: '10%'
+      },
+      {
+         field: 'largeMessage',
+         displayName: 'Large',
+         width: '10%'
       }
     ];
    var attributes = defaultAttributes;

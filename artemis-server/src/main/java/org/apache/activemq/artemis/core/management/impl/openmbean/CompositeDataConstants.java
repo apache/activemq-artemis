@@ -29,10 +29,11 @@ public interface CompositeDataConstants {
    String TIMESTAMP = "timestamp";
    String BODY = "BodyPreview";
    String TEXT_BODY = "text";
+   String LARGE_MESSAGE = "largeMessage";
    String PROPERTIES = "PropertiesText";
 
    String ADDRESS_DESCRIPTION = "The Address";
-   String MESSAGE_ID_DESCRIPTION = " The message ID";
+   String MESSAGE_ID_DESCRIPTION = "The message ID";
    String USER_ID_DESCRIPTION = "The user ID";
    String TYPE_DESCRIPTION = "The message type";
    String DURABLE_DESCRIPTION = "Is the message durable";
@@ -41,6 +42,7 @@ public interface CompositeDataConstants {
    String REDELIVERED_DESCRIPTION = "Has the message been redelivered";
    String TIMESTAMP_DESCRIPTION = "The message timestamp";
    String BODY_DESCRIPTION = "The message body";
+   String LARGE_MESSAGE_DESCRIPTION = "Is the message treated as a large message";
    String PROPERTIES_DESCRIPTION = "The properties text";
 
    // User properties
