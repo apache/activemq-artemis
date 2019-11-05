@@ -109,6 +109,7 @@ public class Create extends InputAbstract {
 
    public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
+   public static final String ETC_PAGE_SYNC_SETTINGS = "etc/page-sync-settings.txt";
    public static final String ETC_JOLOKIA_ACCESS_XML = "jolokia-access.xml";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
@@ -1002,6 +1003,7 @@ public class Create extends InputAbstract {
    private void performAutoTune(HashMap<String, String> filters, JournalType journalType, File dataFolder) {
       if (noAutoTune) {
          filters.put("${journal-buffer.settings}", "");
+         filters.put("${page-sync.settings}", "");
       } else {
          try {
             int writes = 250;
@@ -1018,6 +1020,7 @@ public class Create extends InputAbstract {
 
                filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
 
+               filters.put("${page-sync.settings}", readTextFile(ETC_PAGE_SYNC_SETTINGS, syncFilter));
             } else {
                long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType);
                long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
@@ -1034,11 +1037,23 @@ public class Create extends InputAbstract {
                                      " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
 
                filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
+
+               if (noJournalSync) {
+                  syncFilter.put("${nanoseconds}", "0");
+               } else if (journalType != JournalType.NIO) {
+                  long nioTime = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), JournalType.NIO);
+                  long nioNanoseconds = SyncCalculation.toNanos(nioTime, writes, verbose);
+                  syncFilter.put("${nanoseconds}", Long.toString(nioNanoseconds));
+               }
+
+               filters.put("${page-sync.settings}", readTextFile(ETC_PAGE_SYNC_SETTINGS, syncFilter));
             }
+
 
 
          } catch (Exception e) {
             filters.put("${journal-buffer.settings}", "");
+            filters.put("${page-sync.settings}", "");
             e.printStackTrace();
             System.err.println("Couldn't perform sync calculation, using default values");
          }

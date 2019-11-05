@@ -89,6 +89,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(conf.getJournalLocation(), conf.getNodeManagerLockLocation());
       Assert.assertNull(conf.getJournalDeviceBlockSize());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
    }
 
    @Test
@@ -277,6 +278,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          s = RandomUtil.randomString();
          conf.setClusterPassword(s);
          Assert.assertEquals(s, conf.getClusterPassword());
+
+         i = RandomUtil.randomInt();
+         conf.setPageSyncTimeout(i);
+         Assert.assertEquals(i, conf.getPageSyncTimeout());
       }
    }
 
@@ -479,6 +484,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       s = RandomUtil.randomString();
       conf.setClusterPassword(s);
       Assert.assertEquals(s, conf.getClusterPassword());
+
+      i = RandomUtil.randomInt();
+      conf.setPageSyncTimeout(i);
+      Assert.assertEquals(i, conf.getPageSyncTimeout());
 
       conf.registerBrokerPlugin(new LoggingActiveMQServerPlugin());
       Assert.assertEquals("ensure one plugin registered", 1, conf.getBrokerPlugins().size());

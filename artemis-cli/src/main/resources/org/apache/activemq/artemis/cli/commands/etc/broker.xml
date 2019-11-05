@@ -73,7 +73,9 @@ ${jdbc}
 
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
-${global-max-section}
+      ${page-sync.settings}
+
+      ${global-max-section}
       <acceptors>
 
          <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
