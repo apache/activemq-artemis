@@ -31,12 +31,12 @@ vice-versa. By configuring the `routing-type` of the divert you have the
 flexibility to deal with any situation. Valid values are `ANYCAST`,
 `MULTICAST`, `PASS`, & `STRIP`. The default is `STRIP`.
 
-Diverts can also be configured to apply a `Transformer`. If specified,
-all diverted messages will have the opportunity of being transformed by
-the `Transformer`. When an address has multiple diverts configured, all
-of them receive the same, original message. This means that the results
-of a transformer on a message are not directly available for other
-diverts or their filters on the same address.
+Diverts can also be configured to apply a [`Transformer`](transformers.md).
+If specified, all diverted messages will have the opportunity of being
+transformed by the `Transformer`. When an address has multiple diverts
+configured, all of them receive the same, original message. This means that
+the results of a transformer on a message are not directly available for
+other diverts or their filters on the same address.
 
 See the documentation on [adding runtime dependencies](using-server.md) to 
 understand how to make your transformer available to the broker.
@@ -100,16 +100,18 @@ other messages will continue to be routed to the normal address. The
 filter string is optional, if not specified then all messages will be
 considered matched.
 
-In this example a transformer class is specified. Again this is
-optional, and if specified the transformer will be executed for each
-matching message. This allows you to change the messages body or
-properties before it is diverted. In this example the transformer simply
-adds a header that records the time the divert happened.
+In this example a transformer class is specified without any configuration
+properties. Again this is optional, and if specified the transformer will
+be executed for each matching message. This allows you to change the
+messages body or properties before it is diverted. In this example the
+transformer simply adds a header that records the time the divert happened.
+See the [transformer chapter](transformers.md) for more details about
+transformer-specific configuration.
 
 This example is actually diverting messages to a local store and forward
 queue, which is configured with a bridge which forwards the message to
-an address on another ActiveMQ Artemis server. Please see the example for more
-details.
+an address on another ActiveMQ Artemis server. Please see the example for
+more details.
 
 ## Non-exclusive Divert
 

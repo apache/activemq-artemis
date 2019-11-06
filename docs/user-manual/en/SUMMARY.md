@@ -56,6 +56,7 @@
 * [Client Reconnection and Session Reattachment](client-reconnection.md)
 * [Diverting and Splitting Message Flows](diverts.md)
 * [Core Bridges](core-bridges.md)
+* [Transformers](transformers.md)
 * [Duplicate Message Detection](duplicate-detection.md)
 * [Clusters](clusters.md)
 * [Federation](federation.md)
