@@ -108,6 +108,7 @@ public final class OpenTypeSupport {
          addItem(CompositeDataConstants.PRIORITY, CompositeDataConstants.PRIORITY_DESCRIPTION, SimpleType.BYTE);
          addItem(CompositeDataConstants.REDELIVERED, CompositeDataConstants.REDELIVERED_DESCRIPTION, SimpleType.BOOLEAN);
          addItem(CompositeDataConstants.TIMESTAMP, CompositeDataConstants.TIMESTAMP_DESCRIPTION, SimpleType.STRING);
+         addItem(CompositeDataConstants.LARGE_MESSAGE, CompositeDataConstants.LARGE_MESSAGE_DESCRIPTION, SimpleType.BOOLEAN);
 
          addItem(CompositeDataConstants.PROPERTIES, CompositeDataConstants.PROPERTIES_DESCRIPTION, SimpleType.STRING);
 
@@ -148,6 +149,7 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.TIMESTAMP, dateFormat.format(new Date(m.getTimestamp())));
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
+         rc.put(CompositeDataConstants.LARGE_MESSAGE, m.isLargeMessage());
 
          Map<String, Object> propertyMap = m.toPropertyMap();
 
