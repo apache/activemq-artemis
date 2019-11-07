@@ -70,6 +70,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
@@ -6836,6 +6837,66 @@ public class PagingTest extends ActiveMQTestBase {
       } finally {
          server.stop();
       }
+   }
+
+   @Test
+   public void testRollbackPageTransactionBeforeDelivery() throws Exception {
+      testRollbackPageTransaction(true);
+   }
+
+   @Test
+   public void testRollbackPageTransactionAfterDelivery() throws Exception {
+      testRollbackPageTransaction(false);
+   }
+
+   private void testRollbackPageTransaction(boolean rollbackBeforeDelivery) throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+      server.start();
+
+      final int numberOfMessages = 2;
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
+
+      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
+
+      Queue queue = server.locateQueue(PagingTest.ADDRESS);
+
+      queue.getPageSubscription().getPagingStore().startPaging();
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      if (rollbackBeforeDelivery) {
+         sendMessages(session, producer, numberOfMessages);
+         session.rollback();
+         assertEquals(server.getPagingManager().getTransactions().size(), 1);
+         PageTransactionInfo pageTransactionInfo = server.getPagingManager().getTransactions().values().iterator().next();
+         // Make sure rollback happens before delivering messages
+         Wait.assertTrue(() -> pageTransactionInfo.isRollback(), 1000, 100);
+         ClientConsumer consumer = session.createConsumer(PagingTest.ADDRESS);
+         session.start();
+         Assert.assertNull(consumer.receiveImmediate());
+         assertTrue(server.getPagingManager().getTransactions().isEmpty());
+      } else {
+         ClientConsumer consumer = session.createConsumer(PagingTest.ADDRESS);
+         session.start();
+         sendMessages(session, producer, numberOfMessages);
+         Assert.assertNull(consumer.receiveImmediate());
+         assertEquals(server.getPagingManager().getTransactions().size(), 1);
+         PageTransactionInfo pageTransactionInfo = server.getPagingManager().getTransactions().values().iterator().next();
+         session.rollback();
+         Wait.assertTrue(() -> pageTransactionInfo.isRollback(), 1000, 100);
+         assertTrue(server.getPagingManager().getTransactions().isEmpty());
+      }
+
+      session.close();
    }
 
    @Override
