@@ -107,7 +107,8 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.pageTxDeleteError(e, recordID);
             }
-
+         }
+         if (pagingManager != null) {
             pagingManager.removeTransaction(this.transactionID);
          }
          return false;
@@ -236,6 +237,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       if (lateDeliveries != null) {
          for (LateDelivery pos : lateDeliveries) {
             pos.getSubscription().lateDeliveryRollback(pos.getPagePosition());
+            onUpdate(1, null, pos.getSubscription().getPagingStore().getPagingManager());
          }
          lateDeliveries = null;
       }
@@ -277,6 +279,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
             logger.trace("rolled back, position ignored on " + cursor + ", position=" + cursorPos);
          }
          cursor.positionIgnored(cursorPos);
+         onUpdate(1, null, cursor.getPagingStore().getPagingManager());
          return true;
       } else {
          if (logger.isTraceEnabled()) {
