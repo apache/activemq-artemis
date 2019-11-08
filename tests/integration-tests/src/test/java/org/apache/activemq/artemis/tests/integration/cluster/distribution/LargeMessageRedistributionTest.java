@@ -25,6 +25,13 @@ public class LargeMessageRedistributionTest extends MessageRedistributionTest {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
+   /**
+    * @param messageLoadBalancingType
+    */
+   public LargeMessageRedistributionTest(MessageLoadBalancingType messageLoadBalancingType) {
+      super(messageLoadBalancingType);
+   }
+
    @Override
    public boolean isLargeMessage() {
       return true;
@@ -32,11 +39,13 @@ public class LargeMessageRedistributionTest extends MessageRedistributionTest {
 
    @Test
    public void testRedistributionLargeMessageDirCleanup() throws Exception {
+      org.junit.Assume.assumeTrue(messageLoadBalancingType == MessageLoadBalancingType.ON_DEMAND);
+
       final long delay = 1000;
       final int numMessages = 5;
 
       setRedistributionDelay(delay);
-      setupCluster(MessageLoadBalancingType.ON_DEMAND);
+      setupCluster(messageLoadBalancingType);
 
       startServers(0, 1);
 

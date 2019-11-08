@@ -193,7 +193,7 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public boolean allowRedistribute() {
-      return messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND);
+      return messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND) || messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT_WITH_REDISTRIBUTION) || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION);
    }
 
    @Override
@@ -434,7 +434,7 @@ public final class BindingsImpl implements Bindings {
          if (filter == null || filter.match(message)) {
             // bindings.length == 1 ==> only a local queue so we don't check for matching consumers (it's an
             // unnecessary overhead)
-            if (length == 1 || (binding.isConnected() && (messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT) || binding.isHighAcceptPriority(message)))) {
+            if (length == 1 || (binding.isConnected() && ((messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT) || messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT_WITH_REDISTRIBUTION)) || binding.isHighAcceptPriority(message)))) {
                theBinding = binding;
 
                pos = incrementPos(pos, length);
@@ -479,7 +479,7 @@ public final class BindingsImpl implements Bindings {
          routingNamePositions.put(routingName, pos);
       }
 
-      if (messageLoadBalancingType.equals(MessageLoadBalancingType.OFF) && theBinding instanceof RemoteQueueBinding) {
+      if ((messageLoadBalancingType.equals(MessageLoadBalancingType.OFF) || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION)) && (theBinding instanceof RemoteQueueBinding && !messageLoadBalancingType.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION))) {
          if (exclusivelyRemote(bindings)) {
             theBinding = null;
          } else {

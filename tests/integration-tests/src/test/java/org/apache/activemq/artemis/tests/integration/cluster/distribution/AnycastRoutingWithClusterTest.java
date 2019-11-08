@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -25,8 +27,26 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(value = Parameterized.class)
 public class AnycastRoutingWithClusterTest extends ClusterTestBase {
+   private final MessageLoadBalancingType messageLoadBalancingType;
+
+   @Parameterized.Parameters(name = "messageLoadBalancingType={0}")
+   public static Collection<MessageLoadBalancingType[]> getParams() {
+      return Arrays.asList(new MessageLoadBalancingType[][] {{MessageLoadBalancingType.STRICT}, {MessageLoadBalancingType.STRICT_WITH_REDISTRIBUTION}});
+   }
+
+
+   /**
+    * @param messageLoadBalancingType
+    */
+   public AnycastRoutingWithClusterTest(MessageLoadBalancingType messageLoadBalancingType) {
+      super();
+      this.messageLoadBalancingType = messageLoadBalancingType;
+   }
 
    /**
     * Test anycast address with single distributed queue in a 3 node cluster environment.  Messages should be
@@ -43,9 +63,9 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
          setupServer(i, isFileStorage(), isNetty());
       }
 
-      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 1, 0, 2);
-      setupClusterConnection("cluster2", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, messageLoadBalancingType, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", clusterAddress, messageLoadBalancingType, 1, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster2", clusterAddress, messageLoadBalancingType, 1, isNetty(), 2, 0, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -104,9 +124,9 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
          setupServer(i, isFileStorage(), isNetty());
       }
 
-      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 1, 0, 2);
-      setupClusterConnection("cluster2", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, messageLoadBalancingType, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", clusterAddress, messageLoadBalancingType, 1, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster2", clusterAddress, messageLoadBalancingType, 1, isNetty(), 2, 0, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -164,9 +184,9 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
          setupServer(i, isFileStorage(), isNetty());
       }
 
-      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 1, 0, 2);
-      setupClusterConnection("cluster2", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, messageLoadBalancingType, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", clusterAddress, messageLoadBalancingType, 1, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster2", clusterAddress, messageLoadBalancingType, 1, isNetty(), 2, 0, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -226,9 +246,9 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
          setupServer(i, isFileStorage(), isNetty());
       }
 
-      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 1, 0, 2);
-      setupClusterConnection("cluster2", clusterAddress, MessageLoadBalancingType.STRICT, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, messageLoadBalancingType, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", clusterAddress, messageLoadBalancingType, 1, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster2", clusterAddress, messageLoadBalancingType, 1, isNetty(), 2, 0, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
