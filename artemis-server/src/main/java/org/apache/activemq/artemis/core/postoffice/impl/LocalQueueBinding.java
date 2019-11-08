@@ -109,6 +109,11 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public boolean isHighAcceptPriority(final Message message) {
+      return isHighAcceptPriority(message, false);
+   }
+
+   @Override
+   public boolean isHighAcceptPriority(final Message message, boolean redistributing) {
       // It's a high accept priority if the queue has at least one matching consumer
 
       return queue.hasMatchingConsumer(message);

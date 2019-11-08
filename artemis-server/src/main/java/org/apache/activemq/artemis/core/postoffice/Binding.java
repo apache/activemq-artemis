@@ -46,6 +46,8 @@ public interface Binding extends UnproposalListener {
 
    boolean isHighAcceptPriority(Message message);
 
+   boolean isHighAcceptPriority(Message message, boolean redistributing);
+
    boolean isExclusive();
 
    Long getID();

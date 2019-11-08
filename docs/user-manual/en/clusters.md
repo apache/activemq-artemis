@@ -608,12 +608,22 @@ specified. The following shows all the available configuration options
 
 - `message-load-balancing`. This parameter determines if/how
   messages will be distributed between other nodes of the cluster.
-  It can be one of three values - `OFF`, `STRICT`, or `ON_DEMAND` 
-  (default). This parameter replaces the deprecated
-  `forward-when-no-consumers` parameter.
+  It can be one of five values - `OFF`, `REDISTRIBUTION_ONLY`,
+  `STRICT`, `STRICT_WITH_REDISTRIBUTION` or `ON_DEMAND` (default).
+  This parameter replaces the deprecated  `forward-when-no-consumers`
+  parameter.
+
+  Keep in mind that this message forwarding/balancing is what we call
+  "initial distribution." It is different than *redistribution* which
+  is [discussed below](#message-redistribution). This distinction is
+  important because redistribution is configured differently and has
+  unique semantics (e.g. it *does not* support filters (selectors)).
   
   If this is set to `OFF` then messages will never be forwarded to
-  another node in the cluster
+  another node in the cluster nor with they be redistributed.
+
+  If this is set to `REDISTRIBUTION_ONLY` then the behavior is the
+  same as with `OFF` except that messages can be redistributed.
 
   If this is set to `STRICT` then each incoming message will be round
   robin'd even though the same queues on the other nodes of the
@@ -621,21 +631,20 @@ specified. The following shows all the available configuration options
   that have non matching message filters (selectors). Note that
   Apache ActiveMQ Artemis will *not* forward messages to other nodes
   if there are no *queues* of the same name on the other nodes, even
-  if this parameter is set to `STRICT`. Using `STRICT` is like setting
-  the legacy `forward-when-no-consumers` parameter to `true`.
+  if this parameter is set to `STRICT`. Messages will never be
+  redistributed. Using `STRICT` is like setting the legacy
+  `forward-when-no-consumers` parameter to `true`.
+
+  If this is set to `STRICT_WITH_REDISTRIBUTION` then the behavior is
+  the same as with `STRICT` except that messages can be redistributed.
 
   If this is set to `ON_DEMAND` then Apache ActiveMQ Artemis will only
   forward messages to other nodes of the cluster if the address to which
   they are being forwarded has queues which have consumers, and if those
   consumers have message filters (selectors) at least one of those
-  selectors must match the message. Using `ON_DEMAND` is like setting
-  the legacy `forward-when-no-consumers` parameter to `false`.
-  
-  Keep in mind that this message forwarding/balancing is what we call
-  "initial distribution." It is different than *redistribution* which
-  is [discussed below](#message-redistribution). This distinction is 
-  important because redistribution is configured differently and has 
-  unique semantics (e.g. it *does not* support filters (selectors)).
+  selectors must match the message. Messages can be redistributed.
+  Using `ON_DEMAND` is like setting the legacy
+  `forward-when-no-consumers` parameter to `false`.
 
   Default is `ON_DEMAND`.
 
@@ -824,7 +833,8 @@ This is where message redistribution comes in. With message
 redistribution Apache ActiveMQ Artemis can be configured to automatically
 *redistribute* messages from queues which have no consumers back to
 other nodes in the cluster which do have matching consumers. To enable
-this functionality `message-load-balancing` must be `ON_DEMAND`.
+this functionality `message-load-balancing` must be either `ON_DEMAND`,
+`REDISTRIBUTION_ONLY` or `STRICT_WITH_REDISTRIBUTION`.
 
 Message redistribution can be configured to kick in immediately after
 the last consumer on a queue is closed, or to wait a configurable delay

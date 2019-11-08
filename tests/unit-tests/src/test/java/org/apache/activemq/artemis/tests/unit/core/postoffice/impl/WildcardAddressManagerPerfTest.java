@@ -174,6 +174,11 @@ public class WildcardAddressManagerPerfTest {
       }
 
       @Override
+      public boolean isHighAcceptPriority(Message message, boolean redistributing) {
+         return false;
+      }
+
+      @Override
       public boolean isExclusive() {
          return false;
       }

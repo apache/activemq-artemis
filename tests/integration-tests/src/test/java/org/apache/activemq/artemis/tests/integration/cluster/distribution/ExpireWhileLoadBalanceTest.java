@@ -17,14 +17,17 @@
 
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
@@ -33,8 +36,25 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(value = Parameterized.class)
 public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
+   private final MessageLoadBalancingType messageLoadBalancingType;
+
+   @Parameterized.Parameters(name = "messageLoadBalancingType={0}")
+   public static Collection<MessageLoadBalancingType[]> getParams() {
+      return Arrays.asList(new MessageLoadBalancingType[][] {{MessageLoadBalancingType.STRICT}, {MessageLoadBalancingType.STRICT_WITH_REDISTRIBUTION}});
+   }
+
+   /**
+    * @param messageLoadBalancingType
+    */
+   public ExpireWhileLoadBalanceTest(MessageLoadBalancingType messageLoadBalancingType) {
+      super();
+      this.messageLoadBalancingType = messageLoadBalancingType;
+   }
 
    @Before
    @Override
@@ -49,11 +69,11 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
          servers[i].getConfiguration().setMessageExpiryScanPeriod(100);
       }
 
-      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.STRICT, 1, true, 0, 1, 2);
+      setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, true, 0, 1, 2);
 
-      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.STRICT, 1, true, 1, 0, 2);
+      setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, true, 1, 0, 2);
 
-      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.STRICT, 1, true, 2, 0, 1);
+      setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, true, 2, 0, 1);
 
       startServers(0, 1, 2);
 

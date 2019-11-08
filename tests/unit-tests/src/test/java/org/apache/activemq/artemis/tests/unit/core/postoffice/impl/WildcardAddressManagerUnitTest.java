@@ -352,6 +352,11 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
+      public boolean isHighAcceptPriority(Message message, boolean redistributing) {
+         return false;
+      }
+
+      @Override
       public boolean isExclusive() {
          return false;
       }

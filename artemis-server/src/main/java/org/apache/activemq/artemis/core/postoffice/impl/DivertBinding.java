@@ -95,6 +95,11 @@ public class DivertBinding implements Binding {
 
    @Override
    public boolean isHighAcceptPriority(final Message message) {
+      return isHighAcceptPriority(message, false);
+   }
+
+   @Override
+   public boolean isHighAcceptPriority(final Message message, boolean redistributing) {
       return true;
    }
 
