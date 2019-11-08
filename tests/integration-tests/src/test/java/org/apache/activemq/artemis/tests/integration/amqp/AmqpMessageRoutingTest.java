@@ -63,8 +63,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages("anycast://" + addressA, 1);
 
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
+      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -82,8 +82,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages(addressA, 1, RoutingType.ANYCAST);
 
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
+      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -120,8 +120,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages(addressA, 1, RoutingType.MULTICAST);
 
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA))::getMessageCount);
+      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
    }
 
    /**
