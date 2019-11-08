@@ -26,15 +26,13 @@ import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -107,8 +105,9 @@ public final class OpenTypeSupport {
          addItem(CompositeDataConstants.EXPIRATION, CompositeDataConstants.EXPIRATION_DESCRIPTION, SimpleType.LONG);
          addItem(CompositeDataConstants.PRIORITY, CompositeDataConstants.PRIORITY_DESCRIPTION, SimpleType.BYTE);
          addItem(CompositeDataConstants.REDELIVERED, CompositeDataConstants.REDELIVERED_DESCRIPTION, SimpleType.BOOLEAN);
-         addItem(CompositeDataConstants.TIMESTAMP, CompositeDataConstants.TIMESTAMP_DESCRIPTION, SimpleType.STRING);
+         addItem(CompositeDataConstants.TIMESTAMP, CompositeDataConstants.TIMESTAMP_DESCRIPTION, SimpleType.LONG);
          addItem(CompositeDataConstants.LARGE_MESSAGE, CompositeDataConstants.LARGE_MESSAGE_DESCRIPTION, SimpleType.BOOLEAN);
+         addItem(CompositeDataConstants.PERSISTENT_SIZE, CompositeDataConstants.PERSISTENT_SIZE_DESCRIPTION, SimpleType.LONG);
 
          addItem(CompositeDataConstants.PROPERTIES, CompositeDataConstants.PROPERTIES_DESCRIPTION, SimpleType.STRING);
 
@@ -145,11 +144,15 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.TYPE, m.getType());
          rc.put(CompositeDataConstants.DURABLE, m.isDurable());
          rc.put(CompositeDataConstants.EXPIRATION, m.getExpiration());
-         DateFormat dateFormat = new SimpleDateFormat();
-         rc.put(CompositeDataConstants.TIMESTAMP, dateFormat.format(new Date(m.getTimestamp())));
+         rc.put(CompositeDataConstants.TIMESTAMP, m.getTimestamp());
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
          rc.put(CompositeDataConstants.LARGE_MESSAGE, m.isLargeMessage());
+         try {
+            rc.put(CompositeDataConstants.PERSISTENT_SIZE, m.getPersistentSize());
+         } catch (final ActiveMQException e1) {
+            rc.put(CompositeDataConstants.PERSISTENT_SIZE, -1);
+         }
 
          Map<String, Object> propertyMap = m.toPropertyMap();
 
