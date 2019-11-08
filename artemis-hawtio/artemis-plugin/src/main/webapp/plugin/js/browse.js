@@ -26,44 +26,58 @@ var ARTEMIS = (function(ARTEMIS) {
          displayName: 'Message ID',
          cellTemplate: '<div class="ngCellText"><a ng-click="openMessageDialog(row)">{{row.entity.messageID}}</a></div>',
          // for ng-grid
-         width: '10%'
-      }, {
-         field: 'userID',
-         displayName: 'User ID',
-         width: '10%'
+         width: '100px'
       }, {
          field: 'type',
          displayName: 'Type',
-         width: '10%'
+         cellTemplate: '<div class="ngCellText" title="{{row.entity.type}}">{{formatType(row.entity.type)}}</div>',
+         width: '90px'
       }, {
          field: 'durable',
          displayName: 'Durable',
-         width: '10%'
+         width: '70px'
       }, {
          field: 'priority',
          displayName: 'Priority',
-         width: '7%'
+         width: '70px'
       }, {
          field: 'timestamp',
          displayName: 'Timestamp',
-         width: '19%'
+         cellTemplate: '<div class="ngCellText" title="{{row.entity.timestamp}}">{{formatTimestamp(row.entity.timestamp)}}</div>',
+         width: '160px'
       }, {
          field: 'expiration',
          displayName: 'Expires',
-         width: '10%'
+         cellTemplate: '<div class="ngCellText" title="{{row.entity.expiration}}">{{formatExpires(row.entity.expiration)}}</div>',
+         width: '160px'
       }, {
          field: 'redelivered',
          displayName: 'Redelivered',
-         width: '10%'
+         width: '100px'
       }, {
          field: 'largeMessage',
          displayName: 'Large',
-         width: '10%'
+         width: '50px'
+      }, {
+         field: 'persistentSize',
+         displayName: 'Persistent Size',
+         cellTemplate: '<div class="ngCellText" title="{{row.entity.persistentSize.toLocaleString()}} bytes">{{formatPersistentSize(row.entity.persistentSize)}}</div>',
+         width: '120px'
+      }, {
+         field: 'userID',
+         displayName: 'User ID',
+         width: '15%'
+      }, {
+         displayName: 'Validated User',
+         cellTemplate: '<div class="ngCellText">{{row.entity.StringProperties._AMQ_VALIDATED_USER}}</div>',
+         width: '*'
       }];
+
       var attributes = defaultAttributes;
       if (sessionStorage.getItem('browseColumnDefs')) {
          attributes = JSON.parse(sessionStorage.getItem('browseColumnDefs'));
       }
+
       $scope.$on('ngGridEventColumns', function(newColumns) {
          ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
          var visibles = newColumns.targetScope.columns.reduce(function(visibles, column) {
@@ -76,6 +90,7 @@ var ARTEMIS = (function(ARTEMIS) {
          });
          sessionStorage.setItem('browseColumnDefs', JSON.stringify(attributes));
       });
+
       $scope.pagingOptions = {
          pageSizes: [50, 100, 200],
          pageSize: 100,
@@ -113,8 +128,10 @@ var ARTEMIS = (function(ARTEMIS) {
          afterSelectionChange: afterSelectionChange
       };
       $scope.showMessageDetails = false;
+
       var ignoreColumns = ["PropertiesText", "BodyPreview", "text"];
       var flattenColumns = ["BooleanProperties", "ByteProperties", "ShortProperties", "IntProperties", "LongProperties", "FloatProperties", "DoubleProperties", "StringProperties"];
+
       $scope.$watch('workspace.selection', function() {
          if (workspace.moveIfViewInvalid()) {
             return;
@@ -143,6 +160,61 @@ var ARTEMIS = (function(ARTEMIS) {
       };
       $scope.refresh = loadTable;
       ARTEMIS.decorate($scope);
+
+      var MS_PER_SEC  = 1000;
+      var MS_PER_MIN  = 60 * MS_PER_SEC;
+      var MS_PER_HOUR = 60 * MS_PER_MIN;
+      var MS_PER_DAY  = 24 * MS_PER_HOUR;
+
+      function pad2(value) {
+         return (value < 10 ? '0' : '') + value;
+      }
+
+      $scope.formatExpires = function(timestamp) {
+         if (isNaN(timestamp)) {
+            return timestamp;
+         }
+         var expiresIn = timestamp - Date.now();
+         if (Math.abs(expiresIn) < MS_PER_DAY) {
+            var duration = expiresIn < 0 ? -expiresIn : expiresIn;
+            var hours = pad2(Math.floor((duration / MS_PER_HOUR) % 24));
+            var mins  = pad2(Math.floor((duration / MS_PER_MIN) % 60));
+            var secs  = pad2(Math.floor((duration / MS_PER_SEC) % 60));
+            if (expiresIn < 0) {
+               // "HH:mm:ss ago"
+               return hours + ":" + mins + ":" + secs + " ago";
+            }
+            // "in HH:mm:ss ago"
+            return "in " + hours + ":" + mins + ":" + secs;
+         }
+         return $scope.formatTimestamp(timestamp);
+      }
+
+      $scope.formatTimestamp = function(timestamp) {
+         if (isNaN(timestamp)) {
+            return timestamp;
+         }
+         var d = new Date(timestamp);
+         // "yyyy-MM-dd HH:mm:ss"
+         return d.getFullYear() + "-" + pad2(d.getMonth()) + "-" + pad2(d.getDay()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+      }
+
+      var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
+      $scope.formatType = function(type) {
+         if (isNaN(type)) {
+            return type;
+         }
+         return type > -1 && type < 8 ? typeLabels[type] : type
+      }
+
+      $scope.formatPersistentSize = function(bytes) {
+         if(isNaN(bytes) || bytes < 0) return "n/a";
+         if(bytes < 10240) return bytes.toLocaleString() + " Bytes";
+         if(bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
+         if(bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MB";
+         return (bytes / 1073741824).toFixed(2) + " GB";
+      }
+
       $scope.moveMessages = function() {
          var selection = workspace.selection;
          var mbean = selection.objectName;
@@ -212,6 +284,7 @@ var ARTEMIS = (function(ARTEMIS) {
             return [];
          }
       };
+
       function populateTable(response) {
          var data = response.value;
          ARTEMIS.log.info("loading data:" + data);
@@ -237,7 +310,6 @@ var ARTEMIS = (function(ARTEMIS) {
        * just create the HTML in code :)
        */
       function createBodyText(message) {
-
          ARTEMIS.log.info("loading message:" + message);
          if (message.text) {
             var body = message.text;
@@ -320,6 +392,11 @@ var ARTEMIS = (function(ARTEMIS) {
             if (value === null) {
                value = '';
             }
+            if (key == "expiration" || key == "timestamp") {
+               value = $scope.formatTimestamp(value) + " (" + value + ")";
+            } else if (key == "type") {
+               value = $scope.formatType(value) + " (" + value + ")";
+            }
             buffer.push('<tr><td class="propertyName"><span class="green">Header</span> - ' + key + '</td><td class="property-value">' + value + '</td></tr>');
          }
 
@@ -384,7 +461,7 @@ var ARTEMIS = (function(ARTEMIS) {
             } else {
                onDlq(false);
             }
-            jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages()'}, onSuccess(function(response) {$scope.totalServerItems = response.value;}));
+            jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages()'}, onSuccess(function(response) { $scope.totalServerItems = response.value; }));
             jolokia.request({ type: 'exec', mbean: objName, operation: 'browse(int, int)', arguments: [$scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable));
          }
       }
