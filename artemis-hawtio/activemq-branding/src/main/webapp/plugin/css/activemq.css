@@ -2139,6 +2139,10 @@ li.dropdown.open > a.dropdown-toggle {
   color: #ffffff !important;
 }
 
+.ngRow:hover {
+  background-color: lightyellow;
+}
+
 .ngRow.selected {
   color: #ffffff !important;
   background-color: #B21054 !important;
