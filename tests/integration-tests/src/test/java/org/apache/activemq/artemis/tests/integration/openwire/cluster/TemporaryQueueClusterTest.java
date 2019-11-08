@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,19 +66,22 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
-
          this.waitForBindings(servers[0], QUEUE_NAME, true, 1, 0, 2000);
          this.waitForBindings(servers[1], QUEUE_NAME, true, 1, 0, 2000);
          this.waitForBindings(servers[1], QUEUE_NAME, false, 1, 0, 2000);
          this.waitForBindings(servers[0], QUEUE_NAME, false, 1, 0, 2000);
 
-
          MessageProducer prod1 = session1.createProducer(targetQueue1);
          MessageConsumer cons2 = session2.createConsumer(targetQueue2);
+
+         this.waitForBindings(servers[0], QUEUE_NAME, false, 1, 1, 2000);
+         this.waitForBindings(servers[1], QUEUE_NAME, true, 1, 1, 2000);
 
          TextMessage msg = session1.createTextMessage("hello");
 
          prod1.send(msg);
+
+         Wait.assertTrue(() -> getServer(1).locateQueue(SimpleString.toSimpleString(QUEUE_NAME)).getMessageCount() == 1, 5000, 100);
 
          TextMessage msgReceived = (TextMessage) cons2.receive(5000);
 
