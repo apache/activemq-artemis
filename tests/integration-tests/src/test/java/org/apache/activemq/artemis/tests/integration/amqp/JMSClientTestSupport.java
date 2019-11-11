@@ -75,7 +75,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
       return "";
    }
 
-   protected URI getBrokerQpidJMSConnectionURI() {
+   protected String getBrokerQpidJMSConnectionString() {
 
       try {
          int port = AMQP_PORT;
@@ -100,7 +100,23 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
             uri = uri + "?" + getJmsConnectionURIOptions();
          }
 
-         return new URI(uri);
+         return uri;
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected URI getBrokerQpidJMSConnectionURI() {
+      try {
+         return new URI(getBrokerQpidJMSConnectionString());
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected URI getBrokerQpidJMSFailoverConnectionURI() {
+      try {
+         return new URI("failover:(" + getBrokerQpidJMSConnectionString() + ")");
       } catch (Exception e) {
          throw new RuntimeException();
       }
@@ -108,6 +124,10 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
    protected Connection createConnection() throws JMSException {
       return createConnection(getBrokerQpidJMSConnectionURI(), null, null, null, true);
+   }
+
+   protected Connection createFailoverConnection() throws JMSException {
+      return createConnection(getBrokerQpidJMSFailoverConnectionURI(), null, null, null, true);
    }
 
    protected Connection createConnection(boolean start) throws JMSException {

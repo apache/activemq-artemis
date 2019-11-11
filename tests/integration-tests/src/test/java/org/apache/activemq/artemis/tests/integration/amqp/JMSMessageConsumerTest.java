@@ -866,4 +866,58 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
       assertFalse(failedToSubscribe.get());
    }
+
+   @Test(timeout = 30000)
+   public void testBrokerRestartAMQPProducerAMQPConsumer() throws Exception {
+      Connection connection = createFailoverConnection(); //AMQP
+      Connection connection2 = createFailoverConnection(); //AMQP
+      testBrokerRestart(connection, connection2);
+   }
+
+   private void testBrokerRestart(Connection connection1, Connection connection2) throws Exception {
+      try {
+         Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         javax.jms.Queue queue1 = session1.createQueue(getQueueName());
+         javax.jms.Queue queue2 = session2.createQueue(getQueueName());
+
+         final MessageConsumer consumer2 = session2.createConsumer(queue2);
+
+         MessageProducer producer = session1.createProducer(queue1);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         connection1.start();
+
+         TextMessage message = session1.createTextMessage();
+         message.setText("hello");
+         producer.send(message);
+
+         Message received = consumer2.receive(100);
+
+         assertNotNull("Should have received a message by now.", received);
+         assertTrue("Should be an instance of TextMessage", received instanceof TextMessage);
+         assertEquals(DeliveryMode.PERSISTENT, received.getJMSDeliveryMode());
+
+
+         server.stop();
+         Wait.waitFor(() -> !server.isStarted(), 1000);
+
+         server.start();
+
+         TextMessage message2 = session1.createTextMessage();
+         message2.setText("hello");
+         producer.send(message2);
+
+         Message received2 = consumer2.receive(100);
+
+         assertNotNull("Should have received a message by now.", received2);
+         assertTrue("Should be an instance of TextMessage", received2 instanceof TextMessage);
+         assertEquals(DeliveryMode.PERSISTENT, received2.getJMSDeliveryMode());
+
+
+      } finally {
+         connection1.close();
+         connection2.close();
+      }
+   }
 }

@@ -1249,6 +1249,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       scaledDownNodeIDs.clear();
 
+      connectedClientIds.clear();
+
       for (ActiveMQComponent externalComponent : externalComponents) {
          try {
             if (externalComponent instanceof ServiceComponent) {
