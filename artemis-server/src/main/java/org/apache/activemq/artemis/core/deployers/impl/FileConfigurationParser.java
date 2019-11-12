@@ -57,8 +57,11 @@ import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationStreamConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
@@ -2002,12 +2005,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          if (child.getNodeName().equals("upstream")) {
             config.addUpstreamConfiguration(getUpstream((Element) child, mainConfig));
+         } else if (child.getNodeName().equals("downstream")) {
+            config.addDownstreamConfiguration(getDownstream((Element) child, mainConfig));
          } else if (child.getNodeName().equals("policy-set")) {
             config.addFederationPolicy(getPolicySet((Element)child, mainConfig));
          } else if (child.getNodeName().equals("queue-policy")) {
             config.addFederationPolicy(getQueuePolicy((Element)child, mainConfig));
          } else if (child.getNodeName().equals("address-policy")) {
             config.addFederationPolicy(getAddressPolicy((Element)child, mainConfig));
+         } else if (child.getNodeName().equals("transformer")) {
+            TransformerConfiguration transformerConfiguration = getTransformerConfiguration(child);
+            config.addTransformerConfiguration(new FederationTransformerConfiguration(
+               ((Element)child).getAttribute("name"), transformerConfiguration));
          }
       }
 
@@ -2128,9 +2137,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return config;
    }
 
-   private FederationUpstreamConfiguration getUpstream(Element upstreamNode, final Configuration mainConfig) throws Exception {
-
-      FederationUpstreamConfiguration config = new FederationUpstreamConfiguration();
+   private <T extends FederationStreamConfiguration> T getFederationStream(final T config, final Element upstreamNode,
+       final Configuration mainConfig) throws Exception {
 
       String name = upstreamNode.getAttribute("name");
       config.setName(name);
@@ -2158,6 +2166,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       long circuitBreakerTimeout = getLong(upstreamNode, "circuit-breaker-timeout", config.getConnectionConfiguration().getCircuitBreakerTimeout(), Validators.MINUS_ONE_OR_GE_ZERO);
 
+      long clientFailureCheckPeriod = getLong(upstreamNode, "check-period", ActiveMQDefaultConfiguration.getDefaultFederationFailureCheckPeriod(), Validators.GT_ZERO);
+      long connectionTTL = getLong(upstreamNode, "connection-ttl", ActiveMQDefaultConfiguration.getDefaultFederationConnectionTtl(), Validators.GT_ZERO);
+      long retryInterval = getLong(upstreamNode, "retry-interval", ActiveMQDefaultConfiguration.getDefaultFederationRetryInterval(), Validators.GT_ZERO);
+      long callTimeout = getLong(upstreamNode, "call-timeout", ActiveMQClient.DEFAULT_CALL_TIMEOUT, Validators.GT_ZERO);
+      long callFailoverTimeout = getLong(upstreamNode, "call-failover-timeout", ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, Validators.MINUS_ONE_OR_GT_ZERO);
+      double retryIntervalMultiplier = getDouble(upstreamNode, "retry-interval-multiplier", ActiveMQDefaultConfiguration.getDefaultFederationRetryIntervalMultiplier(), Validators.GT_ZERO);
+      long maxRetryInterval = getLong(upstreamNode, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultFederationMaxRetryInterval(), Validators.GT_ZERO);
+      int initialConnectAttempts = getInteger(upstreamNode, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultFederationInitialConnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int reconnectAttempts = getInteger(upstreamNode, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultFederationReconnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+
       List<String> staticConnectorNames = new ArrayList<>();
 
       String discoveryGroupName = null;
@@ -2181,8 +2199,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.addPolicyRefs(policyRefs);
 
       config.getConnectionConfiguration()
-            .setCircuitBreakerTimeout(circuitBreakerTimeout)
-            .setHA(ha);
+          .setCircuitBreakerTimeout(circuitBreakerTimeout)
+          .setHA(ha)
+          .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+          .setConnectionTTL(connectionTTL)
+          .setRetryInterval(retryInterval)
+          .setRetryIntervalMultiplier(retryIntervalMultiplier)
+          .setMaxRetryInterval(maxRetryInterval)
+          .setInitialConnectAttempts(initialConnectAttempts)
+          .setReconnectAttempts(reconnectAttempts)
+          .setCallTimeout(callTimeout)
+          .setCallFailoverTimeout(callFailoverTimeout);
 
       if (!staticConnectorNames.isEmpty()) {
          config.getConnectionConfiguration().setStaticConnectors(staticConnectorNames);
@@ -2190,6 +2217,20 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.getConnectionConfiguration().setDiscoveryGroupName(discoveryGroupName);
       }
       return config;
+   }
+
+   private FederationUpstreamConfiguration getUpstream(final Element upstreamNode, final Configuration mainConfig) throws Exception {
+      return getFederationStream(new FederationUpstreamConfiguration(), upstreamNode, mainConfig);
+   }
+
+   private FederationDownstreamConfiguration getDownstream(final Element downstreamNode, final Configuration mainConfig) throws Exception {
+      final FederationDownstreamConfiguration downstreamConfiguration =
+          getFederationStream(new FederationDownstreamConfiguration(), downstreamNode, mainConfig);
+
+      final String upstreamRef = getString(downstreamNode,"upstream-connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
+      downstreamConfiguration.setUpstreamConfigurationRef(upstreamRef);
+
+      return downstreamConfiguration;
    }
 
    private void getStaticConnectors(List<String> staticConnectorNames, Node child) {

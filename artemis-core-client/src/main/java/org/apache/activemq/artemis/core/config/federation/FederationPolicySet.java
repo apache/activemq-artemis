@@ -22,6 +22,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.utils.Preconditions;
+
 public class FederationPolicySet implements FederationPolicy<FederationPolicySet>, Serializable {
 
    private String name;
@@ -64,5 +67,30 @@ public class FederationPolicySet implements FederationPolicy<FederationPolicySet
    @Override
    public int hashCode() {
       return Objects.hash(name, policyRefs);
+   }
+
+   @Override
+   public void encode(ActiveMQBuffer buffer) {
+      Preconditions.checkArgument(name != null, "name can not be null");
+      buffer.writeString(name);
+
+      buffer.writeInt(policyRefs == null ? 0 : policyRefs.size());
+      if (policyRefs != null) {
+         for (String policyRef : policyRefs) {
+            buffer.writeString(policyRef);
+         }
+      }
+   }
+
+   @Override
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readString();
+
+      final int policyRefsSize = buffer.readInt();
+      policyRefs = new HashSet<>();
+
+      for (int i = 0; i < policyRefsSize; i++) {
+         policyRefs.add(buffer.readString());
+      }
    }
 }

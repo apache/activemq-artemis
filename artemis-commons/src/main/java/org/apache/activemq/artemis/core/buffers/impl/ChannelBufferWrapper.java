@@ -65,6 +65,16 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    }
 
    @Override
+   public Boolean readNullableBoolean() {
+      int b = readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      } else {
+         return readBoolean();
+      }
+   }
+
+   @Override
    public SimpleString readNullableSimpleString() {
       return SimpleString.readNullableSimpleString(buffer);
    }
@@ -123,6 +133,16 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    @Override
    public void writeBoolean(final boolean val) {
       buffer.writeByte((byte) (val ? -1 : 0));
+   }
+
+   @Override
+   public void writeNullableBoolean(Boolean val) {
+      if (val == null) {
+         buffer.writeByte(DataConstants.NULL);
+      } else {
+         buffer.writeByte(DataConstants.NOT_NULL);
+         writeBoolean(val);
+      }
    }
 
    @Override
@@ -346,8 +366,28 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    }
 
    @Override
+   public Integer readNullableInt() {
+      int b = readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      } else {
+         return readInt();
+      }
+   }
+
+   @Override
    public long readLong() {
       return buffer.readLong();
+   }
+
+   @Override
+   public Long readNullableLong() {
+      int b = readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      } else {
+         return readLong();
+      }
    }
 
    @Override
@@ -566,8 +606,28 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    }
 
    @Override
+   public void writeNullableInt(final Integer value) {
+      if (value == null) {
+         buffer.writeByte(DataConstants.NULL);
+      } else {
+         buffer.writeByte(DataConstants.NOT_NULL);
+         writeInt(value);
+      }
+   }
+
+   @Override
    public void writeLong(final long value) {
       buffer.writeLong(value);
+   }
+
+   @Override
+   public void writeNullableLong(Long value) {
+      if (value == null) {
+         buffer.writeByte(DataConstants.NULL);
+      } else {
+         buffer.writeByte(DataConstants.NOT_NULL);
+         writeLong(value);
+      }
    }
 
    @Override

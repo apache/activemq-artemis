@@ -34,6 +34,7 @@ public class FederationConnection {
    private final long circuitBreakerTimeout;
    private volatile ClientSessionFactory clientSessionFactory;
    private volatile boolean started;
+   private volatile boolean sharedConnection;
 
    public FederationConnection(Configuration configuration, String name, FederationConnectionConfiguration config) {
       this.config = config;
@@ -67,6 +68,17 @@ public class FederationConnection {
             serverLocator = ActiveMQClient.createServerLocatorWithoutHA(tcConfigs);
          }
       }
+
+      serverLocator.setConnectionTTL(config.getConnectionTTL());
+      serverLocator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
+      serverLocator.setReconnectAttempts(config.getReconnectAttempts());
+      serverLocator.setInitialConnectAttempts(config.getInitialConnectAttempts());
+      serverLocator.setRetryInterval(config.getRetryInterval());
+      serverLocator.setRetryIntervalMultiplier(config.getRetryIntervalMultiplier());
+      serverLocator.setMaxRetryInterval(config.getMaxRetryInterval());
+      serverLocator.setCallTimeout(config.getCallTimeout());
+      serverLocator.setCallFailoverTimeout(config.getCallFailoverTimeout());
+
    }
 
    public synchronized void start() {
@@ -85,6 +97,14 @@ public class FederationConnection {
 
    public boolean isStarted() {
       return started;
+   }
+
+   public boolean isSharedConnection() {
+      return sharedConnection;
+   }
+
+   public void setSharedConnection(boolean sharedConnection) {
+      this.sharedConnection = sharedConnection;
    }
 
    public final ClientSessionFactory clientSessionFactory() throws Exception {
