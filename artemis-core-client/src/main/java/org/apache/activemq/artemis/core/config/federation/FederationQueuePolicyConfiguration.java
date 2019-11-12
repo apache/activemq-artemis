@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.utils.Preconditions;
+
 public class FederationQueuePolicyConfiguration implements FederationPolicy<FederationQueuePolicyConfiguration>, Serializable {
 
    private String name;
@@ -86,6 +89,49 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       return this;
    }
 
+   @Override
+   public void encode(ActiveMQBuffer buffer) {
+      Preconditions.checkArgument(name != null, "name can not be null");
+      buffer.writeString(name);
+      buffer.writeBoolean(includeFederated);
+      buffer.writeNullableInt(priorityAdjustment);
+      buffer.writeNullableString(transformerRef);
+      encodeMatchers(buffer, includes);
+      encodeMatchers(buffer, excludes);
+   }
+
+   @Override
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readString();
+      includeFederated = buffer.readBoolean();
+      priorityAdjustment = buffer.readNullableInt();
+      transformerRef = buffer.readNullableString();
+
+      includes = new HashSet<>();
+      excludes = new HashSet<>();
+      decodeMatchers(buffer, includes);
+      decodeMatchers(buffer, excludes);
+   }
+
+   private void encodeMatchers(final ActiveMQBuffer buffer, final Set<Matcher> matchers) {
+      buffer.writeInt(matchers == null ? 0 : matchers.size());
+      if (matchers != null) {
+         for (Matcher matcher : matchers) {
+            matcher.encode(buffer);
+         }
+      }
+   }
+
+   private void decodeMatchers(final ActiveMQBuffer buffer, final Set<Matcher> matchers) {
+      final int size = buffer.readInt();
+
+      for (int i = 0; i < size; i++) {
+         Matcher matcher = new Matcher();
+         matcher.decode(buffer);
+         matchers.add(matcher);
+      }
+   }
+
    public static class Matcher implements Serializable {
 
       private String queueMatch;
@@ -121,6 +167,16 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       @Override
       public int hashCode() {
          return Objects.hash(queueMatch, addressMatch);
+      }
+
+      public void encode(ActiveMQBuffer buffer) {
+         buffer.writeNullableString(addressMatch);
+         buffer.writeNullableString(queueMatch);
+      }
+
+      public void decode(ActiveMQBuffer buffer) {
+         addressMatch = buffer.readNullableString();
+         queueMatch = buffer.readNullableString();
       }
    }
 

@@ -64,6 +64,9 @@ public final class ChannelImpl implements Channel {
        * cluster used for controlling nodes in a cluster remotely
        */
       CLUSTER(3),
+
+      FEDERATION(4),
+
       /**
        * Channels [0-9] are reserved for the system, user channels must be greater than that.
        */

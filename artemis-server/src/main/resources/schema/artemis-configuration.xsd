@@ -1589,13 +1589,11 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-
-
-
    <!-- FEDERATION CONFIGURATION -->
    <xsd:complexType name="federationType">
       <xsd:sequence>
          <xsd:element name="upstream" type="upstreamType" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element name="downstream" type="downstreamType" minOccurs="0" maxOccurs="unbounded" />
          <xsd:element name="policy-set" type="policySetType" minOccurs="0" maxOccurs="unbounded" />
          <xsd:element name="queue-policy" type="queuePolicyType" minOccurs="0" maxOccurs="unbounded" />
          <xsd:element name="address-policy" type="addressPolicyType" minOccurs="0" maxOccurs="unbounded" />
@@ -1607,9 +1605,31 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-
+   <xsd:complexType name="downstreamType">
+      <xsd:complexContent>
+         <xsd:extension base="streamType">
+            <xsd:sequence>
+               <xsd:element name="upstream-connector-ref" type="xsd:string" maxOccurs="1" minOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        Name of the transport connector reference to use for the new upstream connection
+                        back to this broker.
+                     </xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+            </xsd:sequence>
+            <xsd:attributeGroup ref="xml:specialAttrs"/>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
 
    <xsd:complexType name="upstreamType">
+      <xsd:complexContent>
+         <xsd:extension base="streamType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:complexType name="streamType">
       <xsd:sequence>
 
          <xsd:element name="ha" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
@@ -1624,6 +1644,88 @@
             <xsd:annotation>
                <xsd:documentation>
                   whether this connection supports fail-over
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="share-connection" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  if there is a downstream and upstream connection configured for the same broker then
+                  the same connection will be shared as long as both stream configs set this flag to true
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="connection-ttl" type="xsd:long" default="60000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how long to keep a connection alive in the absence of any data arriving from the client
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="call-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How long to wait for a reply
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="retry-interval" type="xsd:long" default="500" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  period (in ms) between successive retries
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="retry-interval-multiplier" type="xsd:double" default="1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  multiplier to apply to the retry-interval
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="max-retry-interval" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Maximum value for retry-interval
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="initial-connect-attempts" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How many attempts should be made to connect initially
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="reconnect-attempts" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How many attempts should be made to reconnect after failure
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="check-period" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The period (in milliseconds) used to check if the federation connection has failed to receive pings from
+                  another server
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="call-failover-timeout" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

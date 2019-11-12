@@ -278,6 +278,36 @@
                <property key="federationTransformerKey2" value="federationTransformerValue2"/>
             </transformer>
          </federation>
+
+         <federation name="federation4" user="globaluser" password="32a10275cf4ab4e9">
+            <upstream name="asia-3">
+               <static-connectors>
+                  <connector-ref>connector1</connector-ref>
+               </static-connectors>
+               <policy ref="queue-federation-asia"/>
+               <policy ref="address-federation-asia"/>
+            </upstream>
+            <downstream name="asia-4" >
+               <ha>true</ha>
+               <discovery-group-ref discovery-group-name="dg1"/>
+               <policy ref="queue-federation-asia"/>
+               <policy ref="address-federation-asia"/>
+               <upstream-connector-ref>connector1</upstream-connector-ref>
+            </downstream>
+
+            <queue-policy name="queue-federation-asia2" transformer-ref="federation-transformer-4" >
+               <exclude queue-match="the_queue" address-match="#" />
+            </queue-policy>
+            <address-policy name="address-federation-asia2" transformer-ref="federation-transformer-4" >
+               <include address-match="the_address" />
+            </address-policy>
+
+            <transformer name="federation-transformer-4">
+               <class-name>org.foo.FederationTransformer4</class-name>
+               <property key="federationTransformerKey1" value="federationTransformerValue1"/>
+               <property key="federationTransformerKey2" value="federationTransformerValue2"/>
+            </transformer>
+         </federation>
       </federations>
 
       <metrics-plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">

@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Disconnect
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
@@ -109,6 +110,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DIS
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.FEDERATION_DOWNSTREAM_CONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.NULL_RESPONSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.PACKETS_CONFIRMED;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.PING;
@@ -469,6 +471,10 @@ public abstract class PacketDecoder implements Serializable {
          }
          case PacketImpl.DISCONNECT_CONSUMER_KILL: {
             packet = new DisconnectConsumerWithKillMessage();
+            break;
+         }
+         case FEDERATION_DOWNSTREAM_CONNECT: {
+            packet = new FederationDownstreamConnectMessage();
             break;
          }
          default: {

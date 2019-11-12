@@ -14,11 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.config.federation;
+package org.apache.activemq.artemis.jms.example;
 
-public interface FederationPolicy<T> {
+/**
+ * A simple example that demonstrates multicast address replication between remote servers,
+ * using Address Federation downstream and upstream feature combined.
+ */
+public class FederatedAddressDownstreamUpstreamExample {
 
-   String getName();
-
-   T setName(String name);
+   public static void main(final String[] args) throws Exception {
+      //Re-use the same Federated address test for upstream
+      FederatedAddressExample.main(args);
+   }
 }

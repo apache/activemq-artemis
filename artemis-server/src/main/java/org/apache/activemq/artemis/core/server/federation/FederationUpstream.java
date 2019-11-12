@@ -17,12 +17,10 @@
 
 package org.apache.activemq.artemis.core.server.federation;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
@@ -33,28 +31,18 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.federation.address.FederatedAddress;
 import org.apache.activemq.artemis.core.server.federation.queue.FederatedQueue;
 
-public class FederationUpstream {
-
-   private final ActiveMQServer server;
-   private final Federation federation;
-   private final SimpleString name;
-   private FederationConnection connection;
+public class FederationUpstream extends FederationStream {
    private FederationUpstreamConfiguration config;
-   private Map<String, FederatedQueue> federatedQueueMap = new HashMap<>();
-   private Map<String, FederatedAddress> federatedAddressMap = new HashMap<>();
 
    public FederationUpstream(ActiveMQServer server, Federation federation, String name, FederationUpstreamConfiguration config) {
-      this.server = server;
-      this.federation = federation;
-      Objects.requireNonNull(config.getName());
-      this.name = SimpleString.toSimpleString(config.getName());
+      super(server, federation, name, config);
       this.config = config;
-      this.connection = new FederationConnection(server.getConfiguration(), name, config.getConnectionConfiguration());
-
    }
 
+   @Override
    public synchronized void start() {
-      connection.start();
+      super.start();
+
       for (FederatedQueue federatedQueue : federatedQueueMap.values()) {
          federatedQueue.start();
       }
@@ -63,6 +51,7 @@ public class FederationUpstream {
       }
    }
 
+   @Override
    public synchronized void stop() {
       for (FederatedAddress federatedAddress : federatedAddressMap.values()) {
          federatedAddress.stop();
@@ -74,7 +63,7 @@ public class FederationUpstream {
       }
       federatedQueueMap.clear();
 
-      connection.stop();
+      super.stop();
    }
 
    public void deploy(Set<String> policyRefsToDeploy, Map<String, FederationPolicy> policyMap) throws ActiveMQException {
@@ -156,41 +145,8 @@ public class FederationUpstream {
       }
    }
 
+   @Override
    public FederationUpstreamConfiguration getConfig() {
       return config;
-   }
-
-   private Exception circuitBreakerException;
-   private long lastCreateClientSessionFactoryExceptionTimestamp;
-
-   public SimpleString getName() {
-      return name;
-   }
-
-   public FederationConnection getConnection() {
-      return connection;
-   }
-
-
-   public String getUser() {
-      String user = config.getConnectionConfiguration().getUsername();
-      if (user == null || user.isEmpty()) {
-         return federation.getFederationUser();
-      } else {
-         return user;
-      }
-   }
-
-   public String getPassword() {
-      String password = config.getConnectionConfiguration().getPassword();
-      if (password == null || password.isEmpty()) {
-         return federation.getFederationPassword();
-      } else {
-         return password;
-      }
-   }
-
-   public int getPriorityAdjustment() {
-      return config.getConnectionConfiguration().getPriorityAdjustment();
    }
 }
