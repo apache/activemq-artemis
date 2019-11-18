@@ -302,10 +302,14 @@ public final class OpenTypeSupport {
          Map<String, Object> rc = super.getFields(ref);
          ICoreMessage m = ref.getMessage().toCore();
          if (!m.isLargeMessage()) {
-            SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
-            rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+            if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
+               rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
+            } else {
+               SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
+               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+            }
          } else {
-            rc.put(CompositeDataConstants.TEXT_BODY, "");
+            rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");
          }
          return rc;
       }
