@@ -69,6 +69,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       this.connectorServices = new ConcurrentHashMap<>();
       this.divertTransformers = new ConcurrentHashMap<>();
       this.bridgeTransformers = new ConcurrentHashMap<>();
+      this.federationTransformers = new ConcurrentHashMap<>();
       this.acceptorFactories = new ConcurrentHashMap<>();
    }
 

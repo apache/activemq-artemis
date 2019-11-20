@@ -277,6 +277,8 @@ public class PacketImpl implements Packet {
 
    public static final byte SESS_BINDINGQUERY_RESP_V4 = -15;
 
+   public static final byte FEDERATION_DOWNSTREAM_CONNECT = -16;
+
 
    // Static --------------------------------------------------------
 

@@ -20,15 +20,16 @@ package org.apache.activemq.artemis.core.server.federation;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 
@@ -47,7 +48,7 @@ public class FederatedQueueConsumer implements MessageHandler, SessionFailureLis
    private final int intialConnectDelayMax = 30;
    private final ClientSessionCallback clientSessionCallback;
 
-   private ClientSessionFactory clientSessionFactory;
+   private ClientSessionFactoryInternal clientSessionFactory;
    private ClientSession clientSession;
    private ClientConsumer clientConsumer;
 
@@ -83,7 +84,7 @@ public class FederatedQueueConsumer implements MessageHandler, SessionFailureLis
       }, delay, TimeUnit.SECONDS);
    }
 
-   static int getNextDelay(int delay, int delayMultiplier, int delayMax) {
+   public static int getNextDelay(int delay, int delayMultiplier, int delayMax) {
       int nextDelay;
       if (delay == 0) {
          nextDelay = 1;
@@ -100,7 +101,7 @@ public class FederatedQueueConsumer implements MessageHandler, SessionFailureLis
       try {
          if (clientConsumer == null) {
             synchronized (this) {
-               this.clientSessionFactory = upstream.getConnection().clientSessionFactory();
+               this.clientSessionFactory = (ClientSessionFactoryInternal) upstream.getConnection().clientSessionFactory();
                this.clientSession = clientSessionFactory.createSession(upstream.getUser(), upstream.getPassword(), false, true, true, clientSessionFactory.getServerLocator().isPreAcknowledge(), clientSessionFactory.getServerLocator().getAckBatchSize());
                this.clientSession.addFailureListener(this);
                this.clientSession.addMetaData(FEDERATION_NAME, federation.getName().toString());
@@ -149,13 +150,14 @@ public class FederatedQueueConsumer implements MessageHandler, SessionFailureLis
       if (clientSession != null) {
          clientSession.close();
       }
-      if (clientSessionFactory != null) {
-         clientSessionFactory.close();
-      }
       clientConsumer = null;
       clientSession = null;
-      clientSessionFactory = null;
 
+      if (clientSessionFactory != null && (!upstream.getConnection().isSharedConnection() ||
+          clientSessionFactory.numSessions() == 0)) {
+         clientSessionFactory.close();
+         clientSessionFactory = null;
+      }
    }
 
    @Override

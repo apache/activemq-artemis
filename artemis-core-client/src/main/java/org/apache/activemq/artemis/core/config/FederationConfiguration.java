@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
@@ -33,6 +36,8 @@ public class FederationConfiguration implements Serializable {
    private Credentials credentials;
 
    private List<FederationUpstreamConfiguration> upstreamConfigurations = new ArrayList<>();
+
+   private List<FederationDownstreamConfiguration> downstreamConfigurations = new ArrayList<>();
 
    private Map<String, FederationPolicy> federationPolicyMap = new HashMap<>();
 
@@ -47,9 +52,26 @@ public class FederationConfiguration implements Serializable {
       return this;
    }
 
+   public List<FederationDownstreamConfiguration> getDownstreamConfigurations() {
+      return downstreamConfigurations;
+   }
+
+   public FederationConfiguration addDownstreamConfiguration(FederationDownstreamConfiguration federationDownstreamConfiguration) {
+      this.downstreamConfigurations.add(federationDownstreamConfiguration);
+      return this;
+   }
+
    public FederationConfiguration addFederationPolicy(FederationPolicy federationPolicy) {
       federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
       return this;
+   }
+
+   public void clearDownstreamConfigurations() {
+      this.downstreamConfigurations.clear();
+   }
+
+   public void clearUpstreamConfigurations() {
+      this.upstreamConfigurations.clear();
    }
 
    public Map<String, FederationPolicy> getFederationPolicyMap() {
@@ -120,6 +142,16 @@ public class FederationConfiguration implements Serializable {
       @Override
       public int hashCode() {
          return Objects.hash(user, password);
+      }
+
+      public void encode(ActiveMQBuffer buffer) {
+         buffer.writeNullableString(user);
+         buffer.writeNullableString(password);
+      }
+
+      public void decode(ActiveMQBuffer buffer) {
+         user = buffer.readNullableString();
+         password = buffer.readNullableString();
       }
    }
 

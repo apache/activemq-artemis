@@ -227,6 +227,13 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
    }
 
    @Override
+   public void writeNullableBoolean(final Boolean val) {
+      changed();
+
+      super.writeNullableBoolean(val);
+   }
+
+   @Override
    public void writeByte(final byte value) {
       changed();
 
@@ -305,10 +312,24 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
    }
 
    @Override
+   public void writeNullableInt(final Integer value) {
+      changed();
+
+      super.writeNullableInt(value);
+   }
+
+   @Override
    public void writeLong(final long value) {
       changed();
 
       super.writeLong(value);
+   }
+
+   @Override
+   public void writeNullableLong(final Long value) {
+      changed();
+
+      super.writeNullableLong(value);
    }
 
    @Override

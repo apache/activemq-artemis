@@ -20,9 +20,11 @@ package org.apache.activemq.artemis.core.server.federation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -34,8 +36,11 @@ public class Federation {
    private final SimpleString name;
 
    private final Map<String, FederationUpstream> upstreams = new HashMap<>();
+   private final Map<String, FederationDownstream> downstreams = new HashMap<>();
    private final FederationConfiguration config;
    private FederationManager.State state;
+
+   private final Map<String, FederationConnection> connections = new HashMap<>();
 
    enum State {
       STOPPED,
@@ -64,6 +69,9 @@ public class Federation {
       for (FederationUpstream connection : upstreams.values()) {
          connection.start();
       }
+      for (FederationDownstream connection : downstreams.values()) {
+         connection.start();
+      }
       state = FederationManager.State.STARTED;
    }
 
@@ -74,13 +82,20 @@ public class Federation {
       for (FederationUpstream connection : upstreams.values()) {
          connection.stop();
       }
+      for (FederationDownstream connection : downstreams.values()) {
+         connection.stop();
+      }
       upstreams.clear();
+      downstreams.clear();
       state = FederationManager.State.STOPPED;
    }
 
    public synchronized void deploy() throws ActiveMQException {
       for (FederationUpstreamConfiguration upstreamConfiguration : config.getUpstreamConfigurations()) {
          deploy(upstreamConfiguration, config.getFederationPolicyMap());
+      }
+      for (FederationDownstreamConfiguration downstreamConfiguration : config.getDownstreamConfigurations()) {
+         deploy(downstreamConfiguration, config.getFederationPolicyMap());
       }
       if (state != FederationManager.State.STARTED) {
          state = FederationManager.State.DEPLOYED;
@@ -96,10 +111,13 @@ public class Federation {
       if (federationConnection != null) {
          federationConnection.stop();
       }
+      FederationDownstream federationConnectionDownstream = downstreams.remove(name);
+      if (federationConnectionDownstream != null) {
+         federationConnectionDownstream.undeploy();
+         federationConnectionDownstream.stop();
+      }
       return true;
    }
-
-
 
    public synchronized boolean deploy(FederationUpstreamConfiguration upstreamConfiguration, Map<String, FederationPolicy> federationPolicyMap) throws ActiveMQException {
       String name = upstreamConfiguration.getName();
@@ -127,11 +145,52 @@ public class Federation {
       return upstream;
    }
 
+   public synchronized boolean deploy(FederationDownstreamConfiguration downstreamConfiguration, Map<String, FederationPolicy> federationPolicyMap) throws ActiveMQException {
+      String name = downstreamConfiguration.getName();
+      FederationDownstream downstream = downstreams.get(name);
+
+      //If connection has changed we will need to do a full undeploy and redeploy.
+      if (downstream == null) {
+         undeploy(name);
+         downstream = deploy(name, downstreamConfiguration);
+      } else if (!downstream.getConnection().getConfig().equals(downstreamConfiguration.getConnectionConfiguration())) {
+         undeploy(name);
+         downstream = deploy(name, downstreamConfiguration);
+      }
+
+      downstream.deploy(config);
+      return true;
+   }
+
+   private synchronized FederationDownstream deploy(String name, FederationDownstreamConfiguration downstreamConfiguration) {
+      //If we have a matching upstream connection already configured then use it for the initiating downstream connection
+      FederationConnection connection = null;
+      if (downstreamConfiguration.getConnectionConfiguration().isShareConnection()) {
+         for (FederationUpstream upstream : upstreams.values()) {
+            if (upstream.getConfig().getConnectionConfiguration()
+                .equals(downstreamConfiguration.getConnectionConfiguration())) {
+               connection = upstream.getConnection();
+               connection.setSharedConnection(true);
+               break;
+            }
+         }
+      }
+
+      FederationDownstream downstream = new FederationDownstream(server, this, name, downstreamConfiguration, connection);
+      downstreams.put(name, downstream);
+      if (state == FederationManager.State.STARTED) {
+         downstream.start();
+      }
+      return downstream;
+   }
+
    public FederationUpstream get(String name) {
       return upstreams.get(name);
    }
 
-
+   public FederationDownstream getDownstream(String name) {
+      return downstreams.get(name);
+   }
 
    public void register(FederatedAbstract federatedAbstract) {
       server.registerBrokerPlugin(federatedAbstract);

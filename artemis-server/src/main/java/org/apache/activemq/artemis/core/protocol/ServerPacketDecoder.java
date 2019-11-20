@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRequ
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
@@ -59,6 +60,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BAC
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_CONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_CONNECT_REPLY;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.FEDERATION_DOWNSTREAM_CONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.NODE_ANNOUNCE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.QUORUM_VOTE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.QUORUM_VOTE_REPLY;
@@ -250,6 +252,10 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
          }
          case SCALEDOWN_ANNOUNCEMENT: {
             packet = new ScaleDownAnnounceMessage();
+            break;
+         }
+         case FEDERATION_DOWNSTREAM_CONNECT: {
+            packet = new FederationDownstreamConnectMessage();
             break;
          }
          default: {

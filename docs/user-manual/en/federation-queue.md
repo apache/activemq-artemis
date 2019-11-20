@@ -162,7 +162,6 @@ Finally look at `upstream`, this is what defines the upstream broker connection 
   information about what discovery-groups are and how to configure them, please
   see [Discovery Groups](clusters.md).
 
-
 - `ha`. This optional parameter determines whether or not this bridge should
   support high availability. True means it will connect to any available server
   in a cluster and support failover. The default value is `false`.
@@ -173,3 +172,116 @@ to avoid each one trying to reconnect and possibly causing a thrundering heard i
 the first one will try, if unsuccessful the circuit breaker will open, 
 returning the same exception to all, this is the timeout until the circuit can be closed and connection retried.
 
+- `share-connection`. If there is a downstream and upstream connection configured for the same broker then
+  the same connection will be shared as long as both stream configs set this flag to true.
+  Default is false.
+  
+- `check-period`. The period (in milliseconds) used to check if the
+  federation connection has failed to receive pings from another server.
+  Default is 30000.
+
+- `connection-ttl`. This is how long a federation connection should stay
+  alive if it stops receiving messages from the remote broker. Default is 60000.
+
+- `call-timeout`. When a packet is sent via a federation connection and
+  is a blocking call, i.e. for acknowledgements, this is how long it
+  will wait (in milliseconds) for the reply before throwing an
+  exception. Default is 30000.
+
+- `call-failover-timeout`. Similar to `call-timeout` but used when a
+  call is made during a failover attempt. Default is -1 (no timeout).
+
+- `retry-interval`. This optional parameter determines the period in
+  milliseconds between subsequent reconnection attempts, if the connection to
+  the target server has failed. The default value is `500` milliseconds.
+
+- `retry-interval-multiplier`. This is a multiplier used to increase
+  the `retry-interval` after each reconnect attempt, default is 1.
+
+- `max-retry-interval`. The maximum delay (in milliseconds) for
+  retries. Default is 2000.
+
+- `initial-connect-attempts`. The number of times the system will try
+  to connect to the remote broker in the federation. If the max-retry is
+  achieved this broker will be considered permanently down and the
+  system will not route messages to this broker. Default is -1 (infinite
+  retries).
+
+- `reconnect-attempts`. The number of times the system will try to
+  reconnect to the remote broker in the federation. If the max-retry is achieved
+  this broker will be considered permanently down and the system will
+  stop routing messages to this broker. Default is -1 (infinite
+  retries).
+  
+## Configuring Downstream Federation
+
+Similarly to `upstream` configuration, a downstream configuration can be configured. This works by sending a command
+to the `downstream` broker to have it create an `upstream` connection back to the downstream broker. The benefit of 
+this is being able to configure everything for federation on one broker in some cases to make it easier, such
+as a hub and spoke topology.
+
+All of the same configuration options apply to to `downstream` as does `upstream` with the exception of one
+extra configuration flag that needs to be set:
+
+  The `transport-connector-ref` is an element pointing to a
+  `connector` elements defined elsewhere. This ref is used to tell the downstream broker
+  what connector to use to create a new upstream connection back to the downstream broker.
+  
+  A *connector* encapsulates knowledge of what transport to use (TCP, SSL, HTTP etc) as well as
+  the server connection parameters (host, port etc). For more information about what connectors are and
+  how to configure them, please see [Configuring the
+  Transport](configuring-transports.md).
+  
+  
+  Sample Downstream Address Federation setup:
+  
+```xml
+
+  <!--Other config Here -->
+
+<connectors>
+   <connector name="netty-connector">tcp://localhost:61616</connector>
+   <connector name="eu-west-1-connector">tcp://localhost:61616</connector>
+   <connector name="eu-east-1-connector">tcp://localhost:61617</connector>
+</connectors>
+  
+<acceptors>
+   <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+</acceptors>
+  
+   <!--Other config Here -->
+  
+<federations>
+   <federation name="eu-north-1" user="federation_username" password="32a10275cf4ab4e9">
+      <downstream name="eu-east-1">
+          <static-connectors>
+             <connector-ref>eu-east-connector1</connector-ref>
+          </static-connectors>
+          <transport-connector-ref>netty-connector</transport-connector-ref>
+          <policy ref="news-address-federation"/>
+      </downstream>
+      <downstream name="eu-west-1" >
+         <static-connectors>
+            <connector-ref>eu-west-connector1</connector-ref>
+         </static-connectors>
+         <transport-connector-ref>netty-connector</transport-connector-ref>
+         <policy ref="news-address-federation"/>
+      </downstream>
+
+      <queue-policy name="news-queue-federation" priority-adjustment="-5" include-federated="true" transformer-ref="federation-transformer-3">
+         <include queue-match="#" address-match="queue.bbc.new" />
+         <include queue-match="#" address-match="queue.usatoday" />
+         <include queue-match="#" address-match="queue.news.#" />
+        
+         <exclude queue-match="#.local" address-match="#" />
+      </queue-policy>
+    
+      <transformer name="news-transformer">
+         <class-name>org.foo.NewsTransformer</class-name>
+         <property key="key1" value="value1"/>
+         <property key="key2" value="value2"/>
+      </transformer>
+   </federation>
+</federations>
+  
+  ```

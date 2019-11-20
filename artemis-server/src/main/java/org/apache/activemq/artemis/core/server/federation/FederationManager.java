@@ -122,8 +122,6 @@ public class FederationManager implements ActiveMQComponent {
       return federations.get(name);
    }
 
-
-
    public void register(FederatedAbstract federatedAbstract) {
       server.registerBrokerPlugin(federatedAbstract);
    }

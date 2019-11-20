@@ -745,6 +745,16 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    }
 
    @Override
+   public Integer readNullableInt() {
+      int b = readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      } else {
+         return readInt();
+      }
+   }
+
+   @Override
    public long readUnsignedInt() {
       return readInt() & 0xFFFFFFFFL;
    }
@@ -754,6 +764,16 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       long v = getLong(readerIndex);
       readerIndex += 8;
       return v;
+   }
+
+   @Override
+   public Long readNullableLong() {
+      int b = readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      } else {
+         return readLong();
+      }
    }
 
    @Override
@@ -834,7 +854,17 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    }
 
    @Override
+   public void writeNullableInt(final Integer value) {
+      throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
+   }
+
+   @Override
    public void writeLong(final long value) {
+      throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
+   }
+
+   @Override
+   public void writeNullableLong(final Long value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
@@ -913,6 +943,16 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    @Override
    public boolean readBoolean() {
       return readByte() != 0;
+   }
+
+   @Override
+   public Boolean readNullableBoolean() {
+      int b = readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      } else {
+         return readBoolean();
+      }
    }
 
    @Override
@@ -1005,6 +1045,11 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    @Override
    public void writeBoolean(final boolean val) {
+      throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
+   }
+
+   @Override
+   public void writeNullableBoolean(final Boolean val) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 

@@ -678,6 +678,15 @@ public interface ActiveMQBuffer extends DataInput {
    int readInt();
 
    /**
+    * Gets a (potentially {@code null}) 32-bit integer at the current {@code readerIndex}
+    * and increases the {@code readerIndex} by {@code 4} in this buffer.
+    *
+    * @return a (potentially {@code null}) 32-bit integer at the current {@code readerIndex}
+    * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 4}
+    */
+   Integer readNullableInt();
+
+   /**
     * Gets an unsigned 32-bit integer at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 4} in this buffer.
     *
@@ -695,6 +704,15 @@ public interface ActiveMQBuffer extends DataInput {
     */
    @Override
    long readLong();
+
+   /**
+    * Gets a (potentially {@code null}) 64-bit integer at the current {@code readerIndex}
+    * and increases the {@code readerIndex} by {@code 8} in this buffer.
+    *
+    * @return a (potentially {@code null}) 64-bit integer at the current {@code readerIndex}
+    * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 8}
+    */
+   Long readNullableLong();
 
    /**
     * Gets a char at the current {@code readerIndex}
@@ -735,6 +753,15 @@ public interface ActiveMQBuffer extends DataInput {
     */
    @Override
    boolean readBoolean();
+
+   /**
+    * Gets a (potentially {@code null}) boolean at the current {@code readerIndex}
+    * and increases the {@code readerIndex} by {@code 1} in this buffer.
+    *
+    * @return a (potentially {@code null}) boolean at the current {@code readerIndex}
+    * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 1}
+    */
+   Boolean readNullableBoolean();
 
    /**
     * Gets a SimpleString (potentially {@code null}) at the current {@code readerIndex}
@@ -918,6 +945,15 @@ public interface ActiveMQBuffer extends DataInput {
    void writeInt(int value);
 
    /**
+    * Sets the specified (potentially {@code null}) 32-bit integer at the current {@code writerIndex}
+    * and increases the {@code writerIndex} by {@code 4} in this buffer.
+    *
+    * @param value The specified (potentially {@code null}) 32-bit integer
+    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 4}
+    */
+   void writeNullableInt(Integer value);
+
+   /**
     * Sets the specified 64-bit long integer at the current
     * {@code writerIndex} and increases the {@code writerIndex} by {@code 8}
     * in this buffer.
@@ -926,6 +962,16 @@ public interface ActiveMQBuffer extends DataInput {
     * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 8}
     */
    void writeLong(long value);
+
+   /**
+    * Sets the specified (potentially {@code null}) 64-bit long integer at the current
+    * {@code writerIndex} and increases the {@code writerIndex} by {@code 8}
+    * in this buffer.
+    *
+    * @param value The specified (potentially {@code null}) 64-bit long integer
+    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 8}
+    */
+   void writeNullableLong(Long value);
 
    /**
     * Sets the specified char at the current {@code writerIndex}
@@ -960,6 +1006,13 @@ public interface ActiveMQBuffer extends DataInput {
     * @param val The specified boolean
     */
    void writeBoolean(boolean val);
+
+   /**
+    * Sets the specified (potentially {@code null}) Boolean at the current {@code writerIndex}
+    *
+    * @param val The specified boolean
+    */
+   void writeNullableBoolean(Boolean val);
 
    /**
     * Sets the specified SimpleString (potentially {@code null}) at the current {@code writerIndex}
