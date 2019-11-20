@@ -33,10 +33,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
+
+import javax.management.openmbean.CompositeData;
 
 /**
  * A LargeMessageCompressTest
@@ -59,6 +62,66 @@ public class LargeMessageCompressTest extends LargeMessageTest {
    @Override
    protected ServerLocator createFactory(final boolean isNetty) throws Exception {
       return super.createFactory(isNetty).setCompressLargeMessage(true);
+   }
+
+   @Test
+   public void testLargeMessageCompressionNotCompressedAndBrowsed() throws Exception {
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+      ActiveMQServer server = createServer(true, isNetty());
+
+      server.start();
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = addClientSession(sf.createSession(false, false, false));
+
+      session.createTemporaryQueue(ADDRESS, ADDRESS);
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+      Message clientFile = createLargeClientMessageStreaming(session, messageSize, true);
+
+      clientFile.setType(Message.TEXT_TYPE);
+
+      producer.send(clientFile);
+
+      session.commit();
+
+      session.close();
+
+      QueueControlImpl queueControl = (QueueControlImpl) server.getManagementService().getResource("queue.SimpleAddress");
+
+      CompositeData[] browse = queueControl.browse();
+
+      Assert.assertNotNull(browse);
+
+      Assert.assertEquals(browse.length, 1);
+
+      Assert.assertEquals(browse[0].get("text"), "[compressed]");
+
+      //clean up
+      session = addClientSession(sf.createSession(false, false, false));
+
+      session.start();
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+      ClientMessage msg1 = consumer.receive(1000);
+      Assert.assertNotNull(msg1);
+
+      for (int i = 0; i < messageSize; i++) {
+         byte b = msg1.getBodyBuffer().readByte();
+         assertEquals("position = " + i, getSamplebyte(i), b);
+      }
+
+      msg1.acknowledge();
+      session.commit();
+
+      consumer.close();
+
+      session.close();
+
+      validateNoFilesOnLargeDir();
    }
 
    @Test
