@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.concurrent.RejectedExecutionException;
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -37,6 +39,12 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
+import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.protocol.ServerPacketDecoder;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
@@ -47,10 +55,12 @@ import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl.CHANNEL_I
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -111,12 +121,15 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
    }
 
    @Override
-   public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed, final Connection connection) {
+   public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed,
+                                                final Connection connection) {
       final Configuration config = server.getConfiguration();
 
       Executor connectionExecutor = server.getExecutorFactory().getExecutor();
 
-      final CoreRemotingConnection rc = new RemotingConnectionImpl(new ServerPacketDecoder(), connection, incomingInterceptors, outgoingInterceptors, server.getNodeID(), connectionExecutor);
+      final CoreRemotingConnection rc = new RemotingConnectionImpl(new ServerPacketDecoder(),
+                                                                   connection, incomingInterceptors, outgoingInterceptors, server.getNodeID(),
+                                                                   connectionExecutor);
 
       Channel channel1 = rc.getChannel(CHANNEL_ID.SESSION.id, -1);
 
@@ -130,13 +143,19 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
          ttl = config.getConnectionTTLOverride();
       }
 
-      final ConnectionEntry entry = new ConnectionEntry(rc, connectionExecutor, System.currentTimeMillis(), ttl);
+      final ConnectionEntry entry = new ConnectionEntry(rc, connectionExecutor,
+                                                        System.currentTimeMillis(), ttl);
 
       final Channel channel0 = rc.getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
 
       channel0.setHandler(new LocalChannelHandler(config, entry, channel0, acceptorUsed, rc));
 
-      server.getClusterManager().addClusterChannelHandler(rc.getChannel(CHANNEL_ID.CLUSTER.id, -1), acceptorUsed, rc, server.getActivation());
+      server.getClusterManager()
+         .addClusterChannelHandler(rc.getChannel(CHANNEL_ID.CLUSTER.id, -1), acceptorUsed, rc,
+                                   server.getActivation());
+
+      final Channel federationChannel =  rc.getChannel(CHANNEL_ID.FEDERATION.id, -1);
+      federationChannel.setHandler(new LocalChannelHandler(config, entry, channel0, acceptorUsed, rc));
 
       return entry;
    }
@@ -249,18 +268,22 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
             // Just send a ping back
             channel0.send(packet);
-         } else if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY || packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
+         } else if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY
+            || packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
             SubscribeClusterTopologyUpdatesMessage msg = (SubscribeClusterTopologyUpdatesMessage) packet;
 
             if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
-               channel0.getConnection().setChannelVersion(((SubscribeClusterTopologyUpdatesMessageV2) msg).getClientVersion());
+               channel0.getConnection().setChannelVersion(
+                  ((SubscribeClusterTopologyUpdatesMessageV2) msg).getClientVersion());
             }
 
             final ClusterTopologyListener listener = new ClusterTopologyListener() {
                @Override
                public void nodeUP(final TopologyMember topologyMember, final boolean last) {
                   try {
-                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair = BackwardsCompatibilityUtils.checkTCPPairConversion(channel0.getConnection().getChannelVersion(), topologyMember);
+                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair = BackwardsCompatibilityUtils
+                        .checkTCPPairConversion(
+                           channel0.getConnection().getChannelVersion(), topologyMember);
 
                      final String nodeID = topologyMember.getNodeId();
                      // Using an executor as most of the notifications on the Topology
@@ -270,11 +293,20 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                         @Override
                         public void run() {
                            if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V3(topologyMember.getUniqueEventID(), nodeID, topologyMember.getBackupGroupName(), topologyMember.getScaleDownGroupName(), connectorPair, last));
+                              channel0.send(new ClusterTopologyChangeMessage_V3(
+                                 topologyMember.getUniqueEventID(), nodeID,
+                                 topologyMember.getBackupGroupName(),
+                                 topologyMember.getScaleDownGroupName(), connectorPair,
+                                 last));
                            } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V2(topologyMember.getUniqueEventID(), nodeID, topologyMember.getBackupGroupName(), connectorPair, last));
+                              channel0.send(new ClusterTopologyChangeMessage_V2(
+                                 topologyMember.getUniqueEventID(), nodeID,
+                                 topologyMember.getBackupGroupName(), connectorPair,
+                                 last));
                            } else {
-                              channel0.send(new ClusterTopologyChangeMessage(nodeID, connectorPair, last));
+                              channel0.send(
+                                 new ClusterTopologyChangeMessage(nodeID, connectorPair,
+                                                                  last));
                            }
                         }
                      });
@@ -295,7 +327,9 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                         @Override
                         public void run() {
                            if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V2(uniqueEventID, nodeID));
+                              channel0.send(
+                                 new ClusterTopologyChangeMessage_V2(uniqueEventID,
+                                                                     nodeID));
                            } else {
                               channel0.send(new ClusterTopologyChangeMessage(nodeID));
                            }
@@ -309,7 +343,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
                @Override
                public String toString() {
-                  return "Remote Proxy on channel " + Integer.toHexString(System.identityHashCode(this));
+                  return "Remote Proxy on channel " + Integer
+                     .toHexString(System.identityHashCode(this));
                }
             };
 
@@ -319,7 +354,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                rc.addCloseListener(new CloseListener() {
                   @Override
                   public void connectionClosed() {
-                     acceptorUsed.getClusterConnection().removeClusterTopologyListener(listener);
+                     acceptorUsed.getClusterConnection()
+                        .removeClusterTopologyListener(listener);
                   }
                });
             } else {
@@ -329,20 +365,120 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                   @Override
                   public void run() {
                      String nodeId = server.getNodeID().toString();
-                     Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(null, null);
+                     Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(
+                        null, null);
                      if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                        channel0.send(new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(), nodeId, null, emptyConfig, true));
+                        channel0.send(
+                           new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(),
+                                                               nodeId, null, emptyConfig, true));
                      } else {
-                        channel0.send(new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
+                        channel0.send(
+                           new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
                      }
                   }
                });
             }
+         } else if (packet.getType() == PacketImpl.FEDERATION_DOWNSTREAM_CONNECT) {
+            //If we receive this packet then a remote broker is requesting us to create federated upstream connection
+            //back to it which simulates a downstream connection
+            final FederationDownstreamConnectMessage message = (FederationDownstreamConnectMessage) packet;
+            final FederationDownstreamConfiguration downstreamConfiguration = message.getStreamConfiguration();
+
+            //Create a new Upstream Federation configuration based on the received Downstream connection message
+            //from the remote broker
+            //The idea here is to set all the same configuration parameters that apply to the upstream connection
+            final FederationConfiguration config = new FederationConfiguration();
+            config.setName(message.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX);
+            config.setCredentials(message.getCredentials());
+
+            //Add the policy map configuration
+            for (FederationPolicy policy : message.getFederationPolicyMap().values()) {
+               config.addFederationPolicy(policy);
+            }
+
+            //Add any transformer configurations
+            for (FederationTransformerConfiguration transformerConfiguration : message.getTransformerConfigurationMap().values()) {
+               config.addTransformerConfiguration(transformerConfiguration);
+            }
+
+            //Create an upstream configuration with the same name but apply the upstream suffix so it is unique
+            final FederationUpstreamConfiguration upstreamConfiguration = new FederationUpstreamConfiguration()
+               .setName(downstreamConfiguration.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX)
+               .addPolicyRefs(downstreamConfiguration.getPolicyRefs());
+
+            //Use the provided Transport Configuration information to create an upstream connection back to the broker that
+            //created the downstream connection
+            final TransportConfiguration upstreamConfig = downstreamConfiguration.getUpstreamConfiguration();
+
+            //Initialize the upstream transport with the config from the acceptor as this will apply
+            //relevant settings such as SSL, then override with settings from the downstream config
+            final Map<String, Object> params = new HashMap<>(acceptorUsed.getConfiguration());
+            params.putAll(upstreamConfig.getParams());
+
+            //Add the new upstream configuration that was created so we can connect back to the downstream server
+            final TransportConfiguration upstreamConf = new TransportConfiguration(
+               upstreamConfig.getFactoryClassName(), params, upstreamConfig.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX,
+               new HashMap<>());
+            server.getConfiguration()
+               .addConnectorConfiguration(upstreamConf.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX, upstreamConf);
+
+            //Create a new upstream connection config based on the downstream configuration
+            FederationConnectionConfiguration downstreamConConf = downstreamConfiguration.getConnectionConfiguration();
+            FederationConnectionConfiguration upstreamConConf = upstreamConfiguration.getConnectionConfiguration();
+            List<String> connectorNames = new ArrayList<>();
+            connectorNames.add(upstreamConf.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX);
+
+            //Configure all of the upstream connection parameters from the downstream connection that are relevant
+            //Note that HA and discoveryGroupName are skipped because the downstream connection will manage that
+            //In this case we just want to create a connection back to the broker that sent the downstream packet.
+            //If this broker goes down then the original broker (if configured with HA) will re-establish a new
+            //connection to another broker which will then create another upstream, etc
+            upstreamConConf.setStaticConnectors(connectorNames);
+            upstreamConConf.setUsername(downstreamConConf.getUsername());
+            upstreamConConf.setPassword(downstreamConConf.getPassword());
+            upstreamConConf.setShareConnection(downstreamConConf.isShareConnection());
+            upstreamConConf.setPriorityAdjustment(downstreamConConf.getPriorityAdjustment());
+            upstreamConConf.setClientFailureCheckPeriod(downstreamConConf.getClientFailureCheckPeriod());
+            upstreamConConf.setConnectionTTL(downstreamConConf.getConnectionTTL());
+            upstreamConConf.setRetryInterval(downstreamConConf.getRetryInterval());
+            upstreamConConf.setRetryIntervalMultiplier(downstreamConConf.getRetryIntervalMultiplier());
+            upstreamConConf.setMaxRetryInterval(downstreamConConf.getMaxRetryInterval());
+            upstreamConConf.setInitialConnectAttempts(downstreamConConf.getInitialConnectAttempts());
+            upstreamConConf.setReconnectAttempts(downstreamConConf.getReconnectAttempts());
+            upstreamConConf.setCallTimeout(downstreamConConf.getCallTimeout());
+            upstreamConConf.setCallFailoverTimeout(downstreamConConf.getCallFailoverTimeout());
+            config.addUpstreamConfiguration(upstreamConfiguration);
+
+            //Register close and failure listeners, if the initial downstream connection goes down then we
+            //want to terminate the upstream connection
+            rc.addCloseListener(() -> {
+               server.getFederationManager().undeploy(config.getName());
+            });
+
+            rc.addFailureListener(new FailureListener() {
+               @Override
+               public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+                  server.getFederationManager().undeploy(config.getName());
+               }
+
+               @Override
+               public void connectionFailed(ActiveMQException exception, boolean failedOver,
+                                            String scaleDownTargetNodeID) {
+                  server.getFederationManager().undeploy(config.getName());
+               }
+            });
+
+            try {
+               server.getFederationManager().deploy(config);
+            } catch (Exception e) {
+               logger.error("Error deploying federation: " + e.getMessage(), e);
+            }
          }
       }
 
-      private Pair<TransportConfiguration, TransportConfiguration> getPair(TransportConfiguration conn,
-                                                                           boolean isBackup) {
+      private Pair<TransportConfiguration, TransportConfiguration> getPair(
+         TransportConfiguration conn,
+         boolean isBackup) {
          if (isBackup) {
             return new Pair<>(null, conn);
          }

@@ -17,14 +17,21 @@
 package org.apache.activemq.artemis.core.config.federation;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
+import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationTransformerConfiguration implements Serializable {
 
    private String name;
 
    private TransformerConfiguration transformerConfiguration;
+
+   public FederationTransformerConfiguration() {
+   }
 
    public FederationTransformerConfiguration(String name, TransformerConfiguration transformerConfiguration) {
       this.name = name;
@@ -51,5 +58,31 @@ public class FederationTransformerConfiguration implements Serializable {
    @Override
    public int hashCode() {
       return Objects.hash(name, transformerConfiguration);
+   }
+
+
+   public void encode(ActiveMQBuffer buffer) {
+      Preconditions.checkArgument(name != null, "name can not be null");
+      Preconditions.checkArgument(transformerConfiguration != null, "transformerConfiguration can not be null");
+      buffer.writeString(name);
+
+      buffer.writeString(transformerConfiguration.getClassName());
+      buffer.writeInt(transformerConfiguration.getProperties() == null ? 0 : transformerConfiguration.getProperties().size());
+      if (transformerConfiguration.getProperties() != null) {
+         for (Map.Entry<String, String> entry : transformerConfiguration.getProperties().entrySet()) {
+            buffer.writeString(entry.getKey());
+            buffer.writeString(entry.getValue());
+         }
+      }
+   }
+
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readString();
+      transformerConfiguration = new TransformerConfiguration(buffer.readString());
+
+      final int propertiesSize = buffer.readInt();
+      for (int i = 0; i < propertiesSize; i++) {
+         transformerConfiguration.getProperties().put(buffer.readString(), buffer.readString());
+      }
    }
 }

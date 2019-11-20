@@ -572,6 +572,33 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final CriticalAnalyzerPolicy DEFAULT_ANALYZE_CRITICAL_POLICY = CriticalAnalyzerPolicy.LOG;
 
+   // The period (in milliseconds) used to check if the federation connection has failed to receive pings from another server
+   private static long DEFAULT_FEDERATION_FAILURE_CHECK_PERIOD = 30000;
+
+   // how long to keep a connection alive in the absence of any data arriving from the client
+   private static long DEFAULT_FEDERATION_CONNECTION_TTL = getDefaultConnectionTtl();
+
+   // How long to wait for a reply
+   private static long DEFAULT_FEDERATION_CALL_TIMEOUT = 30000;
+
+   // period (in ms) between successive retries
+   private static long DEFAULT_FEDERATION_RETRY_INTERVAL = 500;
+
+   // multiplier to apply to the retry-interval
+   private static double DEFAULT_FEDERATION_RETRY_INTERVAL_MULTIPLIER = getDefaultRetryIntervalMultiplier();
+
+   // Maximum value for retry-interval
+   private static long DEFAULT_FEDERATION_MAX_RETRY_INTERVAL = getDefaultMaxRetryInterval();
+
+   // How many attempts should be made to connect initially
+   private static int DEFAULT_FEDERATION_INITIAL_CONNECT_ATTEMPTS = -1;
+
+   // How many attempts should be made to reconnect after failure
+   private static int DEFAULT_FEDERATION_RECONNECT_ATTEMPTS = -1;
+
+   // How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
+   private static long DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT = -1;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1537,4 +1564,68 @@ public final class ActiveMQDefaultConfiguration {
    public static long getDefaultRetryReplicationWait() {
       return DEFAULT_RETRY_REPLICATION_WAIT;
    }
+
+   /**
+    * The period (in milliseconds) used to check if the federation connection has failed to receive pings from another server
+    */
+   public static long getDefaultFederationFailureCheckPeriod() {
+      return DEFAULT_FEDERATION_FAILURE_CHECK_PERIOD;
+   }
+
+   /**
+    * how long to keep a connection alive in the absence of any data arriving from the client
+    */
+   public static long getDefaultFederationConnectionTtl() {
+      return DEFAULT_FEDERATION_CONNECTION_TTL;
+   }
+
+   /**
+    * How long to wait for a reply
+    */
+   public static long getDefaultFederationCallTimeout() {
+      return DEFAULT_FEDERATION_CALL_TIMEOUT;
+   }
+
+   /**
+    * period (in ms) between successive retries
+    */
+   public static long getDefaultFederationRetryInterval() {
+      return DEFAULT_FEDERATION_RETRY_INTERVAL;
+   }
+
+   /**
+    * multiplier to apply to the retry-interval
+    */
+   public static double getDefaultFederationRetryIntervalMultiplier() {
+      return DEFAULT_FEDERATION_RETRY_INTERVAL_MULTIPLIER;
+   }
+
+   /**
+    * Maximum value for retry-interval
+    */
+   public static long getDefaultFederationMaxRetryInterval() {
+      return DEFAULT_FEDERATION_MAX_RETRY_INTERVAL;
+   }
+
+   /**
+    * How many attempts should be made to connect initially
+    */
+   public static int getDefaultFederationInitialConnectAttempts() {
+      return DEFAULT_FEDERATION_INITIAL_CONNECT_ATTEMPTS;
+   }
+
+   /**
+    * How many attempts should be made to reconnect after failure
+    */
+   public static int getDefaultFederationReconnectAttempts() {
+      return DEFAULT_FEDERATION_RECONNECT_ATTEMPTS;
+   }
+
+   /**
+    * How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
+    */
+   public static long getDefaultFederationCallFailoverTimeout() {
+      return DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT;
+   }
+
 }

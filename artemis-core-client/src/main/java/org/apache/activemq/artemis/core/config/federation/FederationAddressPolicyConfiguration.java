@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.utils.Preconditions;
+
 public class FederationAddressPolicyConfiguration implements FederationPolicy<FederationAddressPolicyConfiguration>, Serializable {
 
    private String name;
@@ -106,6 +109,55 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       return this;
    }
 
+   @Override
+   public void encode(ActiveMQBuffer buffer) {
+      Preconditions.checkArgument(name != null, "name can not be null");
+      buffer.writeString(name);
+      buffer.writeNullableBoolean(autoDelete);
+      buffer.writeNullableLong(autoDeleteDelay);
+      buffer.writeNullableLong(autoDeleteMessageCount);
+      buffer.writeInt(maxHops);
+      buffer.writeNullableString(transformerRef);
+
+      encodeMatchers(buffer, includes);
+      encodeMatchers(buffer, excludes);
+   }
+
+   @Override
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readString();
+      autoDelete = buffer.readNullableBoolean();
+      autoDeleteDelay = buffer.readNullableLong();
+      autoDeleteMessageCount = buffer.readNullableLong();
+      maxHops = buffer.readInt();
+      transformerRef = buffer.readNullableString();
+
+      includes = new HashSet<>();
+      excludes = new HashSet<>();
+      decodeMatchers(buffer, includes);
+      decodeMatchers(buffer, excludes);
+
+   }
+
+   private void encodeMatchers(final ActiveMQBuffer buffer, final Set<Matcher> matchers) {
+      buffer.writeInt(matchers == null ? 0 : matchers.size());
+      if (matchers != null) {
+         for (Matcher matcher : matchers) {
+            matcher.encode(buffer);
+         }
+      }
+   }
+
+   private void decodeMatchers(final ActiveMQBuffer buffer, final Set<Matcher> matchers) {
+      final int size = buffer.readInt();
+
+      for (int i = 0; i < size; i++) {
+         Matcher matcher = new Matcher();
+         matcher.decode(buffer);
+         matchers.add(matcher);
+      }
+   }
+
    public static class Matcher implements Serializable {
 
       private String addressMatch;
@@ -130,6 +182,15 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       @Override
       public int hashCode() {
          return Objects.hash(addressMatch);
+      }
+
+      public void encode(ActiveMQBuffer buffer) {
+         Preconditions.checkArgument(addressMatch != null, "addressMatch can not be null");
+         buffer.writeString(addressMatch);
+      }
+
+      public void decode(ActiveMQBuffer buffer) {
+         addressMatch = buffer.readString();
       }
    }
 

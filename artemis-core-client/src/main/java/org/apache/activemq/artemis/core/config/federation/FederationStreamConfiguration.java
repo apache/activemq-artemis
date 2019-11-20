@@ -22,7 +22,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class FederationUpstreamConfiguration implements Serializable {
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+
+public abstract class FederationStreamConfiguration <T extends FederationStreamConfiguration<T>> implements Serializable {
 
    private String name;
 
@@ -33,23 +35,23 @@ public class FederationUpstreamConfiguration implements Serializable {
       return name;
    }
 
-   public FederationUpstreamConfiguration setName(String name) {
+   public T setName(String name) {
       this.name = name;
-      return this;
+      return (T) this;
    }
 
    public Set<String> getPolicyRefs() {
       return policyRefs;
    }
 
-   public FederationUpstreamConfiguration addPolicyRef(String name) {
+   public T addPolicyRef(String name) {
       policyRefs.add(name);
-      return this;
+      return (T) this;
    }
 
-   public FederationUpstreamConfiguration addPolicyRefs(Collection<String> names) {
+   public T addPolicyRefs(Collection<String> names) {
       policyRefs.addAll(names);
-      return this;
+      return (T) this;
    }
 
    public FederationConnectionConfiguration getConnectionConfiguration() {
@@ -58,16 +60,35 @@ public class FederationUpstreamConfiguration implements Serializable {
 
    @Override
    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationUpstreamConfiguration)) return false;
-      FederationUpstreamConfiguration that = (FederationUpstreamConfiguration) o;
-      return Objects.equals(name, that.name) &&
-           Objects.equals(connectionConfiguration, that.connectionConfiguration) &&
-           Objects.equals(policyRefs, that.policyRefs);
+      if (this == o)
+         return true;
+      if (!(o instanceof FederationStreamConfiguration))
+         return false;
+      FederationStreamConfiguration that = (FederationStreamConfiguration) o;
+      return Objects.equals(name, that.name) && Objects.equals(connectionConfiguration, that.connectionConfiguration) && Objects.equals(policyRefs, that.policyRefs);
    }
 
    @Override
    public int hashCode() {
       return Objects.hash(name, connectionConfiguration, policyRefs);
+   }
+
+   public void encode(ActiveMQBuffer buffer) {
+      buffer.writeString(name);
+      connectionConfiguration.encode(buffer);
+
+      buffer.writeInt(policyRefs == null ? 0 : policyRefs.size());
+      for (String policyRef : policyRefs) {
+         buffer.writeString(policyRef);
+      }
+   }
+
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readString();
+      connectionConfiguration.decode(buffer);
+      int policyRefNum = buffer.readInt();
+      for (int i = 0; i < policyRefNum; i++) {
+         policyRefs.add(buffer.readString());
+      }
    }
 }

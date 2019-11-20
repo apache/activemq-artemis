@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
@@ -31,11 +32,11 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.federation.FederatedAbstract;
 import org.apache.activemq.artemis.core.server.federation.FederatedConsumerKey;
 import org.apache.activemq.artemis.core.server.federation.Federation;
@@ -57,6 +58,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
  */
 public class FederatedAddress extends FederatedAbstract implements ActiveMQServerQueuePlugin, Serializable {
 
+   public static final String FEDERATED_QUEUE_PREFIX = "federated";
    public static final SimpleString HDR_HOPS = new SimpleString("_AMQ_Hops");
    private final SimpleString queueNameFormat;
    private final SimpleString filterString;
@@ -74,7 +76,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
       } else {
          this.filterString = HDR_HOPS.concat(" IS NULL OR ").concat(HDR_HOPS).concat("<").concat(Integer.toString(config.getMaxHops()));
       }
-      this.queueNameFormat = SimpleString.toSimpleString("federated.${federation}.${upstream}.${address}.${routeType}");
+      this.queueNameFormat = SimpleString.toSimpleString(FEDERATED_QUEUE_PREFIX + ".${federation}.${upstream}.${address}.${routeType}");
       if (config.getIncludes().isEmpty()) {
          includes = Collections.emptySet();
       } else {

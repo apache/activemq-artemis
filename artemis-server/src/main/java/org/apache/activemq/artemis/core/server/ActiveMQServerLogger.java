@@ -1638,7 +1638,19 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void federationAvoidStackOverflowPolicyRef(String upstreamName, String policyRef);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222282, value = "File {0} at {1} is empty. Delete the empty file to stop this message.",
+   @Message(id = 222282, value = "Federation downstream {0} upstream transport configuration ref {1} could not be resolved in federation configuration", format = Message.Format.MESSAGE_FORMAT)
+   void federationCantFindUpstreamConnector(String downstreamName, String upstreamRef);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 222283, value = "Federation downstream {0} has been deployed", format = Message.Format.MESSAGE_FORMAT)
+   void federationDownstreamDeployed(String downstreamName);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 222284, value = "Federation downstream {0} has been undeployed", format = Message.Format.MESSAGE_FORMAT)
+   void federationDownstreamUnDeployed(String downstreamName);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222285, value = "File {0} at {1} is empty. Delete the empty file to stop this message.",
       format = Message.Format.MESSAGE_FORMAT)
    void emptyAddressFile(String addressFile, String directory);
 
