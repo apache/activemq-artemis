@@ -140,6 +140,11 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void rollbackIfPossible() {
+
+      }
+
+      @Override
       public void commit(final boolean onePhase) throws Exception {
 
       }
