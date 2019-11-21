@@ -358,6 +358,27 @@ public class TransactionImpl implements Transaction {
    }
 
    @Override
+   public void rollbackIfPossible() {
+      synchronized (timeoutLock) {
+         if (state == State.ROLLEDBACK) {
+            // I don't think this could happen, but just in case
+            logger.debug("TransactionImpl::rollbackIfPossible::" + this + " is being ignored");
+            return;
+         }
+         if (state != State.PREPARED) {
+            try {
+               internalRollback(sorted);
+            } catch (Exception e) {
+               // nothing we can do beyond logging
+               // no need to special handler here as this was not even supposed to happen at this point
+               // even if it happenes this would be the exception of the exception, so we just log here
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      }
+   }
+
+   @Override
    public void rollback() throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("TransactionImpl::rollback::" + this);
