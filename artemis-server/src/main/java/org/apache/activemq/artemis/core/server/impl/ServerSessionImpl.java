@@ -139,6 +139,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected Transaction tx;
 
+   /** This will store the Transaction between xaEnd and xaPrepare or xaCommit.
+    *  in a failure scenario (client is gone), this will be held between xaEnd and xaCommit. */
+   protected volatile Transaction pendingTX;
+
    protected boolean xa;
 
    protected final PagingManager pagingManager;
@@ -384,13 +388,28 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          if (closed)
             return;
 
-         if (tx != null && tx.getXid() == null) {
-            // We only rollback local txs on close, not XA tx branches
+         if (failed) {
 
-            try {
-               rollback(failed, false);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.unableToRollbackOnClose(e);
+            Transaction txToRollback = tx;
+            if (txToRollback != null) {
+               txToRollback.rollbackIfPossible();
+            }
+
+            txToRollback = pendingTX;
+
+            if (txToRollback != null) {
+               txToRollback.rollbackIfPossible();
+            }
+
+         } else {
+            if (tx != null && tx.getXid() == null) {
+               // We only rollback local txs on close, not XA tx branches
+
+               try {
+                  rollback(failed, false);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.unableToRollbackOnClose(e);
+               }
             }
          }
       }
@@ -1252,6 +1271,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception {
+      this.pendingTX = null;
 
       if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot commit, session is currently doing work in transaction " + tx.getXid();
@@ -1310,6 +1330,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
             }
          } else {
+            this.pendingTX = tx;
             tx = null;
          }
       } else {
@@ -1395,6 +1416,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void xaRollback(final Xid xid) throws Exception {
+      this.pendingTX = null;
+
       if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot roll back, session is currently doing work in a transaction " + tx.getXid();
 
