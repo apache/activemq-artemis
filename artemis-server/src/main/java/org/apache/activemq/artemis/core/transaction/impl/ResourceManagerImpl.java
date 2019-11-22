@@ -62,6 +62,11 @@ public class ResourceManagerImpl implements ResourceManager {
    // ActiveMQComponent implementation
 
    @Override
+   public int size() {
+      return transactions.size();
+   }
+
+   @Override
    public void start() throws Exception {
       if (started) {
          return;
