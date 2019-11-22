@@ -167,6 +167,8 @@ public class SessionFailureXATest extends ActiveMQTestBase {
 
       Wait.assertEquals(0, () -> messagingService.getSessions().size());
 
+      Wait.assertEquals(0, messagingService.getResourceManager()::size);
+
       locator = createInVMNonHALocator();
       sessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(sessionFactory.createSession(true, false, false));
