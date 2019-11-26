@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster;
 
 import java.io.File;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
@@ -118,7 +117,7 @@ public class NodeManagerAction {
 
       }
       NodeManagerAction nodeManagerAction = new NodeManagerAction(work1);
-      FileLockNodeManager nodeManager = new FileLockNodeManager(new File("."), false, new ScheduledThreadPoolExecutor(1));
+      FileLockNodeManager nodeManager = new FileLockNodeManager(new File("."), false);
       nodeManager.start();
       try {
          nodeManagerAction.performWork(nodeManager);
