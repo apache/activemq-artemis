@@ -26,13 +26,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQLockAcquisitionTimeoutException;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
@@ -77,6 +77,11 @@ public class FileLockNodeManager extends NodeManager {
    public FileLockNodeManager(final File directory, boolean replicatedBackup, ScheduledExecutorService scheduledPool) {
       super(replicatedBackup, directory);
       this.scheduledPool = scheduledPool;
+   }
+
+   public FileLockNodeManager(final File directory, boolean replicatedBackup) {
+      super(replicatedBackup, directory);
+      this.scheduledPool = null;
    }
 
    public FileLockNodeManager(final File directory, boolean replicatedBackup, long lockAcquisitionTimeout,
@@ -406,10 +411,9 @@ public class FileLockNodeManager extends NodeManager {
 
    private synchronized void startLockMonitoring() {
       logger.debug("Starting the lock monitor");
-      if (scheduledLockMonitor == null) {
-         MonitorLock monitorLock = new MonitorLock();
-         scheduledLockMonitor = scheduledPool.scheduleAtFixedRate(monitorLock, LOCK_MONITOR_TIMEOUT_MILLIES,
-               LOCK_MONITOR_TIMEOUT_MILLIES, TimeUnit.MILLISECONDS);
+      if (monitorLock == null) {
+         monitorLock = new MonitorLock(scheduledPool, LOCK_MONITOR_TIMEOUT_MILLIES, LOCK_MONITOR_TIMEOUT_MILLIES, TimeUnit.MILLISECONDS, false);
+         monitorLock.start();
       } else {
          logger.debug("Lock monitor was already started");
       }
@@ -417,9 +421,9 @@ public class FileLockNodeManager extends NodeManager {
 
    private synchronized void stopLockMonitoring() {
       logger.debug("Stopping the lock monitor");
-      if (scheduledLockMonitor != null) {
-         scheduledLockMonitor.cancel(true);
-         scheduledLockMonitor = null;
+      if (monitorLock != null) {
+         monitorLock.stop();
+         monitorLock = null;
       } else {
          logger.debug("The lock monitor was already stopped");
       }
@@ -457,7 +461,7 @@ public class FileLockNodeManager extends NodeManager {
 
    protected final Set<LockListener> lockListeners = Collections.synchronizedSet(new HashSet<LockListener>());
 
-   private ScheduledFuture<?> scheduledLockMonitor;
+   private MonitorLock monitorLock;
 
    public abstract class LockListener {
       protected abstract void lostLock() throws Exception;
@@ -467,7 +471,16 @@ public class FileLockNodeManager extends NodeManager {
       }
    }
 
-   public class MonitorLock implements Runnable {
+
+   public class MonitorLock extends ActiveMQScheduledComponent {
+      public MonitorLock(ScheduledExecutorService scheduledExecutorService,
+                            long initialDelay,
+                            long checkPeriod,
+                            TimeUnit timeUnit,
+                            boolean onDemand) {
+         super(scheduledExecutorService, initialDelay, checkPeriod, timeUnit, onDemand);
+      }
+
 
       @Override
       public void run() {
