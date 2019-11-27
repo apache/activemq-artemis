@@ -78,6 +78,28 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    /**
     * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
     *
+    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on the configured {@code executor}
+    * @param initialDelay             the time to delay first execution
+    * @param checkPeriod              the delay between the termination of one execution and the start of the next
+    * @param timeUnit                 the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
+    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    */
+   public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
+                                     long initialDelay,
+                                     long checkPeriod,
+                                     TimeUnit timeUnit,
+                                     boolean onDemand) {
+      this.executor = null;
+      this.scheduledExecutorService = scheduledExecutorService;
+      this.initialDelay = initialDelay;
+      this.period = checkPeriod;
+      this.timeUnit = timeUnit;
+      this.onDemand = onDemand;
+   }
+
+   /**
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    *
     * <p>
     * The component created will have {@code initialDelay} defaulted to {@code checkPeriod}.
     *
