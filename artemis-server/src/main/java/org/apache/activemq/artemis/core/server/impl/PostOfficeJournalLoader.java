@@ -378,6 +378,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
                pg.open();
 
                List<PagedMessage> pgMessages = pg.read(storageManager);
+               pg.close(false, false);
                Map<Long, AtomicInteger> countsPerQueueOnPage = new HashMap<>();
                Map<Long, AtomicLong> sizePerQueueOnPage = new HashMap<>();
 
