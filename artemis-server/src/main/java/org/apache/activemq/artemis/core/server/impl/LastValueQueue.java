@@ -220,9 +220,9 @@ public class LastValueQueue extends QueueImpl {
       QueueIterateAction queueIterateAction = super.createDeleteMatchingAction(ackReason);
       return new QueueIterateAction() {
          @Override
-         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
             removeIfCurrent(ref);
-            queueIterateAction.actMessage(tx, ref);
+            return queueIterateAction.actMessage(tx, ref);
          }
       };
    }
