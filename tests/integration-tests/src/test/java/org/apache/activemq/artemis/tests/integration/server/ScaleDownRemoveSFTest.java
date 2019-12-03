@@ -86,7 +86,7 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
 
       // consume a message from queue 1
       addConsumer(1, 0, queueName1, null, false);
-      ClientMessage clientMessage = consumers[1].getConsumer().receive(250);
+      ClientMessage clientMessage = consumers[1].getConsumer().receive(5_000);
       Assert.assertNotNull(clientMessage);
       clientMessage.acknowledge();
       consumers[1].getSession().commit();
@@ -105,12 +105,12 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       servers[0].stop();
 
       addConsumer(0, 1, queueName1, null);
-      clientMessage = consumers[0].getConsumer().receive(250);
+      clientMessage = consumers[0].getConsumer().receive(10_000);
       Assert.assertNotNull(clientMessage);
       clientMessage.acknowledge();
 
       // ensure there are no more messages on queue 1
-      clientMessage = consumers[0].getConsumer().receive(250);
+      clientMessage = consumers[0].getConsumer().receiveImmediate();
       Assert.assertNull(clientMessage);
       removeConsumer(0);
 

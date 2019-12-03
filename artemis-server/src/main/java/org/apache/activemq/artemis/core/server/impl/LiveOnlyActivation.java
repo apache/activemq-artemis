@@ -58,6 +58,10 @@ public class LiveOnlyActivation extends Activation {
       this.liveOnlyPolicy = liveOnlyPolicy;
    }
 
+   public LiveOnlyPolicy getLiveOnlyPolicy() {
+      return liveOnlyPolicy;
+   }
+
    @Override
    public void run() {
       try {
