@@ -1073,6 +1073,57 @@ public class QueueControlTest extends ManagementTestBase {
       clientConsumer.close();
    }
 
+   @Test
+   public void testRetryMessageWithoutDLQ() throws Exception {
+      final SimpleString qName = new SimpleString("q1");
+      final SimpleString qName2 = new SimpleString("q2");
+      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString adName2 = new SimpleString("ad2");
+      final String sampleText = "Put me on DLQ";
+
+      session.createQueue(adName, RoutingType.MULTICAST, qName, null, durable);
+      session.createQueue(adName2, RoutingType.MULTICAST, qName2, null, durable);
+
+      // Send message to queue.
+      ClientProducer producer = session.createProducer(adName);
+      producer.send(createTextMessage(session, sampleText));
+      ClientMessage m = createTextMessage(session, sampleText);
+      m.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, adName2);
+      m.putStringProperty(Message.HDR_ORIGINAL_QUEUE, qName2);
+      producer.send(m);
+      session.start();
+
+      QueueControl queueControl = createManagementControl(adName, qName);
+      assertMessageMetrics(queueControl, 2, durable);
+
+      QueueControl queueControl2 = createManagementControl(adName2, qName2);
+      assertMessageMetrics(queueControl2, 0, durable);
+
+      queueControl.retryMessages();
+
+      Wait.assertTrue(() -> getMessageCount(queueControl) == 1, 2000, 100);
+      assertMessageMetrics(queueControl, 1, durable);
+
+      Wait.assertTrue(() -> getMessageCount(queueControl2) == 1, 2000, 100);
+      assertMessageMetrics(queueControl2, 1, durable);
+
+      ClientConsumer clientConsumer = session.createConsumer(qName);
+      ClientMessage clientMessage = clientConsumer.receive(500);
+      Assert.assertNotNull(clientMessage);
+      clientMessage.acknowledge();
+
+      Assert.assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
+
+      clientConsumer = session.createConsumer(qName2);
+      clientMessage = clientConsumer.receive(500);
+      Assert.assertNotNull(clientMessage);
+      clientMessage.acknowledge();
+
+      Assert.assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
+
+      clientConsumer.close();
+   }
+
    /**
     * Test retry - get a diverted message from DLQ and put on original queue.
     */
