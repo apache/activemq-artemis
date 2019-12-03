@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
@@ -75,7 +76,7 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
       int size = buffer.readInt();
 
       if (size != 0) {
-         TypedProperties properties = new TypedProperties();
+         TypedProperties properties = new TypedProperties(CoreMessage.INTERNAL_PROPERTY_NAMES_PREDICATE);
          properties.decode(buffer.byteBuf());
          message.setExtraProperties(properties);
       }

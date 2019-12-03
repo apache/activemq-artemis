@@ -849,7 +849,7 @@ public class AMQPMessage extends RefCountMessage {
 
    public TypedProperties createExtraProperties() {
       if (extraProperties == null) {
-         extraProperties = new TypedProperties();
+         extraProperties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
       }
       return extraProperties;
    }
@@ -875,6 +875,13 @@ public class AMQPMessage extends RefCountMessage {
          return null;
       } else {
          return extraProperties.getBytesProperty(key);
+      }
+   }
+
+   @Override
+   public void clearInternalProperties() {
+      if (extraProperties != null) {
+         extraProperties.clearInternalProperties();
       }
    }
 
