@@ -710,19 +710,19 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m1);
       LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
       // Wait for message delivered to queue
-      Wait.assertTrue(() -> browserIterator.hasNext(), 10, 2);
+      Wait.assertTrue(() -> browserIterator.hasNext(), 10_000, 2);
       long messageId = browserIterator.next().getMessage().getMessageID();
       browserIterator.close();
 
       queue.deleteReference(messageId);
       // Wait for delete tx's afterCommit called
-      Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 10, 2);
+      Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 10_000, 2);
       assertEquals(queue.getPersistentSize(), 0);
       assertTrue(((LastValueQueue)queue).getLastValueKeys().isEmpty());
 
       producer.send(m2);
       // Wait for message delivered to queue
-      Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024, 10, 2);
+      Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024, 10_000, 2);
       assertEquals(queue.getDeliveringSize(), 0);
    }
 
@@ -735,16 +735,17 @@ public class LVQTest extends ActiveMQTestBase {
 
       Queue queue = server.locateQueue(qName1);
       producer.send(m1);
+      Wait.assertEquals(1, queue::getMessageCount);
       LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
       // Wait for message delivered to queue
-      Wait.assertTrue(() -> browserIterator.hasNext(), 10, 2);
+      Assert.assertTrue(browserIterator.hasNext());
       long messageId = browserIterator.next().getMessage().getMessageID();
       browserIterator.close();
       long oldSize = queue.getPersistentSize();
 
       assertTrue(queue.changeReferencePriority(messageId, (byte) 1));
       // Wait for message delivered to queue
-      Wait.assertEquals(oldSize, () -> queue.getPersistentSize(), 10, 2);
+      Wait.assertEquals(oldSize, () -> queue.getPersistentSize(), 10_000, 2);
       assertEquals(queue.getDeliveringSize(), 0);
    }
 

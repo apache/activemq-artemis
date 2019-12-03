@@ -51,7 +51,6 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -97,14 +96,6 @@ public class BridgeTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    private final boolean netty;
-
-
-   @Override
-   protected ConfigurationImpl createBasicConfig(final int serverID) {
-      ConfigurationImpl config = super.createBasicConfig(serverID);
-      config.setJournalDatasync(true).setJournalSyncNonTransactional(true).setJournalSyncTransactional(true);
-      return config;
-   }
 
    @Parameterized.Parameters(name = "isNetty={0}")
    public static Collection getParameters() {
