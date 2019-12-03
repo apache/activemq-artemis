@@ -104,7 +104,7 @@ public class AMQPMessageRedistributionTest extends ClusterTestBase {
          TextMessage msg = (TextMessage) consumer.receive(5000);
          assertNotNull(msg);
       }
-      Message msg = consumer.receive(2000);
+      Message msg = consumer.receiveNoWait();
       assertNull(msg);
       connection.close();
    }
