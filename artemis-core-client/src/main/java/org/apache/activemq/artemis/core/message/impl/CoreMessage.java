@@ -20,7 +20,6 @@ package org.apache.activemq.artemis.core.message.impl;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -52,11 +51,6 @@ import org.jboss.logging.Logger;
  *  consumers */
 public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
-   // We use properties to establish routing context on clustering.
-   // However if the client resends the message after receiving, it needs to be removed, so we mark these internal
-   private static final Predicate<SimpleString> INTERNAL_PROPERTY_NAMES_PREDICATE =
-      name -> (name.startsWith(Message.HDR_ROUTE_TO_IDS) && !name.equals(Message.HDR_ROUTE_TO_IDS)) ||
-         (name.startsWith(Message.HDR_ROUTE_TO_ACK_IDS) && !name.equals(Message.HDR_ROUTE_TO_ACK_IDS));
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
 
    private volatile int memoryEstimate = -1;

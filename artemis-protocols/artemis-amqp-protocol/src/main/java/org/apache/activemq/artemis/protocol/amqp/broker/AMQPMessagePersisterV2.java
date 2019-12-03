@@ -75,7 +75,7 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
       int size = buffer.readInt();
 
       if (size != 0) {
-         TypedProperties properties = new TypedProperties();
+         TypedProperties properties = new TypedProperties(Message.INTERNAL_PROPERTY_NAMES_PREDICATE);
          properties.decode(buffer.byteBuf());
          message.setExtraProperties(properties);
       }
