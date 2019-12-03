@@ -49,7 +49,7 @@ public abstract class ClientTestBase extends SpawnedTestBase {
    }
 
    protected void assertActiveSession(final int expectedActiveSession, long timeout) throws Exception {
-      Wait.assertEquals(expectedActiveSession, server.getSessions()::size, timeout);
+      Wait.assertEquals(expectedActiveSession, () -> server.getSessions().size(), timeout);
    }
 
 }
