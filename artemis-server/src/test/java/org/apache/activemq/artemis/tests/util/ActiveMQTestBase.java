@@ -124,6 +124,7 @@ import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -293,6 +294,16 @@ public abstract class ActiveMQTestBase extends Assert {
                if (server == null) {
                   continue;
                }
+
+               // disable scaledown on tearDown, otherwise it takes a lot of time
+               try {
+                  ((LiveOnlyActivation) server.getActivation()).getLiveOnlyPolicy().getScaleDownPolicy().setEnabled(false);
+               } catch (Throwable ignored) {
+                  // don't care about anything here
+                  // if can't find activation, livePolicy or no LiveONlyActivation... don't care!!!
+                  // all I care is f you have scaleDownPolicy, it should be set to false at this point
+               }
+
                try {
                   final ClusterManager clusterManager = server.getClusterManager();
                   if (clusterManager != null) {

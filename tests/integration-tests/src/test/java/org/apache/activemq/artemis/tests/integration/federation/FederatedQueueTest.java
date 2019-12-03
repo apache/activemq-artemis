@@ -114,6 +114,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          MessageConsumer consumer0 = session0.createConsumer(queue0);
          MessageConsumer consumer1 = session1.createConsumer(queue1);
 
+         Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
          //Wait for local and federated consumer to be established on Server 1
          assertTrue(Wait.waitFor(() -> getServer(1).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() == 2,
                                  5000, 100));
@@ -123,7 +124,7 @@ public class FederatedQueueTest extends FederatedTestBase {
 
          //Consumer 0 should receive the message over consumer because of adjusted priority
          //to favor the federated broker
-         assertNull(consumer1.receive(500));
+         assertNull(consumer1.receiveNoWait());
          assertNotNull(consumer0.receive(1000));
 
          consumer0.close();
@@ -215,7 +216,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          producer.send(session1.createTextMessage("hello"));
 
          assertNotNull(consumer1.receive(1000));
-         assertNull(consumer0.receive(10));
+         assertNull(consumer0.receiveNoWait());
          consumer1.close();
 
          //Groups
@@ -228,7 +229,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          consumer1 = session1.createConsumer(queue1);
 
          producer.send(createTextMessage(session1, "groupA"));
-         assertNull(consumer1.receive(10));
+         assertNull(consumer1.receiveNoWait());
          assertNotNull(consumer0.receive(1000));
       }
 
@@ -253,7 +254,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          Queue queue0 = session0.createQueue(queueName);
          MessageConsumer consumer0 = session0.createConsumer(queue0);
 
-         assertNull(consumer0.receive(100));
+         assertNull(consumer0.receiveNoWait());
 
          FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
          getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
@@ -415,6 +416,8 @@ public class FederatedQueueTest extends FederatedTestBase {
          producer1.send(session1.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
 
+         Wait.assertTrue(() -> getServer(0).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
+         Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
          //Wait to see if extra consumers are created - this tests to make sure there is no loop and tests the FederatedQueue metaDataFilterString
          //is working properly - should only be 1 consumer on each (1 for the local consumer on broker0 and 1 for the federated consumer on broker1)
          assertFalse(Wait.waitFor(() -> getServer(0).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
@@ -536,7 +539,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       connection1.close();
       getServer(1).stop();
 
-      assertNull(consumer0.receive(100));
+      assertNull(consumer0.receiveNoWait());
 
       getServer(1).start();
 
@@ -546,6 +549,8 @@ public class FederatedQueueTest extends FederatedTestBase {
       queue1 =  session1.createQueue(queueName);
       producer = session1.createProducer(queue1);
       producer.send(session1.createTextMessage("hello"));
+
+      Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
 
       Wait.waitFor(() -> ((QueueBinding) getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName))).consumerCount() == 1);
 
@@ -601,6 +606,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       consumer0 = session0.createConsumer(queue0);
       producer.send(session1.createTextMessage("hello"));
 
+      Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
       Wait.waitFor(() -> ((QueueBinding) getServer(1)
             .getPostOffice()
             .getBinding(SimpleString.toSimpleString(queueName)))
