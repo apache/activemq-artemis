@@ -59,6 +59,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    private static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
    public static final long DEFAULT_SEND_TIMEOUT = 15000;
+   public static final Symbol[] DEFAULT_OUTCOMES = {Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL};
 
    private final AmqpTransferTagGenerator tagGenerator = new AmqpTransferTagGenerator(true);
    private final AtomicBoolean closed = new AtomicBoolean();
@@ -70,6 +71,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    private final Target userSpecifiedTarget;
    private final SenderSettleMode userSpecifiedSenderSettlementMode;
    private final ReceiverSettleMode userSpecifiedReceiverSettlementMode;
+   private final Symbol[] outcomes;
 
    private boolean presettle;
    private long sendTimeout = DEFAULT_SEND_TIMEOUT;
@@ -92,7 +94,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
     *        The unique ID assigned to this sender.
     */
    public AmqpSender(AmqpSession session, String address, String senderId) {
-      this(session, address, senderId, null, null);
+      this(session, address, senderId, null, null, DEFAULT_OUTCOMES);
    }
 
    /**
@@ -108,8 +110,15 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
     *        The {@link SenderSettleMode} to use on open.
     * @param receiverMode
     *        The {@link ReceiverSettleMode} to use on open.
+    * @param outcomes
+    *        The outcomes to use on open
     */
-   public AmqpSender(AmqpSession session, String address, String senderId, SenderSettleMode senderMode, ReceiverSettleMode receiverMode) {
+   public AmqpSender(AmqpSession session,
+                     String address,
+                     String senderId,
+                     SenderSettleMode senderMode,
+                     ReceiverSettleMode receiverMode,
+                     Symbol[] outcomes) {
 
       if (address != null && address.isEmpty()) {
          throw new IllegalArgumentException("Address cannot be empty.");
@@ -121,6 +130,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
       this.userSpecifiedTarget = null;
       this.userSpecifiedSenderSettlementMode = senderMode;
       this.userSpecifiedReceiverSettlementMode = receiverMode;
+      this.outcomes = outcomes;
    }
 
    /**
@@ -145,6 +155,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
       this.userSpecifiedTarget = target;
       this.userSpecifiedSenderSettlementMode = null;
       this.userSpecifiedReceiverSettlementMode = null;
+      outcomes = DEFAULT_OUTCOMES;
    }
 
    /**
@@ -311,11 +322,9 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
 
    @Override
    protected void doOpen() {
-
-      Symbol[] outcomes = new Symbol[] {Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL};
       Source source = new Source();
       source.setAddress(senderId);
-      source.setOutcomes(outcomes);
+      source.setOutcomes(this.outcomes);
 
       Target target = userSpecifiedTarget;
       if (target == null) {

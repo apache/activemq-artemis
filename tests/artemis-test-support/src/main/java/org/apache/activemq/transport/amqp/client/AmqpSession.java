@@ -189,10 +189,34 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @throws Exception if an error occurs while creating the sender.
     */
-   public AmqpSender createSender(final String address, final SenderSettleMode senderMode, ReceiverSettleMode receiverMode) throws Exception {
+   public AmqpSender createSender(final String address,
+                                  final SenderSettleMode senderMode,
+                                  ReceiverSettleMode receiverMode) throws Exception {
+      return createSender(address, senderMode, receiverMode, AmqpSender.DEFAULT_OUTCOMES);
+   }
+
+   /**
+    * Create a sender instance using the given address
+    *
+    * @param address
+    *        the address to which the sender will produce its messages.
+    * @param senderSettlementMode
+    *        controls the settlement mode used by the created Sender
+    * @param receiverSettlementMode
+    *        controls the desired settlement mode used by the remote Receiver
+    * @param outcomes
+    *        specifies the outcomes supported by the sender
+    *
+    * @return a newly created sender that is ready for use.
+    *
+    * @throws Exception if an error occurs while creating the sender.
+    */
+   public AmqpSender createSender(final String address,
+                                  final SenderSettleMode senderMode,
+                                  ReceiverSettleMode receiverMode, final Symbol[] outcomes) throws Exception {
       checkClosed();
 
-      final AmqpSender sender = new AmqpSender(AmqpSession.this, address, getNextSenderId(), senderMode, receiverMode);
+      final AmqpSender sender = new AmqpSender(AmqpSession.this, address, getNextSenderId(), senderMode, receiverMode, outcomes);
       final ClientFuture request = new ClientFuture();
 
       connection.getScheduler().execute(new Runnable() {
