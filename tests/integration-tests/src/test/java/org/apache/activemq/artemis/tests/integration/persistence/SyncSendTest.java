@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
@@ -79,6 +80,13 @@ public class SyncSendTest extends ActiveMQTestBase {
       this.protocol = protocol;
    }
 
+   @Override
+   protected ConfigurationImpl createBasicConfig(final int serverID) {
+      ConfigurationImpl config = super.createBasicConfig(serverID);
+      config.setJournalDatasync(true).setJournalSyncNonTransactional(true).setJournalSyncTransactional(true);
+      return config;
+   }
+
    ActiveMQServer server;
 
    @Override
@@ -95,8 +103,9 @@ public class SyncSendTest extends ActiveMQTestBase {
          server.getConfiguration().setJournalType(JournalType.ASYNCIO);
       } else {
          server.getConfiguration().setJournalType(JournalType.NIO);
-
       }
+
+      server.getConfiguration().setJournalSyncTransactional(true).setJournalSyncNonTransactional(true).setJournalDatasync(true);
       server.start();
    }
 
