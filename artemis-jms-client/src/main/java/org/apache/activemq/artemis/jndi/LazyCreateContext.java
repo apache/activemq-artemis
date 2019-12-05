@@ -23,15 +23,22 @@ public abstract class LazyCreateContext extends ReadOnlyContext {
 
    @Override
    public Object lookup(String name) throws NamingException {
-      try {
-         return super.lookup(name);
-      } catch (NameNotFoundException e) {
-         Object answer = createEntry(name);
-         if (answer == null) {
-            throw e;
+      /*
+       * The lookup and the internalBind should be performed atomically to avoid
+       * race conditions between multiple threads where the lookup fails for both
+       * threads initially then the internalBind fails for the second thread.
+       */
+      synchronized (this) {
+         try {
+            return super.lookup(name);
+         } catch (NameNotFoundException e) {
+            Object answer = createEntry(name);
+            if (answer == null) {
+               throw e;
+            }
+            internalBind(name, answer);
+            return answer;
          }
-         internalBind(name, answer);
-         return answer;
       }
    }
 
