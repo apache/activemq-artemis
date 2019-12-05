@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 public abstract class NodeManager implements ActiveMQComponent {
 
    protected static final byte FIRST_TIME_START = '0';
-   private static final String SERVER_LOCK_NAME = "server.lock";
+   public static final String SERVER_LOCK_NAME = "server.lock";
    private static final String ACCESS_MODE = "rw";
 
    protected final boolean replicatedBackup;
