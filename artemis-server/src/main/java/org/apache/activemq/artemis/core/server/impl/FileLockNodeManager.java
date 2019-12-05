@@ -108,7 +108,16 @@ public class FileLockNodeManager extends NodeManager {
    protected synchronized void setUpServerLockFile() throws IOException {
       super.setUpServerLockFile();
 
-      for (int i = 0; i < 3; i++) {
+      if (lockChannels[0] == null || !lockChannels[0].isOpen()) {
+         File fileLock = newFile(NodeManager.SERVER_LOCK_NAME);
+         if (!fileLock.exists()) {
+            fileLock.createNewFile();
+         }
+         RandomAccessFile randomFileLock = new RandomAccessFile(fileLock, "rw");
+         lockChannels[0] = randomFileLock.getChannel();
+      }
+
+      for (int i = 1; i < 3; i++) {
          if (lockChannels[i] != null && lockChannels[i].isOpen()) {
             continue;
          }
