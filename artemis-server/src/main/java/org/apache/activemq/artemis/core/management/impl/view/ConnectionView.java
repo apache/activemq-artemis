@@ -70,13 +70,11 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add("protocol", toString(connection.getProtocolName()))
          .add("clientID", toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
          .add("localAddress", toString(connection.getTransportLocalAddress()))
-         .add("sessionCount", server.getSessions(connection.getID().toString()).size());
+         .add("sessionCount", sessions.size());
    }
 
    @Override
    public Object getField(RemotingConnection connection, String fieldName) {
-      List<ServerSession> sessions = server.getSessions(connection.getID().toString());
-
       switch (fieldName) {
          case "connectionID":
             return connection.getID();
@@ -84,6 +82,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
             return connection.getRemoteAddress();
          case "users":
             Set<String> users = new TreeSet<>();
+            List<ServerSession> sessions = server.getSessions(connection.getID().toString());
             for (ServerSession session : sessions) {
                String username = session.getUsername() == null ? "" : session.getUsername();
                users.add(username);
@@ -100,7 +99,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          case "localAddress":
             return connection.getTransportLocalAddress();
          case "sessionCount":
-            return sessions.size();
+            return server.getSessions(connection.getID().toString()).size();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }
