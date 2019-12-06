@@ -161,9 +161,13 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    @Override
    public void clear() {
-      tail = head.next = null;
+      // Clearing all of the links between nodes is "unnecessary", but:
+      // - helps a generational GC if the discarded nodes inhabit
+      //   more than one generation
+      // - is sure to free memory even if there is a reachable Iterator
+      while (poll() != null) {
 
-      size = 0;
+      }
    }
 
    @Override
@@ -306,6 +310,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       @SuppressWarnings("unchecked")
       protected T val() {
          return (T) this;
+      }
+
+      protected final LinkedListImpl.Node<T> next() {
+         return next;
+      }
+
+      protected final LinkedListImpl.Node<T> prev() {
+         return prev;
       }
 
       @Override
