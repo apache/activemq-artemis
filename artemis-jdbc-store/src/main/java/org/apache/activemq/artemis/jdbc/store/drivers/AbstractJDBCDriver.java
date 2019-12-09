@@ -27,6 +27,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
@@ -293,21 +294,28 @@ public abstract class AbstractJDBCDriver {
       }
    }
 
+   private static AtomicBoolean shutAdded = new AtomicBoolean(false);
+
+   private static class ShutdownDerby extends Thread {
+      @Override
+      public void run() {
+         try {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+         } catch (Exception e) {
+         }
+      }
+
+   }
+
    private Driver getDriver(String className) {
       try {
          Driver driver = (Driver) Class.forName(className).newInstance();
 
          // Shutdown the derby if using the derby embedded driver.
          if (className.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     DriverManager.getConnection("jdbc:derby:;shutdown=true");
-                  } catch (Exception e) {
-                  }
-               }
-            });
+            if (shutAdded.compareAndSet(false, true)) {
+               Runtime.getRuntime().addShutdownHook(new ShutdownDerby());
+            }
          }
          return driver;
       } catch (ClassNotFoundException cnfe) {
