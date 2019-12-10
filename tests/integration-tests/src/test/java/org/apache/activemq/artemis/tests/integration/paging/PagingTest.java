@@ -579,6 +579,109 @@ public class PagingTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testQueueRetryMessages() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+      server.start();
+
+      final int numberOfMessages = 500;
+
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, false, false);
+
+      session.createQueue(PagingTest.ADDRESS, new SimpleString(PagingTest.ADDRESS + "Queue"), null, true);
+      session.createQueue(PagingTest.ADDRESS + "Original", PagingTest.ADDRESS + "QueueOriginal", null, true);
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      ClientMessage message = null;
+
+      byte[] body = new byte[MESSAGE_SIZE];
+
+      ByteBuffer bb = ByteBuffer.wrap(body);
+
+      for (int j = 1; j <= MESSAGE_SIZE; j++) {
+         bb.put(getSamplebyte(j));
+      }
+
+      for (int i = 0; i < numberOfMessages; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(body);
+
+         producer.send(message);
+
+         message = session.createMessage(true);
+         message.getBodyBuffer().writeBytes(body);
+         message.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, PagingTest.ADDRESS + "Original");
+         message.putStringProperty(Message.HDR_ORIGINAL_QUEUE, PagingTest.ADDRESS + "QueueOriginal");
+         producer.send(message);
+
+         if (i % 1000 == 0) {
+            session.commit();
+         }
+      }
+      session.commit();
+      producer.close();
+      session.close();
+
+      session = sf.createSession(false, false, false);
+      producer = session.createProducer(PagingTest.ADDRESS);
+      producer.send(session.createMessage(true));
+      session.rollback();
+      producer.close();
+      session.close();
+
+      session = sf.createSession(false, false, false);
+      producer = session.createProducer(PagingTest.ADDRESS);
+
+      for (int i = 0; i < numberOfMessages; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(body);
+
+         producer.send(message);
+
+         message = session.createMessage(true);
+         message.getBodyBuffer().writeBytes(body);
+         message.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, PagingTest.ADDRESS + "Original");
+         message.putStringProperty(Message.HDR_ORIGINAL_QUEUE, PagingTest.ADDRESS + "QueueOriginal");
+         producer.send(message);
+
+         if (i % 1000 == 0) {
+            session.commit();
+         }
+      }
+      session.commit();
+      producer.close();
+      session.close();
+
+      Queue queue = server.locateQueue(new SimpleString(PagingTest.ADDRESS + "Queue"));
+      Queue originalQueue = server.locateQueue(new SimpleString(PagingTest.ADDRESS + "QueueOriginal"));
+
+      Wait.assertEquals(numberOfMessages * 4, queue::getMessageCount);
+      Wait.assertEquals(0, originalQueue::getMessageCount);
+
+      QueueControl queueControl = (QueueControl) this.server.getManagementService().getResource(ResourceNames.QUEUE + PagingSendTest.ADDRESS + "Queue");
+      QueueControl originalQueueControl = (QueueControl) this.server.getManagementService().getResource(ResourceNames.QUEUE + PagingSendTest.ADDRESS + "QueueOriginal");
+      queueControl.retryMessages();
+
+      Wait.assertEquals(numberOfMessages * 2, queue::getMessageCount, 5000);
+      Wait.assertEquals(numberOfMessages * 2, originalQueue::getMessageCount, 5000);
+   }
+
+   @Test
    public void testEmptyAddress() throws Exception {
       if (storeType == StoreConfiguration.StoreType.FILE) {
          clearDataRecreateServerDirs();

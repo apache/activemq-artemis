@@ -1929,16 +1929,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return new QueueIterateAction() {
          @Override
          public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
-            return actMessage(tx, ref, true);
-         }
-
-         @Override
-         public boolean actMessage(Transaction tx, MessageReference ref, boolean fromMessageReferences) throws Exception {
             incDelivering(ref);
             acknowledge(tx, ref, ackReason, null);
-            if (fromMessageReferences) {
-               refRemoved(ref);
-            }
             return true;
          }
       };
@@ -1982,6 +1974,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   if (filter1 == null || filter1.match(ref.getMessage())) {
                      if (messageAction.actMessage(tx, ref)) {
                         iter.remove();
+                        refRemoved(ref);
                      }
                      txCount++;
                      count++;
@@ -1998,7 +1991,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
                for (MessageReference messageReference : cancelled) {
-                  messageAction.actMessage(tx, messageReference, false);
+                  messageAction.actMessage(tx, messageReference);
                   count++;
                   txCount++;
                }
@@ -2019,7 +2012,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (filter1 == null || filter1.match(reference.getMessage())) {
                   count++;
                   txCount++;
-                  messageAction.actMessage(tx, reference, false);
+                  if (!messageAction.actMessage(tx, reference)) {
+                     addTail(reference, false);
+                  }
                } else {
                   addTail(reference, false);
                }
@@ -2394,8 +2389,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (!ignored) {
                move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null);
-               refRemoved(ref);
-               //move(toAddress, tx, ref, false, rejectDuplicates);
             }
 
             return true;
@@ -2459,7 +2452,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                } else {
                   move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false);
                }
-               refRemoved(ref);
+
                return true;
             }
 
@@ -3908,18 +3901,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
        * @throws Exception
        */
       public abstract boolean actMessage(Transaction tx, MessageReference ref) throws Exception;
-
-      /**
-       *
-       * @param tx   the transaction which the message action should participate in
-       * @param ref  the message reference which the action should act upon
-       * @param fromMessageReferences false if the queue's stats should *not* be updated (e.g. paged or scheduled refs)
-       * @return     true if the action should result in the removal of the message from the queue; false otherwise
-       * @throws Exception
-       */
-      public boolean actMessage(Transaction tx, MessageReference ref, boolean fromMessageReferences) throws Exception {
-         return actMessage(tx, ref);
-      }
    }
 
    /* For external use we need to use a synchronized version since the list is not thread safe */
