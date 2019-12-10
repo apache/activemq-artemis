@@ -294,7 +294,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private FileStoreMonitor fileStoreMonitor;
 
-   private final Map<String, ServerSession> sessions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, ServerSession> sessions = new ConcurrentHashMap<>();
 
    private final Semaphore activationLock = new Semaphore(1);
    /**
@@ -1642,7 +1642,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public synchronized List<ServerSession> getSessions(final String connectionID) {
+   public List<ServerSession> getSessions(final String connectionID) {
       Set<Entry<String, ServerSession>> sessionEntries = sessions.entrySet();
       List<ServerSession> matchingSessions = new ArrayList<>();
       for (Entry<String, ServerSession> sessionEntry : sessionEntries) {
@@ -1655,7 +1655,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public synchronized Set<ServerSession> getSessions() {
+   public Set<ServerSession> getSessions() {
       return new HashSet<>(sessions.values());
    }
 
