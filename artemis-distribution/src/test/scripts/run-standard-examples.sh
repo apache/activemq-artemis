@@ -80,6 +80,7 @@ cd rest; mvn verify; cd ..
 cd scheduled-message; mvn verify; cd ..
 cd security; mvn verify; cd ..
 cd security-ldap; mvn verify; cd ..
+cd security-manager; mvn verify; cd ..
 cd send-acknowledgements; mvn verify; cd ..
 cd shared-consumer; mvn verify; cd ..
 cd slow-consumer; mvn verify; cd ..
