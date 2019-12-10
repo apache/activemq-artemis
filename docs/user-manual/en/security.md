@@ -1,8 +1,10 @@
 # Security
 
 This chapter describes how security works with Apache ActiveMQ Artemis and how
-you can configure it. To disable security completely simply set the
-`security-enabled` property to false in the `broker.xml` file.
+you can configure it.
+
+To disable security completely simply set the `security-enabled` property to
+`false` in the `broker.xml` file.
 
 For performance reasons security is cached and invalidated every so long. To
 change this period set the property `security-invalidation-interval`, which is
@@ -1202,3 +1204,27 @@ The param-value for each list is a comma separated string value representing the
 
 For details about masking passwords in broker.xml please see the [Masking
 Passwords](masking-passwords.md) chapter.
+
+## Custom Security Manager
+
+The underpinnings of the broker's security implementation can be changed if so
+desired. The broker uses a component called a "security manager" to implement
+the actual authentication and authorization checks. By default, the broker uses
+`org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager` to
+provide JAAS integration, but users can provide their own implementation of
+`org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3` and
+configure it in `bootstrap.xml` using the `security-manager` element, e.g.:
+
+```xml
+<broker xmlns="http://activemq.org/schema">
+
+   <security-manager class-name="com.foo.MySecurityManager">
+      <property key="myKey1" value="myValue1"/>
+      <property key="myKey2" value="myValue2"/>
+   </security-manager>
+
+   ...
+</broker>
+```
+
+The `security-manager` example demonstrates how to do this is more detail.

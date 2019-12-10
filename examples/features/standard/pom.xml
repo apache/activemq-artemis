@@ -91,6 +91,7 @@ under the License.
             <module>scheduled-message</module>
             <module>security</module>
             <module>security-ldap</module>
+            <module>security-manager</module>
             <module>send-acknowledgements</module>
             <module>shared-consumer</module>
             <module>slow-consumer</module>
@@ -164,6 +165,7 @@ under the License.
             <module>scheduled-message</module>
             <module>security</module>
             <module>security-ldap</module>
+            <module>security-manager</module>
             <module>send-acknowledgements</module>
             <module>shared-consumer</module>
             <module>slow-consumer</module>

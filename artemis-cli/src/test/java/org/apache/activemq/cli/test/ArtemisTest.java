@@ -28,6 +28,10 @@ import javax.json.JsonObject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -43,6 +47,8 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -62,12 +68,13 @@ import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
-import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
@@ -81,6 +88,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import static org.junit.Assert.assertEquals;
@@ -233,6 +242,84 @@ public class ArtemisTest extends CliTestBase {
       assertEquals("etc/truststore", trustPathAttr);
       String trustPass = webElem.getAttribute("trustStorePassword");
       assertEquals("password2", trustPass);
+   }
+
+   @Test
+   public void testSecurityManagerConfiguration() throws Exception {
+      setupAuth();
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--no-stomp-acceptor", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-hornetq-acceptor");
+      File originalBootstrapFile = new File(new File(instance1, "etc"), "bootstrap.xml");
+      assertTrue(originalBootstrapFile.exists());
+
+      // modify the XML programmatically since we don't support setting this stuff via the CLI
+      Document config = parseXml(originalBootstrapFile);
+      Node broker = config.getChildNodes().item(1);
+      NodeList list = broker.getChildNodes();
+      Node server = null;
+
+      for (int i = 0; i < list.getLength(); i++) {
+         Node node = list.item(i);
+         if ("jaas-security".equals(node.getNodeName())) {
+            // get rid of the default jaas-security config
+            broker.removeChild(node);
+         }
+         if ("server".equals(node.getNodeName())) {
+            server = node;
+         }
+      }
+
+      // add the new security-plugin config
+      Element securityPluginElement = config.createElement("security-manager");
+      securityPluginElement.setAttribute("class-name", TestSecurityManager.class.getName());
+      Element property1 = config.createElement("property");
+      property1.setAttribute("key", "myKey1");
+      property1.setAttribute("value", "myValue1");
+      securityPluginElement.appendChild(property1);
+      Element property2 = config.createElement("property");
+      property2.setAttribute("key", "myKey2");
+      property2.setAttribute("value", "myValue2");
+      securityPluginElement.appendChild(property2);
+      broker.insertBefore(securityPluginElement, server);
+
+      originalBootstrapFile.delete();
+
+      // write the modified config into the bootstrap.xml file
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      DOMSource source = new DOMSource(config);
+      StreamResult streamResult = new StreamResult(originalBootstrapFile);
+      transformer.transform(source, streamResult);
+
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+
+      // trigger security
+      ServerLocator locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616");
+      ClientSessionFactory sessionFactory = locator.createSessionFactory();
+      ClientSession session = sessionFactory.createSession("myUser", "myPass", false, true, true, false, 0);
+      ClientProducer producer = session.createProducer("foo");
+      producer.send(session.createMessage(true));
+
+      // verify results
+      assertTrue(activeMQServer.getSecurityManager() instanceof TestSecurityManager);
+      TestSecurityManager securityPlugin = (TestSecurityManager) activeMQServer.getSecurityManager();
+      assertTrue(securityPlugin.properties.containsKey("myKey1"));
+      assertEquals("myValue1", securityPlugin.properties.get("myKey1"));
+      assertTrue(securityPlugin.properties.containsKey("myKey2"));
+      assertEquals("myValue2", securityPlugin.properties.get("myKey2"));
+      assertTrue(securityPlugin.validateUser);
+      assertEquals("myUser", securityPlugin.validateUserName);
+      assertEquals("myPass", securityPlugin.validateUserPass);
+      assertTrue(securityPlugin.validateUserAndRole);
+      assertEquals("myUser", securityPlugin.validateUserAndRoleName);
+      assertEquals("myPass", securityPlugin.validateUserAndRolePass);
+      assertEquals(CheckType.SEND, securityPlugin.checkType);
+
+      activeMQServer.stop();
+      stopServer();
    }
 
    @Test
