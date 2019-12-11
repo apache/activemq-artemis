@@ -84,7 +84,6 @@
             <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>
             <include>org.jctools:jctools-core</include>
             <include>io.netty:netty-all</include>
-            <include>io.netty:netty-tcnative-boringssl-static</include>
             <include>org.apache.qpid:proton-j</include>
             <include>org.apache.activemq:activemq-client</include>
             <include>org.apache.activemq:activemq-openwire-legacy</include>
