@@ -91,7 +91,7 @@
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.25.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
-      <netty.version>4.1.34.Final</netty.version>
+      <netty.version>4.1.43.Final</netty.version>
 
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.23.Final</netty-tcnative-version>
