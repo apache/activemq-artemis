@@ -1618,7 +1618,6 @@
                   </xsd:annotation>
                </xsd:element>
             </xsd:sequence>
-            <xsd:attributeGroup ref="xml:specialAttrs"/>
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
