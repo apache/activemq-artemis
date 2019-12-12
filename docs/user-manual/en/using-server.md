@@ -438,8 +438,12 @@ The bootstrap file is very simple. Let's take a look at an example:
   `configuration` attribute. This is the main broker POJO necessary to do all
    the real messaging work.
 
-- `jaas-security` - Configures security for the server. The `domain` attribute
-   refers to the relevant login module entry in `login.config`.
+- `jaas-security` - Configures JAAS-based security for the server. The
+  `domain` attribute refers to the relevant login module entry in
+  `login.config`. If different behavior is needed then a custom security
+  manager can be configured by replacing `jaas-security` with
+  `security-manager`. See the "Custom Security Manager" section in the
+  [security chapter](security.md) for more details.
 
 - `web` - Configures an embedded Jetty instance to serve web applications like
   the admin console.
