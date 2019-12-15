@@ -112,6 +112,11 @@ if [ -z "$WILDFLY_COMMON" ] ; then
   WILDFLY_COMMON="$ARTEMIS_HOME/lib/${wildfly-common}"
 fi
 
+if [ -f "$ARTEMIS_OOME_DUMP" ] ; then
+  # backup the last OOME heap dump
+  mv $ARTEMIS_OOME_DUMP $ARTEMIS_OOME_DUMP.bkp
+fi
+
 exec "$JAVACMD" \
     $JAVA_ARGS \
     -Xbootclasspath/a:"$LOG_MANAGER:$WILDFLY_COMMON" \

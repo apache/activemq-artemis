@@ -720,7 +720,9 @@ public class Create extends InputAbstract {
       filters.put("${artemis.instance.etc.uri}", etcFolder.toURI().toString());
       filters.put("${artemis.instance.etc.uri.windows}", etcFolder.toURI().toString().replaceAll("%", "%%"));
       filters.put("${artemis.instance.etc}", path(etcFolder));
-      new File(directory, "log").mkdirs();
+      File logFolder = createDirectory("log", directory);
+      File oomeDumpFile = new File(logFolder, "oom_dump.hprof");
+      filters.put("${artemis.instance.oome.dump}", path(oomeDumpFile));
       new File(directory, "tmp").mkdirs();
       new File(directory, "lib").mkdirs();
       File dataFolder = createDirectory(data, directory);
