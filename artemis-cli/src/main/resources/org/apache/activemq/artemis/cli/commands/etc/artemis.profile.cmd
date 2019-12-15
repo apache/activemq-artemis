@@ -20,6 +20,7 @@ set ARTEMIS_HOME="${artemis.home}"
 set ARTEMIS_INSTANCE="${artemis.instance}"
 set ARTEMIS_DATA_DIR="${artemis.instance.data}"
 set ARTEMIS_ETC_DIR="${artemis.instance.etc}"
+set ARTEMIS_OOME_DUMP="${artemis.instance.oome.dump}"
 
 
 rem The logging config will need an URI
@@ -40,6 +41,9 @@ rem affect the latencies of the services delivered by the broker, including thos
 rem and dependent by JVM background work (eg method deoptimizations, lock unbiasing, JNI, counted loops and obviously GC activity).
 rem Replace "all_pauses.log" with the file name you want to log to.
 rem set JAVA_ARGS=%JAVA_ARGS% -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime -XX:+LogVMOutput -XX:LogFile=all_pauses.log
+
+rem Enables the dumping of the java heap when a java.lang.OutOfMemoryError exception is thrown.
+rem set JAVA_ARGS=%JAVA_ARGS% -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=%ARTEMIS_OOME_DUMP%
 
 rem Debug args: Uncomment to enable debug
 rem set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
