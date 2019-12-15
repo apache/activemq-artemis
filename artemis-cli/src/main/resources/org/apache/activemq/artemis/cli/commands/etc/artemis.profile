@@ -19,6 +19,7 @@ ARTEMIS_HOME='${artemis.home}'
 ARTEMIS_INSTANCE='${artemis.instance}'
 ARTEMIS_DATA_DIR='${artemis.instance.data}'
 ARTEMIS_ETC_DIR='${artemis.instance.etc}'
+ARTEMIS_OOME_DUMP='${artemis.instance.oome.dump}'
 
 # The logging config will need an URI
 # this will be encoded in case you use spaces or special characters
@@ -40,6 +41,10 @@ JAVA_ARGS="${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -Xms512M -Xmx2G -D
 # and dependent by JVM background work (eg method deoptimizations, lock unbiasing, JNI, counted loops and obviously GC activity).
 # Replace "all_pauses.log" with the file name you want to log to.
 # JAVA_ARGS="$JAVA_ARGS -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime -XX:+LogVMOutput -XX:LogFile=all_pauses.log"
+
+#
+# Enables the dumping of the java heap when a java.lang.OutOfMemoryError exception is thrown.
+# JAVA_ARGS="$JAVA_ARGS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ARTEMIS_OOME_DUMP}"
 
 # Debug args: Uncomment to enable debug
 #DEBUG_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"

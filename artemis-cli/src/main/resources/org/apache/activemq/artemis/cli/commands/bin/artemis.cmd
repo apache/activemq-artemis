@@ -52,6 +52,12 @@ rem "Set Defaults."
 set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties
 set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
+if not exist "%ARTEMIS_OOME_DUMP%" goto NO_ARTEMIS_OOME_DUMP
+rem "Backup the last OOME heap dump"
+move /Y "%ARTEMIS_OOME_DUMP%" "%ARTEMIS_OOME_DUMP%.bkp"
+
+:NO_ARTEMIS_OOME_DUMP
+
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
 if not "%ARTEMIS_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ARTEMIS_CLUSTER_PROPS%
