@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -282,7 +281,7 @@ public class AddressControlTest extends ManagementTestBase {
       session.createQueue(address, address, true);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), addressControl.getNumberOfBytesPerPage());
+      Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressControl.getNumberOfBytesPerPage());
 
       session.close();
       server.stop();
