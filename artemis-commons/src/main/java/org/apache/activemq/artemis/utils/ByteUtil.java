@@ -42,6 +42,14 @@ public class ByteUtil {
    private static final Pattern KILO = Pattern.compile(prefix + "k" + suffix, Pattern.CASE_INSENSITIVE);
    private static final Pattern MEGA = Pattern.compile(prefix + "m" + suffix, Pattern.CASE_INSENSITIVE);
    private static final Pattern GIGA = Pattern.compile(prefix + "g" + suffix, Pattern.CASE_INSENSITIVE);
+   private static final String[] BYTE_SUFFIXES = new String[] {"E", "P", "T", "G", "M", "K", ""};
+   private static final double[] BYTE_MAGNITUDES = new double[7];
+
+   static {
+      for (int i = 18, j = 0; i >= 0; i -= 3, j++) {
+         BYTE_MAGNITUDES[j] = Math.pow(10, i);
+      }
+   }
 
    public static void debugFrame(Logger logger, String message, ByteBuf byteIn) {
       if (logger.isTraceEnabled()) {
@@ -442,4 +450,12 @@ public class ByteUtil {
       }
    }
 
+   public static String getHumanReadableByteCount(long bytes) {
+      int i = 0;
+      while (i < BYTE_MAGNITUDES.length && BYTE_MAGNITUDES[i] > bytes) {
+         i++;
+      }
+
+      return String.format("%.1f%sB", bytes / BYTE_MAGNITUDES[i], BYTE_SUFFIXES[i]);
+   }
 }

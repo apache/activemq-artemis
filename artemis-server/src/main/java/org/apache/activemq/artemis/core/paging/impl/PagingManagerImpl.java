@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
-import java.nio.file.FileStore;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -39,6 +38,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.jboss.logging.Logger;
@@ -76,6 +76,10 @@ public final class PagingManagerImpl implements PagingManager {
    private volatile boolean cleanupEnabled = true;
 
    private volatile boolean diskFull = false;
+
+   private volatile long diskUsableSpace = 0;
+
+   private volatile long diskTotalSpace = 0;
 
    private final Executor memoryExecutor;
 
@@ -194,24 +198,26 @@ public final class PagingManagerImpl implements PagingManager {
       private final Logger logger = Logger.getLogger(LocalMonitor.class);
 
       @Override
-      public void tick(FileStore store, double usage) {
-         logger.tracef("Tick from store:: %s, usage at %f", store, usage);
+      public void tick(long usableSpace, long totalSpace) {
+         diskUsableSpace = usableSpace;
+         diskTotalSpace = totalSpace;
+         logger.tracef("Tick:: usable space at %f, total space at %f", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
       }
 
       @Override
-      public void over(FileStore store, double usage) {
+      public void over(long usableSpace, long totalSpace) {
          if (!diskFull) {
-            ActiveMQServerLogger.LOGGER.diskBeyondCapacity();
+            ActiveMQServerLogger.LOGGER.diskBeyondCapacity(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
             diskFull = true;
          }
       }
 
       @Override
-      public void under(FileStore store, double usage) {
+      public void under(long usableSpace, long totalSpace) {
          final boolean diskFull = PagingManagerImpl.this.diskFull;
          if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
             if (diskFull) {
-               ActiveMQServerLogger.LOGGER.diskCapacityRestored();
+               ActiveMQServerLogger.LOGGER.diskCapacityRestored(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
                PagingManagerImpl.this.diskFull = false;
             }
             checkMemoryRelease();
@@ -222,6 +228,16 @@ public final class PagingManagerImpl implements PagingManager {
    @Override
    public boolean isDiskFull() {
       return diskFull;
+   }
+
+   @Override
+   public long getDiskUsableSpace() {
+      return diskUsableSpace;
+   }
+
+   @Override
+   public long getDiskTotalSpace() {
+      return diskTotalSpace;
    }
 
    @Override
