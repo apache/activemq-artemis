@@ -20,15 +20,12 @@ package org.apache.activemq.artemis.core.server.files;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.FileStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -77,35 +74,24 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
 
       FileStoreMonitor.Callback callback = new FileStoreMonitor.Callback() {
          @Override
-         public void tick(FileStore store, double usage) {
+         public void tick(long usableSpace, long totalSpace) {
             tick.incrementAndGet();
-            System.out.println("tick:: " + store + " usage::" + usage);
+            System.out.println("tick:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
          }
 
          @Override
-         public void over(FileStore store, double usage) {
+         public void over(long usableSpace, long totalSpace) {
             over.incrementAndGet();
-            System.out.println("over:: " + store + " usage::" + usage);
+            System.out.println("over:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
          }
 
          @Override
-         public void under(FileStore store, double usage) {
+         public void under(long usableSpace, long totalSpace) {
             under.incrementAndGet();
-            System.out.println("under:: " + store + " usage::" + usage);
+            System.out.println("under:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
          }
       };
-
-      final AtomicBoolean fakeReturn = new AtomicBoolean(false);
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null) {
-         @Override
-         protected double calculateUsage(FileStore store) throws IOException {
-            if (fakeReturn.get()) {
-               return 1f;
-            } else {
-               return super.calculateUsage(store);
-            }
-         }
-      };
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null);
       storeMonitor.addCallback(callback);
       storeMonitor.addStore(getTestDirfile());
 
@@ -115,7 +101,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       Assert.assertEquals(1, tick.get());
       Assert.assertEquals(1, under.get());
 
-      fakeReturn.set(true);
+      storeMonitor.setMaxUsage(0);
 
       storeMonitor.tick();
 
@@ -133,18 +119,18 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       storeMonitor.addStore(getTestDirfile());
       storeMonitor.addCallback(new FileStoreMonitor.Callback() {
          @Override
-         public void tick(FileStore store, double usage) {
-            System.out.println("TickS::" + usage);
+         public void tick(long usableSpace, long totalSpace) {
+            System.out.println("Tick");
             latch.countDown();
          }
 
          @Override
-         public void over(FileStore store, double usage) {
+         public void over(long usableSpace, long totalSpace) {
 
          }
 
          @Override
-         public void under(FileStore store, double usage) {
+         public void under(long usableSpace, long totalSpace) {
 
          }
       });
