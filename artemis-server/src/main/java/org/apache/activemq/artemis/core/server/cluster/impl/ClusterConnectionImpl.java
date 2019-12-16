@@ -801,7 +801,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.setInitialConnectAttempts(0);
       targetLocator.setClientFailureCheckPeriod(clientFailureCheckPeriod);
       targetLocator.setConnectionTTL(connectionTTL);
-      targetLocator.setInitialConnectAttempts(0);
 
       targetLocator.setConfirmationWindowSize(confirmationWindowSize);
       targetLocator.setBlockOnDurableSend(!useDuplicateDetection);
