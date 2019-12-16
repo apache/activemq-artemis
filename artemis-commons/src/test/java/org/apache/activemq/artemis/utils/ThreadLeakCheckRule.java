@@ -248,6 +248,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
          return true;
       } else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher")) {
          return true;
+      } else if (javaVendor.contains("IBM") && threadName.contains("MemoryMXBean")) {
+         return true;
       } else if (threadName.contains("globalEventExecutor")) {
          return true;
       } else if (threadName.contains("threadDeathWatcher")) {
