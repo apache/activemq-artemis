@@ -107,6 +107,10 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    boolean isDiskFull();
 
+   long getDiskUsableSpace();
+
+   long getDiskTotalSpace();
+
    default long getGlobalSize() {
       return 0;
    }
