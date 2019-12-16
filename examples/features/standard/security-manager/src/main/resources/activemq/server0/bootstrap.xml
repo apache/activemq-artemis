@@ -24,7 +24,7 @@
 
    <!-- artemis.URI.instance is parsed from artemis.instance by the CLI startup.
         This is to avoid situations where you could have spaces or special characters on this URI -->
-   <server configuration="file:/home/jbertram/jboss/src/activemq-artemis/examples/features/standard/security-manager/target/server0/etc//broker.xml"/>
+   <server configuration="${artemis.URI.instance}/etc/broker.xml"/>
 
 
 
