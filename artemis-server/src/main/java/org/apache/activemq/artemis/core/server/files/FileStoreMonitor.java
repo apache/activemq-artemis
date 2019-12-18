@@ -96,15 +96,14 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    public void tick() {
       synchronized (monitorLock) {
          boolean over = false;
-
-         FileStore lastStore = null;
-         double usage = 0;
+         long usableSpace = 0;
+         long totalSpace = 0;
 
          for (FileStore store : stores) {
             try {
-               lastStore = store;
-               usage = calculateUsage(store);
-               over = usage > maxUsage;
+               usableSpace = store.getUsableSpace();
+               totalSpace = getTotalSpace(store);
+               over = calculateUsage(usableSpace, totalSpace) > maxUsage;
                if (over) {
                   break;
                }
@@ -116,12 +115,12 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
          }
 
          for (Callback callback : callbackList) {
-            callback.tick(lastStore, usage);
+            callback.tick(usableSpace, totalSpace);
 
             if (over) {
-               callback.over(lastStore, usage);
+               callback.over(usableSpace, totalSpace);
             } else {
-               callback.under(lastStore, usage);
+               callback.under(usableSpace, totalSpace);
             }
          }
       }
@@ -136,12 +135,12 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
       return this;
    }
 
-   protected double calculateUsage(FileStore store) throws IOException {
-      return 1.0 - (double) store.getUsableSpace() / getTotalSpace(store);
+   public static double calculateUsage(long usableSpace, long totalSpace) {
+      return 1.0 - (double) usableSpace / (double) totalSpace;
    }
 
-   private double getTotalSpace(FileStore store) throws IOException {
-      double totalSpace = (double) store.getTotalSpace();
+   private long getTotalSpace(FileStore store) throws IOException {
+      long totalSpace = store.getTotalSpace();
       if (totalSpace < 0) {
          totalSpace = Long.MAX_VALUE;
       }
@@ -150,11 +149,10 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
    public interface Callback {
 
-      void tick(FileStore store, double usage);
+      void tick(long usableSpace, long totalSpace);
 
-      void over(FileStore store, double usage);
+      void over(long usableSpace, long totalSpace);
 
-      void under(FileStore store, double usage);
+      void under(long usableSpace, long totalSpace);
    }
-
 }
