@@ -74,7 +74,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    protected final AMQPSessionCallback sessionSPI;
 
-   RoutingContext routingContext = new RoutingContextImpl(null);
+   final RoutingContext routingContext;
 
    /**
     * We create this AtomicRunnable with setRan.
@@ -126,6 +126,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                                       AMQPSessionContext protonSession,
                                       Receiver receiver) {
       this.connection = connection;
+      this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
       this.protonSession = protonSession;
       this.receiver = receiver;
       this.sessionSPI = sessionSPI;

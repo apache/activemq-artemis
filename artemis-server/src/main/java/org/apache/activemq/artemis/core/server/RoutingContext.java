@@ -82,5 +82,9 @@ public interface RoutingContext {
 
    boolean isReusable(Message message, int version);
 
+   boolean isDuplicateDetection();
+
+   RoutingContext setDuplicateDetection(boolean value);
+
 
 }

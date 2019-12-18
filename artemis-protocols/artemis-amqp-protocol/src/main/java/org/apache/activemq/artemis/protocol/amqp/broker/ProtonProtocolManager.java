@@ -69,6 +69,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private int amqpLowCredits = AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
 
+   private boolean amqpDuplicateDetection = true;
+
    private boolean amqpUseModifiedForTransientDeliveryErrors = AmqpSupport.AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
 
    private int initialRemoteMaxFrameSize = 4 * 1024;
@@ -104,6 +106,15 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    @Override
    public void onNotification(Notification notification) {
 
+   }
+
+   public boolean isAmqpDuplicateDetection() {
+      return amqpDuplicateDetection;
+   }
+
+   public ProtonProtocolManager setAmqpDuplicateDetection(boolean duplicateDetection) {
+      this.amqpDuplicateDetection = duplicateDetection;
+      return this;
    }
 
    @Override
