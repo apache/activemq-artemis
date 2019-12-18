@@ -120,6 +120,16 @@ public final class FakePagingManager implements PagingManager {
       return false;
    }
 
+   @Override
+   public long getDiskUsableSpace() {
+      return 0;
+   }
+
+   @Override
+   public long getDiskTotalSpace() {
+      return 0;
+   }
+
    /*
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()

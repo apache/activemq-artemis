@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.net.URI;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
@@ -27,11 +31,6 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.net.URI;
-import java.nio.file.FileStore;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class GlobalDiskFullTest extends AmqpClientTestSupport {
 
@@ -48,15 +47,15 @@ public class GlobalDiskFullTest extends AmqpClientTestSupport {
       monitor.addCallback(new FileStoreMonitor.Callback() {
 
          @Override
-         public void tick(FileStore store, double usage) {
+         public void tick(long usableSpace, long totalSpace) {
          }
 
          @Override
-         public void over(FileStore store, double usage) {
+         public void over(long usableSpace, long totalSpace) {
             latch.countDown();
          }
          @Override
-         public void under(FileStore store, double usage) {
+         public void under(long usableSpace, long totalSpace) {
          }
       });
 

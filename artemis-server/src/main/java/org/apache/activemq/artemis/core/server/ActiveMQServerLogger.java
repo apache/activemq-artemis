@@ -1341,14 +1341,14 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void impossibleToRouteGrouped();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222210, value = "Storage usage is beyond max-disk-usage. System will start blocking producers.",
+   @Message(id = 222210, value = "Free storage space is at {0} of {1} total. Usage rate is {2} which is beyond the configured <max-disk-usage>. System will start blocking producers.",
       format = Message.Format.MESSAGE_FORMAT)
-   void diskBeyondCapacity();
+   void diskBeyondCapacity(String usableSpace, String totalSpace, String usage);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 222211, value = "Storage is back to stable now, under max-disk-usage.",
+   @Message(id = 222211, value = "Free storage space is at {0} of {1} total. Usage rate is {2} which is below the configured <max-disk-usage>.",
       format = Message.Format.MESSAGE_FORMAT)
-   void diskCapacityRestored();
+   void diskCapacityRestored(String usableSpace, String totalSpace, String usage);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222212, value = "Disk Full! Blocking message production on address ''{0}''. Clients will report blocked.", format = Message.Format.MESSAGE_FORMAT)

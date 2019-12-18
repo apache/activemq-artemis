@@ -385,8 +385,8 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229118, value = "Management method not applicable for current server configuration")
    IllegalStateException methodNotApplicable();
 
-   @Message(id = 229119, value = "Disk Capacity is Low, cannot produce more messages.")
-   ActiveMQIOErrorException diskBeyondLimit();
+   @Message(id = 229119, value = "Free storage space is at {0} of {1} total. Usage rate is {2} which is beyond the configured <max-disk-usage>. System will start blocking producers.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIOErrorException diskBeyondLimit(String usableSpace, String totalSpace, String usage);
 
    @Message(id = 229120, value = "connection with ID {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInternalErrorException connectionWithIDClosedByManagement(String ID);
