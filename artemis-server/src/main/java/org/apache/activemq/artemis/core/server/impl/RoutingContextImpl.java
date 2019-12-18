@@ -59,6 +59,19 @@ public final class RoutingContextImpl implements RoutingContext {
 
    private final Executor executor;
 
+   private boolean duplicateDetection = true;
+
+   @Override
+   public boolean isDuplicateDetection() {
+      return duplicateDetection;
+   }
+
+   @Override
+   public RoutingContextImpl setDuplicateDetection(boolean value) {
+      this.duplicateDetection = value;
+      return this;
+   }
+
    public RoutingContextImpl(final Transaction transaction) {
       this(transaction, null);
    }

@@ -196,6 +196,13 @@ public class AMQPMessage extends RefCountMessage {
       this.coreMessageObjectPools = null;
    }
 
+   /** This will return application properties without attempting to decode it.
+    * That means, if applicationProperties were never parsed before, this will return null, even if there is application properties.
+    *  This was created as an internal method for testing, as we need to validate if the application properties are not decoded until needed. */
+   public ApplicationProperties getDecodedApplicationProperties() {
+      return applicationProperties;
+   }
+
    // Access to the AMQP message data using safe copies freshly decoded from the current
    // AMQP message data stored in this message wrapper.  Changes to these values cannot
    // be used to influence the underlying AMQP message data, the standard AMQPMessage API
