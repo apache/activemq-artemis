@@ -473,6 +473,13 @@ use the following command to install it:
 The create process should give you a hint of the available commands available
 for the artemis-service.exe
 
+## Adding Bootstrap Dependencies
+
+Bootstrap dependencies like logging handlers must be accessible by the log
+manager at boot time. Package the dependency in a jar and put it on the boot
+classpath before of log manager jar. This can be done appending the jar at the
+variable `JAVA_ARGS`, defined in `artemis.profile`, with the option `-Xbootclasspath/a`.
+
 ## Adding Runtime Dependencies
 
 Runtime dependencies like diverts, transformers, broker plugins, JDBC drivers,

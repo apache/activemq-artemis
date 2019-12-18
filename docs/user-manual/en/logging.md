@@ -125,4 +125,15 @@ Turn on this audit logger may affect the performance.
 Once enabled, all audit records are written into a separate log
 file (by default audit.log).
 
+## Use Custom Handlers
 
+To use a different handler than the built-in ones, you either pick one from
+existing libraries or you implement it yourself. All handlers must extends the
+java.util.logging.Handler class.
+
+To enable a custom handler you need to append it to the handlers list
+`logger.handlers` and add its configuration to the `logging.configuration`.
+
+Last but not least, once you get your own handler please [add it to the boot
+classpath](using-server.md#adding-bootstrap-dependencies) otherwise the log
+manager will fail to load it!
