@@ -44,6 +44,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
@@ -63,6 +64,7 @@ public class SSLSupport {
    private String crlPath = TransportConstants.DEFAULT_CRL_PATH;
    private String sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
    private boolean trustAll = TransportConstants.DEFAULT_TRUST_ALL;
+   private String trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
 
    public String getKeystoreProvider() {
       return keystoreProvider;
@@ -145,6 +147,15 @@ public class SSLSupport {
       return this;
    }
 
+   public String getTrustManagerFactoryPlugin() {
+      return trustManagerFactoryPlugin;
+   }
+
+   public SSLSupport setTrustManagerFactoryPlugin(String trustManagerFactoryPlugin) {
+      this.trustManagerFactoryPlugin = trustManagerFactoryPlugin;
+      return this;
+   }
+
    public SSLContext createContext() throws Exception {
       SSLContext context = SSLContext.getInstance("TLS");
       KeyManager[] keyManagers = loadKeyManagers();
@@ -190,7 +201,9 @@ public class SSLSupport {
 
    // Private -------------------------------------------------------
    private TrustManagerFactory loadTrustManagerFactory() throws Exception {
-      if (trustAll) {
+      if (trustManagerFactoryPlugin != null) {
+         return AccessController.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin)).getTrustManagerFactory());
+      } else if (trustAll) {
          //This is useful for testing but not should be used outside of that purpose
          return InsecureTrustManagerFactory.INSTANCE;
       } else if (truststorePath == null && (truststoreProvider == null || !"PKCS11".equals(truststoreProvider.toUpperCase()))) {

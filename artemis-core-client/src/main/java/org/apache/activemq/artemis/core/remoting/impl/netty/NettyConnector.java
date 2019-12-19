@@ -222,6 +222,8 @@ public class NettyConnector extends AbstractConnector {
 
    private String sslProvider;
 
+   private String trustManagerFactoryPlugin;
+
    private boolean verifyHost;
 
    private boolean trustAll;
@@ -371,6 +373,8 @@ public class NettyConnector extends AbstractConnector {
          kerb5Config = ConfigurationHelper.getStringProperty(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, TransportConstants.DEFAULT_SSL_KRB5_CONFIG, configuration);
 
          useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
+
+         trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -385,6 +389,7 @@ public class NettyConnector extends AbstractConnector {
          trustAll = TransportConstants.DEFAULT_TRUST_ALL;
          sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
          useDefaultSslContext = TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT;
+         trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -634,6 +639,7 @@ public class NettyConnector extends AbstractConnector {
             .setTruststorePassword(truststorePassword)
             .setTrustAll(trustAll)
             .setCrlPath(crlPath)
+            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
             .createContext();
       }
       Subject subject = null;
@@ -675,6 +681,7 @@ public class NettyConnector extends AbstractConnector {
          .setTruststorePassword(truststorePassword)
          .setSslProvider(sslProvider)
          .setTrustAll(trustAll)
+         .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
          .createNettyClientContext();
 
       Subject subject = null;

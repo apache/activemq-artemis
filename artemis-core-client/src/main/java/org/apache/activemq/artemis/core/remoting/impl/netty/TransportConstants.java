@@ -122,6 +122,8 @@ public class TransportConstants {
 
    public static final String SSL_PROVIDER = "sslProvider";
 
+   public static final String TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME = "trustManagerFactoryPlugin";
+
    public static final String NETTY_VERSION;
 
    /**
@@ -217,6 +219,8 @@ public class TransportConstants {
    public static final String OPENSSL_PROVIDER = "OPENSSL";
 
    public static final boolean DEFAULT_TRUST_ALL = false;
+
+   public static final String DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN = null;
 
    public static final boolean DEFAULT_FORCE_SSL_PARAMETERS = false;
 
@@ -364,6 +368,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableAcceptorKeys.add(TransportConstants.SSL_PROVIDER);
+      allowableAcceptorKeys.add(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.SHUTDOWN_TIMEOUT);
       allowableAcceptorKeys.add(TransportConstants.QUIET_PERIOD);
 
@@ -413,6 +418,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.SSL_PROVIDER);
+      allowableConnectorKeys.add(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
 

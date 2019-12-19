@@ -177,6 +177,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean verifyHost;
 
+   private final String trustManagerFactoryPlugin;
+
    private final String kerb5Config;
 
    private String sniHost;
@@ -303,6 +305,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
 
          sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
+
+         trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -318,6 +322,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
          sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
          sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
+         trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -580,6 +585,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .setCrlPath(crlPath)
+            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
             .createContext();
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
@@ -619,6 +625,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .setSslProvider(sslProvider)
+            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
             .createNettyContext();
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
