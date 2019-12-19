@@ -1048,7 +1048,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       applyExpiryDelay(message, address);
 
-      if (!checkDuplicateID(message, context, rejectDuplicates, startedTX)) {
+      if (context.isDuplicateDetection() && !checkDuplicateID(message, context, rejectDuplicates, startedTX)) {
          return RoutingStatus.DUPLICATED_ID;
       }
 
