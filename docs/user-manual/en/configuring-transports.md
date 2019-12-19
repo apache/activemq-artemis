@@ -472,6 +472,23 @@ additional properties:
   When used on a `connector` the `sniHost` value is used for the `server_name`
   extension on the SSL connection.
 
+- `trustManagerFactoryPlugin`
+
+  This is valid on either an `acceptor` or `connector`. It defines the name
+  of the class which implements `org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin`.
+  This is a simple interface with a single method which returns a
+  `javax.net.ssl.TrustManagerFactory`. The `TrustManagerFactory` will be used
+  when the underlying `javax.net.ssl.SSLContext` is initialized. This allows
+  fine-grained customization of who/what the broker & client trusts.
+
+  This value takes precedence of all other SSL parameters which apply to the
+  trust manager (i.e. `trustAll`, `truststoreProvider`, `truststorePath`,
+  `truststorePassword`, `crlPath`).
+
+  Any plugin specified will need to be placed on the
+  [broker's classpath](using-server.md#adding-runtime-dependencies).
+
+
 ### Configuring Netty HTTP
 
 Netty HTTP tunnels packets over the HTTP protocol. It can be useful in
