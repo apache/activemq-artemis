@@ -19,12 +19,9 @@ package org.apache.activemq.artemis.core.server.protocol.websocket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -33,6 +30,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -55,7 +53,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    private WebSocketServerHandshaker handshaker;
    private List<String> supportedProtocols;
    private int maxFramePayloadLength;
-   private static final BinaryWebSocketEncoder BINARY_WEBSOCKET_ENCODER = new BinaryWebSocketEncoder();
 
    public WebSocketServerHandler(List<String> supportedProtocols, int maxFramePayloadLength) {
       this.supportedProtocols = supportedProtocols;
@@ -98,7 +95,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
                if (future.isSuccess()) {
                   // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
                   // wrap it in a binary web socket frame before letting the wsencoder send it on the wire
-                  future.channel().pipeline().addAfter("wsencoder", "binary-websocket-encoder", BINARY_WEBSOCKET_ENCODER);
+                  WebSocketFrameEncoder  encoder = new WebSocketFrameEncoder(maxFramePayloadLength);
+                  future.channel().pipeline().addAfter("wsencoder", "websocket-frame-encoder", encoder);
                } else {
                   // Handshake failed, fire an exceptionCaught event
                   future.channel().pipeline().fireExceptionCaught(future.cause());
@@ -117,7 +115,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
       } else if (frame instanceof PingWebSocketFrame) {
          ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
          return false;
-      } else if (!(frame instanceof TextWebSocketFrame) && !(frame instanceof BinaryWebSocketFrame)) {
+      } else if (!(frame instanceof TextWebSocketFrame) && !(frame instanceof BinaryWebSocketFrame) && !(frame instanceof ContinuationWebSocketFrame)) {
          throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));
       }
       return true;
@@ -149,19 +147,5 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
    public HttpRequest getHttpRequest() {
       return this.httpRequest;
-   }
-
-   @Sharable
-   private static final class BinaryWebSocketEncoder extends ChannelOutboundHandlerAdapter {
-
-      @Override
-      public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-         if (msg instanceof ByteBuf) {
-            msg = new BinaryWebSocketFrame((ByteBuf) msg);
-         }
-
-         ctx.write(msg, promise);
-      }
-
    }
 }
