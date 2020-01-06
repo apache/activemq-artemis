@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
@@ -41,6 +43,7 @@ import org.apache.activemq.artemis.core.server.federation.FederationUpstream;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.Match;
+import org.jboss.logging.Logger;
 
 /**
  * Federated Queue, connect to upstream queues routing them to the local queue when a local consumer exist.
@@ -50,6 +53,8 @@ import org.apache.activemq.artemis.core.settings.impl.Match;
  *
  */
 public class FederatedQueue extends FederatedAbstract implements ActiveMQServerConsumerPlugin, Serializable {
+
+   private static final Logger logger = Logger.getLogger(FederatedQueue.class);
 
    private final Set<Matcher> includes;
    private final Set<Matcher> excludes;
@@ -93,7 +98,7 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
             .stream()
             .filter(b -> b instanceof QueueBinding)
             .map(b -> (QueueBinding) b)
-            .forEach(b -> createRemoteConsumer(b.getQueue()));
+            .forEach(b -> conditionalCreateRemoteConsumer(b.getQueue()));
    }
 
    /**
@@ -103,18 +108,36 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
     */
    @Override
    public synchronized void afterCreateConsumer(ServerConsumer consumer) {
-      createRemoteConsumer(consumer);
+      conditionalCreateRemoteConsumer(consumer);
    }
 
    public FederationQueuePolicyConfiguration getConfig() {
       return config;
    }
 
-   private void createRemoteConsumer(Queue queue) {
+   private void conditionalCreateRemoteConsumer(ServerConsumer  consumer) {
+      if (server.hasBrokerFederationPlugins()) {
+         final AtomicBoolean conditionalCreate = new AtomicBoolean(true);
+         try {
+            server.callBrokerFederationPlugins(plugin -> {
+               conditionalCreate.set(conditionalCreate.get() && plugin.federatedQueueConditionalCreateConsumer(consumer));
+            });
+         } catch (ActiveMQException t) {
+            ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "federatedQueueConditionalCreateConsumer");
+            throw new IllegalStateException(t.getMessage(), t.getCause());
+         }
+         if (!conditionalCreate.get()) {
+            return;
+         }
+      }
+      createRemoteConsumer(consumer);
+   }
+
+   private void conditionalCreateRemoteConsumer(Queue queue) {
       queue.getConsumers()
             .stream()
             .filter(consumer -> consumer instanceof ServerConsumer)
-            .map(c -> (ServerConsumer) c).forEach(this::createRemoteConsumer);
+            .map(c -> (ServerConsumer) c).forEach(this::conditionalCreateRemoteConsumer);
    }
 
    private void createRemoteConsumer(ServerConsumer consumer) {

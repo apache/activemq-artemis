@@ -41,20 +41,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
-import org.apache.activemq.artemis.core.config.FederationConfiguration;
-import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBridgePlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConnectionPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
-import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -67,21 +53,36 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBridgePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConnectionPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.jboss.logging.Logger;
 
@@ -277,6 +278,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private final List<ActiveMQServerMessagePlugin> brokerMessagePlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerBridgePlugin> brokerBridgePlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerCriticalPlugin> brokerCriticalPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerFederationPlugin> brokerFederationPlugins = new CopyOnWriteArrayList<>();
 
    private Map<String, Set<String>> securityRoleNameMappings = new HashMap<>();
 
@@ -1494,6 +1496,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (plugin instanceof ActiveMQServerCriticalPlugin) {
          brokerCriticalPlugins.add((ActiveMQServerCriticalPlugin) plugin);
       }
+      if (plugin instanceof ActiveMQServerFederationPlugin) {
+         brokerFederationPlugins.add((ActiveMQServerFederationPlugin) plugin);
+      }
    }
 
    @Override
@@ -1525,6 +1530,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
       }
       if (plugin instanceof ActiveMQServerCriticalPlugin) {
          brokerCriticalPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerFederationPlugin) {
+         brokerFederationPlugins.remove(plugin);
       }
    }
 
@@ -1576,6 +1584,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<ActiveMQServerCriticalPlugin> getBrokerCriticalPlugins() {
       return brokerCriticalPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerFederationPlugin> getBrokerFederationPlugins() {
+      return brokerFederationPlugins;
    }
 
    @Override

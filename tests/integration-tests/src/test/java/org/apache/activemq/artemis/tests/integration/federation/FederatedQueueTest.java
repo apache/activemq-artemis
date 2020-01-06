@@ -25,15 +25,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.Collections;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
-import org.apache.activemq.artemis.core.config.TransformerConfiguration;
-import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
-import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
@@ -63,7 +59,7 @@ public class FederatedQueueTest extends FederatedTestBase {
    public void testFederatedQueueRemoteConsumeUpstream() throws Exception {
       String queueName = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -74,7 +70,7 @@ public class FederatedQueueTest extends FederatedTestBase {
    public void testFederatedQueueRemoteConsumeUpstreamPriorityAdjustment() throws Exception {
       String queueName = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
       FederationQueuePolicyConfiguration policy = (FederationQueuePolicyConfiguration) federationConfiguration.getFederationPolicyMap().get("QueuePolicy" + queueName);
       //Favor federated broker over local consumers
       policy.setPriorityAdjustment(1);
@@ -89,7 +85,7 @@ public class FederatedQueueTest extends FederatedTestBase {
    public void testFederatedQueueRemoteConsumeDownstreamPriorityAdjustment() throws Exception {
       String queueName = getName();
 
-      FederationConfiguration federationConfiguration = createDownstreamFederationConfiguration("server0", queueName, "server1");
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server0", queueName, "server1");
       FederationQueuePolicyConfiguration policy = (FederationQueuePolicyConfiguration) federationConfiguration.getFederationPolicyMap().get("QueuePolicy" + queueName);
       //Favor federated broker over local consumers
       policy.setPriorityAdjustment(1);
@@ -157,8 +153,8 @@ public class FederatedQueueTest extends FederatedTestBase {
    public void testFederatedQueueRemoteConsumeUpstreamTransformer() throws Exception {
       String queueName = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
-      addTransformerConfiguration(federationConfiguration, queueName);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
+      FederatedTestUtil.addQueueTransformerConfiguration(federationConfiguration, queueName);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -169,7 +165,7 @@ public class FederatedQueueTest extends FederatedTestBase {
    public void testFederatedQueueRemoteConsumeDownstream() throws Exception {
       String queueName = getName();
 
-      FederationConfiguration federationConfiguration = createDownstreamFederationConfiguration("server0", queueName, "server1");
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server0", queueName, "server1");
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(1).getFederationManager().deploy();
 
@@ -180,8 +176,8 @@ public class FederatedQueueTest extends FederatedTestBase {
    public void testFederatedQueueRemoteConsumeDownstreamTransformer() throws Exception {
       String queueName = getName();
 
-      FederationConfiguration federationConfiguration = createDownstreamFederationConfiguration("server0", queueName, "server1");
-      addTransformerConfiguration(federationConfiguration, queueName);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server0", queueName, "server1");
+      FederatedTestUtil.addQueueTransformerConfiguration(federationConfiguration, queueName);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(1).getFederationManager().deploy();
 
@@ -256,7 +252,7 @@ public class FederatedQueueTest extends FederatedTestBase {
 
          assertNull(consumer0.receiveNoWait());
 
-         FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
+         FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
          getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
          getServer(0).getFederationManager().deploy();
 
@@ -273,11 +269,11 @@ public class FederatedQueueTest extends FederatedTestBase {
       for (int i = 0; i < 2; i++) {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
-      FederationConfiguration federationConfiguration0 = createUpstreamFederationConfiguration("server1", queueName);
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
       getServer(0).getFederationManager().deploy();
 
-      FederationConfiguration federationConfiguration1 = createUpstreamFederationConfiguration("server0", queueName);
+      FederationConfiguration federationConfiguration1 = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server0", queueName);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration1);
       getServer(1).getFederationManager().deploy();
 
@@ -291,11 +287,11 @@ public class FederatedQueueTest extends FederatedTestBase {
       for (int i = 0; i < 2; i++) {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
-      FederationConfiguration federationConfiguration0 = createDownstreamFederationConfiguration("server1", queueName, "server0");
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server1", queueName, "server0");
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
       getServer(0).getFederationManager().deploy();
 
-      FederationConfiguration federationConfiguration1 = createDownstreamFederationConfiguration("server0", queueName, "server1");
+      FederationConfiguration federationConfiguration1 = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server0", queueName, "server1");
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration1);
       getServer(1).getFederationManager().deploy();
 
@@ -310,9 +306,9 @@ public class FederatedQueueTest extends FederatedTestBase {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
 
-      FederationConfiguration federationConfiguration0 = createDownstreamFederationConfiguration("server1-downstream",
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server1-downstream",
           "server1", queueName, null, false, "server0");
-      FederationUpstreamConfiguration upstreamConfig = createFederationUpstream("server1", queueName);
+      FederationUpstreamConfiguration upstreamConfig = FederatedTestUtil.createQueueFederationUpstream("server1", queueName);
       federationConfiguration0.addUpstreamConfiguration(upstreamConfig);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
       getServer(0).getFederationManager().deploy();
@@ -328,9 +324,9 @@ public class FederatedQueueTest extends FederatedTestBase {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
 
-      FederationConfiguration federationConfiguration0 = createDownstreamFederationConfiguration("server1-downstream",
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server1-downstream",
           "server1", queueName, null, true, "server0");
-      FederationUpstreamConfiguration upstreamConfig = createFederationUpstream("server1", queueName);
+      FederationUpstreamConfiguration upstreamConfig = FederatedTestUtil.createQueueFederationUpstream("server1", queueName);
       upstreamConfig.getConnectionConfiguration().setShareConnection(true);
       federationConfiguration0.addUpstreamConfiguration(upstreamConfig);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
@@ -347,9 +343,9 @@ public class FederatedQueueTest extends FederatedTestBase {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
 
-      FederationConfiguration federationConfiguration0 = createDownstreamFederationConfiguration("server1-downstream",
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server1-downstream",
           "server1", queueName, null, false, "server0");
-      federationConfiguration0.addUpstreamConfiguration(createFederationUpstream("server1", queueName));
+      federationConfiguration0.addUpstreamConfiguration(FederatedTestUtil.createQueueFederationUpstream("server1", queueName));
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
       getServer(0).getFederationManager().deploy();
 
@@ -364,9 +360,9 @@ public class FederatedQueueTest extends FederatedTestBase {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
 
-      FederationConfiguration federationConfiguration0 = createDownstreamFederationConfiguration("server1-downstream",
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueDownstreamFederationConfiguration("server1-downstream",
           "server1", queueName, null, true, "server0");
-      FederationUpstreamConfiguration upstreamConfiguration = createFederationUpstream("server1", queueName);
+      FederationUpstreamConfiguration upstreamConfiguration = FederatedTestUtil.createQueueFederationUpstream("server1", queueName);
       upstreamConfiguration.getConnectionConfiguration().setShareConnection(true);
       federationConfiguration0.addUpstreamConfiguration(upstreamConfiguration);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
@@ -469,12 +465,12 @@ public class FederatedQueueTest extends FederatedTestBase {
       }
 
       //Connect broker 0 (consumer will be here at end of chain) to broker 1
-      FederationConfiguration federationConfiguration0 = createUpstreamFederationConfiguration("server1", queueName, true);
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName, true);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
       getServer(0).getFederationManager().deploy();
 
       //Connect broker 1 (middle of chain) to broker 2
-      FederationConfiguration federationConfiguration1 = createUpstreamFederationConfiguration("server2", queueName, true);
+      FederationConfiguration federationConfiguration1 = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server2", queueName, true);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration1);
       getServer(1).getFederationManager().deploy();
       //Broker 2 we dont setup any federation as he is the upstream (head of the chain)
@@ -511,7 +507,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -566,7 +562,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          getServer(i).createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
       }
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", queueName);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -613,79 +609,6 @@ public class FederatedQueueTest extends FederatedTestBase {
             .consumerCount() == 1);
 
       assertNotNull(consumer0.receive(1000));
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String connector, String queueName, Boolean includeFederated,
-       String transportConfigurationRef) {
-      return createDownstreamFederationConfiguration(null, connector, queueName, includeFederated, false, transportConfigurationRef);
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String name, String connector, String queueName, Boolean includeFederated,
-       boolean shareConnection, String transportConfigurationRef) {
-      FederationDownstreamConfiguration downstreamConfiguration = new FederationDownstreamConfiguration();
-      downstreamConfiguration.setName(name != null ? name : connector);
-      downstreamConfiguration.getConnectionConfiguration().setStaticConnectors(Collections.singletonList(connector));
-      downstreamConfiguration.getConnectionConfiguration().setCircuitBreakerTimeout(-1);
-      downstreamConfiguration.getConnectionConfiguration().setShareConnection(shareConnection);
-      downstreamConfiguration.addPolicyRef("QueuePolicy" + queueName);
-      downstreamConfiguration.setUpstreamConfigurationRef(transportConfigurationRef);
-
-      FederationConfiguration federationConfiguration = createFederationConfiguration(connector, queueName, includeFederated);
-      federationConfiguration.addDownstreamConfiguration(downstreamConfiguration);
-
-      return federationConfiguration;
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String connector, String queueName, String transportConfigurationRef) {
-      return createDownstreamFederationConfiguration(null, connector, queueName, null, false, transportConfigurationRef);
-   }
-
-   private FederationConfiguration createUpstreamFederationConfiguration(String connector, String queueName, Boolean includeFederated) {
-      FederationUpstreamConfiguration upstreamConfiguration = createFederationUpstream(connector, queueName);
-
-      FederationConfiguration federationConfiguration = createFederationConfiguration(connector, queueName, includeFederated);
-      federationConfiguration.addUpstreamConfiguration(upstreamConfiguration);
-
-      return federationConfiguration;
-   }
-
-   private FederationUpstreamConfiguration createFederationUpstream(String connector, String queueName) {
-
-      FederationUpstreamConfiguration upstreamConfiguration = new FederationUpstreamConfiguration();
-      upstreamConfiguration.setName("server1-upstream");
-      upstreamConfiguration.getConnectionConfiguration().setStaticConnectors(Collections.singletonList(connector));
-      upstreamConfiguration.getConnectionConfiguration().setCircuitBreakerTimeout(-1);
-      upstreamConfiguration.addPolicyRef("QueuePolicy" + queueName);
-
-      return upstreamConfiguration;
-   }
-
-   private FederationConfiguration createUpstreamFederationConfiguration(String connector, String queueName) {
-      return createUpstreamFederationConfiguration(connector, queueName, null);
-   }
-
-   private FederationConfiguration createFederationConfiguration(String connector, String queueName, Boolean includeFederated) {
-
-      FederationQueuePolicyConfiguration queuePolicyConfiguration = new FederationQueuePolicyConfiguration();
-      queuePolicyConfiguration.setName( "QueuePolicy" + queueName);
-      queuePolicyConfiguration.addInclude(new FederationQueuePolicyConfiguration.Matcher()
-            .setQueueMatch(queueName).setAddressMatch("#"));
-      if (includeFederated != null) {
-         queuePolicyConfiguration.setIncludeFederated(includeFederated);
-      }
-
-      FederationConfiguration federationConfiguration = new FederationConfiguration();
-      federationConfiguration.setName("default");
-      federationConfiguration.addFederationPolicy(queuePolicyConfiguration);
-
-      return federationConfiguration;
-   }
-
-   private void addTransformerConfiguration(final FederationConfiguration federationConfiguration, final String queueName) {
-      federationConfiguration.addTransformerConfiguration(
-         new FederationTransformerConfiguration("transformer", new TransformerConfiguration(TestTransformer.class.getName())));
-      FederationQueuePolicyConfiguration policy = (FederationQueuePolicyConfiguration) federationConfiguration.getFederationPolicyMap().get("QueuePolicy" + queueName);
-      policy.setTransformerRef("transformer");
    }
 
    private Message createTextMessage(Session session1, String group) throws JMSException {

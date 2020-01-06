@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.jboss.logging.Logger;
 
-public class FederationDownstream extends FederationStream implements SessionFailureListener {
+public class FederationDownstream extends AbstractFederationStream implements SessionFailureListener {
 
    private static final Logger logger = Logger.getLogger(FederationDownstream.class);
 
@@ -65,6 +65,7 @@ public class FederationDownstream extends FederationStream implements SessionFai
    @Override
    public synchronized void start() {
       super.start();
+      callFederationStreamStartedPlugins();
       try {
          deploy(federationConfiguration);
       } catch (ActiveMQException e) {
@@ -75,6 +76,7 @@ public class FederationDownstream extends FederationStream implements SessionFai
    @Override
    public synchronized void stop() {
       super.stop();
+      callFederationStreamStoppedPlugins();
    }
 
    public void deploy(FederationConfiguration federationConfiguration)
