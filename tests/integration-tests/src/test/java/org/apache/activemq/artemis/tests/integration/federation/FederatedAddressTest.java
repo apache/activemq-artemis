@@ -24,16 +24,9 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
-import java.util.Collections;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
-import org.apache.activemq.artemis.core.config.TransformerConfiguration;
-import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
-import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
-import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -60,12 +53,12 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testDownstreamFederatedAddressReplication() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createDownstreamFederationConfiguration("server1", address,
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server1", address,
           getServer(0).getConfiguration().getTransportConfigurations("server0")[0]);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
-      FederationConfiguration federationConfiguration2 = createDownstreamFederationConfiguration("server0", address,
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server0", address,
           getServer(1).getConfiguration().getTransportConfigurations("server1")[0]);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
       getServer(1).getFederationManager().deploy();
@@ -77,12 +70,12 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testDownstreamFederatedAddressReplicationRef() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createDownstreamFederationConfiguration("server1", address,
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server1", address,
          "server0");
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
-      FederationConfiguration federationConfiguration2 = createDownstreamFederationConfiguration("server0", address,
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server0", address,
           "server1");
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
       getServer(1).getFederationManager().deploy();
@@ -94,7 +87,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testDownstreamFederatedAddressReplicationRefOneWay() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration2 = createDownstreamFederationConfiguration("server0", address,
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server0", address,
           "server1");
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
       getServer(1).getFederationManager().deploy();
@@ -106,11 +99,11 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testUpstreamFederatedAddressReplication() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", address);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
-      FederationConfiguration federationConfiguration2 = createUpstreamFederationConfiguration("server0", address);
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server0", address);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
       getServer(1).getFederationManager().deploy();
 
@@ -121,8 +114,8 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testDownstreamFederatedAddressReplicationRefOneWayTransformer() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration2 = createDownstreamFederationConfiguration("server0", address, "server1");
-      addTransformerConfiguration(federationConfiguration2, address);
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server0", address, "server1");
+      FederatedTestUtil.addAddressTransformerConfiguration(federationConfiguration2, address);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
       getServer(1).getFederationManager().deploy();
 
@@ -158,7 +151,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testUpstreamFederatedAddressReplicationOneWay() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", address);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -169,8 +162,8 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testUpstreamFederatedAddressReplicationOneWayTransformer() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", address);
-      addTransformerConfiguration(federationConfiguration, address);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
+      FederatedTestUtil.addAddressTransformerConfiguration(federationConfiguration, address);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -231,7 +224,6 @@ public class FederatedAddressTest extends FederatedTestBase {
 
    }
 
-
    @Test
    public void testFederatedAddressDeployAfterQueuesExist() throws Exception {
       String address = getName();
@@ -257,7 +249,7 @@ public class FederatedAddressTest extends FederatedTestBase {
 
          assertNull(consumer0.receive(100));
 
-         FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", address);
+         FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
          getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
          getServer(0).getFederationManager().deploy();
 
@@ -275,7 +267,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testFederatedAddressRemoteBrokerRestart() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", address);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -333,7 +325,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    public void testFederatedAddressLocalBrokerRestart() throws Exception {
       String address = getName();
 
-      FederationConfiguration federationConfiguration = createUpstreamFederationConfiguration("server1", address);
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
       getServer(0).getFederationManager().deploy();
 
@@ -398,12 +390,12 @@ public class FederatedAddressTest extends FederatedTestBase {
 //      }
 
       //Connect broker 0 (consumer will be here at end of chain) to broker 1
-      FederationConfiguration federationConfiguration0 = createUpstreamFederationConfiguration("server1", address, 2);
+      FederationConfiguration federationConfiguration0 = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address, 2);
       getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration0);
       getServer(0).getFederationManager().deploy();
 
       //Connect broker 1 (middle of chain) to broker 2
-      FederationConfiguration federationConfiguration1 = createUpstreamFederationConfiguration("server2", address, 2);
+      FederationConfiguration federationConfiguration1 = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server2", address, 2);
       getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration1);
       getServer(1).getFederationManager().deploy();
       //Broker 2 we dont setup any federation as he is the upstream (head of the chain)
@@ -432,80 +424,6 @@ public class FederatedAddressTest extends FederatedTestBase {
          producer2.send(session2.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
       }
-   }
-
-   private FederationConfiguration createFederationConfiguration(String address, int hops) {
-      FederationAddressPolicyConfiguration addressPolicyConfiguration = new FederationAddressPolicyConfiguration();
-      addressPolicyConfiguration.setName( "AddressPolicy" + address);
-      addressPolicyConfiguration.addInclude(new FederationAddressPolicyConfiguration.Matcher().setAddressMatch(address));
-      addressPolicyConfiguration.setMaxHops(hops);
-
-      FederationConfiguration federationConfiguration = new FederationConfiguration();
-      federationConfiguration.setName("default");
-      federationConfiguration.addFederationPolicy(addressPolicyConfiguration);
-
-      return federationConfiguration;
-   }
-
-   private FederationConfiguration createUpstreamFederationConfiguration(String connector, String address, int hops) {
-      FederationUpstreamConfiguration upstreamConfiguration = new FederationUpstreamConfiguration();
-      upstreamConfiguration.setName(connector);
-      upstreamConfiguration.getConnectionConfiguration().setStaticConnectors(Collections.singletonList(connector));
-      upstreamConfiguration.getConnectionConfiguration().setCircuitBreakerTimeout(-1);
-      upstreamConfiguration.addPolicyRef("AddressPolicy" + address);
-
-      FederationConfiguration federationConfiguration = createFederationConfiguration(address, hops);
-      federationConfiguration.addUpstreamConfiguration(upstreamConfiguration);
-
-      return federationConfiguration;
-   }
-   private FederationConfiguration createUpstreamFederationConfiguration(String connector, String address) {
-      return createUpstreamFederationConfiguration(connector, address, 1);
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String connector, String address, TransportConfiguration transportConfiguration) {
-      return createDownstreamFederationConfiguration(connector, address, transportConfiguration, 1);
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String connector, String address, TransportConfiguration transportConfiguration,
-       int hops) {
-      FederationDownstreamConfiguration downstreamConfiguration = new FederationDownstreamConfiguration();
-      downstreamConfiguration.setName(connector);
-      downstreamConfiguration.getConnectionConfiguration().setStaticConnectors(Collections.singletonList(connector));
-      downstreamConfiguration.getConnectionConfiguration().setCircuitBreakerTimeout(-1);
-      downstreamConfiguration.addPolicyRef("AddressPolicy" + address);
-      downstreamConfiguration.setUpstreamConfiguration(transportConfiguration);
-
-      FederationConfiguration federationConfiguration = createFederationConfiguration(address, hops);
-      federationConfiguration.addDownstreamConfiguration(downstreamConfiguration);
-
-      return federationConfiguration;
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String connector, String address, String transportConfigurationRef,
-       int hops) {
-      FederationDownstreamConfiguration downstreamConfiguration = new FederationDownstreamConfiguration();
-      downstreamConfiguration.setName(connector);
-      downstreamConfiguration.getConnectionConfiguration().setStaticConnectors(Collections.singletonList(connector));
-      downstreamConfiguration.getConnectionConfiguration().setCircuitBreakerTimeout(-1);
-      downstreamConfiguration.addPolicyRef("AddressPolicy" + address);
-      downstreamConfiguration.setUpstreamConfigurationRef(transportConfigurationRef);
-
-      FederationConfiguration federationConfiguration = createFederationConfiguration(address, hops);
-      federationConfiguration.addDownstreamConfiguration(downstreamConfiguration);
-
-      return federationConfiguration;
-   }
-
-   private FederationConfiguration createDownstreamFederationConfiguration(String connector, String address, String transportConfigurationRef) {
-      return createDownstreamFederationConfiguration(connector, address, transportConfigurationRef, 1);
-   }
-
-   private void addTransformerConfiguration(final FederationConfiguration federationConfiguration, final String address) {
-      federationConfiguration.addTransformerConfiguration(
-         new FederationTransformerConfiguration("transformer", new TransformerConfiguration(TestTransformer.class.getName())));
-      FederationAddressPolicyConfiguration policy = (FederationAddressPolicyConfiguration) federationConfiguration.getFederationPolicyMap().get("AddressPolicy" + address);
-      policy.setTransformerRef("transformer");
    }
 
    private Message createTextMessage(Session session1, String group) throws JMSException {

@@ -30,5 +30,6 @@ public interface ActiveMQServerPlugin extends
         ActiveMQServerBindingPlugin,
         ActiveMQServerMessagePlugin,
         ActiveMQServerBridgePlugin,
-        ActiveMQServerCriticalPlugin {
+        ActiveMQServerCriticalPlugin,
+        ActiveMQServerFederationPlugin {
 }
