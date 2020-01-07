@@ -910,7 +910,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
                                       String protocols,
                                       boolean useVerifiedKeystore,
                                       String sniHost) throws Exception {
-      createCustomSslServer(null, null, useVerifiedKeystore, null, null);
+      createCustomSslServer(cipherSuites, protocols, useVerifiedKeystore, sniHost, null);
    }
 
    private void createCustomSslServer(String cipherSuites,
