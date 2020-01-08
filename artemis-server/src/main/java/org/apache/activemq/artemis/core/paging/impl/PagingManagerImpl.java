@@ -201,7 +201,7 @@ public final class PagingManagerImpl implements PagingManager {
       public void tick(long usableSpace, long totalSpace) {
          diskUsableSpace = usableSpace;
          diskTotalSpace = totalSpace;
-         logger.tracef("Tick:: usable space at %f, total space at %f", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
+         logger.tracef("Tick:: usable space at %s, total space at %s", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
       }
 
       @Override
