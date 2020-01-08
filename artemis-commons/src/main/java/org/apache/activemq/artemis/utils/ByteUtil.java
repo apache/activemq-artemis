@@ -451,6 +451,10 @@ public class ByteUtil {
    }
 
    public static String getHumanReadableByteCount(long bytes) {
+      if (bytes == 0) {
+         return "0B";
+      }
+
       int i = 0;
       while (i < BYTE_MAGNITUDES.length && BYTE_MAGNITUDES[i] > bytes) {
          i++;

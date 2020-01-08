@@ -27,6 +27,7 @@ public class HumanReadableByteCountTest {
    public void test() {
       String[] suffixes = new String[] {"K", "M", "G", "T", "P", "E"};
 
+      assertEquals("0B", ByteUtil.getHumanReadableByteCount(0));
       assertEquals("999.0B", ByteUtil.getHumanReadableByteCount(999));
       assertEquals("500.0B", ByteUtil.getHumanReadableByteCount(500));
 
