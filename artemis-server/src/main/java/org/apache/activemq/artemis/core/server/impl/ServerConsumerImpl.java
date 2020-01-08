@@ -754,7 +754,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    private boolean flushDelivery() {
       try {
          if (!pendingDelivery.await(30, TimeUnit.SECONDS)) {
-            ActiveMQServerLogger.LOGGER.timeoutLockingConsumer();
+            ActiveMQServerLogger.LOGGER.timeoutLockingConsumer(this.toString(), session.getRemotingConnection().getTransportConnection().getRemoteAddress());
             if (server != null) {
                server.threadDump();
             }

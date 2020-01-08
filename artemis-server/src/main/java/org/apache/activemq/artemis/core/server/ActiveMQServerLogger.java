@@ -870,8 +870,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void broadcastGroupClosed(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222109, value = "Timed out waiting for write lock on consumer. Check the Thread dump", format = Message.Format.MESSAGE_FORMAT)
-   void timeoutLockingConsumer();
+   @Message(id = 222109, value = "Timed out waiting for write lock on consumer {0} from {1}. Check the Thread dump", format = Message.Format.MESSAGE_FORMAT)
+   void timeoutLockingConsumer(String consumer, String remoteAddress);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222110, value = "no queue IDs defined!,  originalMessage  = {0}, copiedMessage = {1}, props={2}",
