@@ -73,6 +73,10 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private boolean amqpUseModifiedForTransientDeliveryErrors = AmqpSupport.AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
 
+   // If set true, a reject disposition will be treated as if it were an unmodified disposition with the
+   // delivery-failed flag set true.
+   private boolean amqpTreatRejectAsUnmodifiedDeliveryFailed = AmqpSupport.AMQP_TREAT_REJECT_AS_UNMODIFIED_DELIVERY_FAILURE;
+
    private int initialRemoteMaxFrameSize = 4 * 1024;
 
    private String[] saslMechanisms = MechanismFinder.getKnownMechanisms();
@@ -324,4 +328,11 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    }
 
 
+   public void setAmqpTreatRejectAsUnmodifiedDeliveryFailed(final boolean amqpTreatRejectAsUnmodifiedDeliveryFailed) {
+      this.amqpTreatRejectAsUnmodifiedDeliveryFailed = amqpTreatRejectAsUnmodifiedDeliveryFailed;
+   }
+
+   public boolean isAmqpTreatRejectAsUnmodifiedDeliveryFailed() {
+      return this.amqpTreatRejectAsUnmodifiedDeliveryFailed;
+   }
 }

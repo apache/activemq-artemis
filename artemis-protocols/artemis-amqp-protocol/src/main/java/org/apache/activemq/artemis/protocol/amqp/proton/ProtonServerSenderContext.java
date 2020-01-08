@@ -59,6 +59,7 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Outcome;
+import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
@@ -118,6 +119,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
     * */
    private final Object creditsLock = new Object();
    private final java.util.function.Consumer<? super MessageReference> executeDelivery;
+   private final boolean amqpTreatRejectAsUnmodifiedDeliveryFailed;
 
    public ProtonServerSenderContext(AMQPConnectionContext connection,
                                     Sender sender,
@@ -129,6 +131,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       this.protonSession = protonSession;
       this.sessionSPI = server;
       this.executeDelivery = this::executeDelivery;
+      amqpTreatRejectAsUnmodifiedDeliveryFailed = this.connection.getProtocolManager()
+                                                                 .isAmqpTreatRejectAsUnmodifiedDeliveryFailed();
    }
 
    public Object getBrokerConsumer() {
@@ -681,7 +685,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             break;
          case Rejected:
             try {
-               sessionSPI.reject(brokerConsumer, message);
+               if (amqpTreatRejectAsUnmodifiedDeliveryFailed) {
+                  // We could be more discriminating - for instance check for AmqpError#RESOURCE_LIMIT_EXCEEDED
+                  sessionSPI.cancel(brokerConsumer, message, true);
+               } else {
+                  sessionSPI.reject(brokerConsumer, message);
+               }
             } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
