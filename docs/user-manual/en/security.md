@@ -608,12 +608,37 @@ system. It is implemented by
   for the connection to the directory server. This option must be set explicitly
   to an empty string, because it has no default value.
 
-- `connectionPool`. boolean, enable the ldap connection pool property
- 'com.sun.jndi.ldap.connect.pool'. Note that the pool is [configured at the jvm level with system properties](https://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html).
+- `connectionPool` - boolean, enable the LDAP connection pool property
+  'com.sun.jndi.ldap.connect.pool'. Note that the pool is
+  [configured at the jvm level with system properties](https://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html).
 
+- `connectionTimeout` - specifies the string representation of an integer
+  representing the connection timeout in milliseconds. If the LDAP provider
+  cannot establish a connection within that period, it aborts the connection
+  attempt. The integer should be greater than zero. An integer less than or
+  equal to zero means to use the network protocol's (i.e., TCP's) timeout
+  value.
 
-- `connectionTimeout`. String milliseconds, that can time limit a ldap connection
- attempt. The default is infinite.
+  If `connectionTimeout` is not specified, the default is to wait for the
+  connection to be established or until the underlying network times out.
+
+  When connection pooling has been requested for a connection, this property
+  also determines the maximum wait time for a connection when all connections
+  in the pool are in use and the maximum pool size has been reached. If the
+  value of this property is less than or equal to zero under such
+  circumstances, the provider will wait indefinitely for a connection to
+  become available; otherwise, the provider will abort the wait when the
+  maximum wait time has been exceeded. See `connectionPool` for more details.
+
+- `readTimeout` - specifies the string representation of an integer representing
+  the read timeout in milliseconds for LDAP operations. If the LDAP provider
+  cannot get a LDAP response within that period, it aborts the read attempt.
+  The integer should be greater than zero. An integer less than or equal to
+  zero means no read timeout is specified which is equivalent to waiting for
+  the response infinitely until it is received.
+
+  If `readTimeout` is not specified, the default is to wait for the response
+  until it is received.
 
 - `userBase` - selects a particular subtree of the DIT to search for user
   entries. The subtree is specified by a DN, which specifes the base node of

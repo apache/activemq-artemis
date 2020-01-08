@@ -89,6 +89,7 @@ public class LDAPLoginModule implements LoginModule {
    private static final String PASSWORD_CODEC = "passwordCodec";
    private static final String CONNECTION_POOL = "connectionPool";
    private static final String CONNECTION_TIMEOUT = "connectionTimeout";
+   private static final String READ_TIMEOUT = "readTimeout";
 
    protected DirContext context;
 
@@ -135,7 +136,8 @@ public class LDAPLoginModule implements LoginModule {
                                        new LDAPLoginProperty(REFERRAL, (String) options.get(REFERRAL)),
                                        new LDAPLoginProperty(IGNORE_PARTIAL_RESULT_EXCEPTION, (String) options.get(IGNORE_PARTIAL_RESULT_EXCEPTION)),
                                        new LDAPLoginProperty(CONNECTION_POOL, (String) options.get(CONNECTION_POOL)),
-                                       new LDAPLoginProperty(CONNECTION_TIMEOUT, (String) options.get(CONNECTION_TIMEOUT))};
+                                       new LDAPLoginProperty(CONNECTION_TIMEOUT, (String) options.get(CONNECTION_TIMEOUT)),
+                                       new LDAPLoginProperty(READ_TIMEOUT, (String) options.get(READ_TIMEOUT))};
 
       if (isLoginPropertySet(AUTHENTICATE_USER)) {
          authenticateUser = Boolean.valueOf(getLDAPPropertyValue(AUTHENTICATE_USER));
@@ -639,6 +641,9 @@ public class LDAPLoginModule implements LoginModule {
             }
             if (isLoginPropertySet(CONNECTION_TIMEOUT)) {
                env.put("com.sun.jndi.ldap.connect.timeout", getLDAPPropertyValue(CONNECTION_TIMEOUT));
+            }
+            if (isLoginPropertySet(READ_TIMEOUT)) {
+               env.put("com.sun.jndi.ldap.read.timeout", getLDAPPropertyValue(READ_TIMEOUT));
             }
 
             // handle LDAP referrals
