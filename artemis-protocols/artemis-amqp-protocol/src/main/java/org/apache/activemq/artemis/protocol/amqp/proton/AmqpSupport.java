@@ -32,6 +32,9 @@ public class AmqpSupport {
    public static final int AMQP_CREDITS_DEFAULT = 1000;
    public static final int AMQP_LOW_CREDITS_DEFAULT = 300;
 
+   // Defaults for controlling the interpretation of AMQP dispositions
+   public static final boolean AMQP_TREAT_REJECT_AS_UNMODIFIED_DELIVERY_FAILURE = false;
+
    // Defaults for controlling the behaviour of AMQP dispositions
    public static final boolean AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = false;
 
