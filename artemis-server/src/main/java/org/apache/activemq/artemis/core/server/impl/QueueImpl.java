@@ -1949,6 +1949,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                       QueueIterateAction messageAction) throws Exception {
       int count = 0;
       int txCount = 0;
+      // This is to avoid scheduling depaging while iterQueue is happening
+      // this should minimize the use of the paged executor.
+      depagePending = true;
 
       depageLock.lock();
 
@@ -2037,6 +2040,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return count;
       } finally {
          depageLock.unlock();
+         // to resume flow of depages, just in case
+         // as we disabled depaging during the execution of this method
+         depagePending = false;
+         forceDelivery();
       }
    }
 

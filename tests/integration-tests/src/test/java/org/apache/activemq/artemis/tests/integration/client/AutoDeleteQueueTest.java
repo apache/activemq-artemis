@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,7 +53,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
       server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
       assertNotNull(server.locateQueue(queueA));
       cf.createSession().createConsumer(queueA).close();
-      assertNull(server.locateQueue(queueA));
+      Wait.assertTrue(() -> server.locateQueue(queueA) == null);
    }
 
    @Test

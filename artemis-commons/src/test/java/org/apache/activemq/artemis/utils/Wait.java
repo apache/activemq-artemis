@@ -27,7 +27,7 @@ public class Wait {
 
 
    public static final long MAX_WAIT_MILLIS = 30 * 1000;
-   public static final int SLEEP_MILLIS = 1000;
+   public static final int SLEEP_MILLIS = 100;
    public static final String DEFAULT_FAILURE_MESSAGE = "Condition wasn't met";
 
    public interface Condition {
