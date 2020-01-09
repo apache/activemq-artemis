@@ -16,13 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
@@ -40,7 +37,6 @@ public class LinkedListTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-
       list = new LinkedListImpl<>(integerComparator);
    }
 
@@ -111,151 +107,111 @@ public class LinkedListTest extends ActiveMQTestBase {
       integerIterator.close();
    }
 
-   @Test
-   public void testAddAndRemove() {
-      final AtomicInteger count = new AtomicInteger(0);
-      class MyObject {
+   private static final class ObservableNode extends LinkedListImpl.Node<ObservableNode> {
 
-         private final byte[] payload;
+      ObservableNode() {
 
-         MyObject() {
-            count.incrementAndGet();
-            payload = new byte[10 * 1024];
-         }
-
-         @Override
-         protected void finalize() throws Exception {
-            count.decrementAndGet();
-         }
       }
 
-      LinkedListImpl<MyObject> objs = new LinkedListImpl<>();
+      public LinkedListImpl.Node<ObservableNode> publicNext() {
+         return next();
+      }
+
+      public LinkedListImpl.Node<ObservableNode> publicPrev() {
+         return prev();
+      }
+
+   }
+
+
+   @Test
+   public void testAddAndRemove() {
+      LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
 
       // Initial add
       for (int i = 0; i < 100; i++) {
-         objs.addTail(new MyObject());
+         final ObservableNode o = new ObservableNode();
+         objs.addTail(o);
       }
 
-      LinkedListIterator<MyObject> iter = objs.iterator();
+      try (LinkedListIterator<ObservableNode> iter = objs.iterator()) {
 
-      for (int i = 0; i < 500; i++) {
+         for (int i = 0; i < 500; i++) {
 
-         for (int add = 0; add < 1000; add++) {
-            objs.addTail(new MyObject());
+            for (int add = 0; add < 1000; add++) {
+               final ObservableNode o = new ObservableNode();
+               objs.addTail(o);
+               assertNotNull("prev", o.publicPrev());
+               assertNull("next", o.publicNext());
+            }
+
+            for (int remove = 0; remove < 1000; remove++) {
+               final ObservableNode next = iter.next();
+               assertNotNull(next);
+               assertNotNull("prev", next.publicPrev());
+               //it's ok to check this, because we've *at least* 100 elements left!
+               assertNotNull("next", next.publicNext());
+               iter.remove();
+               assertNull("prev", next.publicPrev());
+               assertNull("next", next.publicNext());
+            }
+            assertEquals(100, objs.size());
          }
 
-         for (int remove = 0; remove < 1000; remove++) {
-            assertNotNull(iter.next());
+         while (iter.hasNext()) {
+            final ObservableNode next = iter.next();
+            assertNotNull(next);
             iter.remove();
-         }
-
-         if (i % 100 == 0) {
-            assertCount(100, count);
+            assertNull("prev", next.publicPrev());
+            assertNull("next", next.publicNext());
          }
       }
-
-      assertCount(100, count);
-
-      while (iter.hasNext()) {
-         iter.next();
-         iter.remove();
-      }
-
-      assertCount(0, count);
+      assertEquals(0, objs.size());
 
    }
 
    @Test
    public void testAddHeadAndRemove() {
-      final AtomicInteger count = new AtomicInteger(0);
-      class MyObject {
-
-         public int payload;
-
-         MyObject(int payloadcount) {
-            count.incrementAndGet();
-            this.payload = payloadcount;
-         }
-
-         @Override
-         protected void finalize() throws Exception {
-            count.decrementAndGet();
-         }
-
-         @Override
-         public String toString() {
-            return "" + payload;
-         }
-      }
-
-      LinkedListImpl<MyObject> objs = new LinkedListImpl<>();
+      LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
 
       // Initial add
-      for (int i = 1000; i >= 0; i--) {
-         objs.addHead(new MyObject(i));
+      for (int i = 0; i < 1001; i++) {
+         final ObservableNode o = new ObservableNode();
+         objs.addHead(o);
       }
-      assertCount(1001, count);
-
-      LinkedListIterator<MyObject> iter = objs.iterator();
+      assertEquals(1001, objs.size());
 
       int countLoop = 0;
-      for (countLoop = 0; countLoop <= 1000; countLoop++) {
-         MyObject obj = iter.next();
-         assertEquals(countLoop, obj.payload);
-         if (countLoop == 500 || countLoop == 1000) {
-            iter.remove();
+
+      try (LinkedListIterator<ObservableNode> iter = objs.iterator()) {
+         int removed = 0;
+         for (countLoop = 0; countLoop <= 1000; countLoop++) {
+            final ObservableNode obj = iter.next();
+            Assert.assertNotNull(obj);
+            if (countLoop == 500 || countLoop == 1000) {
+               assertNotNull("prev", obj.publicPrev());
+               iter.remove();
+               assertNull("prev", obj.publicPrev());
+               assertNull("next", obj.publicNext());
+               removed++;
+            }
          }
+         assertEquals(1001 - removed, objs.size());
       }
 
-      iter.close();
-
-      iter = objs.iterator();
-
-      countLoop = 0;
-      while (iter.hasNext()) {
-         if (countLoop == 500 || countLoop == 1000) {
-            System.out.println("Jumping " + countLoop);
+      final int expectedSize = objs.size();
+      try (LinkedListIterator<ObservableNode> iter = objs.iterator()) {
+         countLoop = 0;
+         while (iter.hasNext()) {
+            final ObservableNode obj = iter.next();
+            assertNotNull(obj);
             countLoop++;
          }
-         MyObject obj = iter.next();
-         assertEquals(countLoop, obj.payload);
-         countLoop++;
+         Assert.assertEquals(expectedSize, countLoop);
       }
-
-      assertCount(999, count);
-
       // it's needed to add this line here because IBM JDK calls finalize on all objects in list
       // before previous assert is called and fails the test, this will prevent it
       objs.clear();
-
-   }
-
-   /**
-    * @param count
-    */
-   private void assertCount(final int expected, final AtomicInteger count) {
-      long timeout = System.currentTimeMillis() + 15000;
-
-      int seqCount = 0;
-      while (timeout > System.currentTimeMillis() && count.get() != expected) {
-         seqCount++;
-         if (seqCount > 5) {
-            LinkedList<String> toOME = new LinkedList<>();
-            int someCount = 0;
-            try {
-               WeakReference<Object> ref = new WeakReference<>(new Object());
-               while (ref.get() != null) {
-                  toOME.add("sdlfkjshadlfkjhas dlfkjhas dlfkjhads lkjfhads lfkjhads flkjashdf " + someCount++);
-               }
-            } catch (Throwable expectedThrowable) {
-            }
-
-            toOME.clear();
-         }
-         forceGC();
-      }
-
-      assertEquals(expected, count.get());
    }
 
    @Test
@@ -848,6 +804,49 @@ public class LinkedListTest extends ActiveMQTestBase {
       assertFalse(iter.hasNext());
       assertEquals(0, list.size());
 
+   }
+
+   @Test
+   public void testGCNepotismPoll() {
+      final int count = 100;
+      final LinkedListImpl<ObservableNode> list = new LinkedListImpl<>();
+      for (int i = 0; i < count; i++) {
+         final ObservableNode node = new ObservableNode();
+         assertNull(node.publicPrev());
+         assertNull(node.publicNext());
+         list.addTail(node);
+         assertNotNull(node.publicPrev());
+      }
+      ObservableNode node;
+      int removed = 0;
+      while ((node = list.poll()) != null) {
+         assertNull(node.publicPrev());
+         assertNull(node.publicNext());
+         removed++;
+      }
+      assertEquals(count, removed);
+      assertEquals(0, list.size());
+   }
+
+   @Test
+   public void testGCNepotismClear() {
+      final int count = 100;
+      final ObservableNode[] nodes = new ObservableNode[count];
+      final LinkedListImpl<ObservableNode> list = new LinkedListImpl<>();
+      for (int i = 0; i < count; i++) {
+         final ObservableNode node = new ObservableNode();
+         assertNull(node.publicPrev());
+         assertNull(node.publicNext());
+         nodes[i] = node;
+         list.addTail(node);
+         assertNotNull(node.publicPrev());
+      }
+      list.clear();
+      for (ObservableNode node : nodes) {
+         assertNull(node.publicPrev());
+         assertNull(node.publicNext());
+      }
+      assertEquals(0, list.size());
    }
 
    @Test
