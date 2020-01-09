@@ -8,6 +8,18 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.11.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12346258).
+
+Highlights:
+- Support [retroactive addresses](retroactive-addresses.md).
+- Support downstream federated [queues](federation-queue.md#configuring-downstream-federation) and [addresses](federation-address.md#configuring-downstream-federation).
+- Make security manager [configurable via XML](security.md#custom-security-manager).
+- Support pluggable SSL [TrustManagerFactory](configuring-transports.md#configuring-netty-ssl).
+- Add plugin support for federated queues/addresses.
+- Support `com.sun.jndi.ldap.read.timeout` in [LDAPLoginModule](security.md#ldaploginmodule).
+
 ## 2.10.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12345602).
