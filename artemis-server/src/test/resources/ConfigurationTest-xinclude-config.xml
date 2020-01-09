@@ -78,7 +78,7 @@
          <connector name="connector2">vm://5</connector>
       </connectors>
 
-      <xi:include href="./src/test/resources/ConfigurationTest-xinclude-config-acceptors.xml"/>
+      <xi:include href="${xincludePath}/ConfigurationTest-xinclude-config-acceptors.xml"/>
 
       <broadcast-groups>
          <broadcast-group name="bg1">
@@ -284,9 +284,9 @@
       <network-check-ping-command>ping-four</network-check-ping-command>
       <network-check-ping6-command>ping-six</network-check-ping6-command>
 
-      <xi:include href="./src/test/resources/ConfigurationTest-xinclude-config-security-settings.xml"/>
+      <xi:include href="${xincludePath}/ConfigurationTest-xinclude-config-security-settings.xml"/>
 
-      <xi:include href="./src/test/resources/ConfigurationTest-xinclude-config-address-settings.xml"/>
+      <xi:include href="${xincludePath}/ConfigurationTest-xinclude-config-address-settings.xml"/>
 
       <resource-limit-settings>
          <resource-limit-setting match="myUser">
@@ -300,6 +300,6 @@
          </connector-service>
       </connector-services>
 
-      <xi:include href="./src/test/resources/ConfigurationTest-xinclude-config-addresses.xml"/>
+      <xi:include href="${xincludePath}/ConfigurationTest-xinclude-config-addresses.xml"/>
    </core>
 </configuration>
