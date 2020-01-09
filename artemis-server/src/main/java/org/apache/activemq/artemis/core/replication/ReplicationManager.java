@@ -612,7 +612,7 @@ public final class ReplicationManager implements ActiveMQComponent {
    private void flushReplicationStream(FlushAction action) throws Exception {
       action.reset();
       replicationStream.execute(action);
-      if (!action.await(this.timeout, TimeUnit.MILLISECONDS)) {
+      if (!action.await(this.initialReplicationSyncTimeout, TimeUnit.MILLISECONDS)) {
          throw ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
       }
    }
