@@ -264,7 +264,9 @@ public abstract class ActiveMQTestBase extends Assert {
    public ActiveMQTestBase() {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
+      File subParent = new File(parent, this.getClass().getSimpleName());
+      subParent.mkdirs();
+      temporaryFolder = new TemporaryFolder(subParent);
    }
 
    protected <T> T serialClone(Object object) throws Exception {
