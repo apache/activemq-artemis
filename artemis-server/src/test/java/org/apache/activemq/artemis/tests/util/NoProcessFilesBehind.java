@@ -139,7 +139,7 @@ public class NoProcessFilesBehind extends TestWatcher {
 
       if (!Wait.waitFor(() -> getOpenFD() < maxFiles, 5000, 0)) {
          String fileList = getOpenList();
-         Assert.fail("Too many files open (" + maxFiles + "). A possible list: " + fileList);
+         Assert.fail("Too many files open (" + getOpenFD()  + ">" + maxFiles + "). A possible list: " + fileList);
       }
 
    }
