@@ -93,6 +93,10 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
    }
 
    public QueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
+      // This needs to be an executor
+      // otherwise we may have dead-locks in certain cases such as failure,
+      // where consumers are closed after callbacks
+      super(server.getExecutorFactory().getExecutor());
       this.server = server;
       this.queueName = queueName;
       this.setTask(this::doIt);

@@ -306,7 +306,7 @@ public class StompTest extends StompTestBase {
       // closing the consumer here should trigger auto-deletion
       assertNotNull(server.getPostOffice().getBinding(new SimpleString(queue)));
       consumer.close();
-      assertNull(server.getPostOffice().getBinding(new SimpleString(queue)));
+      Wait.assertTrue(() -> server.getPostOffice().getBinding(new SimpleString(queue)) == null);
    }
 
    @Test
@@ -1661,6 +1661,8 @@ public class StompTest extends StompTestBase {
       Assert.assertNull(frame);
 
       unsubscribe(conn, null, "/queue/" + ADDRESS, true, false);
+
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(ADDRESS)) == null);
 
       // now subscribe to the address in a MULTICAST way which will create a MULTICAST queue for the subscription
       uuid = UUID.randomUUID().toString();
