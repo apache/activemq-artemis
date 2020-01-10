@@ -1231,7 +1231,7 @@ public class StompTest extends StompTestBase {
 
       unsubscribe(conn, null, getQueuePrefix() + nonExistentQueue, true, false);
 
-      assertNull(server.getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
+      Wait.assertTrue(() -> server.getPostOffice().getBinding(new SimpleString(nonExistentQueue)) == null);
 
       sendJmsMessage(getName(), ActiveMQJMSClient.createQueue(nonExistentQueue));
 
@@ -1341,7 +1341,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
       Thread.sleep(500);
 
-      assertNull(server.locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString("myclientid." + getName())) == null);
    }
 
    @Test
@@ -1395,7 +1395,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
       Thread.sleep(500);
 
-      assertNull(server.locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString("myclientid." + getName())) == null);
    }
 
    @Test
