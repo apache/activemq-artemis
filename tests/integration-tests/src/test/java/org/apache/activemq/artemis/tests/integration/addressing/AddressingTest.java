@@ -246,7 +246,7 @@ public class AddressingTest extends ActiveMQTestBase {
       consumer.close();
       // the last consumer was closed so the queue should exist but be purged
       assertNotNull(server.locateQueue(queueName));
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
 
       // there are no consumers so no messages should be routed to the queue
       producer.send(session.createMessage(true));
