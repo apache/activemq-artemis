@@ -269,6 +269,48 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
+                  <id>create-createAuditLogging</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <configuration>${basedir}/target/classes/servers/audit-logging</configuration>
+                     <noWeb>false</noWeb>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/audit-logging</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <!--<arg>-Djava.rmi.server.hostname=localhost -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</arg>-->
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-createAuditLogging2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <configuration>${basedir}/target/classes/servers/audit-logging2</configuration>
+                     <noWeb>false</noWeb>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/audit-logging2</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <!--<arg>-Djava.rmi.server.hostname=localhost -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</arg>-->
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
                   <id>create-jmx-failback</id>
                   <goals>
                      <goal>create</goal>

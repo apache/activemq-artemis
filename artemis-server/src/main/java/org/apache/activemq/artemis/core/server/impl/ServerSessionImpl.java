@@ -1749,7 +1749,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
       if (AuditLogger.isMessageEnabled()) {
-         AuditLogger.coreSendMessage(this, getUsername(), tx, messageParameter, direct, noAutoCreateQueue, routingContext);
+         AuditLogger.coreSendMessage(getUsername(), routingContext);
       }
 
       final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);

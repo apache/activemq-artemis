@@ -23,10 +23,12 @@ import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
+import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.security.AccessController;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Logger Code 60
@@ -46,10 +48,23 @@ import java.util.Arrays;
 public interface AuditLogger extends BasicLogger {
 
    AuditLogger LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.base");
+   AuditLogger RESOURCE_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.resource");
    AuditLogger MESSAGE_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.message");
+
+   ThreadLocal<String> remoteUrl = new ThreadLocal<>();
+
+   ThreadLocal<Subject> currentCaller = new ThreadLocal<>();
+
+   static boolean isAnyLoggingEnabled() {
+      return isEnabled() || isMessageEnabled() || isResourceLoggingEnabled();
+   }
 
    static boolean isEnabled() {
       return LOGGER.isEnabled(Logger.Level.INFO);
+   }
+
+   static boolean isResourceLoggingEnabled() {
+      return RESOURCE_LOGGER.isEnabled(Logger.Level.INFO);
    }
 
    static boolean isMessageEnabled() {
@@ -58,14 +73,56 @@ public interface AuditLogger extends BasicLogger {
 
    static String getCaller() {
       Subject subject = Subject.getSubject(AccessController.getContext());
-      String caller = "anonymous";
+      if (subject == null) {
+         subject = currentCaller.get();
+      }
+      return getCaller(subject);
+   }
+
+   static String getCaller(String user) {
+      Subject subject = Subject.getSubject(AccessController.getContext());
+      if (subject == null) {
+         subject = currentCaller.get();
+      }
+      if (subject == null) {
+         return user + (remoteUrl.get() == null ? "@unknown" : remoteUrl.get());
+      }
+      return getCaller(subject);
+   }
+
+   static String getCaller(Subject subject) {
+      String user = "anonymous";
+      String roles = "";
+      String url = remoteUrl.get() == null ? "@unknown" : remoteUrl.get();
       if (subject != null) {
-         caller = "";
-         for (Principal principal : subject.getPrincipals()) {
-            caller += principal.getName() + "|";
+         Set<Principal> principals = subject.getPrincipals();
+         for (Principal principal : principals) {
+            if (principal.getClass().getName().endsWith("UserPrincipal")) {
+               user = principal.getName();
+            } else if (principal.getClass().getName().endsWith("RolePrincipal")) {
+               roles = "(" + principal.getName() + ")";
+            }
          }
       }
-      return caller;
+      return user + roles + url;
+   }
+
+   static void setCurrentCaller(Subject caller) {
+      currentCaller.set(caller);
+   }
+
+   static void setRemoteAddress(String remoteAddress) {
+      String actualAddress;
+      if (remoteAddress.startsWith("/")) {
+         actualAddress = "@" + remoteAddress.substring(1);
+      } else {
+         actualAddress = "@" + remoteAddress;
+      }
+      remoteUrl.set(actualAddress);
+   }
+
+   static String getRemoteAddress() {
+      return remoteUrl.get();
    }
 
    static String arrayToString(Object value) {
@@ -201,7 +258,7 @@ public interface AuditLogger extends BasicLogger {
    void getUnRoutedMessageCount(String user, Object source, Object... args);
 
    static void sendMessage(Object source, String user, Object... args) {
-      LOGGER.sendMessage(user == null ? getCaller() : user, source, arrayToString(args));
+      LOGGER.sendMessage(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -617,7 +674,7 @@ public interface AuditLogger extends BasicLogger {
    void deployQueue(String user, Object source, Object... args);
 
    static void createQueue(Object source, String user, Object... args) {
-      LOGGER.createQueue(user == null ? getCaller() : user, source, arrayToString(args));
+      RESOURCE_LOGGER.createQueue(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -673,7 +730,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressNames(String user, Object source, Object... args);
 
    static void destroyQueue(Object source, String user, Object... args) {
-      LOGGER.destroyQueue(user == null ? getCaller() : user, source, arrayToString(args));
+      LOGGER.destroyQueue(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2193,7 +2250,7 @@ public interface AuditLogger extends BasicLogger {
    void getUniqueName(String user, Object source, Object... args);
 
    static void serverSessionCreateAddress(Object source, String user, Object... args) {
-      LOGGER.serverSessionCreateAddress2(user == null ? getCaller() : user, source, arrayToString(args));
+      LOGGER.serverSessionCreateAddress2(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2201,7 +2258,7 @@ public interface AuditLogger extends BasicLogger {
    void serverSessionCreateAddress2(String user, Object source, Object... args);
 
    static void handleManagementMessage(Object source, String user, Object... args) {
-      LOGGER.handleManagementMessage2(user == null ? getCaller() : user, source, arrayToString(args));
+      LOGGER.handleManagementMessage2(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2219,7 +2276,7 @@ public interface AuditLogger extends BasicLogger {
 
 
    static void createCoreConsumer(Object source, String user, Object... args) {
-      LOGGER.createCoreConsumer(user == null ? getCaller() : user, source, arrayToString(args));
+      LOGGER.createCoreConsumer(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2227,7 +2284,7 @@ public interface AuditLogger extends BasicLogger {
    void createCoreConsumer(String user, Object source, Object... args);
 
    static void createSharedQueue(Object source, String user, Object... args) {
-      LOGGER.createSharedQueue(user == null ? getCaller() : user, source, arrayToString(args));
+      LOGGER.createSharedQueue(getCaller(user), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2250,22 +2307,12 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601268, value = "User {0} is getting produced message rate on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getProducedRate(String user, Object source, Object... args);
 
-   //hot path log using a different logger
-   static void coreSendMessage(Object source, String user, Object... args) {
-      MESSAGE_LOGGER.coreSendMessage(user == null ? getCaller() : user, source, arrayToString(args));
-   }
-
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601500, value = "User {0} is sending a core message on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
-   void coreSendMessage(String user, Object source, Object... args);
-
-
    static void getAcknowledgeAttempts(Object source) {
       LOGGER.getMessagesAcknowledged(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601501, value = "User {0} is getting messages acknowledged attempts on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601269, value = "User {0} is getting messages acknowledged attempts on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getAcknowledgeAttempts(String user, Object source, Object... args);
 
    static void getRingSize(Object source, Object... args) {
@@ -2273,7 +2320,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601502, value = "User {0} is getting ring size on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601270, value = "User {0} is getting ring size on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getRingSize(String user, Object source, Object... args);
 
 
@@ -2282,7 +2329,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601503, value = "User {0} is getting retroactiveResource property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601271, value = "User {0} is getting retroactiveResource property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void isRetroactiveResource(String user, Object source, Object... args);
 
    static void getDiskStoreUsage(Object source) {
@@ -2290,7 +2337,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601504, value = "User {0} is getting disk store usage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601272, value = "User {0} is getting disk store usage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getDiskStoreUsage(String user, Object source, Object... args);
 
    static void getDiskStoreUsagePercentage(Object source) {
@@ -2298,7 +2345,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601505, value = "User {0} is getting disk store usage percentage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601273, value = "User {0} is getting disk store usage percentage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getDiskStoreUsagePercentage(String user, Object source, Object... args);
 
    static void isGroupRebalance(Object source) {
@@ -2306,7 +2353,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601506, value = "User {0} is getting group rebalance property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601274, value = "User {0} is getting group rebalance property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void isGroupRebalance(String user, Object source, Object... args);
 
    static void getGroupBuckets(Object source) {
@@ -2314,7 +2361,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601507, value = "User {0} is getting group buckets on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601275, value = "User {0} is getting group buckets on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getGroupBuckets(String user, Object source, Object... args);
 
    static void getGroupFirstKey(Object source) {
@@ -2322,7 +2369,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601508, value = "User {0} is getting group first key on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601276, value = "User {0} is getting group first key on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getGroupFirstKey(String user, Object source, Object... args);
 
    static void getCurrentDuplicateIdCacheSize(Object source) {
@@ -2341,4 +2388,254 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601510, value = "User {0} is clearing duplicate ID cache on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void clearDuplicateIdCache(String user, Object source, Object... args);
+
+
+   /*
+    * This logger is for message production and consumption and is on the hot path so enabled independently
+    *
+    * */
+   //hot path log using a different logger
+   static void coreSendMessage(String user, Object context) {
+      MESSAGE_LOGGER.sendMessage(getCaller(user), context);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601500, value = "User {0} is sending a core message with Context: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void sendMessage(String user, Object context);
+
+   //hot path log using a different logger
+   static void coreConsumeMessage(String queue) {
+      MESSAGE_LOGGER.consumeMessage(getCaller(), queue);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601501, value = "User {0} is consuming a message from {1}", format = Message.Format.MESSAGE_FORMAT)
+   void consumeMessage(String user, String address);
+
+   /*
+    * This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
+    * */
+
+   static void createAddressSuccess(String name, String routingTypes) {
+      RESOURCE_LOGGER.createAddressSuccess(getCaller(), name, routingTypes);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601701, value = "User {0} successfully created Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   void createAddressSuccess(String user, String name, String routingTypes);
+
+   static void createAddressFailure(String name, String routingTypes) {
+      RESOURCE_LOGGER.createAddressFailure(getCaller(), name, routingTypes);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601702, value = "User {0} failed to created Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   void createAddressFailure(String user, String name, String routingTypes);
+
+   static void updateAddressSuccess(String name, String routingTypes) {
+      RESOURCE_LOGGER.updateAddressSuccess(getCaller(), name, routingTypes);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601703, value = "User {0} successfully updated Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   void updateAddressSuccess(String user, String name, String routingTypes);
+
+   static void updateAddressFailure(String name, String routingTypes) {
+      RESOURCE_LOGGER.updateAddressFailure(getCaller(), name, routingTypes);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601704, value = "User {0} successfully updated Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   void updateAddressFailure(String user, String name, String routingTypes);
+
+   static void deleteAddressSuccess(String name) {
+      RESOURCE_LOGGER.deleteAddressSuccess(getCaller(), name);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601705, value = "User {0} successfully deleted Address: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void deleteAddressSuccess(String user, String name);
+
+
+   static void deleteAddressFailure(String name) {
+      RESOURCE_LOGGER.deleteAddressFailure(getCaller(), name);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601706, value = "User {0} failed to deleted Address: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void deleteAddressFailure(String user, String name);
+
+   static void createQueueSuccess(String name, String address, String routingType) {
+      RESOURCE_LOGGER.createQueueSuccess(getCaller(), name, address, routingType);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601707, value = "User {0} successfully created Queue: {1} on Address: {2} with routing type {3}", format = Message.Format.MESSAGE_FORMAT)
+   void createQueueSuccess(String user, String name, String address, String routingType);
+
+   static void createQueueFailure(String name, String address, String routingType) {
+      RESOURCE_LOGGER.createQueueFailure(getCaller(), name, address, routingType);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601708, value = "User {0} failed to create Queue: {1} on Address: {2} with routing type {3}", format = Message.Format.MESSAGE_FORMAT)
+   void createQueueFailure(String user, String name, String address, String routingType);
+
+   static void updateQueueSuccess(String name, String routingType) {
+      RESOURCE_LOGGER.updateQueueSuccess(getCaller(), name, routingType);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601709, value = "User {0} successfully updated Queue: {1} with routing type {2}", format = Message.Format.MESSAGE_FORMAT)
+   void updateQueueSuccess(String user, String name, String routingType);
+
+   static void updateQueueFailure(String name, String routingType) {
+      RESOURCE_LOGGER.updateQueueFailure(getCaller(), name, routingType);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601710, value = "User {0} failed to update Queue: {1} with routing type {2}", format = Message.Format.MESSAGE_FORMAT)
+   void updateQueueFailure(String user, String name, String routingType);
+
+
+   static void destroyQueueSuccess(String name) {
+      RESOURCE_LOGGER.destroyQueueSuccess(getCaller(), name);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601711, value = "User {0} successfully deleted Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void destroyQueueSuccess(String user, String name);
+
+   static void destroyQueueFailure(String name) {
+      RESOURCE_LOGGER.destroyQueueFailure(getCaller(), name);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601712, value = "User {0} failed to delete Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void destroyQueueFailure(String user, String name);
+
+   static void removeMessagesSuccess(int removed, String queue) {
+      RESOURCE_LOGGER.removeMessagesSuccess(getCaller(), removed, queue);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601713, value = "User {0} has removed {1} messages from Queue: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void removeMessagesSuccess(String user, int removed, String queue);
+
+   static void removeMessagesFailure(String queue) {
+      RESOURCE_LOGGER.removeMessagesFailure(getCaller(), queue);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601714, value = "User {0} failed to remove messages from Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void removeMessagesFailure(String user, String queue);
+
+   static void userSuccesfullyLoggedInAudit(Subject subject) {
+      RESOURCE_LOGGER.userSuccesfullyLoggedIn(getCaller(subject));
+   }
+
+   static void userSuccesfullyLoggedInAudit() {
+      RESOURCE_LOGGER.userSuccesfullyLoggedIn(getCaller());
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601715, value = "User {0} successfully authorized", format = Message.Format.MESSAGE_FORMAT)
+   void userSuccesfullyLoggedIn(String caller);
+
+
+   static void userFailedLoggedInAudit(String reason) {
+      RESOURCE_LOGGER.userFailedLoggedIn(getCaller(), reason);
+   }
+
+   static void userFailedLoggedInAudit(Subject subject, String reason) {
+      RESOURCE_LOGGER.userFailedLoggedIn(getCaller(subject), reason);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601716, value = "User {0} failed authorization, reason: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void userFailedLoggedIn(String user, String reason);
+
+   static void objectInvokedSuccessfully(ObjectName objectName, String operationName) {
+      RESOURCE_LOGGER.objectInvokedSuccessfully(getCaller(), objectName, operationName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601717, value = "User {0} accessed {2} on management object {1}", format = Message.Format.MESSAGE_FORMAT)
+   void objectInvokedSuccessfully(String caller, ObjectName objectName, String operationName);
+
+
+   static void objectInvokedFailure(ObjectName objectName, String operationName) {
+      RESOURCE_LOGGER.objectInvokedFailure(getCaller(), objectName, operationName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601718, value = "User {0} does not have correct role to access {2} on management object {1}", format = Message.Format.MESSAGE_FORMAT)
+   void objectInvokedFailure(String caller, ObjectName objectName, String operationName);
+
+   static void pauseQueueSuccess(String queueName) {
+      RESOURCE_LOGGER.pauseQueueSuccess(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601719, value = "User {0} has paused queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pauseQueueSuccess(String user, String queueName);
+
+
+   static void pauseQueueFailure(String queueName) {
+      RESOURCE_LOGGER.pauseQueueFailure(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601720, value = "User {0} failed to pause queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pauseQueueFailure(String user, String queueName);
+
+
+   static void resumeQueueSuccess(String queueName) {
+      RESOURCE_LOGGER.resumeQueueSuccess(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601721, value = "User {0} has paused queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void resumeQueueSuccess(String user, String queueName);
+
+
+   static void resumeQueueFailure(String queueName) {
+      RESOURCE_LOGGER.pauseQueueFailure(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601722, value = "User {0} failed to resume queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void resumeQueueFailure(String user, String queueName);
+
+   static void sendMessageSuccess(String queueName, String user) {
+      RESOURCE_LOGGER.sendMessageSuccess(getCaller(), queueName, user);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601723, value = "User {0} sent message to {1} as user {2}", format = Message.Format.MESSAGE_FORMAT)
+   void sendMessageSuccess(String user, String queueName, String sendUser);
+
+   static void sendMessageFailure(String queueName, String user) {
+      RESOURCE_LOGGER.sendMessageFailure(getCaller(), queueName, user);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601724, value = "User {0} failed to send message to {1} as user {2}", format = Message.Format.MESSAGE_FORMAT)
+   void sendMessageFailure(String user, String queueName, String sendUser);
+
+   static void browseMessagesSuccess(String queueName, int numMessages) {
+      RESOURCE_LOGGER.browseMessagesSuccess(getCaller(), queueName, numMessages);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601725, value = "User {0} browsed {2} messages from queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void browseMessagesSuccess(String user, String queueName, int numMessages);
+
+   static void browseMessagesFailure(String queueName) {
+      RESOURCE_LOGGER.browseMessagesFailure(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601726, value = "User {0} failed to browse messages from queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   void browseMessagesFailure(String user, String queueName);
 }

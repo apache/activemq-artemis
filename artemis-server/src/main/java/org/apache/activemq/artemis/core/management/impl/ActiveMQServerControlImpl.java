@@ -846,9 +846,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String createAddress(String name, String routingTypes) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.createAddress(this.server, name, routingTypes);
-      }
+
       checkStarted();
 
       clearIO();
@@ -859,8 +857,15 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
          final AddressInfo addressInfo = new AddressInfo(new SimpleString(name), set);
          if (server.addAddressInfo(addressInfo)) {
-            return AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
+            String result = AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.createAddressSuccess(name, routingTypes);
+            }
+            return result;
          } else {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.createAddressFailure(name, routingTypes);
+            }
             throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
          }
       } finally {
@@ -870,9 +875,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String updateAddress(String name, String routingTypes) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.updateAddress(this.server, name, routingTypes);
-      }
+
       checkStarted();
 
       clearIO();
@@ -888,7 +891,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
          if (!server.updateAddressInfo(SimpleString.toSimpleString(name), routingTypeSet)) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.updateAddressFailure(name, routingTypes);
+            }
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(name));
+         }
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.updateAddressSuccess(name, routingTypes);
          }
          return AddressInfoTextFormatter.Long.format(server.getAddressInfo(SimpleString.toSimpleString(name)), new StringBuilder()).toString();
       } finally {
@@ -904,15 +913,18 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void deleteAddress(String name, boolean force) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.deleteAddress(this.server, name, force);
-      }
       checkStarted();
 
       clearIO();
       try {
          server.removeAddressInfo(new SimpleString(name), null, force);
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.deleteAddressSuccess(name);
+         }
       } catch (ActiveMQException e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.deleteAddressFailure(name);
+         }
          throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();
@@ -1203,8 +1215,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                                    .setAutoDeleteMessageCount(autoDeleteMessageCount)
                                                    .setAutoCreateAddress(autoCreateAddress)
                                                    .setRingSize(ringSize));
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.createQueueSuccess( name, address, routingType);
+         }
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.createQueueFailure( name, address, routingType);
+         }
          throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();
@@ -1353,8 +1371,15 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
          if (queue == null) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.updateQueueFailure(name, routingType);
+            }
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
          }
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.updateQueueSuccess(name, routingType);
+         }
+
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } finally {
          blockOnIO();
@@ -1490,7 +1515,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          SimpleString queueName = new SimpleString(name);
-         server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, autoDeleteAddress);
+         try {
+            server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, autoDeleteAddress);
+         } catch (Exception e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.destroyQueueFailure(name);
+            }
+            throw e;
+         }
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.destroyQueueSuccess(name);
+         }
       } finally {
          blockOnIO();
       }

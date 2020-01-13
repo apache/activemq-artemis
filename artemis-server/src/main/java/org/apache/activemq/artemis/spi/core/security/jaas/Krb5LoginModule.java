@@ -23,7 +23,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.LinkedList;
@@ -33,7 +32,7 @@ import java.util.Map;
 /**
  * populate a subject with kerberos credential from the handler
  */
-public class Krb5LoginModule implements LoginModule {
+public class Krb5LoginModule implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(Krb5LoginModule.class);
 
@@ -41,6 +40,7 @@ public class Krb5LoginModule implements LoginModule {
    private final List<Principal> principals = new LinkedList<>();
    private CallbackHandler callbackHandler;
    private boolean loginSucceeded;
+   private Principal principal;
 
    @Override
    public void initialize(Subject subject,
@@ -58,7 +58,7 @@ public class Krb5LoginModule implements LoginModule {
       callbacks[0] = new Krb5Callback();
       try {
          callbackHandler.handle(callbacks);
-         Principal principal = ((Krb5Callback)callbacks[0]).getPeerPrincipal();
+         principal = ((Krb5Callback)callbacks[0]).getPeerPrincipal();
          if (principal != null) {
             principals.add(principal);
          }
@@ -91,6 +91,7 @@ public class Krb5LoginModule implements LoginModule {
 
    @Override
    public boolean abort() throws LoginException {
+      registerFailureForAudit(principal != null ? principal.getName() : null);
       clear();
 
       logger.debug("abort");
@@ -99,6 +100,7 @@ public class Krb5LoginModule implements LoginModule {
    }
 
    private void clear() {
+      principal = null;
       loginSucceeded = false;
    }
 

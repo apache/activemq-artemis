@@ -1000,7 +1000,19 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
-         return queue.deleteMatchingReferences(flushLimit, filter);
+         int removed = 0;
+         try {
+            removed = queue.deleteMatchingReferences(flushLimit, filter);
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.removeMessagesSuccess(removed, queue.getName().toString());
+            }
+         } catch (Exception e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.removeMessagesFailure(queue.getName().toString());
+            }
+            throw e;
+         }
+         return removed;
       } finally {
          blockOnIO();
       }
@@ -1194,8 +1206,15 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.sendMessage(queue, null, headers, type, body, durable, user, "****");
       }
       try {
-         return sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
+         String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.sendMessageSuccess(queue.getName().toString(), user);
+         }
+         return s;
       } catch (Exception e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.sendMessageFailure(queue.getName().toString(), user);
+         }
          throw new IllegalStateException(e.getMessage());
       }
    }
@@ -1339,7 +1358,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         queue.pause();
+         try {
+            queue.pause();
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.pauseQueueSuccess(queue.getName().toString());
+            }
+         } catch (Exception e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.pauseQueueFailure(queue.getName().toString());
+            }
+         }
       } finally {
          blockOnIO();
       }
@@ -1355,7 +1383,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         queue.pause(persist);
+         try {
+            queue.pause(persist);
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.pauseQueueSuccess(queue.getName().toString());
+            }
+         } catch (Exception e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.pauseQueueFailure(queue.getName().toString());
+            }
+         }
       } finally {
          blockOnIO();
       }
@@ -1369,7 +1406,17 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         queue.resume();
+         try {
+            queue.resume();
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.resumeQueueSuccess(queue.getName().toString());
+            }
+         } catch (Exception e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.resumeQueueFailure(queue.getName().toString());
+            }
+            e.printStackTrace();
+         }
       } finally {
          blockOnIO();
       }
@@ -1425,9 +1472,15 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
             CompositeData[] rc = new CompositeData[c.size()];
             c.toArray(rc);
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.browseMessagesSuccess(queue.getName().toString(), c.size());
+            }
             return rc;
          }
       } catch (ActiveMQException e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.browseMessagesFailure(queue.getName().toString());
+         }
          throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();
@@ -1467,9 +1520,15 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
             CompositeData[] rc = new CompositeData[c.size()];
             c.toArray(rc);
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.browseMessagesSuccess(queue.getName().toString(), currentPageSize);
+            }
             return rc;
          }
       } catch (ActiveMQException e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.browseMessagesFailure(queue.getName().toString());
+         }
          throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();

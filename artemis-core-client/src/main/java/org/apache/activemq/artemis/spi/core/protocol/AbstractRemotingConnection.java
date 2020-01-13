@@ -47,6 +47,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    protected final long creationTime;
    protected volatile boolean dataReceived;
    private String clientId;
+   private Subject subject;
 
    public AbstractRemotingConnection(final Connection transportConnection, final Executor executor) {
       this.transportConnection = transportConnection;
@@ -245,6 +246,16 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    @Override
    public boolean isSupportsFlowControl() {
       return true;
+   }
+
+   @Override
+   public void setAuditSubject(Subject subject) {
+      this.subject = subject;
+   }
+
+   @Override
+   public Subject getAuditSubject() {
+      return subject;
    }
 
    @Override
