@@ -41,7 +41,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -62,7 +61,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.jboss.logging.Logger;
 
-public class LDAPLoginModule implements LoginModule {
+public class LDAPLoginModule implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(LDAPLoginModule.class);
 
@@ -243,6 +242,7 @@ public class LDAPLoginModule implements LoginModule {
 
    @Override
    public boolean abort() throws LoginException {
+      registerFailureForAudit(username);
       clear();
       return true;
    }

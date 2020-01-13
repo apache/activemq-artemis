@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -304,6 +305,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private void act(Command command) {
       try {
          recoverOperationContext();
+
+         if (AuditLogger.isAnyLoggingEnabled()) {
+            AuditLogger.setRemoteAddress(getRemoteAddress());
+         }
 
          boolean responseRequired = command.isResponseRequired();
          int commandId = command.getCommandId();
@@ -1709,7 +1714,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    }
 
-   private void recoverOperationContext() {
+   private void   recoverOperationContext() {
       server.getStorageManager().setContext(this.operationContext);
    }
 

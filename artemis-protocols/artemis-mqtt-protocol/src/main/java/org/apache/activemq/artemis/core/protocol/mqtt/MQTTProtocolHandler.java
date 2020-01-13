@@ -39,6 +39,7 @@ import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 
 /**
@@ -97,6 +98,10 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          }
 
          connection.dataReceived();
+
+         if (AuditLogger.isAnyLoggingEnabled()) {
+            AuditLogger.setRemoteAddress(connection.getRemoteAddress());
+         }
 
          MQTTUtil.logMessage(session.getState(), message, true);
 

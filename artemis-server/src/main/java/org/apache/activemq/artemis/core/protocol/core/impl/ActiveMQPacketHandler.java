@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
 import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.jboss.logging.Logger;
 
 /**
@@ -81,6 +82,11 @@ public class ActiveMQPacketHandler implements ChannelHandler {
    @Override
    public void handlePacket(final Packet packet) {
       byte type = packet.getType();
+
+      if (AuditLogger.isAnyLoggingEnabled()) {
+         AuditLogger.setRemoteAddress(connection.getRemoteAddress());
+         AuditLogger.setCurrentCaller(connection.getAuditSubject());
+      }
 
       switch (type) {
          case PacketImpl.CREATESESSION: {

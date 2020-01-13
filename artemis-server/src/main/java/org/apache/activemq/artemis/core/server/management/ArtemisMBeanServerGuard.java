@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.server.management;
 
 
+import org.apache.activemq.artemis.logs.AuditLogger;
+
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.JMException;
@@ -120,6 +122,9 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       for (String role : requiredRoles) {
          if (currentUserHasRole(role))
             return;
+      }
+      if (AuditLogger.isResourceLoggingEnabled()) {
+         AuditLogger.objectInvokedFailure(objectName, operationName);
       }
       throw new SecurityException("Insufficient roles/credentials for operation");
    }

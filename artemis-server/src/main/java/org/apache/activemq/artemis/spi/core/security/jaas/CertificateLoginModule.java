@@ -22,7 +22,6 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import javax.security.cert.X509Certificate;
 import java.io.IOException;
 import java.security.Principal;
@@ -37,7 +36,7 @@ import org.jboss.logging.Logger;
  * Allows for subclasses to define methods used to verify user certificates and
  * find user roles. Uses CertificateCallbacks to retrieve certificates.
  */
-public abstract class CertificateLoginModule extends PropertiesLoader implements LoginModule {
+public abstract class CertificateLoginModule extends PropertiesLoader implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(CertificateLoginModule.class);
 
@@ -116,6 +115,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
     */
    @Override
    public boolean abort() throws LoginException {
+      registerFailureForAudit(username);
       clear();
 
       if (debug) {
