@@ -18,18 +18,19 @@ github:
   description: "Mirror of Apache ActiveMQ Artemis"
   homepage: https://activemq.apache.org/components/artemis
   labels:
-    - Apache
-    - ActiveMQ
+    - apache
+    - activemq
+    - activemq-artemis
     - messaging
     - broker
 
-    - AMQP
-    - AMQPS
-    - AMQP10
-    - OpenWire
-    - MQTT
-    - STOMP
-    - HornetQ
+    - amqp
+    - amqps
+    - amqp10
+    - openwire
+    - mqtt
+    - stomp
+    - hornetq
 
-    - Java
-    - JMS
+    - java
+    - jms
