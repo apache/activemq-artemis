@@ -86,6 +86,8 @@ public class AMQPSessionContext extends ProtonInitializable {
    public void disconnect(Object consumer, String queueName) {
       ProtonServerSenderContext protonConsumer = senders.remove(consumer);
       if (protonConsumer != null) {
+         serverSenders.remove(protonConsumer.getBrokerConsumer());
+
          try {
             protonConsumer.close(false);
          } catch (ActiveMQAMQPException e) {
@@ -132,6 +134,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          }
       }
       senders.clear();
+      serverSenders.clear();
       try {
          if (sessionSPI != null) {
             sessionSPI.close();
@@ -178,6 +181,9 @@ public class AMQPSessionContext extends ProtonInitializable {
          protonSender.start();
       } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
+         if (protonSender.getBrokerConsumer() != null) {
+            serverSenders.remove(protonSender.getBrokerConsumer());
+         }
          sender.setSource(null);
          sender.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
          connection.runNow(() -> {
@@ -188,7 +194,6 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public void removeSender(Sender sender) throws ActiveMQAMQPException {
-      senders.remove(sender);
       ProtonServerSenderContext senderRemoved = senders.remove(sender);
       if (senderRemoved != null) {
          serverSenders.remove(senderRemoved.getBrokerConsumer());
@@ -216,5 +221,13 @@ public class AMQPSessionContext extends ProtonInitializable {
             connection.flush();
          });
       }
+   }
+
+   public int getReceiverCount() {
+      return receivers.size();
+   }
+
+   public int getSenderCount() {
+      return senders.size();
    }
 }
