@@ -20,6 +20,8 @@ import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
@@ -59,7 +61,11 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -312,6 +318,44 @@ public class ConsumerTest extends ActiveMQTestBase {
          Wait.waitFor(() -> server.getAddressInfo(thisQueue) == null, 1000, 10);
          assertNull(server.getAddressInfo(thisQueue));
          assertEquals(0, server.getTotalMessageCount());
+      }
+   }
+
+   @Test
+   public void testContextOnConsumerAMQP() throws Throwable {
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      assertNull(server.getAddressInfo(SimpleString.toSimpleString("queue")));
+
+      ConnectionFactory factory = createFactory(2);
+      JMSContext context = factory.createContext("admin", "admin", Session.AUTO_ACKNOWLEDGE);
+
+      try {
+         javax.jms.Queue queue = context.createQueue("queue");
+
+         JMSConsumer consumer = context.createConsumer(queue);
+
+         ServerConsumer serverConsumer = null;
+         for (ServerSession session : server.getSessions()) {
+            for (ServerConsumer sessionConsumer : session.getServerConsumers()) {
+               serverConsumer = sessionConsumer;
+            }
+         }
+
+         consumer.close();
+
+         Assert.assertTrue(serverConsumer.getProtocolContext() instanceof ProtonServerSenderContext);
+
+         final AMQPSessionContext sessionContext = ((ProtonServerSenderContext)
+            serverConsumer.getProtocolContext()).getSessionContext();
+
+         Wait.assertEquals(0, () -> sessionContext.getSenderCount(), 1000, 10);
+      } finally {
+         context.stop();
+         context.close();
       }
    }
 

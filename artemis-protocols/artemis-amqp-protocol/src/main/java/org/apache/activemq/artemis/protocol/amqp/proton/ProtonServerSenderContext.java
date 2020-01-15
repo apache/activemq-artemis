@@ -558,6 +558,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       try {
          closed = true;
+         protonSession.removeSender(sender);
          sessionSPI.closeSender(brokerConsumer);
          // if this is a link close rather than a connection close or detach, we need to delete
          // any durable resources for say pub subs
@@ -898,5 +899,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       connection.requireInHandler();
       sender.drained();
       connection.flush();
+   }
+
+   public AMQPSessionContext getSessionContext() {
+      return protonSession;
    }
 }
