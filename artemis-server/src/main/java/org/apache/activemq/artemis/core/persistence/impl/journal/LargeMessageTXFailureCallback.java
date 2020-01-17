@@ -17,11 +17,9 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -32,13 +30,10 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 public class LargeMessageTXFailureCallback implements TransactionFailureCallback {
 
    private AbstractJournalStorageManager journalStorageManager;
-   private final Map<Long, Message> messages;
 
-   public LargeMessageTXFailureCallback(AbstractJournalStorageManager journalStorageManager,
-                                        final Map<Long, Message> messages) {
+   public LargeMessageTXFailureCallback(AbstractJournalStorageManager journalStorageManager) {
       super();
       this.journalStorageManager = journalStorageManager;
-      this.messages = messages;
    }
 
    @Override
@@ -52,7 +47,7 @@ public class LargeMessageTXFailureCallback implements TransactionFailureCallback
             ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
             try {
-               LargeServerMessage serverMessage = journalStorageManager.parseLargeMessage(messages, buff);
+               LargeServerMessage serverMessage = journalStorageManager.parseLargeMessage(buff);
                serverMessage.decrementDelayDeletionCount();
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.journalError(e);

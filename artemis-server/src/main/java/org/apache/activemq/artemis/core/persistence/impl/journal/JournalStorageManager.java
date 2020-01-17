@@ -358,12 +358,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    /**
-    * @param messages
     * @param buff
     * @return
     * @throws Exception
-    */ protected LargeServerMessage parseLargeMessage(final Map<Long, Message> messages,
-                                                      final ActiveMQBuffer buff) throws Exception {
+    */
+   protected LargeServerMessage parseLargeMessage(final ActiveMQBuffer buff) throws Exception {
       LargeServerMessage largeMessage = createLargeMessage();
 
       LargeMessagePersister.getInstance().decode(buff, largeMessage);
