@@ -1169,7 +1169,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public Collection<Integer> getCurrentIds() throws Exception {
-      lock.writeLock().lock();
+      lock.readLock().lock();
       try {
          List<Integer> ids = new ArrayList<>();
          SequentialFileFactory factory = fileFactory;
@@ -1180,7 +1180,7 @@ public class PagingStoreImpl implements PagingStore {
          }
          return ids;
       } finally {
-         lock.writeLock().unlock();
+         lock.readLock().unlock();
       }
    }
 
