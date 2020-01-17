@@ -30,7 +30,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -52,6 +51,7 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
 
 public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
@@ -897,13 +897,13 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public synchronized JournalLoadInformation load(final Consumer<RecordInfo> onCommittedRecords,
+   public synchronized JournalLoadInformation load(final SparseArrayLinkedList<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,
                                                    final boolean fixBadTX) throws Exception {
-      final List<RecordInfo> committedRecords = new ArrayList<>();
-      final JournalLoadInformation journalLoadInformation = load(committedRecords, preparedTransactions, failureCallback, fixBadTX);
-      committedRecords.forEach(onCommittedRecords);
+      final List<RecordInfo> records = new ArrayList<>();
+      final JournalLoadInformation journalLoadInformation = load(records, preparedTransactions, failureCallback, fixBadTX);
+      records.forEach(committedRecords::add);
       return journalLoadInformation;
    }
 

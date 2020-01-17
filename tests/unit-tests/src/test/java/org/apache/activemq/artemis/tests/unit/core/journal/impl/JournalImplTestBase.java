@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -360,7 +361,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    }
 
    protected void load() throws Exception {
-      journal.load((List<RecordInfo>) null, null, null);
+      journal.load(new SparseArrayLinkedList<>(), null, null);
    }
 
    protected void beforeJournalOperation() throws Exception {
