@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnsupportedPacketException;
@@ -267,7 +268,7 @@ public final class FileWrapperJournal extends JournalBase {
    }
 
    @Override
-   public JournalLoadInformation load(List<RecordInfo> committedRecords,
+   public JournalLoadInformation load(Consumer<RecordInfo> committedRecords,
                                       List<PreparedTransactionInfo> preparedTransactions,
                                       TransactionFailureCallback transactionFailure,
                                       boolean fixbadtx) throws Exception {

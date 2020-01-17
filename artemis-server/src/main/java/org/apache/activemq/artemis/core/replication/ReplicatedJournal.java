@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.replication;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -424,7 +425,7 @@ public class ReplicatedJournal implements Journal {
     * @see org.apache.activemq.artemis.core.journal.Journal#load(java.util.List, java.util.List, org.apache.activemq.artemis.core.journal.TransactionFailureCallback)
     */
    @Override
-   public JournalLoadInformation load(final List<RecordInfo> committedRecords,
+   public JournalLoadInformation load(final Consumer<RecordInfo> committedRecords,
                                       final List<PreparedTransactionInfo> preparedTransactions,
                                       final TransactionFailureCallback transactionFailure,
                                       final boolean fixbadTX) throws Exception {

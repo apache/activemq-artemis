@@ -360,7 +360,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    }
 
    protected void load() throws Exception {
-      journal.load(null, null, null);
+      journal.load((List<RecordInfo>) null, null, null);
    }
 
    protected void beforeJournalOperation() throws Exception {

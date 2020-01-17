@@ -1445,7 +1445,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * @see JournalImpl#load(LoaderCallback)
     */
    @Override
-   public synchronized JournalLoadInformation load(final List<RecordInfo> committedRecords,
+   public synchronized JournalLoadInformation load(final Consumer<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,
                                                    final boolean fixBadTX) throws Exception {
@@ -1514,7 +1514,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       final Consumer<RecordInfo> fillCommittedRecord = record -> {
          if (!recordsToDelete.contains(record.id)) {
-            committedRecords.add(record);
+            committedRecords.accept(record);
          }
       };
       // it helps GC by cleaning up each SparseArray too
