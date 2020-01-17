@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -893,6 +894,17 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    @Override
    public void lineUpContext(IOCompletion callback) {
       callback.storeLineUp();
+   }
+
+   @Override
+   public synchronized JournalLoadInformation load(final Consumer<RecordInfo> onCommittedRecords,
+                                                   final List<PreparedTransactionInfo> preparedTransactions,
+                                                   final TransactionFailureCallback failureCallback,
+                                                   final boolean fixBadTX) throws Exception {
+      final List<RecordInfo> committedRecords = new ArrayList<>();
+      final JournalLoadInformation journalLoadInformation = load(committedRecords, preparedTransactions, failureCallback, fixBadTX);
+      committedRecords.forEach(onCommittedRecords);
+      return journalLoadInformation;
    }
 
    @Override

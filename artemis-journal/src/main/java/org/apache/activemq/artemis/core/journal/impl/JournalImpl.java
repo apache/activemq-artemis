@@ -24,13 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -44,6 +40,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -82,6 +80,8 @@ import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
+import org.apache.activemq.artemis.utils.collections.LongHashSet;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
@@ -1445,13 +1445,15 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * @see JournalImpl#load(LoaderCallback)
     */
    @Override
-   public synchronized JournalLoadInformation load(final List<RecordInfo> committedRecords,
+   public synchronized JournalLoadInformation load(final Consumer<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,
                                                    final boolean fixBadTX) throws Exception {
-      final Set<Long> recordsToDelete = new HashSet<>();
+      final LongHashSet recordsToDelete = new LongHashSet(1024);
+      final Predicate<RecordInfo> toDeleteFilter = recordInfo -> recordsToDelete.contains(recordInfo.id);
       // ArrayList was taking too long to delete elements on checkDeleteSize
-      final List<RecordInfo> records = new LinkedList<>();
+      // and LinkedList<RecordInfo> creates too many nodes
+      final SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
 
       final int DELETE_FLUSH = 20000;
 
@@ -1461,18 +1463,15 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          private void checkDeleteSize() {
             // HORNETQ-482 - Flush deletes only if memory is critical
             if (recordsToDelete.size() > DELETE_FLUSH && runtime.freeMemory() < runtime.maxMemory() * 0.2) {
-               logger.debug("Flushing deletes during loading, deleteCount = " + recordsToDelete.size());
+               if (logger.isDebugEnabled()) {
+                  logger.debugf("Flushing deletes during loading, deleteCount = %d", recordsToDelete.size());
+               }
                // Clean up when the list is too large, or it won't be possible to load large sets of files
                // Done as part of JBMESSAGING-1678
-               Iterator<RecordInfo> iter = records.iterator();
-               while (iter.hasNext()) {
-                  RecordInfo record = iter.next();
-
-                  if (recordsToDelete.contains(record.id)) {
-                     iter.remove();
-                  }
+               final long removed = records.remove(toDeleteFilter);
+               if (logger.isDebugEnabled()) {
+                  logger.debugf("Removed records during loading = %d", removed);
                }
-
                recordsToDelete.clear();
 
                logger.debug("flush delete done");
@@ -1513,12 +1512,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       }, fixBadTX, null);
 
-      for (RecordInfo record : records) {
+      final Consumer<RecordInfo> fillCommittedRecord = record -> {
          if (!recordsToDelete.contains(record.id)) {
-            committedRecords.add(record);
+            committedRecords.accept(record);
          }
-      }
-
+      };
+      // it helps GC by cleaning up each SparseArray too
+      records.clear(fillCommittedRecord);
       return info;
    }
 
