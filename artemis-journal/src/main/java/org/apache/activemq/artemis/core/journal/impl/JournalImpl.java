@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -1441,19 +1440,35 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       return load(DummyLoader.INSTANCE, true, syncState);
    }
 
+   @Override
+   public JournalLoadInformation load(List<RecordInfo> committedRecords,
+                                      List<PreparedTransactionInfo> preparedTransactions,
+                                      TransactionFailureCallback transactionFailure,
+                                      boolean fixBadTx) throws Exception {
+      // suboptimal method: it would perform an additional copy!
+      // Implementors should override this to provide their optimized version
+      final SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
+      final JournalLoadInformation info = load(records, preparedTransactions, transactionFailure, fixBadTx);
+      if (committedRecords instanceof ArrayList) {
+         final long survivedRecordsCount = records.size();
+         if (survivedRecordsCount <= Integer.MAX_VALUE) {
+            ((ArrayList) committedRecords).ensureCapacity((int) survivedRecordsCount);
+         }
+      }
+      records.clear(committedRecords::add);
+      return info;
+   }
+
    /**
     * @see JournalImpl#load(LoaderCallback)
     */
    @Override
-   public synchronized JournalLoadInformation load(final Consumer<RecordInfo> committedRecords,
+   public synchronized JournalLoadInformation load(final SparseArrayLinkedList<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,
                                                    final boolean fixBadTX) throws Exception {
       final LongHashSet recordsToDelete = new LongHashSet(1024);
       final Predicate<RecordInfo> toDeleteFilter = recordInfo -> recordsToDelete.contains(recordInfo.id);
-      // ArrayList was taking too long to delete elements on checkDeleteSize
-      // and LinkedList<RecordInfo> creates too many nodes
-      final SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
 
       final int DELETE_FLUSH = 20000;
 
@@ -1468,7 +1483,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
                // Clean up when the list is too large, or it won't be possible to load large sets of files
                // Done as part of JBMESSAGING-1678
-               final long removed = records.remove(toDeleteFilter);
+               final long removed = committedRecords.remove(toDeleteFilter);
                if (logger.isDebugEnabled()) {
                   logger.debugf("Removed records during loading = %d", removed);
                }
@@ -1486,13 +1501,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          @Override
          public void addRecord(final RecordInfo info) {
-            records.add(info);
+            committedRecords.add(info);
             checkDeleteSize();
          }
 
          @Override
          public void updateRecord(final RecordInfo info) {
-            records.add(info);
+            committedRecords.add(info);
             checkDeleteSize();
          }
 
@@ -1512,13 +1527,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       }, fixBadTX, null);
 
-      final Consumer<RecordInfo> fillCommittedRecord = record -> {
-         if (!recordsToDelete.contains(record.id)) {
-            committedRecords.accept(record);
-         }
-      };
-      // it helps GC by cleaning up each SparseArray too
-      records.clear(fillCommittedRecord);
+      if (!recordsToDelete.isEmpty()) {
+         committedRecords.remove(toDeleteFilter);
+      }
       return info;
    }
 

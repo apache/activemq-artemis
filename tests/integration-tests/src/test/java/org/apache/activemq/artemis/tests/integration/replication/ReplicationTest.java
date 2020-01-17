@@ -29,7 +29,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -89,6 +88,7 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
@@ -812,7 +812,16 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public JournalLoadInformation load(final Consumer<RecordInfo> committedRecords,
+      public JournalLoadInformation load(final SparseArrayLinkedList<RecordInfo> committedRecords,
+                                         final List<PreparedTransactionInfo> preparedTransactions,
+                                         final TransactionFailureCallback transactionFailure,
+                                         final boolean fixbadtx) throws Exception {
+
+         return new JournalLoadInformation();
+      }
+
+      @Override
+      public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                          final List<PreparedTransactionInfo> preparedTransactions,
                                          final TransactionFailureCallback transactionFailure,
                                          final boolean fixbadtx) throws Exception {
