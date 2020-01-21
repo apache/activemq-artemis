@@ -41,11 +41,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.transaction.xa.Xid;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -869,7 +871,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                byte[] data = record.data;
 
-               ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
+               // We can make this byte[] buffer releasable, because subsequent methods using it are not supposed
+               // to release it. It saves creating useless UnreleasableByteBuf wrappers
+               ChannelBufferWrapper buff = new ChannelBufferWrapper(Unpooled.wrappedBuffer(data), true);
 
                byte recordType = record.getUserRecordType();
 

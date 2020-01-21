@@ -372,6 +372,79 @@ public class TypedProperties {
       }
    }
 
+   /**
+    * Performs a search among the valid key properties contained in {@code buffer}, starting from {@code from}
+    * assuming it to be a valid encoded {@link TypedProperties} content.
+    *
+    * @throws IllegalStateException if any not-valid property is found while searching the {@code key} property
+    */
+   public static boolean searchProperty(SimpleString key, ByteBuf buffer, int startIndex) {
+      // It won't implement a straight linear search for key
+      // because it would risk to find a SimpleString encoded property value
+      // equals to the key we're searching for!
+      int index = startIndex;
+      byte b = buffer.getByte(index);
+      index++;
+      if (b == DataConstants.NULL) {
+         return false;
+      }
+      final int numHeaders = buffer.getInt(index);
+      index += Integer.BYTES;
+      for (int i = 0; i < numHeaders; i++) {
+         final int keyLength = buffer.getInt(index);
+         index += Integer.BYTES;
+         if (key.equals(buffer, index, keyLength)) {
+            return true;
+         }
+         if (i == numHeaders - 1) {
+            return false;
+         }
+         index += keyLength;
+         byte type = buffer.getByte(index);
+         index++;
+         switch (type) {
+            case NULL: {
+               break;
+            }
+            case CHAR:
+            case SHORT: {
+               index += Short.BYTES;
+               break;
+            }
+            case BOOLEAN:
+            case BYTE: {
+               index += Byte.BYTES;
+               break;
+            }
+            case BYTES:
+            case STRING: {
+               index += (Integer.BYTES + buffer.getInt(index));
+               break;
+            }
+            case INT: {
+               index += Integer.BYTES;
+               break;
+            }
+            case LONG: {
+               index += Long.BYTES;
+               break;
+            }
+            case FLOAT: {
+               index += Float.BYTES;
+               break;
+            }
+            case DOUBLE: {
+               index += Double.BYTES;
+               break;
+            }
+            default: {
+               throw ActiveMQUtilBundle.BUNDLE.invalidType(type);
+            }
+         }
+      }
+      return false;
+   }
+
    public synchronized void decode(final ByteBuf buffer,
                                    final TypedPropertiesDecoderPools keyValuePools) {
       byte b = buffer.readByte();
