@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.replication;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -34,6 +33,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
 
 /**
@@ -425,7 +425,22 @@ public class ReplicatedJournal implements Journal {
     * @see org.apache.activemq.artemis.core.journal.Journal#load(java.util.List, java.util.List, org.apache.activemq.artemis.core.journal.TransactionFailureCallback)
     */
    @Override
-   public JournalLoadInformation load(final Consumer<RecordInfo> committedRecords,
+   public JournalLoadInformation load(final List<RecordInfo> committedRecords,
+                                      final List<PreparedTransactionInfo> preparedTransactions,
+                                      final TransactionFailureCallback transactionFailure,
+                                      final boolean fixbadTX) throws Exception {
+      return localJournal.load(committedRecords, preparedTransactions, transactionFailure, fixbadTX);
+   }
+
+   /**
+    * @param committedRecords
+    * @param preparedTransactions
+    * @param transactionFailure
+    * @throws Exception
+    * @see org.apache.activemq.artemis.core.journal.Journal#load(java.util.List, java.util.List, org.apache.activemq.artemis.core.journal.TransactionFailureCallback)
+    */
+   @Override
+   public JournalLoadInformation load(final SparseArrayLinkedList<RecordInfo> committedRecords,
                                       final List<PreparedTransactionInfo> preparedTransactions,
                                       final TransactionFailureCallback transactionFailure,
                                       final boolean fixbadTX) throws Exception {
