@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.message.impl;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -1082,6 +1083,37 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public Object removeProperty(final String key) {
       return removeProperty(key(key));
+   }
+
+   @Override
+   public boolean searchScheduledDeliveryTime() {
+      return searchProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+   }
+
+   /**
+    * Differently from {@link #containsProperty(SimpleString)}, this method can save decoding the message,
+    * performing a search of the {@code key} property and falling back to {@link #containsProperty(SimpleString)}
+    * if not possible or if already decoded.
+    */
+   public boolean searchProperty(SimpleString key) {
+      Objects.requireNonNull(key, "key cannot be null");
+      TypedProperties properties = this.properties;
+      if (properties != null) {
+         return properties.containsProperty(key);
+      }
+      synchronized (this) {
+         final ByteBuf buffer = this.buffer;
+         // acquiring the lock here, although heavy-weight, is the safer way to do this,
+         // because we cannot trust that a racing thread won't modify buffer
+         if (buffer == null) {
+            throw new NullPointerException("buffer cannot be null");
+         }
+         final int propertiesLocation = this.propertiesLocation;
+         if (propertiesLocation < 0) {
+            throw new IllegalStateException("propertiesLocation = " + propertiesLocation);
+         }
+         return TypedProperties.searchProperty(key, buffer, propertiesLocation);
+      }
    }
 
    @Override

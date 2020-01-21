@@ -186,6 +186,10 @@ public interface Message {
       // only on core
    }
 
+   default boolean searchScheduledDeliveryTime() {
+      return getScheduledDeliveryTime() != null;
+   }
+
    default RoutingType getRoutingType() {
       return null;
    }

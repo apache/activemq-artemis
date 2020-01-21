@@ -1181,9 +1181,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
-      Long scheduledDeliveryTime = message.getScheduledDeliveryTime();
-      if (scheduledDeliveryTime != null) {
-         reference.setScheduledDeliveryTime(scheduledDeliveryTime);
+      Long scheduledDeliveryTime;
+      if (message.searchScheduledDeliveryTime()) {
+         scheduledDeliveryTime = message.getScheduledDeliveryTime();
+         if (scheduledDeliveryTime != null) {
+            reference.setScheduledDeliveryTime(scheduledDeliveryTime);
+         }
       }
 
       message.incrementDurableRefCount();
@@ -1433,7 +1436,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       Transaction tx = context.getTransaction();
 
-      Long deliveryTime = message.getScheduledDeliveryTime();
+      Long deliveryTime = null;
+      if (message.searchScheduledDeliveryTime()) {
+         deliveryTime = message.getScheduledDeliveryTime();
+      }
 
       for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
          PagingStore store = pagingManager.getPageStore(entry.getKey());
