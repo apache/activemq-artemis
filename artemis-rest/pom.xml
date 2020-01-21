@@ -57,6 +57,12 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.eclipse.jetty.aggregate</groupId>
+         <artifactId>jetty-all</artifactId>
+         <type>jar</type>
+         <classifier>uber</classifier>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxrs</artifactId>
          <exclusions>
@@ -87,6 +93,7 @@
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>tjws</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -132,11 +139,6 @@
          <artifactId>jaxb-runtime</artifactId>
          <version>2.3.2</version>
          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>servlet-api</artifactId>
-         <version>2.5</version>
       </dependency>
       <dependency>
          <groupId>org.apache.httpcomponents</groupId>
