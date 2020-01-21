@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnsupportedPacketException;
@@ -43,6 +42,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 
 /**
  * Journal used at a replicating backup server during the synchronization of data with the 'live'
@@ -268,7 +268,15 @@ public final class FileWrapperJournal extends JournalBase {
    }
 
    @Override
-   public JournalLoadInformation load(Consumer<RecordInfo> committedRecords,
+   public JournalLoadInformation load(List<RecordInfo> committedRecords,
+                                      List<PreparedTransactionInfo> preparedTransactions,
+                                      TransactionFailureCallback transactionFailure,
+                                      boolean fixbadtx) throws Exception {
+      throw new ActiveMQUnsupportedPacketException();
+   }
+
+   @Override
+   public JournalLoadInformation load(SparseArrayLinkedList<RecordInfo> committedRecords,
                                       List<PreparedTransactionInfo> preparedTransactions,
                                       TransactionFailureCallback transactionFailure,
                                       boolean fixbadtx) throws Exception {

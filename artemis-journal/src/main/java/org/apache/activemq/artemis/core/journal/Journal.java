@@ -18,12 +18,12 @@ package org.apache.activemq.artemis.core.journal;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 
 /**
  * Most methods on the journal provide a blocking version where you select the sync mode and a non
@@ -196,25 +196,23 @@ public interface Journal extends ActiveMQComponent {
    void lineUpContext(IOCompletion callback);
 
    default JournalLoadInformation load(List<RecordInfo> committedRecords,
-                                       List<PreparedTransactionInfo> preparedTransactions,
-                                       TransactionFailureCallback transactionFailure) throws Exception {
-      return load(committedRecords == null ? null : committedRecords::add, preparedTransactions, transactionFailure, true);
+                               List<PreparedTransactionInfo> preparedTransactions,
+                               TransactionFailureCallback transactionFailure) throws Exception {
+      return load(committedRecords, preparedTransactions, transactionFailure, true);
    }
 
-   default JournalLoadInformation load(Consumer<RecordInfo> committedRecords,
+   JournalLoadInformation load(List<RecordInfo> committedRecords,
+                               List<PreparedTransactionInfo> preparedTransactions,
+                               TransactionFailureCallback transactionFailure,
+                               boolean fixBadTx) throws Exception;
+
+   default JournalLoadInformation load(SparseArrayLinkedList<RecordInfo> committedRecords,
                                        List<PreparedTransactionInfo> preparedTransactions,
                                        TransactionFailureCallback transactionFailure) throws Exception {
       return load(committedRecords, preparedTransactions, transactionFailure, true);
    }
 
-   default JournalLoadInformation load(List<RecordInfo> committedRecords,
-                                       List<PreparedTransactionInfo> preparedTransactions,
-                                       TransactionFailureCallback transactionFailure,
-                                       boolean fixBadTx) throws Exception {
-      return load(committedRecords == null ? null : committedRecords::add, preparedTransactions, transactionFailure, fixBadTx);
-   }
-
-   JournalLoadInformation load(Consumer<RecordInfo> committedRecords,
+   JournalLoadInformation load(SparseArrayLinkedList<RecordInfo> committedRecords,
                                List<PreparedTransactionInfo> preparedTransactions,
                                TransactionFailureCallback transactionFailure,
                                boolean fixBadTx) throws Exception;
