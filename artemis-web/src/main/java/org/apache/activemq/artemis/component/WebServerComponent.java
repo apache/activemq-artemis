@@ -69,7 +69,7 @@ public class WebServerComponent implements ExternalComponent {
       String scheme = uri.getScheme();
 
       if ("https".equals(scheme)) {
-         SslContextFactory sslFactory = new SslContextFactory();
+         SslContextFactory.Server sslFactory = new SslContextFactory.Server();
          sslFactory.setKeyStorePath(webServerConfig.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : webServerConfig.keyStorePath);
          sslFactory.setKeyStorePassword(webServerConfig.getKeyStorePassword() == null ? "password" : webServerConfig.getKeyStorePassword());
          if (webServerConfig.clientAuth != null) {
