@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.jboss.logging.Logger;
 
 /**
  * This class is used to remove the jar files
@@ -31,11 +32,16 @@ import org.apache.activemq.artemis.utils.SpawnedVMSupport;
  */
 public class WebTmpCleaner {
 
+   private static final Logger logger = Logger.getLogger(WebTmpCleaner.class);
+
    public static void main(String[] filesToClean) throws Exception {
       //It needs to retry a bit as we are not sure
       //when the main VM exists.
+      cleanupFilesWithRetry(filesToClean, 100);
+   }
+
+   private static boolean cleanupFilesWithRetry(String[] filesToClean, int maxRetries) throws Exception {
       boolean allCleaned = false;
-      int maxRetries = 100;
       while (!allCleaned && maxRetries-- > 0) {
          allCleaned = true;
          for (String f : filesToClean) {
@@ -50,16 +56,28 @@ public class WebTmpCleaner {
          }
          Thread.sleep(200);
       }
+      if (!allCleaned) {
+         logger.warn("Some files in web temp dir are not cleaned up after " + maxRetries + " retries.");
+      }
+      return allCleaned;
    }
 
    public static Process cleanupTmpFiles(File libFolder, List<File> temporaryFiles) throws Exception {
+      return cleanupTmpFiles(libFolder, temporaryFiles, false);
+   }
+
+   public static Process cleanupTmpFiles(File libFolder, List<File> temporaryFiles, boolean invm) throws Exception {
       ArrayList<String> files = new ArrayList<>(temporaryFiles.size());
       for (File f : temporaryFiles) {
          files.add(f.toURI().toString());
       }
 
-      String classPath = SpawnedVMSupport.getClassPath(libFolder);
-      return SpawnedVMSupport.spawnVM(classPath, WebTmpCleaner.class.getName(), false, (String[]) files.toArray(new String[files.size()]));
+      if (!invm) {
+         String classPath = SpawnedVMSupport.getClassPath(libFolder);
+         return SpawnedVMSupport.spawnVM(classPath, WebTmpCleaner.class.getName(), false, (String[]) files.toArray(new String[files.size()]));
+      }
+      cleanupFilesWithRetry(files.toArray(new String[files.size()]), 2);
+      return null;
    }
 
    public static final void deleteFolder(final File file) {
