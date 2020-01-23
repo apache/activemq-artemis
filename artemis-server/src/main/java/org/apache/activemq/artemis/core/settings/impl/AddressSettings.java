@@ -91,6 +91,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    public static final DeletionPolicy DEFAULT_CONFIG_DELETE_ADDRESSES = DeletionPolicy.OFF;
 
    public static final long DEFAULT_REDISTRIBUTION_DELAY = -1;
+   
+   public static final boolean DEFAULT_CLUSTERED_QUEUES = false;
 
    public static final long DEFAULT_EXPIRY_DELAY = -1;
 
@@ -152,6 +154,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private SimpleString defaultGroupFirstKey = null;
 
    private Long redistributionDelay = null;
+   
+   private Boolean clusteredQueues = null;
 
    private Boolean sendToDLAOnNoRoute = null;
 
@@ -239,6 +243,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultNonDestructive = other.defaultNonDestructive;
       this.defaultExclusiveQueue = other.defaultExclusiveQueue;
       this.redistributionDelay = other.redistributionDelay;
+      this.clusteredQueues = other.clusteredQueues;
       this.sendToDLAOnNoRoute = other.sendToDLAOnNoRoute;
       this.slowConsumerThreshold = other.slowConsumerThreshold;
       this.slowConsumerCheckPeriod = other.slowConsumerCheckPeriod;
@@ -637,6 +642,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.redistributionDelay = redistributionDelay;
       return this;
    }
+   
+   public boolean getClusteredQueues() {
+     return clusteredQueues != null ? clusteredQueues : AddressSettings.DEFAULT_CLUSTERED_QUEUES;
+   }
+   
+   public AddressSettings setClusteredQueues(final boolean value) {
+     clusteredQueues = value;
+     return this;
+  }
 
    public long getSlowConsumerThreshold() {
       return slowConsumerThreshold != null ? slowConsumerThreshold : AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD;
@@ -819,6 +833,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (redistributionDelay == null) {
          redistributionDelay = merged.redistributionDelay;
       }
+      if (clusteredQueues == null) {
+        clusteredQueues = merged.clusteredQueues;
+      }
       if (sendToDLAOnNoRoute == null) {
          sendToDLAOnNoRoute = merged.sendToDLAOnNoRoute;
       }
@@ -984,6 +1001,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       defaultLastValueQueue = BufferHelper.readNullableBoolean(buffer);
 
       redistributionDelay = BufferHelper.readNullableLong(buffer);
+      
+      clusteredQueues = BufferHelper.readNullableBoolean(buffer);
 
       sendToDLAOnNoRoute = BufferHelper.readNullableBoolean(buffer);
 
@@ -1126,6 +1145,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(expiryDelay) +
          BufferHelper.sizeOfNullableBoolean(defaultLastValueQueue) +
          BufferHelper.sizeOfNullableLong(redistributionDelay) +
+         BufferHelper.sizeOfNullableBoolean(clusteredQueues) +
          BufferHelper.sizeOfNullableBoolean(sendToDLAOnNoRoute) +
          BufferHelper.sizeOfNullableLong(slowConsumerCheckPeriod) +
          BufferHelper.sizeOfNullableLong(slowConsumerThreshold) +
@@ -1192,6 +1212,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, defaultLastValueQueue);
 
       BufferHelper.writeNullableLong(buffer, redistributionDelay);
+      
+      BufferHelper.writeNullableBoolean(buffer, clusteredQueues);
 
       BufferHelper.writeNullableBoolean(buffer, sendToDLAOnNoRoute);
 
@@ -1292,6 +1314,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((redeliveryCollisionAvoidanceFactor == null) ? 0 : redeliveryCollisionAvoidanceFactor.hashCode());
       result = prime * result + ((maxRedeliveryDelay == null) ? 0 : maxRedeliveryDelay.hashCode());
       result = prime * result + ((redistributionDelay == null) ? 0 : redistributionDelay.hashCode());
+      result = prime * result + ((clusteredQueues == null) ? 0 : clusteredQueues.hashCode());
       result = prime * result + ((sendToDLAOnNoRoute == null) ? 0 : sendToDLAOnNoRoute.hashCode());
       result = prime * result + ((slowConsumerThreshold == null) ? 0 : slowConsumerThreshold.hashCode());
       result = prime * result + ((slowConsumerCheckPeriod == null) ? 0 : slowConsumerCheckPeriod.hashCode());
@@ -1435,6 +1458,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!redistributionDelay.equals(other.redistributionDelay))
          return false;
+      if (clusteredQueues == null) {
+        if (other.clusteredQueues != null)
+           return false;
+     } else if (!clusteredQueues.equals(other.clusteredQueues))
+        return false;
       if (sendToDLAOnNoRoute == null) {
          if (other.sendToDLAOnNoRoute != null)
             return false;
@@ -1660,6 +1688,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          maxRedeliveryDelay +
          ", redistributionDelay=" +
          redistributionDelay +
+         ", clusteredQueues=" +
+         clusteredQueues +
          ", sendToDLAOnNoRoute=" +
          sendToDLAOnNoRoute +
          ", slowConsumerThreshold=" +
