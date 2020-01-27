@@ -822,6 +822,11 @@
             <version>${guava.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
+            <version>1.0</version>
+         </dependency>
       </dependencies>
 
    </dependencyManagement>
