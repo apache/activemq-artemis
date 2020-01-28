@@ -107,6 +107,7 @@
             <include>com.sun.xml.bind:jaxb-impl</include>
             <include>com.sun.xml.bind:jaxb-core</include>
             <include>javax.activation:activation</include>
+            <include>org.apache.geronimo.specs:geronimo-jaspic_1.0_spec</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
