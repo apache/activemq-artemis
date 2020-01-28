@@ -1182,7 +1182,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
       Long scheduledDeliveryTime;
-      if (message.searchScheduledDeliveryTime()) {
+      if (message.hasScheduledDeliveryTime()) {
          scheduledDeliveryTime = message.getScheduledDeliveryTime();
          if (scheduledDeliveryTime != null) {
             reference.setScheduledDeliveryTime(scheduledDeliveryTime);
@@ -1437,7 +1437,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       Transaction tx = context.getTransaction();
 
       Long deliveryTime = null;
-      if (message.searchScheduledDeliveryTime()) {
+      if (message.hasScheduledDeliveryTime()) {
          deliveryTime = message.getScheduledDeliveryTime();
       }
 

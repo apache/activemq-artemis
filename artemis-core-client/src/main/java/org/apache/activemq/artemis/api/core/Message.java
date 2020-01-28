@@ -186,7 +186,11 @@ public interface Message {
       // only on core
    }
 
-   default boolean searchScheduledDeliveryTime() {
+   /**
+    * Search for the existence of the property: an implementor can save
+    * the message to be decoded, if possible.
+    */
+   default boolean hasScheduledDeliveryTime() {
       return getScheduledDeliveryTime() != null;
    }
 

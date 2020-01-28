@@ -1086,7 +1086,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public boolean searchScheduledDeliveryTime() {
+   public boolean hasScheduledDeliveryTime() {
       return searchProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
    }
 
