@@ -654,7 +654,6 @@ public abstract class ActiveMQTestBase extends Assert {
     * Verifies whether weak references are released after a few GCs.
     *
     * @param references
-    * @throws InterruptedException
     */
    public static void checkWeakReferences(final WeakReference<?>... references) {
       int i = 0;
@@ -1648,7 +1647,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @param session
     * @param producer
     * @param numMessages
-    * @throws Exception
+    * @throws ActiveMQException
     */
    public final void sendMessages(ClientSession session,
                                   ClientProducer producer,
