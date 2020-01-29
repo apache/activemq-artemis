@@ -37,7 +37,7 @@ public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
     * @param supportLargeMessage
     * @throws ActiveMQException
     *
-    * @deprecated use {@link #beforeCreateConsumer(long, QueueBinding, SimpleString, boolean, boolean)
+    * @deprecated use {@link #beforeCreateConsumer(long, QueueBinding, SimpleString, boolean, boolean)}
     */
    @Deprecated
    default void beforeCreateConsumer(long consumerID, SimpleString queueName, SimpleString filterString,
