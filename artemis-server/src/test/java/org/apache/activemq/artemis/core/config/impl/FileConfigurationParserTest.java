@@ -165,7 +165,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
       //if we add mask, it should be able to decode correctly
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      String mask = (String) codec.encode("helloworld");
+      String mask = codec.encode("helloworld");
 
       String maskPasswordPart = "<mask-password>true</mask-password>";
       clusterPasswordPart = "<cluster-password>" + mask + "</cluster-password>";
@@ -182,7 +182,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       prop.put("key", "newkey");
       codec.init(prop);
 
-      mask = (String) codec.encode("newpassword");
+      mask = codec.encode("newpassword");
 
       clusterPasswordPart = "<cluster-password>" + mask + "</cluster-password>";
 
@@ -220,7 +220,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
       //if we add mask, it should be able to decode correctly
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      String mask = (String) codec.encode("helloworld");
+      String mask = codec.encode("helloworld");
 
       clusterPasswordPart = "<cluster-password>" + PasswordMaskingUtil.wrap(mask) + "</cluster-password>";
 
@@ -236,7 +236,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       prop.put("key", "newkey");
       codec.init(prop);
 
-      mask = (String) codec.encode("newpassword");
+      mask = codec.encode("newpassword");
 
       clusterPasswordPart = "<cluster-password>" + PasswordMaskingUtil.wrap(mask) + "</cluster-password>";
 
