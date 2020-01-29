@@ -1677,7 +1677,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public int getConnectionCount() {
-      return remotingService.getConnections().size();
+      return remotingService.getConnectionCount();
    }
 
    @Override
