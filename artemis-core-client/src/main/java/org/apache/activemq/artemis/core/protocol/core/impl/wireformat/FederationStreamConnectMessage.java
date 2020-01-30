@@ -148,7 +148,7 @@ public abstract class FederationStreamConnectMessage <T extends FederationStream
 
    private FederationPolicy getFederationPolicy(String clazz) {
       try {
-         return (FederationPolicy) Class.forName(clazz).getConstructor(null).newInstance();
+         return (FederationPolicy) Class.forName(clazz).getConstructor((Class<?>) null).newInstance();
       } catch (Exception e) {
          throw new IllegalStateException("Error. Unable to instantiate FederationPolicy: " + e.getMessage(), e);
       }
