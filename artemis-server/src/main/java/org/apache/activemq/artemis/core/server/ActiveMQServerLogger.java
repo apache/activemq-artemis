@@ -1659,6 +1659,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void federationPluginExecutionError(@Cause Throwable e, String pluginMethod);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222287, value = "Error looking up bindings for address {}.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void federationBindingsLookupError(@Cause Throwable e, SimpleString address);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

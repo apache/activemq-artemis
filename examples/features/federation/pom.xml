@@ -53,6 +53,7 @@ under the License.
             <module>federated-address</module>
             <module>federated-address-downstream</module>
             <module>federated-address-downstream-upstream</module>
+            <module>federated-address-divert</module>
          </modules>
       </profile>
       <profile>
@@ -64,6 +65,7 @@ under the License.
             <module>federated-address</module>
             <module>federated-address-downstream</module>
             <module>federated-address-downstream-upstream</module>
+            <module>federated-address-divert</module>
          </modules>
       </profile>
    </profiles>

@@ -163,6 +163,11 @@ public class DivertImpl implements Divert {
       return transformer;
    }
 
+   @Override
+   public SimpleString getForwardAddress() {
+      return forwardAddress;
+   }
+
    /* (non-Javadoc)
     * @see java.lang.Object#toString()
     */

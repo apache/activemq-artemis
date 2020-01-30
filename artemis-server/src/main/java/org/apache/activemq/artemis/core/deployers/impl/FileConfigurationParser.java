@@ -2091,6 +2091,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (item.getNodeName().equals("transformer-ref")) {
             String transformerRef = item.getNodeValue();
             config.setTransformerRef(transformerRef);
+         } else if (item.getNodeName().equals("enable-divert-bindings")) {
+            boolean enableDivertBindings = Boolean.parseBoolean(item.getNodeValue());
+            config.setEnableDivertBindings(enableDivertBindings);
          }
       }
 
