@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.core.server.plugin;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.federation.FederatedConsumerKey;
@@ -118,6 +120,10 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
     * @throws ActiveMQException
     */
    default boolean federatedAddressConditionalCreateConsumer(final Queue queue) throws ActiveMQException {
+      return true;
+   }
+
+   default boolean federatedAddressConditionalCreateDivertConsumer(DivertBinding divertBinding, QueueBinding queueBinding) throws ActiveMQException {
       return true;
    }
 

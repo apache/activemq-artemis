@@ -22,11 +22,18 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -170,6 +177,139 @@ public class FederatedAddressTest extends FederatedTestBase {
       verifyTransformer(address);
    }
 
+   /**
+    * Test diverts for downstream configurations
+    */
+   //Test creating address first followed by divert
+   //Test creating divert before consumer
+   @Test
+   public void testDownstreamFederatedAddressDivertAddressAndDivertFirst() throws Exception {
+      testFederatedAddressDivert(true,true, true);
+   }
+
+   //Test creating divert first followed by address
+   //Test creating divert before consumer
+   @Test
+   public void testDownstreamFederatedAddressDivertAddressSecondDivertFirst() throws Exception {
+      testFederatedAddressDivert(true,false, true);
+   }
+
+   //Test creating address first followed by divert
+   //Test creating consumer before divert
+   @Test
+   public void testDownstreamFederatedAddressDivertAddressFirstDivertSecond() throws Exception {
+      testFederatedAddressDivert(true,true, false);
+   }
+
+   //Test creating divert first followed by address
+   //Test creating consumer before divert
+   @Test
+   public void testDownstreamFederatedAddressDivertAddressAndDivertSecond() throws Exception {
+      testFederatedAddressDivert(true,false, false);
+   }
+
+   /**
+    * Test diverts for upstream configurations
+    */
+   //Test creating address first followed by divert
+   //Test creating divert before consumer
+   @Test
+   public void testUpstreamFederatedAddressDivertAddressAndDivertFirst() throws Exception {
+      testFederatedAddressDivert(false,true, true);
+   }
+
+   //Test creating divert first followed by address
+   //Test creating divert before consumer
+   @Test
+   public void testUpstreamFederatedAddressDivertAddressSecondDivertFirst() throws Exception {
+      testFederatedAddressDivert(false,false, true);
+   }
+
+   //Test creating address first followed by divert
+   //Test creating consumer before divert
+   @Test
+   public void testUpstreamFederatedAddressDivertAddressFirstDivertSecond() throws Exception {
+      testFederatedAddressDivert(false,true, false);
+   }
+
+   //Test creating divert first followed by address
+   //Test creating consumer before divert
+   @Test
+   public void testUpstreamFederatedAddressDivertAddressAndDivertSecond() throws Exception {
+      testFederatedAddressDivert(false,false, false);
+   }
+
+   protected void testFederatedAddressDivert(boolean downstream, boolean addressFirst, boolean divertBeforeConsumer) throws Exception {
+      String address = getName();
+      String address2 = "fedOneWayDivertTest";
+
+      if (addressFirst) {
+         getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+      }
+
+      final FederationConfiguration federationConfiguration;
+      final int deployServer;
+      if (downstream) {
+         federationConfiguration = FederatedTestUtil.createAddressDownstreamFederationConfiguration(
+            "server0", address, getServer(1).getConfiguration().getTransportConfigurations("server1")[0]);
+         deployServer = 1;
+      } else {
+         federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
+         deployServer = 0;
+      }
+
+      FederationAddressPolicyConfiguration policy = (FederationAddressPolicyConfiguration) federationConfiguration.getFederationPolicyMap().get("AddressPolicy" + address);
+      //enable listening for divert bindings
+      policy.setEnableDivertBindings(true);
+      getServer(deployServer).getConfiguration().getFederationConfigurations().add(federationConfiguration);
+      getServer(deployServer).getFederationManager().deploy();
+
+      ConnectionFactory cf1 = getCF(1);
+      ConnectionFactory cf0 = getCF(0);
+      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+         connection1.start();
+         connection0.start();
+
+         Session session1 = connection1.createSession();
+         Topic topic1 = session1.createTopic(address);
+         MessageProducer producer1 = session1.createProducer(topic1);
+
+         if (divertBeforeConsumer) {
+            getServer(0).deployDivert(new DivertConfiguration().setName(address + ":" + address2)
+                   .setAddress(address).setExclusive(true).setForwardingAddress(address2)
+                   .setRoutingType(ComponentConfigurationRoutingType.ANYCAST));
+         }
+
+         Session session0 = connection0.createSession();
+         Queue queue0 = session0.createQueue(address2);
+         MessageConsumer consumer0 = session0.createConsumer(queue0);
+
+         if (!addressFirst) {
+            getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+         }
+
+         if (!divertBeforeConsumer) {
+            getServer(0).deployDivert(new DivertConfiguration().setName(address + ":" + address2)
+                                         .setAddress(address).setExclusive(true).setForwardingAddress(address2)
+                                         .setRoutingType(ComponentConfigurationRoutingType.ANYCAST));
+         }
+
+         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1,
+                                 1000, 100));
+         final QueueBinding remoteQueueBinding = (QueueBinding) getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address))
+            .getBindings().iterator().next();
+         assertEquals(1, remoteQueueBinding.getQueue().getConsumerCount());
+
+         producer1.send(session1.createTextMessage("hello"));
+         assertNotNull(consumer0.receive(1000));
+
+         //Test consumer is cleaned up after divert destroyed
+         getServer(0).destroyDivert(SimpleString.toSimpleString(address + ":" + address2));
+        // getServer(0).destroyQueue(SimpleString.toSimpleString(address2));
+         assertTrue(Wait.waitFor(() -> remoteQueueBinding.getQueue().getConsumerCount() == 0, 2000, 100));
+      }
+   }
+
    private void testFederatedAddressReplication(String address) throws Exception {
 
       ConnectionFactory cf1 = getCF(1);
@@ -188,37 +328,38 @@ public class FederatedAddressTest extends FederatedTestBase {
          Topic topic0 = session0.createTopic(address);
          MessageConsumer consumer0 = session0.createConsumer(topic0);
 
-         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1));
+         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(
+            SimpleString.toSimpleString(address)).getBindings().size() == 1, 2000, 100));
 
          producer.send(session1.createTextMessage("hello"));
 
-         assertNotNull(consumer0.receive(10000));
+         assertNotNull(consumer0.receive(1000));
 
 
          producer.send(session1.createTextMessage("hello"));
 
-         assertNotNull(consumer0.receive(10000));
+         assertNotNull(consumer0.receive(1000));
 
          MessageConsumer consumer1 = session1.createConsumer(topic1);
 
          producer.send(session1.createTextMessage("hello"));
 
-         assertNotNull(consumer1.receive(10000));
-         assertNotNull(consumer0.receive(10000));
+         assertNotNull(consumer1.receive(1000));
+         assertNotNull(consumer0.receive(1000));
          consumer1.close();
 
          //Groups
          producer.send(session1.createTextMessage("hello"));
-         assertNotNull(consumer0.receive(10000));
+         assertNotNull(consumer0.receive(1000));
 
          producer.send(createTextMessage(session1, "groupA"));
 
-         assertNotNull(consumer0.receive(10000));
+         assertNotNull(consumer0.receive(1000));
          consumer1 = session1.createConsumer(topic1);
 
          producer.send(createTextMessage(session1, "groupA"));
-         assertNotNull(consumer1.receive(10000));
-         assertNotNull(consumer0.receive(10000));
+         assertNotNull(consumer1.receive(1000));
+         assertNotNull(consumer0.receive(1000));
 
       }
 
@@ -246,20 +387,17 @@ public class FederatedAddressTest extends FederatedTestBase {
 
 
          producer.send(session1.createTextMessage("hello"));
-
          assertNull(consumer0.receive(100));
 
          FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
          getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
          getServer(0).getFederationManager().deploy();
 
-         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1);
-
+         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(
+            SimpleString.toSimpleString(address)).getBindings().size() == 1, 2000, 100);
 
          producer.send(session1.createTextMessage("hello"));
-
-         assertNotNull(consumer0.receive(10000));
-
+         assertNotNull(consumer0.receive(1000));
       }
    }
 
