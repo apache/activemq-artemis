@@ -209,12 +209,12 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       return websocketRegistryNames;
    }
 
-   public void invokeIncoming(MqttMessage mqttMessage, MQTTConnection connection) {
-      super.invokeInterceptors(this.incomingInterceptors, mqttMessage, connection);
+   public String invokeIncoming(MqttMessage mqttMessage, MQTTConnection connection) {
+      return super.invokeInterceptors(this.incomingInterceptors, mqttMessage, connection);
    }
 
-   public void invokeOutgoing(MqttMessage mqttMessage, MQTTConnection connection) {
-      super.invokeInterceptors(this.outgoingInterceptors, mqttMessage, connection);
+   public String invokeOutgoing(MqttMessage mqttMessage, MQTTConnection connection) {
+      return super.invokeInterceptors(this.outgoingInterceptors, mqttMessage, connection);
    }
 
    public boolean isClientConnected(String clientId, MQTTConnection connection) {
