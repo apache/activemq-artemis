@@ -2270,11 +2270,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          if (!expiredMessages.isEmpty()) {
-            Transaction tx = new TransactionImpl(storageManager);
+            final Transaction tx = new TransactionImpl(storageManager);
             for (MessageReference ref : expiredMessages) {
-               if (tx == null) {
-                  tx = new TransactionImpl(storageManager);
-               }
                try {
                   expire(tx, ref);
                   refRemoved(ref);
