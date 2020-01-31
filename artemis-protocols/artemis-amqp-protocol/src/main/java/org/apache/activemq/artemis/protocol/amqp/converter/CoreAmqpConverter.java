@@ -493,7 +493,7 @@ public class CoreAmqpConverter {
          if (!message.propertyExists(JMS_AMQP_CONTENT_TYPE)) {
             message.setStringProperty(JMS_AMQP_CONTENT_TYPE, SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
          }
-      } else if (message instanceof ServerJMSMessage) {
+      } else {
          maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_MESSAGE);
          // If this is not an AMQP message that was converted then the original encoding
          // will be unknown so we check for special cases of messages with special data
