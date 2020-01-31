@@ -94,8 +94,9 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
 /**
- * This is the class that will make the routing to Queues and decide which consumer will get the messages
- * It's the queue component on distributing the messages * *
+ * This is the class that will make the routing to Queues and decide which
+ * consumer will get the messages It's the queue component on distributing the
+ * messages * *
  */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory {
 
@@ -141,17 +142,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ActiveMQServer server;
 
-   public PostOfficeImpl(final ActiveMQServer server,
-                         final StorageManager storageManager,
-                         final PagingManager pagingManager,
-                         final QueueFactory bindableFactory,
-                         final ManagementService managementService,
-                         final long expiryReaperPeriod,
-                         final long addressQueueReaperPeriod,
-                         final WildcardConfiguration wildcardConfiguration,
-                         final int idCacheSize,
-                         final boolean persistIDCache,
-                         final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
+   public PostOfficeImpl(final ActiveMQServer server, final StorageManager storageManager,
+         final PagingManager pagingManager, final QueueFactory bindableFactory,
+         final ManagementService managementService, final long expiryReaperPeriod, final long addressQueueReaperPeriod,
+         final WildcardConfiguration wildcardConfiguration, final int idCacheSize, final boolean persistIDCache,
+         final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       this.storageManager = storageManager;
 
       queueFactory = bindableFactory;
@@ -165,9 +160,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       this.addressQueueReaperPeriod = addressQueueReaperPeriod;
 
       if (wildcardConfiguration.isRoutingEnabled()) {
-         addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager, server.getMetricsManager());
+         addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager,
+               server.getMetricsManager());
       } else {
-         addressManager = new SimpleAddressManager(this, wildcardConfiguration, storageManager, server.getMetricsManager());
+         addressManager = new SimpleAddressManager(this, wildcardConfiguration, storageManager,
+               server.getMetricsManager());
       }
 
       this.idCacheSize = idCacheSize;
@@ -192,7 +189,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       queueFactory.setPostOffice(this);
 
       // The flag started needs to be set before starting the Reaper Thread
-      // This is to avoid thread leakages where the Reaper would run beyond the life cycle of the
+      // This is to avoid thread leakages where the Reaper would run beyond the life
+      // cycle of the
       // PostOffice
       started = true;
    }
@@ -262,7 +260,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                SimpleString filterString = props.getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING);
 
                if (!props.containsProperty(ManagementHelper.HDR_DISTANCE)) {
-                  logger.debug("PostOffice notification / BINDING_ADDED: HDR_DISANCE not specified, giving up propagation on notifications");
+                  logger.debug(
+                        "PostOffice notification / BINDING_ADDED: HDR_DISANCE not specified, giving up propagation on notifications");
                   return;
                }
 
@@ -272,20 +271,22 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                queueInfos.put(clusterName, info);
 
-               //Global queue creation fix
+               // Global queue creation fix
                Binding binding = getBinding(routingName);
-               
+
                AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
                boolean clusteredQueues = addressSettings.getClusteredQueues();
 
                if (clusteredQueues && binding == null) {
-                  if(routingName.equals(address)) {
-                     try {
+                  try {
+                     if (routingName.equals(address)) {
                         server.createQueue(address, RoutingType.ANYCAST, address, filterString, true, false);
-                     } catch (Exception e) {
-                        logger.error("Could not create queue", e);
+                     } else {
+                        server.createQueue(address, RoutingType.MULTICAST, address, filterString, true, false);
                      }
+                  } catch (Exception e) {
+                     logger.error("Could not create queue", e);
                   }
                }
 
@@ -295,7 +296,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                TypedProperties props = notification.getProperties();
 
                if (!props.containsProperty(ManagementHelper.HDR_CLUSTER_NAME)) {
-                  logger.debug("PostOffice notification / BINDING_REMOVED: HDR_CLUSTER_NAME not specified, giving up propagation on notifications");
+                  logger.debug(
+                        "PostOffice notification / BINDING_REMOVED: HDR_CLUSTER_NAME not specified, giving up propagation on notifications");
                   return;
                }
 
@@ -304,7 +306,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                QueueInfo info = queueInfos.remove(clusterName);
 
                if (info == null) {
-                  logger.debug("PostOffice notification / BINDING_REMOVED: Cannot find queue info for queue \" + clusterName");
+                  logger.debug(
+                        "PostOffice notification / BINDING_REMOVED: Cannot find queue info for queue \" + clusterName");
                   return;
                }
 
@@ -325,7 +328,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                QueueInfo info = queueInfos.get(clusterName);
 
                if (info == null) {
-                  logger.debug("PostOffice notification / CONSUMER_CREATED: Could not find queue created on clusterName = " + clusterName);
+                  logger.debug(
+                        "PostOffice notification / CONSUMER_CREATED: Could not find queue created on clusterName = "
+                              + clusterName);
                   return;
                }
 
@@ -364,7 +369,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                      // We have a local queue
                      Queue queue = (Queue) binding.getBindable();
 
-                     AddressSettings addressSettings = addressSettingsRepository.getMatch(binding.getAddress().toString());
+                     AddressSettings addressSettings = addressSettingsRepository
+                           .getMatch(binding.getAddress().toString());
 
                      long redistributionDelay = addressSettings.getRedistributionDelay();
 
@@ -428,7 +434,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                      Queue queue = (Queue) binding.getBindable();
 
-                     AddressSettings addressSettings = addressSettingsRepository.getMatch(binding.getAddress().toString());
+                     AddressSettings addressSettings = addressSettingsRepository
+                           .getMatch(binding.getAddress().toString());
 
                      long redistributionDelay = addressSettings.getRedistributionDelay();
 
@@ -480,7 +487,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                if (server.hasBrokerAddressPlugins()) {
                   server.callBrokerAddressPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
                }
-               long retroactiveMessageCount = addressSettingsRepository.getMatch(addressInfo.getName().toString()).getRetroactiveMessageCount();
+               long retroactiveMessageCount = addressSettingsRepository.getMatch(addressInfo.getName().toString())
+                     .getRetroactiveMessageCount();
                if (retroactiveMessageCount > 0) {
                   createRetroactiveResources(addressInfo.getName(), retroactiveMessageCount, reload);
                }
@@ -501,12 +509,16 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
          String address = ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, name.toString());
          AddressSettings settings = addressSettingsRepository.getMatch(address);
-         Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.toSimpleString(address), RoutingType.ANYCAST));
-         if (internalAnycastQueue != null && internalAnycastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
+         Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix,
+               delimiter, SimpleString.toSimpleString(address), RoutingType.ANYCAST));
+         if (internalAnycastQueue != null
+               && internalAnycastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
             internalAnycastQueue.setRingSize(settings.getRetroactiveMessageCount());
          }
-         Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.toSimpleString(address), RoutingType.MULTICAST));
-         if (internalMulticastQueue != null && internalMulticastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
+         Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix,
+               delimiter, SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+         if (internalMulticastQueue != null
+               && internalMulticastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
             internalMulticastQueue.setRingSize(settings.getRetroactiveMessageCount());
          }
       };
@@ -514,81 +526,38 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       server.getAddressInfo(name).setRepositoryChangeListener(repositoryChangeListener);
    }
 
-   private void createRetroactiveResources(final SimpleString retroactiveAddressName, final long retroactiveMessageCount, final boolean reload) throws Exception {
+   private void createRetroactiveResources(final SimpleString retroactiveAddressName,
+         final long retroactiveMessageCount, final boolean reload) throws Exception {
       String prefix = server.getInternalNamingPrefix();
       String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
-      final SimpleString internalAddressName = ResourceNames.getRetroactiveResourceAddressName(prefix, delimiter, retroactiveAddressName);
-      final SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, retroactiveAddressName, RoutingType.ANYCAST);
-      final SimpleString internalMulticastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, retroactiveAddressName, RoutingType.MULTICAST);
-      final SimpleString internalDivertName = ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter, retroactiveAddressName);
+      final SimpleString internalAddressName = ResourceNames.getRetroactiveResourceAddressName(prefix, delimiter,
+            retroactiveAddressName);
+      final SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter,
+            retroactiveAddressName, RoutingType.ANYCAST);
+      final SimpleString internalMulticastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter,
+            retroactiveAddressName, RoutingType.MULTICAST);
+      final SimpleString internalDivertName = ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter,
+            retroactiveAddressName);
 
       if (!reload) {
-         AddressInfo addressInfo = new AddressInfo(internalAddressName)
-            .addRoutingType(RoutingType.MULTICAST)
-            .addRoutingType(RoutingType.ANYCAST)
-            .setInternal(false);
+         AddressInfo addressInfo = new AddressInfo(internalAddressName).addRoutingType(RoutingType.MULTICAST)
+               .addRoutingType(RoutingType.ANYCAST).setInternal(false);
          addAddressInfo(addressInfo);
          AddressSettings addressSettings = addressSettingsRepository.getMatch(internalAddressName.toString());
-         server.createQueue(internalAddressName,
-                            RoutingType.MULTICAST,
-                            internalMulticastQueueName,
-                            null,
-                            null,
-                            true,
-                            false,
-                            false,
-                            false,
-                            false,
-                            0,
-                            false,
-                            false,
-                            false,
-                            addressSettings.getDefaultGroupBuckets(),
-                            null,
-                            addressSettings.isDefaultLastValueQueue(),
-                            addressSettings.getDefaultLastValueKey(),
-                            false,
-                            0,
-                            0L,
-                            false,
-                            0L,
-                            0L,
-                            false,
-                            retroactiveMessageCount);
+         server.createQueue(internalAddressName, RoutingType.MULTICAST, internalMulticastQueueName, null, null, true,
+               false, false, false, false, 0, false, false, false, addressSettings.getDefaultGroupBuckets(), null,
+               addressSettings.isDefaultLastValueQueue(), addressSettings.getDefaultLastValueKey(), false, 0, 0L, false,
+               0L, 0L, false, retroactiveMessageCount);
 
-         server.createQueue(internalAddressName,
-                            RoutingType.ANYCAST,
-                            internalAnycastQueueName,
-                            null,
-                            null,
-                            true,
-                            false,
-                            false,
-                            false,
-                            false,
-                            0,
-                            false,
-                            false,
-                            false,
-                            addressSettings.getDefaultGroupBuckets(),
-                            null,
-                            addressSettings.isDefaultLastValueQueue(),
-                            addressSettings.getDefaultLastValueKey(),
-                            false,
-                            0,
-                            0L,
-                            false,
-                            0L,
-                            0L,
-                            false,
-                            retroactiveMessageCount);
+         server.createQueue(internalAddressName, RoutingType.ANYCAST, internalAnycastQueueName, null, null, true, false,
+               false, false, false, 0, false, false, false, addressSettings.getDefaultGroupBuckets(), null,
+               addressSettings.isDefaultLastValueQueue(), addressSettings.getDefaultLastValueKey(), false, 0, 0L, false,
+               0L, 0L, false, retroactiveMessageCount);
       }
-      server.deployDivert(new DivertConfiguration()
-                             .setName(internalDivertName.toString())
-                             .setAddress(retroactiveAddressName.toString())
-                             .setExclusive(false)
-                             .setForwardingAddress(internalAddressName.toString())
-                             .setRoutingType(ComponentConfigurationRoutingType.PASS));
+      server.deployDivert(new DivertConfiguration().setName(internalDivertName.toString())
+            .setAddress(retroactiveAddressName.toString()).setExclusive(false)
+            .setForwardingAddress(internalAddressName.toString())
+            .setRoutingType(ComponentConfigurationRoutingType.PASS));
    }
 
    private void removeRetroactiveResources(SimpleString address) throws Exception {
@@ -600,12 +569,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          server.destroyDivert(internalDivertName);
       }
 
-      SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, address, RoutingType.ANYCAST);
+      SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, address,
+            RoutingType.ANYCAST);
       if (server.locateQueue(internalAnycastQueueName) != null) {
          server.destroyQueue(internalAnycastQueueName);
       }
 
-      SimpleString internalMulticastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, address, RoutingType.MULTICAST);
+      SimpleString internalMulticastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter,
+            address, RoutingType.MULTICAST);
       if (server.locateQueue(internalMulticastQueueName) != null) {
          server.destroyQueue(internalMulticastQueueName);
       }
@@ -617,39 +588,20 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public QueueBinding updateQueue(SimpleString name,
-                                   RoutingType routingType,
-                                   Filter filter,
-                                   Integer maxConsumers,
-                                   Boolean purgeOnNoConsumers,
-                                   Boolean exclusive,
-                                   Boolean groupRebalance,
-                                   Integer groupBuckets,
-                                   SimpleString groupFirstKey,
-                                   Boolean nonDestructive,
-                                   Integer consumersBeforeDispatch,
-                                   Long delayBeforeDispatch,
-                                   SimpleString user,
-                                   Boolean configurationManaged) throws Exception {
-      return updateQueue(name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, configurationManaged, null);
+   public QueueBinding updateQueue(SimpleString name, RoutingType routingType, Filter filter, Integer maxConsumers,
+         Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets,
+         SimpleString groupFirstKey, Boolean nonDestructive, Integer consumersBeforeDispatch, Long delayBeforeDispatch,
+         SimpleString user, Boolean configurationManaged) throws Exception {
+      return updateQueue(name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance,
+            groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user,
+            configurationManaged, null);
    }
 
    @Override
-   public QueueBinding updateQueue(SimpleString name,
-                                   RoutingType routingType,
-                                   Filter filter,
-                                   Integer maxConsumers,
-                                   Boolean purgeOnNoConsumers,
-                                   Boolean exclusive,
-                                   Boolean groupRebalance,
-                                   Integer groupBuckets,
-                                   SimpleString groupFirstKey,
-                                   Boolean nonDestructive,
-                                   Integer consumersBeforeDispatch,
-                                   Long delayBeforeDispatch,
-                                   SimpleString user,
-                                   Boolean configurationManaged,
-                                   Long ringSize) throws Exception {
+   public QueueBinding updateQueue(SimpleString name, RoutingType routingType, Filter filter, Integer maxConsumers,
+         Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets,
+         SimpleString groupFirstKey, Boolean nonDestructive, Integer consumersBeforeDispatch, Long delayBeforeDispatch,
+         SimpleString user, Boolean configurationManaged, Long ringSize) throws Exception {
       synchronized (this) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -664,11 +616,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             boolean changed = false;
 
-            //validate update
+            // validate update
             if (maxConsumers != null && maxConsumers.intValue() != Queue.MAX_CONSUMERS_UNLIMITED) {
                final int consumerCount = queue.getConsumerCount();
                if (consumerCount > maxConsumers) {
-                  throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumersUpdate(name.toString(), maxConsumers, consumerCount);
+                  throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumersUpdate(name.toString(), maxConsumers,
+                        consumerCount);
                }
             }
             if (routingType != null) {
@@ -676,11 +629,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                final AddressInfo addressInfo = addressManager.getAddressInfo(address);
                final EnumSet<RoutingType> addressRoutingTypes = addressInfo.getRoutingTypes();
                if (!addressRoutingTypes.contains(routingType)) {
-                  throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeUpdate(name.toString(), routingType, address.toString(), addressRoutingTypes);
+                  throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeUpdate(name.toString(), routingType,
+                        address.toString(), addressRoutingTypes);
                }
             }
 
-            //atomic update
+            // atomic update
             if (maxConsumers != null && queue.getMaxConsumers() != maxConsumers.intValue()) {
                changed = true;
                queue.setMaxConsumer(maxConsumers);
@@ -713,7 +667,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                changed = true;
                queue.setNonDestructive(nonDestructive);
             }
-            if (consumersBeforeDispatch != null && !consumersBeforeDispatch.equals(queue.getConsumersBeforeDispatch())) {
+            if (consumersBeforeDispatch != null
+                  && !consumersBeforeDispatch.equals(queue.getConsumersBeforeDispatch())) {
                changed = true;
                queue.setConsumersBeforeDispatch(consumersBeforeDispatch.intValue());
             }
@@ -765,8 +720,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        EnumSet<RoutingType> routingTypes) throws Exception {
+   public AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception {
       synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeUpdateAddress(addressName, routingTypes));
@@ -780,7 +734,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          return address;
       }
    }
-
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
@@ -798,7 +751,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (force) {
             for (Binding binding : bindingsForAddress.getBindings()) {
                if (binding instanceof QueueBinding) {
-                  ((QueueBinding)binding).getQueue().deleteQueue(true);
+                  ((QueueBinding) binding).getQueue().deleteQueue(true);
                }
             }
 
@@ -838,10 +791,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return queues;
    }
 
-   // TODO - needs to be synchronized to prevent happening concurrently with activate()
+   // TODO - needs to be synchronized to prevent happening concurrently with
+   // activate()
    // (and possible removeBinding and other methods)
-   // Otherwise can have situation where createQueue comes in before failover, then failover occurs
-   // and post office is activated but queue remains unactivated after failover so delivery never occurs
+   // Otherwise can have situation where createQueue comes in before failover, then
+   // failover occurs
+   // and post office is activated but queue remains unactivated after failover so
+   // delivery never occurs
    // even though failover is complete
    @Override
    public synchronized void addBinding(final Binding binding) throws Exception {
@@ -874,7 +830,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       String uid = UUIDGenerator.getInstance().generateStringUUID();
 
       if (logger.isDebugEnabled()) {
-         logger.debug("ClusterCommunication::Sending notification for addBinding " + binding + " from server " + server);
+         logger.debug(
+               "ClusterCommunication::Sending notification for addBinding " + binding + " from server " + server);
       }
 
       managementService.sendNotification(new Notification(uid, CoreNotificationType.BINDING_ADDED, props));
@@ -886,9 +843,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public synchronized Binding removeBinding(final SimpleString uniqueName,
-                                             Transaction tx,
-                                             boolean deleteData) throws Exception {
+   public synchronized Binding removeBinding(final SimpleString uniqueName, Transaction tx, boolean deleteData)
+         throws Exception {
 
       if (server.hasBrokerBindingPlugins()) {
          server.callBrokerBindingPlugins(plugin -> plugin.beforeRemoveBinding(uniqueName, tx, deleteData));
@@ -1021,35 +977,26 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public RoutingStatus route(Message message,
-                              Transaction tx,
-                              boolean direct,
-                              boolean rejectDuplicates) throws Exception {
+   public RoutingStatus route(Message message, Transaction tx, boolean direct, boolean rejectDuplicates)
+         throws Exception {
       return route(message, new RoutingContextImpl(tx), direct, rejectDuplicates, null);
    }
 
    @Override
-   public RoutingStatus route(final Message message,
-                              final Transaction tx,
-                              final boolean direct,
-                              final boolean rejectDuplicates,
-                              final Binding binding) throws Exception {
+   public RoutingStatus route(final Message message, final Transaction tx, final boolean direct,
+         final boolean rejectDuplicates, final Binding binding) throws Exception {
       return route(message, new RoutingContextImpl(tx), direct, rejectDuplicates, binding);
    }
 
    @Override
-   public RoutingStatus route(final Message message,
-                              final RoutingContext context,
-                              final boolean direct) throws Exception {
+   public RoutingStatus route(final Message message, final RoutingContext context, final boolean direct)
+         throws Exception {
       return route(message, context, direct, true, null);
    }
 
    @Override
-   public RoutingStatus route(final Message message,
-                              final RoutingContext context,
-                              final boolean direct,
-                              boolean rejectDuplicates,
-                              final Binding bindingMove) throws Exception {
+   public RoutingStatus route(final Message message, final RoutingContext context, final boolean direct,
+         boolean rejectDuplicates, final Binding bindingMove) throws Exception {
 
       RoutingStatus result;
       // Sanity check
@@ -1092,7 +1039,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (addressInfo != null) {
             addressInfo.incrementUnRoutedMessageCount();
          }
-         // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)
+         // this is a debug and not warn because this could be a regular scenario on
+         // publish-subscribe queues (or topic subscriptions on JMS)
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't find any bindings for address=" + address + " on message=" + message);
          }
@@ -1140,7 +1088,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                result = RoutingStatus.NO_BINDINGS;
 
                if (logger.isDebugEnabled()) {
-                  logger.debug("Message " + message + " is not going anywhere as it didn't have a binding on address:" + address);
+                  logger.debug("Message " + message + " is not going anywhere as it didn't have a binding on address:"
+                        + address);
                }
 
                if (message.isLargeMessage()) {
@@ -1184,7 +1133,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       // A -1 <expiry-delay> means don't do anything
       if (expirationOverride >= 0) {
-         // only override the exiration on messages where the expiration hasn't been set by the user
+         // only override the exiration on messages where the expiration hasn't been set
+         // by the user
          if (message.getExpiration() == 0) {
             message.setExpiration(System.currentTimeMillis() + expirationOverride);
          }
@@ -1221,16 +1171,17 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    /**
-    * The redistribution can't process the route right away as we may be dealing with a large message which will need to be processed on a different thread
+    * The redistribution can't process the route right away as we may be dealing
+    * with a large message which will need to be processed on a different thread
     */
    @Override
-   public Pair<RoutingContext, Message> redistribute(final Message message,
-                                                     final Queue originatingQueue,
-                                                     final Transaction tx) throws Exception {
+   public Pair<RoutingContext, Message> redistribute(final Message message, final Queue originatingQueue,
+         final Transaction tx) throws Exception {
       Bindings bindings = addressManager.getBindingsForRoutingAddress(originatingQueue.getAddress());
 
       if (bindings != null && bindings.allowRedistribute()) {
-         // We have to copy the message and store it separately, otherwise we may lose remote bindings in case of restart before the message
+         // We have to copy the message and store it separately, otherwise we may lose
+         // remote bindings in case of restart before the message
          // arrived the target node
          // as described on https://issues.jboss.org/browse/JBPAPP-6130
          Message copyRedistribute = message.copy(storageManager.generateID());
@@ -1241,8 +1192,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                @Override
                public void afterRollback(Transaction tx) {
                   try {
-                     //this will cause large message file to be
-                     //cleaned up
+                     // this will cause large message file to be
+                     // cleaned up
                      copyRedistribute.decrementRefCount();
                   } catch (Exception e) {
                      logger.warn("Failed to clean up message: " + copyRedistribute);
@@ -1295,7 +1246,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+   public void updateMessageLoadBalancingTypeForAddress(SimpleString address,
+         MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       addressManager.updateMessageLoadBalancingTypeForAddress(address, messageLoadBalancingType);
    }
 
@@ -1305,17 +1257,18 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public SimpleString getMatchingQueue(SimpleString address,
-                                        SimpleString queueName,
-                                        RoutingType routingType) throws Exception {
+   public SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType)
+         throws Exception {
       return addressManager.getMatchingQueue(address, queueName, routingType);
    }
 
    @Override
    public void sendQueueInfoToQueue(final SimpleString queueName, final SimpleString address) throws Exception {
-      // We send direct to the queue so we can send it to the same queue that is bound to the notifications address -
+      // We send direct to the queue so we can send it to the same queue that is bound
+      // to the notifications address -
       // this is crucial for ensuring
-      // that queue infos and notifications are received in a contiguous consistent stream
+      // that queue infos and notifications are received in a contiguous consistent
+      // stream
       Binding binding = addressManager.getBinding(queueName);
 
       if (binding == null) {
@@ -1323,12 +1276,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("PostOffice.sendQueueInfoToQueue on server=" + this.server + ", queueName=" + queueName + " and address=" + address);
+         logger.debug("PostOffice.sendQueueInfoToQueue on server=" + this.server + ", queueName=" + queueName
+               + " and address=" + address);
       }
 
       Queue queue = (Queue) binding.getBindable();
 
-      // Need to lock to make sure all queue info and notifications are in the correct order with no gaps
+      // Need to lock to make sure all queue info and notifications are in the correct
+      // order with no gaps
       synchronized (notificationLock) {
          // First send a reset message
 
@@ -1391,7 +1346,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    }
 
-   /* (non-Javadoc)
+   /*
+    * (non-Javadoc)
+    *
     * @see java.lang.Object#toString()
     */
    @Override
@@ -1427,7 +1384,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       @Override
       public void afterCommit(Transaction tx) {
-         // We need to try delivering async after paging, or nothing may start a delivery after paging since nothing is
+         // We need to try delivering async after paging, or nothing may start a delivery
+         // after paging since nothing is
          // going towards the queues
          // The queue will try to depage case it's empty
          for (Queue queue : queues) {
@@ -1443,9 +1401,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public void processRoute(final Message message,
-                            final RoutingContext context,
-                            final boolean direct) throws Exception {
+   public void processRoute(final Message message, final RoutingContext context, final boolean direct)
+         throws Exception {
       final List<MessageReference> refs = new ArrayList<>();
 
       Transaction tx = context.getTransaction();
@@ -1460,7 +1417,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                confirmLargeMessageSend(tx, message);
             }
 
-            // We need to kick delivery so the Queues may check for the cursors case they are empty
+            // We need to kick delivery so the Queues may check for the cursors case they
+            // are empty
             schedulePageDelivery(tx, entry);
             continue;
          }
@@ -1562,7 +1520,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (tx == null) {
                storageManager.confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
             } else {
-               storageManager.confirmPendingLargeMessageTX(tx, largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID());
+               storageManager.confirmPendingLargeMessageTX(tx, largeServerMessage.getMessageID(),
+                     largeServerMessage.getPendingRecordID());
             }
             largeServerMessage.setPendingRecordID(-1);
          }
@@ -1570,7 +1529,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    /**
-    * This will kick a delivery async on the queue, so the queue may have a chance to depage messages
+    * This will kick a delivery async on the queue, so the queue may have a chance
+    * to depage messages
     *
     * @param tx
     * @param entry
@@ -1613,18 +1573,18 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
    }
 
-   private boolean checkDuplicateID(final Message message,
-                                    final RoutingContext context,
-                                    boolean rejectDuplicates,
-                                    AtomicBoolean startedTX) throws Exception {
+   private boolean checkDuplicateID(final Message message, final RoutingContext context, boolean rejectDuplicates,
+         AtomicBoolean startedTX) throws Exception {
       // Check the DuplicateCache for the Bridge first
 
       Object bridgeDup = message.removeExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID);
       if (bridgeDup != null) {
-         // if the message is being sent from the bridge, we just ignore the duplicate id, and use the internal one
+         // if the message is being sent from the bridge, we just ignore the duplicate
+         // id, and use the internal one
          byte[] bridgeDupBytes = (byte[]) bridgeDup;
 
-         DuplicateIDCache cacheBridge = getDuplicateIDCache(BRIDGE_CACHE_STR.concat(context.getAddress(message).toString()));
+         DuplicateIDCache cacheBridge = getDuplicateIDCache(
+               BRIDGE_CACHE_STR.concat(context.getAddress(message).toString()));
 
          if (context.getTransaction() == null) {
             context.setTransaction(new TransactionImpl(storageManager));
@@ -1654,7 +1614,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (rejectDuplicates && isDuplicate) {
                ActiveMQServerLogger.LOGGER.duplicateMessageDetected(message);
 
-               String warnMessage = "Duplicate message detected - message will not be routed. Message information:" + message.toString();
+               String warnMessage = "Duplicate message detected - message will not be routed. Message information:"
+                     + message.toString();
 
                if (context.getTransaction() != null) {
                   context.getTransaction().markAsRollbackOnly(new ActiveMQDuplicateIdException(warnMessage));
@@ -1668,7 +1629,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          if (cache != null && !isDuplicate) {
             if (context.getTransaction() == null) {
-               // We need to store the duplicate id atomically with the message storage, so we need to create a tx for this
+               // We need to store the duplicate id atomically with the message storage, so we
+               // need to create a tx for this
                context.setTransaction(new TransactionImpl(storageManager));
 
                startedTX.set(true);
@@ -1682,14 +1644,16 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    /**
-    * The expiry scanner can't be started until the whole server has been started other wise you may get races
+    * The expiry scanner can't be started until the whole server has been started
+    * other wise you may get races
     */
    @Override
    public synchronized void startExpiryScanner() {
       if (expiryReaperPeriod > 0) {
          if (expiryReaperRunnable != null)
             expiryReaperRunnable.stop();
-         expiryReaperRunnable = new ExpiryReaper(server.getScheduledPool(), server.getExecutorFactory().getExecutor(), expiryReaperPeriod, TimeUnit.MILLISECONDS, false);
+         expiryReaperRunnable = new ExpiryReaper(server.getScheduledPool(), server.getExecutorFactory().getExecutor(),
+               expiryReaperPeriod, TimeUnit.MILLISECONDS, false);
 
          expiryReaperRunnable.start();
       }
@@ -1700,7 +1664,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (addressQueueReaperPeriod > 0) {
          if (addressQueueReaperRunnable != null)
             addressQueueReaperRunnable.stop();
-         addressQueueReaperRunnable = new AddressQueueReaper(server.getScheduledPool(), server.getExecutorFactory().getExecutor(), addressQueueReaperPeriod, TimeUnit.MILLISECONDS, false);
+         addressQueueReaperRunnable = new AddressQueueReaper(server.getScheduledPool(),
+               server.getExecutorFactory().getExecutor(), addressQueueReaperPeriod, TimeUnit.MILLISECONDS, false);
 
          addressQueueReaperRunnable.start();
       }
@@ -1723,11 +1688,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final class ExpiryReaper extends ActiveMQScheduledComponent {
 
-      ExpiryReaper(ScheduledExecutorService scheduledExecutorService,
-                   Executor executor,
-                   long checkPeriod,
-                   TimeUnit timeUnit,
-                   boolean onDemand) {
+      ExpiryReaper(ScheduledExecutorService scheduledExecutorService, Executor executor, long checkPeriod,
+            TimeUnit timeUnit, boolean onDemand) {
          super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
       }
 
@@ -1747,18 +1709,17 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final class AddressQueueReaper extends ActiveMQScheduledComponent {
 
-      AddressQueueReaper(ScheduledExecutorService scheduledExecutorService,
-                         Executor executor,
-                         long checkPeriod,
-                         TimeUnit timeUnit,
-                         boolean onDemand) {
+      AddressQueueReaper(ScheduledExecutorService scheduledExecutorService, Executor executor, long checkPeriod,
+            TimeUnit timeUnit, boolean onDemand) {
          super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
       }
 
       @Override
       public void run() {
          for (Queue queue : getLocalQueues()) {
-            if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue)) {
+            if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue)
+                  && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue)
+                  && QueueManagerImpl.messageCountCheck(queue)) {
                QueueManagerImpl.performAutoDeleteQueue(server, queue);
             }
          }
@@ -1770,7 +1731,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
             try {
-               if (settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
+               if (settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated()
+                     && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1
+                     && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings
+                           .getAutoDeleteAddressesDelay())) {
 
                   if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                      ActiveMQServerLogger.LOGGER.debug("deleting auto-created address \"" + address + ".\"");

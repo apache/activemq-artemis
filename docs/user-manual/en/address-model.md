@@ -721,9 +721,9 @@ before it will begin to dispatch messages. Default is `-1` (wait forever).
 closed on a queue before redistributing any messages. Read more about
 [clusters](clusters.md#message-redistribution).
 
-`clustered-queues` enables cluster-wide creation of `ANYCAST` queues. 
+`clustered-queues` enables cluster-wide creation of queues. 
 This means that in the case of a formed cluster with several active brokers, 
-all new `ANYCAST` queues will get created on each cluster member. 
+all new queues will get created on each cluster member. 
 This helps with redistribution of messages in some scenarios, 
 such as where client consumers are fairly static and producers work in an "ad hoc" manner.
 
