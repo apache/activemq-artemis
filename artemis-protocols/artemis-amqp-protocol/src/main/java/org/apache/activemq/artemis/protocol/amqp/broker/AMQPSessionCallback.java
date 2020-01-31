@@ -507,36 +507,39 @@ public class AMQPSessionCallback implements SessionCallback {
                            final Receiver receiver,
                            final RoutingContext routingContext) throws Exception {
       message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
-      invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection());
-      serverSession.send(transaction, message, directDeliver, false, routingContext);
+      if (invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
+         serverSession.send(transaction, message, directDeliver, false, routingContext);
 
-      afterIO(new IOCallback() {
-         @Override
-         public void done() {
-            connection.runLater(() -> {
-               if (delivery.getRemoteState() instanceof TransactionalState) {
-                  TransactionalState txAccepted = new TransactionalState();
-                  txAccepted.setOutcome(Accepted.getInstance());
-                  txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
+         afterIO(new IOCallback() {
+            @Override
+            public void done() {
+               connection.runLater(() -> {
+                  if (delivery.getRemoteState() instanceof TransactionalState) {
+                     TransactionalState txAccepted = new TransactionalState();
+                     txAccepted.setOutcome(Accepted.getInstance());
+                     txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
 
-                  delivery.disposition(txAccepted);
-               } else {
-                  delivery.disposition(Accepted.getInstance());
-               }
-               delivery.settle();
-               context.flow();
-               connection.flush();
-            });
-         }
+                     delivery.disposition(txAccepted);
+                  } else {
+                     delivery.disposition(Accepted.getInstance());
+                  }
+                  delivery.settle();
+                  context.flow();
+                  connection.flush();
+               });
+            }
 
-         @Override
-         public void onError(int errorCode, String errorMessage) {
-            connection.runNow(() -> {
-               receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
-               connection.flush();
-            });
-         }
-      });
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+               connection.runNow(() -> {
+                  receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
+                  connection.flush();
+               });
+            }
+         });
+      } else {
+         rejectMessage(delivery, Symbol.valueOf("failed"), "Interceptor rejected message");
+      }
    }
 
    /** Will execute a Runnable on an Address when there's space in memory*/
@@ -692,12 +695,12 @@ public class AMQPSessionCallback implements SessionCallback {
       manager.getServer().getSecurityStore().check(address, checkType, session);
    }
 
-   public void invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      protonSPI.invokeIncomingInterceptors(message, connection);
+   public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      return protonSPI.invokeIncomingInterceptors(message, connection);
    }
 
-   public void invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      protonSPI.invokeOutgoingInterceptors(message, connection);
+   public String invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      return protonSPI.invokeOutgoingInterceptors(message, connection);
    }
 
    public void addProducer(ServerProducer serverProducer) {
