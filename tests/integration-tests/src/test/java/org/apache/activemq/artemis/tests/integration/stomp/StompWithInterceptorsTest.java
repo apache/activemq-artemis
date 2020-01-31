@@ -38,8 +38,8 @@ public class StompWithInterceptorsTest extends StompTestBase {
    @Override
    public List<String> getIncomingInterceptors() {
       List<String> stompIncomingInterceptor = new ArrayList<>();
-      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompWithInterceptorsTest$IncomingStompInterceptor");
-      stompIncomingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompWithInterceptorsTest$CoreInterceptor");
+      stompIncomingInterceptor.add(IncomingStompInterceptor.class.getName());
+      stompIncomingInterceptor.add(CoreInterceptor.class.getName());
 
       return stompIncomingInterceptor;
    }
@@ -47,7 +47,7 @@ public class StompWithInterceptorsTest extends StompTestBase {
    @Override
    public List<String> getOutgoingInterceptors() {
       List<String> stompOutgoingInterceptor = new ArrayList<>();
-      stompOutgoingInterceptor.add("org.apache.activemq.artemis.tests.integration.stomp.StompWithInterceptorsTest$OutgoingStompInterceptor");
+      stompOutgoingInterceptor.add(OutgoingStompInterceptor.class.getName());
 
       return stompOutgoingInterceptor;
    }

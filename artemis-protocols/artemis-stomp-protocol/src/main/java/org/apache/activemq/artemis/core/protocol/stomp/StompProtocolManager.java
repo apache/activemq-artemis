@@ -154,8 +154,10 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
          }
 
          try {
-            invokeInterceptors(this.incomingInterceptors, request, conn);
             conn.logFrame(request, true);
+            if (invokeInterceptors(this.incomingInterceptors, request, conn) != null) {
+               return;
+            }
             conn.handleFrame(request);
          } finally {
             server.getStorageManager().clearContext();
@@ -187,7 +189,9 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    // Public --------------------------------------------------------
 
    public boolean send(final StompConnection connection, final StompFrame frame) {
-      invokeInterceptors(this.outgoingInterceptors, frame, connection);
+      if (invokeInterceptors(this.outgoingInterceptors, frame, connection) != null) {
+         return false;
+      }
       connection.logFrame(frame, false);
 
       synchronized (connection) {
