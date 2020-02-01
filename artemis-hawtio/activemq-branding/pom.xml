@@ -28,6 +28,8 @@
     <artifactId>activemq-branding</artifactId>
     <name>ActiveMQ Artemis HawtIO Branding</name>
 
+    <description>Artemis branding plugin module for the HawtIO web console</description>
+
     <!-- hawtio plugins are almost always war files -->
     <packaging>war</packaging>
 
@@ -214,7 +216,7 @@
 
                         <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
 
-                        <Bundle-Name>${project.description}</Bundle-Name>
+                        <Bundle-Name>${project.name}</Bundle-Name>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Implementation-Title>HawtIO</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
