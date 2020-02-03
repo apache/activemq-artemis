@@ -987,7 +987,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                consumersBeforeDispatch == null ? as.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch,
                                delayBeforeDispatch == null ? as.getDefaultDelayBeforeDispatch() : delayBeforeDispatch,
                                autoDelete == null ? as.isAutoDeleteCreatedQueues() : autoDelete,
-                               autoDeleteDelay == null ? as.getAutoDeleteQueuesDelay() : delayBeforeDispatch,
+                               autoDeleteDelay == null ? as.getAutoDeleteQueuesDelay() : autoDeleteDelay,
                                autoDeleteMessageCount == null ? as.getAutoDeleteQueuesMessageCount() : autoDeleteMessageCount);
    }
 
