@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -93,7 +94,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private final Map<String, Acceptor> acceptors = new HashMap<>();
 
-   private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Object, ConnectionEntry> connections = new ConcurrentHashMap<>();
 
    private final ReusableLatch connectionCountLatch = new ReusableLatch(0);
 
@@ -498,6 +499,11 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       }
 
       return conns;
+   }
+
+   @Override
+   public int getConnectionCount() {
+      return connections.size();
    }
 
    @Override
