@@ -20,6 +20,8 @@ import java.io.Serializable;
 
 public class WildcardConfiguration implements Serializable {
 
+   private static final long serialVersionUID = 1L;
+
    static final char SINGLE_WORD = '*';
 
    static final char ANY_WORDS = '#';
@@ -58,9 +60,9 @@ public class WildcardConfiguration implements Serializable {
    @Override
    public int hashCode() {
       int result = (routingEnabled ? 1 : 0);
-      result = 31 * result + (int) singleWord;
-      result = 31 * result + (int) anyWords;
-      result = 31 * result + (int) delimiter;
+      result = 31 * result + singleWord;
+      result = 31 * result + anyWords;
+      result = 31 * result + delimiter;
       return result;
    }
 
