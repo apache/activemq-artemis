@@ -29,7 +29,10 @@ import java.util.function.Predicate;
  * Differently from an {@code UnrolledLinkedList} this list doesn't optimize addition and removal to achieve a balanced
  * utilization among chunks ie a chunk is removed only if empty and chunks can't be merged.
  * This list has been optimized for small-sized chunks (ideally <= 32 elements): this allow search/removal to
- * be performed with a greedy approach despite a sparse chunk utilization (ie chunks contains few sparse elements)
+ * be performed with a greedy approach despite a sparse chunk utilization (ie chunks contains few sparse elements).<br>
+ *
+ * From the memory footprint's point of view, this list won't remove the last remaining array although empty to optimize
+ * the case where its capacity would be enough to hold incoming elements, hence saving a new array allocation.
  */
 public final class SparseArrayLinkedList<T> {
 
@@ -89,6 +92,11 @@ public final class SparseArrayLinkedList<T> {
             }
          }
          size -= removed;
+         // reset the tail in case of no elements left:
+         // tail is set to be the next of the last
+         if (size == 0) {
+            tail = 0;
+         }
          return removed;
       }
 
@@ -134,10 +142,10 @@ public final class SparseArrayLinkedList<T> {
          final int justRemoved = sparseArray.remove(filter);
          removed += justRemoved;
          if (justRemoved > 0) {
-            // remove RecordInfo only if empty:
+            // remove the array only if empty and not the last one:
             // it means that there is a chance of fragmentation
-            // proportional with the capacity of chunk
-            if (sparseArray.size() == 0) {
+            // proportional with the array capacity
+            if (sparseArrayList.size() > 1 && sparseArray.size() == 0) {
                iter.remove();
             }
          }
@@ -159,11 +167,13 @@ public final class SparseArrayLinkedList<T> {
       final int size = sparseArrayList.size();
       long count = 0;
       if (size > 0) {
-         for (int i = 0; i < size; i++) {
+         for (int i = 0; i < size - 1; i++) {
             // LinkedList::remove(0) is fast as LinkedList::getFirst
             final SparseArray<T> removed = sparseArrayList.remove(0);
             count += removed.clear(consumer);
          }
+         // LinkedList::get(0) is fast as LinkedList::getFirst
+         count += sparseArrayList.get(0).clear(consumer);
       }
       return count;
    }
