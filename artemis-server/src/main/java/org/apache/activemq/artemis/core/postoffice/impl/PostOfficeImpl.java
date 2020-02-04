@@ -278,12 +278,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                boolean clusteredQueues = addressSettings.getClusteredQueues();
 
-               if (clusteredQueues && binding == null) {
+               if (clusteredQueues && binding == null && distance != 0) {
                   try {
                      if (routingName.equals(address)) {
                         server.createQueue(address, RoutingType.ANYCAST, address, filterString, true, false);
                      } else {
-                        server.createQueue(address, RoutingType.MULTICAST, address, filterString, true, false);
+                        server.createQueue(address, RoutingType.MULTICAST, routingName, filterString, true, false);
                      }
                   } catch (Exception e) {
                      logger.error("Could not create queue", e);
