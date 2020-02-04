@@ -91,10 +91,10 @@
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.25.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
-      <netty.version>4.1.43.Final</netty.version>
+      <netty.version>4.1.45.Final</netty.version>
 
       <!-- this is basically for tests -->
-      <netty-tcnative-version>2.0.26.Final</netty-tcnative-version>
+      <netty-tcnative-version>2.0.28.Final</netty-tcnative-version>
       <proton.version>0.33.2</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
