@@ -76,7 +76,7 @@ public class SparseArrayLinkedListTest {
       }
       final List<Integer> removed = new ArrayList<>(elements);
       Assert.assertEquals(elements, list.clear(removed::add));
-      Assert.assertEquals(0, list.sparseArraysCount());
+      Assert.assertEquals(1, list.sparseArraysCount());
       Assert.assertEquals(0, list.size());
       Assert.assertThat(removed, is(expected));
    }
@@ -93,8 +93,9 @@ public class SparseArrayLinkedListTest {
       Assert.assertEquals(elements - 1, list.size());
       Assert.assertEquals(elements - 1, list.remove(e -> true));
       Assert.assertEquals(0, list.size());
+      Assert.assertEquals(1, list.sparseArraysCount());
       Assert.assertEquals(0, list.remove(e -> true));
-      Assert.assertEquals(0, list.sparseArraysCount());
+      Assert.assertEquals(1, list.sparseArraysCount());
    }
 
    @Test
@@ -120,7 +121,7 @@ public class SparseArrayLinkedListTest {
       final int endNotInclusiveLast = elements;
       Assert.assertEquals(list.sparseArrayCapacity(),
                           list.remove(e -> e.intValue() >= startInclusiveLast && e.intValue() < endNotInclusiveLast));
-      Assert.assertEquals(0, list.sparseArraysCount());
+      Assert.assertEquals(1, list.sparseArraysCount());
    }
 
    @Test
@@ -137,6 +138,22 @@ public class SparseArrayLinkedListTest {
       Assert.assertEquals(1, list.remove(e -> e.intValue() == 0));
       list.add(elements);
       Assert.assertEquals(2, list.sparseArraysCount());
+   }
+
+   @Test
+   public void shouldReuseAllTheAvailableSpaceInTheSameArray() {
+      final int elements = list.sparseArrayCapacity();
+      for (int i = 0; i < elements; i++) {
+         list.add(i);
+      }
+      Assert.assertEquals(1, list.sparseArraysCount());
+      // removing all elements
+      Assert.assertEquals(elements, list.remove(e -> true));
+      Assert.assertEquals(1, list.sparseArraysCount());
+      for (int i = 0; i < elements; i++) {
+         list.add(i);
+      }
+      Assert.assertEquals(1, list.sparseArraysCount());
    }
 
    @Test
