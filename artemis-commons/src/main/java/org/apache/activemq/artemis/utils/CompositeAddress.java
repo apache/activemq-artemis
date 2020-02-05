@@ -35,7 +35,15 @@ public class CompositeAddress {
    }
 
    public static SimpleString extractQueueName(SimpleString name) {
-      return name == null ? null : new SimpleString(extractQueueName(name.toString()));
+      if (name == null) {
+         return null;
+      }
+      final String nameString = name.toString();
+      final String queueName = extractQueueName(nameString);
+      if (queueName.equals(nameString)) {
+         return name;
+      }
+      return new SimpleString(queueName);
    }
 
    public static String extractQueueName(String queue) {
@@ -50,7 +58,15 @@ public class CompositeAddress {
    }
 
    public static SimpleString extractAddressName(SimpleString address) {
-      return address == null ? null : new SimpleString(extractAddressName(address.toString()));
+      if (address == null) {
+         return null;
+      }
+      final String addrString = address.toString();
+      final String addressName = extractAddressName(addrString);
+      if (addressName.equals(addrString)) {
+         return address;
+      }
+      return new SimpleString(addressName);
    }
 
    public static String extractAddressName(String address) {
