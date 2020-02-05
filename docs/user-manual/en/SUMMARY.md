@@ -80,3 +80,4 @@
 * [Unit Testing](unit-testing.md)
 * [Troubleshooting and Performance Tuning](perf-tuning.md)
 * [Configuration Reference](configuration-index.md)
+* [Restart Sequence](restart-sequence.md)
