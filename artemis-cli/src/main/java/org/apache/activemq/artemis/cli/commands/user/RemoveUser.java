@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleC
 
 /**
  * Remove a user, example:
- * ./artemis user rm --username guest
+ * ./artemis user rm --user guest
  */
 @Command(name = "rm", description = "Remove an existing user")
 public class RemoveUser extends UserAction {

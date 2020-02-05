@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Adding a new user, example:
- * ./artemis user add --username guest --role admin --password ***
+ * ./artemis user add --user guest --role admin --password ***
  */
 @Command(name = "add", description = "Add a new user")
 public class AddUser extends PasswordAction {

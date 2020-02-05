@@ -538,7 +538,7 @@ follow the syntax `ENC(<hash>)`. Hashed passwords can easily be added to
 *instance*. This command will not work from the Artemis home.
 
 ```sh
-./artemis user add --username guest --password guest --role admin
+./artemis user add --user guest --password guest --role admin
 ```
 
 This will use the default codec to perform a "one-way" hash of the password
