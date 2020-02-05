@@ -101,7 +101,7 @@ public class ProtocolHandler {
 
       private final boolean httpEnabled;
 
-      private ScheduledFuture timeoutFuture;
+      private ScheduledFuture<?> timeoutFuture;
 
       private int handshakeTimeout;
 
@@ -119,6 +119,15 @@ public class ProtocolHandler {
                ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ctx.channel().remoteAddress().toString());
                ctx.channel().close();
             }, handshakeTimeout, TimeUnit.SECONDS);
+         }
+      }
+
+      @Override
+      public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+         super.channelInactive(ctx);
+         if (handshakeTimeout > 0 && timeoutFuture != null) {
+            timeoutFuture.cancel(true);
+            timeoutFuture = null;
          }
       }
 
