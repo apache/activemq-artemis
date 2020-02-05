@@ -103,7 +103,7 @@ add the user/password to. This command will not work from the Artemis home
 used to create the instance. For example:
 
 ```sh
-./artemis user add --username guest --password guest --role admin
+./artemis user add --user guest --password guest --role admin
 ```
 
 This will use the default codec to perform a "one-way" hash of the password

@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Reset a user's password or roles, example:
- * ./artemis user reset --username guest --role admin --password ***
+ * ./artemis user reset --user guest --role admin --password ***
  */
 @Command(name = "reset", description = "Reset user's password or roles")
 public class ResetUser extends PasswordAction {

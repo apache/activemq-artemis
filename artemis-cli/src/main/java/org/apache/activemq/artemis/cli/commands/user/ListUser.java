@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleC
 
 /**
  * list existing users, example:
- * ./artemis user list --username guest
+ * ./artemis user list --user guest
  */
 @Command(name = "list", description = "List existing user(s)")
 public class ListUser extends UserAction {
