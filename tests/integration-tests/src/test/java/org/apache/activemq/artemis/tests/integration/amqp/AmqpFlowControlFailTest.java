@@ -56,7 +56,6 @@ public class AmqpFlowControlFailTest {
       @Parameterized.Parameter(2)
       public String expectedMessage;
 
-
       @Parameterized.Parameters(name = "useModified={0}")
       public static Collection<Object[]> parameters() {
          return Arrays.asList(new Object[][] {

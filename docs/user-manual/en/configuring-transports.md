@@ -108,9 +108,10 @@ We believe this caters for the vast majority of transport requirements.
 
 Apache ActiveMQ Artemis supports using a single port for all protocols, Apache
 ActiveMQ Artemis will automatically detect which protocol is being used CORE,
-AMQP, STOMP or OPENWIRE and use the appropriate Apache ActiveMQ Artemis
+AMQP, STOMP, MQTT or OPENWIRE and use the appropriate Apache ActiveMQ Artemis
 handler. It will also detect whether protocols such as HTTP or Web Sockets are
-being used and also use the appropriate decoders
+being used and also use the appropriate decoders. Web Sockets are supported for
+AMQP, STOMP, and MQTT.
 
 It is possible to limit which protocols are supported by using the `protocols`
 parameter on the Acceptor like so:
