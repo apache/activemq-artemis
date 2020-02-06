@@ -47,8 +47,6 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
 
-   private static final String WEBSOCKET_PATH = "/stomp";
-
    private HttpRequest httpRequest;
    private WebSocketServerHandshaker handshaker;
    private List<String> supportedProtocols;
@@ -142,7 +140,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    }
 
    private String getWebSocketLocation(HttpRequest req) {
-      return "ws://" + req.headers().get(HttpHeaderNames.HOST) + WEBSOCKET_PATH;
+      return "ws://" + req.headers().get(HttpHeaderNames.HOST);
    }
 
    public HttpRequest getHttpRequest() {

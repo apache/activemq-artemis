@@ -135,3 +135,18 @@ There are 2 types of wild cards in MQTT:
   Matches a single level in the address hierarchy. For example `/uk/+/stores`
   would match `/uk/newcastle/stores` but not `/uk/cities/newcastle/stores`.
 
+## Web Sockets
+
+Apache ActiveMQ Artemis also supports MQTT over [Web
+Sockets](https://html.spec.whatwg.org/multipage/web-sockets.html).  Modern web
+browsers which support Web Sockets can send and receive MQTT messages.
+
+MQTT over Web Sockets is supported via a normal MQTT acceptor:
+
+```xml
+<acceptor name="mqtt-ws-acceptor">tcp://localhost:1883?protocols=MQTT</acceptor>
+```
+
+With this configuration, Apache ActiveMQ Artemis will accept MQTT connections
+over Web Sockets on the port `1883`. Web browsers can then connect to
+`ws://<server>:1883` using a Web Socket to send and receive MQTT messages.
