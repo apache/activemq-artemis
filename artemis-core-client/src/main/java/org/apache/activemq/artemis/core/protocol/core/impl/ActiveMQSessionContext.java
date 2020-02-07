@@ -233,12 +233,6 @@ public class ActiveMQSessionContext extends SessionContext {
             } else {
                handler.sendFailed(message, exception);
             }
-         } else if (sendAckHandler != null) {
-            if (exception == null) {
-               sendAckHandler.sendAcknowledged(message);
-            } else {
-               sendAckHandler.sendFailed(message, exception);
-            }
          }
       }
    };
@@ -280,6 +274,11 @@ public class ActiveMQSessionContext extends SessionContext {
       setHandlers();
 
       this.sendAckHandler = handler;
+   }
+
+   @Override
+   public SendAcknowledgementHandler getSendAcknowledgementHandler() {
+      return this.sendAckHandler;
    }
 
    @Override
