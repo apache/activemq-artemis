@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -150,6 +152,76 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
       }
 
       Assert.assertTrue("producer specific handler must have acked, " + producerHandler, producerHandler.latch.await(5, TimeUnit.SECONDS));
+   }
+
+   @Test
+   public void testHandlerOnSend() throws Exception {
+      final int MSG_COUNT = 750;
+      ServerLocator locator = createInVMNonHALocator();
+      locator.setConfirmationWindowSize(256);
+
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession();
+      ClientProducer producer = session.createProducer(address);
+      final AtomicInteger count = new AtomicInteger(0);
+      for (int i = 0; i < MSG_COUNT; i++) {
+         ClientMessage message = session.createMessage(true);
+         producer.send(message, message1 -> count.incrementAndGet());
+      }
+      Wait.assertEquals(MSG_COUNT, () -> count.get(), 2000, 100);
+   }
+
+   @Test
+   public void testHandlerOnSendWithAnonymousProducer() throws Exception {
+      final int MSG_COUNT = 750;
+      ServerLocator locator = createInVMNonHALocator();
+      locator.setConfirmationWindowSize(256);
+
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession();
+      final AtomicInteger count = new AtomicInteger(0);
+      ClientProducer producer = session.createProducer();
+      for (int i = 0; i < MSG_COUNT; i++) {
+         ClientMessage message = session.createMessage(true);
+         producer.send(address, message, message1 -> count.incrementAndGet());
+      }
+      Wait.assertEquals(MSG_COUNT, () -> count.get(), 2000, 100);
+   }
+
+   @Test
+   public void testHandlerOnSession() throws Exception {
+      final int MSG_COUNT = 750;
+      ServerLocator locator = createInVMNonHALocator();
+      locator.setConfirmationWindowSize(256);
+
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession();
+      final AtomicInteger count = new AtomicInteger(0);
+      session.setSendAcknowledgementHandler(message1 -> count.incrementAndGet());
+      ClientProducer producer = session.createProducer(address);
+      for (int i = 0; i < MSG_COUNT; i++) {
+         ClientMessage message = session.createMessage(true);
+         producer.send(message);
+      }
+      Wait.assertEquals(MSG_COUNT, () -> count.get(), 2000, 100);
+   }
+
+   @Test
+   public void testHandlerOnSessionWithAnonymousProducer() throws Exception {
+      final int MSG_COUNT = 750;
+      ServerLocator locator = createInVMNonHALocator();
+      locator.setConfirmationWindowSize(256);
+
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession();
+      final AtomicInteger count = new AtomicInteger(0);
+      session.setSendAcknowledgementHandler(message1 -> count.incrementAndGet());
+      ClientProducer producer = session.createProducer();
+      for (int i = 0; i < MSG_COUNT; i++) {
+         ClientMessage message = session.createMessage(true);
+         producer.send(address, message);
+      }
+      Wait.assertEquals(MSG_COUNT, () -> count.get(), 2000, 100);
    }
 
    public static final class LatchAckHandler implements SendAcknowledgementHandler {
