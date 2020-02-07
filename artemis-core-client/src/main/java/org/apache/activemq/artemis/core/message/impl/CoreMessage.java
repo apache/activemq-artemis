@@ -130,7 +130,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public Persister<Message> getPersister() {
+   public Persister<Message, CoreMessageObjectPools> getPersister() {
       return CoreMessagePersister.getInstance();
    }
 
@@ -646,11 +646,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    private void decode(boolean beforeAddress) {
+      decode(beforeAddress, coreMessageObjectPools);
+   }
+
+   private void decode(boolean beforeAddress, CoreMessageObjectPools pools) {
       endOfBodyPosition = buffer.readInt();
 
       buffer.skipBytes(endOfBodyPosition - BUFFER_HEADER_SPACE);
 
-      decodeHeadersAndProperties(buffer, true);
+      decodeHeadersAndProperties(buffer, true, pools);
       buffer.readerIndex(0);
       validBuffer = true;
 
@@ -662,14 +666,14 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    public void decodeHeadersAndProperties(final ByteBuf buffer) {
-      decodeHeadersAndProperties(buffer, false);
+      decodeHeadersAndProperties(buffer, false, coreMessageObjectPools);
    }
 
-   private void decodeHeadersAndProperties(final ByteBuf buffer, boolean lazyProperties) {
+   private void decodeHeadersAndProperties(final ByteBuf buffer, boolean lazyProperties, CoreMessageObjectPools pools) {
       messageIDPosition = buffer.readerIndex();
       messageID = buffer.readLong();
 
-      address = SimpleString.readNullableSimpleString(buffer, coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressDecoderPool());
+      address = SimpleString.readNullableSimpleString(buffer, pools == null ? null : pools.getAddressDecoderPool());
       if (buffer.readByte() == DataConstants.NOT_NULL) {
          byte[] bytes = new byte[16];
          buffer.readBytes(bytes);
@@ -687,7 +691,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          propertiesLocation = buffer.readerIndex();
       } else {
          properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
-         properties.decode(buffer, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+         properties.decode(buffer, pools == null ? null : pools.getPropertiesDecoderPools());
       }
    }
 
@@ -1180,11 +1184,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
+   public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
       int size = record.readInt();
       initBuffer(size);
       buffer.setIndex(0, 0).writeBytes(record.byteBuf(), size);
-      decode(false);
+      decode(false, pools);
    }
 
    @Override

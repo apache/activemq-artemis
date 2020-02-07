@@ -147,7 +147,7 @@ public class AMQPMessageTest {
       final long persistedSize = (long) encoded.readableBytes();
 
       // Now reload from encoded data
-      message.reloadPersistence(encoded);
+      message.reloadPersistence(encoded, null);
 
       assertEquals(persistedSize, message.getPersistSize());
       assertEquals(persistedSize - Integer.BYTES, message.getPersistentSize());
