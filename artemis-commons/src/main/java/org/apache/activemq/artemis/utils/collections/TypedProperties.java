@@ -446,17 +446,21 @@ public class TypedProperties {
    }
 
    public synchronized void decode(final ByteBuf buffer,
-                                   final TypedPropertiesDecoderPools keyValuePools) {
+                                   final TypedPropertiesDecoderPools keyValuePools,
+                                   boolean replaceExisting) {
       byte b = buffer.readByte();
       if (b == DataConstants.NULL) {
-         properties = null;
-         size = 0;
+         if (replaceExisting) {
+            properties = null;
+            size = 0;
+         }
       } else {
          int numHeaders = buffer.readInt();
-
-         //optimize the case of no collisions to avoid any resize (it doubles the map size!!!) when load factor is reached
-         properties = new HashMap<>(numHeaders, 1.0f);
-         size = 0;
+         if (replaceExisting || properties == null) {
+            //optimize the case of no collisions to avoid any resize (it doubles the map size!!!) when load factor is reached
+            properties = new HashMap<>(numHeaders, 1.0f);
+         }
+         size = properties.size();
 
          for (int i = 0; i < numHeaders; i++) {
             final SimpleString key = SimpleString.readSimpleString(buffer, keyValuePools == null ? null : keyValuePools.getPropertyKeysPool());
@@ -527,6 +531,10 @@ public class TypedProperties {
             }
          }
       }
+   }
+
+   public synchronized void decode(final ByteBuf buffer, final TypedPropertiesDecoderPools keyValuePools) {
+      decode(buffer, keyValuePools, true);
    }
 
    public void decode(final ByteBuf buffer) {
@@ -1029,12 +1037,16 @@ public class TypedProperties {
 
       public static final class ByteBufStringValuePool extends AbstractByteBufPool<StringValue> {
 
-         private static final int UUID_LENGTH = 36;
+         public static final int DEFAULT_MAX_LENGTH = 36;
 
          private final int maxLength;
 
          public ByteBufStringValuePool() {
-            this.maxLength = UUID_LENGTH;
+            this.maxLength = DEFAULT_MAX_LENGTH;
+         }
+
+         public ByteBufStringValuePool(final int capacity) {
+            this(capacity, DEFAULT_MAX_LENGTH);
          }
 
          public ByteBufStringValuePool(final int capacity, final int maxCharsLength) {
@@ -1074,9 +1086,9 @@ public class TypedProperties {
          this.propertyValuesPool = new TypedProperties.StringValue.ByteBufStringValuePool();
       }
 
-      public TypedPropertiesDecoderPools(int keyPoolCapacity, int valuePoolCapacity, int maxCharsLength) {
-         this.propertyKeysPool = new SimpleString.ByteBufSimpleStringPool(keyPoolCapacity, maxCharsLength);
-         this.propertyValuesPool = new TypedProperties.StringValue.ByteBufStringValuePool(valuePoolCapacity, maxCharsLength);
+      public TypedPropertiesDecoderPools(int keyPoolCapacity, int valuePoolCapacity) {
+         this.propertyKeysPool = new SimpleString.ByteBufSimpleStringPool(keyPoolCapacity);
+         this.propertyValuesPool = new TypedProperties.StringValue.ByteBufStringValuePool(valuePoolCapacity);
       }
 
       public SimpleString.ByteBufSimpleStringPool getPropertyKeysPool() {

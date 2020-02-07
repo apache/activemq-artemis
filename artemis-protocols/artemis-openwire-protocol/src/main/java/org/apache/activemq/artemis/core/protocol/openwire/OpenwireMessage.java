@@ -140,7 +140,7 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
-   public Persister<Message> getPersister() {
+   public Persister<Message, CoreMessageObjectPools> getPersister() {
       return null;
    }
 
@@ -205,7 +205,7 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
+   public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
 
    }
 

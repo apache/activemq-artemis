@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -62,12 +63,17 @@ public class AMQPMessagePersister extends MessagePersister {
    }
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record) {
+   public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pool) {
       long id = buffer.readLong();
       long format = buffer.readLong();
-      SimpleString address = buffer.readNullableSimpleString();
-      record = new AMQPMessage(format);
-      record.reloadPersistence(buffer);
+      final SimpleString address;
+      if (pool == null) {
+         address = buffer.readNullableSimpleString();
+      } else {
+         address = SimpleString.readNullableSimpleString(buffer.byteBuf(), pool.getAddressDecoderPool());
+      }
+      AMQPMessage record = new AMQPMessage(format);
+      record.reloadPersistence(buffer, pool);
       record.setMessageID(id);
       if (address != null) {
          record.setAddress(address);

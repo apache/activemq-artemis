@@ -98,6 +98,7 @@ public final class UUID {
     * @param data 16 byte UUID contents
     */
    public UUID(final int type, final byte[] data) {
+      assert data.length == 16;
       mId = data;
       // Type is multiplexed with time_hi:
       mId[UUID.INDEX_TYPE] &= (byte) 0x0F;
@@ -108,6 +109,7 @@ public final class UUID {
    }
 
    private UUID(final byte[] data) {
+      assert data.length == 16;
       mId = data;
    }
 

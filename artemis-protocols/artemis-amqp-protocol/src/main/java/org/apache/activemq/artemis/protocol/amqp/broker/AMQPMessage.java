@@ -741,7 +741,7 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
+   public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
       int size = record.readInt();
       byte[] recordArray = new byte[size];
       record.readBytes(recordArray);
@@ -771,7 +771,7 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public Persister<org.apache.activemq.artemis.api.core.Message> getPersister() {
+   public Persister<org.apache.activemq.artemis.api.core.Message, CoreMessageObjectPools> getPersister() {
       return AMQPMessagePersisterV2.getInstance();
    }
 
