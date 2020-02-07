@@ -323,12 +323,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void reloadPersistence(ActiveMQBuffer record) {
+      public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
 
       }
 
       @Override
-      public Persister<Message> getPersister() {
+      public Persister<Message, CoreMessageObjectPools> getPersister() {
          return null;
       }
 

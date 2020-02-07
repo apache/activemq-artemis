@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static org.apache.activemq.artemis.api.core.SimpleString.ByteBufSimpleStringPool.DEFAULT_MAX_LENGTH;
+import static org.apache.activemq.artemis.api.core.SimpleString.ByteBufSimpleStringPool.DEFAULT_POOL_CAPACITY;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
@@ -56,6 +58,7 @@ import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -858,6 +861,19 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          }
 
          final MutableLong recordNumber = new MutableLong();
+         final CoreMessageObjectPools pools;
+         if (totalSize > 0) {
+            final int addresses = (int)Math.max(
+               DEFAULT_POOL_CAPACITY,
+               queueInfos == null ? 0 :
+                  queueInfos.values().stream()
+                     .map(QueueBindingInfo::getAddress)
+                     .filter(addr -> addr.length() <= DEFAULT_MAX_LENGTH)
+                     .count() * 2);
+            pools = new CoreMessageObjectPools(addresses, DEFAULT_POOL_CAPACITY, 128, 128);
+         } else {
+            pools = null;
+         }
          // This will free up memory sooner while reading the records
          records.clear(record -> {
             try {
@@ -904,7 +920,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
 
-                     Message message = MessagePersister.getInstance().decode(buff, null);
+                     Message message = MessagePersister.getInstance().decode(buff, pools);
 
                      messages.put(record.id, message);
 
@@ -1716,6 +1732,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                          final Set<Pair<Long, Long>> pendingLargeMessages,
                                          JournalLoader journalLoader) throws Exception {
       // recover prepared transactions
+      CoreMessageObjectPools pools = null;
+
       for (PreparedTransactionInfo preparedTransaction : preparedTransactions) {
          XidEncoding encodingXid = new XidEncoding(preparedTransaction.getExtraData());
 
@@ -1749,7 +1767,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   break;
                }
                case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
-                  Message message = MessagePersister.getInstance().decode(buff, null);
+                  if (pools == null) {
+                     pools = new CoreMessageObjectPools();
+                  }
+                  Message message = MessagePersister.getInstance().decode(buff, pools);
 
                   messages.put(record.id, message);
 

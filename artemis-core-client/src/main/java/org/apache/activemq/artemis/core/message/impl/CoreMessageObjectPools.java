@@ -25,14 +25,30 @@ import java.util.function.Supplier;
 
 public class CoreMessageObjectPools {
 
-   private Supplier<SimpleString.ByteBufSimpleStringPool> addressDecoderPool = Suppliers.memoize(SimpleString.ByteBufSimpleStringPool::new);
-   private Supplier<TypedProperties.TypedPropertiesDecoderPools> propertiesDecoderPools = Suppliers.memoize(TypedProperties.TypedPropertiesDecoderPools::new);
+   private final Supplier<SimpleString.ByteBufSimpleStringPool> addressDecoderPool;
+   private final Supplier<TypedProperties.TypedPropertiesDecoderPools> propertiesDecoderPools;
 
-   private Supplier<SimpleString.StringSimpleStringPool> groupIdStringSimpleStringPool = Suppliers.memoize(SimpleString.StringSimpleStringPool::new);
-   private Supplier<SimpleString.StringSimpleStringPool> addressStringSimpleStringPool = Suppliers.memoize(SimpleString.StringSimpleStringPool::new);
-   private Supplier<TypedProperties.TypedPropertiesStringSimpleStringPools> propertiesStringSimpleStringPools = Suppliers.memoize(TypedProperties.TypedPropertiesStringSimpleStringPools::new);
+   private final Supplier<SimpleString.StringSimpleStringPool> groupIdStringSimpleStringPool;
+   private final Supplier<SimpleString.StringSimpleStringPool> addressStringSimpleStringPool;
+   private final Supplier<TypedProperties.TypedPropertiesStringSimpleStringPools> propertiesStringSimpleStringPools;
+
+   public CoreMessageObjectPools(int addressPoolCapacity,
+                                 int groupIdCapacity,
+                                 int propertyKeyCapacity,
+                                 int propertyValueCapacity) {
+      addressDecoderPool = Suppliers.memoize(() -> new SimpleString.ByteBufSimpleStringPool(addressPoolCapacity));
+      propertiesDecoderPools = Suppliers.memoize(() -> new TypedProperties.TypedPropertiesDecoderPools(propertyKeyCapacity, propertyValueCapacity));
+      groupIdStringSimpleStringPool = Suppliers.memoize(() -> new SimpleString.StringSimpleStringPool(groupIdCapacity));
+      addressStringSimpleStringPool = Suppliers.memoize(() -> new SimpleString.StringSimpleStringPool(addressPoolCapacity));
+      propertiesStringSimpleStringPools = Suppliers.memoize(() -> new TypedProperties.TypedPropertiesStringSimpleStringPools(propertyKeyCapacity, propertyValueCapacity));
+   }
 
    public CoreMessageObjectPools() {
+      addressDecoderPool = Suppliers.memoize(SimpleString.ByteBufSimpleStringPool::new);
+      propertiesDecoderPools = Suppliers.memoize(TypedProperties.TypedPropertiesDecoderPools::new);
+      groupIdStringSimpleStringPool = Suppliers.memoize(SimpleString.StringSimpleStringPool::new);
+      addressStringSimpleStringPool = Suppliers.memoize(SimpleString.StringSimpleStringPool::new);
+      propertiesStringSimpleStringPools = Suppliers.memoize(TypedProperties.TypedPropertiesStringSimpleStringPools::new);
    }
 
    public SimpleString.ByteBufSimpleStringPool getAddressDecoderPool() {

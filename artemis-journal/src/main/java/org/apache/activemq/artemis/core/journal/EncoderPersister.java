@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 
 /** This is a facade between the new Persister and the former EncodingSupport.
  *  Methods using the old interface will use this as a facade to provide the previous semantic. */
-public class EncoderPersister implements Persister<EncodingSupport> {
+public class EncoderPersister implements Persister<EncodingSupport, EncodingSupport> {
 
    private static final EncoderPersister theInstance = new EncoderPersister();
 

@@ -371,12 +371,12 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Persister<Message> getPersister() {
+      public Persister<Message, CoreMessageObjectPools> getPersister() {
          return null;
       }
 
       @Override
-      public void reloadPersistence(ActiveMQBuffer record) {
+      public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
 
       }
 
