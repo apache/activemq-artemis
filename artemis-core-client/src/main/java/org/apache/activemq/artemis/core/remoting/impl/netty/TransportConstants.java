@@ -290,6 +290,8 @@ public class TransportConstants {
 
    public static final String QUIET_PERIOD = "quietPeriod";
 
+   public static final String DISABLE_STOMP_SERVER_HEADER = "disableStompServerHeader";
+
    /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
     *  When running on a real server, this is the default we want.
     *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml.
@@ -371,6 +373,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.SHUTDOWN_TIMEOUT);
       allowableAcceptorKeys.add(TransportConstants.QUIET_PERIOD);
+      allowableAcceptorKeys.add(TransportConstants.DISABLE_STOMP_SERVER_HEADER);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
