@@ -264,7 +264,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       session.commit();
 
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
 
       connection.close();
    }
@@ -295,7 +295,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       session.rollback();
 
-      assertEquals(1, queue.getMessageCount());
+      Wait.assertEquals(1, queue::getMessageCount);
 
       sender.close();
       connection.close();
@@ -332,7 +332,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpReceiver receiver3 = session3.createReceiver(getQueueName());
 
       final Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(3, queue.getMessageCount());
+      Wait.assertEquals(3, queue::getMessageCount);
 
       // Begin the transaction that all senders will operate in.
       txnSession.begin();
@@ -351,11 +351,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message2.accept(txnSession);
       message3.accept(txnSession);
 
-      assertEquals(3, queue.getMessageCount());
+      Wait.assertEquals(3, queue::getMessageCount);
 
       txnSession.commit();
 
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -389,7 +389,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpReceiver receiver3 = session3.createReceiver(getQueueName());
 
       final Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(3, queue.getMessageCount());
+      Wait.assertEquals(3, queue::getMessageCount);
 
       // Begin the transaction that all senders will operate in.
       txnSession.begin();
@@ -408,11 +408,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message2.accept(txnSession);
       message3.accept(txnSession);
 
-      assertEquals(3, queue.getMessageCount());
+      Wait.assertEquals(3, queue::getMessageCount);
 
       txnSession.rollback();
 
-      assertEquals(3, queue.getMessageCount());
+      Wait.assertEquals(3, queue::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -448,11 +448,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       sender2.send(message, txnSession.getTransactionId());
       sender3.send(message, txnSession.getTransactionId());
 
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
 
       txnSession.commit();
 
-      assertEquals(3, queue.getMessageCount());
+      Wait.assertEquals(3, queue::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -488,11 +488,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       sender2.send(message, txnSession.getTransactionId());
       sender3.send(message, txnSession.getTransactionId());
 
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
 
       txnSession.rollback();
 
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    //----- Tests Ported from AmqpNetLite client -----------------------------//
