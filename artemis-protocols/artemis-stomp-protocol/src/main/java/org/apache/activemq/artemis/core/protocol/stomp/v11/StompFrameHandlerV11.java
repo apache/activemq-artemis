@@ -85,7 +85,10 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
 
          // server
-         response.addHeader(Stomp.Headers.Connected.SERVER, connection.getActiveMQServerName());
+         Object disableServerHeader = connection.getAcceptorUsed().getConfiguration().get(TransportConstants.DISABLE_STOMP_SERVER_HEADER);
+         if (disableServerHeader == null || !Boolean.parseBoolean(disableServerHeader.toString())) {
+            response.addHeader(Stomp.Headers.Connected.SERVER, connection.getActiveMQServerName());
+         }
 
          if (requestID != null) {
             response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
