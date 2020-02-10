@@ -109,6 +109,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    // Default address drop threshold, applied to address settings with BLOCK policy.  -1 means no threshold enabled.
    public static final long DEFAULT_ADDRESS_REJECT_THRESHOLD = -1;
 
+   public static final boolean DEFAULT_CLUSTERED_QUEUES = false;
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -215,6 +217,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer defaultConsumerWindowSize = null;
 
+   private Boolean clusteredQueues = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -270,6 +274,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultGroupBuckets = other.defaultGroupBuckets;
       this.defaultGroupFirstKey = other.defaultGroupFirstKey;
       this.defaultRingSize = other.defaultRingSize;
+      this.clusteredQueues = other.clusteredQueues;
    }
 
    public AddressSettings() {
@@ -770,6 +775,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public boolean getClusteredQueues() {
+      return clusteredQueues != null ? clusteredQueues : AddressSettings.DEFAULT_CLUSTERED_QUEUES;
+   }
+
+   public AddressSettings setClusteredQueues(final boolean clusteredQueues) {
+      this.clusteredQueues = clusteredQueues;
+      return this;
+   }
+
+
    /**
     * merge 2 objects in to 1
     *
@@ -932,6 +947,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (retroactiveMessageCount == null) {
          retroactiveMessageCount = merged.retroactiveMessageCount;
+      }
+      if (clusteredQueues == null) {
+         clusteredQueues = merged.clusteredQueues;
       }
    }
 
@@ -1105,6 +1123,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          retroactiveMessageCount = BufferHelper.readNullableLong(buffer);
       }
+
+      clusteredQueues = BufferHelper.readNullableBoolean(buffer);
    }
 
    @Override
@@ -1158,7 +1178,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
          BufferHelper.sizeOfNullableLong(defaultRingSize) +
-         BufferHelper.sizeOfNullableLong(retroactiveMessageCount);
+         BufferHelper.sizeOfNullableLong(retroactiveMessageCount) +
+         BufferHelper.sizeOfNullableBoolean(clusteredQueues);
    }
 
    @Override
@@ -1264,6 +1285,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       buffer.writeNullableSimpleString(defaultGroupFirstKey);
 
       BufferHelper.writeNullableLong(buffer, retroactiveMessageCount);
+
+      BufferHelper.writeNullableBoolean(buffer, clusteredQueues);
    }
 
    /* (non-Javadoc)
@@ -1325,6 +1348,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultGroupFirstKey == null) ? 0 : defaultGroupFirstKey.hashCode());
       result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
       result = prime * result + ((retroactiveMessageCount == null) ? 0 : retroactiveMessageCount.hashCode());
+      result = prime * result + ((clusteredQueues == null) ? 0 : clusteredQueues.hashCode());
       return result;
    }
 
@@ -1613,6 +1637,13 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!retroactiveMessageCount.equals(other.retroactiveMessageCount))
          return false;
+
+      if (clusteredQueues == null) {
+         if (other.clusteredQueues != null)
+            return false;
+      } else if (!clusteredQueues.equals(other.clusteredQueues))
+         return false;
+
       return true;
    }
 
@@ -1722,6 +1753,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultRingSize +
          ", retroactiveMessageCount=" +
          retroactiveMessageCount +
+         ", clusteredQueues=" +
+         clusteredQueues +
          "]";
    }
 }

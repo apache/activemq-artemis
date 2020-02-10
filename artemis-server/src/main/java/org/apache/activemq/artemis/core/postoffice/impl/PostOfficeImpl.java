@@ -272,6 +272,25 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                queueInfos.put(clusterName, info);
 
+               // Global queue creation
+               Binding binding = getBinding(routingName);
+
+               AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
+
+               boolean clusteredQueues = addressSettings.getClusteredQueues();
+
+               if (clusteredQueues && binding == null && distance != 0) {
+                  try {
+                     if (routingName.equals(address)) {
+                        server.createQueue(address, RoutingType.ANYCAST, address, filterString, true, false);
+                     } else {
+                        server.createQueue(address, RoutingType.MULTICAST, routingName, filterString, true, false);
+                     }
+                  } catch (Exception e) {
+                     logger.error("Could not create queue", e);
+                  }
+               }
+
                break;
             }
             case BINDING_REMOVED: {

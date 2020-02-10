@@ -589,6 +589,7 @@ that would be found in the `broker.xml` file.
       <default-consumers-before-dispatch>0</default-consumers-before-dispatch>
       <default-delay-before-dispatch>-1</default-delay-before-dispatch>
       <redistribution-delay>0</redistribution-delay>
+      <clustered-queues>true</clustered-queues>
       <send-to-dla-on-no-route>true</send-to-dla-on-no-route>
       <slow-consumer-threshold>-1</slow-consumer-threshold>
       <slow-consumer-policy>NOTIFY</slow-consumer-policy>
@@ -719,6 +720,12 @@ before it will begin to dispatch messages. Default is `-1` (wait forever).
 `redistribution-delay` defines how long to wait when the last consumer is
 closed on a queue before redistributing any messages. Read more about
 [clusters](clusters.md#message-redistribution).
+
+`clustered-queues` enables cluster-wide creation of queues.
+This means that in the case of a formed cluster with several active brokers,
+all new queues will get created on each cluster member.
+This helps with redistribution of messages in some scenarios,
+such as where client consumers are fairly static and producers work in an "ad hoc" manner.
 
 `send-to-dla-on-no-route`. If a message is sent to an address, but the server
 does not route it to any queues (e.g. there might be no queues bound to that
