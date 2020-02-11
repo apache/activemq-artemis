@@ -62,6 +62,7 @@ under the License.
             <module>federated-queue-downstream</module>
             <module>federated-queue-downstream-upstream</module>
             <module>federated-address</module>
+            <module>federated-address-downstream</module>
             <module>federated-address-downstream-upstream</module>
          </modules>
       </profile>
