@@ -1124,7 +1124,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          retroactiveMessageCount = BufferHelper.readNullableLong(buffer);
       }
 
-      clusteredQueues = BufferHelper.readNullableBoolean(buffer);
+      if (buffer.readableBytes() > 0) {
+         clusteredQueues = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
