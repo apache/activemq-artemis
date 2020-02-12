@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -37,7 +38,7 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
    private static final String MODULE_NAME = "artemis-server";
 
    @Override
-   public Persister<Message>[] getPersister() {
+   public Persister<Message, CoreMessageObjectPools>[] getPersister() {
       return new Persister[]{CoreMessagePersister.getInstance()};
    }
 

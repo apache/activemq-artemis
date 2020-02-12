@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 
-public class LargeMessagePersister implements Persister<LargeServerMessage> {
+public class LargeMessagePersister implements Persister<LargeServerMessage, LargeServerMessage> {
 
    private static final LargeMessagePersister theInstance = new LargeMessagePersister();
 

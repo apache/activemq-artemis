@@ -21,11 +21,12 @@ import java.util.ServiceLoader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.jboss.logging.Logger;
 
-public class MessagePersister implements Persister<Message> {
+public class MessagePersister implements Persister<Message, CoreMessageObjectPools> {
 
    private static final Logger logger = Logger.getLogger(MessagePersister.class);
 
@@ -33,7 +34,7 @@ public class MessagePersister implements Persister<Message> {
 
    /** This will be used for reading messages */
    private static final int MAX_PERSISTERS = 3;
-   private static final Persister<Message>[] persisters = new Persister[MAX_PERSISTERS];
+   private static final Persister<Message, CoreMessageObjectPools>[] persisters = new Persister[MAX_PERSISTERS];
 
    static {
       CoreMessagePersister persister = CoreMessagePersister.getInstance();
@@ -46,7 +47,7 @@ public class MessagePersister implements Persister<Message> {
    }
 
    public static void registerProtocol(ProtocolManagerFactory manager) {
-      Persister<Message>[] messagePersisters = manager.getPersister();
+      Persister<Message, CoreMessageObjectPools>[] messagePersisters = manager.getPersister();
       if (messagePersisters == null || messagePersisters.length == 0) {
          logger.debug("Cannot find persister for " + manager);
       } else {
@@ -69,7 +70,7 @@ public class MessagePersister implements Persister<Message> {
       return persisters[id - 1];
    }
 
-   public static void registerPersister(Persister<Message> persister) {
+   public static void registerPersister(Persister<Message, CoreMessageObjectPools> persister) {
       if (persister != null) {
          assert persister.getID() <= MAX_PERSISTERS : "You must update MessagePersister::MAX_PERSISTERS to a higher number";
          persisters[persister.getID() - 1] = persister;
@@ -97,12 +98,12 @@ public class MessagePersister implements Persister<Message> {
    }
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record) {
+   public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pools) {
       byte protocol = buffer.readByte();
-      Persister<Message> persister = getPersister(protocol);
+      Persister<Message, CoreMessageObjectPools> persister = getPersister(protocol);
       if (persister == null) {
          throw new NullPointerException("couldn't find factory for type=" + protocol);
       }
-      return persister.decode(buffer, record);
+      return persister.decode(buffer, pools);
    }
 }

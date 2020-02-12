@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class CoreMessagePersister implements Persister<Message> {
+public class CoreMessagePersister implements Persister<Message, CoreMessageObjectPools> {
    public static final byte ID = 1;
 
    private static CoreMessagePersister theInstance;
@@ -68,14 +68,18 @@ public class CoreMessagePersister implements Persister<Message> {
       record.persist(buffer);
    }
 
-
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record) {
+   public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pool) {
       // the caller must consume the first byte already, as that will be used to decide what persister (protocol) to use
       long id = buffer.readLong();
-      SimpleString address = buffer.readNullableSimpleString();
-      record = new CoreMessage();
-      record.reloadPersistence(buffer);
+      final SimpleString address;
+      if (pool == null) {
+         address = buffer.readNullableSimpleString();
+      } else {
+         address = SimpleString.readNullableSimpleString(buffer.byteBuf(), pool.getAddressDecoderPool());
+      }
+      CoreMessage record = new CoreMessage();
+      record.reloadPersistence(buffer, pool);
       record.setMessageID(id);
       record.setAddress(address);
       return record;
