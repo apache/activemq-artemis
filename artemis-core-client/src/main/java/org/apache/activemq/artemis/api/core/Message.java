@@ -394,7 +394,7 @@ public interface Message {
     */
    Message setDurable(boolean durable);
 
-   Persister<Message> getPersister();
+   Persister<Message, CoreMessageObjectPools> getPersister();
 
    String getAddress();
 
@@ -454,7 +454,7 @@ public interface Message {
 
    void persist(ActiveMQBuffer targetRecord);
 
-   void reloadPersistence(ActiveMQBuffer record);
+   void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools);
 
    default void releaseBuffer() {
       ByteBuf buffer = getBuffer();

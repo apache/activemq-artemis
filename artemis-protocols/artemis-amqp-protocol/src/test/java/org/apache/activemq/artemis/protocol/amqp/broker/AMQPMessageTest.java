@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -147,13 +148,79 @@ public class AMQPMessageTest {
       final long persistedSize = (long) encoded.readableBytes();
 
       // Now reload from encoded data
-      message.reloadPersistence(encoded);
+      message.reloadPersistence(encoded, null);
 
       assertEquals(persistedSize, message.getPersistSize());
       assertEquals(persistedSize - Integer.BYTES, message.getPersistentSize());
       assertEquals(persistedSize - Integer.BYTES, message.getEncodeSize());
       assertEquals(true, message.getHeader().getDurable());
       assertEquals(TEST_TO_ADDRESS, message.getAddress());
+   }
+
+   @Test
+   public void testHasScheduledDeliveryTimeReloadPersistence() {
+      final long scheduledTime = System.currentTimeMillis();
+      MessageImpl protonMessage = createProtonMessage();
+      MessageAnnotations annotations = protonMessage.getMessageAnnotations();
+      annotations.getValue().put(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME, scheduledTime);
+      ActiveMQBuffer encoded = encodeMessageAsPersistedBuffer(protonMessage);
+
+      AMQPMessage message = new AMQPMessage(0);
+      try {
+         message.getProtonMessage();
+         fail("Should throw NPE due to not being initialized yet");
+      } catch (NullPointerException npe) {
+      }
+
+      // Now reload from encoded data
+      message.reloadPersistence(encoded, null);
+
+      assertTrue(message.hasScheduledDeliveryTime());
+      message.getHeader();
+      assertTrue(message.hasScheduledDeliveryTime());
+   }
+
+   @Test
+   public void testHasScheduledDeliveryDelayReloadPersistence() {
+      final long scheduledDelay = 100000;
+      MessageImpl protonMessage = createProtonMessage();
+      MessageAnnotations annotations = protonMessage.getMessageAnnotations();
+      annotations.getValue().put(AMQPMessageSupport.SCHEDULED_DELIVERY_DELAY, scheduledDelay);
+      ActiveMQBuffer encoded = encodeMessageAsPersistedBuffer(protonMessage);
+
+      AMQPMessage message = new AMQPMessage(0);
+      try {
+         message.getProtonMessage();
+         fail("Should throw NPE due to not being initialized yet");
+      } catch (NullPointerException npe) {
+      }
+
+      // Now reload from encoded data
+      message.reloadPersistence(encoded, null);
+
+      assertTrue(message.hasScheduledDeliveryTime());
+      message.getHeader();
+      assertTrue(message.hasScheduledDeliveryTime());
+   }
+
+   @Test
+   public void testNoScheduledDeliveryTimeOrDelayReloadPersistence() {
+      MessageImpl protonMessage = createProtonMessage();
+      ActiveMQBuffer encoded = encodeMessageAsPersistedBuffer(protonMessage);
+
+      AMQPMessage message = new AMQPMessage(0);
+      try {
+         message.getProtonMessage();
+         fail("Should throw NPE due to not being initialized yet");
+      } catch (NullPointerException npe) {
+      }
+
+      // Now reload from encoded data
+      message.reloadPersistence(encoded, null);
+
+      assertFalse(message.hasScheduledDeliveryTime());
+      message.getHeader();
+      assertFalse(message.hasScheduledDeliveryTime());
    }
 
    //----- Test Memory Estimate access ---------------------------------------//
@@ -2010,10 +2077,10 @@ public class AMQPMessageTest {
       properties.setTo(TEST_TO_ADDRESS);
       properties.setMessageId(UUID.randomUUID());
 
-      MessageAnnotations annotations = new MessageAnnotations(new HashMap<>());
+      MessageAnnotations annotations = new MessageAnnotations(new LinkedHashMap<>());
       annotations.getValue().put(Symbol.valueOf(TEST_MESSAGE_ANNOTATION_KEY), TEST_MESSAGE_ANNOTATION_VALUE);
 
-      ApplicationProperties applicationProperties = new ApplicationProperties(new HashMap<>());
+      ApplicationProperties applicationProperties = new ApplicationProperties(new LinkedHashMap<>());
       applicationProperties.getValue().put(TEST_APPLICATION_PROPERTY_KEY, TEST_APPLICATION_PROPERTY_VALUE);
 
       AmqpValue body = new AmqpValue(TEST_STRING_BODY);

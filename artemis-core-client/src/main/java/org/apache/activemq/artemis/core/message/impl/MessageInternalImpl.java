@@ -248,7 +248,7 @@ public class MessageInternalImpl implements MessageInternal {
    }
 
    @Override
-   public Persister<Message> getPersister() {
+   public Persister<Message, CoreMessageObjectPools> getPersister() {
       throw new UnsupportedOperationException();
    }
 
@@ -340,7 +340,7 @@ public class MessageInternalImpl implements MessageInternal {
    }
 
    @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
+   public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
       throw new UnsupportedOperationException();
    }
 

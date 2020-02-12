@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
@@ -68,16 +69,24 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
       }
    }
 
-
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record) {
-      AMQPMessage message = (AMQPMessage)super.decode(buffer, record);
+   public Message decode(ActiveMQBuffer buffer, CoreMessageObjectPools pool) {
+      AMQPMessage message = (AMQPMessage) super.decode(buffer, pool);
       int size = buffer.readInt();
 
       if (size != 0) {
-         TypedProperties properties = new TypedProperties(Message.INTERNAL_PROPERTY_NAMES_PREDICATE);
-         properties.decode(buffer.byteBuf());
-         message.setExtraProperties(properties);
+         // message::setAddress could have populated extra properties
+         // hence, we can safely replace the value on the properties
+         // if it has been encoded differently in the rest of the buffer
+         TypedProperties existingExtraProperties = message.getExtraProperties();
+         TypedProperties extraProperties = existingExtraProperties;
+         if (existingExtraProperties == null) {
+            extraProperties = new TypedProperties(Message.INTERNAL_PROPERTY_NAMES_PREDICATE);
+         }
+         extraProperties.decode(buffer.byteBuf(), pool != null ? pool.getPropertiesDecoderPools() : null, existingExtraProperties == null);
+         if (extraProperties != existingExtraProperties) {
+            message.setExtraProperties(extraProperties);
+         }
       }
       return message;
    }

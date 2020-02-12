@@ -560,12 +560,16 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
    public static final class ByteBufSimpleStringPool extends AbstractByteBufPool<SimpleString> {
 
-      private static final int UUID_LENGTH = 36;
+      public static final int DEFAULT_MAX_LENGTH = 36;
 
       private final int maxLength;
 
       public ByteBufSimpleStringPool() {
-         this.maxLength = UUID_LENGTH;
+         this.maxLength = DEFAULT_MAX_LENGTH;
+      }
+
+      public ByteBufSimpleStringPool(final int capacity) {
+         this(capacity, DEFAULT_MAX_LENGTH);
       }
 
       public ByteBufSimpleStringPool(final int capacity, final int maxCharsLength) {

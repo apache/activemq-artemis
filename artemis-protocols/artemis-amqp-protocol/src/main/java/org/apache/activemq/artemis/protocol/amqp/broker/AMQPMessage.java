@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.algo.KMPNeedle;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -74,12 +76,49 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.jboss.logging.Logger;
 
-// see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
+/**
+ * See <a href="https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format">AMQP v1.0 message format</a>
+ * <pre>
+ *
+ *                                                      Bare Message
+ *                                                            |
+ *                                      .---------------------+--------------------.
+ *                                      |                                          |
+ * +--------+-------------+-------------+------------+--------------+--------------+--------+
+ * | header | delivery-   | message-    | properties | application- | application- | footer |
+ * |        | annotations | annotations |            | properties   | data         |        |
+ * +--------+-------------+-------------+------------+--------------+--------------+--------+
+ * |                                                                                        |
+ * '-------------------------------------------+--------------------------------------------'
+ *                                             |
+ *                                      Annotated Message
+ * </pre>
+ * <ul>
+ *    <li>Zero or one header sections.
+ *    <li>Zero or one delivery-annotation sections.
+ *    <li>Zero or one message-annotation sections.
+ *    <li>Zero or one properties sections.
+ *    <li>Zero or one application-properties sections.
+ *    <li>The body consists of one of the following three choices:
+ *    <ul>
+ *       <li>one or more data sections
+ *       <li>one or more amqp-sequence sections
+ *       <li>or a single amqp-value section.
+ *    </ul>
+ *    <li>Zero or one footer sections.
+ * </ul>
+ */
 public class AMQPMessage extends RefCountMessage {
 
    private static final Logger logger = Logger.getLogger(AMQPMessage.class);
 
    public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
+   // used to perform quick search
+   private static final Symbol[] SCHEDULED_DELIVERY_SYMBOLS = new Symbol[]{
+      AMQPMessageSupport.SCHEDULED_DELIVERY_TIME, AMQPMessageSupport.SCHEDULED_DELIVERY_DELAY};
+   private static final KMPNeedle[] SCHEDULED_DELIVERY_NEEDLES = new KMPNeedle[]{
+      AMQPMessageSymbolSearch.kmpNeedleOf(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME),
+      AMQPMessageSymbolSearch.kmpNeedleOf(AMQPMessageSupport.SCHEDULED_DELIVERY_DELAY)};
 
    public static final int DEFAULT_MESSAGE_FORMAT = 0;
    public static final int DEFAULT_MESSAGE_PRIORITY = 4;
@@ -89,7 +128,10 @@ public class AMQPMessage extends RefCountMessage {
 
    // Buffer and state for the data backing this message.
    private ReadableBuffer data;
-   private boolean messageDataScanned;
+   private static final byte NOT_SCANNED = 0;
+   private static final byte RELOAD_PERSISTENCE = 1;
+   private static final byte SCANNED = 2;
+   private byte messageDataScanned;
 
    // Marks the message as needed to be re-encoded to update the backing buffer
    private boolean modified;
@@ -450,16 +492,25 @@ public class AMQPMessage extends RefCountMessage {
    // re-encode should be done to update the backing data with the in memory elements.
 
    private synchronized void ensureMessageDataScanned() {
-      if (!messageDataScanned) {
-         scanMessageData();
+      final byte state = messageDataScanned;
+      switch (state) {
+         case NOT_SCANNED:
+            scanMessageData();
+            break;
+         case RELOAD_PERSISTENCE:
+            lazyScanAfterReloadPersistence();
+            break;
+         case SCANNED:
+            // NO-OP
+            break;
+         default:
+            throw new IllegalStateException("invalid messageDataScanned state: expected within " +
+                                               Arrays.toString(new byte[]{NOT_SCANNED, SCANNED, RELOAD_PERSISTENCE}) +
+                                               " but " + messageDataScanned);
       }
    }
 
-   private synchronized void scanMessageData() {
-      this.messageDataScanned = true;
-      DecoderImpl decoder = TLSEncode.getDecoder();
-      decoder.setBuffer(data.rewind());
-
+   private synchronized void resetMessageData() {
       header = null;
       messageAnnotations = null;
       properties = null;
@@ -474,6 +525,14 @@ public class AMQPMessage extends RefCountMessage {
       propertiesPosition = VALUE_NOT_PRESENT;
       applicationPropertiesPosition = VALUE_NOT_PRESENT;
       remainingBodyPosition = VALUE_NOT_PRESENT;
+   }
+
+   private synchronized void scanMessageData() {
+      this.messageDataScanned = SCANNED;
+      DecoderImpl decoder = TLSEncode.getDecoder();
+      decoder.setBuffer(data.rewind());
+
+      resetMessageData();
 
       try {
          while (data.hasRemaining()) {
@@ -741,18 +800,22 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
+   public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
       int size = record.readInt();
       byte[] recordArray = new byte[size];
       record.readBytes(recordArray);
       data = ReadableBuffer.ByteBufferReader.wrap(ByteBuffer.wrap(recordArray));
 
-      // Message state is now that the underlying buffer is loaded but the contents
-      // not yet scanned, once done the message is fully populated and ready for dispatch.
-      // Force a scan now and tidy the state variables to reflect where we are following
-      // this reload from the store.
+      // Message state is now that the underlying buffer is loaded, but the contents not yet scanned
+      resetMessageData();
+      modified = false;
+      messageDataScanned = RELOAD_PERSISTENCE;
+   }
+
+   private synchronized void lazyScanAfterReloadPersistence() {
+      assert messageDataScanned == RELOAD_PERSISTENCE;
       scanMessageData();
-      messageDataScanned = true;
+      messageDataScanned = SCANNED;
       modified = false;
 
       // Message state should reflect that is came from persistent storage which
@@ -771,7 +834,7 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public Persister<org.apache.activemq.artemis.api.core.Message> getPersister() {
+   public Persister<org.apache.activemq.artemis.api.core.Message, CoreMessageObjectPools> getPersister() {
       return AMQPMessagePersisterV2.getInstance();
    }
 
@@ -798,7 +861,7 @@ public class AMQPMessage extends RefCountMessage {
 
    private synchronized void encodeMessage() {
       this.modified = false;
-      this.messageDataScanned = false;
+      this.messageDataScanned = NOT_SCANNED;
       int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
       EncoderImpl encoder = TLSEncode.getEncoder();
@@ -1115,6 +1178,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public RoutingType getRoutingType() {
+      ensureMessageDataScanned();
       Object routingType = getMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE);
 
       if (routingType != null) {
@@ -1184,7 +1248,38 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
+   public boolean hasScheduledDeliveryTime() {
+      if (scheduledTime >= 0) {
+         return true;
+      }
+      return anyMessageAnnotations(SCHEDULED_DELIVERY_SYMBOLS, SCHEDULED_DELIVERY_NEEDLES);
+   }
+
+   private boolean anyMessageAnnotations(Symbol[] symbols, KMPNeedle[] symbolNeedles) {
+      assert symbols.length == symbolNeedles.length;
+      final int count = symbols.length;
+      if (messageDataScanned == SCANNED) {
+         final MessageAnnotations messageAnnotations = this.messageAnnotations;
+         if (messageAnnotations == null) {
+            return false;
+         }
+         Map<Symbol, Object> map = messageAnnotations.getValue();
+         if (map == null) {
+            return false;
+         }
+         for (int i = 0; i < count; i++) {
+            if (map.containsKey(symbols[i])) {
+               return true;
+            }
+         }
+         return false;
+      }
+      return AMQPMessageSymbolSearch.anyMessageAnnotations(data, symbolNeedles);
+   }
+
+   @Override
    public Long getScheduledDeliveryTime() {
+      ensureMessageDataScanned();
       if (scheduledTime < 0) {
          Object objscheduledTime = getMessageAnnotation(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME);
          Object objdelay = getMessageAnnotation(AMQPMessageSupport.SCHEDULED_DELIVERY_DELAY);
