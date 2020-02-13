@@ -539,14 +539,14 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                try {
                   ((StreamMessage) jmsMessage).reset();
                } catch (JMSException e) {
-                  // HORNETQ-1209 XXX ignore?
+                  logger.debug("ignoring exception", e);
                }
             }
             if (jmsMessage instanceof BytesMessage) {
                try {
                   ((BytesMessage) jmsMessage).reset();
                } catch (JMSException e) {
-                  // HORNETQ-1209 XXX ignore?
+                  logger.debug("ignoring exception", e);
                }
             }
 
