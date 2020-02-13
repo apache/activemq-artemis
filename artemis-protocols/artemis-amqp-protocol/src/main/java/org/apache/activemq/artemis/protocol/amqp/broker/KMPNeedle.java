@@ -14,21 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils.algo;
+package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.util.Objects;
 
+import org.apache.qpid.proton.codec.ReadableBuffer;
+
 /**
  * Abstraction of {@code byte[] }<a href="https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">Knuth-Morris-Pratt</a>'s needle to be used
- * to perform pattern matching over indexed haystack of {@code byte}s.
+ * to perform pattern matching over {@link ReadableBuffer}.
  */
-public final class KMPNeedle {
-
-   @FunctionalInterface
-   public interface IndexedByteSupplier<S> {
-
-      byte get(S source, int index);
-   }
+final class KMPNeedle {
 
    private final int[] jumpTable;
    private final byte[] needle;
@@ -66,8 +62,10 @@ public final class KMPNeedle {
     * This version differ from the original algorithm, because allows to fail fast (and faster) if
     * the remaining haystack to be processed is < of the remaining needle to be matched.
     */
-   public <H> int searchInto(IndexedByteSupplier<? super H> haystackReader, H haystack, int end, int start) {
-      assert end >= 0 && start >= 0 && end >= start;
+   public int searchInto(ReadableBuffer haystack, int start, int end) {
+      if (end < 0 || start < 0 || end < start) {
+         return -1;
+      }
       final int length = end - start;
       int j = 0;
       final int needleLength = needle.length;
@@ -78,7 +76,7 @@ public final class KMPNeedle {
             return -1;
          }
          final int index = start + i;
-         final byte value = haystackReader.get(haystack, index);
+         final byte value = haystack.get(index);
          while (j > 0 && needle[j] != value) {
             j = jumpTable == null ? 0 : jumpTable[j];
             remainingNeedle = needleLength - j;
@@ -99,5 +97,5 @@ public final class KMPNeedle {
    public static KMPNeedle of(byte[] needle) {
       return new KMPNeedle(needle);
    }
-
 }
+
