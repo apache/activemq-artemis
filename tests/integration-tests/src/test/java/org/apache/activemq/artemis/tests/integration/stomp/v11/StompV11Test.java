@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -235,6 +236,33 @@ public class StompV11Test extends StompTestBase {
 
       IntegrationTestLogger.LOGGER.info("Got error frame " + reply);
 
+   }
+
+   @Test
+   public void testServerFrame() throws Exception {
+      { // the default case
+         ClientStompFrame frame = conn.connect(defUser, defPass);
+         conn.disconnect();
+         assertTrue(frame.getHeader(Stomp.Headers.Connected.SERVER) != null);
+         server.getRemotingService().destroyAcceptor("stomp");
+      }
+
+      { // explicitly set disableStompServerHeader=false
+         server.getRemotingService().createAcceptor("stomp", "tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_STOMP_PORT + "?" + TransportConstants.DISABLE_STOMP_SERVER_HEADER + "=false").start();
+         conn = StompClientConnectionFactory.createClientConnection(uri);
+         ClientStompFrame frame = conn.connect(defUser, defPass);
+         conn.disconnect();
+         assertTrue(frame.getHeader(Stomp.Headers.Connected.SERVER) != null);
+         server.getRemotingService().destroyAcceptor("stomp");
+      }
+
+      { // explicitly set disableStompServerHeader=true
+         server.getRemotingService().createAcceptor("stomp", "tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_STOMP_PORT + "?" + TransportConstants.DISABLE_STOMP_SERVER_HEADER + "=true").start();
+         conn = StompClientConnectionFactory.createClientConnection(uri);
+         ClientStompFrame frame = conn.connect(defUser, defPass);
+         conn.disconnect();
+         assertTrue(frame.getHeader(Stomp.Headers.Connected.SERVER) == null);
+      }
    }
 
    @Test
