@@ -447,7 +447,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229216, value = "Invalid queue name: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException invalidQueueName(SimpleString queueName);
 
-   @Message(id = 119217, value = "Can't write to closed file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 119217, value = "Cannot write to closed file: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIOErrorException cannotWriteToClosedFile(SequentialFile file);
 
    @Message(id = 229218, value = "Failed to locate broker configuration URL")
