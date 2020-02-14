@@ -169,6 +169,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String EXPIRY_ADDRESS_NODE_NAME = "expiry-address";
 
+   private static final String AUTO_CREATE_EXPIRY_RESOURCES_NODE_NAME = "auto-create-expiry-resources";
+
+   private static final String EXPIRY_QUEUE_PREFIX_NODE_NAME = "expiry-queue-prefix";
+
+   private static final String EXPIRY_QUEUE_SUFFIX_NODE_NAME = "expiry-queue-suffix";
+
    private static final String EXPIRY_DELAY_NODE_NAME = "expiry-delay";
 
    private static final String REDELIVERY_DELAY_NODE_NAME = "redelivery-delay";
@@ -1197,6 +1203,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setDeadLetterQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
          } else if (DEAD_LETTER_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDeadLetterQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
+         } else if (AUTO_CREATE_EXPIRY_RESOURCES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setAutoCreateExpiryResources(XMLUtil.parseBoolean(child));
+         } else if (EXPIRY_QUEUE_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setExpiryQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
+         } else if (EXPIRY_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setExpiryQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
          }
       }
       return setting;

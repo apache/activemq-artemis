@@ -2756,6 +2756,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("autoCreateDeadLetterResources", addressSettings.isAutoCreateDeadLetterResources())
             .add("deadLetterQueuePrefix", addressSettings.getDeadLetterQueuePrefix().toString())
             .add("deadLetterQueueSuffix", addressSettings.getDeadLetterQueueSuffix().toString())
+            .add("autoCreateExpiryResources", addressSettings.isAutoCreateExpiryResources())
+            .add("expiryQueuePrefix", addressSettings.getExpiryQueuePrefix().toString())
+            .add("expiryQueueSuffix", addressSettings.getExpiryQueueSuffix().toString())
             .build()
             .toString();
    }
@@ -2990,7 +2993,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                          retroactiveMessageCount,
                          AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES,
                          AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.toString(),
-                         AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX.toString());
+                         AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX.toString(),
+                         AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES,
+                         AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.toString(),
+                         AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX.toString());
    }
 
    @Override
@@ -3045,7 +3051,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final long retroactiveMessageCount,
                                   final boolean autoCreateDeadLetterResources,
                                   final String deadLetterQueuePrefix,
-                                  final String deadLetterQueueSuffix) throws Exception {
+                                  final String deadLetterQueueSuffix,
+                                  final boolean autoCreateExpiryResources,
+                                  final String expiryQueuePrefix,
+                                  final String expiryQueueSuffix) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.addAddressSettings(this.server, address, DLA, expiryAddress, expiryDelay, defaultLastValueQueue, maxDeliveryAttempts,
                   maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier,
@@ -3058,7 +3067,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                   defaultDelayBeforeDispatch, defaultQueueRoutingType, defaultAddressRoutingType, defaultConsumerWindowSize,
                   defaultRingSize, autoDeleteCreatedQueues, autoDeleteQueuesDelay, autoDeleteQueuesMessageCount,
                   autoDeleteAddressesDelay, redeliveryCollisionAvoidanceFactor, retroactiveMessageCount, autoCreateDeadLetterResources,
-                  deadLetterQueuePrefix, deadLetterQueueSuffix);
+                  deadLetterQueuePrefix, deadLetterQueueSuffix, autoCreateExpiryResources, expiryQueuePrefix,
+                  expiryQueueSuffix);
       }
       checkStarted();
 
@@ -3123,6 +3133,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoCreateDeadLetterResources(autoCreateDeadLetterResources);
       addressSettings.setDeadLetterQueuePrefix(deadLetterQueuePrefix == null ? null : new SimpleString(deadLetterQueuePrefix));
       addressSettings.setDeadLetterQueueSuffix(deadLetterQueueSuffix == null ? null : new SimpleString(deadLetterQueueSuffix));
+      addressSettings.setAutoCreateExpiryResources(autoCreateExpiryResources);
+      addressSettings.setExpiryQueuePrefix(expiryQueuePrefix == null ? null : new SimpleString(expiryQueuePrefix));
+      addressSettings.setExpiryQueueSuffix(expiryQueueSuffix == null ? null : new SimpleString(expiryQueueSuffix));
 
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 

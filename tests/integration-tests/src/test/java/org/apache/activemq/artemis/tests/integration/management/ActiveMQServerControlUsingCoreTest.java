@@ -1060,7 +1060,10 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "the number of messages to preserve for future queues created on the matching address", name = "retroactiveMessageCount") long retroactiveMessageCount,
                                         @Parameter(desc = "allow dead-letter address & queue to be created automatically", name = "autoCreateDeadLetterResources") boolean autoCreateDeadLetterResources,
                                         @Parameter(desc = "prefix to use on auto-create dead-letter queue", name = "deadLetterQueuePrefix") String deadLetterQueuePrefix,
-                                        @Parameter(desc = "suffix to use on auto-create dead-letter queue", name = "deadLetterQueueSuffix") String deadLetterQueueSuffix) throws Exception {
+                                        @Parameter(desc = "suffix to use on auto-create dead-letter queue", name = "deadLetterQueueSuffix") String deadLetterQueueSuffix,
+                                        @Parameter(desc = "allow expiry address & queue to be created automatically", name = "autoCreateExpiryResources") boolean autoCreateExpiryResources,
+                                        @Parameter(desc = "prefix to use on auto-create expiry queue", name = "expiryQueuePrefix") String expiryQueuePrefix,
+                                        @Parameter(desc = "suffix to use on auto-create expiry queue", name = "expiryQueueSuffix") String expiryQueueSuffix) throws Exception {
             proxy.invokeOperation("addAddressSettings",
                                   addressMatch,
                                   DLA,
@@ -1113,7 +1116,10 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   retroactiveMessageCount,
                                   autoCreateDeadLetterResources,
                                   deadLetterQueuePrefix,
-                                  deadLetterQueueSuffix);
+                                  deadLetterQueueSuffix,
+                                  autoCreateExpiryResources,
+                                  expiryQueuePrefix,
+                                  expiryQueueSuffix);
          }
 
          @Override

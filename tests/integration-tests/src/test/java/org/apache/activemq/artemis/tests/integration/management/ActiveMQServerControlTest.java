@@ -757,6 +757,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       boolean autoCreateDeadLetterResources = RandomUtil.randomBoolean();
       String deadLetterQueuePrefix = RandomUtil.randomString();
       String deadLetterQueueSuffix = RandomUtil.randomString();
+      boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
+      String expiryQueuePrefix = RandomUtil.randomString();
+      String expiryQueueSuffix = RandomUtil.randomString();
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -809,7 +812,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        retroactiveMessageCount,
                                        autoCreateDeadLetterResources,
                                        deadLetterQueuePrefix,
-                                       deadLetterQueueSuffix);
+                                       deadLetterQueueSuffix,
+                                       autoCreateExpiryResources,
+                                       expiryQueuePrefix,
+                                       expiryQueueSuffix);
 
       boolean ex = false;
       try {
@@ -864,7 +870,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           retroactiveMessageCount,
                                           autoCreateDeadLetterResources,
                                           deadLetterQueuePrefix,
-                                          deadLetterQueueSuffix);
+                                          deadLetterQueueSuffix,
+                                          autoCreateExpiryResources,
+                                          expiryQueuePrefix,
+                                          expiryQueueSuffix);
       } catch (Exception expected) {
          ex = true;
       }
@@ -926,6 +935,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoCreateDeadLetterResources, info.isAutoCreateDeadLetterResources());
       assertEquals(deadLetterQueuePrefix, info.getDeadLetterQueuePrefix());
       assertEquals(deadLetterQueueSuffix, info.getDeadLetterQueueSuffix());
+      assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -978,7 +990,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        retroactiveMessageCount,
                                        autoCreateDeadLetterResources,
                                        deadLetterQueuePrefix,
-                                       deadLetterQueueSuffix);
+                                       deadLetterQueueSuffix,
+                                       autoCreateExpiryResources,
+                                       expiryQueuePrefix,
+                                       expiryQueueSuffix);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -1033,6 +1048,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoCreateDeadLetterResources, info.isAutoCreateDeadLetterResources());
       assertEquals(deadLetterQueuePrefix, info.getDeadLetterQueuePrefix());
       assertEquals(deadLetterQueueSuffix, info.getDeadLetterQueueSuffix());
+      assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
 
       ex = false;
       try {
@@ -1087,7 +1105,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           retroactiveMessageCount,
                                           autoCreateDeadLetterResources,
                                           deadLetterQueuePrefix,
-                                          deadLetterQueueSuffix);
+                                          deadLetterQueueSuffix,
+                                          autoCreateExpiryResources,
+                                          expiryQueuePrefix,
+                                          expiryQueueSuffix);
       } catch (Exception e) {
          ex = true;
       }
