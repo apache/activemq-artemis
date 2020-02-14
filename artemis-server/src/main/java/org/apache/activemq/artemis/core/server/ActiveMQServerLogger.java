@@ -1967,7 +1967,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224082, value = "Failed to invoke an interceptor", format = Message.Format.MESSAGE_FORMAT)
-   void failedToInvokeAninterceptor(@Cause Exception e);
+   void failedToInvokeAnInterceptor(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224083, value = "Failed to close context", format = Message.Format.MESSAGE_FORMAT)

@@ -294,12 +294,12 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return prefixes;
    }
 
-   public void invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      super.invokeInterceptors(this.incomingInterceptors, message, connection);
+   public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      return super.invokeInterceptors(this.incomingInterceptors, message, connection);
    }
 
-   public void invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      super.invokeInterceptors(this.outgoingInterceptors, message, connection);
+   public String invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      return super.invokeInterceptors(this.outgoingInterceptors, message, connection);
    }
 
    public int getInitialRemoteMaxFrameSize() {

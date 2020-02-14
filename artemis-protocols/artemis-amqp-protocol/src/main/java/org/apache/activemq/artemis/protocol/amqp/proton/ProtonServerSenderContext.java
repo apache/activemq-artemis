@@ -787,7 +787,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
          AMQPMessage message = CoreAmqpConverter.checkAMQP(messageReference.getMessage());
 
-         sessionSPI.invokeOutgoing(message, (ActiveMQProtonRemotingConnection) sessionSPI.getTransportConnection().getProtocolConnection());
+         if (sessionSPI.invokeOutgoing(message, (ActiveMQProtonRemotingConnection) sessionSPI.getTransportConnection().getProtocolConnection()) != null) {
+            return;
+         }
 
          // Let the Message decide how to present the message bytes
          ReadableBuffer sendBuffer = message.getSendBuffer(messageReference.getDeliveryCount());
