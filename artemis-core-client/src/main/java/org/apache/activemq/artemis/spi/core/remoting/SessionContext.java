@@ -164,6 +164,8 @@ public abstract class SessionContext {
 
    public abstract void setSendAcknowledgementHandler(SendAcknowledgementHandler handler);
 
+   public abstract SendAcknowledgementHandler getSendAcknowledgementHandler();
+
    /**
     * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of delivery
     * then the default delivery mode (MULTICAST) is used.
