@@ -109,6 +109,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    // Default address drop threshold, applied to address settings with BLOCK policy.  -1 means no threshold enabled.
    public static final long DEFAULT_ADDRESS_REJECT_THRESHOLD = -1;
 
+   public static final boolean DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES = false;
+
+   public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_PREFIX = SimpleString.toSimpleString("DLQ.");
+
+   public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_SUFFIX = SimpleString.toSimpleString("");
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -215,6 +221,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer defaultConsumerWindowSize = null;
 
+   private Boolean autoCreateDeadLetterResources = null;
+
+   private SimpleString deadLetterQueuePrefix = null;
+
+   private SimpleString deadLetterQueueSuffix = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -232,6 +244,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.redeliveryCollisionAvoidanceFactor = other.redeliveryCollisionAvoidanceFactor;
       this.maxRedeliveryDelay = other.maxRedeliveryDelay;
       this.deadLetterAddress = other.deadLetterAddress;
+      this.autoCreateDeadLetterResources = other.autoCreateDeadLetterResources;
+      this.deadLetterQueuePrefix = other.deadLetterQueuePrefix;
+      this.deadLetterQueueSuffix = other.deadLetterQueueSuffix;
       this.expiryAddress = other.expiryAddress;
       this.expiryDelay = other.expiryDelay;
       this.defaultLastValueQueue = other.defaultLastValueQueue;
@@ -629,6 +644,33 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public boolean isAutoCreateDeadLetterResources() {
+      return autoCreateDeadLetterResources != null ? autoCreateDeadLetterResources : AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES;
+   }
+
+   public AddressSettings setAutoCreateDeadLetterResources(final boolean value) {
+      autoCreateDeadLetterResources = value;
+      return this;
+   }
+
+   public SimpleString getDeadLetterQueuePrefix() {
+      return deadLetterQueuePrefix != null ? deadLetterQueuePrefix : AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX;
+   }
+
+   public AddressSettings setDeadLetterQueuePrefix(final SimpleString value) {
+      deadLetterQueuePrefix = value;
+      return this;
+   }
+
+   public SimpleString getDeadLetterQueueSuffix() {
+      return deadLetterQueueSuffix != null ? deadLetterQueueSuffix : AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX;
+   }
+
+   public AddressSettings setDeadLetterQueueSuffix(final SimpleString value) {
+      deadLetterQueueSuffix = value;
+      return this;
+   }
+
    public long getRedistributionDelay() {
       return redistributionDelay != null ? redistributionDelay : AddressSettings.DEFAULT_REDISTRIBUTION_DELAY;
    }
@@ -933,6 +975,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (retroactiveMessageCount == null) {
          retroactiveMessageCount = merged.retroactiveMessageCount;
       }
+      if (autoCreateDeadLetterResources == null) {
+         autoCreateDeadLetterResources = merged.autoCreateDeadLetterResources;
+      }
+      if (deadLetterQueuePrefix == null) {
+         deadLetterQueuePrefix = merged.deadLetterQueuePrefix;
+      }
+      if (deadLetterQueueSuffix == null) {
+         deadLetterQueueSuffix = merged.deadLetterQueueSuffix;
+      }
    }
 
    @Override
@@ -1105,6 +1156,18 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          retroactiveMessageCount = BufferHelper.readNullableLong(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         autoCreateDeadLetterResources = BufferHelper.readNullableBoolean(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         deadLetterQueuePrefix = buffer.readNullableSimpleString();
+      }
+
+      if (buffer.readableBytes() > 0) {
+         deadLetterQueueSuffix = buffer.readNullableSimpleString();
+      }
    }
 
    @Override
@@ -1158,7 +1221,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(autoDeleteQueuesMessageCount) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteCreatedQueues) +
          BufferHelper.sizeOfNullableLong(defaultRingSize) +
-         BufferHelper.sizeOfNullableLong(retroactiveMessageCount);
+         BufferHelper.sizeOfNullableLong(retroactiveMessageCount) +
+         BufferHelper.sizeOfNullableBoolean(autoCreateDeadLetterResources) +
+         SimpleString.sizeofNullableString(deadLetterQueuePrefix) +
+         SimpleString.sizeofNullableString(deadLetterQueueSuffix);
    }
 
    @Override
@@ -1264,6 +1330,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       buffer.writeNullableSimpleString(defaultGroupFirstKey);
 
       BufferHelper.writeNullableLong(buffer, retroactiveMessageCount);
+
+      BufferHelper.writeNullableBoolean(buffer, autoCreateDeadLetterResources);
+
+      buffer.writeNullableSimpleString(deadLetterQueuePrefix);
+
+      buffer.writeNullableSimpleString(deadLetterQueueSuffix);
    }
 
    /* (non-Javadoc)
@@ -1325,6 +1397,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((defaultGroupFirstKey == null) ? 0 : defaultGroupFirstKey.hashCode());
       result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
       result = prime * result + ((retroactiveMessageCount == null) ? 0 : retroactiveMessageCount.hashCode());
+      result = prime * result + ((autoCreateDeadLetterResources == null) ? 0 : autoCreateDeadLetterResources.hashCode());
+      result = prime * result + ((deadLetterQueuePrefix == null) ? 0 : deadLetterQueuePrefix.hashCode());
+      result = prime * result + ((deadLetterQueueSuffix == null) ? 0 : deadLetterQueueSuffix.hashCode());
       return result;
    }
 
@@ -1613,6 +1688,25 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!retroactiveMessageCount.equals(other.retroactiveMessageCount))
          return false;
+
+      if (autoCreateDeadLetterResources == null) {
+         if (other.autoCreateDeadLetterResources != null)
+            return false;
+      } else if (!autoCreateDeadLetterResources.equals(other.autoCreateDeadLetterResources))
+         return false;
+
+      if (deadLetterQueuePrefix == null) {
+         if (other.deadLetterQueuePrefix != null)
+            return false;
+      } else if (!deadLetterQueuePrefix.equals(other.deadLetterQueuePrefix))
+         return false;
+
+      if (deadLetterQueueSuffix == null) {
+         if (other.deadLetterQueueSuffix != null)
+            return false;
+      } else if (!deadLetterQueueSuffix.equals(other.deadLetterQueueSuffix))
+         return false;
+
       return true;
    }
 
@@ -1722,6 +1816,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          defaultRingSize +
          ", retroactiveMessageCount=" +
          retroactiveMessageCount +
+         ", autoCreateDeadLetterResources=" +
+         autoCreateDeadLetterResources +
+         ", deadLetterQueuePrefix=" +
+         deadLetterQueuePrefix +
+         ", deadLetterQueueSuffix=" +
+         deadLetterQueueSuffix +
          "]";
    }
 }
