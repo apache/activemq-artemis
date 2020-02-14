@@ -204,6 +204,9 @@ Name | Description | Default
 ---|---|---
 [match](address-model.md) | The filter to apply to the setting | n/a
 [dead-letter-address](undelivered-messages.md) | Dead letter address | n/a
+[auto-create-dead-letter-resources](undelivered-messages.md) | Whether or not to auto-create dead-letter address and/or queue | `false`
+[dead-letter-queue-prefix](undelivered-messages.md) | Prefix to use for auto-created dead-letter queues | `DLQ.`
+[dead-letter-queue-suffix](undelivered-messages.md) | Suffix to use for auto-created dead-letter queues | `` (empty)
 [expiry-address](message-expiry.md) | Expired messages address | n/a
 [expiry-delay](message-expiry.md) | Expiration time override; -1 don't override | -1
 [redelivery-delay](undelivered-messages.md) | Time to wait before redelivering a message | 0

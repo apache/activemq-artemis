@@ -3340,6 +3340,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                         final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
+
+         createDeadLetterResources();
+
          Bindings bindingList = postOffice.lookupBindingsForAddress(deadLetterAddress);
 
          if (bindingList == null || bindingList.getBindings().isEmpty()) {
@@ -3357,6 +3360,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       return false;
+   }
+
+   private void createDeadLetterResources() throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
+      if (addressSettings.isAutoCreateDeadLetterResources() && !getAddress().equals(addressSettings.getDeadLetterAddress())) {
+         if (addressSettings.getDeadLetterAddress() != null && addressSettings.getDeadLetterAddress().length() != 0) {
+            SimpleString dlqName = addressSettings.getDeadLetterQueuePrefix().concat(getAddress()).concat(addressSettings.getDeadLetterQueueSuffix());
+            SimpleString dlqFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            server.createQueue(addressSettings.getDeadLetterAddress(), RoutingType.MULTICAST, dlqName, dlqFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+         }
+      }
    }
 
    private void move(final Transaction originalTX,
