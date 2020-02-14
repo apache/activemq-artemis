@@ -100,11 +100,11 @@ must be between 0.0 and 1.0.
   `java.util.Random`)
 
 1. Delivery Attempt 1. (Unsuccessful)
-2. Wait Delay Period: 875                     // 1000 + (1000 * ((0.5 * __-1__) * __.25__)
+2. Wait Delay Period: 875                     // 1000 + (1000 * ((0.5 \* __-1__) * __.25__)
 3. Delivery Attempt 2. (Unsuccessful)
-4. Wait Delay Period: 1375                    // 1000 + (1000 * ((0.5 * __1__) * __.75__)
+4. Wait Delay Period: 1375                    // 1000 + (1000 * ((0.5 \* __1__) * __.75__)
 5. Delivery Attempt 3: (Unsuccessful)
-6. Wait Delay Period: 975                     // 1000 + (1000 * ((0.5 * __-1__) * __.05__)
+6. Wait Delay Period: 975                     // 1000 + (1000 * ((0.5 \* __-1__) * __.05__)
 
 This feature can be particularly useful in environments where there are
 multiple consumers on the same queue all interacting transactionally
@@ -117,8 +117,8 @@ small, configurable amount these redelivery "collisions" can be avoided.
 
 ### Example
 
-See [the examples chapter](examples.md) for an example which shows how delayed redelivery is configured
-and used with JMS.
+See [the examples chapter](examples.md) for an example which shows how
+delayed redelivery is configured and used with JMS.
 
 ## Dead Letter Addresses
 
@@ -145,7 +145,7 @@ Dead letter address is defined in the address-setting configuration:
 <!-- undelivered messages in exampleQueue will be sent to the dead letter address
 deadLetterQueue after 3 unsuccessful delivery attempts -->
 <address-setting match="exampleQueue">
-   <dead-letter-address>deadLetterQueue</dead-letter-address>
+   <dead-letter-address>deadLetterAddress</dead-letter-address>
    <max-delivery-attempts>3</max-delivery-attempts>
 </address-setting>
 ```
@@ -178,10 +178,63 @@ the following properties:
   a String property containing the *original queue* of the dead letter
   message
 
+### Automatically Creating Dead Letter Resources
+
+It's common to segregate undelivered messages by their original address.
+For example, a message sent to the `stocks` address that couldn't be
+delivered for some reason might be ultimately routed to the `DLQ.stocks`
+queue, and likewise a message sent to the `orders` address that couldn't
+be delivered might be routed to the `DLQ.orders` queue.
+
+Using this pattern can make it easy to track and administrate
+undelivered messages. However, it can pose a challenge in environments
+which predominantly use auto-created addresses and queues. Typically
+administrators in those environments don't want to manually create
+an `address-setting` to configure the `dead-letter-address` much less
+the actual `address` and `queue` to hold the undelivered messages.
+
+The solution to this problem is to set the `auto-create-dead-letter-resources`
+`address-setting` to `true` (it's `false` by default) so that the
+broker will create the `address` and `queue` to deal with the
+undelivered messages automatically. The `address` created will be the
+one defined by the `dead-letter-address`. A `MULTICAST` `queue` will be
+created on that `address`. It will be named by the `address` to which
+the message was originally sent, and it will have a filter defined using
+the aforementioned `_AMQ_ORIG_ADDRESS` property so that it will only
+receive messages sent to the relevant `address`. The `queue` name can be
+configured with a prefix and suffix. See the relevant settings in the
+table below:
+
+`address-setting`|default
+---|---
+`dead-letter-queue-prefix`|`DLQ.`
+`dead-letter-queue-suffix`|`` (empty string)
+
+Here is an example configuration:
+
+```xml
+<address-setting match="#">
+   <dead-letter-address>DLA</dead-letter-address>
+   <max-delivery-attempts>3</max-delivery-attempts>
+   <auto-create-dead-letter-resources>true</auto-create-dead-letter-resources>
+   <dead-letter-queue-prefix></dead-letter-queue-prefix> <!-- override the default -->
+   <dead-letter-queue-suffix>.DLQ</dead-letter-queue-suffix>
+</address-setting>
+```
+
+The queue holding the undeliverable messages can be accessed directly
+either by using the queue's name by itself (e.g. when using the core
+client) or by using the fully qualified queue name (e.g. when using
+a JMS client) just like any other queue. Also, note that the queue is
+auto-created which means it will be auto-deleted as per the relevant
+`address-settings`.
+
+
 ### Example
 
 See: Dead Letter section of the [Examples](examples.md) for an example
-that shows how dead letter is configured and used with JMS.
+that shows how dead letter resources can be statically configured and
+used with JMS.
 
 ## Delivery Count Persistence
 

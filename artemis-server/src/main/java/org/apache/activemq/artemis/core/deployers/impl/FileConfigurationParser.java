@@ -161,6 +161,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEAD_LETTER_ADDRESS_NODE_NAME = "dead-letter-address";
 
+   private static final String AUTO_CREATE_DEAD_LETTER_RESOURCES_NODE_NAME = "auto-create-dead-letter-resources";
+
+   private static final String DEAD_LETTER_QUEUE_PREFIX_NODE_NAME = "dead-letter-queue-prefix";
+
+   private static final String DEAD_LETTER_QUEUE_SUFFIX_NODE_NAME = "dead-letter-queue-suffix";
+
    private static final String EXPIRY_ADDRESS_NODE_NAME = "expiry-address";
 
    private static final String EXPIRY_DELAY_NODE_NAME = "expiry-delay";
@@ -1185,6 +1191,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             long retroactiveMessageCount = XMLUtil.parseLong(child);
             Validators.GE_ZERO.validate(RETROACTIVE_MESSAGE_COUNT, retroactiveMessageCount);
             addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
+         } else if (AUTO_CREATE_DEAD_LETTER_RESOURCES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setAutoCreateDeadLetterResources(XMLUtil.parseBoolean(child));
+         } else if (DEAD_LETTER_QUEUE_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setDeadLetterQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
+         } else if (DEAD_LETTER_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setDeadLetterQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
          }
       }
       return setting;
