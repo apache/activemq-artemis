@@ -80,7 +80,10 @@ public class AddressSettingsInfoTest {
          "\"retroactiveMessageCount\":101,\n" +
          "\"autoCreateDeadLetterResources\":true,\n" +
          "\"deadLetterQueuePrefix\":\"FOO.\",\n" +
-         "\"deadLetterQueueSuffix\":\".FOO\"\n" +
+         "\"deadLetterQueueSuffix\":\".FOO\",\n" +
+         "\"autoCreateExpiryResources\":true,\n" +
+         "\"expiryQueuePrefix\":\"BAR.\",\n" +
+         "\"expiryQueueSuffix\":\".BAR\"\n" +
          "}";
       AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.from(json);
       assertEquals("fullPolicy", addressSettingsInfo.getAddressFullMessagePolicy());
@@ -133,6 +136,9 @@ public class AddressSettingsInfoTest {
       assertTrue(addressSettingsInfo.isAutoCreateDeadLetterResources());
       assertEquals("FOO.", addressSettingsInfo.getDeadLetterQueuePrefix());
       assertEquals(".FOO", addressSettingsInfo.getDeadLetterQueueSuffix());
+      assertTrue(addressSettingsInfo.isAutoCreateExpiryResources());
+      assertEquals("BAR.", addressSettingsInfo.getExpiryQueuePrefix());
+      assertEquals(".BAR", addressSettingsInfo.getExpiryQueueSuffix());
    }
 
 }
