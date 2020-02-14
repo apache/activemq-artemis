@@ -728,7 +728,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       Page page = pages.remove(packet.getPageNumber());
 
       if (page == null) {
-         page = getPage(packet.getStoreName(), packet.getPageNumber());
+         // if page is null, we create it the instance and include it on the map
+         // then we must recurse this call
+         // so page.delete or page.close will not leave any closed objects on the hashmap
+         getPage(packet.getStoreName(), packet.getPageNumber());
+         handlePageEvent(packet);
+         return;
       }
 
       if (page != null) {
