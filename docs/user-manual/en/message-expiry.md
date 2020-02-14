@@ -53,6 +53,7 @@ Default Expiry delay can be configured in the address-setting configuration:
 ```xml
 <!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
 <address-setting match="exampleQueue">
+   <expiry-address>expiryQueue</expiry-address>
    <expiry-delay>10</expiry-delay>
 </address-setting>
 ```
@@ -81,6 +82,56 @@ Expiry address are defined in the address-setting configuration:
 If messages are expired and no expiry address is specified, messages are simply
 removed from the queue and dropped. Address [wildcards](wildcard-syntax.md) can
 be used to configure expiry address for a set of addresses.
+
+## Configuring Automatic Creation of Expiry Resources
+
+It's common to segregate expired messages by their original address.
+For example, a message sent to the `stocks` address that expired for some
+reason might be ultimately routed to the `EXP.stocks` queue, and likewise
+a message sent to the `orders` address that expired might be routed to
+the `EXP.orders` queue.
+
+Using this pattern can make it easy to track and administrate
+expired messages. However, it can pose a challenge in environments
+which predominantly use auto-created addresses and queues. Typically
+administrators in those environments don't want to manually create
+an `address-setting` to configure the `expiry-address` much less
+the actual `address` and `queue` to hold the expired messages.
+
+The solution to this problem is to set the `auto-create-expiry-resources`
+`address-setting` to `true` (it's `false` by default) so that the
+broker will create the `address` and `queue` to deal with the
+expired messages automatically. The `address` created will be the
+one defined by the `expiry-address`. A `MULTICAST` `queue` will be
+created on that `address`. It will be named by the `address` to which
+the message was originally sent, and it will have a filter defined using
+the aforementioned `_AMQ_ORIG_ADDRESS` property so that it will only
+receive messages sent to the relevant `address`. The `queue` name can be
+configured with a prefix and suffix. See the relevant settings in the
+table below:
+
+`address-setting`|default
+---|---
+`expiry-queue-prefix`|`EXP.`
+`expiry-queue-suffix`|`` (empty string)
+
+Here is an example configuration:
+
+```xml
+<address-setting match="#">
+   <expiry-address>expiryAddress</expiry-address>
+   <auto-create-expiry-resources>true</auto-create-expiry-resources>
+   <expiry-queue-prefix></expiry-queue-prefix> <!-- override the default -->
+   <expiry-queue-suffix>.EXP</expiry-queue-suffix>
+</address-setting>
+```
+
+The queue holding the expired messages can be accessed directly
+either by using the queue's name by itself (e.g. when using the core
+client) or by using the fully qualified queue name (e.g. when using
+a JMS client) just like any other queue. Also, note that the queue is
+auto-created which means it will be auto-deleted as per the relevant
+`address-settings`.
 
 ## Configuring The Expiry Reaper Thread
 

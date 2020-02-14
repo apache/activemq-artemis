@@ -346,6 +346,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX, conf.getAddressesSettings().get("a1").getDeadLetterQueuePrefix());
       assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX, conf.getAddressesSettings().get("a1").getDeadLetterQueueSuffix());
       assertEquals("a1.2", conf.getAddressesSettings().get("a1").getExpiryAddress().toString());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES, conf.getAddressesSettings().get("a1").isAutoCreateExpiryResources());
+      assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX, conf.getAddressesSettings().get("a1").getExpiryQueuePrefix());
+      assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX, conf.getAddressesSettings().get("a1").getExpiryQueueSuffix());
       assertEquals(1, conf.getAddressesSettings().get("a1").getRedeliveryDelay());
       assertEquals(0.5, conf.getAddressesSettings().get("a1").getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(856686592L, conf.getAddressesSettings().get("a1").getMaxSizeBytes());
@@ -373,6 +376,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("", conf.getAddressesSettings().get("a2").getDeadLetterQueuePrefix().toString());
       assertEquals(".DLQ", conf.getAddressesSettings().get("a2").getDeadLetterQueueSuffix().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
+      assertEquals(true, conf.getAddressesSettings().get("a2").isAutoCreateDeadLetterResources());
+      assertEquals("", conf.getAddressesSettings().get("a2").getExpiryQueuePrefix().toString());
+      assertEquals(".EXP", conf.getAddressesSettings().get("a2").getExpiryQueueSuffix().toString());
       assertEquals(5, conf.getAddressesSettings().get("a2").getRedeliveryDelay());
       assertEquals(0.0, conf.getAddressesSettings().get("a2").getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(932489234928324L, conf.getAddressesSettings().get("a2").getMaxSizeBytes());

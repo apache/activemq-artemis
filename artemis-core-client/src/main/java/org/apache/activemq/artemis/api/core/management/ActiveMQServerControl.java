@@ -1442,7 +1442,10 @@ public interface ActiveMQServerControl {
                            @Parameter(desc = "the number of messages to preserve for future queues created on the matching address", name = "retroactiveMessageCount") long retroactiveMessageCount,
                            @Parameter(desc = "allow dead-letter address & queue to be created automatically", name = "autoCreateDeadLetterResources") boolean autoCreateDeadLetterResources,
                            @Parameter(desc = "prefix to use on auto-create dead-letter queue", name = "deadLetterQueuePrefix") String deadLetterQueuePrefix,
-                           @Parameter(desc = "suffix to use on auto-create dead-letter queue", name = "deadLetterQueueSuffix") String deadLetterQueueSuffix) throws Exception;
+                           @Parameter(desc = "suffix to use on auto-create dead-letter queue", name = "deadLetterQueueSuffix") String deadLetterQueueSuffix,
+                           @Parameter(desc = "allow expiry address & queue to be created automatically", name = "autoCreateExpiryResources") boolean autoCreateExpiryResources,
+                           @Parameter(desc = "prefix to use on auto-create expiry queue", name = "expiryQueuePrefix") String expiryQueuePrefix,
+                           @Parameter(desc = "suffix to use on auto-create expiry queue", name = "expiryQueueSuffix") String expiryQueueSuffix) throws Exception;
 
    @Operation(desc = "Remove address settings", impact = MBeanOperationInfo.ACTION)
    void removeAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;

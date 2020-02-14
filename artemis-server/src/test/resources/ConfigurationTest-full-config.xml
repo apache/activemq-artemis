@@ -442,6 +442,9 @@
             <dead-letter-queue-prefix></dead-letter-queue-prefix>
             <dead-letter-queue-suffix>.DLQ</dead-letter-queue-suffix>
             <expiry-address>a2.2</expiry-address>
+            <auto-create-expiry-resources>true</auto-create-expiry-resources>
+            <expiry-queue-prefix></expiry-queue-prefix>
+            <expiry-queue-suffix>.EXP</expiry-queue-suffix>
             <redelivery-delay>5</redelivery-delay>
             <max-size-bytes>932489234928324</max-size-bytes>
             <page-size-bytes>712671626</page-size-bytes>

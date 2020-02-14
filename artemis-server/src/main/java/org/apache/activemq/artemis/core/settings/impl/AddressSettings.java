@@ -92,6 +92,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final long DEFAULT_REDISTRIBUTION_DELAY = -1;
 
+   public static final boolean DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES = false;
+
+   public static final SimpleString DEFAULT_EXPIRY_QUEUE_PREFIX = SimpleString.toSimpleString("EXP.");
+
+   public static final SimpleString DEFAULT_EXPIRY_QUEUE_SUFFIX = SimpleString.toSimpleString("");
+
    public static final long DEFAULT_EXPIRY_DELAY = -1;
 
    public static final boolean DEFAULT_SEND_TO_DLA_ON_NO_ROUTE = false;
@@ -227,6 +233,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private SimpleString deadLetterQueueSuffix = null;
 
+   private Boolean autoCreateExpiryResources = null;
+
+   private SimpleString expiryQueuePrefix = null;
+
+   private SimpleString expiryQueueSuffix = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -248,6 +260,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.deadLetterQueuePrefix = other.deadLetterQueuePrefix;
       this.deadLetterQueueSuffix = other.deadLetterQueueSuffix;
       this.expiryAddress = other.expiryAddress;
+      this.autoCreateExpiryResources = other.autoCreateExpiryResources;
+      this.expiryQueuePrefix = other.expiryQueuePrefix;
+      this.expiryQueueSuffix = other.expiryQueueSuffix;
       this.expiryDelay = other.expiryDelay;
       this.defaultLastValueQueue = other.defaultLastValueQueue;
       this.defaultLastValueKey = other.defaultLastValueKey;
@@ -626,6 +641,33 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public boolean isAutoCreateExpiryResources() {
+      return autoCreateExpiryResources != null ? autoCreateExpiryResources : AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES;
+   }
+
+   public AddressSettings setAutoCreateExpiryResources(final boolean value) {
+      autoCreateExpiryResources = value;
+      return this;
+   }
+
+   public SimpleString getExpiryQueuePrefix() {
+      return expiryQueuePrefix != null ? expiryQueuePrefix : AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX;
+   }
+
+   public AddressSettings setExpiryQueuePrefix(final SimpleString value) {
+      expiryQueuePrefix = value;
+      return this;
+   }
+
+   public SimpleString getExpiryQueueSuffix() {
+      return expiryQueueSuffix != null ? expiryQueueSuffix : AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX;
+   }
+
+   public AddressSettings setExpiryQueueSuffix(final SimpleString value) {
+      expiryQueueSuffix = value;
+      return this;
+   }
+
    public Long getExpiryDelay() {
       return expiryDelay;
    }
@@ -984,6 +1026,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (deadLetterQueueSuffix == null) {
          deadLetterQueueSuffix = merged.deadLetterQueueSuffix;
       }
+      if (autoCreateExpiryResources == null) {
+         autoCreateExpiryResources = merged.autoCreateExpiryResources;
+      }
+      if (expiryQueuePrefix == null) {
+         expiryQueuePrefix = merged.expiryQueuePrefix;
+      }
+      if (expiryQueueSuffix == null) {
+         expiryQueueSuffix = merged.expiryQueueSuffix;
+      }
    }
 
    @Override
@@ -1168,6 +1219,18 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          deadLetterQueueSuffix = buffer.readNullableSimpleString();
       }
+
+      if (buffer.readableBytes() > 0) {
+         autoCreateExpiryResources = BufferHelper.readNullableBoolean(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         expiryQueuePrefix = buffer.readNullableSimpleString();
+      }
+
+      if (buffer.readableBytes() > 0) {
+         expiryQueueSuffix = buffer.readNullableSimpleString();
+      }
    }
 
    @Override
@@ -1224,7 +1287,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(retroactiveMessageCount) +
          BufferHelper.sizeOfNullableBoolean(autoCreateDeadLetterResources) +
          SimpleString.sizeofNullableString(deadLetterQueuePrefix) +
-         SimpleString.sizeofNullableString(deadLetterQueueSuffix);
+         SimpleString.sizeofNullableString(deadLetterQueueSuffix) +
+         BufferHelper.sizeOfNullableBoolean(autoCreateExpiryResources) +
+         SimpleString.sizeofNullableString(expiryQueuePrefix) +
+         SimpleString.sizeofNullableString(expiryQueueSuffix);
    }
 
    @Override
@@ -1336,6 +1402,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       buffer.writeNullableSimpleString(deadLetterQueuePrefix);
 
       buffer.writeNullableSimpleString(deadLetterQueueSuffix);
+
+      BufferHelper.writeNullableBoolean(buffer, autoCreateExpiryResources);
+
+      buffer.writeNullableSimpleString(expiryQueuePrefix);
+
+      buffer.writeNullableSimpleString(expiryQueueSuffix);
    }
 
    /* (non-Javadoc)
@@ -1400,6 +1472,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoCreateDeadLetterResources == null) ? 0 : autoCreateDeadLetterResources.hashCode());
       result = prime * result + ((deadLetterQueuePrefix == null) ? 0 : deadLetterQueuePrefix.hashCode());
       result = prime * result + ((deadLetterQueueSuffix == null) ? 0 : deadLetterQueueSuffix.hashCode());
+      result = prime * result + ((autoCreateExpiryResources == null) ? 0 : autoCreateExpiryResources.hashCode());
+      result = prime * result + ((expiryQueuePrefix == null) ? 0 : expiryQueuePrefix.hashCode());
+      result = prime * result + ((expiryQueueSuffix == null) ? 0 : expiryQueueSuffix.hashCode());
       return result;
    }
 
@@ -1707,6 +1782,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!deadLetterQueueSuffix.equals(other.deadLetterQueueSuffix))
          return false;
 
+      if (autoCreateExpiryResources == null) {
+         if (other.autoCreateExpiryResources != null)
+            return false;
+      } else if (!autoCreateExpiryResources.equals(other.autoCreateExpiryResources))
+         return false;
+
+      if (expiryQueuePrefix == null) {
+         if (other.expiryQueuePrefix != null)
+            return false;
+      } else if (!expiryQueuePrefix.equals(other.expiryQueuePrefix))
+         return false;
+
+      if (expiryQueueSuffix == null) {
+         if (other.expiryQueueSuffix != null)
+            return false;
+      } else if (!expiryQueueSuffix.equals(other.expiryQueueSuffix))
+         return false;
+
       return true;
    }
 
@@ -1822,6 +1915,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          deadLetterQueuePrefix +
          ", deadLetterQueueSuffix=" +
          deadLetterQueueSuffix +
+         ", autoCreateExpiryResources=" +
+         autoCreateExpiryResources +
+         ", expiryQueuePrefix=" +
+         expiryQueuePrefix +
+         ", expiryQueueSuffix=" +
+         expiryQueueSuffix +
          "]";
    }
 }

@@ -573,6 +573,9 @@ that would be found in the `broker.xml` file.
       <dead-letter-queue-prefix>DLQ.</dead-letter-queue-prefix>
       <dead-letter-queue-suffix></dead-letter-queue-suffix>
       <expiry-address>ExpiryQueue</expiry-address>
+      <auto-create-expiry-resources>false</auto-create-expiry-resources>
+      <expiry-queue-prefix>EXP.</expiry-queue-prefix>
+      <expiry-queue-suffix></expiry-queue-suffix>
       <expiry-delay>123</expiry-delay>
       <redelivery-delay>5000</redelivery-delay>
       <redelivery-delay-multiplier>1.0</redelivery-delay-multiplier>
@@ -655,6 +658,17 @@ dead-letter queues. Read more in the chapter about
 `expiry-address` defines where to send a message that has expired. If no
 address is defined here then such messages will simply be discarded. Read more
 about [message expiry](message-expiry.md#configuring-expiry-addresses).
+
+`auto-create-expiry-resources` determines whether or not the broker will
+automatically create the defined `expiry-address` and a corresponding expiry
+queue when a message expired. Read more in the chapter about
+[undelivered messages](undelivered-messages.md).
+
+`expiry-queue-prefix` defines the prefix used for automatically created expiry
+queues. Read more in the chapter about [message expiry](message-expiry.md).
+
+`expiry-queue-suffix` defines the suffix used for automatically created expiry
+queues. Read more in the chapter about [message expiry](message-expiry.md).
 
 `expiry-delay` defines the expiration time that will be used for messages which
 are using the default expiration time (i.e. 0). For example, if `expiry-delay`

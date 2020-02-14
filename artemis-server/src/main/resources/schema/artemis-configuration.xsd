@@ -3102,6 +3102,31 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="auto-create-expiry-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create the expiry-address and/or a corresponding queue
+                     on that address when a message is sent to a matching queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="expiry-queue-prefix" type="xsd:string" default="EXP." maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the prefix to use for auto-created expiry queues
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="expiry-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the suffix to use for auto-created expiry queues
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>

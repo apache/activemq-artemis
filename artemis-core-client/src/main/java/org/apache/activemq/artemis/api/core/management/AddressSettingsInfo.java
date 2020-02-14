@@ -123,6 +123,12 @@ public final class AddressSettingsInfo {
 
    private final String deadLetterQueueSuffix;
 
+   private final boolean autoCreateExpiryResources;
+
+   private final String expiryQueuePrefix;
+
+   private final String expiryQueueSuffix;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) {
@@ -176,7 +182,10 @@ public final class AddressSettingsInfo {
                                      object.getJsonNumber("retroactiveMessageCount").longValue(),
                                      object.getBoolean("autoCreateDeadLetterResources"),
                                      object.getString("deadLetterQueuePrefix"),
-                                     object.getString("deadLetterQueueSuffix"));
+                                     object.getString("deadLetterQueueSuffix"),
+                                     object.getBoolean("autoCreateExpiryResources"),
+                                     object.getString("expiryQueuePrefix"),
+                                     object.getString("expiryQueueSuffix"));
    }
 
    // Constructors --------------------------------------------------
@@ -230,7 +239,10 @@ public final class AddressSettingsInfo {
                               long retroactiveMessageCount,
                               boolean autoCreateDeadLetterResources,
                               String deadLetterQueuePrefix,
-                              String deadLetterQueueSuffix) {
+                              String deadLetterQueueSuffix,
+                              boolean autoCreateExpiryResources,
+                              String expiryQueuePrefix,
+                              String expiryQueueSuffix) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -281,6 +293,9 @@ public final class AddressSettingsInfo {
       this.autoCreateDeadLetterResources = autoCreateDeadLetterResources;
       this.deadLetterQueuePrefix = deadLetterQueuePrefix;
       this.deadLetterQueueSuffix = deadLetterQueueSuffix;
+      this.autoCreateExpiryResources = autoCreateExpiryResources;
+      this.expiryQueuePrefix = expiryQueuePrefix;
+      this.expiryQueueSuffix = expiryQueueSuffix;
    }
 
    // Public --------------------------------------------------------
@@ -491,6 +506,18 @@ public final class AddressSettingsInfo {
 
    public String getDeadLetterQueueSuffix() {
       return deadLetterQueueSuffix;
+   }
+
+   public boolean isAutoCreateExpiryResources() {
+      return autoCreateExpiryResources;
+   }
+
+   public String getExpiryQueuePrefix() {
+      return expiryQueuePrefix;
+   }
+
+   public String getExpiryQueueSuffix() {
+      return expiryQueueSuffix;
    }
 }
 
