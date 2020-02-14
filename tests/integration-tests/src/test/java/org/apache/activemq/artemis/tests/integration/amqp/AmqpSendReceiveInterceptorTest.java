@@ -80,6 +80,73 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       connection.close();
    }
 
+   @Test(timeout = 60000)
+   public void testRejectMessageWithIncomingInterceptor() throws Exception {
+      final CountDownLatch latch = new CountDownLatch(1);
+      server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
+         @Override
+         public boolean intercept(AMQPMessage message, RemotingConnection connection) throws ActiveMQException {
+            latch.countDown();
+            return false;
+         }
+      });
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getTestName());
+      AmqpMessage message = new AmqpMessage();
+
+      message.setMessageId("msg" + 1);
+      message.setText("Test-Message");
+      try {
+         sender.send(message);
+         fail("Sending message should have thrown exception here.");
+      } catch (Exception e) {
+         assertEquals("Interceptor rejected message [condition = failed]", e.getMessage());
+      }
+
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.flow(2);
+      AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
+      assertNull(amqpMessage);
+      sender.close();
+      receiver.close();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testRejectMessageWithOutgoingInterceptor() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getTestName());
+      AmqpMessage message = new AmqpMessage();
+
+      message.setMessageId("msg" + 1);
+      message.setText("Test-Message");
+      sender.send(message);
+
+      final CountDownLatch latch = new CountDownLatch(1);
+      server.getRemotingService().addOutgoingInterceptor(new AmqpInterceptor() {
+         @Override
+         public boolean intercept(AMQPMessage packet, RemotingConnection connection) throws ActiveMQException {
+            latch.countDown();
+            return false;
+         }
+      });
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.flow(2);
+      AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
+      assertNull(amqpMessage);
+      assertEquals(latch.getCount(), 0);
+      sender.close();
+      receiver.close();
+      connection.close();
+   }
+
    private static final String ADDRESS = "address";
    private static final String MESSAGE_ID = "messageId";
    private static final String CORRELATION_ID = "correlationId";
