@@ -275,6 +275,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String RETROACTIVE_MESSAGE_COUNT = "retroactive-message-count";
 
+   private static final String CLUSTERED_QUEUES_NODE_NAME = "clustered-queues";
+
 
    // Attributes ----------------------------------------------------
 
@@ -1185,6 +1187,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             long retroactiveMessageCount = XMLUtil.parseLong(child);
             Validators.GE_ZERO.validate(RETROACTIVE_MESSAGE_COUNT, retroactiveMessageCount);
             addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
+         } else if (CLUSTERED_QUEUES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setClusteredQueues(XMLUtil.parseBoolean(child));
          }
       }
       return setting;

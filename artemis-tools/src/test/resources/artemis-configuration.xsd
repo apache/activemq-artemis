@@ -3133,6 +3133,15 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="clustered-queues" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Queues will get created on the local broker if they are created on a clustered neighbour.
+                     This means all queues exist cluster-wide. It helps with redistribution in certain scenarios
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="send-to-dla-on-no-route" type="xsd:boolean" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
