@@ -66,6 +66,18 @@ the tree can extend to any depth, and can be extended to without needing to re-c
 
 In this case messages published to the master address can be received by any consumer connected to any broker in the tree.
 
+### Divert Binding Support
+
+Divert binding support can be added as part of the address policy configuration. This will allow the federation to respond
+to divert bindings to create demand. For example, let's say there is one address called "test.federation.source" that is
+included as a match for the federated address and another address called "test.federation.target" that is not included. Normally
+when a queue is created on "test.federation.target" this would not cause a federated consumer to be created because the address
+is not part of the included matches. However, if we create a divert binding such that "test.federation.source" is the source address
+and "test.federation.target" is the forwarded address then demand will now be created. The source address still must be multicast
+but the target address can be multicast or anycast.
+
+An example use case for this might be a divert that redirects JMS topics (multicast addresses) to a JMS queue (anycast addresses) to
+allow for load balancing of the messages on a topic for legacy consumers not supporting JMS 2.0 and shared subscriptions.
 
 ## Configuring Address Federation
 
@@ -134,6 +146,9 @@ and the delay and message count params have been met. This is useful if you want
 - `auto-delete-message-count`. The amount number messages in the upstream queue that the message count must be equal or below before the downstream broker has disconnected before the upstream queue can be eligable for `auto-delete`.
 
 - `transformer-ref`. The ref name for a transformer (see transformer config) that you may wish to configure to transform the message on federation transfer.
+
+- `enable-divert-bindings`. Setting to true will enable divert bindings to be listened for demand. If there is a divert binding with an address that matches the included
+addresses for the stream, any queue bindings that match the forward address of the divert will create demand. Default is false
 
 **note** `address-policy`'s and `queue-policy`'s are able to be defined in the same federation, and be linked to the same upstream.
 
