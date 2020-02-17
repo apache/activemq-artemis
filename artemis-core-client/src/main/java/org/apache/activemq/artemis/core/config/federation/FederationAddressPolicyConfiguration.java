@@ -34,6 +34,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
    private Long autoDeleteMessageCount;
    private int maxHops;
    private String transformerRef;
+   private boolean enableDivertBindings;
 
    @Override
    public String getName() {
@@ -109,6 +110,15 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       return this;
    }
 
+   public Boolean isEnableDivertBindings() {
+      return enableDivertBindings;
+   }
+
+   public FederationAddressPolicyConfiguration setEnableDivertBindings(Boolean enableDivertBindings) {
+      this.enableDivertBindings = enableDivertBindings;
+      return this;
+   }
+
    @Override
    public void encode(ActiveMQBuffer buffer) {
       Preconditions.checkArgument(name != null, "name can not be null");
@@ -118,9 +128,9 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       buffer.writeNullableLong(autoDeleteMessageCount);
       buffer.writeInt(maxHops);
       buffer.writeNullableString(transformerRef);
-
       encodeMatchers(buffer, includes);
       encodeMatchers(buffer, excludes);
+      buffer.writeBoolean(enableDivertBindings);
    }
 
    @Override
@@ -131,12 +141,14 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       autoDeleteMessageCount = buffer.readNullableLong();
       maxHops = buffer.readInt();
       transformerRef = buffer.readNullableString();
-
       includes = new HashSet<>();
       excludes = new HashSet<>();
       decodeMatchers(buffer, includes);
       decodeMatchers(buffer, excludes);
 
+      if (buffer.readableBytes() > 0) {
+         enableDivertBindings = buffer.readBoolean();
+      }
    }
 
    private void encodeMatchers(final ActiveMQBuffer buffer, final Set<Matcher> matchers) {

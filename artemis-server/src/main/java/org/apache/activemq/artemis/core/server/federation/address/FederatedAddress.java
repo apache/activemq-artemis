@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.core.server.federation.address;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,8 +36,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
-import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -43,11 +46,13 @@ import org.apache.activemq.artemis.core.server.federation.FederatedAbstract;
 import org.apache.activemq.artemis.core.server.federation.FederatedConsumerKey;
 import org.apache.activemq.artemis.core.server.federation.Federation;
 import org.apache.activemq.artemis.core.server.federation.FederationUpstream;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.Match;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ByteUtil;
-import org.jboss.logging.Logger;
 
 /**
  * Federated Address, replicate messages from the remote brokers address to itself.
@@ -59,9 +64,8 @@ import org.jboss.logging.Logger;
  *
  *
  */
-public class FederatedAddress extends FederatedAbstract implements ActiveMQServerQueuePlugin, Serializable {
+public class FederatedAddress extends FederatedAbstract implements ActiveMQServerBindingPlugin, ActiveMQServerAddressPlugin, Serializable {
 
-   private static final Logger logger = Logger.getLogger(FederatedAddress.class);
    public static final String FEDERATED_QUEUE_PREFIX = "federated";
 
    public static final SimpleString HDR_HOPS = new SimpleString("_AMQ_Hops");
@@ -69,8 +73,8 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
    private final SimpleString filterString;
    private final Set<Matcher> includes;
    private final Set<Matcher> excludes;
-
    private final FederationAddressPolicyConfiguration config;
+   private final Map<DivertBinding, Set<SimpleString>> matchingDiverts = new HashMap<>();
 
    public FederatedAddress(Federation federation, FederationAddressPolicyConfiguration config, ActiveMQServer server, FederationUpstream upstream) {
       super(federation, server, upstream);
@@ -102,25 +106,16 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
    }
 
    @Override
-   public void start() {
-      super.start();
-      server.getPostOffice()
-            .getAllBindings()
-            .values()
-            .stream()
-            .filter(b -> b instanceof QueueBinding)
-            .map(b -> ((QueueBinding) b).getQueue())
-            .forEach(this::conditionalCreateRemoteConsumer);
-   }
-
-   /**
-    * After a queue has been created
-    *
-    * @param queue The newly created queue
-    */
-   @Override
-   public synchronized void afterCreateQueue(Queue queue) {
-      conditionalCreateRemoteConsumer(queue);
+   public synchronized void start() {
+      if (!isStarted()) {
+         super.start();
+         server.getPostOffice()
+             .getAllBindings()
+             .values()
+             .stream()
+             .filter(b -> b instanceof QueueBinding || b instanceof DivertBinding)
+             .forEach(this::afterAddBinding);
+      }
    }
 
    private void conditionalCreateRemoteConsumer(Queue queue) {
@@ -139,6 +134,145 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
          }
       }
       createRemoteConsumer(queue);
+   }
+
+   @Override
+   public void afterAddAddress(AddressInfo addressInfo, boolean reload) {
+      if (match(addressInfo)) {
+         try {
+            //Diverts can be added without the source address existing yet so
+            //if a new address is added we need to see if there are matching divert bindings
+            server.getPostOffice()
+               .getDirectBindings(addressInfo.getName())
+               .getBindings().stream().filter(binding -> binding instanceof DivertBinding)
+               .forEach(this::afterAddBinding);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, addressInfo.getName());
+         }
+      }
+   }
+
+   @Override
+   public void afterAddBinding(Binding binding) {
+      if (binding instanceof QueueBinding) {
+         conditionalCreateRemoteConsumer(((QueueBinding) binding).getQueue());
+
+         if (config.isEnableDivertBindings()) {
+            synchronized (this) {
+               for (Map.Entry<DivertBinding, Set<SimpleString>> entry : matchingDiverts.entrySet()) {
+                  //for each divert check the new QueueBinding to see if the divert matches and is not already tracking
+                  if (!entry.getValue().contains(((QueueBinding) binding).getQueue().getName())) {
+                     //conditionalCreateRemoteConsumer will check if the queue is a target of the divert before adding
+                     conditionalCreateRemoteConsumer(entry.getKey(), entry.getValue(), (QueueBinding) binding);
+                  }
+               }
+            }
+         }
+      } else if (config.isEnableDivertBindings() && binding instanceof DivertBinding) {
+         final DivertBinding divertBinding = (DivertBinding) binding;
+         final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
+
+         synchronized (this) {
+            if (match(addressInfo) && matchingDiverts.get(divertBinding) == null) {
+               final Set<SimpleString> matchingQueues = new HashSet<>();
+               matchingDiverts.put(divertBinding, matchingQueues);
+
+               //find existing matching queue bindings for the divert to create consumers for
+               final SimpleString forwardAddress = divertBinding.getDivert().getForwardAddress();
+               try {
+                  //create demand for each matching queue binding that isn't already tracked by the divert
+                  //conditionalCreateRemoteConsumer will check if the queue is a target of the divert before adding
+                  server.getPostOffice().getBindingsForAddress(forwardAddress).getBindings()
+                     .stream().filter(b -> b instanceof QueueBinding).map(b -> (QueueBinding) b)
+                     .forEach(queueBinding -> conditionalCreateRemoteConsumer(divertBinding, matchingQueues, queueBinding));
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, forwardAddress);
+               }
+            }
+         }
+      }
+   }
+
+   private void conditionalCreateRemoteConsumer(DivertBinding divertBinding, Set<SimpleString> matchingQueues, QueueBinding queueBinding) {
+      if (server.hasBrokerFederationPlugins()) {
+         final AtomicBoolean conditionalCreate = new AtomicBoolean(true);
+         try {
+            server.callBrokerFederationPlugins(plugin -> {
+               conditionalCreate.set(conditionalCreate.get() && plugin.federatedAddressConditionalCreateDivertConsumer(divertBinding, queueBinding));
+            });
+         } catch (ActiveMQException t) {
+            ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "federatedAddressConditionalCreateDivertConsumer");
+            throw new IllegalStateException(t.getMessage(), t.getCause());
+         }
+         if (!conditionalCreate.get()) {
+            return;
+         }
+      }
+      createRemoteConsumer(divertBinding, matchingQueues, queueBinding);
+   }
+
+   private void createRemoteConsumer(DivertBinding divertBinding, final Set<SimpleString> matchingQueues, QueueBinding queueBinding)  {
+      final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(divertBinding.getAddress());
+
+      //If the divert address matches and if the new queueBinding matches the forwarding address of the divert
+      //then create a remote consumer if not already being tracked by the divert
+      if (match(addressInfo) && queueBinding.getAddress().equals(divertBinding.getDivert().getForwardAddress())
+         && matchingQueues.add(queueBinding.getQueue().getName())) {
+         FederatedConsumerKey key = getKey(addressInfo);
+         Transformer transformer = getTransformer(config.getTransformerRef());
+         Transformer addHop = FederatedAddress::addHop;
+         createRemoteConsumer(key, mergeTransformers(addHop, transformer), clientSession -> createRemoteQueue(clientSession, key));
+      }
+   }
+
+   @Override
+   public void beforeRemoveBinding(SimpleString uniqueName, Transaction tx, boolean deleteData) {
+      final Binding binding = server.getPostOffice().getBinding(uniqueName);
+      if (binding instanceof QueueBinding) {
+         final Queue queue = ((QueueBinding) binding).getQueue();
+
+         //Remove any direct queue demand
+         removeRemoteConsumer(getKey(queue));
+
+         if (config.isEnableDivertBindings()) {
+            //See if there is any matching diverts that match this queue binding and remove demand now that
+            //the queue is going away
+            synchronized (this) {
+               matchingDiverts.entrySet().forEach(entry -> {
+                  if (entry.getKey().getDivert().getForwardAddress().equals(queue.getAddress())) {
+                     final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
+                     //check if the queue has been tracked by this divert and if so remove the consumer
+                     if (entry.getValue().remove(queue)) {
+                        removeRemoteConsumer(getKey(addressInfo));
+                     }
+                  }
+               });
+            }
+         }
+      } else if (config.isEnableDivertBindings() && binding instanceof DivertBinding) {
+         final DivertBinding divertBinding = (DivertBinding) binding;
+         final SimpleString forwardAddress = divertBinding.getDivert().getForwardAddress();
+
+         //Check if we have added this divert binding as a matching binding
+         //If we have then we need to look for any still existing queue bindings that map to this divert
+         //and remove consumers if they haven't already been removed
+         synchronized (this) {
+            final Set<SimpleString> matchingQueues;
+            if ((matchingQueues = matchingDiverts.remove(binding)) != null) {
+               try {
+                  final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
+                  if (addressInfo != null) {
+                     //remove queue binding demand if tracked by the divert
+                     server.getPostOffice().getBindingsForAddress(forwardAddress)
+                        .getBindings().stream().filter(b -> b instanceof QueueBinding && matchingQueues.remove(((QueueBinding) b).getQueue().getName()))
+                        .forEach(queueBinding -> removeRemoteConsumer(getKey(addressInfo)));
+                  }
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, forwardAddress);
+               }
+            }
+         }
+      }
    }
 
    public FederationAddressPolicyConfiguration getConfig() {
@@ -170,12 +304,20 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
    }
 
    private boolean match(Queue queue) {
+      return match(queue.getAddress(), queue.getRoutingType());
+   }
+
+   private boolean match(AddressInfo addressInfo) {
+      return addressInfo != null ? match(addressInfo.getName(), addressInfo.getRoutingType()) : false;
+   }
+
+   private boolean match(SimpleString address, RoutingType routingType) {
       //Currently only supporting Multicast currently.
-      if (RoutingType.ANYCAST.equals(queue.getRoutingType())) {
+      if (RoutingType.ANYCAST.equals(routingType)) {
          return false;
       }
       for (Matcher exclude : excludes) {
-         if (exclude.test(queue)) {
+         if (exclude.test(address.toString())) {
             return false;
          }
       }
@@ -183,7 +325,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
          return true;
       } else {
          for (Matcher include : includes) {
-            if (include.test(queue)) {
+            if (include.test(address.toString())) {
                return true;
             }
          }
@@ -208,24 +350,15 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
       }
    }
 
-   /**
-    * Before an address is removed
-    *
-    * @param queue The queue that will be removed
-    */
-   @Override
-   public synchronized void beforeDestroyQueue(Queue queue, final SecurityAuth session, boolean checkConsumerCount,
-      boolean removeConsumers, boolean autoDeleteAddress) {
-      FederatedConsumerKey key = getKey(queue);
-      removeRemoteConsumer(key);
-   }
-
    private FederatedConsumerKey getKey(Queue queue) {
       return new FederatedAddressConsumerKey(federation.getName(), upstream.getName(), queue.getAddress(), queue.getRoutingType(), queueNameFormat, filterString);
    }
 
-   public static class Matcher {
+   private FederatedConsumerKey getKey(AddressInfo address) {
+      return new FederatedAddressConsumerKey(federation.getName(), upstream.getName(), address.getName(), address.getRoutingType(), queueNameFormat, filterString);
+   }
 
+   public static class Matcher {
       Predicate<String> addressPredicate;
 
       Matcher(FederationAddressPolicyConfiguration.Matcher config, WildcardConfiguration wildcardConfiguration) {
@@ -234,10 +367,8 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
          }
       }
 
-      public boolean test(Queue queue) {
-         return addressPredicate == null || addressPredicate.test(queue.getAddress().toString());
+      public boolean test(String address) {
+         return addressPredicate == null || addressPredicate.test(address);
       }
-
    }
-
 }
