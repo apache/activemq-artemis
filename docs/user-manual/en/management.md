@@ -401,6 +401,10 @@ also match, allowing prefix match for the mBean properties.
 </match>
 ```
 
+In case of multiple matches, the exact matches have higher priority than the
+wildcard matches and the longer wildcard matches have higher priority than the
+shorter wildcard matches.
+
 Access to JMX mBean attributes are converted to method calls so these are
 controlled via the `set*`, `get*` and `is*`.  The `*` access is the catch all
 for everything other method that isn't specifically matched.
