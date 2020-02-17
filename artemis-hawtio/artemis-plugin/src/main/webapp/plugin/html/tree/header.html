@@ -1,0 +1,41 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
+<div class="tree-nav-sidebar-header">
+  <form role="form" class="search-pf has-button">
+    <div class="form-group has-clear">
+      <div class="search-pf-input-group">
+        <label for="input-search" class="sr-only">Search Tree:</label>
+        <input id="input-search" type="search" class="form-control" placeholder="Search tree:"
+          ng-model="$ctrl.filter">
+        <button type="button" class="clear" aria-hidden="true"
+          ng-hide="$ctrl.filter.length === 0"
+          ng-click="$ctrl.filter = ''">
+          <span class="pficon pficon-close"></span>
+        </button>
+      </div>
+    </div>
+    <div class="form-group tree-nav-buttons">
+      <span class="badge" ng-class="{positive: $ctrl.result.length > 0}"
+        ng-show="$ctrl.filter.length > 0">
+        {{$ctrl.result.length}}
+      </span>
+      <i class="fa fa-plus-square-o" title="Expand All" ng-click="$ctrl.expandAll()"></i>
+      <i class="fa fa-minus-square-o" title="Collapse All" ng-click="$ctrl.contractAll()"></i>
+    </div>
+  </form>
+</div>

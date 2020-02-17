@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.impl.Validators;
 import org.apache.activemq.artemis.core.deployers.Deployable;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerLogger;
@@ -76,7 +77,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    public void buildService(ActiveMQSecurityManager securityManager,
                             MBeanServer mBeanServer,
                             Map<String, Deployable> deployables,
-                            Map<String, ActiveMQComponent> components) throws Exception {
+                            Map<String, ActiveMQComponent> components, ActivateCallback activateCallback) throws Exception {
       ActiveMQServerImpl server = (ActiveMQServerImpl) components.get("core");
       components.put(CONFIGURATION_SCHEMA_ROOT_ELEMENT, new JMSServerManagerImpl(server, this));
    }

@@ -20,20 +20,25 @@ package org.apache.activemq.artemis.core.server.management;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
+import org.apache.activemq.artemis.core.server.management.impl.HawtioSecurityControlImpl;
+
+import javax.management.NotCompliantMBeanException;
 
 public class ManagementContext implements ServiceComponent {
    private AtomicBoolean isStarted = new AtomicBoolean(false);
    private JMXAccessControlList accessControlList;
    private JMXConnectorConfiguration jmxConnectorConfiguration;
    private ManagementConnector mBeanServer;
+   private ArtemisMBeanServerGuard guardHandler;
 
    @Override
    public void start() throws Exception {
       if (accessControlList != null) {
          //if we are configured then assume we want to use the guard so set the system property
          System.setProperty("javax.management.builder.initial", ArtemisMBeanServerBuilder.class.getCanonicalName());
-         ArtemisMBeanServerGuard guardHandler = new ArtemisMBeanServerGuard();
+         guardHandler = new ArtemisMBeanServerGuard();
          guardHandler.setJMXAccessControlList(accessControlList);
          ArtemisMBeanServerBuilder.setGuard(guardHandler);
       }
@@ -80,5 +85,18 @@ public class ManagementContext implements ServiceComponent {
 
    public JMXConnectorConfiguration getJmxConnectorConfiguration() {
       return jmxConnectorConfiguration;
+   }
+
+   public HawtioSecurityControl getSecurityMBean(StorageManager storageManager) {
+      try {
+         return new HawtioSecurityControlImpl(guardHandler, storageManager);
+      } catch (NotCompliantMBeanException e) {
+         e.printStackTrace();
+         return null;
+      }
+   }
+
+   public ArtemisMBeanServerGuard getArtemisMBeanServerGuard() {
+      return guardHandler;
    }
 }

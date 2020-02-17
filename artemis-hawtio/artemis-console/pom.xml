@@ -45,7 +45,7 @@
 
     <dependency>
       <groupId>io.hawt</groupId>
-      <artifactId>hawtio-web</artifactId>
+      <artifactId>hawtio-war</artifactId>
       <version>${hawtio.version}</version>
       <!--
         NOTE this WAR dependency type which enables this WAR to
@@ -61,12 +61,12 @@
       <version>${hawtio.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>io.hawt</groupId>
       <artifactId>hawtio-git</artifactId>
       <version>${hawtio.version}</version>
       <scope>provided</scope>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -97,7 +97,7 @@
               <filtering>true</filtering>
               <directory>src/main/webapp</directory>
               <includes>
-                <include>**/*.md</include>
+                <include>**/*.svg</include>
                 <!-- include any other file types you want to filter -->
               </includes>
             </resource>
@@ -105,54 +105,12 @@
           <overlays>
             <overlay>
               <groupId>io.hawt</groupId>
-              <artifactId>hawtio-web</artifactId>
+              <artifactId>hawtio-war</artifactId>
               <excludes>
-                <exclude>bower_components/bootstrap/docs/build/**/*</exclude>
-                <exclude>bower_components/bootstrap/docs/examples/**/*</exclude>
-                <exclude>bower_components/bootstrap/docs/templates/**/*</exclude>
-                <exclude>bower_components/bootstrap/docs/assets/img/examples/**/*</exclude>
-                <exclude>bower_components/bootstrap/docs/assets/img/example-sites/**/*</exclude>
-                <exclude>bower_components/bootstrap/js/tests/**/*</exclude>
-                <exclude>bower_components/bootstrap/docs/**/*.html</exclude>
-                <exclude>bower_components/Font-Awesome/src/**/*</exclude>
-                <exclude>bower_components/d3/src/**/*</exclude>
-                <exclude>bower_components/d3/test/**/*</exclude>
-                <exclude>bower_components/elastic.js/src/**/*</exclude>
-                <exclude>bower_components/elastic.js/tests/**/*</exclude>
-                <exclude>bower_components/elastic.js/examples/**/*</exclude>
-                <exclude>bower_components/jquery/src/**/*</exclude>
-                <exclude>bower_components/jquery/test/**/*</exclude>
-                <exclude>bower_components/js-logger/src/**/*</exclude>
-                <excluse>WEB-INF/lib/guava*.jar</excluse>
-                <excluse>WEB-INF/lib/slf4j-api*.jar</excluse>
-                <excluse>lib/camelModel.js</excluse>
-                <exclude>app/activemq/**/*</exclude>
-                <exclude>app/api/**/*</exclude>
-                <exclude>app/apm/**/*</exclude>
-                <exclude>app/camel/**/*</exclude>
-                <exclude>app/camin/**/*</exclude>
-                <exclude>app/datatable/**/*</exclude>
-                <exclude>app/dozer/**/*</exclude>
-                <exclude>app/elasticsearch/**/*</exclude>
-                <exclude>app/fabric/**/*</exclude>
-                <exclude>app/fabric-deploy/**/*</exclude>
-                <exclude>app/fabric-requirements/**/*</exclude>
-                <exclude>app/forcegraph/**/*</exclude>
-                <exclude>app/git/**/*</exclude>
-                <exclude>app/health/**/*</exclude>
-                <exclude>app/ide/**/*</exclude>
-                <exclude>app/infinispan/**/*</exclude>
-                <exclude>app/jboss/**/*</exclude>
-                <exclude>app/jclouds/**/*</exclude>
-                <exclude>app/junit/**/*</exclude>
-                <exclude>app/maven/**/*</exclude>
-                <exclude>app/openejb/**/*</exclude>
-                <exclude>app/quartz/**/*</exclude>
-                <exclude>app/site/**/*</exclude>
-                <exclude>app/springbatch/**/*</exclude>
-                <exclude>app/springBoot/**/*</exclude>
-                <exclude>app/tomcat/**/*</exclude>
-                <exclude>app/wiki-drop/**/*</exclude>
+                <exclude>hawtconfig.json</exclude>
+                <exclude>img/icons/**/*</exclude>
+                <exclude>img/**/*</exclude>
+                <exclude>fonts/glyphicons**</exclude>
               </excludes>
             </overlay>
           </overlays>

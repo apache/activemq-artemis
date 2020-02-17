@@ -21,12 +21,22 @@ import java.io.Serializable;
 public interface HAPolicyConfiguration extends Serializable {
 
    enum TYPE {
-      LIVE_ONLY,
-      REPLICATED,
-      REPLICA,
-      SHARED_STORE_MASTER,
-      SHARED_STORE_SLAVE,
-      COLOCATED
+      LIVE_ONLY("Live Only"),
+      REPLICATED("Replicated"),
+      REPLICA("Replica"),
+      SHARED_STORE_MASTER("Shared Store Master"),
+      SHARED_STORE_SLAVE("Shared Store Slave"),
+      COLOCATED("Colocated");
+
+      private String name;
+
+      TYPE(String name) {
+         this.name = name;
+      }
+
+      public String getName() {
+         return name;
+      }
    }
 
    TYPE getType();

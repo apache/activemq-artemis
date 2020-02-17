@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.LegacyJMSConfiguration;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 public class FileBroker implements Broker {
 
    private final String configurationUrl;
+   private ActivateCallback activateCallback;
 
    private boolean started;
 
@@ -40,9 +42,10 @@ public class FileBroker implements Broker {
 
    private Map<String, ActiveMQComponent> components;
 
-   public FileBroker(ServerDTO broker, ActiveMQSecurityManager security) {
+   public FileBroker(ServerDTO broker, ActiveMQSecurityManager security, ActivateCallback activateCallback) {
       this.securityManager = security;
       this.configurationUrl = broker.configuration;
+      this.activateCallback = activateCallback;
    }
 
    @Override
@@ -116,7 +119,7 @@ public class FileBroker implements Broker {
 
       createDirectories(configuration);
 
-      components = fileDeploymentManager.buildService(securityManager, ManagementFactory.getPlatformMBeanServer());
+      components = fileDeploymentManager.buildService(securityManager, ManagementFactory.getPlatformMBeanServer(), activateCallback);
    }
 
    /*

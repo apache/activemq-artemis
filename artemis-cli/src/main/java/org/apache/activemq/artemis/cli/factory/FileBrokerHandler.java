@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.cli.factory;
 
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.FileBroker;
@@ -24,7 +25,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 public class FileBrokerHandler implements BrokerHandler {
 
    @Override
-   public Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) {
-      return new FileBroker(brokerDTO, security);
+   public Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security, ActivateCallback activateCallback) {
+      return new FileBroker(brokerDTO, security, activateCallback);
    }
 }

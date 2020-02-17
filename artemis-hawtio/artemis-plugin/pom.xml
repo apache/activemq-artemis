@@ -62,6 +62,10 @@
     <schema-outdir>${basedir}/src/main/webapp/lib</schema-outdir>
     <appjs-outfile>${webapp-outdir}/app/app.js</appjs-outfile>
 
+<!--
+    <angular.version>1.7.9</angular.version>
+-->
+
   </properties>
 
   <dependencies>

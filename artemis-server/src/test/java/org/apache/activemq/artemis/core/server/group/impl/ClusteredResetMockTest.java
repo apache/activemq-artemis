@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -337,6 +338,16 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       @Override
       public ICoreMessage handleMessage(Message message) throws Exception {
          return null;
+      }
+
+      @Override
+      public void registerHawtioSecurity(ArtemisMBeanServerGuard securityMBean) throws Exception {
+
+      }
+
+      @Override
+      public void unregisterHawtioSecurity() throws Exception {
+
       }
 
       @Override

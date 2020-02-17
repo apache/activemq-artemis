@@ -563,6 +563,15 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return compositeDatas;
          }
 
+         @Override
+         public CompositeData[] browse(int page, int pageSize, String filter) throws Exception {
+            Map map = (Map) proxy.invokeOperation("browse", page, pageSize, filter);
+            CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
+            if (compositeDatas == null) {
+               compositeDatas = new CompositeData[0];
+            }
+            return compositeDatas;
+         }
 
          @Override
          public CompositeData[] browse(String filter) throws Exception {

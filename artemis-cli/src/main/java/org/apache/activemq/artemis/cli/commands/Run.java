@@ -30,6 +30,8 @@ import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
 import org.apache.activemq.artemis.cli.factory.security.SecurityManagerFactory;
 import org.apache.activemq.artemis.components.ExternalComponent;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
@@ -81,7 +83,33 @@ public class Run extends LockAbstract {
 
          ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
-         server = BrokerFactory.createServer(broker.server, security);
+         ActivateCallback activateCallback = new ActivateCallback() {
+            @Override
+            public void preActivate() {
+               try {
+                  managementContext.start();
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.unableStartManagementContext(e);
+                  return;
+               }
+               try {
+                  server.getServer().getManagementService().registerHawtioSecurity(managementContext.getArtemisMBeanServerGuard());
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.unableToDeployHawtioMBean(e);
+               }
+            }
+
+            @Override
+            public void deActivate() {
+               try {
+                  server.getServer().getManagementService().unregisterHawtioSecurity();
+               } catch (Exception e) {
+                  //ok to ignore
+               }
+            }
+         };
+
+         server = BrokerFactory.createServer(broker.server, security, activateCallback);
 
          managementContext.start();
          server.createComponents();

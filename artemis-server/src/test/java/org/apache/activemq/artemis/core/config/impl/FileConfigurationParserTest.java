@@ -87,7 +87,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
-      ActiveMQServer server = addServer((ActiveMQServer) deploymentManager.buildService(null, null).get("core"));
+      ActiveMQServer server = addServer((ActiveMQServer) deploymentManager.buildService(null, null, null).get("core"));
       server.start();
       assertEquals(0, server.locateQueue(SimpleString.toSimpleString("q")).getMaxConsumers());
    }

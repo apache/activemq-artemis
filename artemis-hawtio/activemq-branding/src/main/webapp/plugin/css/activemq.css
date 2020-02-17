@@ -17,15 +17,208 @@
 
 /* fonts */
 
-@import url("../../../console/app/themes/fonts/Open-Sans/stylesheet.css");
-@import url("../../../console/app/themes/fonts/Droid-Sans-Mono/stylesheet.css");
 
+/* You can customise the styles of your application here. */
+@font-face {
+    font-family: 'PatternFlyIcons-webfont';
+    src: url('../../../console/fonts/PatternFlyIcons-webfont.eot');
+    url('../../../console/fonts/PatternFlyIcons-webfont.woff') format('woff'),
+    url('../../../console/fonts/PatternFlyIcons-webfont.ttf') format('truetype'),
+    url('../../../console/fonts/PatternFlyIcons-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../../../console/fonts/OpenSans-Regular-webfont.eot');
+    url('../../../console/fonts/OpenSans-Regular-webfont.woff') format('woff'),
+    url('../../../console/fonts/OpenSans-Regular-webfont.ttf') format('truetype'),
+    url('../../../console/fonts/OpenSans-Regular-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/*Uses ActiveMQ colors in broker diagram*/
+svg text {
+   font-family: PatternFlyIcons-webfont;
+}
+
+.pf-topology-svg g.ThisBroker circle {
+   stroke: #801944;
+   fill: #c12766;
+}
+
+.pf-topology-svg g.MasterBroker circle {
+   stroke: #801944;
+   fill: #c12766;
+}
+
+.pf-topology-svg g.SlaveBroker circle {
+   stroke: #82171b;
+   fill: #cf242a;
+}
+
+.pf-topology-svg g.Address circle {
+   stroke:  #2b326e;
+   fill: #3e489f;
+}
+
+.pf-topology-svg g.Queue circle {
+   stroke:  #50621d;
+   fill: #78932c;
+}
+
+/*Adds a border to top of page*/
+.pf-c-page__header {
+    border-top: 3px solid #B21054;
+}
+
+/* Change the background image for Login page and About modal as well as text color etc*/
+.pf-c-login, .pf-c-about-modal-box__hero {
+  background-image: url("/activemq-branding/plugin/img/login-screen-background.png");
+  background-size: cover;
+  --pf-c-form__label--Color: white;
+}
+
+.pf-c-login__main {
+    grid-area: main;
+    background-color: transparent;
+}
+
+.pf-c-login__footer .pf-c-list a {
+    color: white;
+}
+
+.pf-c-login__footer p {
+    font-size: 150%;
+}
+
+.pf-c-login__main-body label {
+    color: white;
+}
+
+.pf-c-login__main-header {
+    color: white;
+}
+
+/*These change the color of the buttons*/
+.btn-link {
+    color: #B24E78;
+}
+
+.pf-c-button.pf-m-primary {
+    background-color: #B24E78;
+}
+
+.pf-c-button.pf-m-primary.pf-m-hover, .pf-c-button.pf-m-primary:hover {
+    background-color: #B24E78;
+    background-image: linear-gradient(to bottom,#B24E78 0,#B24E78 100%);
+    background: #B21054;
+    border-color: #B24E78;
+}
+
+.pf-c-title.pf-m-3xl {
+    color: white;
+}
+
+.btn-primary {
+    background-color: #B24E78;
+    background-image: linear-gradient(to bottom,#B24E78 0,#B24E78 100%);
+    background-repeat: repeat-x;
+    border-color: #B24E78;
+    color: #fff;
+}
+.btn-primary.active.focus,
+.btn-primary.active:focus,
+.btn-primary.active:hover, .btn-primary:active.focus,
+.btn-primary:active:focus,
+.btn-primary:active:hover,
+.open .dropdown-toggle.btn-primary.focus,
+.open .dropdown-toggle.btn-primary:focus,
+.open .dropdown-toggle.btn-primary:hover {
+    background-color: #B24E78;
+    border-color: #B21054;
+}
+
+/*These change the row ina table when hovered over*/
+.table-hover>tbody>tr:hover {
+    background-color: #B24E78;
+}
+
+.table-hover>tbody>tr:hover td {
+    background-color: #B24E78;
+}
+
+select>option:hover,
+select>option:active {
+    background: #B24E78;
+    background-color: #B24E78;
+}
+
+tbody>tr:hover {
+    background-color: #B24E78;
+}
+
+/*This controls the color of the buttons when clicked, hovered or visited*/
+.btn-primary:hover,
+.btn-primary.hover
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:visited,
+.btn-primary.visited{
+    background-color: #B24E78;
+    background-image: linear-gradient(to bottom,#B24E78 0,#B24E78 100%);
+    background: #B21054;
+    border-color: #B24E78;
+}
+
+/*This changes the color of the hover item in the JMX Tree*/
+.treeview-pf-hover .list-group-item:hover {
+    background-color: #B24E78!important;
+    border-color: #B24E78!important;
+}
+
+/*This changes the color of the chosen selection in the JMX Tree*/
+.treeview-pf-select .list-group-item.node-selected {
+    background: #B24E78!important;
+    border-color: #B24E78!important;
+    color: #fff!important;
+}
+
+/* This changes the color of the underline in the main left menuLeft hand menu tab underline*/
+.pf-c-nav__list .pf-m-current.pf-c-nav__link::after, .pf-c-nav__list .pf-m-current>.pf-c-nav__link::after {
+    background-color: #B24E78;
+}
+
+.pf-c-nav__list .pf-c-nav__link.pf-m-hover::after, .pf-c-nav__list .pf-c-nav__link:hover::after {
+    background-color: #B24E78;
+}
+
+.card-pf.card-pf-accented {
+    border-top-color: #B24E78;
+}
+
+/*This changes the hover color in all the tables*/
+.table-hover tbody tr:hover td.focus {
+  background-color: #B24E78;
+}
+
+/*This changes the color of the sort column header*/
+table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc {
+    color: #B24E78!important;
+    position: relative;
+}
+
+/*This is the original css from HawtIO 1,leaving as is as somemay be used*/
 * {
-  font-family: OpenSans;
+  font-family: "Open Sans";
 }
 
 body {
-  font-family: OpenSans;
+  font-family: "Open Sans";
 }
 
 #log-panel-statements li {
@@ -750,25 +943,6 @@ td.adding {
   border-bottom-left-radius: 0px;
 }
 
-.login-wrapper {
-  background-color: rgba(255, 168, 27, 0.3);
-  box-shadow: rgba(255, 168, 27, 0.2) 0 0 30px 10px;
-}
-
-.login-wrapper form {
-  background-color: rgba(255, 255, 255, 0.2);
-  box-shadow: inset rgba(255, 168, 27, 0.2) 0 0 30px 10px;
-}
-
-.login-form form fieldset .control-group label {
-  color: white;
-  font-weight: bolder;
-}
-
-.login-logo {
-  color: white;
-}
-
 /** highlight required fields which have no focus */
 input.ng-invalid,
 textarea.ng-invalid,
@@ -1171,7 +1345,7 @@ i.expandable-indicator.folder {
 
 tr.selected,
 tr.selected .ngCell,
-tr.selected .ngCellText a,
+tr.selected .ngCellText i,
 .table-striped tbody tr.selected:nth-child(odd) td {
   background-color: #c9dde1;
 }
@@ -1419,6 +1593,21 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -1px;
   font-weight: normal;
   font-family: "Overpass", sans-serif;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+    color: #B21054;
+    cursor: default;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+}
+
+table.jmx-attributes-table td {
+    color: #B21054;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 a {
@@ -1802,89 +1991,6 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
   */
 }
 
-div[ng-controller='Core.LoginController']:after {
-  position: relative;
-  horiz-align: center;
-}
-
-
-.login-wrapper {
-  top: inherit;
-  border-radius: 0;
-  box-shadow: none;
-  left: 0;
-  position: absolute;
-  bottom: 15%;
-  padding-left: 0;
-  width: 100%;
-  min-width: 850px;
-  border-top: 1px rgba(255, 255, 255, 0.05) solid;
-  border-bottom: 1px rgba(255, 255, 255, 0.05) solid;
-  background-color: rgba(255, 255, 255, 0.1);
-
-}
-
-.login-logo>img {
-  height: 150px;
-}
-
-.login-logo {
-  top: -200px;
-  /* with no app title */
-  /* left: 183px; */
-  left: 45px;
-  width: 700px;
-}
-
-.login-logo span {
-  position: relative;
-  top: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.login-wrapper form {
-  background: inherit;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
-}
-
-.login-wrapper form fieldset {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  width: 344px;
-}
-
-.login-wrapper form fieldset input[type="text"],
-.login-wrapper form fieldset input[type="password"] {
-  margin: 4px;
-  padding: 3px 6px;
-  min-width: 200px;
-  height: 26px;
-  border: 1px #b6b6b6 solid;
-  border-radius: 2px;
-  background: url("../img/input-background.png") repeat-x top left;
-}
-
-.login-wrapper form fieldset input[type="text"]:hover,
-.login-wrapper form fieldset input[type="password"]:hover {
-  border-color: #B2577A;
-}
-
-.login-wrapper form fieldset input[type="text"]:focus,
-.login-wrapper form fieldset input[type="password"]:focus {
-  border-color: #B2577A;
-  box-shadow: #B2577A 0 0 5px;
-}
-
-.login-wrapper form fieldset .control-group .controls .checkbox {
-  position: absolute;
-  top: 185px;
-  left: 181px;
-}
-
 .dropdown-menu li > a:hover,
 .dropdown-menu li > a:focus,
 .dropdown-submenu:hover > a {
@@ -1913,62 +2019,6 @@ div[ng-controller='Core.LoginController']:after {
   background-repeat: repeat-x;
   outline: 0;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#B26182', endColorstr='#B2577A', GradientType=0);
-}
-
-.login-wrapper form fieldset button[type="submit"] {
-  position: relative;
-  left: 39px;
-  padding: 4px 14px;
-  border: 1px #B24E78 solid;
-  border-radius: 2px;
-  background-image: linear-gradient(top, #B26182 0%, #B2577A 100%);
-  background-image: -o-linear-gradient(top, #B26182 0%, #B2577A 100%);
-  background-image: -moz-linear-gradient(top, #B26182 0%, #B2577A 100%);
-  background-image: -webkit-linear-gradient(top, #B26182 0%, #B2577A 100%);
-  background-image: -ms-linear-gradient(top, #B26182 0%, #B2577A 100%);
-  background-image: -webkit-gradient(
-          linear,
-          left top,
-          left bottom,
-          color-stop(0.0, #B26182),
-          color-stop(1,0, #B2577A)
-  );
-  color: #fff;
-  font-weight: bold;
-  font-size: 12px;
-  letter-spacing: 0.6px;
-}
-
-.login-wrapper form fieldset button[type="submit"]:hover,
-.login-wrapper form fieldset button[type="submit"]:focus {
-  background-color: #B26182;
-  background-image: none;
-  cursor: pointer;
-}
-
-.login-wrapper form fieldset button[type="submit"]:active {
-  background-color: #B27497;
-  background-image: none;
-  cursor: pointer;
-  box-shadow: inset 0 0 5px 3px #B2577A;
-}
-
-.login-wrapper form fieldset input[type="checkbox"] {
-  margin-right: 6px;
-}
-
-.login-wrapper form fieldset input[type="text"],
-.login-wrapper form fieldset input[type="password"] {
-  color: #ffffff;
-  background-color: inherit;
-  margin: 4px 0px;
-  margin-bottom: 14px;
-  width: 282px;
-}
-
-.login-wrapper form fieldset button[type="submit"] {
-  float: right;
-  margin-top: 12px;
 }
 
 .logbar {
@@ -2155,7 +2205,7 @@ li.dropdown.open > a.dropdown-toggle {
   border-bottom: 1px solid #d4d4d4;
 }
 
-.ngRow.selected .ngCellText a {
+.ngRow.selected .ngCellText i {
   color: #ffffff !important;
   background-color: #B21054 !important;
 }

@@ -93,6 +93,8 @@ import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
+import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
+import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -485,6 +487,21 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getClusterConnectionObjectName(name);
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.CORE_CLUSTER_CONNECTION + name);
+   }
+
+   @Override
+   public void registerHawtioSecurity(ArtemisMBeanServerGuard mBeanServerGuard) throws Exception {
+      ObjectName objectName = objectNameBuilder.getManagementContextObjectName();
+      HawtioSecurityControl control = new HawtioSecurityControlImpl(mBeanServerGuard, storageManager);
+      registerInJMX(objectName, control);
+      registerInRegistry(ResourceNames.MANAGEMENT_SECURITY, control);
+   }
+
+   @Override
+   public void unregisterHawtioSecurity() throws Exception {
+      ObjectName objectName = objectNameBuilder.getManagementContextObjectName();
+      unregisterFromJMX(objectName);
+      unregisterFromRegistry(ResourceNames.MANAGEMENT_SECURITY);
    }
 
    @Override

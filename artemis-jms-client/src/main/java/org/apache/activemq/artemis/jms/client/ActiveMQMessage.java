@@ -91,7 +91,7 @@ public class ActiveMQMessage implements javax.jms.Message {
             entry.getKey().equals("priority")) {
             // Ignore
          } else if (entry.getKey().equals("userID")) {
-            jmsMessage.put("JMSMessageID", entry.getValue().toString());
+            jmsMessage.put("  JMSMessageID", entry.getValue().toString());
          } else {
             Object value = entry.getValue();
             if (value instanceof SimpleString) {

@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.deployers.Deployable;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.XMLUtil;
@@ -86,12 +87,12 @@ public class FileDeploymentManager {
    * Build a set of ActiveMQComponents from the Deployables configured
    */
    public Map<String, ActiveMQComponent> buildService(ActiveMQSecurityManager securityManager,
-                                                      MBeanServer mBeanServer) throws Exception {
+                                                      MBeanServer mBeanServer, ActivateCallback activateCallback) throws Exception {
       Map<String, ActiveMQComponent> components = new HashMap<>();
       for (Deployable deployable : deployables.values()) {
          // if the deployable was parsed then build the service
          if (deployable.isParsed()) {
-            deployable.buildService(securityManager, mBeanServer, deployables, components);
+            deployable.buildService(securityManager, mBeanServer, deployables, components, activateCallback);
          }
       }
       return components;
