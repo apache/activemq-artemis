@@ -117,6 +117,18 @@ public final class AddressSettingsInfo {
 
    private final long retroactiveMessageCount;
 
+   private final boolean autoCreateDeadLetterResources;
+
+   private final String deadLetterQueuePrefix;
+
+   private final String deadLetterQueueSuffix;
+
+   private final boolean autoCreateExpiryResources;
+
+   private final String expiryQueuePrefix;
+
+   private final String expiryQueueSuffix;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) {
@@ -167,7 +179,13 @@ public final class AddressSettingsInfo {
                                      object.getJsonNumber("autoDeleteQueuesMessageCount").longValue(),
                                      object.getJsonNumber("autoDeleteAddressesDelay").longValue(),
                                      object.getJsonNumber("redeliveryCollisionAvoidanceFactor").doubleValue(),
-                                     object.getJsonNumber("retroactiveMessageCount").longValue());
+                                     object.getJsonNumber("retroactiveMessageCount").longValue(),
+                                     object.getBoolean("autoCreateDeadLetterResources"),
+                                     object.getString("deadLetterQueuePrefix"),
+                                     object.getString("deadLetterQueueSuffix"),
+                                     object.getBoolean("autoCreateExpiryResources"),
+                                     object.getString("expiryQueuePrefix"),
+                                     object.getString("expiryQueueSuffix"));
    }
 
    // Constructors --------------------------------------------------
@@ -218,7 +236,13 @@ public final class AddressSettingsInfo {
                               long autoDeleteQueuesMessageCount,
                               long autoDeleteAddressesDelay,
                               double redeliveryCollisionAvoidanceFactor,
-                              long retroactiveMessageCount) {
+                              long retroactiveMessageCount,
+                              boolean autoCreateDeadLetterResources,
+                              String deadLetterQueuePrefix,
+                              String deadLetterQueueSuffix,
+                              boolean autoCreateExpiryResources,
+                              String expiryQueuePrefix,
+                              String expiryQueueSuffix) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -266,6 +290,12 @@ public final class AddressSettingsInfo {
       this.autoDeleteAddressesDelay = autoDeleteAddressesDelay;
       this.redeliveryCollisionAvoidanceFactor = redeliveryCollisionAvoidanceFactor;
       this.retroactiveMessageCount = retroactiveMessageCount;
+      this.autoCreateDeadLetterResources = autoCreateDeadLetterResources;
+      this.deadLetterQueuePrefix = deadLetterQueuePrefix;
+      this.deadLetterQueueSuffix = deadLetterQueueSuffix;
+      this.autoCreateExpiryResources = autoCreateExpiryResources;
+      this.expiryQueuePrefix = expiryQueuePrefix;
+      this.expiryQueueSuffix = expiryQueueSuffix;
    }
 
    // Public --------------------------------------------------------
@@ -464,6 +494,30 @@ public final class AddressSettingsInfo {
 
    public long getRetroactiveMessageCount() {
       return retroactiveMessageCount;
+   }
+
+   public boolean isAutoCreateDeadLetterResources() {
+      return autoCreateDeadLetterResources;
+   }
+
+   public String getDeadLetterQueuePrefix() {
+      return deadLetterQueuePrefix;
+   }
+
+   public String getDeadLetterQueueSuffix() {
+      return deadLetterQueueSuffix;
+   }
+
+   public boolean isAutoCreateExpiryResources() {
+      return autoCreateExpiryResources;
+   }
+
+   public String getExpiryQueuePrefix() {
+      return expiryQueuePrefix;
+   }
+
+   public String getExpiryQueueSuffix() {
+      return expiryQueueSuffix;
    }
 }
 

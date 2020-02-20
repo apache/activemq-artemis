@@ -1793,6 +1793,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (messageExpiryAddress != null) {
+
+         createExpiryResources();
+
          if (logger.isTraceEnabled()) {
             logger.trace("moving expired reference " + ref + " to address = " + messageExpiryAddress + " from queue=" + this.getName());
          }
@@ -3279,6 +3282,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       SimpleString expiryAddress = addressSettingsRepository.getMatch(address.toString()).getExpiryAddress();
 
       if (expiryAddress != null) {
+
+         createExpiryResources();
+
          Bindings bindingList = postOffice.lookupBindingsForAddress(expiryAddress);
 
          if (bindingList == null || bindingList.getBindings().isEmpty()) {
@@ -3340,6 +3346,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                         final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
+
+         createDeadLetterResources();
+
          Bindings bindingList = postOffice.lookupBindingsForAddress(deadLetterAddress);
 
          if (bindingList == null || bindingList.getBindings().isEmpty()) {
@@ -3357,6 +3366,28 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       return false;
+   }
+
+   private void createDeadLetterResources() throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
+      if (addressSettings.isAutoCreateDeadLetterResources() && !getAddress().equals(addressSettings.getDeadLetterAddress())) {
+         if (addressSettings.getDeadLetterAddress() != null && addressSettings.getDeadLetterAddress().length() != 0) {
+            SimpleString dlqName = addressSettings.getDeadLetterQueuePrefix().concat(getAddress()).concat(addressSettings.getDeadLetterQueueSuffix());
+            SimpleString dlqFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            server.createQueue(addressSettings.getDeadLetterAddress(), RoutingType.MULTICAST, dlqName, dlqFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+         }
+      }
+   }
+
+   private void createExpiryResources() throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
+      if (addressSettings.isAutoCreateExpiryResources() && !getAddress().equals(addressSettings.getExpiryAddress())) {
+         if (addressSettings.getExpiryAddress() != null && addressSettings.getExpiryAddress().length() != 0) {
+            SimpleString expiryQueueName = addressSettings.getExpiryQueuePrefix().concat(getAddress()).concat(addressSettings.getExpiryQueueSuffix());
+            SimpleString expiryFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            server.createQueue(addressSettings.getExpiryAddress(), RoutingType.MULTICAST, expiryQueueName, expiryFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+         }
+      }
    }
 
    private void move(final Transaction originalTX,
