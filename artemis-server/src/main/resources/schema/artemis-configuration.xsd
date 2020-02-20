@@ -3061,10 +3061,35 @@
             </xsd:documentation>
          </xsd:annotation>
          <xsd:all>
-            <xsd:element maxOccurs="1" minOccurs="0" name="dead-letter-address" type="xsd:string">
+            <xsd:element name="dead-letter-address" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      the address to send dead messages to
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-dead-letter-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create the dead-letter-address and/or a corresponding queue
+                     on that address when a message found to be undeliverable
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="dead-letter-queue-prefix" type="xsd:string" default="DLQ." maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the prefix to use for auto-created dead letter queues
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="dead-letter-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the suffix to use for auto-created dead letter queues
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -3073,6 +3098,31 @@
                <xsd:annotation>
                   <xsd:documentation>
                      the address to send expired messages to
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-expiry-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create the expiry-address and/or a corresponding queue
+                     on that address when a message is sent to a matching queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="expiry-queue-prefix" type="xsd:string" default="EXP." maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the prefix to use for auto-created expiry queues
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="expiry-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the suffix to use for auto-created expiry queues
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

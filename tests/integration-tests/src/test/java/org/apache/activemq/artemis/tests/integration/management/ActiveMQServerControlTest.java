@@ -754,6 +754,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       long autoDeleteAddressesDelay = RandomUtil.randomPositiveLong();
       double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
       long retroactiveMessageCount = RandomUtil.randomPositiveLong();
+      boolean autoCreateDeadLetterResources = RandomUtil.randomBoolean();
+      String deadLetterQueuePrefix = RandomUtil.randomString();
+      String deadLetterQueueSuffix = RandomUtil.randomString();
+      boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
+      String expiryQueuePrefix = RandomUtil.randomString();
+      String expiryQueueSuffix = RandomUtil.randomString();
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -803,7 +809,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        autoDeleteQueuesMessageCount,
                                        autoDeleteAddressesDelay,
                                        redeliveryCollisionAvoidanceFactor,
-                                       retroactiveMessageCount);
+                                       retroactiveMessageCount,
+                                       autoCreateDeadLetterResources,
+                                       deadLetterQueuePrefix,
+                                       deadLetterQueueSuffix,
+                                       autoCreateExpiryResources,
+                                       expiryQueuePrefix,
+                                       expiryQueueSuffix);
 
       boolean ex = false;
       try {
@@ -855,7 +867,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           autoDeleteQueuesMessageCount,
                                           autoDeleteAddressesDelay,
                                           redeliveryCollisionAvoidanceFactor,
-                                          retroactiveMessageCount);
+                                          retroactiveMessageCount,
+                                          autoCreateDeadLetterResources,
+                                          deadLetterQueuePrefix,
+                                          deadLetterQueueSuffix,
+                                          autoCreateExpiryResources,
+                                          expiryQueuePrefix,
+                                          expiryQueueSuffix);
       } catch (Exception expected) {
          ex = true;
       }
@@ -914,6 +932,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
       assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(retroactiveMessageCount, info.getRetroactiveMessageCount());
+      assertEquals(autoCreateDeadLetterResources, info.isAutoCreateDeadLetterResources());
+      assertEquals(deadLetterQueuePrefix, info.getDeadLetterQueuePrefix());
+      assertEquals(deadLetterQueueSuffix, info.getDeadLetterQueueSuffix());
+      assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -963,7 +987,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        autoDeleteQueuesMessageCount,
                                        autoDeleteAddressesDelay,
                                        redeliveryCollisionAvoidanceFactor,
-                                       retroactiveMessageCount);
+                                       retroactiveMessageCount,
+                                       autoCreateDeadLetterResources,
+                                       deadLetterQueuePrefix,
+                                       deadLetterQueueSuffix,
+                                       autoCreateExpiryResources,
+                                       expiryQueuePrefix,
+                                       expiryQueueSuffix);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -1015,6 +1045,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
       assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
       assertEquals(retroactiveMessageCount, info.getRetroactiveMessageCount());
+      assertEquals(autoCreateDeadLetterResources, info.isAutoCreateDeadLetterResources());
+      assertEquals(deadLetterQueuePrefix, info.getDeadLetterQueuePrefix());
+      assertEquals(deadLetterQueueSuffix, info.getDeadLetterQueueSuffix());
+      assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
 
       ex = false;
       try {
@@ -1066,7 +1102,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           autoDeleteQueuesMessageCount,
                                           autoDeleteAddressesDelay,
                                           redeliveryCollisionAvoidanceFactor,
-                                          retroactiveMessageCount);
+                                          retroactiveMessageCount,
+                                          autoCreateDeadLetterResources,
+                                          deadLetterQueuePrefix,
+                                          deadLetterQueueSuffix,
+                                          autoCreateExpiryResources,
+                                          expiryQueuePrefix,
+                                          expiryQueueSuffix);
       } catch (Exception e) {
          ex = true;
       }
