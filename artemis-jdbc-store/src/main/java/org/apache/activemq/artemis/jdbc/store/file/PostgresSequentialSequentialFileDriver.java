@@ -23,9 +23,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.postgresql.PGConnection;
-import org.postgresql.largeobject.LargeObject;
-import org.postgresql.largeobject.LargeObjectManager;
 
 import javax.sql.DataSource;
 
@@ -33,6 +30,7 @@ import javax.sql.DataSource;
 public final class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFactoryDriver {
 
    private static final String POSTGRES_OID_KEY = "POSTGRES_OID_KEY";
+   private PostgresLargeObjectManager largeObjectManager;
 
    public PostgresSequentialSequentialFileDriver() throws SQLException {
       super();
@@ -52,6 +50,7 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
 
    @Override
    protected void prepareStatements() throws SQLException {
+      this.largeObjectManager = new PostgresLargeObjectManager(connection);
       this.deleteFile = connection.prepareStatement(sqlProvider.getDeleteFileSQL());
       this.createFile = connection.prepareStatement(sqlProvider.getInsertFileSQL(), Statement.RETURN_GENERATED_KEYS);
       this.selectFileByFileName = connection.prepareStatement(sqlProvider.getSelectFileByFileName());
@@ -67,9 +66,7 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
       synchronized (connection) {
          try {
             connection.setAutoCommit(false);
-
-            LargeObjectManager lobjManager = ((PGConnection) connection).getLargeObjectAPI();
-            long oid = lobjManager.createLO();
+            Long oid = largeObjectManager.createLO();
 
             createFile.setString(1, file.getFileName());
             createFile.setString(2, file.getExtension());
@@ -109,20 +106,19 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
    @Override
    public int writeToFile(JDBCSequentialFile file, byte[] data, boolean append) throws SQLException {
       synchronized (connection) {
-         LargeObjectManager lobjManager = ((PGConnection) connection).getLargeObjectAPI();
-         LargeObject largeObject = null;
+         Object largeObject = null;
 
          Long oid = getOID(file);
          try {
             connection.setAutoCommit(false);
-            largeObject = lobjManager.open(oid, LargeObjectManager.WRITE);
+            largeObject = largeObjectManager.open(oid, PostgresLargeObjectManager.WRITE);
             if (append) {
-               largeObject.seek(largeObject.size());
+               largeObjectManager.seek(largeObject, largeObjectManager.size(largeObject));
             } else {
-               largeObject.truncate(0);
+               largeObjectManager.truncate(largeObject, 0);
             }
-            largeObject.write(data);
-            largeObject.close();
+            largeObjectManager.write(largeObject, data);
+            largeObjectManager.close(largeObject);
             connection.commit();
          } catch (Exception e) {
             connection.rollback();
@@ -134,23 +130,23 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
 
    @Override
    public int readFromFile(JDBCSequentialFile file, ByteBuffer bytes) throws SQLException {
-      LargeObjectManager lobjManager = ((PGConnection) connection).getLargeObjectAPI();
-      LargeObject largeObject = null;
+      Object largeObject = null;
       long oid = getOID(file);
       synchronized (connection) {
          try {
             connection.setAutoCommit(false);
-            largeObject = lobjManager.open(oid, LargeObjectManager.READ);
-            int readLength = (int) calculateReadLength(largeObject.size(), bytes.remaining(), file.position());
+            largeObject = largeObjectManager.open(oid, PostgresLargeObjectManager.READ);
+            int readLength = (int) calculateReadLength(largeObjectManager.size(largeObject), bytes.remaining(), file.position());
 
             if (readLength > 0) {
-               if (file.position() > 0)
-                  largeObject.seek((int) file.position());
-               byte[] data = largeObject.read(readLength);
+               if (file.position() > 0) {
+                  largeObjectManager.seek(largeObject, (int) file.position());
+               }
+               byte[] data = largeObjectManager.read(largeObject, readLength);
                bytes.put(data);
             }
 
-            largeObject.close();
+            largeObjectManager.close(largeObject);
             connection.commit();
 
             return readLength;
@@ -185,17 +181,15 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
    }
 
    private int getPostGresLargeObjectSize(JDBCSequentialFile file) throws SQLException {
-      LargeObjectManager lobjManager = ((PGConnection) connection).getLargeObjectAPI();
-
       int size = 0;
       Long oid = getOID(file);
       if (oid != null) {
          synchronized (connection) {
             try {
                connection.setAutoCommit(false);
-               LargeObject largeObject = lobjManager.open(oid, LargeObjectManager.READ);
-               size = largeObject.size();
-               largeObject.close();
+               Object largeObject = largeObjectManager.open(oid, PostgresLargeObjectManager.READ);
+               size = largeObjectManager.size(largeObject);
+               largeObjectManager.close(largeObject);
                connection.commit();
             } catch (SQLException e) {
                connection.rollback();
