@@ -40,7 +40,7 @@ Default here is FALSE. If you set this to true, it will change security settings
 
 - CREATE_ARGUMENTS
 
-Default here is `--user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent --http-host 0.0.0.0 --relax-jolokia"`
+Default here is `--user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent --http-host 0.0.0.0 --relax-jolokia`
 
 
 This will be passed straight to `./artemis create` during the execution.
