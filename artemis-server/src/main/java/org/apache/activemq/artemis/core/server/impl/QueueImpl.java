@@ -316,6 +316,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile long ringSize;
 
+   private volatile boolean used;
+
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
     * to guarantee ordering will be always be correct
@@ -1023,6 +1025,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void addTail(final MessageReference ref, final boolean direct) {
+      used = true;
+
       enterCritical(CRITICAL_PATH_ADD_TAIL);
       try {
          if (scheduleIfPossible(ref)) {
@@ -1219,6 +1223,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (logger.isDebugEnabled()) {
          logger.debug(this + " adding consumer " + consumer);
       }
+
+      used = true;
 
       enterCritical(CRITICAL_CONSUMER);
       try {
@@ -1629,6 +1635,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getDurableDeliveringSize() {
       return deliveringMetrics.getDurablePersistentSize();
+   }
+
+   @Override
+   public boolean isUsed() {
+      return used;
    }
 
    @Override

@@ -235,6 +235,12 @@ public interface Queue extends Bindable,CriticalComponent {
 
    long getDurableDeliveringSize();
 
+   /**
+    * Whether or not this queue has had a message or consumer added to it. This is used when determining
+    * whether or not to auto-delete the queue.
+    */
+   boolean isUsed();
+
    void referenceHandled(MessageReference ref);
 
    int getScheduledCount();

@@ -1747,7 +1747,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       @Override
       public void run() {
          for (Queue queue : getLocalQueues()) {
-            if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue)) {
+            if (!queue.isInternalQueue() && queue.isUsed() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue)) {
                QueueManagerImpl.performAutoDeleteQueue(server, queue);
             }
          }

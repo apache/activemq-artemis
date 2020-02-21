@@ -1212,6 +1212,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isUsed() {
+         return false;
+      }
+
+      @Override
       public int getDurableScheduledCount() {
          return 0;
       }

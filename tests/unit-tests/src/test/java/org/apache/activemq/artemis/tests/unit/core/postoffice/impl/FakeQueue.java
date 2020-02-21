@@ -932,6 +932,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isUsed() {
+      return false;
+   }
+
+   @Override
    public int getDurableScheduledCount() {
       return 0;
    }

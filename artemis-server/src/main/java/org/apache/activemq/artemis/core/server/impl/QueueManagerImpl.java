@@ -84,8 +84,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
    }
 
    public static boolean delayCheck(Queue queue) {
-      long consumerRemovedTimestamp =  queue.getConsumerRemovedTimestamp();
-      return consumerRemovedTimestamp != -1 && System.currentTimeMillis() - consumerRemovedTimestamp >= queue.getAutoDeleteDelay();
+      return System.currentTimeMillis() - queue.getConsumerRemovedTimestamp() >= queue.getAutoDeleteDelay();
    }
 
    public static boolean consumerCountCheck(Queue queue) {

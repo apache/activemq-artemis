@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -30,6 +31,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,6 +76,25 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       Assert.assertNotNull(m);
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
+   }
+
+   @Test
+   public void testAutoDeleteOnExpiration() throws Exception {
+      SimpleString expiryAddress = new SimpleString("expiryAddress");
+      SimpleString address = new SimpleString("address");
+      SimpleString queue = new SimpleString("queue");
+      SimpleString expiryQueue = new SimpleString("expiryQueue");
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setExpiryAddress(expiryAddress).setAutoDeleteQueues(true));
+      clientSession.createQueue(expiryAddress, RoutingType.MULTICAST, expiryQueue, null, false);
+      clientSession.createQueue(address, RoutingType.MULTICAST, queue, null, false, true);
+
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
+      clientMessage.setExpiration(System.currentTimeMillis());
+      producer.send(clientMessage);
+
+      Wait.assertTrue(() -> server.locateQueue(queue) == null, 4000,100);
+      Wait.assertTrue(() -> server.getAddressInfo(address) == null, 4000,100);
    }
 
    @Test
@@ -360,6 +381,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
+      server.getConfiguration().setAddressQueueScanPeriod(1000);
+      server.getConfiguration().setMessageExpiryScanPeriod(1000);
       server.start();
       // then we create a client as normal
       locator = createInVMNonHALocator().setBlockOnAcknowledge(true);
