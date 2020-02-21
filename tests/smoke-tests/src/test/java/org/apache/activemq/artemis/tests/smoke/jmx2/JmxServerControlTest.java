@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.smoke.jmx2;
 
+import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -87,18 +88,22 @@ public class JmxServerControlTest extends SmokeTestBase {
          activeMQServerControl.createQueue(addressName, queueName, RoutingType.ANYCAST.name());
          String uri = "tcp://localhost:61616";
          try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
-            cf.createConnection().createSession(true, Session.SESSION_TRANSACTED).createConsumer(new ActiveMQQueue(queueName));
+            MessageConsumer consumer = cf.createConnection().createSession(true, Session.SESSION_TRANSACTED).createConsumer(new ActiveMQQueue(queueName));
 
-            String options = JsonUtil.toJsonObject(ImmutableMap.of("field","queue", "operation", "EQUALS", "value", queueName)).toString();
-            String consumersAsJsonString = activeMQServerControl.listConsumers(options, 1, 10);
+            try {
+               String options = JsonUtil.toJsonObject(ImmutableMap.of("field","queue", "operation", "EQUALS", "value", queueName)).toString();
+               String consumersAsJsonString = activeMQServerControl.listConsumers(options, 1, 10);
 
-            JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
-            JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
+               JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+               JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
 
-            Assert.assertEquals("number of consumers returned from query", 1, array.size());
-            JsonObject jsonConsumer = array.getJsonObject(0);
-            Assert.assertEquals("queue name in consumer", queueName, jsonConsumer.getString("queue"));
-            Assert.assertEquals("address name in consumer", addressName, jsonConsumer.getString("address"));
+               Assert.assertEquals("number of consumers returned from query", 1, array.size());
+               JsonObject jsonConsumer = array.getJsonObject(0);
+               Assert.assertEquals("queue name in consumer", queueName, jsonConsumer.getString("queue"));
+               Assert.assertEquals("address name in consumer", addressName, jsonConsumer.getString("address"));
+            } finally {
+               consumer.close();
+            }
          }
       } finally {
          jmxConnector.close();
