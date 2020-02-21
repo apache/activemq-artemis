@@ -1859,6 +1859,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          acknowledge(ref, AckReason.EXPIRED, consumer);
       }
 
+      // potentially auto-delete this queue if this expired the last message
+      refCountForConsumers.check();
+
       if (server != null && server.hasBrokerMessagePlugins()) {
          final SimpleString expiryAddress = messageExpiryAddress;
          server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, expiryAddress, consumer));
@@ -3366,6 +3369,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          expiryLogger.addExpiry(address, ref);
       }
 
+      // potentially auto-delete this queue if this expired the last message
+      tx.addOperation(new TransactionOperationAbstract() {
+         @Override
+         public void afterCommit(Transaction tx) {
+            refCountForConsumers.check();
+         }
+      });
    }
 
    private class ExpiryLogger extends TransactionOperationAbstract {
