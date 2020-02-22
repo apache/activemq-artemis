@@ -72,6 +72,20 @@ public class WebServerComponent implements ExternalComponent {
          SslContextFactory.Server sslFactory = new SslContextFactory.Server();
          sslFactory.setKeyStorePath(webServerConfig.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : webServerConfig.keyStorePath);
          sslFactory.setKeyStorePassword(webServerConfig.getKeyStorePassword() == null ? "password" : webServerConfig.getKeyStorePassword());
+         String[] ips = sslFactory.getIncludeProtocols();
+
+         if (webServerConfig.getIncludedTLSProtocols() != null) {
+            sslFactory.setIncludeProtocols(webServerConfig.getIncludedTLSProtocols());
+         }
+         if (webServerConfig.getExcludedTLSProtocols() != null) {
+            sslFactory.setExcludeProtocols(webServerConfig.getExcludedTLSProtocols());
+         }
+         if (webServerConfig.getIncludedCipherSuites() != null) {
+            sslFactory.setIncludeCipherSuites(webServerConfig.getIncludedCipherSuites());
+         }
+         if (webServerConfig.getExcludedCipherSuites() != null) {
+            sslFactory.setExcludeCipherSuites(webServerConfig.getExcludedCipherSuites());
+         }
          if (webServerConfig.clientAuth != null) {
             sslFactory.setNeedClientAuth(webServerConfig.clientAuth);
             if (webServerConfig.clientAuth) {
