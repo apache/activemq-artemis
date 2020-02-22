@@ -41,6 +41,14 @@ The `web` element has the following attributes:
   using `https`. Can be masked using `ENC()` syntax or by defining
   `passwordCodec`. See more in the [password masking](masking-passwords.md)
   chapter.
+- `includedTLSProtocols` A comma seperated list of included TLS protocols,
+  ie `"TLSv1,TLSv1.1,TLSv1.2"`. Only applicable when using `https`.
+- `excludedTLSProtocols` A comma seperated list of excluded TLS protocols,
+  ie `"TLSv1,TLSv1.1,TLSv1.2"`. Only applicable when using `https`.
+- `includedCipherSuites` A comma seperated list of included cipher suites.
+  Only applicable when using `https`.
+- `excludedCipherSuites` A comma seperated list of excluded cipher suites.
+  Only applicable when using `https`.
 
 Each web application should be defined in an `app` element. The `app` element
 has the following attributes:
