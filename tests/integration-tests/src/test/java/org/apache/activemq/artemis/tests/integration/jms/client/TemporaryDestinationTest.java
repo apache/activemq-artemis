@@ -47,6 +47,11 @@ public class TemporaryDestinationTest extends JMSTestBase {
       super.setUp();
    }
 
+   @Override
+   protected boolean usePersistence() {
+      return true;
+   }
+
    @Test
    public void testTemporaryQueueLeak() throws Exception {
       ActiveMQConnection conn = null;
@@ -206,6 +211,37 @@ public class TemporaryDestinationTest extends JMSTestBase {
             fail();
          } catch (JMSException e) {
          }
+      } finally {
+         if (conn != null) {
+            conn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testTemporaryResourcesDeletedAfterServerRestart() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
+
+      Connection conn = null;
+
+      try {
+         conn = createConnection();
+
+         Session producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         TemporaryQueue tempQueue = producerSession.createTemporaryQueue();
+
+         assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(tempQueue.getQueueName())));
+
+         server.stop();
+
+         conn.close();
+
+         server.start();
+
+         waitForServerToStart(server);
+
+         assertNull(server.getAddressInfo(SimpleString.toSimpleString(tempQueue.getQueueName())));
       } finally {
          if (conn != null) {
             conn.close();

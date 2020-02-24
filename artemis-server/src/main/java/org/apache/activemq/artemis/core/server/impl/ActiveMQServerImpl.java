@@ -3382,9 +3382,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
       if (autoCreateAddress || temporary) {
          if (info == null) {
-            final AddressInfo addressInfo = new AddressInfo(addressToUse, rt);
-            addressInfo.setAutoCreated(true);
-            addressInfo.setInternal(addrInfo == null ? false : addrInfo.isInternal());
+            final AddressInfo addressInfo = new AddressInfo(addressToUse, rt)
+               .setAutoCreated(true)
+               .setTemporary(temporary)
+               .setInternal(addrInfo == null ? false : addrInfo.isInternal());
             addAddressInfo(addressInfo);
          } else if (!info.getRoutingTypes().contains(rt)) {
             EnumSet<RoutingType> routingTypes = EnumSet.copyOf(info.getRoutingTypes());
