@@ -46,6 +46,8 @@ public class AddressInfo {
 
    private boolean autoCreated = false;
 
+   private volatile boolean temporary = false;
+
    private static final EnumSet<RoutingType> EMPTY_ROUTING_TYPES = EnumSet.noneOf(RoutingType.class);
    private EnumSet<RoutingType> routingTypes;
    private RoutingType firstSeen;
@@ -98,6 +100,15 @@ public class AddressInfo {
 
    public AddressInfo setAutoCreated(boolean autoCreated) {
       this.autoCreated = autoCreated;
+      return this;
+   }
+
+   public boolean isTemporary() {
+      return temporary;
+   }
+
+   public AddressInfo setTemporary(boolean temporary) {
+      this.temporary = temporary;
       return this;
    }
 
