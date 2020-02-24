@@ -2,6 +2,8 @@
 
 To run the example, simply type **mvn verify** from this directory, or **mvn -PnoServer verify** if you want to start and create the broker manually.
 
+**Note:** The logging from the embedded Apache DS LDAP server is verbose and it may appear that there are errors, but these logs can be ignored.
+
 This example shows how to configure and use security using ActiveMQ Artemis and the Apache DS LDAP server.
 
 With security properly configured, ActiveMQ Artemis can restrict client access to its resources, including connection creation, message sending/receiving, etc. This is done by configuring users and roles as well as permissions in the configuration files.

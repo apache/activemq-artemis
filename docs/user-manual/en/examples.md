@@ -715,8 +715,14 @@ delivered until a specified time in the future.
 
 ## Security
 
-The `security` example shows you how configure and use role based queue
-security with Apache ActiveMQ Artemis.
+The `security` example shows you how configure and use role based security with
+Apache ActiveMQ Artemis.
+
+## Security LDAP
+
+The `security-ldap` example shows you how configure and use role based security
+with Apache ActiveMQ Artemis & an embedded instance of the Apache DS LDAP
+server.
 
 ## Send Acknowledgements
 
