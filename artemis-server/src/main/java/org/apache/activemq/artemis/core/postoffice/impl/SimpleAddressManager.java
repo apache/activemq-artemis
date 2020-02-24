@@ -269,7 +269,7 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public boolean addAddressInfo(AddressInfo addressInfo) throws Exception {
       boolean added = reloadAddressInfo(addressInfo);
-      if (added && storageManager != null) {
+      if (!addressInfo.isTemporary() && added && storageManager != null) {
          long txID = storageManager.generateID();
          try {
             storageManager.addAddressBinding(txID, addressInfo);
