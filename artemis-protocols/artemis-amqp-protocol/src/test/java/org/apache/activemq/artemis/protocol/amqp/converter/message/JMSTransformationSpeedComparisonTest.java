@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
@@ -62,12 +63,12 @@ public class JMSTransformationSpeedComparisonTest {
    public void testBodyOnlyMessage() throws Exception {
       MessageImpl message = (MessageImpl) Proton.message();
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
-      AMQPMessage encoded = encodeAndCreateAMQPMessage(message);
+      AMQPStandardMessage encoded = encodeAndCreateAMQPMessage(message);
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       long totalDuration = 0;
@@ -75,7 +76,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -92,12 +93,12 @@ public class JMSTransformationSpeedComparisonTest {
       message.setContentType("text/plain");
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
-      AMQPMessage encoded = encodeAndCreateAMQPMessage(message);
+      AMQPStandardMessage encoded = encodeAndCreateAMQPMessage(message);
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       long totalDuration = 0;
@@ -105,7 +106,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -114,12 +115,12 @@ public class JMSTransformationSpeedComparisonTest {
 
    @Test
    public void testTypicalQpidJMSMessage() throws Exception {
-      AMQPMessage encoded = encodeAndCreateAMQPMessage(createTypicalQpidJMSMessage());
+      AMQPStandardMessage encoded = encodeAndCreateAMQPMessage(createTypicalQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       long totalDuration = 0;
@@ -127,7 +128,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -137,12 +138,12 @@ public class JMSTransformationSpeedComparisonTest {
    @Test
    public void testComplexQpidJMSMessage() throws Exception {
 
-      AMQPMessage encoded = encodeAndCreateAMQPMessage(createComplexQpidJMSMessage());
+      AMQPStandardMessage encoded = encodeAndCreateAMQPMessage(createComplexQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       long totalDuration = 0;
@@ -150,7 +151,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -160,12 +161,12 @@ public class JMSTransformationSpeedComparisonTest {
    @Test
    public void testTypicalQpidJMSMessageInBoundOnly() throws Exception {
 
-      AMQPMessage encoded = encodeAndCreateAMQPMessage(createTypicalQpidJMSMessage());
+      AMQPStandardMessage encoded = encodeAndCreateAMQPMessage(createTypicalQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       long totalDuration = 0;
@@ -173,7 +174,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       totalDuration += System.nanoTime() - startTime;
@@ -183,12 +184,12 @@ public class JMSTransformationSpeedComparisonTest {
 
    @Test
    public void testTypicalQpidJMSMessageOutBoundOnly() throws Exception {
-      AMQPMessage encoded = encodeAndCreateAMQPMessage(createTypicalQpidJMSMessage());
+      AMQPStandardMessage encoded = encodeAndCreateAMQPMessage(createTypicalQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       long totalDuration = 0;
@@ -196,7 +197,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate));
+         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
       }
 
       totalDuration += System.nanoTime() - startTime;
@@ -272,13 +273,13 @@ public class JMSTransformationSpeedComparisonTest {
       return message;
    }
 
-   private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+   private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {
       NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
       message.encode(encoded);
 
       NettyReadable readable = new NettyReadable(encoded.getByteBuf());
 
-      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+      return new AMQPStandardMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 
    private void encode(AMQPMessage target) {

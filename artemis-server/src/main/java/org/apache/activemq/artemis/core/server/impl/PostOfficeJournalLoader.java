@@ -238,7 +238,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
                record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
             }
 
-            MessageReference ref = postOffice.reroute(record.getMessage(), queue, null);
+            MessageReference ref = postOffice.reload(record.getMessage(), queue, null);
 
             ref.setDeliveryCount(record.getDeliveryCount());
 
@@ -252,7 +252,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
    @Override
    public void handleNoMessageReferences(Map<Long, Message> messages) {
       for (Message msg : messages.values()) {
-         if (msg.getRefCount() == 0) {
+         if (msg.getRefCount() == 0 && msg.getDurableCount() == 0) {
             ActiveMQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
             try {
                storageManager.deleteMessage(msg.getMessageID());
@@ -308,7 +308,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
          ActiveMQServerLogger.LOGGER.journalMessageInPreparedTX(queueID);
          return;
       }
-      postOffice.reroute(message, queue, tx);
+      postOffice.reload(message, queue, tx);
    }
 
    @Override

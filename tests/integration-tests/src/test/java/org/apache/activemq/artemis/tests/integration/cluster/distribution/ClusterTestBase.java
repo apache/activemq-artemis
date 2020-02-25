@@ -1928,6 +1928,12 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
          log.info("started server " + servers[node]);
          waitForServerToStart(servers[node]);
+
+         for (int i = 0; i < node * 1000; i++) {
+            // it is common to have messages landing with similar IDs on separate nodes, which could hide a few issues.
+            // so we make them unequal
+            servers[node].getStorageManager().generateID();
+         }
       }
    }
 

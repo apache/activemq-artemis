@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.CoreLargeServerMessage;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -112,7 +113,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private boolean started;
 
-   private volatile LargeMessageDeliverer largeMessageDeliverer = null;
+   private volatile CoreLargeMessageDeliverer largeMessageDeliverer = null;
 
    @Override
    public String debug() {
@@ -458,19 +459,21 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                }
             }
 
+            // The deliverer will increase the usageUp, so the preAck has to be done after this is created
+            // otherwise we may have a removed message early on
+            if (message instanceof CoreLargeServerMessage && this.supportLargeMessage) {
+               largeMessageDeliverer = new CoreLargeMessageDeliverer((LargeServerMessage) message, ref);
+            }
+
             if (preAcknowledge) {
                if (message.isLargeMessage()) {
                   // we must hold one reference, or the file will be deleted before it could be delivered
-                  ((LargeServerMessage) message).incrementDelayDeletionCount();
+                  ((LargeServerMessage) message).toMessage().usageUp();
                }
 
                // With pre-ack, we ack *before* sending to the client
                ref.getQueue().acknowledge(ref, this);
                acks++;
-            }
-
-            if (message.isLargeMessage() && this.supportLargeMessage) {
-               largeMessageDeliverer = new LargeMessageDeliverer((LargeServerMessage) message, ref);
             }
 
          }
@@ -490,12 +493,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             server.callBrokerMessagePlugins(plugin -> plugin.beforeDeliver(this, reference));
          }
 
-         if (message.isLargeMessage() && supportLargeMessage) {
+         if (message instanceof CoreLargeServerMessage && supportLargeMessage) {
             if (largeMessageDeliverer == null) {
                // This can't really happen as handle had already crated the deliverer
                // instead of throwing an exception in weird cases there is no problem on just go ahead and create it
                // again here
-               largeMessageDeliverer = new LargeMessageDeliverer((LargeServerMessage) message, reference);
+               largeMessageDeliverer = new CoreLargeMessageDeliverer((LargeServerMessage) message, reference);
             }
             // The deliverer was prepared during handle, as we can't have more than one pending large message
             // as it would return busy if there is anything pending
@@ -550,7 +553,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       setStarted(false);
 
-      LargeMessageDeliverer del = largeMessageDeliverer;
+      CoreLargeMessageDeliverer del = largeMessageDeliverer;
 
       if (del != null) {
          del.finish();
@@ -688,7 +691,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       boolean performACK = lastConsumedAsDelivered;
 
       try {
-         LargeMessageDeliverer pendingLargeMessageDeliverer = largeMessageDeliverer;
+         CoreLargeMessageDeliverer pendingLargeMessageDeliverer = largeMessageDeliverer;
          if (pendingLargeMessageDeliverer != null) {
             pendingLargeMessageDeliverer.finish();
          }
@@ -1220,7 +1223,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * Internal encapsulation of the logic on sending LargeMessages.
     * This Inner class was created to avoid a bunch of loose properties about the current LargeMessage being sent
     */
-   private final class LargeMessageDeliverer {
+   private final class CoreLargeMessageDeliverer {
 
       private long sizePendingLargeMessage;
 
@@ -1235,14 +1238,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
        */
       private long positionPendingLargeMessage;
 
-      private LargeBodyEncoder context;
+      private LargeBodyReader context;
 
       private ByteBuffer chunkBytes;
 
-      private LargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
+      private CoreLargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
          largeMessage = message;
 
-         largeMessage.incrementDelayDeletionCount();
+         largeMessage.toMessage().usageUp();
 
          this.ref = ref;
 
@@ -1289,15 +1292,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             }
 
             if (!sentInitialPacket) {
-               context = currentLargeMessage.getBodyEncoder();
+               context = currentLargeMessage.getLargeBodyReader();
 
-               sizePendingLargeMessage = context.getLargeBodySize();
+               sizePendingLargeMessage = context.getSize();
 
                context.open();
 
                sentInitialPacket = true;
 
-               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage, ServerConsumerImpl.this, context.getLargeBodySize(), ref.getDeliveryCount());
+               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage.toMessage(), ServerConsumerImpl.this, context.getSize(), ref.getDeliveryCount());
 
                if (availableCredits != null) {
                   final int credits = availableCredits.addAndGet(-packetSize);
@@ -1337,7 +1340,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                assert bodyBuffer.remaining() == localChunkLen;
 
-               final int readBytes = context.encode(bodyBuffer);
+               final int readBytes = context.readInto(bodyBuffer);
 
                assert readBytes == localChunkLen;
 
@@ -1406,12 +1409,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
             largeMessage.releaseResources(false);
 
-            largeMessage.decrementDelayDeletionCount();
-
-            if (preAcknowledge && !browseOnly) {
-               // PreAck will have an extra reference
-               largeMessage.decrementDelayDeletionCount();
-            }
+            largeMessage.toMessage().usageDown();
 
             largeMessageDeliverer = null;
 

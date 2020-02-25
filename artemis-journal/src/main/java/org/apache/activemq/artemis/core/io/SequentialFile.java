@@ -45,6 +45,8 @@ public interface SequentialFile {
     */
    void open(int maxIO, boolean useExecutor) throws Exception;
 
+   ByteBuffer map(int position, long size) throws IOException;
+
    boolean fits(int size);
 
    int calculateBlockStart(int position) throws Exception;

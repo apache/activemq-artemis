@@ -39,7 +39,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
@@ -62,7 +63,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    // There's an integer with the number of bytes for the body
    public static final int BODY_OFFSET = DataConstants.SIZE_INT;
 
-   /** That is the encode for the whole message, including properties..
+   /** That is the readInto for the whole message, including properties..
        it does not include the buffer for the Packet send and receive header on core protocol */
    protected ByteBuf buffer;
 
@@ -130,7 +131,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public Persister<Message, CoreMessageObjectPools> getPersister() {
+   public Persister<Message> getPersister() {
       return CoreMessagePersister.getInstance();
    }
 
@@ -237,13 +238,13 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    private ActiveMQBuffer getLargeMessageBuffer() throws ActiveMQException {
-      LargeBodyEncoder encoder = getBodyEncoder();
+      LargeBodyReader encoder = getLargeBodyReader();
       encoder.open();
-      int bodySize = (int) encoder.getLargeBodySize();
+      int bodySize = (int) encoder.getSize();
       final ActiveMQBuffer buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
       buffer.byteBuf().ensureWritable(bodySize);
       final ByteBuffer nioBuffer = buffer.byteBuf().internalNioBuffer(0, bodySize);
-      encoder.encode(nioBuffer);
+      encoder.readInto(nioBuffer);
       buffer.writerIndex(bodySize);
       encoder.close();
       return buffer;
@@ -427,7 +428,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       synchronized (other) {
          this.body = other.body;
          this.endOfBodyPosition = other.endOfBodyPosition;
-         this.messageID = other.messageID;
+         internalSetMessageID(other.messageID);
          this.address = other.address;
          this.type = other.type;
          this.durable = other.durable;
@@ -445,9 +446,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       }
    }
 
+   /** This method serves as a purpose of extension.
+    *   Large Message on a Core Message will have to set the messageID on the attached NewLargeMessage */
+   protected void internalSetMessageID(final long messageID) {
+      this.messageID = messageID;
+   }
+
    @Override
    public void moveHeadersAndProperties(final Message msg) {
-      messageID = msg.getMessageID();
+      internalSetMessageID(msg.getMessageID());
       address = msg.getAddressSimpleString();
       userID = (UUID) msg.getUserID();
       type = msg.toCore().getType();
@@ -523,7 +530,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setMessageID(long messageID) {
-      this.messageID = messageID;
+      internalSetMessageID(messageID);
       if (messageIDPosition >= 0 && validBuffer) {
          buffer.setLong(messageIDPosition, messageID);
       }
@@ -671,7 +678,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    private void decodeHeadersAndProperties(final ByteBuf buffer, boolean lazyProperties, CoreMessageObjectPools pools) {
       messageIDPosition = buffer.readerIndex();
-      messageID = buffer.readLong();
+      internalSetMessageID(buffer.readLong());
 
       address = SimpleString.readNullableSimpleString(buffer, pools == null ? null : pools.getAddressDecoderPool());
       if (buffer.readByte() == DataConstants.NOT_NULL) {
@@ -1137,15 +1144,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
-      return new DecodingContext();
+   public LargeBodyReader getLargeBodyReader() throws ActiveMQException {
+      return new CoreLargeBodyReaderImpl();
    }
 
-   private final class DecodingContext implements LargeBodyEncoder {
+   private final class CoreLargeBodyReaderImpl implements LargeBodyReader {
 
       private int lastPos = 0;
 
-      private DecodingContext() {
+      private CoreLargeBodyReaderImpl() {
       }
 
       @Override
@@ -1153,16 +1160,26 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       }
 
       @Override
+      public void position(long position) throws ActiveMQException {
+         lastPos = (int)position;
+      }
+
+      @Override
+      public long position() {
+         return lastPos;
+      }
+
+      @Override
       public void close() {
       }
 
       @Override
-      public long getLargeBodySize() {
+      public long getSize() {
          return buffer.writerIndex();
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) {
+      public int readInto(final ByteBuffer bufferRead) {
          final int remaining = bufferRead.remaining();
          buffer.getBytes(lastPos, bufferRead);
          lastPos += remaining;

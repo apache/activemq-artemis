@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
@@ -37,6 +36,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -48,7 +48,6 @@ import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
-import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.junit.Test;
@@ -68,40 +67,24 @@ public class ProtonServerReceiverContextTest {
 
    @Test
    public void addressFull_SourceSupportsModified() throws Exception {
-      doOnMessageWithDeliveryException(asList(Rejected.DESCRIPTOR_SYMBOL,
-                                              Accepted.DESCRIPTOR_SYMBOL,
-                                              Modified.DESCRIPTOR_SYMBOL),
-                                       null, new ActiveMQAddressFullException(),
-                                       Modified.class);
+      doOnMessageWithDeliveryException(asList(Rejected.DESCRIPTOR_SYMBOL, Accepted.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL), null, new ActiveMQAddressFullException(), Modified.class);
    }
 
    @Test
    public void addressFull_SourceDoesNotSupportModified() throws Exception {
-      doOnMessageWithDeliveryException(asList(Rejected.DESCRIPTOR_SYMBOL,
-                                              Accepted.DESCRIPTOR_SYMBOL),
-                                       null, new ActiveMQAddressFullException(),
-                                       Rejected.class);
+      doOnMessageWithDeliveryException(asList(Rejected.DESCRIPTOR_SYMBOL, Accepted.DESCRIPTOR_SYMBOL), null, new ActiveMQAddressFullException(), Rejected.class);
    }
 
    @Test
    public void otherFailure_SourceSupportsRejects() throws Exception {
-      doOnMessageWithDeliveryException(asList(Rejected.DESCRIPTOR_SYMBOL,
-                                              Accepted.DESCRIPTOR_SYMBOL,
-                                              Modified.DESCRIPTOR_SYMBOL),
-                                       null, new ActiveMQException(),
-                                       Rejected.class);
+      doOnMessageWithDeliveryException(asList(Rejected.DESCRIPTOR_SYMBOL, Accepted.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL), null, new ActiveMQException(), Rejected.class);
    }
 
    @Test
    public void otherFailure_SourceDoesNotSupportReject() throws Exception {
-      doOnMessageWithDeliveryException(singletonList(Accepted.DESCRIPTOR_SYMBOL),
-                                       Accepted.getInstance(), new ActiveMQException(),
-                                       Accepted.class);
+      doOnMessageWithDeliveryException(singletonList(Accepted.DESCRIPTOR_SYMBOL), Accepted.getInstance(), new ActiveMQException(), Accepted.class);
       // violates AMQP specification - see explanation ProtonServerReceiverContext.determineDeliveryState
-      doOnMessageWithDeliveryException(singletonList(Accepted.DESCRIPTOR_SYMBOL),
-                                       null,
-                                       new ActiveMQException(),
-                                       Rejected.class);
+      doOnMessageWithDeliveryException(singletonList(Accepted.DESCRIPTOR_SYMBOL), null, new ActiveMQException(), Rejected.class);
    }
 
    private void doOnMessageWithAbortedDeliveryTestImpl(boolean drain) throws ActiveMQAMQPException {
@@ -140,7 +123,8 @@ public class ProtonServerReceiverContextTest {
    }
 
    private void doOnMessageWithDeliveryException(List<Symbol> sourceSymbols,
-                                                 Outcome defaultOutcome, Exception deliveryException,
+                                                 Outcome defaultOutcome,
+                                                 Exception deliveryException,
                                                  Class<? extends DeliveryState> expectedDeliveryState) throws Exception {
       AMQPConnectionContext mockConnContext = mock(AMQPConnectionContext.class);
       doAnswer((Answer<Void>) invocation -> {
@@ -151,7 +135,6 @@ public class ProtonServerReceiverContextTest {
       ProtonProtocolManager mockProtocolManager = mock(ProtonProtocolManager.class);
       when(mockProtocolManager.isUseModifiedForTransientDeliveryErrors()).thenReturn(true);
       when(mockConnContext.getProtocolManager()).thenReturn(mockProtocolManager);
-
 
       AMQPSessionCallback mockSession = mock(AMQPSessionCallback.class);
 
@@ -167,15 +150,7 @@ public class ProtonServerReceiverContextTest {
       source.setDefaultOutcome(defaultOutcome);
       when(mockReceiver.getSource()).thenReturn(source);
 
-      doThrow(deliveryException).when(mockSession)
-                                .serverSend(eq(rc),
-                                            nullable(Transaction.class),
-                                            eq(mockReceiver),
-                                            eq(mockDelivery),
-                                            nullable(SimpleString.class),
-                                            anyInt(),
-                                            nullable(ReadableBuffer.class),
-                                            any(RoutingContext.class));
+      doThrow(deliveryException).when(mockSession).serverSend(eq(rc), nullable(Transaction.class), eq(mockReceiver), eq(mockDelivery), nullable(SimpleString.class), any(RoutingContext.class), nullable(AMQPMessage.class));
 
       rc.onMessage(mockDelivery);
 

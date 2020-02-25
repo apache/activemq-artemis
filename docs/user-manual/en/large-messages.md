@@ -1,24 +1,11 @@
 # Large Messages
 
-Apache ActiveMQ Artemis supports sending and receiving of huge messages, even
-when the client and server are running with limited memory. The only realistic
-limit to the size of a message that can be sent or consumed is the amount of
-disk space you have available. We have tested sending and consuming messages up
-to 8 GiB in size with a client and server running in just 50MiB of RAM!
+Apache ActiveMQ Artemis can be configured to store messages as files when these messages are beyond a configured value.
 
-To send a large message, the user can set an `InputStream` on a message body,
-and when that message is sent, Apache ActiveMQ Artemis will read the
-`InputStream`. A `FileInputStream` could be used for example to send a huge
-message from a huge file on disk.
+Instead of keeping these messages in memory ActiveMQ Artemis will hold just a thin object on the queues with a
+reference to a file into a specific folder configured as large-messages-directory.
 
-As the `InputStream` is read the data is sent to the server as a stream of
-fragments. The server persists these fragments to disk as it receives them and
-when the time comes to deliver them to a consumer they are read back of the
-disk, also in fragments and sent down the wire. When the consumer receives a
-large message it initially receives just the message with an empty body, it can
-then set an `OutputStream` on the message to stream the huge message body to a
-file on disk or elsewhere. At no time is the entire message body stored fully
-in memory, either on the client or the server.
+This is supported on Core Protocol and on the AMQP Protocol.
 
 ## Configuring the server
 
@@ -48,7 +35,7 @@ For the best performance we recommend using file store with large messages
 directory stored on a different physical volume to the message journal or
 paging directory.
 
-## Configuring the Client
+## Configuring the Core Client
 
 Any message larger than a certain size is considered a large message.  Large
 messages will be split up and sent in fragments. This is determined by the URL
@@ -70,7 +57,7 @@ side](configuring-transports.md#configuring-the-transport-directly-from-the-clie
 will provide more information on how to instantiate the core session factory or
 JMS connection factory.
 
-## Compressed Large Messages
+## Compressed Large Messages on Core Protocol
 
 You can choose to send large messages in compressed form using
 `compressLargeMessages` URL parameter.
@@ -86,7 +73,7 @@ sent to server as regular messages. This means that the message won't be
 written into the server's large-message data directory, thus reducing the disk
 I/O.
 
-## Streaming large messages
+## Streaming large messages from Core Protocol
 
 Apache ActiveMQ Artemis supports setting the body of messages using input and
 output streams (`java.lang.io`)
@@ -193,7 +180,7 @@ messageReceived.setObjectProperty("JMS_AMQ_OutputStream", bufferedOutput);
 > When using JMS, Streaming large messages are only supported on
 > `StreamMessage` and `BytesMessage`.
 
-### Streaming Alternative
+### Streaming Alternative on Core Protocol
 
 If you choose not to use the `InputStream` or `OutputStream` capability of
 Apache ActiveMQ Artemis You could still access the data directly in an
@@ -225,6 +212,26 @@ for (int i = 0; i < rm.getBodyLength(); i += 1024)
    int numberOfBytes = rm.readBytes(data);
    // Do whatever you want with the data
 }
+```
+
+## Configuring AMQP Acceptor
+
+You can configure the property ``amqpMinLargeMessageSize`` at the acceptor.
+
+The default value is 102400 (100KBytes).
+
+Setting it to -1 will disable large message support.
+
+**Warning:** setting amqpMinLargeMessageSize to -1, your AMQP message might be stored as a Core Large Message if the 
+size of the message does not fit into the journal. This is the former semantic of the broker and it is kept this way for
+compatibility reasons.
+
+```xml
+<acceptors>
+      <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
+      <acceptor name="amqp">tcp://0.0.0.0:5672?;   ..... amqpMinLargeMessageSize=102400; .... </acceptor>
+</acceptors>
+
 ```
 
 ## Large message example

@@ -446,37 +446,7 @@ public class PagingStoreImpl implements PagingStore {
                currentPageId = pageId;
 
                if (pageId != 0) {
-                  Page page = createPage(pageId);
-                  page.open();
-
-                  List<PagedMessage> messages = page.read(storageManager);
-
-                  LivePageCache pageCache = new LivePageCacheImpl(pageId);
-
-                  for (PagedMessage msg : messages) {
-                     pageCache.addLiveMessage(msg);
-                     if (msg.getMessage().isLargeMessage()) {
-                        // We have to do this since addLIveMessage will increment an extra one
-                        ((LargeServerMessage) msg.getMessage()).decrementDelayDeletionCount();
-                     }
-                  }
-
-                  page.setLiveCache(pageCache);
-
-                  currentPageSize = page.getSize();
-
-                  currentPage = page;
-
-                  cursorProvider.addPageCache(pageCache);
-
-                  /**
-                   * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged.
-                   * In case 1 we can keep writing the file. But in case 2 we'd better not bcs old data might be overwritten.
-                   * Here we open a new page so the incomplete page would be reserved for recovery if needed.
-                   */
-                  if (page.getSize() != page.getFile().size()) {
-                     openNewPage();
-                  }
+                  reloadLivePage(pageId);
                }
 
                // We will not mark it for paging if there's only a single empty file
@@ -489,6 +459,39 @@ public class PagingStoreImpl implements PagingStore {
 
       } finally {
          lock.writeLock().unlock();
+      }
+   }
+
+   protected void reloadLivePage(int pageId) throws Exception {
+      Page page = createPage(pageId);
+      page.open();
+
+      List<PagedMessage> messages = page.read(storageManager);
+
+      LivePageCache pageCache = new LivePageCacheImpl(pageId);
+
+      for (PagedMessage msg : messages) {
+         pageCache.addLiveMessage(msg);
+         // As we add back to the live page,
+         // we have to discount one when we read the page
+         msg.getMessage().usageDown();
+      }
+
+      page.setLiveCache(pageCache);
+
+      currentPageSize = page.getSize();
+
+      currentPage = page;
+
+      cursorProvider.addPageCache(pageCache);
+
+      /**
+       * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged.
+       * In case 1 we can keep writing the file. But in case 2 we'd better not bcs old data might be overwritten.
+       * Here we open a new page so the incomplete page would be reserved for recovery if needed.
+       */
+      if (page.getSize() != page.getFile().size()) {
+         openNewPage();
       }
    }
 
@@ -953,14 +956,16 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void durableDown(Message message, int durableCount) {
+      refDown(message, durableCount);
    }
 
    @Override
    public void durableUp(Message message, int durableCount) {
+      refUp(message, durableCount);
    }
 
    @Override
-   public void nonDurableUp(Message message, int count) {
+   public void refUp(Message message, int count) {
       if (count == 1) {
          this.addSize(message.getMemoryEstimate() + MessageReferenceImpl.getMemoryEstimate());
       } else {
@@ -969,9 +974,9 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public void nonDurableDown(Message message, int count) {
+   public void refDown(Message message, int count) {
       if (count < 0) {
-         // this could happen on paged messages since they are not routed and incrementRefCount is never called
+         // this could happen on paged messages since they are not routed and refUp is never called
          return;
       }
 

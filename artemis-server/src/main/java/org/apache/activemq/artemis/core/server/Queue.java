@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -48,6 +49,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void setFilter(Filter filter);
 
+   PagingStore getPagingStore();
+
    PageSubscription getPageSubscription();
 
    RoutingType getRoutingType();
@@ -59,6 +62,15 @@ public interface Queue extends Bindable,CriticalComponent {
    boolean allowsReferenceCallback();
 
    boolean isDurable();
+
+   int durableUp(Message message);
+
+   int durableDown(Message message);
+
+   void refUp(Message message);
+
+   void refDown(Message message);
+
 
    /**
     * The queue definition could be durable, but the messages could eventually be considered non durable.

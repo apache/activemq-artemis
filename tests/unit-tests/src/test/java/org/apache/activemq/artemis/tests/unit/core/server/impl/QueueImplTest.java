@@ -460,6 +460,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       cons1.getReferences().clear();
 
       for (MessageReference ref : refs) {
+         ref.getMessage().refUp();
          queue.acknowledge(ref);
       }
 

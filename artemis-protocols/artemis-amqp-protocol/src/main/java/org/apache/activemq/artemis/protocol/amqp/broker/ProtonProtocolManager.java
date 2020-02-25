@@ -65,6 +65,11 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
+   /** minLargeMessageSize determines when a message should be considered as large.
+    *  minLargeMessageSize = -1 basically disables large message control over AMQP.
+    */
+   private int amqpMinLargeMessageSize = 100 * 1024;
+
    private int amqpCredits = AmqpSupport.AMQP_CREDITS_DEFAULT;
 
    private int amqpLowCredits = AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
@@ -110,6 +115,15 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    @Override
    public void onNotification(Notification notification) {
 
+   }
+
+   public int getAmqpMinLargeMessageSize() {
+      return amqpMinLargeMessageSize;
+   }
+
+   public ProtonProtocolManager setAmqpMinLargeMessageSize(int amqpMinLargeMessageSize) {
+      this.amqpMinLargeMessageSize = amqpMinLargeMessageSize;
+      return this;
    }
 
    public boolean isAmqpDuplicateDetection() {

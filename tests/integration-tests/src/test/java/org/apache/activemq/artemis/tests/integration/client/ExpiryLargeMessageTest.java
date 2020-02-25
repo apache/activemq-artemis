@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.io.File;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -28,11 +29,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 
 /**
@@ -126,14 +127,10 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       Thread.sleep(1500);
 
-      long timeout = System.currentTimeMillis() + 5000;
-      while (timeout > System.currentTimeMillis() && getMessageCount(queueExpiry) != numberOfMessages) {
-         // What the Expiry Scan would be doing
+      Wait.assertEquals(numberOfMessages, () -> {
          myQueue.expireReferences();
-         Thread.sleep(50);
-      }
-
-      assertEquals(50, getMessageCount(queueExpiry));
+         return getMessageCount(queueExpiry);
+      });
 
       session = sf.createSession(false, false);
 
