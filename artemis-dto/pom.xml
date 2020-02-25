@@ -60,6 +60,11 @@
          <artifactId>activation</artifactId>
          <version>${version.activation}</version>
       </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
