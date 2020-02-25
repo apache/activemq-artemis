@@ -25,9 +25,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.BodyEncoder;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
@@ -114,17 +114,6 @@ public class MessageInternalImpl implements MessageInternal {
       return message.getScheduledDeliveryTime();
    }
 
-   /**
-    * Context can be used by the application server to inject extra control, like a protocol specific on the server.
-    * There is only one per Object, use it wisely!
-    *
-    * Note: the intent of this was to replace PageStore reference on Message, but it will be later increased by adidn a ServerPojo
-    */
-   @Override
-   public RefCountMessageListener getContext() {
-      throw new UnsupportedOperationException();
-   }
-
    @Override
    public SimpleString getReplyTo() {
       return message.getReplyTo();
@@ -134,11 +123,6 @@ public class MessageInternalImpl implements MessageInternal {
    public Message setReplyTo(SimpleString address) {
       message.setReplyTo(address);
       return this;
-   }
-
-   @Override
-   public Message setContext(RefCountMessageListener context) {
-      throw new UnsupportedOperationException();
    }
 
    /**
@@ -248,7 +232,7 @@ public class MessageInternalImpl implements MessageInternal {
    }
 
    @Override
-   public Persister<Message, CoreMessageObjectPools> getPersister() {
+   public Persister<Message> getPersister() {
       throw new UnsupportedOperationException();
    }
 
@@ -643,22 +627,42 @@ public class MessageInternalImpl implements MessageInternal {
    }
 
    @Override
-   public int incrementRefCount() throws Exception {
+   public int getDurableCount() {
+      return 0;
+   }
+
+   @Override
+   public int refUp() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int decrementRefCount() throws Exception {
+   public int refDown() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int incrementDurableRefCount() {
+   public int usageUp() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int decrementDurableRefCount() {
+   public int usageDown() {
+      return 0;
+   }
+
+   @Override
+   public int getUsage() {
+      return 0;
+   }
+
+   @Override
+   public int durableUp() {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public int durableDown() {
       throw new UnsupportedOperationException();
    }
 

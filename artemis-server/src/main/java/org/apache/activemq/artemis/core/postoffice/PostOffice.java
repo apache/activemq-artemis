@@ -159,7 +159,20 @@ public interface PostOffice extends ActiveMQComponent {
                        boolean rejectDuplicates,
                        Binding binding) throws Exception;
 
-   MessageReference reroute(Message message, Queue queue, Transaction tx) throws Exception;
+   /**
+    * This method was renamed as reload, use the new method instead
+    * @param message
+    * @param queue
+    * @param tx
+    * @return
+    * @throws Exception
+    */
+   @Deprecated
+   default MessageReference reroute(Message message, Queue queue, Transaction tx) throws Exception {
+      return reload(message, queue, tx);
+   }
+
+   MessageReference reload(Message message, Queue queue, Transaction tx) throws Exception;
 
    Pair<RoutingContext, Message> redistribute(Message message,
                                                     Queue originatingQueue,

@@ -25,12 +25,15 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -121,6 +124,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    // Used by the broker to decide when to refresh clients credit.  This is not used when client requests credit.
    private final int minCreditRefresh;
 
+   private final int minLargeMessageSize;
+
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
                                       AMQPConnectionContext connection,
                                       AMQPSessionContext protonSession,
@@ -134,6 +139,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       this.minCreditRefresh = connection.getAmqpLowCredits();
       this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection).setRan();
       useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
+      this.minLargeMessageSize = connection.getProtocolManager().getAmqpMinLargeMessageSize();
    }
 
    @Override
@@ -264,6 +270,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       return defaultRoutingType;
    }
 
+   volatile AMQPLargeMessage currentLargeMessage;
+
    /*
     * called when Proton receives a message to be delivered via a Delivery.
     *
@@ -278,39 +286,78 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          return;
       }
 
-      if (delivery.isAborted()) {
-         // Aborting implicitly remotely settles, so advance
-         // receiver to the next delivery and settle locally.
-         receiver.advance();
-         delivery.settle();
+      try {
+         if (delivery.isAborted()) {
+            // Aborting implicitly remotely settles, so advance
+            // receiver to the next delivery and settle locally.
+            receiver.advance();
+            delivery.settle();
 
-         // Replenish the credit if not doing a drain
-         if (!receiver.getDrain()) {
-            receiver.flow(1);
+            // Replenish the credit if not doing a drain
+            if (!receiver.getDrain()) {
+               receiver.flow(1);
+            }
+
+            return;
+         } else if (delivery.isPartial()) {
+            if (sessionSPI.getStorageManager() instanceof NullStorageManager) {
+               // if we are dealing with the NullStorageManager we should just make it a regular message anyways
+               return;
+            }
+
+            if (currentLargeMessage == null) {
+               // minLargeMessageSize < 0 means no large message treatment, make it disabled
+               if (minLargeMessageSize > 0 && delivery.available() >= minLargeMessageSize) {
+                  initializeCurrentLargeMessage(delivery, receiver);
+               }
+            } else {
+               currentLargeMessage.addBytes(receiver.recv());
+            }
+
+            return;
          }
 
-         return;
-      } else if (delivery.isPartial()) {
-         return;
+         AMQPMessage message;
+
+         // this is treating the case where the frameSize > minLargeMessage and the message is still large enough
+         if (!(sessionSPI.getStorageManager() instanceof NullStorageManager) && currentLargeMessage == null && minLargeMessageSize > 0 && delivery.available() >= minLargeMessageSize) {
+            initializeCurrentLargeMessage(delivery, receiver);
+         }
+
+         if (currentLargeMessage != null) {
+            currentLargeMessage.addBytes(receiver.recv());
+            receiver.advance();
+            currentLargeMessage.finishParse();
+            message = currentLargeMessage;
+            currentLargeMessage = null;
+         } else {
+            ReadableBuffer data = receiver.recv();
+            receiver.advance();
+            message = sessionSPI.createStandardMessage(delivery, data);
+         }
+
+         Transaction tx = null;
+         if (delivery.getRemoteState() instanceof TransactionalState) {
+            TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+            tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
+         }
+
+         actualDelivery(message, delivery, receiver, tx);
+      } catch (Exception e) {
+         throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
       }
 
-      ReadableBuffer data = receiver.recv();
-      receiver.advance();
-      Transaction tx = null;
-
-      if (delivery.getRemoteState() instanceof TransactionalState) {
-         TransactionalState txState = (TransactionalState) delivery.getRemoteState();
-         tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
-      }
-
-      final Transaction txUsed = tx;
-
-      actualDelivery(delivery, receiver, data, txUsed);
    }
 
-   private void actualDelivery(Delivery delivery, Receiver receiver, ReadableBuffer data, Transaction tx) {
+   private void initializeCurrentLargeMessage(Delivery delivery, Receiver receiver) throws Exception {
+      long id = sessionSPI.getStorageManager().generateID();
+      currentLargeMessage = new AMQPLargeMessage(id, delivery.getMessageFormat(), null, sessionSPI.getCoreMessageObjectPools(), sessionSPI.getStorageManager());
+      currentLargeMessage.addBytes(receiver.recv());
+   }
+
+   private void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
       try {
-         sessionSPI.serverSend(this, tx, receiver, delivery, address, delivery.getMessageFormat(), data, routingContext);
+         sessionSPI.serverSend(this, tx, receiver, delivery, address, routingContext, message);
       } catch (Exception e) {
          log.warn(e.getMessage(), e);
          DeliveryState deliveryState = determineDeliveryState(((Source) receiver.getSource()),

@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 
@@ -235,7 +235,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    }
 
    @Override
-   public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
+   public LargeBodyReader getLargeBodyReader() throws ActiveMQException {
       return new DecodingContext();
    }
 
@@ -368,7 +368,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       return this;
    }
 
-   private final class DecodingContext implements LargeBodyEncoder {
+   private final class DecodingContext implements LargeBodyReader {
 
       private DecodingContext() {
       }
@@ -383,7 +383,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       }
 
       @Override
-      public long getLargeBodySize() {
+      public long getSize() {
          if (isLargeMessage()) {
             return getBodyBuffer().writerIndex();
          } else {
@@ -392,7 +392,17 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) {
+      public void position(long position) {
+         buffer.readerIndex((int)position);
+      }
+
+      @Override
+      public long position() {
+         return buffer.readerIndex();
+      }
+
+      @Override
+      public int readInto(final ByteBuffer bufferRead) {
          final int remaining = bufferRead.remaining();
          buffer.readBytes(bufferRead);
          return remaining;

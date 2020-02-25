@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -552,6 +553,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    /* Hook for processing message before forwarding */
    protected Message beforeForward(Message message, final SimpleString forwardingAddress) {
       message = message.copy();
+      ((RefCountMessage)message).setParentRef((RefCountMessage)message);
 
       return beforeForwardingNoCopy(message, forwardingAddress);
    }
@@ -662,10 +664,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             final HandleStatus status;
             if (message.isLargeMessage()) {
                deliveringLargeMessage = true;
-               deliverLargeMessage(dest, ref, (LargeServerMessage) message);
+               deliverLargeMessage(dest, ref, (LargeServerMessage) message, ref.getMessage());
                status = HandleStatus.HANDLED;
             } else {
-               status = deliverStandardMessage(dest, ref, message);
+               status = deliverStandardMessage(dest, ref, message, ref.getMessage());
             }
 
             //Only increment messages pending acknowledgement if handled by bridge
@@ -764,12 +766,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private void deliverLargeMessage(final SimpleString dest,
                                     final MessageReference ref,
-                                    final LargeServerMessage message) {
+                                    final LargeServerMessage message,
+                                    final Message originalMessage) {
       executor.execute(new Runnable() {
          @Override
          public void run() {
             try {
-               producer.send(dest, message);
+               producer.send(dest, message.toMessage());
 
                // as soon as we are done sending the large message
                // we unset the delivery flag and we will call the deliveryAsync on the queue
@@ -794,7 +797,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
     * @param message
     * @return
     */
-   private HandleStatus deliverStandardMessage(SimpleString dest, final MessageReference ref, Message message) {
+   private HandleStatus deliverStandardMessage(SimpleString dest, final MessageReference ref, Message message, Message originalMessage) {
       // if we failover during send then there is a chance that the
       // that this will throw a disconnect, we need to remove the message
       // from the acks so it will get resent, duplicate detection will cope
@@ -821,6 +824,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          connectionFailed(e, false);
 
          return HandleStatus.BUSY;
+      } finally {
+         originalMessage.usageDown();
       }
 
       return HandleStatus.HANDLED;

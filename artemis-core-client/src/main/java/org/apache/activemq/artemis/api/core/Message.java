@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 /**
@@ -182,6 +182,9 @@ public interface Message {
    /** The message will contain another message persisted through {@link org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
    byte EMBEDDED_TYPE = 7;
 
+   /** This is to embedd Large Messages from other protocol */
+   byte LARGE_EMBEDDED_TYPE = 8;
+
    default void clearInternalProperties() {
       // only on core
    }
@@ -255,13 +258,6 @@ public interface Message {
       return this;
    }
 
-   /** Context can be used by the application server to inject extra control, like a protocol specific on the server.
-    * There is only one per Object, use it wisely!
-    *
-    * Note: the intent of this was to replace PageStore reference on Message, but it will be later increased by adidn a ServerPojo
-    * */
-   RefCountMessageListener getContext();
-
    default SimpleString getGroupID() {
       return null;
    }
@@ -294,8 +290,6 @@ public interface Message {
    SimpleString getReplyTo();
 
    Message setReplyTo(SimpleString address);
-
-   Message setContext(RefCountMessageListener context);
 
    /** The buffer will belong to this message, until release is called. */
    Message setBuffer(ByteBuf buffer);
@@ -394,7 +388,7 @@ public interface Message {
     */
    Message setDurable(boolean durable);
 
-   Persister<Message, CoreMessageObjectPools> getPersister();
+   Persister<Message> getPersister();
 
    String getAddress();
 
@@ -671,13 +665,29 @@ public interface Message {
 
    int getRefCount();
 
-   int incrementRefCount() throws Exception;
+   int getUsage();
 
-   int decrementRefCount() throws Exception;
+   int getDurableCount();
 
-   int incrementDurableRefCount();
+   /** this method indicates usage by components such as large message or page cache.
+    *  This method will cause large messages to be held longer after the ack happened for instance.
+    */
+   int usageUp();
 
-   int decrementDurableRefCount();
+   /**
+    * @see #usageUp()
+    * @return
+    * @throws Exception
+    */
+   int usageDown();
+
+   int refUp();
+
+   int refDown();
+
+   int durableUp();
+
+   int durableDown();
 
    /**
     * @return Returns the message in Map form, useful when encoding to JSON

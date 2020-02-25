@@ -36,12 +36,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -290,7 +290,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
    }
 
-   class FakeMessage extends RefCountMessage {
+   class FakeMessage implements Message {
 
       @Override
       public SimpleString getReplyTo() {
@@ -318,6 +318,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public int getDurableCount() {
+         return 0;
+      }
+
+      @Override
       public Long getScheduledDeliveryTime() {
          return null;
       }
@@ -328,7 +333,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public Persister<Message, CoreMessageObjectPools> getPersister() {
+      public Persister<Message> getPersister() {
          return null;
       }
 
@@ -363,22 +368,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public int incrementRefCount() throws Exception {
+      public int durableUp() {
          return 0;
       }
 
       @Override
-      public int decrementRefCount() throws Exception {
-         return 0;
-      }
-
-      @Override
-      public int incrementDurableRefCount() {
-         return 0;
-      }
-
-      @Override
-      public int decrementDurableRefCount() {
+      public int durableDown() {
          return 0;
       }
 
@@ -777,6 +772,31 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public int getUsage() {
+         return 0;
+      }
+
+      @Override
+      public int usageUp() {
+         return 0;
+      }
+
+      @Override
+      public int usageDown() {
+         return 0;
+      }
+
+      @Override
+      public int refUp() {
+         return 0;
+      }
+
+      @Override
+      public int refDown() {
+         return 0;
+      }
+
+      @Override
       public void sendBuffer(ByteBuf buffer, int count) {
 
       }
@@ -791,6 +811,31 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public void setPurgeOnNoConsumers(boolean value) {
+
+      }
+
+      @Override
+      public PagingStore getPagingStore() {
+         return null;
+      }
+
+      @Override
+      public int durableUp(Message message) {
+         return 1;
+      }
+
+      @Override
+      public int durableDown(Message message) {
+         return 1;
+      }
+
+      @Override
+      public void refUp(Message message) {
+
+      }
+
+      @Override
+      public void refDown(Message message) {
 
       }
 

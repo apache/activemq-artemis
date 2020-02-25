@@ -1042,8 +1042,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       final SimpleString address = context.getAddress(message);
 
-      setPagingStore(address, message);
-
       AtomicBoolean startedTX = new AtomicBoolean(false);
 
       applyExpiryDelay(message, address);
@@ -1175,9 +1173,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public MessageReference reroute(final Message message, final Queue queue, final Transaction tx) throws Exception {
-
-      setPagingStore(queue.getAddress(), message);
+   public MessageReference reload(final Message message, final Queue queue, final Transaction tx) throws Exception {
 
       MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
@@ -1189,9 +1185,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
       }
 
-      message.incrementDurableRefCount();
-
-      message.incrementRefCount();
+      queue.durableUp(message);
 
       if (tx == null) {
          queue.reload(reference);
@@ -1229,7 +1223,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   try {
                      //this will cause large message file to be
                      //cleaned up
-                     copyRedistribute.decrementRefCount();
+                     // copyRedistribute.refDown();
                   } catch (Exception e) {
                      logger.warn("Failed to clean up message: " + copyRedistribute);
                   }
@@ -1387,12 +1381,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    // Private -----------------------------------------------------------------
 
-   private void setPagingStore(SimpleString address, Message message) throws Exception {
-      PagingStore store = pagingManager.getPageStore(CompositeAddress.extractAddressName(address));
-
-      message.setContext(store);
-   }
-
    private void routeQueueInfo(final Message message, final Queue queue, final boolean applyFilters) throws Exception {
       if (!applyFilters || queue.getFilter() == null || queue.getFilter().match(message)) {
          RoutingContext context = new RoutingContextImpl(null);
@@ -1462,7 +1450,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
             refs.add(reference);
 
-            message.incrementRefCount();
+            queue.refUp(message);
          }
 
          Iterator<Queue> iter = entry.getValue().getDurableQueues().iterator();
@@ -1485,7 +1473,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             refs.add(reference);
 
             if (message.isDurable()) {
-               int durableRefCount = message.incrementDurableRefCount();
+               int durableRefCount = queue.durableUp(message);
 
                if (durableRefCount == 1) {
                   if (tx != null) {
@@ -1514,9 +1502,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                      storageManager.updateScheduledDeliveryTime(reference);
                   }
                }
+            } else {
+               queue.refUp(message);
             }
-
-            message.incrementRefCount();
          }
       }
 
@@ -1623,7 +1611,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (!cacheBridge.atomicVerify(bridgeDupBytes, context.getTransaction())) {
             context.getTransaction().rollback();
             startedTX.set(false);
-            message.decrementRefCount();
+            message.usageDown(); // this will cause large message delete
             return false;
          }
       } else {
@@ -1649,7 +1637,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   context.getTransaction().markAsRollbackOnly(new ActiveMQDuplicateIdException(warnMessage));
                }
 
-               message.decrementRefCount();
+               message.usageDown(); // this will cause large message delete
 
                return false;
             }
@@ -1836,10 +1824,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             Message message = ref.getMessage();
 
             if (message.isDurable() && ref.getQueue().isDurable()) {
-               message.decrementDurableRefCount();
+               ref.getQueue().durableDown(message);
+            } else {
+               ref.getQueue().refDown(message);
             }
-
-            message.decrementRefCount();
          }
       }
 

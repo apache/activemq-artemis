@@ -143,6 +143,11 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    @Override
+   public ByteBuffer map(int position, long size) throws IOException {
+      return null;
+   }
+
+   @Override
    public void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
          synchronized (writeLock) {

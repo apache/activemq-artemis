@@ -38,6 +38,7 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
@@ -80,7 +81,7 @@ public class JMSMappingInboundTransformerTest {
       MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setContentType(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE);
 
-      AMQPMessage messageEncode = encodeAndCreateAMQPMessage(message);
+      AMQPStandardMessage messageEncode = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage coreMessage = messageEncode.toCore();
 
@@ -135,7 +136,7 @@ public class JMSMappingInboundTransformerTest {
       message.setBody(new Data(binary));
       message.setContentType(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE);
 
-      AMQPMessage amqp = encodeAndCreateAMQPMessage(message);
+      AMQPStandardMessage amqp = encodeAndCreateAMQPMessage(message);
       javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(amqp.toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
@@ -570,12 +571,12 @@ public class JMSMappingInboundTransformerTest {
       assertTrue("Expected TextMessage", jmsMessage instanceof TextMessage);
    }
 
-   private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+   private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {
       NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
       message.encode(encoded);
 
       NettyReadable readable = new NettyReadable(encoded.getByteBuf());
 
-      return new AMQPMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+      return new AMQPStandardMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 }

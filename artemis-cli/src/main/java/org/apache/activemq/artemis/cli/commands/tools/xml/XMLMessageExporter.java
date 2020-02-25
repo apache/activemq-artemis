@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 
@@ -80,14 +80,14 @@ public class XMLMessageExporter {
 
    public void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_IS_LARGE, Boolean.TRUE.toString());
-      LargeBodyEncoder encoder = null;
+      LargeBodyReader encoder = null;
 
       try {
-         encoder = message.toCore().getBodyEncoder();
+         encoder = message.toMessage().toCore().getLargeBodyReader();
          encoder.open();
          long totalBytesWritten = 0;
          int bufferSize;
-         long bodySize = encoder.getLargeBodySize();
+         long bodySize = encoder.getSize();
          ByteBuffer buffer = null;
          for (long i = 0; i < bodySize; i += LARGE_MESSAGE_CHUNK_SIZE) {
             long remainder = bodySize - totalBytesWritten;
@@ -97,7 +97,7 @@ public class XMLMessageExporter {
                bufferSize = (int) remainder;
             }
             buffer = acquireHeapBodyBuffer(buffer, bufferSize);
-            encoder.encode(buffer);
+            encoder.readInto(buffer);
             xmlWriter.writeCData(XmlDataExporterUtil.encode(buffer.array()));
             totalBytesWritten += bufferSize;
          }

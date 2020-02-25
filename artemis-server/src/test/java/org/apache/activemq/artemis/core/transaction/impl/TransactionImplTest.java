@@ -26,6 +26,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -237,6 +238,16 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
+
+      }
+
+      @Override
+      public void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
 
       }
 

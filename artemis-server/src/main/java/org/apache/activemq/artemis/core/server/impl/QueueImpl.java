@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.PriorityAware;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
@@ -167,6 +168,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final PostOffice postOffice;
 
    private volatile boolean queueDestroyed = false;
+
+   private final PagingStore pagingStore;
 
    private final PageSubscription pageSubscription;
 
@@ -370,32 +373,34 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final ArtemisExecutor executor,
                      final ActiveMQServer server,
                      final QueueFactory factory) {
-      this(id, address, name, filter, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, null, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PagingStore pagingStore,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
                      final Filter filter,
-                     final PageSubscription pageSubscription,
-                     final SimpleString user,
-                     final boolean durable,
-                     final boolean temporary,
-                     final boolean autoCreated,
-                     final ScheduledExecutorService scheduledExecutor,
-                     final PostOffice postOffice,
-                     final StorageManager storageManager,
-                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                     final ArtemisExecutor executor,
-                     final ActiveMQServer server,
-                     final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
-   }
-
-   public QueueImpl(final long id,
-                     final SimpleString address,
-                     final SimpleString name,
-                     final Filter filter,
+                     final PagingStore pagingStore,
                      final PageSubscription pageSubscription,
                      final SimpleString user,
                      final boolean durable,
@@ -411,13 +416,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final ArtemisExecutor executor,
                      final ActiveMQServer server,
                      final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
                      final Filter filter,
+                     final PagingStore pagingStore,
                      final PageSubscription pageSubscription,
                      final SimpleString user,
                      final boolean durable,
@@ -434,13 +440,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final ArtemisExecutor executor,
                      final ActiveMQServer server,
                      final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, false, null, null, purgeOnNoConsumers, null, null, null, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, false, null, null, purgeOnNoConsumers, null, null, null, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
                     final Filter filter,
+                    final PagingStore pagingStore,
                     final PageSubscription pageSubscription,
                     final SimpleString user,
                     final boolean durable,
@@ -466,13 +473,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
                     final Filter filter,
+                    final PagingStore pagingStore,
                     final PageSubscription pageSubscription,
                     final SimpleString user,
                     final boolean durable,
@@ -499,13 +507,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
                     final Filter filter,
+                    final PagingStore pagingStore,
                     final PageSubscription pageSubscription,
                     final SimpleString user,
                     final boolean durable,
@@ -546,6 +555,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.name = name;
 
       this.filter = filter;
+
+      this.pagingStore = pagingStore;
 
       this.pageSubscription = pageSubscription;
 
@@ -866,6 +877,47 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getID() {
       return id;
+   }
+
+
+   @Override
+   public int durableUp(Message message) {
+      int count = message.durableUp();
+      if (pagingStore != null) {
+         pagingStore.durableUp(message, count);
+      }
+      return count;
+   }
+
+   @Override
+   public int durableDown(Message message) {
+      int count = message.durableDown();
+      if (pagingStore != null) {
+         pagingStore.durableDown(message, count);
+      }
+      return count;
+   }
+
+   @Override
+   public void refUp(Message message) {
+      int count = message.refUp();
+      if (pagingStore != null) {
+         pagingStore.refUp(message, count);
+      }
+
+   }
+
+   @Override
+   public void refDown(Message message) {
+      int count = message.refDown();
+      if (pagingStore != null) {
+         pagingStore.refDown(message, count);
+      }
+   }
+
+   @Override
+   public PagingStore getPagingStore() {
+      return pagingStore;
    }
 
    @Override
@@ -3654,14 +3706,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       boolean durableRef = message.isDurable() && queue.isDurable();
 
-      try {
-         message.decrementRefCount();
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorDecrementingRefCount(e);
-      }
-
       if (durableRef) {
-         int count = message.decrementDurableRefCount();
+         int count = queue.durableDown(message);
 
          if (count == 0) {
             // Note - we MUST store the delete after the preceding ack has been committed to storage, we cannot combine
@@ -3684,6 +3730,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
             }
          }
+      } else {
+         queue.refDown(message);
       }
    }
 

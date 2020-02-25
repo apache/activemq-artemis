@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.DeflaterReader;
@@ -362,9 +362,9 @@ public class ClientProducerImpl implements ClientProducerInternal {
                                        SendAcknowledgementHandler handler) throws ActiveMQException {
       sendInitialLargeMessageHeader(msgI, credits);
 
-      LargeBodyEncoder context = msgI.getBodyEncoder();
+      LargeBodyReader context = msgI.getLargeBodyReader();
 
-      final long bodySize = context.getLargeBodySize();
+      final long bodySize = context.getSize();
       context.open();
       try {
 
@@ -375,7 +375,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
             final ByteBuffer bodyBuffer = ByteBuffer.allocate(chunkLength);
 
-            final int encodedSize = context.encode(bodyBuffer);
+            final int encodedSize = context.readInto(bodyBuffer);
 
             assert encodedSize == chunkLength;
 

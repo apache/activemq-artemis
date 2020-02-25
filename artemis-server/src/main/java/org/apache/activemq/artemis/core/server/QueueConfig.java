@@ -31,6 +31,7 @@ public final class QueueConfig {
    private final SimpleString address;
    private final SimpleString name;
    private final Filter filter;
+   final PagingStore pagingStore;
    private final PageSubscription pageSubscription;
    private final SimpleString user;
    private final boolean durable;
@@ -259,10 +260,11 @@ public final class QueueConfig {
        * @throws IllegalStateException if the creation of {@link PageSubscription} fails
        */
       public QueueConfig build() {
+         final PagingStore pageStore;
          final PageSubscription pageSubscription;
          if (pagingManager != null && !FilterUtils.isTopicIdentification(filter)) {
             try {
-               final PagingStore pageStore = this.pagingManager.getPageStore(address);
+               pageStore = this.pagingManager.getPageStore(address);
                if (pageStore != null) {
                   pageSubscription = pageStore.getCursorProvider().createSubscription(id, filter, durable);
                } else {
@@ -273,8 +275,9 @@ public final class QueueConfig {
             }
          } else {
             pageSubscription = null;
+            pageStore = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, ringSize, configurationManaged);
+         return new QueueConfig(id, address, name, filter, pageStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, ringSize, configurationManaged);
       }
 
    }
@@ -311,6 +314,7 @@ public final class QueueConfig {
                        final SimpleString address,
                        final SimpleString name,
                        final Filter filter,
+                       final PagingStore pagingStore,
                        final PageSubscription pageSubscription,
                        final SimpleString user,
                        final boolean durable,
@@ -337,6 +341,7 @@ public final class QueueConfig {
       this.address = address;
       this.name = name;
       this.filter = filter;
+      this.pagingStore = pagingStore;
       this.pageSubscription = pageSubscription;
       this.user = user;
       this.durable = durable;
@@ -463,6 +468,10 @@ public final class QueueConfig {
 
    public long getRingSize() {
       return ringSize;
+   }
+
+   public PagingStore getPagingStore() {
+      return pagingStore;
    }
 
    @Override
