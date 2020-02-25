@@ -59,6 +59,18 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    private String trustStorePassword;
 
+   @XmlAttribute
+   private String includedTLSProtocols;
+
+   @XmlAttribute
+   private String excludedTLSProtocols;
+
+   @XmlAttribute
+   private String includedCipherSuites;
+
+   @XmlAttribute
+   private String excludedCipherSuites;
+
    public WebServerDTO() {
       componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
    }
@@ -81,5 +93,53 @@ public class WebServerDTO extends ComponentDTO {
 
    public void setTrustStorePassword(String trustStorePassword) {
       this.trustStorePassword = trustStorePassword;
+   }
+
+   private String[] unmarshalArray(String text) {
+      if (text == null) {
+         return null;
+      }
+
+      return text.split(",");
+   }
+
+   private String marshalArray(String[] array) {
+      if (array == null) {
+         return null;
+      }
+
+      return String.join(",", array);
+   }
+
+   public String[] getIncludedTLSProtocols() {
+      return unmarshalArray(includedTLSProtocols);
+   }
+
+   public void setIncludedTLSProtocols(String... protocols) {
+      includedTLSProtocols = marshalArray(protocols);
+   }
+
+   public String[] getExcludedTLSProtocols() {
+      return unmarshalArray(excludedTLSProtocols);
+   }
+
+   public void setExcludedTLSProtocols(String... protocols) {
+      excludedTLSProtocols = marshalArray(protocols);
+   }
+
+   public String[] getIncludedCipherSuites() {
+      return unmarshalArray(includedCipherSuites);
+   }
+
+   public void setIncludedCipherSuites(String... cipherSuites) {
+      includedCipherSuites = marshalArray(cipherSuites);
+   }
+
+   public String[] getExcludedCipherSuites() {
+      return unmarshalArray(excludedCipherSuites);
+   }
+
+   public void setExcludedCipherSuites(String... cipherSuites) {
+      excludedCipherSuites = marshalArray(cipherSuites);
    }
 }
