@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.core.cluster;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -35,6 +38,7 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
@@ -102,13 +106,22 @@ public final class DiscoveryGroup implements ActiveMQComponent {
          return;
       }
 
+      if (logger.isDebugEnabled()) logger.debug("Starting Discovery Group for " + name);
+
       endpoint.openClient();
 
       started = true;
 
-      thread = new Thread(new DiscoveryRunnable(), "activemq-discovery-group-thread-" + name);
+      ThreadFactory tfactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+         @Override
+         public ThreadFactory run() {
+            return new ActiveMQThreadFactory("DiscoveryGroup-" + System.identityHashCode(this), "activemq-discovery-group-thread-" + name, true, DiscoveryGroup.class.getClassLoader());
+         }
+      });
 
-      thread.setDaemon(true);
+      thread = tfactory.newThread(new DiscoveryRunnable());
+
+      if (logger.isDebugEnabled()) logger.debug("Starting daemon thread");
 
       thread.start();
 
@@ -136,6 +149,10 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    @Override
    public void stop() {
+
+      if (logger.isDebugEnabled()) {
+         logger.debug("Stopping discovery. There's an exception just as a trace where it happened", new Exception("trace"));
+      }
       synchronized (this) {
          if (!started) {
             return;
@@ -150,6 +167,9 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
       try {
          endpoint.close(false);
+         if (logger.isDebugEnabled()) {
+            logger.debug("endpoing closed");
+         }
       } catch (Exception e1) {
          ActiveMQClientLogger.LOGGER.errorStoppingDiscoveryBroadcastEndpoint(endpoint, e1);
       }
@@ -167,6 +187,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       }
 
       thread = null;
+      received = false;
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
@@ -255,7 +276,15 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                      if (started) {
                         ActiveMQClientLogger.LOGGER.unexpectedNullDataReceived();
                      }
+
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Received broadcast data as null");
+                     }
                      break;
+                  }
+
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("receiving " + data.length);
                   }
                } catch (Exception e) {
                   if (!started) {
@@ -274,11 +303,19 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                checkUniqueID(originatingNodeID, uniqueID);
 
                if (nodeID.equals(originatingNodeID)) {
+
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("ignoring original NodeID" + originatingNodeID + " receivedID = " + nodeID);
+                  }
                   if (checkExpiration()) {
                      callListeners();
                   }
                   // Ignore traffic from own node
                   continue;
+               }
+
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Received nodeID " + nodeID);
                }
 
                int size = buffer.readInt();
@@ -295,6 +332,15 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                   entriesRead[i] = new DiscoveryEntry(originatingNodeID, connector, System.currentTimeMillis());
                }
 
+
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Received " + entriesRead.length + " discovery entry elements");
+                  for (DiscoveryEntry entryDisco : entriesRead) {
+                     logger.debug("" + entryDisco);
+                  }
+               }
+
+
                synchronized (DiscoveryGroup.this) {
                   for (DiscoveryEntry entry : entriesRead) {
                      if (connectors.put(originatingNodeID, entry) == null) {
@@ -303,6 +349,10 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                   }
 
                   changed = changed || checkExpiration();
+
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("changed = " + changed);
+                  }
                }
                //only call the listeners if we have changed
                //also make sure that we aren't stopping to avoid deadlock
@@ -313,12 +363,18 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                         logger.trace(connector);
                      }
                   }
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Calling listeners");
+                  }
                   callListeners();
                }
 
                synchronized (waitLock) {
                   received = true;
 
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Calling notifyAll");
+                  }
                   waitLock.notifyAll();
                }
             } catch (Throwable e) {
