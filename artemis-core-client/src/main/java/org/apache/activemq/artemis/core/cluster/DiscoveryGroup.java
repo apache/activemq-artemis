@@ -315,7 +315,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                }
 
                if (logger.isDebugEnabled()) {
-                  logger.debug("Received nodeID " + nodeID);
+                  logger.debug("Received nodeID " + nodeID + " with originatingID = " + originatingNodeID);
                }
 
                int size = buffer.readInt();
