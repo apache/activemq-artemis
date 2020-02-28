@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -63,10 +64,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.*;
 import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
@@ -122,6 +120,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private boolean compressLargeMessage;
 
+   /** This specifies serverLocator.connect was used,
+    *  which means it's a cluster connection.
+    *  We should not use retries */
+   private volatile transient boolean disableDiscoveryRetries = false;
+
    // if the system should shutdown the pool when shutting down
    private transient boolean shutdownPool;
 
@@ -132,6 +135,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private transient DiscoveryGroup discoveryGroup;
 
    private transient ConnectionLoadBalancingPolicy loadBalancingPolicy;
+
+   private final Object discoveryGroupGuardian = new Object();
 
    // Settable attributes:
 
@@ -211,6 +216,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private boolean useTopologyForLoadBalancing;
 
+   /** For tests only */
+   public DiscoveryGroup getDiscoveryGroup() {
+      return discoveryGroup;
+   }
+
    private final Exception traceException = new Exception();
 
    public static synchronized void clearThreadPools() {
@@ -230,7 +240,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
             @Override
             public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
+               return new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this), true, ServerLocatorImpl.class.getClassLoader());
             }
          });
 
@@ -299,16 +309,25 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
             instantiateLoadBalancingPolicy();
 
-            if (discoveryGroupConfiguration != null) {
-               discoveryGroup = createDiscoveryGroup(nodeID, discoveryGroupConfiguration);
+            startDiscovery();
 
-               discoveryGroup.registerListener(this);
-
-               discoveryGroup.start();
-            }
          } catch (Exception e) {
             state = null;
             throw ActiveMQClientMessageBundle.BUNDLE.failedToInitialiseSessionFactory(e);
+         }
+      }
+   }
+
+   private void startDiscovery() throws ActiveMQException {
+      if (discoveryGroupConfiguration != null) {
+         try {
+            discoveryGroup = createDiscoveryGroup(nodeID, discoveryGroupConfiguration);
+
+            discoveryGroup.registerListener(this);
+
+            discoveryGroup.start();
+         } catch (Exception e) {
+            throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
    }
@@ -633,6 +652,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private ClientSessionFactoryInternal connect(final boolean skipWarnings) throws ActiveMQException {
+      // if we used connect, we should control UDP reconnections at a different path.
+      // and this belongs to a cluster connection, not client
+      disableDiscoveryRetries = true;
       ClientSessionFactoryInternal returnFactory = null;
 
       synchronized (this) {
@@ -752,14 +774,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       flushTopology();
 
-      if (this.getNumInitialConnectors() == 0 && discoveryGroup != null) {
-         // Wait for an initial broadcast to give us at least one node in the cluster
-         long timeout = clusterConnection ? 0 : discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout();
-         boolean ok = discoveryGroup.waitForBroadcast(timeout);
-
-         if (!ok) {
-            throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutInInitialBroadcast();
-         }
+      if (discoveryGroupConfiguration != null) {
+         executeDiscovery();
       }
 
       ClientSessionFactoryInternal factory = null;
@@ -824,6 +840,77 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       addFactory(factory);
 
       return factory;
+   }
+
+   private void executeDiscovery() throws ActiveMQException {
+      boolean discoveryOK = false;
+      boolean retryDiscovery = false;
+      int tryNumber = 0;
+
+      do {
+
+         discoveryOK = checkOnDiscovery();
+
+         retryDiscovery = (initialConnectAttempts > 0 && tryNumber++ < initialConnectAttempts) && !disableDiscoveryRetries;
+
+         if (!discoveryOK) {
+
+            if (retryDiscovery) {
+               ActiveMQClientLogger.LOGGER.broadcastTimeout(tryNumber, initialConnectAttempts);
+            } else {
+               throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutInInitialBroadcast();
+            }
+         }
+      }
+      while (!discoveryOK && retryDiscovery);
+
+      if (!discoveryOK) {
+         // I don't think the code would ever get to this situation, since there's an exception thrown on the previous loop
+         // however I will keep this just in case
+         throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutInInitialBroadcast();
+      }
+
+   }
+
+   private boolean checkOnDiscovery() throws ActiveMQException {
+
+      synchronized (discoveryGroupGuardian) {
+
+         // notice: in case you have many threads waiting to get on checkOnDiscovery, only one will perform the actual discovery
+         //         while subsequent calls will have numberOfInitialConnectors > 0
+         if (this.getNumInitialConnectors() == 0 && discoveryGroupConfiguration != null) {
+            try {
+
+               long timeout = clusterConnection ? 0 : discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout();
+               if (!discoveryGroup.waitForBroadcast(timeout)) {
+
+                  if (logger.isDebugEnabled()) {
+                     String threadDump = ThreadDumpUtil.threadDump("Discovery timeout, printing thread dump");
+                     logger.debug(threadDump);
+                  }
+
+                  // if disableDiscoveryRetries = true, it means this is a Bridge or a Cluster Connection Bridge
+                  // which has a different mechanism of retry
+                  // and we should ignore UDP restarts here.
+                  if (!disableDiscoveryRetries) {
+                     if (discoveryGroup != null) {
+                        discoveryGroup.stop();
+                     }
+
+                     logger.debug("Restarting discovery");
+
+                     startDiscovery();
+                  }
+
+                  return false;
+               }
+            } catch (Exception e) {
+               throw new ActiveMQInternalErrorException(e.getMessage(), e);
+            }
+         }
+      }
+
+      return true;
    }
 
    public void flushTopology() {
@@ -1682,8 +1769,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             while (!isClosed()) {
                retryNumber++;
                for (Connector conn : connectors) {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug(this + "::Submitting connect towards " + conn);
+                  if (logger.isTraceEnabled()) {
+                     logger.trace(this + "::Submitting connect towards " + conn);
                   }
 
                   ClientSessionFactory csf = conn.tryConnect();
@@ -1717,8 +1804,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                         }
                      });
 
-                     if (logger.isDebugEnabled()) {
-                        logger.debug("Returning " + csf +
+                     if (logger.isTraceEnabled()) {
+                        logger.trace("Returning " + csf +
                                         " after " +
                                         retryNumber +
                                         " retries on StaticConnector " +
@@ -1740,7 +1827,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          } catch (RejectedExecutionException e) {
             if (isClosed() || skipWarnings)
                return null;
-            logger.debug("Rejected execution", e);
+            logger.trace("Rejected execution", e);
             throw e;
          } catch (Exception e) {
             if (isClosed() || skipWarnings)
@@ -1809,7 +1896,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          public ClientSessionFactory tryConnect() throws ActiveMQException {
             if (logger.isDebugEnabled()) {
-               logger.debug(this + "::Trying to connect to " + factory);
+               logger.trace(this + "::Trying to connect to " + factory);
             }
             try {
                ClientSessionFactoryInternal factoryToUse = factory;
@@ -1824,7 +1911,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                }
                return factoryToUse;
             } catch (ActiveMQException e) {
-               logger.debug(this + "::Exception on establish connector initial connection", e);
+               logger.trace(this + "::Exception on establish connector initial connection", e);
                return null;
             }
          }
