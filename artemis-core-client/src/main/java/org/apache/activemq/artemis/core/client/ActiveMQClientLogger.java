@@ -420,6 +420,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
            format = Message.Format.MESSAGE_FORMAT)
    void unableToCheckEpollAvailabilitynoClass();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212077, value = "Timed out waiting to receive initial broadcast from cluster. Retry {0} of {1}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void broadcastTimeout(int retry, int maxretry);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);
