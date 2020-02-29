@@ -163,7 +163,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
             System.arraycopy(old, 0, encoding, pad, old.length);
          }
 
-         Cipher cipher = Cipher.getInstance("Blowfish");
+         Cipher cipher = Cipher.getInstance("RSA");
          cipher.init(Cipher.DECRYPT_MODE, key);
          byte[] decode = cipher.doFinal(encoding);
 
@@ -172,9 +172,9 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
       @Override
       public String encode(String secret) throws Exception {
-         SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
+         SecretKeySpec key = new SecretKeySpec(internalKey, "RSA");
 
-         Cipher cipher = Cipher.getInstance("Blowfish");
+         Cipher cipher = Cipher.getInstance("RSA");
          cipher.init(Cipher.ENCRYPT_MODE, key);
          byte[] encoding = cipher.doFinal(secret.getBytes());
          BigInteger n = new BigInteger(encoding);
