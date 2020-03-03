@@ -110,7 +110,7 @@ size of `n` elements, then the `n + 1`th id stored will overwrite the
 
 The maximum size of the cache is configured by the parameter
 `id-cache-size` in `broker.xml`, the default value is
-`2000` elements.
+`20000` elements.
 
 The caches can also be configured to persist to disk or not. This is
 configured by the parameter `persist-id-cache`, also in
